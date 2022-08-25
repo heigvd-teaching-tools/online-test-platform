@@ -6,12 +6,15 @@ const codeContent = `
     console.log(Sum(444, 137));
 `;
 
-// docker run --privileged --name sandbox-docker docker:dind
+// 
     
 export default async function handler(req, res) {
     let runUniqId = `${uniqid()}`;
 
     /*
+        Run the docker sandbox dind ("Docker in Docker")
+        docker run --privileged --name sandbox-docker docker:dind
+
         Copy sandbox environement docker files to the sandbox docker
         docker cp ./sandbox sandbox-docker:/
     */ 

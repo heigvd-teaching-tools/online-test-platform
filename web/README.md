@@ -38,3 +38,16 @@ Database URL in .env
 
 ## Monaco Code Editor
 https://www.npmjs.com/package/@monaco-editor/react
+
+## Sandbox
+
+Run the docker sandbox dind ("Docker in Docker")
+    
+```bash
+    docker run --privileged --name sandbox-docker docker:dind
+```
+
+Copy sandbox environement docker files to the sandbox docker
+```bash
+    docker cp ./sandbox sandbox-docker:/
+```
