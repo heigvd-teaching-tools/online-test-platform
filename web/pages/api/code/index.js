@@ -3,7 +3,7 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 const codeContent = `
     var Sum = (a, b) => a * b;
-    console.log(Sum(444, 137));
+    console.log(Sum(111, 99));
 `;
 
 // 
