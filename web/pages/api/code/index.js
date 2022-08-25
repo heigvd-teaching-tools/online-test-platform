@@ -3,40 +3,59 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 const codeContent = `
     var Sum = (a, b) => a * b;
-    console.log(Sum(12, 17));
+    console.log(Sum(444, 137));
 `;
 
+// docker run --privileged --name sandbox-docker docker:dind
     
 export default async function handler(req, res) {
     let runUniqId = `${uniqid()}`;
 
-    fs.writeFile(`sandbox/runs/run-${runUniqId}.js`, codeContent, function(err) {
+    /*
+        Copy sandbox environement docker files to the sandbox docker
+        docker cp ./sandbox sandbox-docker:/
+    */ 
+    
+    // prepare the file to execute
+    fs.writeFile(`sandbox/node/runs/run-${runUniqId}.js`, codeContent, function(err) {
         if(err) {
             res.status(500).send(err);
             return console.log(err);
         }
-        exec(`docker build -q ./sandbox --build-arg "file_name=run-${runUniqId}.js" --tag sandbox:img-${runUniqId}`, function (error, imageId, stderr) {
-            if(error) {
+        // copy the file to the sandbox docker
+        exec(`docker cp ./sandbox/node/runs/run-${runUniqId}.js sandbox-docker:/sandbox/node/runs`, function (error, imageId, stderr) {
+            if (error) {
                 res.status(500).send(error);
                 return console.log(error);
             }
-            exec(`docker run ${imageId}`, function (error, result, stderr) {
+            // build an image of the environement including the file to execute
+            exec(`docker exec sandbox-docker docker build -q ./sandbox/node --build-arg "file_name=run-${runUniqId}.js" --tag sandbox:img-${runUniqId}`, function (error, imageId, stderr) {
                 if(error) {
                     res.status(500).send(error);
                     return console.log(error);
                 }
-                exec(`docker container prune -f`, function(){
-                    exec(`docker rmi ${imageId}`);
-                   //exec(`docker image prune -f`);
-                })
-                fs.unlink(`sandbox/runs/run-${runUniqId}.js`, function(err) {
-                    if(err) {
-                        console.log(err);
+                // run the image in sandbox docker
+                exec(`docker exec sandbox-docker docker run ${imageId}`, function (error, result, stderr) {
+                    if(error) {
+                        res.status(500).send(error);
+                        return console.log(error);
                     }
+                    // cleanup the container and images from the sandbox docker
+                    exec(`docker exec sandbox-docker docker container prune -f`, function(){
+                        exec(`docker exec sandbox-docker docker rmi ${imageId}`);
+                    })
+                    // remove the run file from the sandbox docker
+                    exec(`docker exec sandbox-docker rm -rf ./sandbox/node/runs/run-${runUniqId}.js`);
+                    // remove the local run file
+                    fs.unlink(`sandbox/node/runs/run-${runUniqId}.js`, function(err) {
+                        if(err) {
+                            console.log(err);
+                        }
+                    });
+                    res.status(200).send(result);
+                   // exec('docker rm -f sandbox:${runUniqId}');
                 });
-                res.status(200).send(result);
-               // exec('docker rm -f sandbox:${runUniqId}');
             });
-        });
+        });  
     });
 }
