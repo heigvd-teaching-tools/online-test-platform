@@ -47,13 +47,13 @@ Run the docker sandbox dind ("Docker in Docker")
     docker run --privileged --name sandbox-docker docker:dind
 ```
 
+Copy sandbox environement docker files to the sandbox docker
+```bash
+    docker cp ./sandbox sandbox-docker:/
+```
+
 Run interactive shell in the sandbox
     
 ```bash
     docker exec -it sandbox-docker /bin/sh
-```
-
-Copy sandbox environement docker files to the sandbox docker
-```bash
-    docker cp ./sandbox sandbox-docker:/
 ```
