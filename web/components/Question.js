@@ -16,7 +16,7 @@ const Question = ({ index, question, onChange }) => {
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(0);
     const { value:content, setValue:setContent, bind:bindContent } = useInput('');
 
-    const [ questionType, setQuestionType ] = useState('multiple-choice');
+    const [ questionType, setQuestionType ] = useState('MULTIPLE_CHOICE');
     const [ typeSpecific, setTypeSpecific ] = useState({});
 
     useEffect(() => {
@@ -24,7 +24,6 @@ const Question = ({ index, question, onChange }) => {
             setPoints(question.points);
             setContent(question.content);
             setQuestionType(question.type);
-            setTypeSpecific(question.typeSpecific);
             onChange(index, { ...question, status: 'changed' });
         }
     } , [question, setPoints, setContent, setQuestionType, setTypeSpecific, onChange, index]);
@@ -33,7 +32,7 @@ const Question = ({ index, question, onChange }) => {
 
     useEffect(() => {
         if(dataChanged){
-            onChange(index, { ...question, content, points, type: questionType, "type-specific": typeSpecific});
+            onChange(index, { ...question, content, points, type: questionType, typeSpecific: typeSpecific});
             setDataChanged(false);
         }
     }, [dataChanged, setDataChanged, onChange, index, question, content, points, questionType, typeSpecific]);
@@ -55,7 +54,7 @@ const Question = ({ index, question, onChange }) => {
             <CardContent>
                 <Row>
                     <Column flexGrow={1}>
-                        <Typography variant="h6">Q{index}</Typography>
+                        <Typography variant="h6">Q{index + 1}</Typography>
                     </Column>
                     <Column>
                         <DropDown id="question" name="Type" defaultValue={questionType} minWidth="160px" onChange={handleQuestionTypeChange}>
@@ -102,19 +101,19 @@ const Question = ({ index, question, onChange }) => {
 
 const questionTypes = [
     {
-        value: 'multiple-choice',
+        value: 'MULTIPLE_CHOICE',
         label: 'Multiple Choice'
     },
     {
-        value: 'true-false',
+        value: 'TRUE_FALSE',
         label: 'True False'
     },
     {
-        value: 'essay',
+        value: 'ESSAY',
         label: 'Essay'
     },
     {
-        value: 'code',
+        value: 'CODE',
         label: 'Code'
     }
 ];

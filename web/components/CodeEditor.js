@@ -44,7 +44,6 @@ const CodeEditor = ({ onChange }) => {
         });
     }
 
-
     return (
         <Card variant="outlined" sx={{ flexGrow:1, pt:3, pr:2, pb:2 }}>
             <Editor
@@ -52,6 +51,7 @@ const CodeEditor = ({ onChange }) => {
                 defaultLanguage="javascript"
                 defaultValue={code}
                 onChange={onCodeChange}
+                onMount={(editor) => onCodeChange(editor.getValue())}
             />
             <CardActions sx={{ pl:2 }}>
                 <Stack direction="row" justifyContent="space-between" align="center" width="100%">
@@ -87,8 +87,7 @@ const HelloWorld = (a,b) => {
 console.log(HelloWorld(45,87));
 `;
 
-const defaultCodeAsync = `
-// some comment
+const defaultCodeAsync = `// some comment
 (async () => {
     const response = await fetch("https://api.deezer.com/chart/0/playlists?limit=5");
     const data = await response.json();

@@ -6,12 +6,12 @@ import Question from '../../components/Question';
 import { useInput } from '../../utils/useInput';
 
 const defaultQuestion = {
-    'type'      : 'multiple-choice',
+    'type'      : 'MULTIPLE_CHOICE',
     'status'    : 'initial',
     'notified'  : true,
     'points'    : 4,
     'content'   : '',
-    'type-specific': {}
+    'typeSpecific': {}
 }
 
 const NewExam = () => {
@@ -20,7 +20,11 @@ const NewExam = () => {
     const { value:label, bind:bindLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription } = useInput('');
     const { value:numberOfQuestions, bind:bindNumberOfQuestions, setError:setErrorNumberOfQuestions } = useInput(0);
-    const [ questions, setQuestions ] = useState([defaultQuestion]);
+    const [ questions, setQuestions ] = useState([]);
+
+    useEffect(() => {
+        setQuestions(Array.from({ length: numberOfQuestions }, (v, k) => ({ ...defaultQuestion, index: k })));
+    }, [setQuestions, numberOfQuestions]);
 
     useEffect(() => {
         console.log("questions", questions);
@@ -53,6 +57,21 @@ const NewExam = () => {
         setActiveStep(activeStep - 1);
     }
 
+    const handleSave = async () => {
+        await fetch('/api/exams', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                label,
+                description,
+                questions
+            })
+        });
+    };
+
     const onQuestionChange = useCallback((index, question) => {
         let newQuestions = [...questions];
         newQuestions[index] = question;
@@ -60,17 +79,13 @@ const NewExam = () => {
     }, [setQuestions, questions]);
 
     return (
-    <Stack sx={{ minWidth:'800px' }} spacing={6}>
+    <Stack sx={{ minWidth:'800px' }} spacing={2}>
+        <Stack direction="row" justifyContent="space-between">
+            <Button onClick={handleBack} disabled={activeStep === 0}>Back</Button>
+            { activeStep <=  2 && <Button onClick={handleNext}>Next</Button> }
+            { activeStep === 3 && <Button onClick={handleNext} variant="contained" color="primary">Save</Button> }
+        </Stack>
         <Stepper activeStep={activeStep} orientation="vertical">
-        <Step key="write-questions2">
-                <StepLabel>Write all the questions</StepLabel>
-                <StepContent>
-                    {questions && questions.length > 0 && questions.map((question, index) =>
-                        <Question key={index} index={index} question={question} onChange={onQuestionChange} />
-                    )}
-                </StepContent>
-
-            </Step>
             <Step key="general">
                 <StepLabel>General informations</StepLabel>
                 <StepContent>
@@ -112,17 +127,18 @@ const NewExam = () => {
             <Step key="write-questions">
                 <StepLabel>Write all the questions</StepLabel>
                 <StepContent>
-                    <Stack direction="row" spacing={2} pt={2}>
-                        
+                    <Stack spacing={2} pt={2}>
+                    {questions && questions.length > 0 && questions.map((question, index) =>
+                        <Question key={index} index={index} question={question} onChange={onQuestionChange} />
+                    )}
                     </Stack>
                 </StepContent>
-
             </Step>
         </Stepper>      
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={handleBack} disabled={activeStep === 0}>Back</Button>
             { activeStep <=  2 && <Button onClick={handleNext}>Next</Button> }
-            { activeStep === 3 && <Button onClick={handleNext} variant="contained" color="primary">Save</Button> }
+            { activeStep === 3 && <Button onClick={handleSave} variant="contained" color="primary">Save</Button> }
         </Stack>
     </Stack>
     )

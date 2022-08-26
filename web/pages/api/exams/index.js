@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, QuestionType } from '@prisma/client';
 import { hasRole } from '../../../utils/auth';
 
 const prisma = new PrismaClient();
@@ -32,14 +32,30 @@ const get = async (res) => {
     res.status(200).json(exams);
 }
 
+
+
 const post = async (req, res) => {
-    const { title, description } = req.body;
+    const { label, description, questions } = req.body;
+    console.log(label, description, questions);
     const exam = await prisma.exam.create({
         data: {
-            title,
-            description
+            label,
+            description,
+            questions: {
+                create: questions.map(question => ({
+                    content: question.content,
+                    type: "CODE",
+                    points: parseInt(question.points),
+                    questionCode: {
+                        create: {
+                            code: question.typeSpecific.code
+                        }
+                    }
+                }))
+            }
         }
     });
+                    
     res.status(200).json(exam);
 }
 
