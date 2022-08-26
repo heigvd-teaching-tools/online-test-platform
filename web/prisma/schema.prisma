@@ -84,7 +84,7 @@ model Exam {
 model Question {
   id        String       @id @default(cuid())
   type      QuestionType
-  question  String
+  content   String
   points    Int          @default(4)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
@@ -130,6 +130,7 @@ model Essay {
 model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
+  code       String
 }
 
 model ExamSession {

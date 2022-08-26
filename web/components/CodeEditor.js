@@ -6,22 +6,23 @@ import Editor from "@monaco-editor/react";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({}) => {
-    const editorRef = useRef(null);
+const CodeEditor = ({ onChange }) => {
 
     const [ codeRunning, setCodeRunning ] = useState(false);
+    const [ code, setCode ] = useState(defaultCode);
     const [ result, setResult ] = useState('');
-    const [expanded, setExpanded] = useState(false);
-    const handleEditorDidMount = (editor, monaco) => {
-        editorRef.current = editor;
-    }
+    const [ expanded, setExpanded ] = useState(false);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
 
+    const onCodeChange = (code) => {
+        setCode(code);
+        onChange(code);
+    }
+
     const runCode =  () => {
-        let code = editorRef.current.getValue();
         setCodeRunning(true);
         fetch('/api/code', { 
             method: 'POST', 
@@ -49,13 +50,8 @@ const CodeEditor = ({}) => {
             <Editor
                 height="350px"
                 defaultLanguage="javascript"
-                defaultValue={`// some comment
-const HelloWorld = (a,b) => {
-    return a * b;                  
-}                            
-console.log(HelloWorld(45,87));
-                `}
-                onMount={handleEditorDidMount}
+                defaultValue={code}
+                onChange={onCodeChange}
             />
             <CardActions sx={{ pl:2 }}>
                 <Stack direction="row" justifyContent="space-between" align="center" width="100%">
@@ -83,5 +79,22 @@ console.log(HelloWorld(45,87));
     )
     
 }
+
+const defaultCode = `// some comment
+const HelloWorld = (a,b) => {
+    return a * b;
+}
+console.log(HelloWorld(45,87));
+`;
+
+const defaultCodeAsync = `
+// some comment
+(async ()=>{
+    const response = await fetch("https://api.deezer.com/chart/0/playlists?limit=5");
+    const data = await response.json();
+    console.log(data.data);
+})();
+`;
+
 
 export default CodeEditor;

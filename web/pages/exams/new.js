@@ -1,110 +1,29 @@
-import { useState, useRef } from 'react';
-import { TextField, Stack, Typography, Button } from "@mui/material";
+import { useEffect, useState, useCallback  } from 'react';
+import { TextField, Stack, Button } from "@mui/material";
 import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
-import { Card, CardContent, CardActionArea, CardActions } from "@mui/material";
-import { Select, InputLabel, FilledInput, MenuItem, FormControl } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
 
-import Row from '../../components/layout/Row';
-import Column from '../../components/layout/Column';
-import CodeEditor from '../../components/CodeEditor';
-
+import Question from '../../components/Question';
 import { useInput } from '../../utils/useInput';
 
-
-
-
-const DropDown = ({children, id, name, defaultValue, minWidth = '120px', size = 1, onChange}) => {
-    const [value, setValue] = useState(defaultValue || '');
-    const handleChange = (event) => {
-        setValue(event.target.value);
-        onChange(event.target.value);
-    }
-    return (
-        <FormControl sx={{ flexGrow:1, minWidth }} variant="filled" margin="none">
-            <InputLabel id={`label-${id}`}>
-                <Typography variant="body1">{name}</Typography>
-            </InputLabel>
-            <Select
-                labelId={`label-${id}`}
-                id={id}
-                autoWidth
-                onChange={handleChange}
-                value={value}
-                MenuProps={{ variant: 'selectedMenu'}}
-                sx={{padding:0}} 
-            >
-                {children}
-            </Select>
-        </FormControl>
-    )
+const defaultQuestion = {
+    'type'      : 'multiple-choice',
+    'status'    : 'initial',
+    'points'    : 4,
+    'content'   : '',
+    'type-specific': {}
 }
-
-const Question = () => {
-    
-
-    const handleQuestionTypeChange = (value) => {
-        console.log("handleQuestionTypeChange", value);
-    }
-    const { value:points, bind:bindPoints } = useInput(4);
-    const { value:question, bind:bindQuestion } = useInput('');
-
-    return (
-        <Card variant="outlined" sx={{ flexGrow: 1 }}>
-            <CardContent>
-                <Row>
-                    <Column>
-                        <DropDown id="question" name="Question Type" defaultValue="code" minWidth="160px" onChange={handleQuestionTypeChange}>
-                            {questionTypes.map(({value, label}) => 
-                                <MenuItem key={value} value={value}>
-                                    <Typography variant="caption">{label}</Typography>
-                                </MenuItem>
-                                )}
-                        </DropDown>
-                    </Column>
-                    <Column>
-                        <TextField
-                            sx={{width:60}}
-                            id="outlined-points"
-                            label="Points"
-                            type="number"
-                            variant="filled"
-                            value={points}
-                            {...bindPoints}
-                        />
-                    </Column>
-                </Row>
-                <Row>
-                    <Column flexGrow={1}>
-                        <TextField
-                            label="Question"
-                            id="question-content"
-                            fullWidth
-                            multiline
-                            rows={4}
-                            value={question}
-                            {...bindQuestion}
-                        />
-                    </Column>
-                </Row>
-                <Row>
-                    <CodeEditor />
-                </Row>
-                <CardActions>
-                    <Button size="small" variant="contained">Save</Button>
-                </CardActions>
-            </CardContent>
-        </Card>
-    )
-}
-
-
 
 const NewExam = () => {
-    const [activeStep, setActiveStep] = useState(0);
+    const [ activeStep, setActiveStep ] = useState(0);
+    
     const { value:label, bind:bindLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription } = useInput('');
-    const { value:questions, bind:bindQuestions, setError:setErrorQuestions } = useInput(0);
+    const { value:numberOfQuestions, bind:bindNumberOfQuestions, setError:setErrorNumberOfQuestions } = useInput(0);
+    const [ questions, setQuestions ] = useState([defaultQuestion]);
+
+    useEffect(() => {
+        console.log("questions", questions);
+    }, [questions]);
 
     const inputControl = (step) => {
         switch(step){
@@ -114,10 +33,10 @@ const NewExam = () => {
                 }
                 return label.length > 0;
             case 1:
-                if(questions <= 0){
-                    setErrorQuestions({ error: true, helperText: 'You must specify at least one question' });
+                if(numberOfQuestions <= 0){
+                    setErrorNumberOfQuestions({ error: true, helperText: 'You must specify at least one question' });
                 }
-                return questions > 0;
+                return numberOfQuestions > 0;
             default:
                 return true;
         }
@@ -133,15 +52,22 @@ const NewExam = () => {
         setActiveStep(activeStep - 1);
     }
 
+    const onQuestionChange = useCallback((index, question) => {
+        console.log("onQuestionChange", index, question);
+        let newQuestions = [...questions];
+        newQuestions[index] = question;
+        setQuestions(newQuestions);
+    }, [setQuestions, questions]);
+
     return (
     <Stack sx={{ minWidth:'800px' }} spacing={6}>
         <Stepper activeStep={activeStep} orientation="vertical">
         <Step key="write-questions2">
                 <StepLabel>Write all the questions</StepLabel>
                 <StepContent>
-                    
-                        <Question />
-                    
+                    {questions && questions.length > 0 && questions.map((question, index) =>
+                        <Question key={index} index={index} question={question} onChange={onQuestionChange} />
+                    )}
                 </StepContent>
 
             </Step>
@@ -177,8 +103,8 @@ const NewExam = () => {
                             label="Number of questions"
                             type="number"
                             fullWidth
-                            value={questions}
-                            {...bindQuestions}
+                            value={numberOfQuestions}
+                            {...bindNumberOfQuestions}
                         />
                     </Stack>
                 </StepContent>
@@ -187,7 +113,7 @@ const NewExam = () => {
                 <StepLabel>Write all the questions</StepLabel>
                 <StepContent>
                     <Stack direction="row" spacing={2} pt={2}>
-                        <Question />
+                        
                     </Stack>
                 </StepContent>
 
@@ -203,25 +129,6 @@ const NewExam = () => {
 }
 
 
-const questionTypes = [
-    {
-        value: 'multiple-choice',
-        label: 'Multiple Choice'
-    },
-    {
-        value: 'true-false',
-        label: 'True False'
-    },
-    {
-        value: 'essay',
-        label: 'Essay'
-    },
-    {
-        value: 'code',
-        label: 'Code'
-    }
-
-]
 
 
 export default NewExam;
