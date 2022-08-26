@@ -5,7 +5,7 @@ import fs from "fs";
 
 const codeContent = `
     var Sum = (a, b) => a * b;
-    console.log(Sum(12, 34));
+    console.log(Sum(23, 78));
 `;
 
 //  tar zcvf dockerfile.tar.gz .
@@ -31,10 +31,22 @@ export default async function handler(req, res) {
                     maxContentLength: Infinity,
                     maxBodyLength: Infinity
                 })
-                .then((response) => {
+                .then(async () => {
                     
-                    console.log("response", response.data.stream);
-                    res.status(200).send(response.data);
+                    let { data: { Id: containerId }} = await axios.post(`http://localhost:2375/containers/create?name=run-${runUniqId}`, { Image: `sandbox:img-${runUniqId}` });
+
+                    await axios.post(`http://localhost:2375/containers/${containerId}/start`);
+
+                    let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stdout=1&follow=1&tail=0`);
+                    
+                    fs.rmSync(`sandbox/runs/node/${runUniqId}`, { recursive: true, force: true });
+
+                    await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
+                    await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
+
+                    res.status(200).send(logData.substring(8, logData.length - 1));
+                    
+                   
                 })
                 .catch(error => {
                     console.error(error);
@@ -42,12 +54,8 @@ export default async function handler(req, res) {
                     return;
                 });
             });
-
-
         });
     });
-
-    
 }
     /*
 async function handler2(req, res) {

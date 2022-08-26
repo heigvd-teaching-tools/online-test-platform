@@ -1,3 +1,3 @@
 
     var Sum = (a, b) => a * b;
-    console.log(Sum(111, 99));
+    console.log(Sum(23, 78));
