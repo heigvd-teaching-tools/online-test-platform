@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Card, Collapse , CardContent, CardActions, IconButton, Typography } from "@mui/material";
+import { Card, Collapse , CardContent, CardActions, IconButton, TextField, Stack } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
 
@@ -45,30 +45,39 @@ const CodeEditor = ({}) => {
 
 
     return (
-        <Card variant="outlined" sx={{ flexGrow:1, pt:2, pr:2, pb:2 }}>
+        <Card variant="outlined" sx={{ flexGrow:1, pt:3, pr:2, pb:2 }}>
             <Editor
                 height="350px"
                 defaultLanguage="javascript"
                 defaultValue={`// some comment
-const HelloWorld = () => {
-                    
+const HelloWorld = (a,b) => {
+    return a * b;                  
 }                            
-export default HelloWorld;
+console.log(HelloWorld(45,87));
                 `}
                 onMount={handleEditorDidMount}
             />
             <CardActions sx={{ pl:2 }}>
-                <LoadingButton size="small" loading={codeRunning} onClick={runCode}>Run Code</LoadingButton>
-                <IconButton onClick={handleExpandClick}>
-                    {expanded ? <ExpandLess /> : <ExpandMore />}
-                </IconButton>
+                <Stack direction="row" justifyContent="space-between" align="center" width="100%">
+                    <LoadingButton size="small" loading={codeRunning} onClick={runCode}>Run</LoadingButton>
+                    <IconButton onClick={handleExpandClick}>
+                        {expanded ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
+                </Stack>
             </CardActions>
             <Collapse in={expanded} timeout="auto" unmountOnExit sx={{ pl:2 }}>
-                <Card raised>
-                    <CardContent>
-                        <Typography variant="body1" paragraph>{result}</Typography>
-                    </CardContent>
-                </Card>
+                <TextField
+                    label="Result"
+                    id="result-display"
+                    fullWidth
+                    multiline
+                    rows={10}
+                    value={result}
+                    variant="filled"
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
             </Collapse>
         </Card>
     )

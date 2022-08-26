@@ -38,12 +38,12 @@ const runSandbox = (codeContent) => {
 
                         await axios.post(`http://localhost:2375/containers/${containerId}/start`);
 
-                        let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stdout=1&follow=1&tail=0`);
+                        let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stderr=1&stdout=1&follow=1&tail=0`);
                         
                         await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
                         await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
 
-                        resolve(logData.substring(8, logData.length - 1));                       
+                        resolve(logData.substring(8, logData.length - 1).toString('utf-8'));                       
                     })
                     .catch(({message}) => {
                         reject(message);
