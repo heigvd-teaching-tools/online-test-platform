@@ -3,7 +3,7 @@ FROM node
 ARG file_name
 ENV FILE_TO_RUN=$file_name
 
-COPY ./runs/$file ./ 
+COPY ./$file ./ 
 COPY entrypoint.sh /
 RUN chmod 755 /entrypoint.sh
 

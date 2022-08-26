@@ -1,14 +1,56 @@
-var uniqid = require('uniqid'); 
-var fs = require('fs');
-var exec = require('child_process').exec;
+import axios from "axios";
+import tar from "tar";
+import uniqid from "uniqid"; 
+import fs from "fs";
+
 const codeContent = `
     var Sum = (a, b) => a * b;
-    console.log(Sum(111, 99));
+    console.log(Sum(12, 34));
 `;
 
-// 
-    
+//  tar zcvf dockerfile.tar.gz .
+
 export default async function handler(req, res) {
+    let runUniqId = uniqid();
+    // prepare the file to execute
+    fs.mkdirSync(`sandbox/runs/node/${runUniqId}`);
+    fs.mkdirSync(`sandbox/runs/node/${runUniqId}/image`);
+
+    fs.writeFileSync(`sandbox/runs/node/${runUniqId}/image/run.js`, codeContent);
+       
+    fs.copyFile(`sandbox/environements/node/Dockerfile`, `sandbox/runs/node/${runUniqId}/image/Dockerfile`, async function(err) {
+        fs.copyFile(`sandbox/environements/node/entrypoint.sh`, `sandbox/runs/node/${runUniqId}/image/entrypoint.sh`, async function(err) {
+            tar.c({ gzip: true, cwd: `sandbox/runs/node/${runUniqId}/image` }, ["./"])
+            .pipe(fs.createWriteStream(`sandbox/runs/node/${runUniqId}/image.tar.gz`))
+            .on("finish", async () => {
+                let contentFromFile = fs.readFileSync(`sandbox/runs/node/${runUniqId}/image.tar.gz`);
+                await axios({
+                    method: 'post',
+                    url: `http://localhost:2375/build?q=true&t=sandbox:img-${runUniqId}&buildargs={"file_name":"run.js"}`,
+                    data: contentFromFile,
+                    maxContentLength: Infinity,
+                    maxBodyLength: Infinity
+                })
+                .then((response) => {
+                    
+                    console.log("response", response.data.stream);
+                    res.status(200).send(response.data);
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.status(500).send(error);
+                    return;
+                });
+            });
+
+
+        });
+    });
+
+    
+}
+    /*
+async function handler2(req, res) {
     let runUniqId = `${uniqid()}`;
 
     /*
@@ -17,20 +59,15 @@ export default async function handler(req, res) {
 
         Copy sandbox environement docker files to the sandbox docker
         docker cp ./sandbox sandbox-docker:/
-    */ 
+    
     
     // prepare the file to execute
     fs.writeFile(`sandbox/node/runs/run-${runUniqId}.js`, codeContent, function(err) {
-        if(err) {
-            res.status(500).send(err);
-            return console.log(err);
-        }
-        // copy the file to the sandbox docker
-        exec(`docker cp ./sandbox/node/runs/run-${runUniqId}.js sandbox-docker:/sandbox/node/runs`, function (error, imageId, stderr) {
-            if (error) {
-                res.status(500).send(error);
-                return console.log(error);
+            if(err) {
+                res.status(500).send(err);
+                return console.log(err);
             }
+        
             // build an image of the environement including the file to execute
             exec(`docker exec sandbox-docker docker build -q ./sandbox/node --build-arg "file_name=run-${runUniqId}.js" --tag sandbox:img-${runUniqId}`, function (error, imageId, stderr) {
                 if(error) {
@@ -59,6 +96,8 @@ export default async function handler(req, res) {
                    // exec('docker rm -f sandbox:${runUniqId}');
                 });
             });
-        });  
+       
     });
 }
+
+*/
