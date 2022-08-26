@@ -9,39 +9,38 @@ import DropDown from './input/DropDown';
 
 import { useInput } from '../utils/useInput';
 
-const Question = ({ index, question:initial, onChange }) => {
-
-    const [ question, setQuestion ] = useState({ points: 4, content: '', type: 'multiple-choice', typeSpecific: {}, status: 'initial' });
+const Question = ({ index, question, onChange }) => {
     
-    const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
-    const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
+    const [ dataChanged, setDataChanged ] = useState(false);
 
-    const [ questionType, setQuestionType ] = useState(question.type);
+    const { value:points, setValue:setPoints, bind:bindPoints } = useInput(0);
+    const { value:content, setValue:setContent, bind:bindContent } = useInput('');
+
+    const [ questionType, setQuestionType ] = useState('multiple-choice');
     const [ typeSpecific, setTypeSpecific ] = useState({});
 
     useEffect(() => {
-        if(initial && initial.status === 'initial'){
-            setQuestion(initial);
-            onChange(index, { ...initial, status: 'draft' });
+        if(question.status === 'initial'){
+            setPoints(question.points);
+            setContent(question.content);
+            setQuestionType(question.type);
+            setTypeSpecific(question.typeSpecific);
+            onChange(index, { ...question, status: 'changed' });
         }
-    }, [initial, onChange, index, setQuestion]);
+    } , [question, setPoints, setContent, setQuestionType, setTypeSpecific, onChange, index]);
 
-    useEffect(() => {   
-        if(question.status !== 'initial'){
-            onChange(index, question);
-        }
-    } , [onChange, index, question]);
+    useEffect(() => setDataChanged(true), [ points, content, questionType, typeSpecific, setDataChanged]);
 
     useEffect(() => {
-        setQuestion({ 
-            points,
-            content,
-            type: questionType,
-            typeSpecific: typeSpecific,
-            status: 'draft'
-
-        });
-    } , [points, content, questionType, typeSpecific, setQuestion]);
+        if(dataChanged){
+            onChange(index, { 
+                ...question,
+                content, 
+                status:'changed' 
+            });
+            setDataChanged(false);
+        }
+    }, [dataChanged, setDataChanged, onChange, index, question, content]);
 
    
     const handleQuestionTypeChange = (questionType) => {

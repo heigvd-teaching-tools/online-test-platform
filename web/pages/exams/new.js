@@ -8,6 +8,7 @@ import { useInput } from '../../utils/useInput';
 const defaultQuestion = {
     'type'      : 'multiple-choice',
     'status'    : 'initial',
+    'notified'  : true,
     'points'    : 4,
     'content'   : '',
     'type-specific': {}
@@ -53,10 +54,15 @@ const NewExam = () => {
     }
 
     const onQuestionChange = useCallback((index, question) => {
-        console.log("onQuestionChange", index, question);
-        let newQuestions = [...questions];
-        newQuestions[index] = question;
-        setQuestions(newQuestions);
+        if(question.status === 'changed'){
+            let newQuestions = [...questions];
+            newQuestions[index] = {
+                ...question,
+                status: 'draft'
+            };
+            console.log("onQuestionChange", newQuestions);
+            setQuestions(newQuestions);
+        }
     }, [setQuestions, questions]);
 
     return (
