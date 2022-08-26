@@ -5,56 +5,65 @@ import fs from "fs";
 
 const codeContent = `
     var Sum = (a, b) => a * b;
-    console.log(Sum(23, 78));
+    console.log(Sum(12, 78));
 `;
 
 //  tar zcvf dockerfile.tar.gz .
 
-export default async function handler(req, res) {
-    let runUniqId = uniqid();
-    // prepare the file to execute
-    fs.mkdirSync(`sandbox/runs/node/${runUniqId}`);
-    fs.mkdirSync(`sandbox/runs/node/${runUniqId}/image`);
+const runSandbox = (codeContent) => {
+    return new Promise((resolve, reject) => {
+        let runUniqId = uniqid();
+        // prepare the file to execute
+        fs.mkdirSync(`sandbox/runs/node/${runUniqId}`);
+        fs.mkdirSync(`sandbox/runs/node/${runUniqId}/image`);
 
-    fs.writeFileSync(`sandbox/runs/node/${runUniqId}/image/run.js`, codeContent);
-       
-    fs.copyFile(`sandbox/environements/node/Dockerfile`, `sandbox/runs/node/${runUniqId}/image/Dockerfile`, async function(err) {
-        fs.copyFile(`sandbox/environements/node/entrypoint.sh`, `sandbox/runs/node/${runUniqId}/image/entrypoint.sh`, async function(err) {
-            tar.c({ gzip: true, cwd: `sandbox/runs/node/${runUniqId}/image` }, ["./"])
-            .pipe(fs.createWriteStream(`sandbox/runs/node/${runUniqId}/image.tar.gz`))
-            .on("finish", async () => {
-                let contentFromFile = fs.readFileSync(`sandbox/runs/node/${runUniqId}/image.tar.gz`);
-                await axios({
-                    method: 'post',
-                    url: `http://localhost:2375/build?q=true&t=sandbox:img-${runUniqId}&buildargs={"file_name":"run.js"}`,
-                    data: contentFromFile,
-                    maxContentLength: Infinity,
-                    maxBodyLength: Infinity
-                })
-                .then(async () => {
-                    
-                    let { data: { Id: containerId }} = await axios.post(`http://localhost:2375/containers/create?name=run-${runUniqId}`, { Image: `sandbox:img-${runUniqId}` });
+        fs.writeFileSync(`sandbox/runs/node/${runUniqId}/image/run.js`, codeContent);
+        
+        fs.copyFile(`sandbox/environements/node/Dockerfile`, `sandbox/runs/node/${runUniqId}/image/Dockerfile`, async function(err) {
+            fs.copyFile(`sandbox/environements/node/entrypoint.sh`, `sandbox/runs/node/${runUniqId}/image/entrypoint.sh`, async function(err) {
+                tar.c({ gzip: true, cwd: `sandbox/runs/node/${runUniqId}/image` }, ["./"])
+                .pipe(fs.createWriteStream(`sandbox/runs/node/${runUniqId}/image.tar.gz`))
+                .on("finish", async () => {
+                    let contentFromFile = fs.readFileSync(`sandbox/runs/node/${runUniqId}/image.tar.gz`);
+                    await axios({
+                        method: 'post',
+                        url: `http://localhost:2375/build?q=true&t=sandbox:img-${runUniqId}&buildargs={"file_name":"run.js"}`,
+                        data: contentFromFile,
+                        maxContentLength: Infinity,
+                        maxBodyLength: Infinity
+                    })
+                    .then(async () => {
+                        
+                        let { data: { Id: containerId }} = await axios.post(`http://localhost:2375/containers/create?name=run-${runUniqId}`, { Image: `sandbox:img-${runUniqId}` });
 
-                    await axios.post(`http://localhost:2375/containers/${containerId}/start`);
+                        await axios.post(`http://localhost:2375/containers/${containerId}/start`);
 
-                    let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stdout=1&follow=1&tail=0`);
-                    
-                    fs.rmSync(`sandbox/runs/node/${runUniqId}`, { recursive: true, force: true });
+                        let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stdout=1&follow=1&tail=0`);
+                        
+                        fs.rmSync(`sandbox/runs/node/${runUniqId}`, { recursive: true, force: true });
 
-                    await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
-                    await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
+                        await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
+                        await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
 
-                    res.status(200).send(logData.substring(8, logData.length - 1));
-                    
-                   
-                })
-                .catch(error => {
-                    console.error(error);
-                    res.status(500).send(error);
-                    return;
+                        resolve(logData.substring(8, logData.length - 1));                       
+                    })
+                    .catch(error => {
+                        reject(error);
+                        return;
+                    });
                 });
             });
         });
+    });
+}
+
+export default async function handler(req, res) {
+    await runSandbox(codeContent).then((reponse) => {
+        res.status(200).send(reponse);
+    }).catch(error => {
+        console.error(error);
+        res.status(500).send(error);
+        return;
     });
 }
     /*
