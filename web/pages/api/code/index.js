@@ -42,8 +42,7 @@ const runSandbox = (codeContent) => {
                         
                         await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
                         await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
-
-                        resolve(logData.substring(8, logData.length - 1).toString('utf-8'));                       
+                        resolve(logData.substring(8, logData.length - 1).replaceAll(/\n.{8}/g, "\n"));
                     })
                     .catch(({message}) => {
                         reject(message);

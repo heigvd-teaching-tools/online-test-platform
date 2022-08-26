@@ -9,7 +9,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 const CodeEditor = ({ onChange }) => {
 
     const [ codeRunning, setCodeRunning ] = useState(false);
-    const [ code, setCode ] = useState(defaultCode);
+    const [ code, setCode ] = useState(defaultCodeAsync);
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
 
@@ -89,7 +89,7 @@ console.log(HelloWorld(45,87));
 
 const defaultCodeAsync = `
 // some comment
-(async ()=>{
+(async () => {
     const response = await fetch("https://api.deezer.com/chart/0/playlists?limit=5");
     const data = await response.json();
     console.log(data.data);
