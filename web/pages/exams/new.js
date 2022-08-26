@@ -54,15 +54,9 @@ const NewExam = () => {
     }
 
     const onQuestionChange = useCallback((index, question) => {
-        if(question.status === 'changed'){
-            let newQuestions = [...questions];
-            newQuestions[index] = {
-                ...question,
-                status: 'draft'
-            };
-            console.log("onQuestionChange", newQuestions);
-            setQuestions(newQuestions);
-        }
+        let newQuestions = [...questions];
+        newQuestions[index] = question;
+        setQuestions(newQuestions);
     }, [setQuestions, questions]);
 
     return (

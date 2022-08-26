@@ -33,14 +33,10 @@ const Question = ({ index, question, onChange }) => {
 
     useEffect(() => {
         if(dataChanged){
-            onChange(index, { 
-                ...question,
-                content, 
-                status:'changed' 
-            });
+            onChange(index, { ...question, content, points, type: questionType, "type-specific": typeSpecific});
             setDataChanged(false);
         }
-    }, [dataChanged, setDataChanged, onChange, index, question, content]);
+    }, [dataChanged, setDataChanged, onChange, index, question, content, points, questionType, typeSpecific]);
 
    
     const handleQuestionTypeChange = (questionType) => {
