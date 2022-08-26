@@ -40,17 +40,17 @@ const runSandbox = (codeContent) => {
 
                         let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stdout=1&follow=1&tail=0`);
                         
-                        fs.rmSync(`sandbox/runs/node/${runUniqId}`, { recursive: true, force: true });
-
                         await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
                         await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
 
                         resolve(logData.substring(8, logData.length - 1));                       
                     })
-                    .catch(error => {
-                        reject(error);
+                    .catch(({message}) => {
+                        reject(message);
                         return;
                     });
+
+                    fs.rmSync(`sandbox/runs/node/${runUniqId}`, { recursive: true, force: true });
                 });
             });
         });
@@ -58,7 +58,10 @@ const runSandbox = (codeContent) => {
 }
 
 export default async function handler(req, res) {
-    await runSandbox(codeContent).then((reponse) => {
+
+    let { code } = req.body;
+
+    await runSandbox(code).then((reponse) => {
         res.status(200).send(reponse);
     }).catch(error => {
         console.error(error);

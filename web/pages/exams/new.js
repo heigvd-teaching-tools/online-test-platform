@@ -1,33 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { TextField, Stack, Typography, Button } from "@mui/material";
 import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
 import { Card, CardContent, CardActionArea, CardActions } from "@mui/material";
 import { Select, InputLabel, FilledInput, MenuItem, FormControl } from "@mui/material";
+import { LoadingButton } from '@mui/lab';
+
 import Row from '../../components/layout/Row';
 import Column from '../../components/layout/Column';
+import CodeEditor from '../../components/CodeEditor';
+
 import { useInput } from '../../utils/useInput';
 
-import Editor from "@monaco-editor/react";
 
-const questionTypes = [
-    {
-        value: 'multiple-choice',
-        label: 'Multiple Choice'
-    },
-    {
-        value: 'true-false',
-        label: 'True False'
-    },
-    {
-        value: 'essay',
-        label: 'Essay'
-    },
-    {
-        value: 'code',
-        label: 'Code'
-    }
 
-]
 
 const DropDown = ({children, id, name, defaultValue, minWidth = '120px', size = 1, onChange}) => {
     const [value, setValue] = useState(defaultValue || '');
@@ -56,11 +41,14 @@ const DropDown = ({children, id, name, defaultValue, minWidth = '120px', size = 
 }
 
 const Question = () => {
+    
+
     const handleQuestionTypeChange = (value) => {
         console.log("handleQuestionTypeChange", value);
     }
     const { value:points, bind:bindPoints } = useInput(4);
     const { value:question, bind:bindQuestion } = useInput('');
+
     return (
         <Card variant="outlined" sx={{ flexGrow: 1 }}>
             <CardContent>
@@ -100,22 +88,7 @@ const Question = () => {
                     </Column>
                 </Row>
                 <Row>
-                <Card variant="outlined" sx={{ flexGrow:1, p:2}}>
-                        <Editor
-                            height="350px"
-                            defaultLanguage="javascript"
-                            theme='vs-dark'
-                            defaultValue={`// some comment
-    const HelloWorld = () => {
-                                
-    }                            
-    export default HelloWorld;
-                            `}
-                        />
-                        <CardActions>
-                            <Button size="small">Run Code</Button>
-                        </CardActions>
-                </Card>
+                    <CodeEditor />
                 </Row>
                 <CardActions>
                     <Button size="small" variant="contained">Save</Button>
@@ -228,6 +201,27 @@ const NewExam = () => {
     </Stack>
     )
 }
+
+
+const questionTypes = [
+    {
+        value: 'multiple-choice',
+        label: 'Multiple Choice'
+    },
+    {
+        value: 'true-false',
+        label: 'True False'
+    },
+    {
+        value: 'essay',
+        label: 'Essay'
+    },
+    {
+        value: 'code',
+        label: 'Code'
+    }
+
+]
 
 
 export default NewExam;
