@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack } from '@mui/material';
@@ -7,7 +6,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
 
 import { useSession, signOut, signIn } from 'next-auth/react';
-
+import LoadingAnimation from './LoadingAnimation';
 
 const Main = ({children}) => {
     const { data: session, status } = useSession();
@@ -70,11 +69,6 @@ const MainMenu = () => {
         </Tabs>
     )
 }
-
-const LoadingAnimation = () => 
-    <Box sx={{ display:'flex', width:'100vw', height: '100vh', alignItems:"center", justifyContent: "center" }} >
-        <Image alt="Loading..." src="/loading.svg" layout="fixed" width="200px" height="200px" priority="1" />
-    </Box>;
 
 const ContextMenu = ({anchorElUser, handleCloseUserMenu }) =>  
     <Menu

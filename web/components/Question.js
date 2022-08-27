@@ -19,8 +19,8 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(0);
     const { value:content, setValue:setContent, bind:bindContent } = useInput('');
 
-    const [ questionType, setQuestionType ] = useState('MULTIPLE_CHOICE');
-    const [ typeSpecific, setTypeSpecific ] = useState({ });
+    const [ questionType, setQuestionType ] = useState('');
+    const [ typeSpecific, setTypeSpecific ] = useState();
 
     useEffect(() => {
         if(question.status === 'initial'){
@@ -28,10 +28,18 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
             setPoints(question.points);
             setContent(question.content);
             setQuestionType(question.type);
-            setTypeSpecific(question.typeSpecific);
+            setTypeSpecific(question.questionCode || {}); // TODO do whats necessary
             onChange(index, { ...question, status: 'changed' });
         }
     } , [question, setPoints, setContent, setQuestionType, setTypeSpecific, onChange, index]);
+
+    useEffect(() => {
+        console.log("Question Type", index, questionType);
+    }, [index, questionType]);
+
+    useEffect(() => {
+        console.log("Question typeSpecific", index, typeSpecific);
+    }, [index, typeSpecific]);
 
     useEffect(() => setDataChanged(true), [ points, content, questionType, typeSpecific, setDataChanged]);
 
@@ -109,7 +117,12 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
                     </Column>
                 </Row>
                 <Row>
-                    <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} />
+                    { typeSpecific && questionType.length > 0 && (
+                        ( questionType === 'MULTIPLE_CHOICE' && <Typography >Multiple Choice</Typography> )
+                        ||
+                        ( questionType === 'CODE' && <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} /> )
+                    )}
+                    
                 </Row>
             </CardContent>
         </Card>

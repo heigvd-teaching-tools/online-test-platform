@@ -19,8 +19,6 @@ const handler = async (req, res) => {
             break;
         default:
     }
-
-    
 }
 
 const get = async (res) => {
@@ -32,27 +30,12 @@ const get = async (res) => {
     res.status(200).json(exams);
 }
 
-
-
 const post = async (req, res) => {
-    const { label, description, questions } = req.body;
-    console.log(label, description, questions);
+    const { label, description } = req.body;
     const exam = await prisma.exam.create({
         data: {
             label,
-            description,
-            questions: {
-                create: questions.map(question => ({
-                    content: question.content,
-                    type: "CODE",
-                    points: parseInt(question.points),
-                    questionCode: {
-                        create: {
-                            code: question.typeSpecific.code
-                        }
-                    }
-                }))
-            }
+            description
         }
     });
                     

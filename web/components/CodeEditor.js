@@ -7,7 +7,6 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
 const CodeEditor = ({ value, onChange }) => {
-
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState('');
     const [ result, setResult ] = useState('');
@@ -51,7 +50,6 @@ const CodeEditor = ({ value, onChange }) => {
                 defaultLanguage="javascript"
                 value={code}
                 onChange={onCodeChange}
-                onMount={() => onCodeChange(defaultCodeAsync)}
                 saveViewState={false}
             />
             
