@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Grid, Stack, TextField, Box, InputAdornment, Checkbox, IconButton, ToggleButton, Fab, Button  } from "@mui/material"
+import {  Grid, Stack, TextField, IconButton, ToggleButton, Button  } from "@mui/material"
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
@@ -11,7 +11,6 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
     const [options, setOptions] = useState();
 
     useEffect(() => {
-
         setOptions(initial && initial.length >= 2 ? initial : [
             {
                 text: 'Option 1',
