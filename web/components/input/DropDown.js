@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Select, InputLabel, FormControl, Typography } from "@mui/material";
 
 
@@ -8,6 +8,9 @@ const DropDown = ({children, id, name, defaultValue, minWidth = '120px', onChang
         setValue(event.target.value);
         onChange(event.target.value);
     }
+    useEffect(() => {
+        setValue(defaultValue);
+    } , [defaultValue]);
     return (
         <FormControl sx={{ flexGrow:1, minWidth }} variant="filled" margin="none">
             <InputLabel id={`label-${id}`}>

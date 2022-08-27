@@ -11,7 +11,7 @@ const defaultQuestion = {
     'notified'  : true,
     'points'    : 4,
     'content'   : '',
-    'typeSpecific': {}
+    'typeSpecific': { }
 }
 
 const NewExam = () => {
@@ -23,12 +23,12 @@ const NewExam = () => {
     const [ questions, setQuestions ] = useState([]);
 
     useEffect(() => {
-        setQuestions(Array.from({ length: numberOfQuestions }, (v, k) => ({ ...defaultQuestion, index: k })));
-    }, [setQuestions, numberOfQuestions]);
-
-    useEffect(() => {
-        console.log("questions", questions);
-    }, [questions]);
+        if(numberOfQuestions < questions.length){
+            setQuestions(questions.splice(0, numberOfQuestions));
+        }else if(numberOfQuestions > questions.length){
+            setQuestions([...questions, ...Array.from({ length: numberOfQuestions - questions.length }, (v, k) => ({ ...defaultQuestion, index: k }))]);
+        }
+    }, [setQuestions, numberOfQuestions, questions]);
 
     const inputControl = (step) => {
         switch(step){
@@ -78,6 +78,34 @@ const NewExam = () => {
         setQuestions(newQuestions);
     }, [setQuestions, questions]);
 
+    const handleQuestionUp = useCallback((index) => {
+        if(index === 0) return;
+        let newQuestions = [ ...questions ];
+
+        let current = questions[index];
+        let previous = questions[index - 1];
+        
+        current.status = 'initial';
+        previous.status = 'initial';
+
+        newQuestions[index] = previous;
+        newQuestions[index - 1] = current;
+        setQuestions(newQuestions);
+    } , [setQuestions, questions]);
+
+    const handleQuestionDown = useCallback((index) => {
+        if(index === questions.length - 1) return;
+        let newQuestions = [ ...questions ];
+        let current = questions[index];
+        let next = questions[index + 1];
+        current.status = 'initial';
+        next.status = 'initial';
+
+        newQuestions[index] = next;
+        newQuestions[index + 1] = current;
+        setQuestions([...newQuestions]);
+    } , [setQuestions, questions]);
+
     return (
     <Stack sx={{ minWidth:'800px' }} spacing={2}>
         <Stack direction="row" justifyContent="space-between">
@@ -109,10 +137,11 @@ const NewExam = () => {
                     </Stack>
                 </StepContent>
             </Step>
-            <Step key="number-of-questions">
-                <StepLabel>Number of questions</StepLabel>
+            
+            <Step key="write-questions">
+                <StepLabel>Write questions</StepLabel>
                 <StepContent>
-                    <Stack direction="row" spacing={2} pt={2}>
+                <Stack direction="row" spacing={2} pt={2}>
                         <TextField
                             id="outlined-number"
                             label="Number of questions"
@@ -122,14 +151,17 @@ const NewExam = () => {
                             {...bindNumberOfQuestions}
                         />
                     </Stack>
-                </StepContent>
-            </Step>
-            <Step key="write-questions">
-                <StepLabel>Write all the questions</StepLabel>
-                <StepContent>
                     <Stack spacing={2} pt={2}>
                     {questions && questions.length > 0 && questions.map((question, index) =>
-                        <Question key={index} index={index} question={question} onChange={onQuestionChange} />
+                    
+                        <Question 
+                            key={index} 
+                            index={index} 
+                            question={question} 
+                            onChange={onQuestionChange} 
+                            clickUp={handleQuestionUp}
+                            clickDown={handleQuestionDown}
+                        />
                     )}
                     </Stack>
                 </StepContent>
@@ -137,8 +169,8 @@ const NewExam = () => {
         </Stepper>      
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={handleBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep <=  2 && <Button onClick={handleNext}>Next</Button> }
-            { activeStep === 3 && <Button onClick={handleSave} variant="contained" color="primary">Save</Button> }
+            { activeStep <=  1 && <Button onClick={handleNext}>Next</Button> }
+            { activeStep === 2 && <Button onClick={handleSave} variant="contained" color="primary">Save</Button> }
         </Stack>
     </Stack>
     )

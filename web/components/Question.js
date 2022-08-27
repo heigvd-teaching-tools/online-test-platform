@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 
-import { Card, CardContent, CardActions, Typography, MenuItem, TextField, Button } from "@mui/material";
+import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton } from "@mui/material";
+
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import Row from './layout/Row';
 import Column from './layout/Column';
@@ -9,7 +12,7 @@ import DropDown from './input/DropDown';
 
 import { useInput } from '../utils/useInput';
 
-const Question = ({ index, question, onChange }) => {
+const Question = ({ index, question, onChange, clickUp, clickDown }) => {
     
     const [ dataChanged, setDataChanged ] = useState(false);
 
@@ -17,13 +20,15 @@ const Question = ({ index, question, onChange }) => {
     const { value:content, setValue:setContent, bind:bindContent } = useInput('');
 
     const [ questionType, setQuestionType ] = useState('MULTIPLE_CHOICE');
-    const [ typeSpecific, setTypeSpecific ] = useState({});
+    const [ typeSpecific, setTypeSpecific ] = useState({ });
 
     useEffect(() => {
         if(question.status === 'initial'){
+            console.log("Question", index, question);
             setPoints(question.points);
             setContent(question.content);
             setQuestionType(question.type);
+            setTypeSpecific(question.typeSpecific);
             onChange(index, { ...question, status: 'changed' });
         }
     } , [question, setPoints, setContent, setQuestionType, setTypeSpecific, onChange, index]);
@@ -76,6 +81,19 @@ const Question = ({ index, question, onChange }) => {
                             {...bindPoints}
                         />
                     </Column>
+                    <Column>
+                        <Stack>
+                            
+                            <IconButton size="small" onClick={() => clickUp(index)}>
+                                <ArrowDropUpIcon />
+                            </IconButton>
+                            
+                            
+                            <IconButton size="small" onClick={() => clickDown(index)}>
+                                <ArrowDropDownIcon />
+                            </IconButton>
+                        </Stack>
+                    </Column>
                 </Row>
                 <Row>
                     <Column flexGrow={1}>
@@ -91,12 +109,14 @@ const Question = ({ index, question, onChange }) => {
                     </Column>
                 </Row>
                 <Row>
-                    <CodeEditor onChange={(code) => onTypeSpecificChange(code)} />
+                    <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} />
                 </Row>
             </CardContent>
         </Card>
     )
 }
+
+
 
 
 const questionTypes = [

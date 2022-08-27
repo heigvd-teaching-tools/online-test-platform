@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, Collapse , CardContent, CardActions, IconButton, TextField, Stack } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
@@ -6,18 +6,21 @@ import Editor from "@monaco-editor/react";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ onChange }) => {
+const CodeEditor = ({ value, onChange }) => {
 
     const [ codeRunning, setCodeRunning ] = useState(false);
-    const [ code, setCode ] = useState(defaultCodeAsync);
+    const [ code, setCode ] = useState('');
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
+
+    useEffect(() => setCode(value), [value, code]);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
 
     const onCodeChange = (code) => {
+        console.log("CodeEditor onCodeChange", code);
         setCode(code);
         onChange(code);
     }
@@ -31,16 +34,13 @@ const CodeEditor = ({ onChange }) => {
         })
         .then(res => res.text())
         .then(data => {
-            console.log("result", data);
             setCodeRunning(false);
             setResult(data);
             setExpanded(true);
         }).catch(err => {
-            console.log(err);
             setResult(err.message);
             setCodeRunning(false);
             setExpanded(true);
-
         });
     }
 
@@ -49,10 +49,12 @@ const CodeEditor = ({ onChange }) => {
             <Editor
                 height="350px"
                 defaultLanguage="javascript"
-                defaultValue={code}
+                value={code}
                 onChange={onCodeChange}
-                onMount={(editor) => onCodeChange(editor.getValue())}
+                onMount={() => onCodeChange(defaultCodeAsync)}
+                saveViewState={false}
             />
+            
             <CardActions sx={{ pl:2 }}>
                 <Stack direction="row" justifyContent="space-between" align="center" width="100%">
                     <LoadingButton size="small" loading={codeRunning} onClick={runCode}>Run</LoadingButton>
@@ -79,6 +81,7 @@ const CodeEditor = ({ onChange }) => {
     )
     
 }
+
 
 const defaultCode = `// some comment
 const HelloWorld = (a,b) => {
