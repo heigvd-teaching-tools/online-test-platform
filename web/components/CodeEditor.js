@@ -6,7 +6,7 @@ import Editor from "@monaco-editor/react";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ value, onChange }) => {
+const CodeEditor = ({ content:value, onChange }) => {
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(value);
     const [ result, setResult ] = useState('');
@@ -17,7 +17,6 @@ const CodeEditor = ({ value, onChange }) => {
     };
 
     const onCodeChange = (code) => {
-        console.log("CodeEditor onCodeChange", code);
         setCode(code);
         onChange(code);
     }

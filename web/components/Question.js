@@ -21,40 +21,44 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
     const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
 
     const [ questionType, setQuestionType ] = useState(question.type);
-    const [ typeSpecific, setTypeSpecific ] = useState(
-        question.multipleChoice || question.trueFalse || question.essay || question.code
-    );
+    const [ typeSpecific, setTypeSpecific ] = useState();
+
+    useEffect(() => {
+        if(questionType){
+            let newTypeSpecific = question[questionType] || question.typeSpecific;
+            
+          //  setTypeSpecific(question[questionType] || question.typeSpecific);
+        }
+    }, [questionType, setTypeSpecific, question]);
 
     useEffect(() => {
         setPoints(question.points);
         setContent(question.content);
         setQuestionType(question.type);
-        setTypeSpecific(
-            question.type === 'multipleChoice' ? question.multipleChoice : 
-            question.type === 'trueFalse' ? question.trueFalse :
-            question.type === 'essay' ? question.essay :
-            question.type === 'code' ? question.code : {}
-        );
+        //console.log("newTypeSpecific", question.type, question);
+        setTypeSpecific(question[question.type] || question.typeSpecific[question.type]);
     }, [question, setPoints, setContent, setQuestionType, setTypeSpecific]);
     
-    useEffect(() => setDataChanged(true), [ points, content, questionType, typeSpecific, setDataChanged]);
+    useEffect(() => setDataChanged(true), [ points, content, questionType, typeSpecific, setDataChanged ]);
 
     useEffect(() => {
         if(dataChanged){
-            onChange(index, { ...question, content, points, type: questionType, [question.type]: typeSpecific });
+            let newQuestion = { ...question, content, points, type: questionType };
+            if(question.type === questionType){
+                newQuestion.typeSpecific = { ...question.typeSpecific, [questionType]: typeSpecific };
+            }
+            onChange(index, newQuestion);
+            console.log("newQuestion", newQuestion);
             setDataChanged(false);
         }
     }, [dataChanged, setDataChanged, onChange, index, question, content, points, questionType, typeSpecific]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
         setQuestionType(newQuestionType);
-        if(questionType !== newQuestionType){
-            setTypeSpecific({});
-        }
     }
     
     const onTypeSpecificChange = (content) => {
-        setTypeSpecific({code:content});
+        setTypeSpecific(content);
     }
 
     return (
@@ -115,9 +119,9 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
                 <Row>
                     <Column flexGrow={1}>
                     {(
-                        ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} options={typeSpecific.options} />) 
+                        ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} content={question.typeSpecific.multipleChoice} />) 
                         ||
-                        ( questionType === 'code' && <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} /> )
+                        ( questionType === 'code' && <CodeEditor content={question.typeSpecific.code} onChange={onTypeSpecificChange} /> )
                     )}
                     </Column>
                 </Row>

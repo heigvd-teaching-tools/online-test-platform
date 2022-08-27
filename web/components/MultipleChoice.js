@@ -6,24 +6,18 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
-const MuiltipleChoice = ({options:initial}) => {
+const MuiltipleChoice = ({content:initial, onChange}) => {
 
-    const [options, setOptions] = useState(initial);
-
-    useEffect(() => {
-        if(!options || options.length < 2){
-            setOptions([
-                {
-                    text: 'Option 1',
-                    isCorrect: true
-                },
-                {
-                    text: 'Option 2',
-                    isCorrect: false
-                }
-            ]);
+    const [options, setOptions] = useState(initial && initial.length >= 2 ? initial : [
+        {
+            text: 'Option 1',
+            isCorrect: true
+        },
+        {
+            text: 'Option 2',
+            isCorrect: false
         }
-    }, [options, setOptions]);
+    ]);
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">
@@ -31,7 +25,7 @@ const MuiltipleChoice = ({options:initial}) => {
                 Add Option
             </Button>
             <Grid container display="grid" rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
-                {options && options.map((option, index) =>
+                {options && options.length > 0 && options.map((option, index) =>
                     <Grid item key={index}>
                         <Stack direction="row" spacing={1}>
                             <ToggleButton
@@ -42,6 +36,7 @@ const MuiltipleChoice = ({options:initial}) => {
                                         const newOptions = [...options];
                                         newOptions[index].isCorrect = !newOptions[index].isCorrect;
                                         setOptions(newOptions);
+                                        onChange(newOptions);
                                     } }
                                 >
                                    { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
@@ -56,12 +51,14 @@ const MuiltipleChoice = ({options:initial}) => {
                                         const newOptions = [...options];
                                         newOptions[index].text = e.target.value;
                                         setOptions(newOptions);
+                                        onChange(newOptions);
                                     } }
                                 />
                                 <IconButton variant="small" onClick={() => {
                                     let newOptions = [...options];
                                     newOptions.splice(index, 1);
                                     setOptions(newOptions);
+                                    onChange(newOptions);
                                 } }>
                                     <DeleteIcon />
                                 </IconButton>

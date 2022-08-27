@@ -158,7 +158,14 @@ const defaultQuestion = {
     'type'      : 'multipleChoice',
     'points'    : 4,
     'content'   : '',
-    'multipleChoice': { }
+    'typeSpecific': {
+        'code'      : '',
+        'trueFalse' : {},
+        'multipleChoice': {
+            'options': []
+        },
+        'essay': '',
+    }
 }
 
 
