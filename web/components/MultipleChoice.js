@@ -7,17 +7,22 @@ import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
 const MuiltipleChoice = ({content:initial, onChange}) => {
+    
+    const [options, setOptions] = useState();
 
-    const [options, setOptions] = useState(initial && initial.length >= 2 ? initial : [
-        {
-            text: 'Option 1',
-            isCorrect: true
-        },
-        {
-            text: 'Option 2',
-            isCorrect: false
-        }
-    ]);
+    useEffect(() => {
+
+        setOptions(initial && initial.length >= 2 ? initial : [
+            {
+                text: 'Option 1',
+                isCorrect: true
+            },
+            {
+                text: 'Option 2',
+                isCorrect: false
+            }
+        ]);
+    }, [initial]);
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">
