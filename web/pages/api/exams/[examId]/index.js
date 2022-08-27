@@ -31,10 +31,10 @@ const get = async (req, res) => {
         include: {
             questions: {
                 include: {
-                    questionCode: true,
-                    questionMultipleChoice: true,
-                    questionTrueFalse: true,
-                    questionEssay: true,
+                    code: { select: { code: true } },
+                    multipleChoice: { select: { options: true } },
+                    trueFalse: true,
+                    essay: true,
                 }
             }
         }
@@ -56,12 +56,10 @@ const post = async (req, res) => {
                 deleteMany: {},
                 create: questions.map(question => ({
                     content: question.content,
-                    type: "CODE",
+                    type: question.type,
                     points: parseInt(question.points),
-                    questionCode: {
-                        create: {
-                            code: question.typeSpecific.code
-                        }
+                    [question.type]: {
+                        create: question[question.type]
                     }
                 }))
             }

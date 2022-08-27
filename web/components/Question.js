@@ -8,6 +8,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Row from './layout/Row';
 import Column from './layout/Column';
 import CodeEditor from './CodeEditor';
+import MultipleChoice from './MultipleChoice';
 import DropDown from './input/DropDown';
 
 import { useInput } from '../utils/useInput';
@@ -16,44 +17,33 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
     
     const [ dataChanged, setDataChanged ] = useState(false);
 
-    const { value:points, setValue:setPoints, bind:bindPoints } = useInput(0);
-    const { value:content, setValue:setContent, bind:bindContent } = useInput('');
+    const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
+    const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
 
-    const [ questionType, setQuestionType ] = useState('');
-    const [ typeSpecific, setTypeSpecific ] = useState();
-
-    useEffect(() => {
-        if(question.status === 'initial'){
-            console.log("Question", index, question);
-            setPoints(question.points);
-            setContent(question.content);
-            setQuestionType(question.type);
-            setTypeSpecific(question.questionCode || {}); // TODO do whats necessary
-            onChange(index, { ...question, status: 'changed' });
-        }
-    } , [question, setPoints, setContent, setQuestionType, setTypeSpecific, onChange, index]);
+    const [ questionType, setQuestionType ] = useState(question.type);
+    const [ typeSpecific, setTypeSpecific ] = useState(
+        question.multipleChoice || question.trueFalse || question.essay || question.code
+    );
 
     useEffect(() => {
-        console.log("Question Type", index, questionType);
-    }, [index, questionType]);
-
-    useEffect(() => {
-        console.log("Question typeSpecific", index, typeSpecific);
-    }, [index, typeSpecific]);
-
+        setPoints(question.points);
+        setContent(question.content);
+        setQuestionType(question.type);
+        setTypeSpecific(
+            question.multipleChoice || question.trueFalse || question.essay || question.code
+        );
+    }, [question, setPoints, setContent, setQuestionType, setTypeSpecific]);
+    
     useEffect(() => setDataChanged(true), [ points, content, questionType, typeSpecific, setDataChanged]);
 
     useEffect(() => {
         if(dataChanged){
-            onChange(index, { ...question, content, points, type: questionType, typeSpecific: typeSpecific});
+            onChange(index, { ...question, content, points, type: questionType, [question.type]: typeSpecific });
             setDataChanged(false);
         }
     }, [dataChanged, setDataChanged, onChange, index, question, content, points, questionType, typeSpecific]);
 
-   
-    const handleQuestionTypeChange = (questionType) => {
-        setQuestionType(questionType);
-    }
+    const handleQuestionTypeChange = (questionType) => setQuestionType(questionType);
     
     const onTypeSpecificChange = (code) => {
         setTypeSpecific({
@@ -117,10 +107,10 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
                     </Column>
                 </Row>
                 <Row>
-                    { typeSpecific && questionType.length > 0 && (
-                        ( questionType === 'MULTIPLE_CHOICE' && <Typography >Multiple Choice</Typography> )
+                    { typeSpecific && (
+                        ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} options={typeSpecific.options} />) 
                         ||
-                        ( questionType === 'CODE' && <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} /> )
+                        ( questionType === 'code' && <CodeEditor value={typeSpecific[questionType]} onChange={(code) => onTypeSpecificChange(code)} /> )
                     )}
                     
                 </Row>
@@ -134,19 +124,19 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
 
 const questionTypes = [
     {
-        value: 'MULTIPLE_CHOICE',
+        value: 'multipleChoice',
         label: 'Multiple Choice'
     },
     {
-        value: 'TRUE_FALSE',
+        value: 'trueFalse',
         label: 'True False'
     },
     {
-        value: 'ESSAY',
+        value: 'essay',
         label: 'Essay'
     },
     {
-        value: 'CODE',
+        value: 'code',
         label: 'Code'
     }
 ];

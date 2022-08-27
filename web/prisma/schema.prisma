@@ -64,10 +64,10 @@ model VerificationToken {
 }
 
 enum QuestionType {
-  MULTIPLE_CHOICE
-  TRUE_FALSE
-  ESSAY
-  CODE
+  multipleChoice
+  trueFalse
+  essay
+  code
 }
 
 model Exam {
@@ -92,10 +92,10 @@ model Question {
   exam   Exam? @relation(fields: [examId], references: [id])
   examId String?
 
-  questionMultipleChoice MultipleChoice?
-  questionTrueFalse      TrueFalse?
-  questionEssay          Essay?
-  questionCode           Code?
+  multipleChoice MultipleChoice?
+  trueFalse      TrueFalse?
+  essay          Essay?
+  code           Code?
 
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id])
   examSessionId String?

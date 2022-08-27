@@ -7,6 +7,7 @@ import { useInput } from '../../utils/useInput';
 import Question from '../../components/Question';
 
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
+import QuestionList from '../../components/QuestionList';
 
 const UpdateExam = () => {
     const { query: { id }} = useRouter();
@@ -28,12 +29,9 @@ const UpdateExam = () => {
             setLabel(exam.label);
             setDescription(exam.description);
             setNumberOfQuestions(exam.questions.length);
-            setQuestions(exam.questions.map((question) => ({
-                ...question,
-                status:'initial'
-            })));
+            setQuestions(exam.questions);
         }
-    }, [exam, setLabel, setDescription, setNumberOfQuestions, setQuestions]);
+    }, [exam, setLabel, setDescription, setNumberOfQuestions]);
 
     useEffect(() => {
         if(numberOfQuestions < questions.length){
@@ -85,39 +83,7 @@ const UpdateExam = () => {
         });
     };
 
-    const onQuestionChange = useCallback((index, question) => {
-        let newQuestions = [...questions];
-        newQuestions[index] = question;
-        setQuestions(newQuestions);
-    }, [setQuestions, questions]);
-
-    const handleQuestionUp = useCallback((index) => {
-        if(index === 0) return;
-        let newQuestions = [ ...questions ];
-
-        let current = questions[index];
-        let previous = questions[index - 1];
-        
-        current.status = 'initial';
-        previous.status = 'initial';
-
-        newQuestions[index] = previous;
-        newQuestions[index - 1] = current;
-        setQuestions(newQuestions);
-    } , [setQuestions, questions]);
-
-    const handleQuestionDown = useCallback((index) => {
-        if(index === questions.length - 1) return;
-        let newQuestions = [ ...questions ];
-        let current = questions[index];
-        let next = questions[index + 1];
-        current.status = 'initial';
-        next.status = 'initial';
-
-        newQuestions[index] = next;
-        newQuestions[index + 1] = current;
-        setQuestions([...newQuestions]);
-    } , [setQuestions, questions]);
+    
 
     
     if (error) return <div>failed to load</div>
@@ -166,19 +132,7 @@ const UpdateExam = () => {
                                 {...bindNumberOfQuestions}
                             />
                         </Stack>
-                        <Stack spacing={2} pt={2}>
-                        {questions && questions.length > 0 && questions.map((question, index) =>
-                        
-                            <Question 
-                                key={index} 
-                                index={index} 
-                                question={question} 
-                                onChange={onQuestionChange} 
-                                clickUp={handleQuestionUp}
-                                clickDown={handleQuestionDown}
-                            />
-                        )}
-                        </Stack>
+                        <QuestionList questions={questions} setQuestions={setQuestions} />
                     </StepContent>
                 </Step>
             </Stepper>      
@@ -201,11 +155,10 @@ const StepNav = ({ activeStep, onBack, onNext, onSave }) => {
 }
 
 const defaultQuestion = {
-    'type'      : 'MULTIPLE_CHOICE',
-    'status'    : 'initial',
+    'type'      : 'multipleChoice',
     'points'    : 4,
     'content'   : '',
-    'questionMultipleChoice': { }
+    'multipleChoice': { }
 }
 
 
