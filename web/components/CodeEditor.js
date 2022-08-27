@@ -8,11 +8,10 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 
 const CodeEditor = ({ value, onChange }) => {
     const [ codeRunning, setCodeRunning ] = useState(false);
-    const [ code, setCode ] = useState('');
+    const [ code, setCode ] = useState(value);
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
 
-    useEffect(() => setCode(value), [value, code]);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);

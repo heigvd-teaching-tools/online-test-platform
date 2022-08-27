@@ -29,8 +29,12 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
         setPoints(question.points);
         setContent(question.content);
         setQuestionType(question.type);
+        console.log("Question useEffect", question.type, question.code );
         setTypeSpecific(
-            question.multipleChoice || question.trueFalse || question.essay || question.code
+            question.type === 'multipleChoice' ? question.multipleChoice : 
+            question.type === 'trueFalse' ? question.trueFalse :
+            question.type === 'essay' ? question.essay :
+            question.type === 'code' ? question.code : {}
         );
     }, [question, setPoints, setContent, setQuestionType, setTypeSpecific]);
     
@@ -38,17 +42,21 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
 
     useEffect(() => {
         if(dataChanged){
+            console.log("Question changed 2: ", question.type, typeSpecific);
             onChange(index, { ...question, content, points, type: questionType, [question.type]: typeSpecific });
             setDataChanged(false);
         }
     }, [dataChanged, setDataChanged, onChange, index, question, content, points, questionType, typeSpecific]);
 
-    const handleQuestionTypeChange = (questionType) => setQuestionType(questionType);
+    const handleQuestionTypeChange = (newQuestionType) => {
+        setQuestionType(newQuestionType);
+        if(questionType !== newQuestionType){
+            setTypeSpecific({});
+        }
+    }
     
-    const onTypeSpecificChange = (code) => {
-        setTypeSpecific({
-            code
-        });
+    const onTypeSpecificChange = (content) => {
+        setTypeSpecific({code:content});
     }
 
     return (
@@ -107,10 +115,10 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
                     </Column>
                 </Row>
                 <Row>
-                    { typeSpecific && (
+                    {(
                         ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} options={typeSpecific.options} />) 
                         ||
-                        ( questionType === 'code' && <CodeEditor value={typeSpecific[questionType]} onChange={(code) => onTypeSpecificChange(code)} /> )
+                        ( questionType === 'code' && <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} /> )
                     )}
                     
                 </Row>
