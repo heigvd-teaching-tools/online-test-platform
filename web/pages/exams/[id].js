@@ -125,76 +125,80 @@ const UpdateExam = () => {
 
     return (
         <Stack sx={{ minWidth:'800px' }} spacing={2}>
-            <Stack direction="row" justifyContent="space-between">
-            <Button onClick={handleBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep <=  2 && <Button onClick={handleNext}>Next</Button> }
-            { activeStep === 3 && <Button onClick={handleNext} variant="contained" color="primary">Save</Button> }
-        </Stack>
-        <Stepper activeStep={activeStep} orientation="vertical">
-            <Step key="general">
-                <StepLabel>General informations</StepLabel>
-                <StepContent>
-                    <Stack spacing={2} pt={2}>
-                        <TextField
-                            label="Label"
-                            id="exam-label"
-                            fullWidth
-                            value={label}
-                            {...bindLabel}
-                        />
-                        <TextField
-                            label="Description"
-                            id="exam-desctiption"
-                            fullWidth
-                            multiline
-                            rows={4}
-                            value={description}
-                            {...bindDescription}
-                        />
-                    </Stack>
-                </StepContent>
-            </Step>
+            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
             
-            <Step key="write-questions">
-                <StepLabel>Write questions</StepLabel>
-                <StepContent>
-                <Stack direction="row" spacing={2} pt={2}>
-                        <TextField
-                            id="outlined-number"
-                            label="Number of questions"
-                            type="number"
-                            fullWidth
-                            value={numberOfQuestions}
-                            {...bindNumberOfQuestions}
-                        />
-                    </Stack>
-                    <Stack spacing={2} pt={2}>
-                    {questions && questions.length > 0 && questions.map((question, index) =>
-                    
-                        <Question 
-                            key={index} 
-                            index={index} 
-                            question={question} 
-                            onChange={onQuestionChange} 
-                            clickUp={handleQuestionUp}
-                            clickDown={handleQuestionDown}
-                        />
-                    )}
-                    </Stack>
-                </StepContent>
-            </Step>
-        </Stepper>      
-        <Stack direction="row" justifyContent="space-between">
-            <Button onClick={handleBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep <=  1 && <Button onClick={handleNext}>Next</Button> }
-            { activeStep === 2 && <Button onClick={handleSave} variant="contained" color="primary">Save</Button> }
-        </Stack>
+            <Stepper activeStep={activeStep} orientation="vertical">
+                <Step key="general">
+                    <StepLabel>General informations</StepLabel>
+                    <StepContent>
+                        <Stack spacing={2} pt={2}>
+                            <TextField
+                                label="Label"
+                                id="exam-label"
+                                fullWidth
+                                value={label}
+                                {...bindLabel}
+                            />
+                            <TextField
+                                label="Description"
+                                id="exam-desctiption"
+                                fullWidth
+                                multiline
+                                rows={4}
+                                value={description}
+                                {...bindDescription}
+                            />
+                        </Stack>
+                    </StepContent>
+                </Step>
+                
+                <Step key="write-questions">
+                    <StepLabel>Write questions</StepLabel>
+                    <StepContent>
+                    <Stack direction="row" spacing={2} pt={2}>
+                            <TextField
+                                id="outlined-number"
+                                label="Number of questions"
+                                type="number"
+                                fullWidth
+
+                                value={numberOfQuestions}
+                                {...bindNumberOfQuestions}
+                            />
+                        </Stack>
+                        <Stack spacing={2} pt={2}>
+                        {questions && questions.length > 0 && questions.map((question, index) =>
+                        
+                            <Question 
+                                key={index} 
+                                index={index} 
+                                question={question} 
+                                onChange={onQuestionChange} 
+                                clickUp={handleQuestionUp}
+                                clickDown={handleQuestionDown}
+                            />
+                        )}
+                        </Stack>
+                    </StepContent>
+                </Step>
+            </Stepper>      
+
+            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
 
         </Stack>
 
     )
 }
 
+const StepNav = ({ activeStep, onBack, onNext, onSave }) => {
+    return (
+        <Stack direction="row" justifyContent="space-between">
+            <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
+            { activeStep <=  1 && <Button onClick={onNext}>Next</Button> }
+            { activeStep === 2 && <Button onClick={onSave} variant="contained" color="primary">Save</Button> }
+        </Stack>
+    )
+}
 
 const defaultQuestion = {
     'type'      : 'MULTIPLE_CHOICE',
