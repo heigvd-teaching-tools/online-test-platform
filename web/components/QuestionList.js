@@ -28,7 +28,7 @@ const QuestionList = ({questions, setQuestions}) => {
     } , [setQuestions, questions]);
 
     return (
-        <Stack spacing={2} pt={2}>
+        <Stack spacing={4} pt={2}>
         {questions && questions.map((question, index) =>
             <Question 
                 key={index} 

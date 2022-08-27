@@ -121,7 +121,7 @@ const UpdateExam = () => {
                 <Step key="write-questions">
                     <StepLabel>Write questions</StepLabel>
                     <StepContent>
-                    <Stack direction="row" spacing={2} pt={2}>
+                        <Stack spacing={2} pt={2}>
                             <TextField
                                 id="outlined-number"
                                 label="Number of questions"
@@ -131,8 +131,9 @@ const UpdateExam = () => {
                                 value={numberOfQuestions}
                                 {...bindNumberOfQuestions}
                             />
+                        
+                            <QuestionList questions={questions} setQuestions={setQuestions} />
                         </Stack>
-                        <QuestionList questions={questions} setQuestions={setQuestions} />
                     </StepContent>
                 </Step>
             </Stepper>      

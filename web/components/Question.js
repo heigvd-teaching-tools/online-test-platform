@@ -63,7 +63,7 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
 
     return (
 
-        <Card variant="outlined" sx={{ flexGrow: 1 }}>
+        <Card variant="outlined" sx={{ flexGrow: 1, ':hover': { boxShadow: 5 } }}>
             <CardContent>
                 <Row>
                     <Column flexGrow={1}>
