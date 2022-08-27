@@ -12,7 +12,6 @@ const CodeEditor = ({ value, onChange }) => {
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
 
-
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
@@ -51,7 +50,6 @@ const CodeEditor = ({ value, onChange }) => {
                 onChange={onCodeChange}
                 saveViewState={false}
             />
-            
             <CardActions sx={{ pl:2 }}>
                 <Stack direction="row" justifyContent="space-between" align="center" width="100%">
                     <LoadingButton size="small" loading={codeRunning} onClick={runCode}>Run</LoadingButton>

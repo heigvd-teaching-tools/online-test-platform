@@ -29,7 +29,6 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
         setPoints(question.points);
         setContent(question.content);
         setQuestionType(question.type);
-        console.log("Question useEffect", question.type, question.code );
         setTypeSpecific(
             question.type === 'multipleChoice' ? question.multipleChoice : 
             question.type === 'trueFalse' ? question.trueFalse :
@@ -42,7 +41,6 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
 
     useEffect(() => {
         if(dataChanged){
-            console.log("Question changed 2: ", question.type, typeSpecific);
             onChange(index, { ...question, content, points, type: questionType, [question.type]: typeSpecific });
             setDataChanged(false);
         }
@@ -115,12 +113,13 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
                     </Column>
                 </Row>
                 <Row>
+                    <Column flexGrow={1}>
                     {(
                         ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} options={typeSpecific.options} />) 
                         ||
                         ( questionType === 'code' && <CodeEditor value={typeSpecific.code} onChange={(code) => onTypeSpecificChange(code)} /> )
                     )}
-                    
+                    </Column>
                 </Row>
             </CardContent>
         </Card>

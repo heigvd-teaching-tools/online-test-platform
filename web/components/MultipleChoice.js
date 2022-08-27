@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Card, Grid, Stack, TextField, Box, InputAdornment, Checkbox, IconButton, ToggleButton  } from "@mui/material"
+import { Card, Grid, Stack, TextField, Box, InputAdornment, Checkbox, IconButton, ToggleButton, Fab, Button  } from "@mui/material"
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
+import AddIcon from '@mui/icons-material/Add';
 
 const MuiltipleChoice = ({options:initial}) => {
 
@@ -25,10 +26,14 @@ const MuiltipleChoice = ({options:initial}) => {
     }, [options, setOptions]);
 
     return(
-            <Grid container spacing={2} display="grid" gridTemplateColumns={"repeat(2, 1fr)"}>
+        <Stack direction="column" spacing={1} alignItems="flex-start">
+            <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={() => setOptions([...options, {text: `Option ${options.length + 1}`, isCorrect: false}])}>
+                Add Option
+            </Button>
+            <Grid container display="grid" rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
                 {options && options.map((option, index) =>
-                    <Grid item key={index}  >
-                            <Stack direction="row" spacing={1}>
+                    <Grid item key={index}>
+                        <Stack direction="row" spacing={1}>
                             <ToggleButton
                                     value="correct"
                                     selected={option.isCorrect}
@@ -53,8 +58,6 @@ const MuiltipleChoice = ({options:initial}) => {
                                         setOptions(newOptions);
                                     } }
                                 />
-
-                                
                                 <IconButton onClick={() => {
                                     let newOptions = [...options];
                                     newOptions.splice(index, 1);
@@ -65,9 +68,8 @@ const MuiltipleChoice = ({options:initial}) => {
                         </Stack>
                     </Grid>
                 )}
-                
-                
             </Grid>
+        </Stack>
     )
 }
 
