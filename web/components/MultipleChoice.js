@@ -21,13 +21,20 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">
-            <Button color="primary" startIcon={<AddIcon />} onClick={() => setOptions([...options, {text: `Option ${options.length + 1}`, isCorrect: false}])}>
+            <Button color="primary" startIcon={<AddIcon />} onClick={() => {
+                let newOptions = [...options, {
+                    text: 'Option',
+                    isCorrect: false
+                }];
+                setOptions(newOptions);
+                onChange(newOptions);
+            }}>
                 Add Option
             </Button>
             <Grid container display="grid" rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
                 {options && options.length > 0 && options.map((option, index) =>
                     <Grid item key={index}>
-                        <Stack direction="row" spacing={1}>
+                        <Stack direction="row" justifyContent="space-around">
                             <ToggleButton
                                     value="correct"
                                     selected={option.isCorrect}
@@ -54,7 +61,7 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
                                         onChange(newOptions);
                                     } }
                                 />
-                                <IconButton variant="small" onClick={() => {
+                                <IconButton variant="small" color="error" onClick={() => {
                                     let newOptions = [...options];
                                     newOptions.splice(index, 1);
                                     setOptions(newOptions);
