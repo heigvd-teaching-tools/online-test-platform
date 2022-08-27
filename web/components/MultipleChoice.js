@@ -27,7 +27,7 @@ const MuiltipleChoice = ({options:initial}) => {
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">
-            <Button variant="outlined" color="primary" startIcon={<AddIcon />} onClick={() => setOptions([...options, {text: `Option ${options.length + 1}`, isCorrect: false}])}>
+            <Button color="primary" startIcon={<AddIcon />} onClick={() => setOptions([...options, {text: `Option ${options.length + 1}`, isCorrect: false}])}>
                 Add Option
             </Button>
             <Grid container display="grid" rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
