@@ -101,18 +101,21 @@ fs.readdir("./", (err, files) => {
   files.forEach(file => {
     console.log(file);
   });
-});`;
+});
+`;
 
 const defaultIllegalOperation = `// some comment
 const fs = require('fs');
 const path = require('path');
 
 fs.readdir("./", (err, files) => {
-  if (err) throw err;
+  if (err) console.error(err);
 
   for (const file of files) {
     fs.unlink(path.join("./", file), err => {
-      if (err) throw err;
+      if (err) { 
+          console.error(err);
+      }
     });
   }
 });
