@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Stack } from "@mui/material";
 
 import Question from './Question';

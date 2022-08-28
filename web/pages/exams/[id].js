@@ -25,10 +25,6 @@ const UpdateExam = () => {
     const [ questions, setQuestions ] = useState([]);
 
     useEffect(() => {
-        console.log("[id]", questions);
-    } , [questions]);
-    
-    useEffect(() => {
         if(exam) {
             setLabel(exam.label);
             setDescription(exam.description);
@@ -38,10 +34,9 @@ const UpdateExam = () => {
                 status:'initial', 
                 typeSpecific: {
                     ...defaultQuestion.typeSpecific,
-                    [question.type]: question[question.type][question.type]
+                    [question.type]: question[question.type]
                 }
             }));
-            console.log("exam", examQuestions);
             setQuestions(examQuestions);
         }
     }, [exam, setLabel, setDescription, setNumberOfQuestions]);

@@ -7,7 +7,6 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
 const CodeEditor = ({ content:value, onChange }) => {
-    console.log("CodeEditor", value);
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(value.content);
     const [ result, setResult ] = useState('');

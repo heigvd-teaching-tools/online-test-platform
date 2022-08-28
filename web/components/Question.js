@@ -15,24 +15,20 @@ import { useInput } from '../utils/useInput';
 
 const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
     
-    const [ dataChanged, setDataChanged ] = useState(false);
 
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
     const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
 
     const [ questionType, setQuestionType ] = useState(question.type);
-    const [ typeSpecific, setTypeSpecific ] = useState();
 
     useEffect(() => {
         if(question.status === 'changed'){
             setPoints(question.points);
             setContent(question.content);
             setQuestionType(question.type);
-            //console.log("newTypeSpecific", question.type, question);
-            //setTypeSpecific(question.typeSpecific[question.type]);
             onQuestionChange(index, { status: 'initial', ...question });    
         }
-    }, [question, index, setPoints, setContent, setQuestionType, setTypeSpecific, onQuestionChange]);
+    }, [question, index, setPoints, setContent, setQuestionType, onQuestionChange]);
     
     useEffect(() => {
         onQuestionChange(index, { 
