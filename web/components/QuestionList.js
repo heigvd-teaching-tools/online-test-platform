@@ -7,22 +7,26 @@ const QuestionList = ({questions, setQuestions}) => {
     
     const onQuestionChange = useCallback((index, question) => {
         let newQuestions = [...questions];
-        newQuestions[index] = question;
+        newQuestions[index] = {
+            ...question,
+            status: 'initial'
+        };
         setQuestions(newQuestions);
+        
     }, [setQuestions, questions]);
 
     const handleQuestionUp = useCallback((index) => {
         if(index === 0) return;
-        const prev = questions[index - 1];
-        questions[index - 1] = questions[index];
+        const prev = {  ...questions[index - 1], status: 'changed' };
+        questions[index - 1] = { ...questions[index], status: 'changed' };
         questions[index] = prev;
         setQuestions([...questions]);
     } , [setQuestions, questions]);
 
     const handleQuestionDown = useCallback((index) => {
         if(index === questions.length - 1) return;
-        const next = questions[index + 1];
-        questions[index + 1] = questions[index];
+        const next = { ...questions[index + 1], status: 'changed' };
+        questions[index + 1] = { ...questions[index], status: 'changed' };
         questions[index] = next;
         setQuestions([...questions]);
     } , [setQuestions, questions]);

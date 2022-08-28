@@ -7,8 +7,9 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
 const CodeEditor = ({ content:value, onChange }) => {
+
     const [ codeRunning, setCodeRunning ] = useState(false);
-    const [ code, setCode ] = useState(value);
+    const [ code, setCode ] = useState(value || "");
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
 

@@ -29,7 +29,16 @@ const UpdateExam = () => {
             setLabel(exam.label);
             setDescription(exam.description);
             setNumberOfQuestions(exam.questions.length);
-            setQuestions(exam.questions);
+            let examQuestions = exam.questions.map((question) => ({
+                ...question, 
+                status:'initial', 
+                typeSpecific: {
+                    ...defaultQuestion.typeSpecific,
+                    [question.type]: question[question.type][question.type]
+                }
+            }));
+            console.log("exam", examQuestions);
+            setQuestions(examQuestions);
         }
     }, [exam, setLabel, setDescription, setNumberOfQuestions]);
 
@@ -156,6 +165,7 @@ const StepNav = ({ activeStep, onBack, onNext, onSave }) => {
 }
 
 const defaultQuestion = {
+    'status'    : 'draft',
     'type'      : 'multipleChoice',
     'points'    : 4,
     'content'   : '',

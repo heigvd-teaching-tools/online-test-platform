@@ -42,6 +42,30 @@ const get = async (req, res) => {
     res.status(200).json(exam);
 }
 
+const prepareTypeSpecific = (questionType, {typeSpecific}) => {
+    switch(questionType) {
+        case QuestionType.multipleChoice:
+            return {
+                options: typeSpecific.multipleChoice.options.length > 0 ? typeSpecific.multipleChoice.options : undefined,
+            };
+        case QuestionType.trueFalse:
+            return {
+                trueFalse: typeSpecific.trueFalse
+            }
+        case QuestionType.essay:
+            return {
+                essay: typeSpecific.essay
+            }
+        case QuestionType.code:
+            return {
+                code: typeSpecific.code
+            }
+        default:
+            return undefined;
+    }
+
+}
+
 const post = async (req, res) => {
     const { examId } = req.query
     const { label, description, questions } = req.body;
@@ -59,7 +83,7 @@ const post = async (req, res) => {
                     type: question.type,
                     points: parseInt(question.points),
                     [question.type]: {
-                        create: question[question.type]
+                        create: prepareTypeSpecific(question.type, question)
                     }
                 }))
             }

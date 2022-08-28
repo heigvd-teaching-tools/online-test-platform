@@ -24,34 +24,29 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
     const [ typeSpecific, setTypeSpecific ] = useState();
 
     useEffect(() => {
-        if(questionType){
-            let newTypeSpecific = question[questionType] || question.typeSpecific;
-            
-          //  setTypeSpecific(question[questionType] || question.typeSpecific);
+        if(question.status === 'changed'){
+            setPoints(question.points);
+            setContent(question.content);
+            setQuestionType(question.type);
+            //console.log("newTypeSpecific", question.type, question);
+            setTypeSpecific(question[question.type] || question.typeSpecific[question.type]);
+            onChange(index, { status: 'initial', ...question });    
         }
-    }, [questionType, setTypeSpecific, question]);
-
-    useEffect(() => {
-        setPoints(question.points);
-        setContent(question.content);
-        setQuestionType(question.type);
-        //console.log("newTypeSpecific", question.type, question);
-        setTypeSpecific(question[question.type] || question.typeSpecific[question.type]);
-    }, [question, setPoints, setContent, setQuestionType, setTypeSpecific]);
+    }, [question, index, setPoints, setContent, setQuestionType, setTypeSpecific, onChange]);
     
-    useEffect(() => setDataChanged(true), [ points, content, questionType, typeSpecific, setDataChanged ]);
-
     useEffect(() => {
-        if(dataChanged){
-            let newQuestion = { ...question, content, points, type: questionType };
-            if(question.type === questionType){
-                newQuestion.typeSpecific = { ...question.typeSpecific, [questionType]: typeSpecific };
-            }
-            onChange(index, newQuestion);
-            console.log("newQuestion", newQuestion);
-            setDataChanged(false);
+        let newQuestion = { 
+            ...question, 
+            status:'changed',
+            content, 
+            points, 
+            type: questionType 
+        };
+        if(question.type === questionType){
+            newQuestion.typeSpecific = { ...question.typeSpecific, [questionType]: typeSpecific };
         }
-    }, [dataChanged, setDataChanged, onChange, index, question, content, points, questionType, typeSpecific]);
+        onChange(index, newQuestion);    
+    }, [onChange, index, question, content, points, questionType, typeSpecific]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
         setQuestionType(newQuestionType);
