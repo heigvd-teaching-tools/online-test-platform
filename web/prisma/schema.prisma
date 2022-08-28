@@ -104,14 +104,16 @@ model Question {
 }
 
 model MultipleChoice {
+  ids        String   @id @default(cuid())
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String   @id
+  questionId String   @unique
   options    Option[]
 }
 
 model Option {
-  multipleChoice   MultipleChoice @relation(fields: [multipleChoiceId], references: [questionId], onDelete: Cascade)
-  multipleChoiceId String         @id
+  id               String         @id @default(cuid())
+  multipleChoice   MultipleChoice @relation(fields: [multipleChoiceId], references: [ids], onDelete: Cascade)
+  multipleChoiceId String         
   text             String
   isCorrect        Boolean        @default(false)
 }
@@ -130,7 +132,7 @@ model Essay {
 model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  code       String
+  content    String
 }
 
 model ExamSession {

@@ -15,6 +15,11 @@ const QuestionList = ({questions, setQuestions}) => {
         
     }, [setQuestions, questions]);
 
+    const onQuestionTypeSpecificChange = useCallback((index, question) => {
+        questions[index] = { ...question };
+        setQuestions(questions);
+    } , [setQuestions, questions]);
+    
     const handleQuestionUp = useCallback((index) => {
         if(index === 0) return;
         const prev = {  ...questions[index - 1], status: 'changed' };
@@ -38,7 +43,8 @@ const QuestionList = ({questions, setQuestions}) => {
                 key={index} 
                 index={index} 
                 question={question} 
-                onChange={onQuestionChange} 
+                onQuestionChange={onQuestionChange} 
+                onQuestionTypeSpecificChange={onQuestionTypeSpecificChange}
                 clickUp={handleQuestionUp}
                 clickDown={handleQuestionDown}
             />

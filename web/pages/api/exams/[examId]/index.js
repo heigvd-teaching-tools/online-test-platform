@@ -31,8 +31,8 @@ const get = async (req, res) => {
         include: {
             questions: {
                 include: {
-                    code: { select: { code: true } },
-                    multipleChoice: { select: { options: true } },
+                    code: { select: { content: true } },
+                    multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
                     trueFalse: true,
                     essay: true,
                 }
@@ -46,7 +46,9 @@ const prepareTypeSpecific = (questionType, {typeSpecific}) => {
     switch(questionType) {
         case QuestionType.multipleChoice:
             return {
-                options: typeSpecific.multipleChoice.options.length > 0 ? typeSpecific.multipleChoice.options : undefined,
+                options: {
+                    create: typeSpecific.multipleChoice.options.length > 0 ? typeSpecific.multipleChoice.options : undefined
+                }
             };
         case QuestionType.trueFalse:
             return {
@@ -57,9 +59,7 @@ const prepareTypeSpecific = (questionType, {typeSpecific}) => {
                 essay: typeSpecific.essay
             }
         case QuestionType.code:
-            return {
-                code: typeSpecific.code
-            }
+            return typeSpecific.code
         default:
             return undefined;
     }

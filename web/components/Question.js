@@ -13,7 +13,7 @@ import DropDown from './input/DropDown';
 
 import { useInput } from '../utils/useInput';
 
-const Question = ({ index, question, onChange, clickUp, clickDown }) => {
+const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
     
     const [ dataChanged, setDataChanged ] = useState(false);
 
@@ -29,32 +29,28 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
             setContent(question.content);
             setQuestionType(question.type);
             //console.log("newTypeSpecific", question.type, question);
-            setTypeSpecific(question[question.type] || question.typeSpecific[question.type]);
-            onChange(index, { status: 'initial', ...question });    
+            //setTypeSpecific(question.typeSpecific[question.type]);
+            onQuestionChange(index, { status: 'initial', ...question });    
         }
-    }, [question, index, setPoints, setContent, setQuestionType, setTypeSpecific, onChange]);
+    }, [question, index, setPoints, setContent, setQuestionType, setTypeSpecific, onQuestionChange]);
     
     useEffect(() => {
-        let newQuestion = { 
+        onQuestionChange(index, { 
             ...question, 
             status:'changed',
             content, 
             points, 
-            type: questionType ,
-            typeSpecific: {
-                ...question.typeSpecific,
-                [questionType]: typeSpecific
-            }
-        };
-        onChange(index, newQuestion);    
-    }, [onChange, index, question, content, points, questionType, typeSpecific]);
+            type: questionType
+        });    
+    }, [onQuestionChange, index, question, content, points, questionType]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
         setQuestionType(newQuestionType);
     }
     
     const onTypeSpecificChange = (content) => {
-        setTypeSpecific(content);
+        question.typeSpecific[questionType] = { ...content };
+        onQuestionTypeSpecificChange(index, question);
     }
 
     return (

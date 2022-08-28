@@ -11,7 +11,7 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
     const [options, setOptions] = useState();
 
     useEffect(() => {
-        setOptions(initial && initial.length >= 2 ? initial : [
+        setOptions(initial && initial.options.length >= 2 ? initial.options : [
             {
                 text: 'Option 1',
                 isCorrect: true
@@ -31,7 +31,9 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
                     isCorrect: false
                 }];
                 setOptions(newOptions);
-                onChange(newOptions);
+                onChange({
+                    options: newOptions
+                });
             }}>
                 Add Option
             </Button>
@@ -47,7 +49,9 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
                                         const newOptions = [...options];
                                         newOptions[index].isCorrect = !newOptions[index].isCorrect;
                                         setOptions(newOptions);
-                                        onChange(newOptions);
+                                        onChange({
+                                            options: newOptions
+                                        });
                                     } }
                                 >
                                    { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
@@ -62,14 +66,18 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
                                         const newOptions = [...options];
                                         newOptions[index].text = e.target.value;
                                         setOptions(newOptions);
-                                        onChange(newOptions);
+                                        onChange({
+                                            options: newOptions
+                                        });
                                     } }
                                 />
                                 <IconButton variant="small" color="error" onClick={() => {
                                     let newOptions = [...options];
                                     newOptions.splice(index, 1);
                                     setOptions(newOptions);
-                                    onChange(newOptions);
+                                    onChange({
+                                        options: newOptions
+                                    });
                                 } }>
                                     <DeleteIcon />
                                 </IconButton>

@@ -25,7 +25,7 @@ const UpdateExam = () => {
     const [ questions, setQuestions ] = useState([]);
 
     useEffect(() => {
-        console.log(questions);
+        console.log("[id]", questions);
     } , [questions]);
     
     useEffect(() => {
@@ -50,7 +50,7 @@ const UpdateExam = () => {
         if(numberOfQuestions < questions.length){
             setQuestions(questions.splice(0, numberOfQuestions));
         }else if(numberOfQuestions > questions.length){
-            setQuestions([...questions, ...Array.from({ length: numberOfQuestions - questions.length }, (v, k) => ({ ...defaultQuestion, index: k }))]);
+            setQuestions([...questions, ...Array.from({ length: numberOfQuestions - questions.length }, (v, k) => ({ ...JSON.parse(JSON.stringify(defaultQuestion)), index: k }))]);
         }
     }, [setQuestions, numberOfQuestions, questions]);
 
