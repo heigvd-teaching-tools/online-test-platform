@@ -77,6 +77,7 @@ const UpdateExam = () => {
     }
 
     const handleSave = async () => {
+        console.log("save", questions);
         await fetch(`/api/exams/${id}`, {
             method: 'POST',
             headers: {
@@ -157,8 +158,8 @@ const StepNav = ({ activeStep, onBack, onNext, onSave }) => {
     return (
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep <=  1 && <Button onClick={onNext}>Next</Button> }
-            { activeStep === 2 && <Button onClick={onSave} variant="contained" color="primary">Save</Button> }
+            { activeStep ===  0 && <Button onClick={onNext}>Next</Button> }
+            { activeStep === 1 && <Button onClick={onSave} variant="contained" color="primary">Save</Button> }
         </Stack>
     )
 }

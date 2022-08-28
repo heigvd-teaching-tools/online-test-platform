@@ -45,8 +45,7 @@ const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificCha
     }
     
     const onTypeSpecificChange = (content) => {
-        question.typeSpecific[questionType] = { ...content };
-        onQuestionTypeSpecificChange(index, question);
+        onQuestionTypeSpecificChange(index, questionType, content);
     }
 
     return (

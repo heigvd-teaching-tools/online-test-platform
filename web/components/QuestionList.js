@@ -6,19 +6,12 @@ import Question from './Question';
 const QuestionList = ({questions, setQuestions}) => {
     
     const onQuestionChange = useCallback((index, question) => {
-        let newQuestions = questions;
-        newQuestions[index] = {
-            ...question,
-            status: 'initial'
-        };
-        setQuestions(newQuestions);
-        
-    }, [setQuestions, questions]);
+        questions[index] = question;        
+    }, [questions]);
 
-    const onQuestionTypeSpecificChange = useCallback((index, question) => {
-        questions[index] = { ...question };
-        setQuestions(questions);
-    } , [setQuestions, questions]);
+    const onQuestionTypeSpecificChange = useCallback((index, questionType, content) => {
+        questions[index].typeSpecific[questionType] = content;
+    } , [questions]);
     
     const handleQuestionUp = useCallback((index) => {
         if(index === 0) return;
