@@ -40,11 +40,12 @@ const Question = ({ index, question, onChange, clickUp, clickDown }) => {
             status:'changed',
             content, 
             points, 
-            type: questionType 
+            type: questionType ,
+            typeSpecific: {
+                ...question.typeSpecific,
+                [questionType]: typeSpecific
+            }
         };
-        if(question.type === questionType){
-            newQuestion.typeSpecific = { ...question.typeSpecific, [questionType]: typeSpecific };
-        }
         onChange(index, newQuestion);    
     }, [onChange, index, question, content, points, questionType, typeSpecific]);
 

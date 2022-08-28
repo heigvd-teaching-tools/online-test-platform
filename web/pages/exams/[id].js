@@ -23,6 +23,10 @@ const UpdateExam = () => {
     const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
     const { value:numberOfQuestions, bind:bindNumberOfQuestions, setValue:setNumberOfQuestions, setError:setErrorNumberOfQuestions } = useInput(0);
     const [ questions, setQuestions ] = useState([]);
+
+    useEffect(() => {
+        console.log(questions);
+    } , [questions]);
     
     useEffect(() => {
         if(exam) {

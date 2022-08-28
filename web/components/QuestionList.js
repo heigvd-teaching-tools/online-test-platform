@@ -6,7 +6,7 @@ import Question from './Question';
 const QuestionList = ({questions, setQuestions}) => {
     
     const onQuestionChange = useCallback((index, question) => {
-        let newQuestions = [...questions];
+        let newQuestions = questions;
         newQuestions[index] = {
             ...question,
             status: 'initial'
