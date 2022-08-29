@@ -47,7 +47,7 @@ const Exams = () => {
               </Column>
           </Row>
           </ListItem>
-        { exams && exams.map(exam => 
+        { exams && exams.length > 0 && exams.map(exam => 
             <ListItem button divider key={exam.id}>
                 <Row>
                   <Column flexGrow="1">

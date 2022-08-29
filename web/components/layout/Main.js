@@ -54,7 +54,7 @@ const Main = ({children}) => {
                         <ContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
                     </Toolbar>
                 </AppBar>
-                <Stack sx={{ height: 'calc(100vh - 48px)', p:2 }} alignItems="center">
+                <Stack sx={{ height: 'calc(100vh - 48px)', p:6 }} alignItems="center">
                     {children}
                 </Stack>
             </Box> 

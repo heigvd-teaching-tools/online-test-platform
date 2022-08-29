@@ -7,8 +7,6 @@ import Main from '../components/layout/Main';
 import { SnackbarProvider } from '../context/SnackbarContext';
 import '../styles/normalize.css'
 
-
-
 export const themeOptions = {
   palette: {
     type: 'light',
@@ -20,9 +18,9 @@ export const themeOptions = {
     secondary: {
       main: '#4c36f3',
     },
-    divider: 'rgba(4,178,241,0.12)',
+    divider: '#b5b5b5',
     background: {
-      default: '#e8e8e8',
+      default: '#ececec',
     },
   },
   typography: {
