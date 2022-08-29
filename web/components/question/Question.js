@@ -5,13 +5,15 @@ import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton }
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
-import Row from './layout/Row';
-import Column from './layout/Column';
-import CodeEditor from './CodeEditor';
-import MultipleChoice from './MultipleChoice';
-import DropDown from './input/DropDown';
+import Row from '../layout/Row';
+import Column from '../layout/Column';
+import DropDown from '../input/DropDown';
 
-import { useInput } from '../utils/useInput';
+import CodeEditor from './type_specific/CodeEditor';
+import MultipleChoice from './type_specific/MultipleChoice';
+import TrueFalse from './type_specific/TrueFalse';
+
+import { useInput } from '../../utils/useInput';
 
 const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
 
@@ -45,7 +47,6 @@ const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificCha
     }
 
     return (
-
         <Card variant="outlined" sx={{ flexGrow: 1, ':hover': { boxShadow: 5 } }}>
             <CardContent>
                 <Row>
@@ -102,9 +103,12 @@ const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificCha
                 <Row>
                     <Column flexGrow={1}>
                     {(
-                        ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} content={question.typeSpecific.multipleChoice} />) 
+                        ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} content={question.typeSpecific[questionType]} />) 
                         ||
-                        ( questionType === 'code' && <CodeEditor content={question.typeSpecific.code} onChange={onTypeSpecificChange} /> )
+                        ( questionType === 'code' && <CodeEditor content={question.typeSpecific[questionType]} onChange={onTypeSpecificChange} /> )
+                        ||
+                        ( questionType === 'trueFalse' && <TrueFalse content={question.typeSpecific[questionType]} onChange={onTypeSpecificChange} /> )
+                        
                     )}
                     </Column>
                 </Row>

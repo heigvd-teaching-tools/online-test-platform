@@ -31,7 +31,7 @@ const Main = ({children}) => {
             <Box>
                 <AppBar position="static" enableColorOnDark>
                     <Toolbar variant="dense">   
-                        <Box sx={{ mr:2, pt:1 }}>
+                        <Box sx={{ mr:2, pt:0 }}>
                             <Logo />
                         </Box>
                         <Box sx={{ flexGrow: 1 }}>

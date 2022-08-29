@@ -9,7 +9,7 @@ import SaveIcon from '@mui/icons-material/SaveOutlined';
 import { useInput } from '../../utils/useInput';
 
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
-import QuestionList from '../../components/QuestionList';
+import QuestionList from '../../components/question/QuestionList';
 
 import { useSnackbar } from '../../context/SnackbarContext';
 
@@ -83,7 +83,6 @@ const UpdateExam = () => {
     }
 
     const handleSave = async () => {
-        console.log("save", questions);
         setSaveRunning(true);
         await fetch(`/api/exams/${id}`, {
             method: 'POST',
@@ -186,8 +185,7 @@ const defaultQuestion = {
         'trueFalse' : {},
         'multipleChoice': {
             'options': []
-        },
-        'essay': '',
+        }
     }
 }
 

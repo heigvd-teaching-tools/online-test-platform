@@ -33,7 +33,7 @@ const get = async (req, res) => {
                 include: {
                     code: { select: { content: true } },
                     multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-                    trueFalse: true,
+                    trueFalse: { select: { isTrue: true } },
                     essay: true,
                 }
             }
@@ -51,13 +51,9 @@ const prepareTypeSpecific = (questionType, {typeSpecific}) => {
                 }
             };
         case QuestionType.trueFalse:
-            return {
-                trueFalse: typeSpecific.trueFalse
-            }
+            return typeSpecific.trueFalse
         case QuestionType.essay:
-            return {
-                essay: typeSpecific.essay
-            }
+            return {}
         case QuestionType.code:
             return typeSpecific.code
         default:
