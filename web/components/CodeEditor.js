@@ -43,7 +43,7 @@ const CodeEditor = ({ content:value, onChange }) => {
     }
 
     return (
-        <Card variant="outlined" sx={{ flexGrow:1, pt:3, pr:2, pb:2 }}>
+        <Card variant="outlined" sx={{ flexGrow:1, pt:3, pr:2, pb:2, pl:2 }}>
             <Editor
                 height="350px"
                 defaultLanguage="javascript"

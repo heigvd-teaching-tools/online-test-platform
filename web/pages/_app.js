@@ -20,7 +20,8 @@ export const themeOptions = {
     },
     divider: '#b5b5b5',
     background: {
-      default: '#ececec',
+      default: '#f3f3f3',
+      paper: '#fafafa',
     },
   },
   typography: {
