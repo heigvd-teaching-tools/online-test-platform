@@ -14,7 +14,6 @@ import DropDown from './input/DropDown';
 import { useInput } from '../utils/useInput';
 
 const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
-    
 
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
     const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
@@ -22,18 +21,15 @@ const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificCha
     const [ questionType, setQuestionType ] = useState(question.type);
 
     useEffect(() => {
-        if(question.status === 'changed'){
-            setPoints(question.points);
-            setContent(question.content);
-            setQuestionType(question.type);
-            onQuestionChange(index, { status: 'initial', ...question });    
-        }
+        setPoints(question.points);
+        setContent(question.content);
+        setQuestionType(question.type);
+        onQuestionChange(index, question);    
     }, [question, index, setPoints, setContent, setQuestionType, onQuestionChange]);
     
     useEffect(() => {
         onQuestionChange(index, { 
             ...question, 
-            status:'changed',
             content, 
             points, 
             type: questionType

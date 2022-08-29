@@ -1,16 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
 
 import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField } from "@mui/material";
 import { useInput } from '../../utils/useInput';
-import Question from '../../components/Question';
 
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
 import QuestionList from '../../components/QuestionList';
 
+import { useSnackbar } from '../../context/SnackbarContext';
+
 const UpdateExam = () => {
     const { query: { id }} = useRouter();
+    const { show: showSnackbar } = useSnackbar();
 
     const [ activeStep, setActiveStep ] = useState(1);
 
@@ -89,11 +91,14 @@ const UpdateExam = () => {
                 description,
                 questions
             })
+        })
+        .then((res) => res.json())
+        .then(() => {
+            showSnackbar('Exam updated successfully');
+        }).catch(() => {
+            showSnackbar('Error updating exam', 'error');
         });
     };
-
-    
-
     
     if (error) return <div>failed to load</div>
     if (!exam) return <LoadingAnimation /> 
@@ -165,7 +170,6 @@ const StepNav = ({ activeStep, onBack, onNext, onSave }) => {
 }
 
 const defaultQuestion = {
-    'status'    : 'draft',
     'type'      : 'multipleChoice',
     'points'    : 4,
     'content'   : '',

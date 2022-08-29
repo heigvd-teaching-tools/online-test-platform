@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { useState } from 'react';
-import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack } from '@mui/material';
+import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack, Snackbar } from '@mui/material';
 import { Tabs, Tab } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
 
 import { useSession, signOut, signIn } from 'next-auth/react';
 import LoadingAnimation from './LoadingAnimation';
+
+import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
 const Main = ({children}) => {
     const { data: session, status } = useSession();
@@ -53,6 +55,7 @@ const Main = ({children}) => {
                 </Stack>
             </Box> 
             }
+            <SnackbarFeedback />
        </>
     );
 }

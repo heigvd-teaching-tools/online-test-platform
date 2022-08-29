@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { SessionProvider } from "next-auth/react"
 import Main from '../components/layout/Main';
+import { SnackbarProvider } from '../context/SnackbarContext';
 import '../styles/normalize.css'
 
 const darkTheme = createTheme({
@@ -14,13 +15,15 @@ const darkTheme = createTheme({
 function MyApp({ Component, pageProps: { session, ...pageProps} }) {
   return (
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <Meta />
-      <SessionProvider session={session}>
-        <Main>
-          <Component {...pageProps} />
-        </Main>
-      </SessionProvider>
+      <SnackbarProvider >
+        <CssBaseline />
+        <Meta />
+        <SessionProvider session={session}>
+          <Main>
+            <Component {...pageProps} />
+          </Main>
+        </SessionProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }
