@@ -110,7 +110,7 @@ const UpdateExam = () => {
     if (!exam) return <LoadingAnimation /> 
 
     return (
-        <Stack sx={{ minWidth:'800px' }} spacing={2} pb={40}>
+        <Stack sx={{ minWidth:'800px' }} spacing={4} pb={40}>
             <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
             
             <Stepper activeStep={activeStep} orientation="vertical">
