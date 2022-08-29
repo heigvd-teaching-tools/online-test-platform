@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, Collapse , CardContent, CardActions, IconButton, TextField, Stack } from "@mui/material";
+import React, { useState } from 'react';
+import { Card, Collapse , CardActions, IconButton, TextField, Stack } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
 

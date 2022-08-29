@@ -7,6 +7,7 @@ import LockClosedIcon from '@mui/icons-material/Lock';
 
 import { useSession, signOut, signIn } from 'next-auth/react';
 import LoadingAnimation from './LoadingAnimation';
+import Logo from './Logo';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
@@ -30,6 +31,9 @@ const Main = ({children}) => {
             <Box>
                 <AppBar position="static" enableColorOnDark>
                     <Toolbar variant="dense">   
+                        <Box sx={{ mr:2, pt:1 }}>
+                            <Logo />
+                        </Box>
                         <Box sx={{ flexGrow: 1 }}>
                             <MainMenu />
                         </Box>

@@ -3,6 +3,9 @@ import useSWR from 'swr';
 import { useRouter } from 'next/router';
 
 import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField } from "@mui/material";
+import { LoadingButton } from '@mui/lab';
+import SaveIcon from '@mui/icons-material/SaveOutlined';
+
 import { useInput } from '../../utils/useInput';
 
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
@@ -13,6 +16,7 @@ import { useSnackbar } from '../../context/SnackbarContext';
 const UpdateExam = () => {
     const { query: { id }} = useRouter();
     const { show: showSnackbar } = useSnackbar();
+    const [ saveRunning, setSaveRunning ] = useState(false);
 
     const [ activeStep, setActiveStep ] = useState(1);
 
@@ -80,6 +84,7 @@ const UpdateExam = () => {
 
     const handleSave = async () => {
         console.log("save", questions);
+        setSaveRunning(true);
         await fetch(`/api/exams/${id}`, {
             method: 'POST',
             headers: {
@@ -98,14 +103,15 @@ const UpdateExam = () => {
         }).catch(() => {
             showSnackbar('Error updating exam', 'error');
         });
+        setSaveRunning(false);
     };
     
     if (error) return <div>failed to load</div>
     if (!exam) return <LoadingAnimation /> 
 
     return (
-        <Stack sx={{ minWidth:'800px' }} spacing={2}>
-            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
+        <Stack sx={{ minWidth:'800px' }} spacing={2} pb={40}>
+            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
             
             <Stepper activeStep={activeStep} orientation="vertical">
                 <Step key="general">
@@ -152,19 +158,21 @@ const UpdateExam = () => {
                 </Step>
             </Stepper>      
 
-            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
+            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
 
         </Stack>
 
     )
 }
 
-const StepNav = ({ activeStep, onBack, onNext, onSave }) => {
+const StepNav = ({ activeStep, saveRunning, onBack, onNext, onSave }) => {
     return (
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
             { activeStep ===  0 && <Button onClick={onNext}>Next</Button> }
-            { activeStep === 1 && <Button onClick={onSave} variant="contained" color="primary">Save</Button> }
+
+            { activeStep === 1 && <LoadingButton startIcon={<SaveIcon />} variant="contained" color="primary" loading={saveRunning || false} onClick={onSave}>Save</LoadingButton> }
+            
         </Stack>
     )
 }
