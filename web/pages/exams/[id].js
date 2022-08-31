@@ -9,7 +9,7 @@ import SaveIcon from '@mui/icons-material/SaveOutlined';
 import { useInput } from '../../utils/useInput';
 
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
-import QuestionList from '../../components/question/QuestionList';
+import QuestionManager from '../../components/question/QuestionManager';
 
 import { useSnackbar } from '../../context/SnackbarContext';
 
@@ -25,6 +25,11 @@ const UpdateExam = () => {
         (...args) => fetch(...args).then((res) => res.json())
     );
 
+    const { data: examQuestions, errorSessionQuestions } = useSWR(
+        `/api/exams/${id}/questions`, 
+        id ? (...args) => fetch(...args).then((res) => res.json()) : null
+    );
+
     const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
     const { value:numberOfQuestions, bind:bindNumberOfQuestions, setValue:setNumberOfQuestions, setError:setErrorNumberOfQuestions } = useInput(0);
@@ -35,17 +40,14 @@ const UpdateExam = () => {
             setLabel(exam.label);
             setDescription(exam.description);
             setNumberOfQuestions(exam.questions.length);
-            let examQuestions = exam.questions.map((question) => ({
-                ...question, 
-                status:'initial', 
-                typeSpecific: {
-                    ...defaultQuestion.typeSpecific,
-                    [question.type]: question[question.type]
-                }
-            }));
-            setQuestions(examQuestions);
         }
     }, [exam, setLabel, setDescription, setNumberOfQuestions]);
+
+    useEffect(() => {
+        if(examQuestions) {
+            setQuestions(examQuestions);
+        }
+    } , [examQuestions, setQuestions]);
 
     useEffect(() => {
         if(numberOfQuestions < questions.length){
@@ -104,7 +106,8 @@ const UpdateExam = () => {
         });
         setSaveRunning(false);
     };
-    
+
+       
     if (error) return <div>failed to load</div>
     if (!exam) return <LoadingAnimation /> 
 
@@ -151,7 +154,7 @@ const UpdateExam = () => {
                                 {...bindNumberOfQuestions}
                             />
                         
-                            <QuestionList questions={questions} setQuestions={setQuestions} />
+                            <QuestionManager questions={questions} setQuestions={setQuestions} />
                         </Stack>
                     </StepContent>
                 </Step>
@@ -181,7 +184,9 @@ const defaultQuestion = {
     'points'    : 4,
     'content'   : '',
     'typeSpecific': {
-        'code'      : '',
+        'code'      : {
+            'content' : '',
+        },
         'trueFalse' : {},
         'multipleChoice': {
             'options': []

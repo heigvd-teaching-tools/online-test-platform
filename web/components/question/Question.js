@@ -17,7 +17,7 @@ import TrueFalse from './type_specific/TrueFalse';
 import { useInput } from '../../utils/useInput';
 
 
-const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
+const Question = ({ index, question, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
 
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
     const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
@@ -28,24 +28,21 @@ const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificCha
         setPoints(question.points);
         setContent(question.content);
         setQuestionType(question.type);
-        onQuestionChange(index, question);    
-    }, [question, index, setPoints, setContent, setQuestionType, onQuestionChange]);
+        
+    }, [setPoints, setContent, setQuestionType, question]);
     
     useEffect(() => {
-        onQuestionChange(index, { 
-            ...question, 
-            content, 
-            points, 
-            type: questionType
-        });    
-    }, [onQuestionChange, index, question, content, points, questionType]);
+        question.points = points;
+        question.content = content;
+        question.type = questionType;    
+    }, [question, content, points, questionType]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
         setQuestionType(newQuestionType);
     }
     
     const onTypeSpecificChange = (content) => {
-        onQuestionTypeSpecificChange(index, questionType, content);
+        question.typeSpecific[questionType] = content;
     }
 
     return (

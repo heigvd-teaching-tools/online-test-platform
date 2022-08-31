@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Box, List, Typography, Toolbar, Button, IconButton, ListItem } from '@mui/material';
+import { Box, Toolbar, Button, IconButton } from '@mui/material';
 
 import DataGrid from '../../components/ui/DataGrid';
 
@@ -70,9 +70,7 @@ const Exams = () => {
             }
           }))
           } 
-          
           />
-
       )}
     </Box>
   )

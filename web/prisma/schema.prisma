@@ -72,7 +72,7 @@ enum QuestionType {
 
 model Exam {
   id          String  @id @default(cuid())
-  label       String  
+  label       String  @unique
   description String?
 
   createdAt DateTime @default(now())
@@ -114,7 +114,7 @@ model Option {
   id               String         @id @default(cuid())
   multipleChoice   MultipleChoice @relation(fields: [multipleChoiceId], references: [ids], onDelete: Cascade)
   multipleChoiceId String         
-  text             String
+  text             String?
   isCorrect        Boolean        @default(false)
 }
 
@@ -132,7 +132,7 @@ model Essay {
 model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  content    String
+  content    String?
 }
 
 model ExamSession {

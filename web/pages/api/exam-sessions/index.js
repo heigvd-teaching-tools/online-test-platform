@@ -32,10 +32,11 @@ const get = async (res) => {
 }
 
 const post = async (req, res) => {
-    const { label } = req.body;
+    const { label, conditions } = req.body;
     const exam = await prisma.examSession.create({
         data: {
-            label
+            label,
+            conditions,
         }
     });
                     

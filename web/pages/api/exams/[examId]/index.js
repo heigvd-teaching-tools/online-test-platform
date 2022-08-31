@@ -29,14 +29,7 @@ const get = async (req, res) => {
             id: examId
         },
         include: {
-            questions: {
-                include: {
-                    code: { select: { content: true } },
-                    multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-                    trueFalse: { select: { isTrue: true } },
-                    essay: true,
-                }
-            }
+            questions: true
         }
     });
     res.status(200).json(exam);

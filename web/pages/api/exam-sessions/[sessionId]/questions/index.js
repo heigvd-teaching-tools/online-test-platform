@@ -1,8 +1,16 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
 
-import { hasRole } from '../../../../utils/auth';
+import { hasRole } from '../../../../../utils/auth';
 
 const prisma = new PrismaClient();
+
+const typeSpecificTemplate = {
+    'code' : { 'content' : '' },
+    'trueFalse' : {},
+    'multipleChoice': {
+        'options': []
+    }
+};
 
 const handler = async (req, res) => {
 
@@ -24,23 +32,26 @@ const handler = async (req, res) => {
 
 const get = async (req, res) => {
     const { sessionId } = req.query
-    const exam = await prisma.examSession.findUnique({
+    const questions = await prisma.question.findMany({
         where: {
-            id: sessionId
+            examSession: {
+                id: sessionId
+            }
         },
         include: {
-            questions: {
-                include: {
-                    code: { select: { content: true } },
-                    multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-                    trueFalse: { select: { isTrue: true } },
-                    essay: true,
-                }
-            },
-            participants: true
+            code: { select: { content: true } },
+            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
+            trueFalse: { select: { isTrue: true } },
+            essay: true,
         }
     });
-    res.status(200).json(exam);
+    res.status(200).json(questions.map((question) => ({
+        ...question, 
+        typeSpecific: {
+            ...typeSpecificTemplate,
+            [question.type]: question[question.type]
+        }
+    })));
 }
 
 const prepareTypeSpecific = (questionType, {typeSpecific}) => {
@@ -64,11 +75,11 @@ const prepareTypeSpecific = (questionType, {typeSpecific}) => {
 }
 
 const post = async (req, res) => {
-    const { sessionId } = req.query
+    const { examId } = req.query
     const { label, description, questions } = req.body;
-    const examSession = await prisma.examSession.update({
+    const exam = await prisma.exam.update({
         where: {
-            id: sessionId
+            id: examId
         },
         data: {
             label,
@@ -87,7 +98,7 @@ const post = async (req, res) => {
         }
     });
                     
-    res.status(200).json(examSession);
+    res.status(200).json(exam);
 }
 
 export default handler;
