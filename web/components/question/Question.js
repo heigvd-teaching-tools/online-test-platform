@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton } from "@mui/material";
@@ -14,6 +15,7 @@ import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
 
 import { useInput } from '../../utils/useInput';
+
 
 const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
 
@@ -50,8 +52,11 @@ const Question = ({ index, question, onQuestionChange, onQuestionTypeSpecificCha
         <Card variant="outlined" sx={{ flexGrow: 1, ':hover': { boxShadow: 5 } }}>
             <CardContent>
                 <Row>
+                    <Column width="32px">
+                        <Image alt="Loading..." src={`/svg/questions/${questionType}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
+                    </Column>
                     <Column flexGrow={1}>
-                        <Typography variant="h6">Q{index + 1}</Typography>
+                         <Typography variant="h6">Q{index + 1}</Typography>
                     </Column>
                     <Column>
                         <DropDown id="question" name="Type" defaultValue={questionType} minWidth="160px" onChange={handleQuestionTypeChange}>

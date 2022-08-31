@@ -48,7 +48,8 @@ const Exams = () => {
           </Row>
           </ListItem>
         { exams && exams.length > 0 && exams.map(exam => 
-            <ListItem button divider key={exam.id}>
+          <Link key={exam.id} href={`exams/${exam.id}`}>
+            <ListItem button divider >
                 <Row>
                   <Column flexGrow="1">
                     <Typography variant="body2">{exam.label}</Typography>
@@ -66,17 +67,16 @@ const Exams = () => {
                     <Typography variant="body2">{exam.questions.length}</Typography>
                   </Column>
                   <Column width="180px" right>
-                    <IconButton>
-                      <Image alt="Edit" src="/exam-edit.svg" layout="fixed" width="18" height="18" />
-                    </IconButton>
                     <IconButton onClick={(ev) => {
                       ev.stopPropagation();
+                      
                     }}>
                       <Image alt="Delete" src="/exam-delete.svg" layout="fixed" width="18" height="18" />
                     </IconButton>
                   </Column>
                 </Row>
-            </ListItem>
+              </ListItem>
+            </Link>
         )}
       </List>
     </Box>
