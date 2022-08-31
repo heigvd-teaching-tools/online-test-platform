@@ -1,7 +1,8 @@
-import Link from 'next/link';
 import { useState } from 'react';
 import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack, Snackbar } from '@mui/material';
-import { Tabs, Tab } from '@mui/material';
+
+import MainMenu from './MainMenu';
+
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
 
@@ -64,18 +65,6 @@ const Main = ({children}) => {
     );
 }
 
-const MainMenu = () => {
-    return (
-        <Tabs value="exams" aria-label="main-menu" textColor="inherit" indicatorColor="secondary">
-            <Link value="exams" href="/exams" passHref>
-                <Tab label="Exams" sx={{ opacity:1 }} />
-            </Link>
-            <Link value="exam-sessions" href="/exam-session" passHref>
-                <Tab label="Exam Sessions" sx={{ opacity:1 }}  />
-            </Link>
-        </Tabs>
-    )
-}
 
 const ContextMenu = ({anchorElUser, handleCloseUserMenu }) =>  
     <Menu

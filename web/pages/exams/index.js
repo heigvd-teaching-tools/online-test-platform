@@ -2,13 +2,39 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Box, List, Typography, Toolbar, Button, IconButton, ListItem } from '@mui/material';
-import Row from '../../components/layout/Row';
-import Column from '../../components/layout/Column';
+
+import DataGrid from '../../components/ui/DataGrid';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
 }
+
+const gridHeader = {
+  
+  actions: {
+    label: 'Actions',
+    width: '80px',
+  },
+  columns: [
+    {
+        label: 'Label',
+        column: { flexGrow: 1, }
+    },{
+        label: 'Description',
+        column: { flexGrow: 1, }
+    },{
+        label: 'Created At',
+        column: { width: '160px', }
+    },{
+        label: 'Updated At',
+        column: { width: '160px', }
+    },{
+        label: 'Questions',
+        column: { width: '80px', }
+    }
+  ]
+};
 
 const Exams = () => {
 
@@ -24,61 +50,30 @@ const Exams = () => {
           <Button>Create a new exam</Button>
         </Link>
       </Toolbar>
-      <List>
-        <ListItem divider>
-          <Row key="header">
-              <Column flexGrow="1">
-                <Typography variant="button">Label</Typography>
-              </Column>
-              <Column flexGrow="1">
-                <Typography variant="button">Description</Typography>
-              </Column>
-              <Column width="160px">
-                <Typography variant="button">Created At</Typography>
-              </Column>
-              <Column width="160px">
-                <Typography variant="button">Updated At</Typography>
-              </Column>
-              <Column width="80px">
-                <Typography variant="button">Questions</Typography>
-              </Column>
-              <Column width="180px" right>
-                <Typography variant="button">Actions</Typography>
-              </Column>
-          </Row>
-          </ListItem>
-        { exams && exams.length > 0 && exams.map(exam => 
-          <Link key={exam.id} href={`exams/${exam.id}`}>
-            <ListItem button divider >
-                <Row>
-                  <Column flexGrow="1">
-                    <Typography variant="body2">{exam.label}</Typography>
-                  </Column>
-                  <Column flexGrow="1">
-                    <Typography variant="body2">{exam.description}</Typography>
-                  </Column>
-                  <Column width="160px">
-                    <Typography variant="body2">{displayDateTime(exam.createdAt)}</Typography>
-                  </Column>
-                  <Column width="160px">
-                    <Typography variant="body2">{displayDateTime(exam.updatedAt)}</Typography>
-                  </Column>
-                  <Column width="80px">
-                    <Typography variant="body2">{exam.questions.length}</Typography>
-                  </Column>
-                  <Column width="180px" right>
-                    <IconButton onClick={(ev) => {
-                      ev.stopPropagation();
-                      
-                    }}>
-                      <Image alt="Delete" src="/exam-delete.svg" layout="fixed" width="18" height="18" />
-                    </IconButton>
-                  </Column>
-                </Row>
-              </ListItem>
-            </Link>
-        )}
-      </List>
+      {exams && (
+        <DataGrid 
+          header={gridHeader} 
+          items={exams.map(exam => ({
+            label: exam.label,
+            description: exam.description,
+            createdAt: displayDateTime(exam.createdAt),
+            updatedAt: displayDateTime(exam.updatedAt),
+            questions: exam.questions.length,
+            meta: {
+              key: exam.id,
+              linkHref: `/exams/${exam.id}`,
+              actions:  [(
+                <IconButton key="1">
+                  <Image alt="Delete" src="/exam-delete.svg" layout="fixed" width="18" height="18" />
+                </IconButton>
+              )]
+            }
+          }))
+          } 
+          
+          />
+
+      )}
     </Box>
   )
 }
