@@ -79,7 +79,6 @@ const UpdateSessionExam = () => {
     const [ activeStep, setActiveStep ] = useState(1);
     const [ phase, setPhase ] = useState("");
     
-
     const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
     const { value:conditions, bind:bindConditions, setValue:setConditions } = useInput('');
     
@@ -273,7 +272,6 @@ const UpdateSessionExam = () => {
                                         color="primary" 
                                         checked={questionsValidated} 
                                         onChange={() => {
-                                            setPhase(!questionsValidated ? "REGISTRATION" : "DRAFT");
                                             setQuestionsValidated(!questionsValidated);
                                         }}
                                 />}
