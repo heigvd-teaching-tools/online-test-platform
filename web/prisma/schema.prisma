@@ -154,21 +154,23 @@ model ExamSession {
   startedAt  DateTime  @default(now())
   finishedAt DateTime?
 
-  participants      UserOnExamSession[]
-  questions         Question[]
+  students      UserOnExamSession[]
+  questions     Question[]
 }
 
 model UserOnExamSession {
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
+  user   User   @relation(fields: [userEmail], references: [email])
+  userEmail String
 
   examSession   ExamSession @relation(fields: [examSessionId], references: [id])
   examSessionId String
 
+  registeredAt DateTime @default(now())
+
   score  Int      @default(0)
   Answer Answer[]
 
-  @@id([userId, examSessionId])
+  @@id([userEmail, examSessionId])
 }
 
 model Answer {
@@ -177,8 +179,8 @@ model Answer {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @unique
 
-  userOnExamSession UserOnExamSession @relation(fields: [userId, examSessionId], references: [userId, examSessionId], onDelete: Cascade)
-  userId            String
+  userOnExamSession UserOnExamSession @relation(fields: [userEmail, examSessionId], references: [userEmail, examSessionId], onDelete: Cascade)
+  userEmail         String
   examSessionId     String
 
   content String?

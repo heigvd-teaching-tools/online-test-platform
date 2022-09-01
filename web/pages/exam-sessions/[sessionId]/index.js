@@ -7,13 +7,13 @@ import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField, Autoco
 import { LoadingButton } from '@mui/lab';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 
-import { useInput } from '../../utils/useInput';
+import { useInput } from '../../../utils/useInput';
 
-import LoadingAnimation from '../../components/layout/LoadingAnimation';
-import QuestionManager from '../../components/question/QuestionManager';
+import LoadingAnimation from '../../../components/layout/LoadingAnimation';
+import QuestionManager from '../../../components/question/QuestionManager';
 
-import { useSnackbar } from '../../context/SnackbarContext';
-import AlertFeedback from '../../components/feedback/Alert';
+import { useSnackbar } from '../../../context/SnackbarContext';
+import AlertFeedback from '../../../components/feedback/Alert';
 
 const phaseGraterThan = (a, b) => {
     const phases = ['DRAFT', 'REGISTRATION', 'IN_PROGRESS', 'CORRECTION', 'FINISHED'];
@@ -48,15 +48,15 @@ const DisplayPhase = ({phase}) => {
   
 
 const UpdateSessionExam = () => {
-    const { query: { id }} = useRouter();
+    const { query: { sessionId }} = useRouter();
     const { show: showSnackbar } = useSnackbar();
     const [ saveRunning, setSaveRunning ] = useState(false);
 
     
 
     const { data: examSession, errorSession } = useSWR(
-        `/api/exam-sessions/${id}`,
-        id ? (...args) => fetch(...args).then((res) => res.json()) : null
+        `/api/exam-sessions/${sessionId}`,
+        sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     const { data: exams, errorExams } = useSWR(
@@ -65,8 +65,8 @@ const UpdateSessionExam = () => {
     );
 
     const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${id}/questions`, 
-        id ? (...args) => fetch(...args).then((res) => res.json()) : null
+        `/api/exam-sessions/${sessionId}/questions`, 
+        sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
         
     const [ selectedExam, setSelectedExam ] = useState(null);
@@ -288,9 +288,9 @@ const UpdateSessionExam = () => {
                     <StepContent>
                         <Paper>
                             <Stack direction="row" p={2} justifyContent="space-between" alignItems="center">
-                                <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${id}/join`}</Typography></Box>
+                                <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${sessionId}/register`}</Typography></Box>
                                 <Box><Button variant="outlined" color="secondary" onClick={() => {
-                                    navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${id}/join`);
+                                    navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${sessionId}/register`);
                                 }}>Copy</Button></Box>
                             </Stack>
                         </Paper>
@@ -308,7 +308,7 @@ const UpdateSessionExam = () => {
 const StepNav = ({ activeStep, phase, saveRunning, onBack, onNext, onSave }) => {
     return (
         <Stack direction="row" justifyContent="space-between">
-            <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
+            <LoadingButton onClick={onBack} loading={saveRunning || false} disabled={activeStep === 0}>Back</LoadingButton>
             
             <DisplayPhase phase={phase} />
 

@@ -37,7 +37,7 @@ const get = async (req, res) => {
                     essay: true,
                 }
             },
-            participants: true
+            students: true
         }
     });
     res.status(200).json(exam);
@@ -65,7 +65,7 @@ const prepareTypeSpecific = (questionType, {typeSpecific}) => {
 
 const post = async (req, res) => {
     const { sessionId } = req.query
-    const { label, conditions, questions, phase } = req.body;
+    const { label, conditions, phase, questions } = req.body;
     const examSession = await prisma.examSession.update({
         where: {
             id: sessionId
