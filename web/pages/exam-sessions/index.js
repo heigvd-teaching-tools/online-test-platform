@@ -1,13 +1,29 @@
 import useSWR from 'swr';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Box, Toolbar, Button, IconButton } from '@mui/material';
+import { Box, Toolbar, Button, Chip } from '@mui/material';
 
 import DataGrid from '../../components/ui/DataGrid';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+}
+
+const displayPhase = (phase) => {
+  switch (phase) {
+    case 'DRAFT':
+      return <Chip label="Draft" color="warning" />;
+    case 'REGISTRATION':
+      return <Chip label="Registration" color="info" />;
+    case 'IN_PROGRESS':
+      return <Chip label="In progress" color="primary" />;
+    case 'CORRECTION':
+      return <Chip label="Correction" color="secondary" />;
+    case 'FINISHED':
+      return <Chip label="Finished" color="success" />;
+    default:
+      return 'N/A';
+  }
 }
 
 const gridHeader = {
@@ -28,6 +44,9 @@ const gridHeader = {
     },{
         label: 'Participants',
         column: { width: '80px', }
+    },{
+        label: 'Phase',
+        column: { width: '70px', }
     }
   ]
 };
@@ -55,6 +74,7 @@ const ExamSessions = () => {
             updatedAt: displayDateTime(examSession.updatedAt),
             questions: examSession.questions.length,
             participants: examSession.participants.length,
+            phase: displayPhase(examSession.phase),
             meta: {
               key: examSession.id,
               linkHref: `/exam-sessions/${examSession.id}`

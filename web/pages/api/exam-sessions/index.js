@@ -33,14 +33,14 @@ const get = async (res) => {
 
 const post = async (req, res) => {
     const { label, conditions } = req.body;
-    const exam = await prisma.examSession.create({
+    const examSession = await prisma.examSession.create({
         data: {
             label,
             conditions,
         }
     });
                     
-    res.status(200).json(exam);
+    res.status(200).json(examSession);
 }
 
 export default handler;

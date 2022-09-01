@@ -74,14 +74,17 @@ const NewExam = () => {
                         </Stack>
                     </StepContent>
             </Step>
+
             <Step key="chose-exam">
                 <StepLabel>Chose the reference exam</StepLabel>
-                
             </Step>
             
             <Step key="prepare-session">
-                <StepLabel>Prepare the session</StepLabel>
-               
+                <StepLabel>Prepare questions and validate</StepLabel>
+            </Step>
+
+            <Step key="student-registration">
+                <StepLabel>Student registration</StepLabel>
             </Step>
 
         </Stepper>      

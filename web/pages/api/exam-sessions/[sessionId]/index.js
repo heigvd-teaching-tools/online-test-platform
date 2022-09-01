@@ -65,14 +65,15 @@ const prepareTypeSpecific = (questionType, {typeSpecific}) => {
 
 const post = async (req, res) => {
     const { sessionId } = req.query
-    const { label, description, questions } = req.body;
+    const { label, conditions, questions, phase } = req.body;
     const examSession = await prisma.examSession.update({
         where: {
             id: sessionId
         },
         data: {
             label,
-            description,
+            conditions,
+            phase,
             questions: {
                 deleteMany: {},
                 create: questions.map(question => ({
