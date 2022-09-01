@@ -4,12 +4,13 @@ import { useSession } from 'next-auth/react';
 import LoadingAnimation from "../../../components/layout/LoadingAnimation";
 
 const JoinExamSession = () => {
-    const { query: { sessionId }} = useRouter();
+    const router = useRouter();
     const { data: session } = useSession();
 
     useEffect(() => {
-        if(sessionId && session){
-            fetch(`/api/exam-sessions/${sessionId}/register`, {
+        if(router.query.sessionId && session){
+            console.log("session", session);
+            fetch(`/api/exam-sessions/${router.query.sessionId}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -22,9 +23,10 @@ const JoinExamSession = () => {
             .then(res => res.json())
             .then(res => {
                 console.log(res);
+                router.push(`/exam-sessions/${router.query.sessionId}/take`);
             });
         }
-    }, [sessionId, session]);
+    }, [router, session]);
 
 
     return <LoadingAnimation />
