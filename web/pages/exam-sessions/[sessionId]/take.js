@@ -35,15 +35,8 @@ const TakeExam = () => {
     }, [sessionQuestions]);
 
     const answer = async (answer) => {
-        let newQuestions = [...questions];
-        newQuestions[page - 1].answer = answer;
-        if(answer.isTrue === undefined){
-            // no answer 
-            delete newQuestions[page - 1].answer;
-        }
-        setQuestions(newQuestions);
         
-        await fetch(`/api/exam-sessions/${sessionId}/questions/${newQuestions[page - 1].id}/answer`, {
+        await fetch(`/api/exam-sessions/${sessionId}/questions/${questions[page - 1].id}/answer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -53,6 +46,13 @@ const TakeExam = () => {
         })
         .then(res => res.json())
         .then(_ => {
+            let newQuestions = [...questions];
+            newQuestions[page - 1].answer = answer;
+            if(answer.isTrue === undefined){
+                // no answer 
+                delete newQuestions[page - 1].answer;
+            }
+            setQuestions(newQuestions);
             showSnackbar('Answer submitted successfully', 'success');
         }).catch(_ => {
             showSnackbar('Error submitting answer', 'error');
