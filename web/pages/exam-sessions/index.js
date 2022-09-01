@@ -42,7 +42,7 @@ const gridHeader = {
         label: 'Questions',
         column: { width: '80px', }
     },{
-        label: 'Participants',
+        label: 'Students',
         column: { width: '80px', }
     },{
         label: 'Phase',
@@ -73,7 +73,7 @@ const ExamSessions = () => {
             createdAt: displayDateTime(examSession.createdAt),
             updatedAt: displayDateTime(examSession.updatedAt),
             questions: examSession.questions.length,
-            participants: examSession.participants.length,
+            students: examSession.students.length,
             phase: displayPhase(examSession.phase),
             meta: {
               key: examSession.id,
