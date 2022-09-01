@@ -166,7 +166,7 @@ const UpdateSessionExam = () => {
     const handleSave = async (changePhase) => {
         setSaveRunning(true);
         
-        await fetch(`/api/exam-sessions/${id}`, {
+        await fetch(`/api/exam-sessions/${sessionId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
