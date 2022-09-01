@@ -31,32 +31,46 @@ const post = async (req, res) => {
     const { type } = question;
     const { answer } = req.body;
     
-    let a = await prisma.answer.upsert({
-        where: {
-            userEmail_examSessionId_questionId: {
+    let a;
+    if(answer.isTrue === undefined) {
+        a = await prisma.answer.delete({
+            where: {
+                userEmail_examSessionId_questionId: {
+                    userEmail: studentEmail,
+                    examSessionId: sessionId,
+                    questionId: questionId
+                }
+            }
+        });
+    }else{
+
+        a = await prisma.answer.upsert({
+            where: {
+                userEmail_examSessionId_questionId: {
+                    userEmail: studentEmail,
+                    examSessionId: sessionId,
+                    questionId: questionId
+                }
+            },
+            update: {
+                [type]: {
+                    update: {
+                        isTrue: answer.isTrue
+                    }
+                }
+            },
+            create: {
                 userEmail: studentEmail,
                 examSessionId: sessionId,
-                questionId: questionId
-            }
-        },
-        update: {
-            [type]: {
-                update: {
-                    isTrue: answer.isTrue
+                questionId: questionId,
+                [type]: {
+                    create: {
+                        isTrue: answer.isTrue
+                    }
                 }
             }
-        },
-        create: {
-            userEmail: studentEmail,
-            examSessionId: sessionId,
-            questionId: questionId,
-            [type]: {
-                create: {
-                    isTrue: answer.isTrue
-                }
-            }
-        }
-    });
+        });
+    }
     res.status(200).json(a);
 }
 
