@@ -300,7 +300,7 @@ const UpdateSessionExam = () => {
                             </Paper>
                             {students && students.length > 0 && (
                                 <>
-                                    <Typography variant="h6">Students registered</Typography>
+                                    <Typography variant="h6">{students.length} registered students</Typography>
                                     <List>
                                         {students.map((student, index) => (
                                             <UserAvatar key={index} user={student.user} />
