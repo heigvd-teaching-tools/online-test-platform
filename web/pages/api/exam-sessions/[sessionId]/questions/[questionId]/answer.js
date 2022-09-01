@@ -2,7 +2,11 @@ import { PrismaClient, Role } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../../utils/auth';
 
-const prisma = new PrismaClient();
+if (!global.prisma) {
+    global.prisma = new PrismaClient()
+}
+
+const prisma = global.prisma
 
 const handler = async (req, res) => {
 

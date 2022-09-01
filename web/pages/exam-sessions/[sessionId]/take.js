@@ -26,7 +26,6 @@ const TakeExam = () => {
 
     const [ page, setPage ] = useState(1);
     const [ questions, setQuestions ] = useState(undefined);
-    const [ question, setQuestion ] = useState(undefined);
 
     useEffect(() => {
         if(sessionQuestions){
@@ -35,17 +34,16 @@ const TakeExam = () => {
         }
     }, [sessionQuestions]);
 
-    useEffect(() => {
-        if(questions){
-            setQuestion(questions[page - 1]);
+    const answer = async (answer) => {
+        let newQuestions = [...questions];
+        newQuestions[page - 1].answer = answer;
+        if(answer.isTrue === undefined){
+            // no answer 
+            delete newQuestions[page - 1].answer;
         }
-    }, [questions, page]);
-
-    const answer = async (index, answer) => {
-        const newQuestions = [...questions];
-        newQuestions[index].answer = answer;
         setQuestions(newQuestions);
-        await fetch(`/api/exam-sessions/${sessionId}/questions/${newQuestions[index].id}/answer`, {
+        
+        await fetch(`/api/exam-sessions/${sessionId}/questions/${newQuestions[page - 1].id}/answer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -90,29 +88,29 @@ const TakeExam = () => {
                 onChange={(e, page) => setPage(page)}
                 />
                 { 
-                    question && (
+                    questions[page - 1] && (
                     <Stack spacing={4} direction="column">
                     <Paper sx={{ p:2 }}>
                         <Row>
                             <Column width="32px">
-                                <Image alt="Loading..." src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
+                                <Image alt="Loading..." src={`/svg/questions/${questions[page - 1].type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
                             </Column>
                             <Column>
                                 <Typography variant="h5">Q{page}</Typography>
                             </Column>
                             <Column>
-                                <Typography variant="body1">{displayQuestionType(question.type)}</Typography>
+                                <Typography variant="body1">{displayQuestionType(questions[page - 1].type)}</Typography>
                             </Column>
                         </Row>
                         <Row>
                             <Column>
-                                <Typography variant="body1">{question.content}</Typography>
+                                <Typography variant="body1">{questions[page - 1].content}</Typography>
                             </Column>
                         </Row>
                     </Paper>
                     <Paper sx={{ p:2 }}>
                         <Stack direction="row" justifyContent="space-between">
-                            <TrueFalse content={question.answer ? question.answer.trueFalse : null} onChange={(content) => answer(page - 1, content)} />
+                            <TrueFalse content={questions[page - 1].answer ? questions[page - 1].answer.trueFalse : null} onChange={(content) => answer(content)} />
                         </Stack>
                     </Paper>
                     <Stack direction="row" justifyContent="space-between">

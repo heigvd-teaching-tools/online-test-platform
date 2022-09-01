@@ -2,12 +2,6 @@ import axios from "axios";
 import tar from "tar";
 import uniqid from "uniqid"; 
 import fs from "fs";
-
-const codeContent = `
-    var Sum = (a, b) => a * b;
-    console.log(Sum(12, 78));
-`;
-
 //  tar zcvf dockerfile.tar.gz .
 
 const runSandbox = (codeContent) => {
