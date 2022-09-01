@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField, Autocomplete, Box, Switch, Typography, Paper, FormGroup, FormControlLabel, Chip } from "@mui/material";
+import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField, Autocomplete, Box, Switch, Typography, Paper, FormGroup, FormControlLabel, Chip, List, ListItem, ListItemText  } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 
@@ -14,6 +14,7 @@ import QuestionManager from '../../../components/question/QuestionManager';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
 import AlertFeedback from '../../../components/feedback/Alert';
+import UserAvatar from '../../../components/layout/UserAvatar';
 
 const phaseGraterThan = (a, b) => {
     const phases = ['DRAFT', 'REGISTRATION', 'IN_PROGRESS', 'CORRECTION', 'FINISHED'];
@@ -85,13 +86,13 @@ const UpdateSessionExam = () => {
     const [ questionsValidated, setQuestionsValidated ] = useState(false);
     const [ questions, setQuestions ] = useState([]);
     
-    const [ participants, setParticipants ] = useState([]);
+    const [ students, setStudents ] = useState([]);
 
     useEffect(() => {
         if(examSession) {
             setLabel(examSession.label);
             setConditions(examSession.conditions);
-            setParticipants(examSession.participants);
+            setStudents(examSession.students);
             setPhase(examSession.phase);
             setQuestionsValidated(["REGISTRATION", "IN_PROGRESS", "CORRECTION"].includes(examSession.phase));
             let step = parseInt(Object.keys(stepPhaseRelation).reverse().find((key) => stepPhaseRelation[key] === examSession.phase));
@@ -100,7 +101,7 @@ const UpdateSessionExam = () => {
             }
             setActiveStep(step);
         }
-    }, [examSession, setLabel, setConditions, setParticipants]);
+    }, [examSession, setLabel, setConditions, setStudents]);
 
     useEffect(() => {
         if(examQuestions) {
@@ -175,7 +176,7 @@ const UpdateSessionExam = () => {
             body: JSON.stringify({
                 label,
                 questions, 
-                participants,
+                students,
                 phase: changePhase,
             })
         })
@@ -265,35 +266,49 @@ const UpdateSessionExam = () => {
                 <Step key="prepare-session">
                     <StepLabel>Prepare questions and validate</StepLabel>
                     <StepContent>
-                        <FormGroup aria-label="position" row>
-                            <FormControlLabel
-                                control={
-                                    <Switch 
-                                        color="primary" 
-                                        checked={questionsValidated} 
-                                        onChange={() => {
-                                            setQuestionsValidated(!questionsValidated);
-                                        }}
-                                />}
-                                label="Questions are ready, the session can go to the registration phase."
-                                labelPlacement="end"
-                            />
-                        </FormGroup>
-                        <QuestionManager questions={questions} setQuestions={setQuestions} />
+                        <Stack spacing={2} pt={2}>  
+                            <FormGroup aria-label="position" row>
+                                <FormControlLabel
+                                    control={
+                                        <Switch 
+                                            color="primary" 
+                                            checked={questionsValidated} 
+                                            onChange={() => {
+                                                setQuestionsValidated(!questionsValidated);
+                                            }}
+                                    />}
+                                    label="Questions are ready, the session can go to the registration phase."
+                                    labelPlacement="end"
+                                />
+                            </FormGroup>
+                            <QuestionManager questions={questions} setQuestions={setQuestions} />
+                        </Stack>
                     </StepContent>
                 </Step>
 
                 <Step key="student-registration">
                     <StepLabel>Student registration</StepLabel>
                     <StepContent>
-                        <Paper>
-                            <Stack direction="row" p={2} justifyContent="space-between" alignItems="center">
-                                <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${sessionId}/register`}</Typography></Box>
-                                <Box><Button variant="outlined" color="secondary" onClick={() => {
-                                    navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${sessionId}/register`);
-                                }}>Copy</Button></Box>
-                            </Stack>
-                        </Paper>
+                        <Stack spacing={2} pt={2}>  
+                            <Paper>
+                                <Stack direction="row" p={2} justifyContent="space-between" alignItems="center">
+                                    <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${sessionId}/register`}</Typography></Box>
+                                    <Box><Button variant="outlined" color="secondary" onClick={() => {
+                                        navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${sessionId}/register`);
+                                    }}>Copy</Button></Box>
+                                </Stack>
+                            </Paper>
+                            {students && students.length > 0 && (
+                                <>
+                                    <Typography variant="h6">Students registered</Typography>
+                                    <List>
+                                        {students.map((student, index) => (
+                                            <UserAvatar key={index} user={student.user} />
+                                        ))}
+                                    </List>
+                                </>
+                            )}
+                        </Stack>
                     </StepContent>
                 </Step>
             </Stepper>      

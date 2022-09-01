@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack, Snackbar } from '@mui/material';
+import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack, ListItemText } from '@mui/material';
 
 import MainMenu from './MainMenu';
 
@@ -7,10 +7,12 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
 
 import { useSession, signOut, signIn } from 'next-auth/react';
+import UserAvatar from './UserAvatar';
 import LoadingAnimation from './LoadingAnimation';
 import Logo from './Logo';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
+
 
 const Main = ({children}) => {
     const { data: session, status } = useSession();
@@ -39,19 +41,7 @@ const Main = ({children}) => {
                             <MainMenu />
                         </Box>
                         
-                        <Stack direction="row" onClick={handleOpenUserMenu} >   
-                            <IconButton sx={{ p: 0 }}>
-                                <Avatar alt={session.user.name} src={session.user.image} sx={{ width: 32, height: 32 }} />
-                            </IconButton>
-                            <Box sx={{ ml:1, cursor:'pointer' }}>
-                                <Typography variant="body2" color="inherit">
-                                    {session.user.name}
-                                </Typography>
-                                <Typography variant="caption" color="inherit">
-                                    {session.user.email}
-                                </Typography>
-                            </Box>                           
-                        </Stack>
+                        <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                         <ContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
                     </Toolbar>
                 </AppBar>

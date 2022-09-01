@@ -25,7 +25,7 @@ const get = async (res) => {
     const exams = await prisma.examSession.findMany({
         include: {
             questions: true,
-            participants: true
+            students: true
         },
     });
     res.status(200).json(exams);

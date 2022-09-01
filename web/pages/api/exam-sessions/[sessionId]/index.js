@@ -37,7 +37,11 @@ const get = async (req, res) => {
                     essay: true,
                 }
             },
-            students: true
+            students: {
+                select: {
+                    user: true
+                }   
+            }
         }
     });
     res.status(200).json(exam);
