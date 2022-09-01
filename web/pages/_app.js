@@ -35,6 +35,9 @@ export const themeOptions = {
     h1: {
       fontSize: '4rem',
     },
+    caption: {
+      fontSize: '0.7rem',
+    },
   },
 };
 
