@@ -108,7 +108,7 @@ const TakeExam = () => {
                             </Column>
                         </Row>
                     </Paper>
-                    <Paper sx={{ p:2 }}>
+                    <Paper variant='outlined' sx={{ p:2 }}>
                         <Stack direction="row" justifyContent="space-between">
                             <TrueFalse content={questions[page - 1].answer ? questions[page - 1].answer.trueFalse : null} onChange={(content) => answer(content)} />
                         </Stack>
