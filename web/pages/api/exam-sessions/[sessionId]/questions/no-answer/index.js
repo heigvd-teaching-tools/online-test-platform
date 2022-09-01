@@ -4,14 +4,6 @@ import { hasRole } from '../../../../../../utils/auth';
 
 const prisma = new PrismaClient();
 
-const typeSpecificTemplate = {
-    'code' : { 'content' : '' },
-    'trueFalse' : { },
-    'multipleChoice': {
-        'options': []
-    }
-};
-
 const handler = async (req, res) => {
 
     let isProfOrStudent = await hasRole(req, Role.PROFESSOR) || await hasRole(req, Role.STUDENT);
@@ -44,6 +36,14 @@ const get = async (req, res) => {
             code: true,
             multipleChoice: { select: { options: { select: { text: true } } } },
             essay: true,
+            answer: {
+                include: {
+                    code: true,
+                    multipleChoice: { select: { options: true } },
+                    essay: true,
+                    trueFalse: true,
+                }
+            }
         }
     });
     res.status(200).json(questions);

@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-
+import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
 
 const prisma = new PrismaClient();
@@ -24,7 +24,8 @@ const handler = async (req, res) => {
 
 const post = async (req, res) => {
     const { sessionId } = req.query;
-    const { studentEmail } = req.body;
+    const session = await getSession({ req });
+    const studentEmail = session.user.email;
     
     const userOnExamSession = await prisma.userOnExamSession.upsert(
         {

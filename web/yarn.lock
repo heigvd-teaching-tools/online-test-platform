@@ -623,10 +623,10 @@
   "resolved" "https://registry.npmjs.org/@prisma/engines-version/-/engines-version-4.2.0-33.2920a97877e12e055c1333079b8d19cee7f33826.tgz"
   "version" "4.2.0-33.2920a97877e12e055c1333079b8d19cee7f33826"
 
-"@prisma/engines@4.3.0":
-  "integrity" "sha512-JAyU7+QEpLkVtgVMYBSPQt9sUcgFqA/MdD4mK7yx+ZyDfHQlP+nT1rmqFPZ3MofR0mAha7nr3rx0ZNN46gLp9Q=="
-  "resolved" "https://registry.npmjs.org/@prisma/engines/-/engines-4.3.0.tgz"
-  "version" "4.3.0"
+"@prisma/engines@4.3.1":
+  "integrity" "sha512-4JF/uMaEDAPdcdZNOrnzE3BvrbGpjgV0FcPT3EVoi6I86fWkloqqxBt+KcK/+fIRR0Pxj66uGR9wVH8U1Y13JA=="
+  "resolved" "https://registry.npmjs.org/@prisma/engines/-/engines-4.3.1.tgz"
+  "version" "4.3.1"
 
 "@rushstack/eslint-patch@^1.1.3":
   "integrity" "sha512-LwzQKA4vzIct1zNZzBmRKI9QuNpLgTQMEjsQLf3BXuGYb3QPTP4Yjf6mkdX+X1mYttZ808QpOwAzZjv28kq7DA=="
@@ -2281,12 +2281,12 @@
   "resolved" "https://registry.npmjs.org/pretty-format/-/pretty-format-3.8.0.tgz"
   "version" "3.8.0"
 
-"prisma@*", "prisma@^4.3.0":
-  "integrity" "sha512-Ii588H5IsbSun5BwpNQwrayrHKecFEZ6wDoJ7nr2IsqlMblmkA1dextGBObsG9tg+aIVhTrNa7OAbhbvEfqhdQ=="
-  "resolved" "https://registry.npmjs.org/prisma/-/prisma-4.3.0.tgz"
-  "version" "4.3.0"
+"prisma@*", "prisma@^4.3.1":
+  "integrity" "sha512-90xo06wtqil76Xsi3mNpc4Js3SdDRR5g4qb9h+4VWY4Y8iImJY6xc3PX+C9xxTSt1lr0Q89A0MLkJjd8ax6KiQ=="
+  "resolved" "https://registry.npmjs.org/prisma/-/prisma-4.3.1.tgz"
+  "version" "4.3.1"
   dependencies:
-    "@prisma/engines" "4.3.0"
+    "@prisma/engines" "4.3.1"
 
 "prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@^15.8.1":
   "integrity" "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
