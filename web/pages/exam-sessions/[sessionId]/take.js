@@ -4,7 +4,7 @@ import LoadingAnimation from "../../../components/layout/LoadingAnimation";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import AlertFeedback from "../../../components/feedback/Alert";
-import { Typography, Stack, Pagination, PaginationItem, Box, Paper, Button  } from "@mui/material";
+import { Typography, Stack, Pagination, PaginationItem, Box, Paper, Button, Chip  } from "@mui/material";
 import Row from '../../../components/layout/Row';
 import Column from '../../../components/layout/Column';
 import TrueFalse from '../../../components/question/type_specific/TrueFalse';
@@ -90,33 +90,26 @@ const TakeExam = () => {
                 { 
                     questions[page - 1] && (
                     <Stack spacing={4} direction="column">
-                    <Paper sx={{ p:2 }}>
-                        <Row>
-                            <Column width="32px">
-                                <Image alt="Loading..." src={`/svg/questions/${questions[page - 1].type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
-                            </Column>
-                            <Column>
-                                <Typography variant="h5">Q{page}</Typography>
-                            </Column>
-                            <Column>
-                                <Typography variant="body1">{displayQuestionType(questions[page - 1].type)}</Typography>
-                            </Column>
-                        </Row>
-                        <Row>
-                            <Column>
-                                <Typography variant="body1">{questions[page - 1].content}</Typography>
-                            </Column>
-                        </Row>
-                    </Paper>
-                    <Paper variant='outlined' sx={{ p:2 }}>
+                        <Paper sx={{ p:2 }}>
+                            <Row>
+                                <Column width="32px"><Image alt="Loading..." src={`/svg/questions/${questions[page - 1].type}.svg`} layout="responsive" width="32px" height="32px" priority="1" /></Column>
+                                <Column><Typography variant="h5">Q{page}</Typography></Column>
+                                <Column right><Typography variant="body1">{displayQuestionType(questions[page - 1].type)}</Typography></Column>
+                                <Column flexGrow={1} right><Chip color="info" label={`${questions[page - 1].points} pts`} /></Column>
+                            </Row>
+                            <Row>
+                                <Column><Typography variant="body1">{questions[page - 1].content}</Typography></Column>
+                            </Row>
+                        </Paper>
+                        <Paper variant='outlined' sx={{ p:2 }}>
+                            <Stack direction="row" justifyContent="space-between">
+                                <TrueFalse content={questions[page - 1].answer ? questions[page - 1].answer.trueFalse : null} onChange={(content) => answer(content)} />
+                            </Stack>
+                        </Paper>
                         <Stack direction="row" justifyContent="space-between">
-                            <TrueFalse content={questions[page - 1].answer ? questions[page - 1].answer.trueFalse : null} onChange={(content) => answer(content)} />
+                            <Button color="primary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
+                            <Button color="primary" disabled={page === questions.length} onClick={() => setPage(page + 1)}>Next</Button>
                         </Stack>
-                    </Paper>
-                    <Stack direction="row" justifyContent="space-between">
-                        <Button color="primary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
-                        <Button color="primary" disabled={page === questions.length} onClick={() => setPage(page + 1)}>Next</Button>
-                    </Stack>
                     </Stack>
                 )}
             </>
