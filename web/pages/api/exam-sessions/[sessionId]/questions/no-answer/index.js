@@ -1,12 +1,12 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
 
-import { hasRole } from '../../../../../utils/auth';
+import { hasRole } from '../../../../../../utils/auth';
 
 const prisma = new PrismaClient();
 
 const typeSpecificTemplate = {
     'code' : { 'content' : '' },
-    'trueFalse' : {},
+    'trueFalse' : { },
     'multipleChoice': {
         'options': []
     }
@@ -14,7 +14,9 @@ const typeSpecificTemplate = {
 
 const handler = async (req, res) => {
 
-    if(!(await hasRole(req, Role.PROFESSOR))) {
+    let isProfOrStudent = await hasRole(req, Role.PROFESSOR) || await hasRole(req, Role.STUDENT);
+
+    if(!isProfOrStudent) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
     }
@@ -39,19 +41,12 @@ const get = async (req, res) => {
             }
         },
         include: {
-            code: { select: { content: true } },
-            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-            trueFalse: { select: { isTrue: true } },
+            code: true,
+            multipleChoice: { select: { options: { select: { text: true } } } },
             essay: true,
         }
     });
-    res.status(200).json(questions.map((question) => ({
-        ...question, 
-        typeSpecific: {
-            ...typeSpecificTemplate,
-            [question.type]: question[question.type]
-        }
-    })));
+    res.status(200).json(questions);
 }
 
 const prepareTypeSpecific = (questionType, {typeSpecific}) => {

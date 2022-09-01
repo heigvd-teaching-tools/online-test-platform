@@ -66,7 +66,7 @@ const UpdateSessionExam = () => {
     );
 
     const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${sessionId}/questions`, 
+        `/api/exam-sessions/${sessionId}/questions/answer`, 
         sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
         
