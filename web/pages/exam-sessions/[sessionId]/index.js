@@ -97,11 +97,11 @@ const UpdateSessionExam = () => {
             setQuestionsValidated(["REGISTRATION", "IN_PROGRESS", "CORRECTION"].includes(examSession.phase));
             let step = parseInt(Object.keys(stepPhaseRelation).reverse().find((key) => stepPhaseRelation[key] === examSession.phase));
             if(examSession.phase === "DRAFT") {
-                examSession.questions.length > 0 ? step = 2 : step = 1;
+                sessionQuestions && sessionQuestions.length === 0 ? step = 1 : step = 2;
             }
             setActiveStep(step);
         }
-    }, [examSession, setLabel, setConditions, setStudents]);
+    }, [examSession, sessionQuestions, setLabel, setConditions, setStudents]);
 
     useEffect(() => {
         if(examQuestions) {
@@ -199,7 +199,7 @@ const UpdateSessionExam = () => {
 
     return (
         <Stack sx={{ minWidth:'800px' }} spacing={4} pb={40}>
-            
+            <RegistrationClipboard sessionId={sessionId} />
             <StepNav activeStep={activeStep} phase={phase} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
             
             <Stepper activeStep={activeStep} orientation="vertical">
@@ -290,14 +290,6 @@ const UpdateSessionExam = () => {
                     <StepLabel>Student registration</StepLabel>
                     <StepContent>
                         <Stack spacing={2} pt={2}>  
-                            <Paper>
-                                <Stack direction="row" p={2} justifyContent="space-between" alignItems="center">
-                                    <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${sessionId}/register`}</Typography></Box>
-                                    <Box><Button variant="outlined" color="secondary" onClick={() => {
-                                        navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${sessionId}/register`);
-                                    }}>Copy</Button></Box>
-                                </Stack>
-                            </Paper>
                             {students && students.length > 0 && (
                                 <>
                                     <Typography variant="h6">{students.length} registered students</Typography>
@@ -317,6 +309,19 @@ const UpdateSessionExam = () => {
 
         </Stack>
 
+    )
+}
+
+const RegistrationClipboard = ({ sessionId }) => {
+    return (
+        <Paper>
+            <Stack direction="row" p={2} justifyContent="space-between" alignItems="center">
+                <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${sessionId}/register`}</Typography></Box>
+                <Box><Button variant="outlined" color="secondary" onClick={() => {
+                    navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${sessionId}/register`);
+                }}>Copy</Button></Box>
+            </Stack>
+        </Paper>
     )
 }
 
