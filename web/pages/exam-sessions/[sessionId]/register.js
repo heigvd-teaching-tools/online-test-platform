@@ -9,7 +9,6 @@ const JoinExamSession = () => {
 
     useEffect(() => {
         if(router.query.sessionId && session){
-            console.log("session", session);
             fetch(`/api/exam-sessions/${router.query.sessionId}/register`, {
                 method: 'POST',
                 headers: {
@@ -28,9 +27,7 @@ const JoinExamSession = () => {
         }
     }, [router, session]);
 
-
     return <LoadingAnimation />
-
 }
 
 export default JoinExamSession;
