@@ -43,7 +43,6 @@ const post = async (req, res) => {
             }
         });
     }else{
-
         a = await prisma.answer.upsert({
             where: {
                 userEmail_examSessionId_questionId: {
