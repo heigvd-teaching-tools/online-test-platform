@@ -36,7 +36,7 @@ const Code = ({ code:initial, questionId }) => {
 
     return (
         <Stack direction="column" spacing={2}>
-            <Row align="flex-start">
+            <Row align="flex-start" padding={0}>
                 <CodeEditor 
                     label="Solution Code"
                     subheader="This code should provide the expected result. Not visible for students."
@@ -54,7 +54,7 @@ const Code = ({ code:initial, questionId }) => {
                     }}
                 /> 
             </Row>
-            <Row>
+            <Row padding={0}>
                 <Column flexGrow={1}>
                     <LoadingButton variant="contained" color="secondary" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
                 </Column>
