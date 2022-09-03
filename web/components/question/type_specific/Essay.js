@@ -3,7 +3,7 @@ import { TextField } from "@mui/material";
 
 import { useInput } from '../../../utils/useInput';
 
-const Essay = ({ content:initial, onChange }) => {
+const Essay = ({ label, content:initial, onChange }) => {
     
     const { value:content, bind:bindContent } = useInput(initial || '');
     
@@ -19,7 +19,7 @@ const Essay = ({ content:initial, onChange }) => {
             multiline
             fullWidth
             rows={15}
-            label="Your answer"
+            label={label}
             id="essay-content"
             value={content}
             {...bindContent}

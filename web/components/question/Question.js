@@ -10,7 +10,7 @@ import Row from '../layout/Row';
 import Column from '../layout/Column';
 import DropDown from '../input/DropDown';
 
-import CodeEditor from './type_specific/CodeEditor';
+import Code from './type_specific/Code';
 import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
 
@@ -113,12 +113,10 @@ const Question = ({ index, question, clickUp, clickDown }) => {
                             />
                         ) 
                         ||
-                        ( questionType === 'code' && question.code && 
-                            <CodeEditor 
-                                code={question.code.code}
-                                onChange={(newCode) => {
-                                    question.code.code = newCode;
-                                }}
+                        ( questionType === 'code' && 
+                            <Code 
+                                questionId={question.id}
+                                code={question.code}
                             /> 
                         )
                         ||

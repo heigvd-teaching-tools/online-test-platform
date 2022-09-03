@@ -1,10 +1,11 @@
 FROM node
 
-ARG file_name
-ENV FILE_TO_RUN=$file_name
+ARG mode
+ENV CODE="code.js"
+ENV SOLUTION="solution.js"
+ENV MODE=$mode
 ENV NODE_NO_WARNINGS=1
-COPY ./$file ./ 
-COPY entrypoint.sh /
+COPY ./ ./ 
 RUN chmod 755 /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

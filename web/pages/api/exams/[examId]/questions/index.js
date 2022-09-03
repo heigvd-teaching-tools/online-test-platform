@@ -1,4 +1,4 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 import { hasRole } from '../../../../../utils/auth';
 
@@ -33,7 +33,7 @@ const get = async (req, res) => {
             }
         },
         include: {
-            code: { select: { code: true } },
+            code: { select: { solution: true, code: true } },
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,

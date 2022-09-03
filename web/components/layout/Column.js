@@ -1,10 +1,14 @@
 import { Box } from '@mui/material';
 
-const Column = ({ children, width, flexGrow, right }) => {
+const Column = ({ children, width, flexGrow, flex, right }) => {
     let sx = {};
 
     if (flexGrow) {
         sx.flex = flexGrow;
+    }
+
+    if (flex) {
+        sx.flex = flex;
     }
 
     if(right){

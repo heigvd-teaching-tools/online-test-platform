@@ -133,7 +133,9 @@ model Essay {
 model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
+  solution   String?
   code       String?
+
 }
 
 enum ExamSessionPhase {

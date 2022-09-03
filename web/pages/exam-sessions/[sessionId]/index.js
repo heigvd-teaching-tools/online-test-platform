@@ -12,7 +12,7 @@ import LoadingAnimation from '../../../components/layout/LoadingAnimation';
 import QuestionManager from '../../../components/question/QuestionManager';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
-import AlertFeedback from '../../../components/feedback/Alert';
+import AlertFeedback from '../../../components/feedback/AlertFeedback';
 import UserAvatar from '../../../components/layout/UserAvatar';
 
 const phaseGraterThan = (a, b) => {
@@ -197,7 +197,7 @@ const UpdateSessionExam = () => {
     if (!examSession) return <LoadingAnimation /> 
 
     return (
-        <Stack sx={{ minWidth:'800px' }} spacing={4} pb={40}>
+        <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
             <RegistrationClipboard sessionId={sessionId} />
             <StepNav activeStep={activeStep} phase={phase} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
             
