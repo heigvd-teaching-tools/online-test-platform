@@ -9,6 +9,7 @@ import Row from '../../../components/layout/Row';
 import Column from '../../../components/layout/Column';
 import TrueFalse from '../../../components/question/type_specific/TrueFalse';
 import MultipleChoice from '../../../components/question/type_specific/MultipleChoice';
+import Essay from '../../../components/question/type_specific/Essay';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { ConstructionOutlined } from '@mui/icons-material';
 
@@ -43,28 +44,29 @@ const TakeExam = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({ answer })
+                body: JSON.stringify({ answer: answer })
             })
-            .then(res => res.json())
             .then(_ => {
-                let newQuestions = [...questions];
-                newQuestions[page - 1].studentAnswer = {
+                questions[page - 1].studentAnswer = {
                     [questions[page - 1].type]: answer
                 };
                 if(answer === undefined){
-                    delete newQuestions[page - 1].studentAnswer;
+                    delete questions[page - 1].studentAnswer;
                     showSnackbar('Your answer has been removed', 'success');
                 }else{
                     showSnackbar('Answer submitted successfully', 'success');
                 }
-                setQuestions(newQuestions);
-                
-            }).catch(_ => {
+            }).catch(err => {
+                console.log(err);
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
 
     }, [questions, page, sessionId, showSnackbar]);
+
+    const hasAnswered = useCallback((question) => {
+        return question.studentAnswer && question.studentAnswer[question.type] !== undefined;
+    }, []);
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
@@ -83,7 +85,7 @@ const TakeExam = () => {
                 color="primary" 
                 renderItem={(item) => {
                     let sx = {};
-                    let isAnswered = item.type === 'page' && questions[item.page-1].answer;
+                    let isAnswered = item.type === 'page' && hasAnswered(questions[item.page - 1]);
                     if(isAnswered) 
                         sx = { 
                             backgroundColor:    (theme) => theme.palette.success.light,
@@ -123,11 +125,9 @@ const TakeExam = () => {
     )
 }
 
-
 const StudentAnswer = ({ question, onAnswer }) => {
 
     const [ answer, setAnswer ] = useState(undefined);
-
 
     useEffect(() => {
         if(question){
@@ -136,10 +136,6 @@ const StudentAnswer = ({ question, onAnswer }) => {
                 type: question.type,
             };
 
-            console.log("question.type", question.type);
-
-
-            
             switch(question.type){
                 case 'trueFalse':
                     answerData.isTrue = question.studentAnswer ? question.studentAnswer.trueFalse.isTrue : undefined;
@@ -150,9 +146,12 @@ const StudentAnswer = ({ question, onAnswer }) => {
                     answerData.options = allOptions.map(option => {
                         return {
                             ...option,
-                            isCorrect: studentOptions.some(studentOption => studentOption.id === option.id)
+                            isCorrect: studentOptions && studentOptions.some(studentOption => studentOption.id === option.id)
                         }
                     });
+                    break;
+                case 'essay':
+                    answerData.content = question.studentAnswer && question.studentAnswer.essay ? question.studentAnswer.essay.content : "";
                     break;
             }
             setAnswer(answerData);
@@ -173,8 +172,15 @@ const StudentAnswer = ({ question, onAnswer }) => {
                     ||
                     answer.type === 'multipleChoice' && answer.options && (
                         <MultipleChoice
-                            mode="read"
+                            selectOnly
                             options={answer.options}
+                            onChange={onAnswer}
+                        />
+                    )
+                    || 
+                    answer.type === 'essay' && (
+                        <Essay
+                            content={answer.content}
                             onChange={onAnswer}
                         />
                     )

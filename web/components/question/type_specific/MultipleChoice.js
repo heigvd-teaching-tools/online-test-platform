@@ -6,7 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
-const MultipleChoice = ({ options:initial, onChange, mode = "update"}) => {
+const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
     
     const [options, setOptions] = useState();
 
@@ -22,7 +22,7 @@ const MultipleChoice = ({ options:initial, onChange, mode = "update"}) => {
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">
-            { mode === "update" && (
+            { !selectOnly && (
                <Button color="primary" startIcon={<AddIcon />} onClick={() => {
                     let newOptions = [...options, {
                         text: 'Option',
@@ -53,7 +53,7 @@ const MultipleChoice = ({ options:initial, onChange, mode = "update"}) => {
                                 >
                                     { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
                                 </ToggleButton>
-                                { mode === "update" && (<>
+                                { !selectOnly && (<>
                                     <TextField
                                         id="outlined-text"
                                         label={`Option ${index + 1}`}
@@ -77,10 +77,8 @@ const MultipleChoice = ({ options:initial, onChange, mode = "update"}) => {
                                     </IconButton></>
                                 )}
 
-                                { mode === "read" && (
-                                    <Typography variant="body2">
-                                        {option.text}
-                                    </Typography>
+                                { selectOnly && (
+                                    <Typography variant="body1">{option.text}</Typography>
                                 )}
                             </Stack>
                         </Stack>

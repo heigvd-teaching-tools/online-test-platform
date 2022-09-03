@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useCallback } from 'react';
 
 const SnackbarContext = createContext();
 export const useSnackbar = () => useContext(SnackbarContext);
@@ -8,9 +8,9 @@ export const SnackbarProvider = ({ children }) => {
         open: false,
         message: ''
     });
-    const show = (message, severity) => {
+    const show = useCallback((message, severity) => {
         setSnackbar({ open: true, message, severity });
-    }
+    }, []);
 
     const hide = () => {
         setSnackbar({ open: false, message: '', severity: 'success' });

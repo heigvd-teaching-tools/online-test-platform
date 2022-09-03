@@ -182,8 +182,6 @@ model StudentAnswer {
   userEmail         String
   examSessionId     String
 
-  content String?
-
   points Int @default(0)
 
   multipleChoice StudentAnswerMultipleChoice?
@@ -210,22 +208,11 @@ model StudentAnswerTrueFalse {
   @@unique([userEmail, examSessionId, questionId])
 }
 
-model StudentAnswerMultipleChoice {
-  id String @id @default(cuid())
-
-  answer          StudentAnswer    @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
-  userEmail       String
-  examSessionId   String
-  questionId      String
-  options         Option[]
-
-  @@unique([userEmail, examSessionId, questionId])
-}
 
 model StudentAnswerEssay {
-  id String @id @default(cuid())
+  id            String        @id @default(cuid())
 
-  answer        StudentAnswer @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
+  studentAnswer StudentAnswer @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
   userEmail     String
   examSessionId String
   questionId    String
@@ -235,10 +222,24 @@ model StudentAnswerEssay {
   @@unique([userEmail, examSessionId, questionId])
 }
 
+model StudentAnswerMultipleChoice {
+  id String @id @default(cuid())
+
+  studentAnswer          StudentAnswer    @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
+  userEmail       String
+  examSessionId   String
+  questionId      String
+
+  options         Option[]
+
+  @@unique([userEmail, examSessionId, questionId])
+}
+
+
 model StudentAnswerCode {
   id String @id @default(cuid())
 
-  answer        StudentAnswer @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
+  studentAnswer        StudentAnswer @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
   userEmail     String
   examSessionId String
   questionId    String

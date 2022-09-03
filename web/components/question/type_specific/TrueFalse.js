@@ -20,7 +20,7 @@ const TrueFalse = ({ isTrue:initial, onChange, allowUndefined = false }) => {
                 { isTrue === true ? <CheckIcon /> : <ClearIcon /> } 
             </ToggleButton>
             <Box>
-                <Typography variant="h6">True</Typography>
+                <Typography variant="body1">True</Typography>
             </Box>
         
             <ToggleButton value="isTrue" selected={isTrue === false} color='success'
@@ -33,7 +33,7 @@ const TrueFalse = ({ isTrue:initial, onChange, allowUndefined = false }) => {
                 { isTrue === false ? <CheckIcon /> : <ClearIcon /> } 
             </ToggleButton>
             <Box>
-                <Typography variant="h6">False</Typography>
+                <Typography variant="body1">False</Typography>
             </Box>
     </Stack>
 

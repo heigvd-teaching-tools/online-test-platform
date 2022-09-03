@@ -31,21 +31,29 @@ const post = async (req, res) => {
     const studentEmail = session.user.email;
     const { sessionId, questionId } = req.query;
     
-    const question = await prisma.question.findUnique({ where: { id: questionId } });
+    const question = await prisma.question.findUnique({ 
+        where: { 
+            id: questionId 
+        },
+        include: {
+            studentAnswer: true
+        } 
+    });
     const { type } = question;
     const { answer } = req.body;
-    
     let a;
     if(answer === undefined) {
-        a = await prisma.studentAnswer.delete({
-            where: {
-                userEmail_examSessionId_questionId: {
-                    userEmail: studentEmail,
-                    examSessionId: sessionId,
-                    questionId: questionId
+        if(question.studentAnswer){
+            a = await prisma.studentAnswer.delete({
+                where: {
+                    userEmail_examSessionId_questionId: {
+                        userEmail: studentEmail,
+                        examSessionId: sessionId,
+                        questionId: questionId
+                    }
                 }
-            }
-        });
+            });
+        }
     }else{
         a = await prisma.studentAnswer.upsert({
             where: {
@@ -75,6 +83,7 @@ const post = async (req, res) => {
 
 
 const prepareUpdateAnswer = (questionType, answer) => {
+    console.log("prepareUpdateAnswer", questionType, answer);
     switch(questionType) {
         case 'multipleChoice':
             return {
@@ -87,8 +96,10 @@ const prepareUpdateAnswer = (questionType, answer) => {
             return {
                 isTrue: answer
             }
-        case 'essay':
-            break;
+        case 'essay': 
+            return {
+                content: answer
+            }
         case 'code':
             break;
         default:
@@ -97,6 +108,7 @@ const prepareUpdateAnswer = (questionType, answer) => {
 }
 
 const prepareCreateAnswer = (questionType, answer) => {
+    console.log("prepareCreateAnswer", questionType, answer);
     switch(questionType) {
         case 'multipleChoice':
             return {
@@ -109,7 +121,9 @@ const prepareCreateAnswer = (questionType, answer) => {
                 isTrue: answer
             }
         case 'essay':
-            break;
+            return {
+                content: String(answer)
+            }
         case 'code':
             break;
         default:
