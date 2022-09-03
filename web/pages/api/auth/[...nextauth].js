@@ -6,7 +6,11 @@ import { PrismaClient, Role } from '@prisma/client';
 
 const professors = [ 'stefanteofanovic@hotmail.com' ];
 
-const prisma = new PrismaClient();
+if (!global.prisma) {
+    global.prisma = new PrismaClient()
+}
+
+const prisma = global.prisma
 
 export default NextAuth({
     adapter: PrismaAdapter(prisma),

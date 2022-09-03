@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 
 import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField, Autocomplete, Box, Switch, Typography, Paper, FormGroup, FormControlLabel, Chip, List, ListItem, ListItemText  } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
-import SaveIcon from '@mui/icons-material/SaveOutlined';
 
 import { useInput } from '../../../utils/useInput';
 
@@ -66,7 +65,7 @@ const UpdateSessionExam = () => {
     );
 
     const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${sessionId}/questions/answer`, 
+        `/api/exam-sessions/${sessionId}/questions/with-answers/official`, 
         sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
         

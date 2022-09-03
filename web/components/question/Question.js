@@ -17,7 +17,7 @@ import TrueFalse from './type_specific/TrueFalse';
 import { useInput } from '../../utils/useInput';
 
 
-const Question = ({ index, question, onQuestionTypeSpecificChange, clickUp, clickDown }) => {
+const Question = ({ index, question, clickUp, clickDown }) => {
 
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
     const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
@@ -38,11 +38,10 @@ const Question = ({ index, question, onQuestionTypeSpecificChange, clickUp, clic
     }, [question, content, points, questionType]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
+        if(!question[newQuestionType]){
+            question[newQuestionType] = {};
+        }
         setQuestionType(newQuestionType);
-    }
-    
-    const onTypeSpecificChange = (content) => {
-        question.typeSpecific[questionType] = content;
     }
 
     return (
@@ -105,11 +104,32 @@ const Question = ({ index, question, onQuestionTypeSpecificChange, clickUp, clic
                 <Row>
                     <Column flexGrow={1}>
                     {(
-                        ( questionType === 'multipleChoice' && <MultipleChoice onChange={onTypeSpecificChange} content={question.typeSpecific[questionType]} />) 
+                        ( questionType === 'multipleChoice' && question.multipleChoice &&
+                            <MultipleChoice 
+                                options={question.multipleChoice.options}
+                                onChange={(newOptions) => {
+                                    question.multipleChoice.options = newOptions;
+                                }}
+                            />
+                        ) 
                         ||
-                        ( questionType === 'code' && <CodeEditor content={question.typeSpecific[questionType]} onChange={onTypeSpecificChange} /> )
+                        ( questionType === 'code' && question.code && 
+                            <CodeEditor 
+                                code={question.code.code}
+                                onChange={(newCode) => {
+                                    question.code.code = newCode;
+                                }}
+                            /> 
+                        )
                         ||
-                        ( questionType === 'trueFalse' && <TrueFalse content={question.typeSpecific[questionType]} onChange={onTypeSpecificChange} /> )
+                        ( questionType === 'trueFalse' && question.trueFalse &&
+                            <TrueFalse 
+                                isTrue={question.trueFalse.isTrue}
+                                onChange={(newIsTrue) => {
+                                    question.trueFalse.isTrue = newIsTrue;
+                                }}
+                            /> 
+                        )
                         
                     )}
                     </Column>

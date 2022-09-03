@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import LoadingAnimation from "../../../components/layout/LoadingAnimation";
 import { useRouter } from "next/router";
@@ -8,7 +8,9 @@ import { Typography, Stack, Pagination, PaginationItem, Box, Paper, Button, Chip
 import Row from '../../../components/layout/Row';
 import Column from '../../../components/layout/Column';
 import TrueFalse from '../../../components/question/type_specific/TrueFalse';
+import MultipleChoice from '../../../components/question/type_specific/MultipleChoice';
 import { useSnackbar } from '../../../context/SnackbarContext';
+import { ConstructionOutlined } from '@mui/icons-material';
 
 const TakeExam = () => {
     const { query: { sessionId }} = useRouter();
@@ -20,7 +22,7 @@ const TakeExam = () => {
     );
 
     const { data: sessionQuestions, errorQuestions } = useSWR(
-        `/api/exam-sessions/${sessionId}/questions/no-answer`,
+        `/api/exam-sessions/${sessionId}/questions/with-answers/student`,
         sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
@@ -29,36 +31,40 @@ const TakeExam = () => {
 
     useEffect(() => {
         if(sessionQuestions){
-            console.log(sessionQuestions);
             setQuestions(sessionQuestions);
         }
     }, [sessionQuestions]);
 
-    const answer = async (answer) => {
-        
-        await fetch(`/api/exam-sessions/${sessionId}/questions/${questions[page - 1].id}/answer`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ answer })
-        })
-        .then(res => res.json())
-        .then(_ => {
-            let newQuestions = [...questions];
-            newQuestions[page - 1].answer = answer;
-            if(answer.isTrue === undefined){
-                // no answer 
-                delete newQuestions[page - 1].answer;
-            }
-            setQuestions(newQuestions);
-            showSnackbar('Answer submitted successfully', 'success');
-        }).catch(_ => {
-            showSnackbar('Error submitting answer', 'error');
-        });
+    const onAnswer = useCallback((answer) => {
+        (async () => {
+            await fetch(`/api/exam-sessions/${sessionId}/questions/${questions[page - 1].id}/answer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ answer })
+            })
+            .then(res => res.json())
+            .then(_ => {
+                let newQuestions = [...questions];
+                newQuestions[page - 1].studentAnswer = {
+                    [questions[page - 1].type]: answer
+                };
+                if(answer === undefined){
+                    delete newQuestions[page - 1].studentAnswer;
+                    showSnackbar('Your answer has been removed', 'success');
+                }else{
+                    showSnackbar('Answer submitted successfully', 'success');
+                }
+                setQuestions(newQuestions);
+                
+            }).catch(_ => {
+                showSnackbar('Error submitting answer', 'error');
+            });
+        })();
 
-    }
+    }, [questions, page, sessionId, showSnackbar]);
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
@@ -101,11 +107,10 @@ const TakeExam = () => {
                                 <Column><Typography variant="body1">{questions[page - 1].content}</Typography></Column>
                             </Row>
                         </Paper>
-                        <Paper variant='outlined' sx={{ p:2 }}>
-                            <Stack direction="row" justifyContent="space-between">
-                                <TrueFalse content={questions[page - 1].answer ? questions[page - 1].answer.trueFalse : null} onChange={(content) => answer(content)} />
-                            </Stack>
-                        </Paper>
+                        <StudentAnswer 
+                            question={questions[page - 1]}
+                            onAnswer={onAnswer} 
+                        />
                         <Stack direction="row" justifyContent="space-between">
                             <Button color="primary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
                             <Button color="primary" disabled={page === questions.length} onClick={() => setPage(page + 1)}>Next</Button>
@@ -117,6 +122,69 @@ const TakeExam = () => {
         </Stack>             
     )
 }
+
+
+const StudentAnswer = ({ question, onAnswer }) => {
+
+    const [ answer, setAnswer ] = useState(undefined);
+
+
+    useEffect(() => {
+        if(question){
+
+            var answerData = {
+                type: question.type,
+            };
+
+            console.log("question.type", question.type);
+
+
+            
+            switch(question.type){
+                case 'trueFalse':
+                    answerData.isTrue = question.studentAnswer ? question.studentAnswer.trueFalse.isTrue : undefined;
+                    break;
+                case 'multipleChoice':
+                    let allOptions = question.multipleChoice.options;
+                    let studentOptions = question.studentAnswer ? question.studentAnswer.multipleChoice.options : [];
+                    answerData.options = allOptions.map(option => {
+                        return {
+                            ...option,
+                            isCorrect: studentOptions.some(studentOption => studentOption.id === option.id)
+                        }
+                    });
+                    break;
+            }
+            setAnswer(answerData);
+        }
+    }, [question]);
+
+    return (
+        <Paper variant='outlined' sx={{ p:2 }}>
+            {
+                answer && (
+                    answer.type === 'trueFalse' && (
+                        <TrueFalse 
+                            allowUndefined={true}
+                            isTrue={answer.isTrue} 
+                            onChange={onAnswer} 
+                        />
+                    )
+                    ||
+                    answer.type === 'multipleChoice' && answer.options && (
+                        <MultipleChoice
+                            mode="read"
+                            options={answer.options}
+                            onChange={onAnswer}
+                        />
+                    )
+                )
+                
+            }
+        </Paper>
+    )
+}
+
 
 const displayQuestionType = (type) => {
     switch(type){

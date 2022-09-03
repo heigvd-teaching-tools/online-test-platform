@@ -39,15 +39,15 @@ const UpdateExam = () => {
         if(exam) {
             setLabel(exam.label);
             setDescription(exam.description);
-            setNumberOfQuestions(exam.questions.length);
         }
-    }, [exam, setLabel, setDescription, setNumberOfQuestions]);
+    }, [exam, setLabel, setDescription]);
 
     useEffect(() => {
         if(examQuestions) {
             setQuestions(examQuestions);
+            setNumberOfQuestions(examQuestions.length);
         }
-    } , [examQuestions, setQuestions]);
+    } , [examQuestions, setQuestions, setNumberOfQuestions]);
 
     useEffect(() => {
         if(numberOfQuestions < questions.length){
@@ -183,14 +183,8 @@ const defaultQuestion = {
     'type'      : 'multipleChoice',
     'points'    : 4,
     'content'   : '',
-    'typeSpecific': {
-        'code'      : {
-            'content' : '',
-        },
-        'trueFalse' : {},
-        'multipleChoice': {
-            'options': []
-        }
+    'multipleChoice': {
+        'options': []
     }
 }
 

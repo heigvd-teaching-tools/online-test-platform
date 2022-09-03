@@ -1,6 +1,6 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
 
-import { hasRole } from '../../../../../utils/auth';
+import { hasRole } from '../../../../../../utils/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -19,17 +19,16 @@ const handler = async (req, res) => {
         case 'GET':
             await get(req, res);
             break;
-       
         default:
     }
 }
 
 const get = async (req, res) => {
-    const { examId } = req.query
+    const { sessionId } = req.query
     const questions = await prisma.question.findMany({
         where: {
-            exam: {
-                id: examId
+            examSession: {
+                id: sessionId
             }
         },
         include: {

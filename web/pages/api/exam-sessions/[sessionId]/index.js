@@ -43,24 +43,21 @@ const get = async (req, res) => {
     res.status(200).json(exam);
 }
 
-const prepareTypeSpecific = (questionType, {typeSpecific}) => {
+const prepareTypeSpecific = (questionType, question) => {
     switch(questionType) {
         case QuestionType.multipleChoice:
             return {
-                options: {
-                    create: typeSpecific.multipleChoice.options.length > 0 ? typeSpecific.multipleChoice.options : undefined
-                }
+                options: { create: question[questionType].options.length > 0 ? question[questionType].options : undefined }
             };
         case QuestionType.trueFalse:
-            return typeSpecific.trueFalse
+            return question[questionType];
         case QuestionType.essay:
             return {}
         case QuestionType.code:
-            return typeSpecific.code
+            return question[questionType]
         default:
             return undefined;
     }
-
 }
 
 const post = async (req, res) => {
