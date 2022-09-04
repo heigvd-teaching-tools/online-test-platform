@@ -22,6 +22,8 @@ const handler = async (req, res) => {
         case 'POST':
             await post(req, res);
             break;
+        case 'PATCH':
+            await patch(req, res);
         default:
     }
 }
@@ -53,7 +55,7 @@ const prepareTypeSpecific = (questionType, question) => {
     }
 }
 
-const post = async (req, res) => {
+const patch = async (req, res) => {
     const { examId } = req.query
     const { label, description, questions } = req.body;
     const exam = await prisma.exam.update({

@@ -32,7 +32,6 @@ const UpdateExam = () => {
 
     const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
-    const { value:numberOfQuestions, bind:bindNumberOfQuestions, setValue:setNumberOfQuestions, setError:setErrorNumberOfQuestions } = useInput(0);
     const [ questions, setQuestions ] = useState([]);
 
     useEffect(() => {
@@ -45,17 +44,8 @@ const UpdateExam = () => {
     useEffect(() => {
         if(examQuestions) {
             setQuestions(examQuestions);
-            setNumberOfQuestions(examQuestions.length);
         }
-    } , [examQuestions, setQuestions, setNumberOfQuestions]);
-
-    useEffect(() => {
-        if(numberOfQuestions < questions.length){
-            setQuestions(questions.splice(0, numberOfQuestions));
-        }else if(numberOfQuestions > questions.length){
-            setQuestions([...questions, ...Array.from({ length: numberOfQuestions - questions.length }, (v, k) => ({ ...JSON.parse(JSON.stringify(defaultQuestion)), index: k }))]);
-        }
-    }, [setQuestions, numberOfQuestions, questions]);
+    } , [examQuestions, setQuestions]);
 
     const inputControl = (step) => {
         switch(step){
@@ -65,10 +55,10 @@ const UpdateExam = () => {
                 }
                 return label.length > 0;
             case 1:
-                if(numberOfQuestions <= 0){
+                if(questions.length <= 0){
                     setErrorNumberOfQuestions({ error: true, helperText: 'You must specify at least one question' });
                 }
-                return numberOfQuestions > 0;
+                return questions.length > 0;
             default:
                 return true;
         }
@@ -94,13 +84,12 @@ const UpdateExam = () => {
             },
             body: JSON.stringify({
                 label,
-                description,
-                questions
+                description
             })
         })
         .then((res) => res.json())
         .then(() => {
-            showSnackbar('Exam updated successfully');
+            showSnackbar('Exam general informations updated');
         }).catch(() => {
             showSnackbar('Error updating exam', 'error');
         });
@@ -144,17 +133,12 @@ const UpdateExam = () => {
                     <StepLabel>Write questions</StepLabel>
                     <StepContent>
                         <Stack spacing={2} pt={2}>
-                            <TextField
-                                id="outlined-number"
-                                label="Number of questions"
-                                type="number"
-                                fullWidth
-
-                                value={numberOfQuestions}
-                                {...bindNumberOfQuestions}
+                            <QuestionManager 
+                                partOf="exams"
+                                partOfId={id}
+                                questions={questions} 
+                                setQuestions={setQuestions} 
                             />
-                        
-                            <QuestionManager questions={questions} setQuestions={setQuestions} />
                         </Stack>
                     </StepContent>
                 </Step>

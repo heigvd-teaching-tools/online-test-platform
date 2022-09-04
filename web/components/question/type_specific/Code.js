@@ -9,29 +9,32 @@ import AlertFeedback from '../../feedback/AlertFeedback';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const Code = ({ code:initial, questionId }) => {
+const Code = ({ code:initial, questionId, saveQuestion }) => {
     const [ testRunning, setTestRunning ] = useState(false);
     const [ testResult, setTestResult ] = useState(null);
     const [ expanded, setExpanded ] = useState(false);
 
     const runTest =  () => {
-        setTestRunning(true);
-        fetch(`/api/code/test/${questionId}`, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: initial.code })
-        })
-        .then(res => res.text())
-        .then(data => {
-            console.log(JSON.parse(data));
-            setTestRunning(false);
-            setTestResult(JSON.parse(data));
-            setExpanded(true);
-        }).catch(err => {
-            setTestResult(err.message);
-            setTestRunning(false);
-            setExpanded(true);
-        });
+        (async () => {
+            await saveQuestion();
+            setTestRunning(true);
+            fetch(`/api/code/test/${questionId}`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: initial.code })
+            })
+            .then(res => res.text())
+            .then(data => {
+                console.log(JSON.parse(data));
+                setTestRunning(false);
+                setTestResult(JSON.parse(data));
+                setExpanded(true);
+            }).catch(err => {
+                setTestResult(err.message);
+                setTestRunning(false);
+                setExpanded(true);
+            });
+        })();
     }
 
     return (
@@ -56,7 +59,7 @@ const Code = ({ code:initial, questionId }) => {
             </Row>
             <Row padding={0}>
                 <Column flexGrow={1}>
-                    <LoadingButton variant="contained" color="secondary" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
+                    <LoadingButton variant="outlined" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
                 </Column>
                 <Column>
                     <IconButton onClick={() => setExpanded(!expanded)}>

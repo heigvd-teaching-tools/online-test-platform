@@ -1,10 +1,13 @@
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSnackbar } from '../../context/SnackbarContext';
 
-import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton } from "@mui/material";
+import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton, CardActions, Button } from "@mui/material";
 
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/SaveOutlined';
 
 import Row from '../layout/Row';
 import Column from '../layout/Column';
@@ -15,14 +18,23 @@ import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
 
 import { useInput } from '../../utils/useInput';
+import { LoadingButton } from '@mui/lab';
+
+import DialogFeedback from '../feedback/DialogFeedback';
 
 
-const Question = ({ index, question, clickUp, clickDown }) => {
+const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => {
+    
+    const { show: showSnackbar } = useSnackbar();
+    const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
+    const [ deleteRunning, setDeleteRunning ] = useState(false);
+    const [ saveRunning, setSaveRunning ] = useState(false);
 
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
     const { value:content, setValue:setContent, bind:bindContent } = useInput(question.content);
 
     const [ questionType, setQuestionType ] = useState(question.type);
+
 
     useEffect(() => {
         setPoints(question.points);
@@ -44,7 +56,52 @@ const Question = ({ index, question, clickUp, clickDown }) => {
         setQuestionType(newQuestionType);
     }
 
+    const deleteQuestion = useCallback(async () => {
+        setDeleteRunning(true);
+        await fetch(`/api/questions`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                question
+            })
+        })
+        .then((res) => res.json())
+        .then(() => {
+            showSnackbar('Question delete successful');
+            onDelete();
+        }).catch(() => {
+            showSnackbar('Error deleting question', 'error');
+        });
+        setDeleteRunning(false);
+    } , [setDeleteRunning, showSnackbar, question, onDelete]);
+
+    const saveQuestion = useCallback(async () => {
+        setSaveRunning(true);
+        await fetch(`/api/questions`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                question
+            })
+        })
+        .then((res) => res.json())
+        .then((newQuestion) => {
+            showSnackbar('Question save successful');
+            onSave(newQuestion);
+        }).catch(() => {
+            showSnackbar('Error saving question', 'error');
+        });
+        setSaveRunning(false);
+    } , [setSaveRunning, showSnackbar, question, onSave]);
+
     return (
+        <>
         <Card variant="outlined" sx={{ flexGrow: 1, ':hover': { boxShadow: 5 } }}>
             <CardContent>
                 <Row>
@@ -117,6 +174,7 @@ const Question = ({ index, question, clickUp, clickDown }) => {
                             <Code 
                                 questionId={question.id}
                                 code={question.code}
+                                saveQuestion={saveQuestion}
                             /> 
                         )
                         ||
@@ -133,7 +191,43 @@ const Question = ({ index, question, clickUp, clickDown }) => {
                     </Column>
                 </Row>
             </CardContent>
+            <CardActions>
+                <Row>
+                    <Column flexGrow={1}>
+                        <LoadingButton 
+                            loading={saveRunning}
+                            disabled={deleteRunning}
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<SaveIcon />}
+                            onClick={saveQuestion}
+                        >
+                            Save
+                        </LoadingButton>
+                    </Column>
+                    <Column>
+                        <LoadingButton 
+                            loading={deleteRunning}
+                            disabled={saveRunning}
+                            variant="contained"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => setDeleteDialogOpen(true)}
+                        >
+                            Delete
+                        </LoadingButton>
+                    </Column>
+                </Row>
+            </CardActions>
         </Card>
+        <DialogFeedback 
+            open={deleteDialogOpen}  
+            title="Delete Question"
+            content="Are you sure you want to delete this question?"
+            onClose={() => setDeleteDialogOpen(false)}
+            onConfirm={deleteQuestion}
+        />
+        </>
     )
 }
 

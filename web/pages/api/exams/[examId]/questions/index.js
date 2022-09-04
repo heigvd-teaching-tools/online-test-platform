@@ -19,7 +19,9 @@ const handler = async (req, res) => {
         case 'GET':
             await get(req, res);
             break;
-       
+        case 'POST':
+            await post(req, res);
+            break;
         default:
     }
 }
@@ -40,6 +42,37 @@ const get = async (req, res) => {
         }
     });
     res.status(200).json(questions);
+}
+
+const post = async (req, res) => {
+    const { examId } = req.query
+    const createdQuestion = await prisma.question.create({
+        data: {
+            type: 'multipleChoice',
+            content: '',
+            points: 4,
+            multipleChoice: {
+                create: {
+                    options: { create: [
+                        { text: 'Option 1', isCorrect: false },
+                        { text: 'Option 2', isCorrect: true },
+                    ]}
+                }
+            },
+            exam: {
+                connect: {
+                    id: examId
+                }
+            }
+        },
+        include: {
+            code: { select: { solution: true, code: true } },
+            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
+            trueFalse: { select: { isTrue: true } },
+            essay: true,
+        }
+    });
+    res.status(200).json(createdQuestion);
 }
 
 export default handler;
