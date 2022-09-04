@@ -3,13 +3,10 @@
 set -e
 codeRun=$(node ${CODE})
 
-## escape special characters 
-codeRun=$(echo "$codeRun" | sed 's/"/\\"/g')
-
 if [ "$MODE" = "test" ] 
 then
     solutionRun=$(node ${SOLUTION})
-    solutionRun=$(echo "$solutionRun" | sed 's/"/\\"/g')
+    
     if [ "${codeRun}" = "${solutionRun}" ] 
     then
         echo '{ "success": true, "result": "'"${codeRun}"'", "expected": "'"${solutionRun}"'"}'

@@ -18,6 +18,7 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
         (async () => {
             if(beforeTestRun) await beforeTestRun();
             setTestRunning(true);
+            setTestResult(null);
             fetch(`/api/code/test/${questionId}`, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
@@ -29,7 +30,7 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
                 setTestResult(JSON.parse(data.replace(/\n/g, "\\n")));
                 setExpanded(true);
             }).catch(err => {
-                setTestResult(err.message);
+                setTestResult(null);
                 setTestRunning(false);
                 setExpanded(true);
             });
@@ -76,7 +77,7 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
                             <AlertFeedback severity={testResult.success ? "success" : "error"}>{testResult.success ? "Test Successful" : "Test Failed"}</AlertFeedback>
                         </Column>
                     </Row>
-                    <Row>
+                    <Row align="flex-start">
                         <Column flex={1}>
                             <Typography variant="h6">Expected Result</Typography>
                             <TextareaAutosize 
