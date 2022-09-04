@@ -9,14 +9,14 @@ import AlertFeedback from '../../feedback/AlertFeedback';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const Code = ({ code:initial, questionId, saveQuestion }) => {
+const Code = ({ code:initial, questionId, beforeTestRun }) => {
     const [ testRunning, setTestRunning ] = useState(false);
     const [ testResult, setTestResult ] = useState(null);
     const [ expanded, setExpanded ] = useState(false);
 
     const runTest =  () => {
         (async () => {
-            if(saveQuestion) await saveQuestion();
+            if(beforeTestRun) await beforeTestRun();
             setTestRunning(true);
             fetch(`/api/code/test/${questionId}`, { 
                 method: 'POST', 

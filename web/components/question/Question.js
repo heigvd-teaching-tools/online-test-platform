@@ -133,11 +133,9 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                     </Column>
                     <Column>
                         <Stack>
-                            
                             <IconButton size="small" onClick={() => clickUp(index)}>
                                 <ArrowDropUpIcon />
                             </IconButton>
-                            
                             
                             <IconButton size="small" onClick={() => clickDown(index)}>
                                 <ArrowDropDownIcon />
@@ -174,7 +172,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                             <Code 
                                 questionId={question.id}
                                 code={question.code}
-                                saveQuestion={saveQuestion}
+                                beforeTestRun={saveQuestion}
                             /> 
                         )
                         ||

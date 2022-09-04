@@ -1,15 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Select, InputLabel, FormControl, Typography } from "@mui/material";
 
 
-const DropDown = ({children, id, name, defaultValue, minWidth = '120px', onChange}) => {
+const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWidth = '120px', onChange}) => {
+    const selectRef = useRef();
+    
     const [value, setValue] = useState(defaultValue || '');
     const handleChange = (event) => {
+        if(blurOnChange) {
+            selectRef.current.blur();
+        }
         setValue(event.target.value);
         onChange(event.target.value);
     }
     useEffect(() => {
         setValue(defaultValue);
+        selectRef.current.value = defaultValue;
+        console.log("defaultValue changed", defaultValue);
     } , [defaultValue]);
     return (
         <FormControl sx={{ flexGrow:1, minWidth }} variant="filled" margin="none">
@@ -17,6 +24,7 @@ const DropDown = ({children, id, name, defaultValue, minWidth = '120px', onChang
                 <Typography variant="body1">{name}</Typography>
             </InputLabel>
             <Select
+                ref={selectRef}
                 labelId={`label-${id}`}
                 id={id}
                 autoWidth

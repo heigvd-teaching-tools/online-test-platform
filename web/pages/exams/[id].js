@@ -163,14 +163,4 @@ const StepNav = ({ activeStep, saveRunning, onBack, onNext, onSave }) => {
     )
 }
 
-const defaultQuestion = {
-    'type'      : 'multipleChoice',
-    'points'    : 4,
-    'content'   : '',
-    'multipleChoice': {
-        'options': []
-    }
-}
-
-
 export default UpdateExam;

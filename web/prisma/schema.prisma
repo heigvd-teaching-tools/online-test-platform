@@ -89,7 +89,7 @@ model Question {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
-  order     Int         @default(0)
+  position     Int         @default(0)
 
   exam   Exam?   @relation(fields: [examId], references: [id])
   examId String?

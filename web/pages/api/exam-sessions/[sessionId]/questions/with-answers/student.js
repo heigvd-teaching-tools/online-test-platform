@@ -45,6 +45,9 @@ const get = async (req, res) => {
                     trueFalse: true,
                 }
             }
+        },
+        orderBy: {
+            position: 'asc'
         }
     });
     res.status(200).json(questions);

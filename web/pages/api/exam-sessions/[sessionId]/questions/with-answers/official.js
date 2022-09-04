@@ -36,6 +36,9 @@ const get = async (req, res) => {
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,
+        },
+        orderBy: {
+            position: 'asc'
         }
     });
     res.status(200).json(questions);

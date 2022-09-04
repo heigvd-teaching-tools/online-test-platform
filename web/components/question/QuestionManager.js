@@ -10,19 +10,48 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
 
     const handleQuestionUp = useCallback((index) => {
         if(index === 0) return;
-        const prev = questions[index - 1];
-        questions[index - 1] = questions[index];
-        questions[index] = prev;
-        setQuestions([...questions]);
-    } , [setQuestions, questions]);
+        (async () => {
+            questions[index].position--;
+            questions[index - 1].position++;
+            questions.sort((a,b) => a.position - b.position);
+            setQuestions([...questions]);
+            await savePositions();
+        })();
+    } , [setQuestions, questions, savePositions]);
 
     const handleQuestionDown = useCallback((index) => {
         if(index === questions.length - 1) return;
-        const next = questions[index + 1];
-        questions[index + 1] = questions[index];
-        questions[index] = next;
-        setQuestions([...questions]);
-    } , [setQuestions, questions]);
+        (async () => {
+            questions[index].position++;
+            questions[index + 1].position--;
+            questions.sort((a,b) => a.position - b.position);
+            setQuestions([...questions]);
+            await savePositions();
+        })();
+    } , [setQuestions, questions, savePositions]);
+
+    const savePositions = useCallback(async () => {
+        await fetch('/api/questions/positions', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                questions: questions.map(q => ({
+                    id: q.id,
+                    order: q.order
+                }))
+            })
+        })
+        .then((res) => res.json())
+        .then(() => {
+            showSnackbar('Question positions saved');
+        }).catch(() => {
+            showSnackbar('Error saving question positions', 'error');
+        });
+    }, [questions, showSnackbar]);
+
 
     const createQuestion = useCallback(async () => {
         setCreateRunning(true);
@@ -31,7 +60,10 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-            }
+            },
+            body: JSON.stringify({
+                position: questions.length
+            })
         })
         .then((res) => res.json())
         .then((createdQuestion) => {
@@ -49,6 +81,7 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
                 <Question 
                     key={index} 
                     index={index} 
+                    lastIndex={questions.length}
                     question={question} 
                     clickUp={handleQuestionUp}
                     clickDown={handleQuestionDown}
@@ -58,7 +91,8 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
                     }}
                     onSave={(newQuestion) => {
                         questions[index] = newQuestion;
-                    }}                        
+                    }}          
+                                
                 />
             )}
             <LoadingButton variant="outlined" loading={createRunning} color="primary" onClick={createQuestion}>Add question</LoadingButton>
