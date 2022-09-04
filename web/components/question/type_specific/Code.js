@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { IconButton, Collapse, Stack, Typography, TextareaAutosize } from "@mui/material"
 import CodeEditor from './CodeEditor';
+import { useSnackbar } from '../../../context/SnackbarContext';
+
 import { LoadingButton } from '@mui/lab';
 import Row from '../../layout/Row';
 import Column from '../../layout/Column';
@@ -10,6 +12,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
 const Code = ({ code:initial, questionId, beforeTestRun }) => {
+    const { show: showSnackbar } = useSnackbar();
     const [ testRunning, setTestRunning ] = useState(false);
     const [ testResult, setTestResult ] = useState(null);
     const [ expanded, setExpanded ] = useState(false);
@@ -29,7 +32,8 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
                 setTestRunning(false);
                 setTestResult(JSON.parse(data.replace(/\n/g, "\\n")));
                 setExpanded(true);
-            }).catch(err => {
+            }).catch(_ => {
+                showSnackbar("Error running test", "error");
                 setTestResult(null);
                 setTestRunning(false);
                 setExpanded(true);
