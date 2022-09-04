@@ -16,7 +16,7 @@ const Code = ({ code:initial, questionId, saveQuestion }) => {
 
     const runTest =  () => {
         (async () => {
-            await saveQuestion();
+            if(saveQuestion) await saveQuestion();
             setTestRunning(true);
             fetch(`/api/code/test/${questionId}`, { 
                 method: 'POST', 
