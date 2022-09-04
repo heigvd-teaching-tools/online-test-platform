@@ -34,7 +34,7 @@ const AlertDialog = ({ open, title, content, onClose, onConfirm }) => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCancel}>Cancel</Button>
-            <Button onClick={handleConfirm} autoFocus>
+            <Button variant="contained" color="success" onClick={handleConfirm} autoFocus>
               Confirm
             </Button>
           </DialogActions>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton, Collapse, Stack, Typography } from "@mui/material"
+import { IconButton, Collapse, Stack, Typography, TextareaAutosize } from "@mui/material"
 import CodeEditor from './CodeEditor';
 import { LoadingButton } from '@mui/lab';
 import Row from '../../layout/Row';
@@ -25,9 +25,8 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
             })
             .then(res => res.text())
             .then(data => {
-                console.log(JSON.parse(data));
                 setTestRunning(false);
-                setTestResult(JSON.parse(data));
+                setTestResult(JSON.parse(data.replace(/\n/g, "\\n")));
                 setExpanded(true);
             }).catch(err => {
                 setTestResult(err.message);
@@ -42,7 +41,7 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
             <Row align="flex-start" padding={0}>
                 <CodeEditor 
                     label="Solution Code"
-                    subheader="This code should provide the expected result. Not visible for students."
+                    subheader="Not visible for students."
                     code={initial.solution}
                     onChange={(newCode) => {
                         initial.solution = newCode;
@@ -50,7 +49,7 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
                 /> 
                 <CodeEditor 
                     label="Partial Code"
-                    subheader="This code will be provided to the student"
+                    subheader="Provided to students"
                     code={initial.code}
                     onChange={(newCode) => {
                         initial.code = newCode;
@@ -59,7 +58,7 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
             </Row>
             <Row padding={0}>
                 <Column flexGrow={1}>
-                    <LoadingButton variant="outlined" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
+                    <LoadingButton variant="outlined" color="info" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
                 </Column>
                 <Column>
                     <IconButton onClick={() => setExpanded(!expanded)}>
@@ -80,11 +79,30 @@ const Code = ({ code:initial, questionId, beforeTestRun }) => {
                     <Row>
                         <Column flex={1}>
                             <Typography variant="h6">Expected Result</Typography>
-                            <pre>{testResult.expected}</pre>
+                            <TextareaAutosize 
+                                value={testResult.expected}
+                                style={{ 
+                                    width: '100%', 
+                                    overflow: 'auto', 
+                                    overflowY: 'hidden',
+                                    whiteSpace: 'pre',
+                                    resize: 'none'
+                                }}
+                            />
+                            
                         </Column>
                         <Column flex={1}>
                             <Typography variant="h6">Test Result</Typography>
-                            <pre>{testResult.result}</pre>
+                            <TextareaAutosize
+                                value={testResult.result}
+                                style={{ 
+                                    width: '100%', 
+                                    overflow: 'auto', 
+                                    overflowY: 'hidden',
+                                    whiteSpace: 'pre',
+                                    resize: 'none'
+                                }}
+                            />
                         </Column>
                     </Row>
                     </>

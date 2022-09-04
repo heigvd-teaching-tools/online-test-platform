@@ -58,7 +58,7 @@ const CodeEditor = ({ label, subheader, code:initial, onChange }) => {
             </CardContent>       
             <CardActions>
                 <Stack direction="row" justifyContent="space-between" align="center" width="100%">
-                    <LoadingButton size="small" loading={codeRunning} onClick={runCode}>Run</LoadingButton>
+                    <LoadingButton color="info" loading={codeRunning} onClick={runCode}>Run</LoadingButton>
                     <IconButton onClick={handleExpandClick}>
                         {expanded ? <ExpandLess /> : <ExpandMore />}
                     </IconButton>
