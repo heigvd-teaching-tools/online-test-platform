@@ -16,7 +16,6 @@ const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWi
     useEffect(() => {
         setValue(defaultValue);
         selectRef.current.value = defaultValue;
-        console.log("defaultValue changed", defaultValue);
     } , [defaultValue]);
     return (
         <FormControl sx={{ flexGrow:1, minWidth }} variant="filled" margin="none">

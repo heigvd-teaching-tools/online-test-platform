@@ -35,7 +35,6 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
 
     const [ questionType, setQuestionType ] = useState(question.type);
 
-
     useEffect(() => {
         setPoints(question.points);
         setContent(question.content);
@@ -168,7 +167,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                             />
                         ) 
                         ||
-                        ( questionType === 'code' && 
+                        ( questionType === 'code' && question.code &&
                             <Code 
                                 questionId={question.id}
                                 code={question.code}

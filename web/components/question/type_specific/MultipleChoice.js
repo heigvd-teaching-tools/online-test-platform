@@ -35,11 +35,10 @@ const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
                 </Button>
             )}
             
-            <Grid container display="grid" rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
+            <Grid container display="grid" columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
                 {options && options.length > 0 && options.map((option, index) =>
                     <Grid item key={index}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Stack direction="row" alignItems="center" spacing={2}>
+                            <Stack direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
                                 <ToggleButton
                                     value="correct"
                                     selected={option.isCorrect}
@@ -59,7 +58,7 @@ const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
                                         label={`Option ${index + 1}`}
                                         variant="outlined"
                                         value={option.text}
-                                        
+                                        fullWidth
                                         onChange={(e) => {
                                             const newOptions = [...options];
                                             newOptions[index].text = e.target.value;
@@ -81,7 +80,7 @@ const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
                                     <Typography variant="body1">{option.text}</Typography>
                                 )}
                             </Stack>
-                        </Stack>
+                        
                     </Grid>
                 )}
             </Grid>
