@@ -15,8 +15,6 @@ import { useSnackbar } from '../../context/SnackbarContext';
 
 const UpdateExam = () => {
     const { query: { id }} = useRouter();
-    const { show: showSnackbar } = useSnackbar();
-    const [ saveRunning, setSaveRunning ] = useState(false);
 
     const [ activeStep, setActiveStep ] = useState(1);
 
@@ -55,8 +53,8 @@ const UpdateExam = () => {
                 }
                 return label.length > 0;
             case 1:
-                if(questions.length <= 0){
-                    setErrorNumberOfQuestions({ error: true, helperText: 'You must specify at least one question' });
+                if(questions.length === 0){
+                    showSnackbar({ message: 'Exam must have at least one question', severity: 'error' });
                 }
                 return questions.length > 0;
             default:
@@ -74,35 +72,13 @@ const UpdateExam = () => {
         }
     }
 
-    const handleSave = async () => {
-        setSaveRunning(true);
-        await fetch(`/api/exams/${id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                label,
-                description
-            })
-        })
-        .then((res) => res.json())
-        .then(() => {
-            showSnackbar('Exam general informations updated');
-        }).catch(() => {
-            showSnackbar('Error updating exam', 'error');
-        });
-        setSaveRunning(false);
-    };
-
-       
+           
     if (error) return <div>failed to load</div>
     if (!exam) return <LoadingAnimation /> 
 
     return (
         <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
+            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext}  />
             
             <Stepper activeStep={activeStep} orientation="vertical">
                 <Step key="general">
@@ -144,21 +120,20 @@ const UpdateExam = () => {
                 </Step>
             </Stepper>      
 
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
+            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext}  />
 
         </Stack>
 
     )
 }
 
-const StepNav = ({ activeStep, saveRunning, onBack, onNext, onSave }) => {
+const StepNav = ({ activeStep, onBack, onNext }) => {
     return (
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
             { activeStep ===  0 && <Button onClick={onNext}>Next</Button> }
 
-            { activeStep === 1 && <LoadingButton startIcon={<SaveIcon />} variant="contained" color="primary" loading={saveRunning || false} onClick={onSave}>Save</LoadingButton> }
-            
+            { activeStep ===  1 && <Button onClick={onNext}>Finish</Button> }
         </Stack>
     )
 }
