@@ -130,7 +130,6 @@ const prepareCreateAnswer = (questionType, answer) => {
             return {
                 code: String(answer.code)
             }
-            break;
         default:
             return undefined;
     }

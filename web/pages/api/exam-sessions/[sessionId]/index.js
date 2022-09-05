@@ -54,6 +54,7 @@ const prepareTypeSpecific = (questionType, question) => {
         case QuestionType.essay:
             return {}
         case QuestionType.code:
+            console.log("Type specific: ", question[questionType], question);
             return question[questionType]
         default:
             return undefined;
@@ -81,6 +82,13 @@ const post = async (req, res) => {
                         create: prepareTypeSpecific(question.type, question)
                     }
                 }))
+            }
+        },
+        include: {
+            questions: {
+                include: {
+                    code: { select: { code: true, solution: true } },
+                }
             }
         }
     });

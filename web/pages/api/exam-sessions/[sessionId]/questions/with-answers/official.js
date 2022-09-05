@@ -32,7 +32,7 @@ const get = async (req, res) => {
             }
         },
         include: {
-            code: { select: { code: true } },
+            code: { select: { code: true, solution: true } },
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,

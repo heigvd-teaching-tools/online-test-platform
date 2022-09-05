@@ -1,19 +1,35 @@
+import { useState, useEffect } from 'react';
+
 import { Stack } from "@mui/material"
 import CodeEditor from './CodeEditor';
 
 import Row from '../../layout/Row';
 
 const Code = ({ code:initial, mode = "full", onChange }) => {
+
+    const [ code, setCode ] = useState();
+
+    useEffect(() => {
+        if (initial) {
+            setCode(initial);
+        }
+    }, [initial]);
+ 
     return (
         <Stack direction="column" spacing={2}>
-            <Row align="flex-start" padding={0}>
+            {code && (
+                <Row align="flex-start" padding={0}>
                 {mode === "full" && (
                     <CodeEditor 
                         label="Solution Code"
                         subheader="Not visible for students."
                         code={initial.solution}
                         onChange={(newCode) => {
-                            initial.solution = newCode;
+                            setCode({
+                                ...code,
+                                solution: newCode
+                            });
+                            if(onChange) onChange("solution", newCode);
                         }}
                     /> 
                 )}
@@ -23,11 +39,16 @@ const Code = ({ code:initial, mode = "full", onChange }) => {
                     subheader="Provided to students"
                     code={initial.code}
                     onChange={(newCode) => {
-                        initial.code = newCode;
-                        if(onChange) onChange(initial);
+                        setCode({
+                            ...code,
+                            code: newCode
+                        });
+                        if(onChange) onChange("code", newCode);
                     }}
                 /> 
             </Row>
+            )}
+            
             
 
         </Stack>

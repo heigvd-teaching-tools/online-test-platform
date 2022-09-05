@@ -173,6 +173,9 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                             <Stack spacing={2}>
                                 <Code 
                                    code={question.code}
+                                    onChange={(which, newCode) => {
+                                        question.code[which] = newCode;
+                                    }}
                                 /> 
                                 <CodeTestResult 
                                     code={question.code} 

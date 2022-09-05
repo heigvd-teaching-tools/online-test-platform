@@ -36,9 +36,9 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 case 'code':
 
                     if(question.studentAnswer && question.studentAnswer.code){
-                        answerData.code = question.studentAnswer.code.code;
+                        answerData.code = question.studentAnswer.code;
                     }else{
-                        answerData.code = question.code.code;
+                        answerData.code = question.code;
                     }
                     break;
             }
@@ -77,8 +77,12 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 answer.type === 'code' && (
                     <Code
                         mode="partial"
-                        code={answer}
-                        onChange={onAnswer}
+                        code={answer.code}
+                        onChange={(which, newCode) => {
+                            onAnswer({
+                                [which]: newCode
+                            })
+                        }}
                     />      
                 )       
 
