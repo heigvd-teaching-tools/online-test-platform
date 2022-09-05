@@ -98,10 +98,12 @@ const prepareUpdateAnswer = (questionType, answer) => {
             }
         case 'essay': 
             return {
-                content: answer
+                content: String(answer)
             }
         case 'code':
-            break;
+            return {
+                code: String(answer.code)
+            }
         default:
             return undefined;
     }
@@ -125,6 +127,9 @@ const prepareCreateAnswer = (questionType, answer) => {
                 content: String(answer)
             }
         case 'code':
+            return {
+                code: String(answer.code)
+            }
             break;
         default:
             return undefined;

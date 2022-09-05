@@ -248,7 +248,7 @@ model StudentAnswerCode {
   examSessionId String
   questionId    String
 
-  content String?
+  code String?
 
   @@unique([userEmail, examSessionId, questionId])
 }

@@ -34,7 +34,7 @@ const get = async (req, res) => {
             }
         },
         include: {
-            code: true,
+            code: { select: { code: true } },
             multipleChoice: { select: { options: { select: { id: true, text: true } } } },
             essay: true,
             studentAnswer: {

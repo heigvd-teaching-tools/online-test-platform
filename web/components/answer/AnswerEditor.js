@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
+import Code from '../question/type_specific/Code';
 
 const AnswerEditor = ({ question, onAnswer }) => {
 
@@ -31,6 +32,14 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     break;
                 case 'essay':
                     answerData.content = question.studentAnswer && question.studentAnswer.essay ? question.studentAnswer.essay.content : "";
+                    break;
+                case 'code':
+
+                    if(question.studentAnswer && question.studentAnswer.code){
+                        answerData.code = question.studentAnswer.code.code;
+                    }else{
+                        answerData.code = question.code.code;
+                    }
                     break;
             }
             setAnswer(answerData);
@@ -64,6 +73,15 @@ const AnswerEditor = ({ question, onAnswer }) => {
                         onChange={onAnswer}
                     />
                 )
+                ||
+                answer.type === 'code' && (
+                    <Code
+                        mode="partial"
+                        code={answer}
+                        onChange={onAnswer}
+                    />      
+                )       
+
             )
         }
         </>

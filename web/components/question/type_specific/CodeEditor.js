@@ -41,7 +41,7 @@ const CodeEditor = ({ label, subheader, code:initial, onChange }) => {
     }
 
     return (
-        <Card variant="outlined" sx={{ flex:1 }}>
+        <Card elevation={0} sx={{ flex:1 }}>
             <CardHeader 
                 disableTypography 
                 title={<Typography variant='button' component="section">{label}</Typography>} 

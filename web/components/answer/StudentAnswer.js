@@ -3,9 +3,11 @@ import { Stack, Paper, Typography, Chip } from "@mui/material";
 import Row from '../layout/Row';
 import Column from '../layout/Column';
 import AnswerEditor from "./AnswerEditor";
+import CodeTestResult from '../question/type_specific/CodeTestResult';
 
 const StudentAnswer = ({ question, page, onAnswer }) => {
     return (
+        <>
         <Stack spacing={4} direction={question.type === 'code' ? 'row' : 'column' }>
             <Paper sx={{ p:2, flex: 1 }}>
                 <Row>
@@ -25,6 +27,16 @@ const StudentAnswer = ({ question, page, onAnswer }) => {
                 />
             </Paper>
         </Stack>
+        { question.type === 'code' && (
+            <Paper sx={{ p:2 }}>
+                <CodeTestResult 
+                    code={question.studentAnswer ? question.studentAnswer.code : question.code}
+                    questionId={question.id}
+                />
+            </Paper>
+        ) }
+        
+        </>
     )
 }
 

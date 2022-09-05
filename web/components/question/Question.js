@@ -17,6 +17,8 @@ import Code from './type_specific/Code';
 import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
 
+import CodeTestResult from './type_specific/CodeTestResult';
+
 import { useInput } from '../../utils/useInput';
 import { LoadingButton } from '@mui/lab';
 
@@ -168,11 +170,16 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                         ) 
                         ||
                         ( questionType === 'code' && question.code &&
-                            <Code 
-                                questionId={question.id}
-                                code={question.code}
-                                beforeTestRun={saveQuestion}
-                            /> 
+                            <Stack spacing={2}>
+                                <Code 
+                                   code={question.code}
+                                /> 
+                                <CodeTestResult 
+                                    code={question.code} 
+                                    questionId={question.id} 
+                                    beforeTestRun={saveQuestion} 
+                                />
+                            </Stack>
                         )
                         ||
                         ( questionType === 'trueFalse' && question.trueFalse &&
