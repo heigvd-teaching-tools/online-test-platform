@@ -5,7 +5,7 @@ import CodeEditor from './CodeEditor';
 
 import Row from '../../layout/Row';
 
-const Code = ({ code:initial, mode = "full", onChange }) => {
+const Code = ({ code:initial, mode = "full", rightEditorLabel, onChange }) => {
 
     const [ code, setCode ] = useState();
 
@@ -35,8 +35,8 @@ const Code = ({ code:initial, mode = "full", onChange }) => {
                 )}
                 
                 <CodeEditor 
-                    label="Partial Code"
-                    subheader="Provided to students"
+                    label={rightEditorLabel.label}
+                    subheader={rightEditorLabel.subheader}
                     code={initial.code}
                     onChange={(newCode) => {
                         setCode({

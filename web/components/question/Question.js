@@ -172,7 +172,11 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                         ( questionType === 'code' && question.code &&
                             <Stack spacing={2}>
                                 <Code 
-                                   code={question.code}
+                                    rightEditorLabel={{
+                                        label: "Partial Code",
+                                        subheader: "Provided to students" 
+                                    }}
+                                    code={question.code}
                                     onChange={(which, newCode) => {
                                         question.code[which] = newCode;
                                     }}

@@ -77,6 +77,10 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 answer.type === 'code' && (
                     <Code
                         mode="partial"
+                        rightEditorLabel={{
+                            label: "Your answer",
+                            subheader: "Test your output using `Run Test` button below"
+                        }}
                         code={answer.code}
                         onChange={(which, newCode) => {
                             onAnswer({
