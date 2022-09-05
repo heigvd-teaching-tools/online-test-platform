@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Box, Toolbar, Button, IconButton } from '@mui/material';
-
+import { useSnackbar } from '../../context/SnackbarContext';
 import DataGrid from '../../components/ui/DataGrid';
+import DialogFeedback from '../../components/feedback/DialogFeedback';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
@@ -37,11 +39,35 @@ const gridHeader = {
 };
 
 const Exams = () => {
+  const { show: showSnackbar } = useSnackbar();
 
-  const { data: exams, error } = useSWR(
+  const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
+  const [ examToDelete, setExamToDelete ] = useState(null);
+
+  const { data, error } = useSWR(
     `/api/exams`, 
     (...args) => fetch(...args).then((res) => res.json())
   );
+
+  const [ exams, setExams ] = useState(data);
+
+  useEffect(() => {
+    setExams(data);
+  }, [data]);
+
+  const deleteExam = async () => {
+    await fetch(`/api/exams/${examToDelete}`, {
+      method: 'DELETE',
+    })
+    .then((_) => {
+      setExams(exams.filter((exam) => exam.id !== examToDelete));
+      showSnackbar('Exam deleted', 'success');
+    })
+    .catch((_) => {
+      showSnackbar('Error deleting exam', 'error');
+    });
+    setExamToDelete(null);
+  }
 
   return (
     <Box sx={{ minWidth:'100%' }}>
@@ -63,7 +89,12 @@ const Exams = () => {
               key: exam.id,
               linkHref: `/exams/${exam.id}`,
               actions:  [(
-                <IconButton key="1">
+                <IconButton key="delete-exam" onClick={(ev) => {
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                  setExamToDelete(exam.id);
+                  setDeleteDialogOpen(true);
+                }}>
                   <Image alt="Delete" src="/exam-delete.svg" layout="fixed" width="18" height="18" />
                 </IconButton>
               )]
@@ -72,6 +103,13 @@ const Exams = () => {
           } 
           />
       )}
+      <DialogFeedback 
+            open={deleteDialogOpen}  
+            title="Delete exam"
+            content="Are you sure you want to delete this exam?"
+            onClose={() => setDeleteDialogOpen(false)}
+            onConfirm={deleteExam}
+        />
     </Box>
   )
 }

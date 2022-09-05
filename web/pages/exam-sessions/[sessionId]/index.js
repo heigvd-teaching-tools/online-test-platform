@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -14,11 +14,6 @@ import QuestionManager from '../../../components/question/QuestionManager';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import AlertFeedback from '../../../components/feedback/AlertFeedback';
 import UserAvatar from '../../../components/layout/UserAvatar';
-
-const phaseGraterThan = (a, b) => {
-    const phases = ['DRAFT', 'REGISTRATION', 'IN_PROGRESS', 'CORRECTION', 'FINISHED'];
-    return phases.indexOf(a) > phases.indexOf(b);
-}
 
 const stepPhaseRelation = {
     0: 'DRAFT',
@@ -51,8 +46,6 @@ const UpdateSessionExam = () => {
     const { query: { sessionId }} = useRouter();
     const { show: showSnackbar } = useSnackbar();
     const [ saveRunning, setSaveRunning ] = useState(false);
-
-    
 
     const { data: examSession, errorSession } = useSWR(
         `/api/exam-sessions/${sessionId}`,
@@ -167,7 +160,7 @@ const UpdateSessionExam = () => {
         setSaveRunning(true);
         
         await fetch(`/api/exam-sessions/${sessionId}`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',

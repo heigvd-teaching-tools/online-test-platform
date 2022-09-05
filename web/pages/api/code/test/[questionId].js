@@ -29,8 +29,6 @@ export default async function handler(req, res) {
         }
     });
 
-    console.log("solution", solution);
-
     await runSandbox(code, solution.solution, "test").then((reponse) => {
         res.status(200).send(reponse);
     }).catch(error => {

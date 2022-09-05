@@ -24,6 +24,10 @@ const handler = async (req, res) => {
             break;
         case 'PATCH':
             await patch(req, res);
+            break;
+        case 'DELETE':
+            await del(req, res);
+            break;
         default:
     }
 }
@@ -58,27 +62,43 @@ const prepareTypeSpecific = (questionType, question) => {
 const patch = async (req, res) => {
     const { examId } = req.query
     const { label, description, questions } = req.body;
+
+    let data = {
+        label,
+        description,
+    }
+
+    if(questions) {
+        data.questions = {
+            deleteMany: {},
+            create: questions.map(question => ({
+                content: question.content,
+                type: question.type,
+                points: parseInt(question.points),
+                [question.type]: {
+                    create: prepareTypeSpecific(question.type, question)
+                }
+            }))
+        };
+    }
+
     const exam = await prisma.exam.update({
         where: {
             id: examId
         },
-        data: {
-            label,
-            description,
-            questions: {
-                deleteMany: {},
-                create: questions.map(question => ({
-                    content: question.content,
-                    type: question.type,
-                    points: parseInt(question.points),
-                    [question.type]: {
-                        create: prepareTypeSpecific(question.type, question)
-                    }
-                }))
-            }
-        }
+        data: data
     });
                     
+    res.status(200).json(exam);
+}
+
+const del = async (req, res) => {
+    const { examId } = req.query
+    const exam = await prisma.exam.delete({
+        where: {
+            id: examId
+        }
+    });
     res.status(200).json(exam);
 }
 

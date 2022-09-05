@@ -110,7 +110,6 @@ const prepareUpdateAnswer = (questionType, answer) => {
 }
 
 const prepareCreateAnswer = (questionType, answer) => {
-    console.log("prepareCreateAnswer", questionType, answer);
     switch(questionType) {
         case 'multipleChoice':
             return {

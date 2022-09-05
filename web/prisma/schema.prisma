@@ -164,10 +164,10 @@ model ExamSession {
 }
 
 model UserOnExamSession {
-  user      User   @relation(fields: [userEmail], references: [email])
+  user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
 
-  examSession   ExamSession @relation(fields: [examSessionId], references: [id])
+  examSession   ExamSession @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String
 
   registeredAt DateTime @default(now())
@@ -188,11 +188,10 @@ model StudentAnswer {
 
   points Int @default(0)
 
-  multipleChoice StudentAnswerMultipleChoice?
-
-  trueFalse StudentAnswerTrueFalse?
-  essay     StudentAnswerEssay?
-  code      StudentAnswerCode?
+  multipleChoice  StudentAnswerMultipleChoice?
+  trueFalse       StudentAnswerTrueFalse?
+  essay           StudentAnswerEssay?
+  code            StudentAnswerCode?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

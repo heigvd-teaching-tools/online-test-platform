@@ -1,20 +1,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router'
-import useSWR from 'swr';
 
-import { TextField, Stack, Button, Typography, Box } from "@mui/material";
+import { TextField, Stack, Button } from "@mui/material";
 import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
-import { Autocomplete } from "@mui/material";
-import Row from '../../components/layout/Row';
 import { useInput } from '../../utils/useInput';
-import Link from 'next/link';
-
 
 const NewExam = () => {
     const router = useRouter();
     const [ activeStep, setActiveStep ] = useState(0);
-
-    
 
     const { value:label, bind:bindLabel, setError:setErrorLabel } = useInput('');
     const { value:conditions, bind:bindConditions } = useInput('');

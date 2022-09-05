@@ -16,7 +16,10 @@ import { useSnackbar } from '../../context/SnackbarContext';
 const UpdateExam = () => {
     const { query: { id }} = useRouter();
 
+    const { show: showSnackbar } = useSnackbar();
+
     const [ activeStep, setActiveStep ] = useState(1);
+    const [ saveRunning, setSaveRunning ] = useState(false);
 
     const { data: exam, error } = useSWR(
         `/api/exams/${id}`,
@@ -68,9 +71,36 @@ const UpdateExam = () => {
 
     const handleNext = () => {
         if(inputControl(activeStep)){
+            if(activeStep === 0){
+                saveExamGeneralInformation();
+            }
             setActiveStep(activeStep + 1);
+            
         }
     }
+
+    const saveExamGeneralInformation = async (changePhase) => {
+        setSaveRunning(true);
+        
+        await fetch(`/api/exams/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                label,
+                description,
+            })
+        })
+        .then((res) => res.json())
+        .then((_) => {
+            showSnackbar('Exam updated successfully');
+        }).catch(() => {
+            showSnackbar('Error updating exam', 'error');
+        });
+        setSaveRunning(false);
+    };
 
            
     if (error) return <div>failed to load</div>
@@ -78,7 +108,7 @@ const UpdateExam = () => {
 
     return (
         <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
-            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext}  />
+            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
             
             <Stepper activeStep={activeStep} orientation="vertical">
                 <Step key="general">
@@ -120,18 +150,18 @@ const UpdateExam = () => {
                 </Step>
             </Stepper>      
 
-            <StepNav activeStep={activeStep} onBack={handleBack} onNext={handleNext}  />
+            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
 
         </Stack>
 
     )
 }
 
-const StepNav = ({ activeStep, onBack, onNext }) => {
+const StepNav = ({ activeStep, onBack, onNext, saveRunning }) => {
     return (
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep ===  0 && <Button onClick={onNext}>Next</Button> }
+            { activeStep ===  0 && <LoadingButton loading={saveRunning} onClick={onNext}>Next</LoadingButton> }
 
             { activeStep ===  1 && <Button onClick={onNext}>Finish</Button> }
         </Stack>

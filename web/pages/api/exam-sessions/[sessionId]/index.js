@@ -19,8 +19,11 @@ const handler = async (req, res) => {
         case 'GET':
             await get(req, res);
             break;
-        case 'POST':
-            await post(req, res);
+        case 'PATCH':
+            await patch(req, res);
+            break;
+        case 'DELETE':
+            await del(req, res);
             break;
         default:
     }
@@ -61,7 +64,7 @@ const prepareTypeSpecific = (questionType, question) => {
     }
 }
 
-const post = async (req, res) => {
+const patch = async (req, res) => {
     const { sessionId } = req.query
     const { label, conditions, phase, questions } = req.body;
     const examSession = await prisma.examSession.update({
@@ -93,6 +96,16 @@ const post = async (req, res) => {
         }
     });
                     
+    res.status(200).json(examSession);
+}
+
+const del = async (req, res) => {
+    const { sessionId } = req.query
+    const examSession = await prisma.examSession.delete({
+        where: {
+            id: sessionId
+        }
+    });
     res.status(200).json(examSession);
 }
 
