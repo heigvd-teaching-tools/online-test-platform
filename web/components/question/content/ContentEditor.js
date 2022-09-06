@@ -21,7 +21,6 @@ const ContentEditor = ({ content, onChange }) => {
     }
 
     return (
-        
         <Editor
             editorState={editorState}
             onEditorStateChange={onEditorStateChange}
