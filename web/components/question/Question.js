@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from '../../context/SnackbarContext';
 
@@ -24,15 +23,7 @@ import { useInput } from '../../utils/useInput';
 import { LoadingButton } from '@mui/lab';
 
 import DialogFeedback from '../feedback/DialogFeedback';
-
-import { EditorState, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-
-const Editor = dynamic(
-    () => import('react-draft-wysiwyg').then((mod) => mod.Editor), 
-    { ssr: false }
-);
-
+import ContentEditor from './content/ContentEditor';
 
 const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => {
     
@@ -42,17 +33,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
     const [ saveRunning, setSaveRunning ] = useState(false);
 
     const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
-    
-    const [ editorState, setEditorState ] = useState(
-        question.content ?  
-            EditorState.createWithContent(
-                convertFromRaw(JSON.parse(question.content))
-            )
-            :
-            EditorState.createEmpty()
-    );
-
-    
+        
     const [ questionType, setQuestionType ] = useState(question.type);
 
     useEffect(() => {
@@ -64,8 +45,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
     useEffect(() => {
         question.points = points;
         question.type = questionType;    
-        question.content = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
-    }, [question, points, editorState, questionType]);
+    }, [question, points, questionType]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
         if(!question[newQuestionType]){
@@ -164,10 +144,9 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                 </Row>
                 <Row>
                     <Column flexGrow={1}>
-                        <Editor
-                            editorState={editorState}
-                            onEditorStateChange={setEditorState}
-                            
+                        <ContentEditor
+                            content={question.content}
+                            onChange={(content) => question.content = content}
                         />
                     </Column>
                 </Row>
