@@ -49,11 +49,10 @@ const CodeEditor = ({ label, subheader, code:initial, onChange }) => {
             />     
             <CardContent>
                 <Editor
-                    height="450px"
+                    height="600px"
                     defaultLanguage="javascript"
                     value={code}
                     onChange={onCodeChange}
-                    saveViewState={false}
                 />
             </CardContent>       
             <CardActions>

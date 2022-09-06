@@ -1,11 +1,14 @@
 import Image from 'next/image'
-import { Stack, Paper, Typography, Chip } from "@mui/material";
+import { Stack, Paper, Typography, Chip, TextareaAutosize } from "@mui/material";
 import Row from '../layout/Row';
 import Column from '../layout/Column';
 import AnswerEditor from "./AnswerEditor";
 import CodeTestResult from '../question/type_specific/CodeTestResult';
+import { Editor, EditorState, convertFromRaw } from "draft-js"
 
 const StudentAnswer = ({ question, page, onAnswer }) => {
+    const contentState = convertFromRaw(JSON.parse(question.content));
+    const editorState = EditorState.createWithContent(contentState);
     return (
         <>
         <Stack spacing={4} direction={question.type === 'code' ? 'row' : 'column' }>
@@ -17,7 +20,10 @@ const StudentAnswer = ({ question, page, onAnswer }) => {
                     <Column flexGrow={1} right><Chip color="info" label={`${question.points} pts`} /></Column>
                 </Row>
                 <Row>
-                    <Column><Typography variant="body1">{question.content}</Typography></Column>
+                    <Column flexGrow={1}>
+                        <Editor editorState={editorState} readOnly={true} />
+                    </Column>
+                    
                 </Row>
             </Paper>
             <Paper variant='outlined' sx={{ p:2, flex: 2 }}>

@@ -20,14 +20,9 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
     const [ testResult, setTestResult ] = useState(null);
     const [ expanded, setExpanded ] = useState(false);
 
-    useEffect(() => {
-        console.log("initial", initial);
-    }, [initial]);
-
     const runTest =  () => {
         (async () => {
             if(beforeTestRun) await beforeTestRun();
-            console.log("runTest", questionId);
             setTestRunning(true);
             setTestResult(null);
             fetch(`/api/code/test/${questionId}`, { 
