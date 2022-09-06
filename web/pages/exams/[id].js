@@ -9,51 +9,44 @@ import SaveIcon from '@mui/icons-material/SaveOutlined';
 import { useInput } from '../../utils/useInput';
 
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
-import QuestionList from '../../components/question/QuestionList';
+import QuestionManager from '../../components/question/QuestionManager';
 
 import { useSnackbar } from '../../context/SnackbarContext';
 
 const UpdateExam = () => {
     const { query: { id }} = useRouter();
+
     const { show: showSnackbar } = useSnackbar();
-    const [ saveRunning, setSaveRunning ] = useState(false);
 
     const [ activeStep, setActiveStep ] = useState(1);
+    const [ saveRunning, setSaveRunning ] = useState(false);
 
     const { data: exam, error } = useSWR(
         `/api/exams/${id}`,
         (...args) => fetch(...args).then((res) => res.json())
     );
 
+    const { data: examQuestions, errorSessionQuestions } = useSWR(
+        `/api/exams/${id}/questions`, 
+        id ? (...args) => fetch(...args).then((res) => res.json()) : null
+    );
+
     const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
-    const { value:numberOfQuestions, bind:bindNumberOfQuestions, setValue:setNumberOfQuestions, setError:setErrorNumberOfQuestions } = useInput(0);
     const [ questions, setQuestions ] = useState([]);
 
     useEffect(() => {
         if(exam) {
             setLabel(exam.label);
             setDescription(exam.description);
-            setNumberOfQuestions(exam.questions.length);
-            let examQuestions = exam.questions.map((question) => ({
-                ...question, 
-                status:'initial', 
-                typeSpecific: {
-                    ...defaultQuestion.typeSpecific,
-                    [question.type]: question[question.type]
-                }
-            }));
-            setQuestions(examQuestions);
         }
-    }, [exam, setLabel, setDescription, setNumberOfQuestions]);
+    }, [exam, setLabel, setDescription]);
 
     useEffect(() => {
-        if(numberOfQuestions < questions.length){
-            setQuestions(questions.splice(0, numberOfQuestions));
-        }else if(numberOfQuestions > questions.length){
-            setQuestions([...questions, ...Array.from({ length: numberOfQuestions - questions.length }, (v, k) => ({ ...JSON.parse(JSON.stringify(defaultQuestion)), index: k }))]);
+        if(examQuestions) {
+            setQuestions(examQuestions);
         }
-    }, [setQuestions, numberOfQuestions, questions]);
+    } , [examQuestions, setQuestions]);
 
     const inputControl = (step) => {
         switch(step){
@@ -63,10 +56,10 @@ const UpdateExam = () => {
                 }
                 return label.length > 0;
             case 1:
-                if(numberOfQuestions <= 0){
-                    setErrorNumberOfQuestions({ error: true, helperText: 'You must specify at least one question' });
+                if(questions.length === 0){
+                    showSnackbar({ message: 'Exam must have at least one question', severity: 'error' });
                 }
-                return numberOfQuestions > 0;
+                return questions.length > 0;
             default:
                 return true;
         }
@@ -78,14 +71,19 @@ const UpdateExam = () => {
 
     const handleNext = () => {
         if(inputControl(activeStep)){
+            if(activeStep === 0){
+                saveExamGeneralInformation();
+            }
             setActiveStep(activeStep + 1);
+            
         }
     }
 
-    const handleSave = async () => {
+    const saveExamGeneralInformation = async (changePhase) => {
         setSaveRunning(true);
+        
         await fetch(`/api/exams/${id}`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -93,24 +91,24 @@ const UpdateExam = () => {
             body: JSON.stringify({
                 label,
                 description,
-                questions
             })
         })
         .then((res) => res.json())
-        .then(() => {
+        .then((_) => {
             showSnackbar('Exam updated successfully');
         }).catch(() => {
             showSnackbar('Error updating exam', 'error');
         });
         setSaveRunning(false);
     };
-    
+
+           
     if (error) return <div>failed to load</div>
     if (!exam) return <LoadingAnimation /> 
 
     return (
-        <Stack sx={{ minWidth:'800px' }} spacing={4} pb={40}>
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
+        <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
+            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
             
             <Stepper activeStep={activeStep} orientation="vertical">
                 <Step key="general">
@@ -141,53 +139,33 @@ const UpdateExam = () => {
                     <StepLabel>Write questions</StepLabel>
                     <StepContent>
                         <Stack spacing={2} pt={2}>
-                            <TextField
-                                id="outlined-number"
-                                label="Number of questions"
-                                type="number"
-                                fullWidth
-
-                                value={numberOfQuestions}
-                                {...bindNumberOfQuestions}
+                            <QuestionManager 
+                                partOf="exams"
+                                partOfId={id}
+                                questions={questions} 
+                                setQuestions={setQuestions} 
                             />
-                        
-                            <QuestionList questions={questions} setQuestions={setQuestions} />
                         </Stack>
                     </StepContent>
                 </Step>
             </Stepper>      
 
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
+            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
 
         </Stack>
 
     )
 }
 
-const StepNav = ({ activeStep, saveRunning, onBack, onNext, onSave }) => {
+const StepNav = ({ activeStep, onBack, onNext, saveRunning }) => {
     return (
         <Stack direction="row" justifyContent="space-between">
             <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep ===  0 && <Button onClick={onNext}>Next</Button> }
+            { activeStep ===  0 && <LoadingButton loading={saveRunning} onClick={onNext}>Next</LoadingButton> }
 
-            { activeStep === 1 && <LoadingButton startIcon={<SaveIcon />} variant="contained" color="primary" loading={saveRunning || false} onClick={onSave}>Save</LoadingButton> }
-            
+            { activeStep ===  1 && <Button onClick={onNext}>Finish</Button> }
         </Stack>
     )
 }
-
-const defaultQuestion = {
-    'type'      : 'multipleChoice',
-    'points'    : 4,
-    'content'   : '',
-    'typeSpecific': {
-        'code'      : '',
-        'trueFalse' : {},
-        'multipleChoice': {
-            'options': []
-        }
-    }
-}
-
 
 export default UpdateExam;

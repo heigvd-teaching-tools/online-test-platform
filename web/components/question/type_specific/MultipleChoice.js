@@ -1,47 +1,45 @@
 import { useEffect, useState } from 'react';
-import {  Grid, Stack, TextField, IconButton, ToggleButton, Button  } from "@mui/material"
+import {  Grid, Stack, TextField, IconButton, ToggleButton, Button, Typography  } from "@mui/material"
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
-const MuiltipleChoice = ({content:initial, onChange}) => {
+const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
     
     const [options, setOptions] = useState();
 
     useEffect(() => {
-        setOptions(initial && initial.options.length >= 2 ? initial.options : [
-            {
-                text: 'Option 1',
-                isCorrect: true
-            },
-            {
-                text: 'Option 2',
-                isCorrect: false
+        if (initial) {
+            if (initial && initial.length > 0) {
+                setOptions(initial);
+            }else{
+                setOptions(defaultOptions);
             }
-        ]);
+        }
     }, [initial]);
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">
-            <Button color="primary" startIcon={<AddIcon />} onClick={() => {
-                let newOptions = [...options, {
-                    text: 'Option',
-                    isCorrect: false
-                }];
-                setOptions(newOptions);
-                onChange({
-                    options: newOptions
-                });
-            }}>
-                Add Option
-            </Button>
-            <Grid container display="grid" rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
+            { !selectOnly && (
+               <Button color="primary" startIcon={<AddIcon />} onClick={() => {
+                    let newOptions = [...options, {
+                        text: 'Option',
+                        isCorrect: false
+                    }];
+                    setOptions(newOptions);
+                    onChange(newOptions);
+                }}>
+                    Add Option
+                </Button>
+            )}
+            
+            <Grid container display="grid" columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
                 {options && options.length > 0 && options.map((option, index) =>
                     <Grid item key={index}>
-                        <Stack direction="row" justifyContent="space-around">
-                            <ToggleButton
+                            <Stack direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
+                                <ToggleButton
                                     value="correct"
                                     selected={option.isCorrect}
                                     color='success'
@@ -49,39 +47,40 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
                                         const newOptions = [...options];
                                         newOptions[index].isCorrect = !newOptions[index].isCorrect;
                                         setOptions(newOptions);
-                                        onChange({
-                                            options: newOptions
-                                        });
+                                        onChange(newOptions);
                                     } }
                                 >
-                                   { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
+                                    { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
                                 </ToggleButton>
-                                <TextField
-                                    id="outlined-text"
-                                    label={`Option ${index + 1}`}
-                                    variant="outlined"
-                                    value={option.text}
-                                    
-                                    onChange={(e) => {
-                                        const newOptions = [...options];
-                                        newOptions[index].text = e.target.value;
+                                { !selectOnly && (<>
+                                    <TextField
+                                        id="outlined-text"
+                                        label={`Option ${index + 1}`}
+                                        variant="outlined"
+                                        value={option.text}
+                                        fullWidth
+                                        onChange={(e) => {
+                                            const newOptions = [...options];
+                                            newOptions[index].text = e.target.value;
+                                            setOptions(newOptions);
+                                            onChange(newOptions);
+                                        } }
+                                    />
+                                    <IconButton variant="small" color="error" onClick={() => {
+                                        let newOptions = [...options];
+                                        newOptions.splice(index, 1);
                                         setOptions(newOptions);
-                                        onChange({
-                                            options: newOptions
-                                        });
-                                    } }
-                                />
-                                <IconButton variant="small" color="error" onClick={() => {
-                                    let newOptions = [...options];
-                                    newOptions.splice(index, 1);
-                                    setOptions(newOptions);
-                                    onChange({
-                                        options: newOptions
-                                    });
-                                } }>
-                                    <DeleteIcon />
-                                </IconButton>
-                        </Stack>
+                                        onChange(newOptions);
+                                    } }>
+                                        <DeleteIcon />
+                                    </IconButton></>
+                                )}
+
+                                { selectOnly && (
+                                    <Typography variant="body1">{option.text}</Typography>
+                                )}
+                            </Stack>
+                        
                     </Grid>
                 )}
             </Grid>
@@ -89,4 +88,15 @@ const MuiltipleChoice = ({content:initial, onChange}) => {
     )
 }
 
-export default MuiltipleChoice;
+const defaultOptions = [
+    {
+        text: 'Option 1',
+        isCorrect: true
+    },
+    {
+        text: 'Option 2',
+        isCorrect: false
+    }
+];
+
+export default MultipleChoice;

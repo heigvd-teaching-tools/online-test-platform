@@ -6,6 +6,10 @@ import { SessionProvider } from "next-auth/react"
 import Main from '../components/layout/Main';
 import { SnackbarProvider } from '../context/SnackbarContext';
 import '../styles/normalize.css'
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 export const themeOptions = {
   palette: {
@@ -30,6 +34,9 @@ export const themeOptions = {
     fontWeightRegular: 400,
     h1: {
       fontSize: '4rem',
+    },
+    caption: {
+      fontSize: '0.7rem',
     },
   },
 };

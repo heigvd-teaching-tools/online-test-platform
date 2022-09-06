@@ -1,8 +1,8 @@
 import { Stack } from '@mui/material';
 
-const Row = ({ children, align = "center" }) => {
+const Row = ({ children, align = "center", spacing = 1, padding = 1 }) => {
     return (
-        <Stack direction="row" spacing={1} p={1} width="100%" alignItems={align}>{ children }</Stack>
+        <Stack direction="row" spacing={spacing} p={padding} width="100%" alignItems={align}>{ children }</Stack>
     )
 } ;
 

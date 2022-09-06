@@ -6,7 +6,7 @@ const SnackbarFeedback = () => {
     return (
         <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal:'center' }} open={open} autoHideDuration={3000} onClose={hide}>
             <Paper elevation={4}>
-                <Alert onClose={hide} severity={severity} sx={{ width: '100%' }}>{message}</Alert>
+                <Alert variant="filled" onClose={hide} severity={severity} sx={{ width: '100%' }}>{message}</Alert>
             </Paper>
         </Snackbar>
     )

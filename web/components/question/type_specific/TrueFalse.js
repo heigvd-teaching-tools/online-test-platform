@@ -4,34 +4,36 @@ import { Stack, Box, ToggleButton, Typography  } from "@mui/material"
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 
-const TrueFalse = ({content:initial, onChange}) => {
+const TrueFalse = ({ isTrue:initial, onChange, allowUndefined = false }) => {
     
-    const [isTrue, setIsTrue] = useState(initial.isTrue);    
+    const [isTrue, setIsTrue] = useState(initial);
 
     return(
         <Stack direction="row" justifyContent="flex-start" alignItems="center" spacing={2}>
-            <ToggleButton value="isTrue" selected={isTrue} color='success'
+            <ToggleButton value="isTrue" selected={isTrue === true} color='success'
                 onChange={() => {
-                    setIsTrue(true);
-                    onChange({isTrue: true});
+                    let newValue = isTrue === true ? allowUndefined ? undefined : isTrue : true;
+                    setIsTrue(newValue);
+                    onChange(newValue);
                 } }
             >
-                { isTrue ? <CheckIcon /> : <ClearIcon /> } 
+                { isTrue === true ? <CheckIcon /> : <ClearIcon /> } 
             </ToggleButton>
             <Box>
-                <Typography variant="h6">True</Typography>
+                <Typography variant="body1">True</Typography>
             </Box>
         
-            <ToggleButton value="isTrue" selected={!isTrue} color='success'
+            <ToggleButton value="isTrue" selected={isTrue === false} color='success'
                 onChange={() => {
-                    setIsTrue(false);
-                    onChange({isTrue: false});
+                    let newValue = isTrue === false ? allowUndefined ? undefined : isTrue : false;
+                    setIsTrue(newValue);
+                    onChange(newValue);
                 } }
             >
-                { !isTrue ? <CheckIcon /> : <ClearIcon /> } 
+                { isTrue === false ? <CheckIcon /> : <ClearIcon /> } 
             </ToggleButton>
             <Box>
-                <Typography variant="h6">False</Typography>
+                <Typography variant="body1">False</Typography>
             </Box>
     </Stack>
 
