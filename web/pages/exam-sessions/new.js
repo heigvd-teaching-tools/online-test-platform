@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router'
 
+import MainLayout from '../../components/layout/MainLayout';
 import { TextField, Stack, Button } from "@mui/material";
 import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
 import { useInput } from '../../utils/useInput';
@@ -37,6 +38,7 @@ const NewExam = () => {
     };
 
     return (
+    <MainLayout>
     <Stack sx={{ minWidth:'800px' }} spacing={2}>
         <Stack direction="row" justifyContent="flex-end">
             <Button onClick={handleNext}>Next</Button>
@@ -85,6 +87,7 @@ const NewExam = () => {
             <Button onClick={handleNext}>Next</Button>
         </Stack>
     </Stack>
+    </MainLayout>
     )
 }
 

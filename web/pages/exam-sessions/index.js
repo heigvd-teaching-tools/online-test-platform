@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Box, Toolbar, Button, Chip, IconButton } from '@mui/material';
-
+import MainLayout from '../../components/layout/MainLayout';
 import DataGrid from '../../components/ui/DataGrid';
 import { useSnackbar } from '../../context/SnackbarContext';
 import DialogFeedback from '../../components/feedback/DialogFeedback';
@@ -75,6 +75,7 @@ const ExamSessions = () => {
   }
 
   return (
+    <MainLayout>
     <Box sx={{ minWidth:'100%' }}>
       <Toolbar disableGutters variant="dense">
         <Link href="/exam-sessions/new">
@@ -117,6 +118,7 @@ const ExamSessions = () => {
           onConfirm={deleteExamSession}
       />
     </Box>
+    </MainLayout>
   )
 }
 

@@ -9,6 +9,7 @@ import StepNav from '../../../components/exam-session/StepNav';
 import LoadingAnimation from '../../../components/layout/LoadingAnimation';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import StepInProgress from '../../../components/exam-session/in-progress/StepInProgress';
+import MainLayout from '../../../components/layout/MainLayout';
 
 
 const InProgressExamSession = () => {
@@ -73,31 +74,32 @@ const InProgressExamSession = () => {
     if (!examSession) return <LoadingAnimation /> 
 
     return(
-        <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
-        <RegistrationClipboard sessionId={router.query.sessionId} />        
-        <Stepper activeStep={activeStep} orientation="vertical">
-            <Step key="in-progress">
-                <StepInProgress 
-                    examSession={examSession}
-                    handleSave={handleSave} 
-                />
-            </Step>
-            <Step key="correction">
-                <StepLabel>Correction</StepLabel>
-            </Step>
-        </Stepper>
+        <MainLayout>
+            <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
+            <RegistrationClipboard sessionId={router.query.sessionId} />        
+            <Stepper activeStep={activeStep} orientation="vertical">
+                <Step key="in-progress">
+                    <StepInProgress 
+                        examSession={examSession}
+                        handleSave={handleSave} 
+                    />
+                </Step>
+                <Step key="correction">
+                    <StepLabel>Correction</StepLabel>
+                </Step>
+            </Stepper>
 
-        <StepNav 
-            activeStep={activeStep} 
-            totalSteps={1}
-            phase={examSession.phase} 
-            saveRunning={saveRunning} 
-            onBack={handleBack} 
-            onNext={handleNext} 
-            onFinalStep={handleFinalStep}
-        />
-    
-        </Stack>
+            <StepNav 
+                activeStep={activeStep} 
+                totalSteps={1}
+                phase={examSession.phase} 
+                saveRunning={saveRunning} 
+                onBack={handleBack} 
+                onNext={handleNext} 
+                onFinalStep={handleFinalStep}
+            />
+            </Stack>
+        </MainLayout>
     )
 }
 

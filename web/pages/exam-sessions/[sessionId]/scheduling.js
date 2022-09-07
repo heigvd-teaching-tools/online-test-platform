@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
 import { ExamSessionPhase } from '@prisma/client';
+
 import { Stack, Stepper, Step, StepLabel, StepContent, Typography, List, duration } from '@mui/material';
 import RegistrationClipboard from '../../../components/exam-session/RegistrationClipboard';
 import StepNav from '../../../components/exam-session/StepNav';
 
+import MainLayout from '../../../components/layout/MainLayout';
 import LoadingAnimation from '../../../components/layout/LoadingAnimation';
 import StepSchedule from '../../../components/exam-session/schedule/StepSchedule';
 import { useSnackbar } from '../../../context/SnackbarContext';
@@ -80,6 +82,7 @@ const ScheduleExamSession = () => {
     if (!examSession) return <LoadingAnimation /> 
 
     return(
+        <MainLayout>
         <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
         <RegistrationClipboard sessionId={router.query.sessionId} />        
         <Stepper activeStep={activeStep} orientation="vertical">
@@ -120,6 +123,7 @@ const ScheduleExamSession = () => {
                 onConfirm={endSchedulingPhase}
             />
         </Stack>
+        </MainLayout>
     )
 }
 

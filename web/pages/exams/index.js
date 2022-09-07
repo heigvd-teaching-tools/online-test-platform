@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
+
+import MainLayout from '../../components/layout/MainLayout';
 import { Box, Toolbar, Button, IconButton } from '@mui/material';
 import { useSnackbar } from '../../context/SnackbarContext';
 import DataGrid from '../../components/ui/DataGrid';
@@ -70,6 +72,7 @@ const Exams = () => {
   }
 
   return (
+    <MainLayout>
     <Box sx={{ minWidth:'100%' }}>
       <Toolbar disableGutters variant="dense">
         <Link href="/exams/new">
@@ -111,6 +114,7 @@ const Exams = () => {
             onConfirm={deleteExam}
         />
     </Box>
+    </MainLayout>
   )
 }
 

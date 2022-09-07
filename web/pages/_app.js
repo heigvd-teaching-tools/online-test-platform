@@ -3,7 +3,6 @@ import { ThemeProvider, createTheme, ThemeOptions } from '@mui/material/styles';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { SessionProvider } from "next-auth/react"
-import Main from '../components/layout/Main';
 import { SnackbarProvider } from '../context/SnackbarContext';
 import '../styles/normalize.css'
 import '@fontsource/roboto/300.css';
@@ -51,9 +50,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps} }) {
         <CssBaseline />
         <Meta />
         <SessionProvider session={session}>
-          <Main>
             <Component {...pageProps} />
-          </Main>
         </SessionProvider>
       </SnackbarProvider>
     </ThemeProvider>

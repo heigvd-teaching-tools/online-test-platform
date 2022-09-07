@@ -4,6 +4,7 @@ import { StepLabel, StepContent, Typography,  Chip, Stack, Box } from '@mui/mate
 import DateCountdown from '../../../components/ui/DateCountdown';
 import MinutesSelector from '../../../components/exam-session/in-progress/MinutesSelector';
 import { useRouter } from 'next/router';
+import ExamSessionCountDown from './ExamSessionCountDown';
 
 const StepInProgress = ({ examSession, handleSave }) => {
     const router = useRouter();
@@ -25,21 +26,13 @@ const StepInProgress = ({ examSession, handleSave }) => {
                                 await handleSave(ExamSessionPhase.IN_PROGRESS);
                             }}
                         />
-                        <Chip 
-                            avatar={<AccessAlarmIcon />}
-                            label={
-                                <Typography variant="button">
-                                    <DateCountdown 
-                                        untilDate={examSession.endAt} 
-                                        onFinish={async () => {
-                                            await handleSave(ExamSessionPhase.CORRECTION);
-                                            router.push(`/exam-sessions/${router.query.sessionId}/correction`);
-                                        }}
-                                        
-                                    />
-                                </Typography>
-                            } 
-                        />
+                        <ExamSessionCountDown
+                            untilDate={examSession.endAt}
+                            onFinish={async () => {
+                                await handleSave(ExamSessionPhase.CORRECTION);
+                                //router.push(`/exam-sessions/${router.query.sessionId}/correction`);
+                            }}
+                        />   
                         <MinutesSelector
                             label={'Extend for'}
                             color="info"

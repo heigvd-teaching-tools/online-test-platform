@@ -3,8 +3,9 @@ import useSWR from "swr";
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
-import { Stack, Pagination, PaginationItem, Button  } from "@mui/material";
+import { Stack, Pagination, PaginationItem, Button, Tabs, Tab, Chip   } from "@mui/material";
 
+import ExamSessionLayout from '../../../components/layout/ExamSessionLayout';
 import AlertFeedback from "../../../components/feedback/AlertFeedback";
 import LoadingAnimation from "../../../components/layout/LoadingAnimation";
 import StudentAnswer from "../../../components/answer/StudentAnswer";
@@ -70,10 +71,25 @@ const TakeExam = () => {
     if(examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS) return <LoadingAnimation text={`${examSession.label} is not in progress.`} />;       
     
     return (
+        <ExamSessionLayout appBarContent={
+            <Stack direction="row" alignItems="center">
+                <ExamSessionCountDown
+                    untilDate={examSession.endAt}
+                />
+                {questions && questions.length > 0 && (
+                    <QuestionPages 
+                        count={questions.length} 
+                        page={page} 
+                        setPage={setPage} 
+                        hasAnswered={hasAnswered} 
+                    />
+                )}
+                
+            </Stack>
+        }>
         <Stack sx={{ minWidth:'90vw' }} spacing={4} pb={40}>
             { questions && questions.length > 0 && (
                 <>
-                <QuestionPages count={questions.length} page={page} setPage={setPage} hasAnswered={hasAnswered} />
                 {questions[page - 1] && (
                     <StudentAnswer
                         question={questions[page - 1]}
@@ -87,32 +103,33 @@ const TakeExam = () => {
                 </Stack>
             </>
             )}
-        </Stack>             
+        </Stack>    
+        </ExamSessionLayout>        
     )
 }
 
+import CheckIcon from '@mui/icons-material/Check';
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import ExamSessionCountDown from '../../../components/exam-session/in-progress/ExamSessionCountDown';
+
 const QuestionPages = ({ count, page, setPage, hasAnswered }) => {
     return (
-        <Pagination 
-            showFirstButton 
-            showLastButton 
-            siblingCount={15} 
-            count={count} 
-            page={page}
-            variant="outlined" 
-            color="primary" 
-            renderItem={(item) => {
-                let sx = {};
-                let isAnswered = item.type === 'page' && hasAnswered(page);
-                if(isAnswered) 
-                    sx = { 
-                        backgroundColor:    (theme) => theme.palette.success.light,
-                        color:              (theme) => theme.palette.success.contrastText 
-                    };
-                return <PaginationItem {...item} color="secondary" sx={sx} />
-            }}
-            onChange={(e, page) => setPage(page)}
-        />
+        <Tabs
+            value={page - 1}
+            variant="scrollable"
+            scrollButtons="auto"
+            onChange={(e, page) => setPage(page + 1)}
+        >
+            {Array.from(Array(count * 20).keys()).map((_, index) => (
+                <Tab
+                    key={index}
+                    label={`Q${index + 1}`}	
+                    iconPosition="start"
+                    sx={{ minHeight: '50px', minWidth: 0 }}
+                    icon={hasAnswered(2) ? <CheckIcon sx={{ color: 'green' }}/> : <HourglassBottomIcon />}
+                />
+            ))}
+        </Tabs>
     )
 };
 

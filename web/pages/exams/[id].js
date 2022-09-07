@@ -4,10 +4,10 @@ import { useRouter } from 'next/router';
 
 import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
-import SaveIcon from '@mui/icons-material/SaveOutlined';
 
 import { useInput } from '../../utils/useInput';
 
+import MainLayout from '../../components/layout/MainLayout';
 import LoadingAnimation from '../../components/layout/LoadingAnimation';
 import QuestionManager from '../../components/question/QuestionManager';
 
@@ -107,6 +107,7 @@ const UpdateExam = () => {
     if (!exam) return <LoadingAnimation /> 
 
     return (
+        <MainLayout>
         <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
             <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
             
@@ -153,7 +154,7 @@ const UpdateExam = () => {
             <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
 
         </Stack>
-
+        </MainLayout>
     )
 }
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { ExamSessionPhase } from '@prisma/client';
 
 import { Stepper, Step, Stack, Typography  } from "@mui/material";
-
+import MainLayout from '../../../components/layout/MainLayout';
 import LoadingAnimation from '../../../components/layout/LoadingAnimation';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
@@ -97,6 +97,7 @@ const InitiateExamSession = () => {
     if (!examSession) return <LoadingAnimation /> 
 
     return (
+        <MainLayout>
         <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>          
             <Stepper activeStep={activeStep} orientation="vertical">
             
@@ -143,6 +144,7 @@ const InitiateExamSession = () => {
                 onConfirm={endDraftPhase}
             />
         </Stack>
+        </MainLayout>
     )
 }
 

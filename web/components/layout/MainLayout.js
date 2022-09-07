@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack, ListItemText } from '@mui/material';
+import { AppBar, Box, Toolbar, Menu, Button, Stack } from '@mui/material';
 
 import MainMenu from './MainMenu';
 
@@ -14,7 +14,7 @@ import Logo from './Logo';
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
 
-const Main = ({children}) => {
+const MainLayout = ({children}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -72,4 +72,4 @@ const ContextMenu = ({anchorElUser, handleCloseUserMenu }) =>
 
               
 
-export default Main;
+export default MainLayout;
