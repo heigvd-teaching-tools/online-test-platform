@@ -1,4 +1,4 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { PrismaClient, Role, QuestionType, ExamSessionPhase } from '@prisma/client';
 
 import { hasRole } from '../../../../utils/auth';
 
@@ -9,7 +9,6 @@ if (!global.prisma) {
 const prisma = global.prisma
 
 const handler = async (req, res) => {
-
     if(!(await hasRole(req, Role.PROFESSOR))) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -46,6 +45,7 @@ const get = async (req, res) => {
     res.status(200).json(exam);
 }
 
+
 const prepareTypeSpecific = (questionType, question) => {
     switch(questionType) {
         case QuestionType.multipleChoice:
@@ -57,7 +57,6 @@ const prepareTypeSpecific = (questionType, question) => {
         case QuestionType.essay:
             return {}
         case QuestionType.code:
-            console.log("Type specific: ", question[questionType], question);
             return question[questionType]
         default:
             return undefined;
@@ -66,37 +65,68 @@ const prepareTypeSpecific = (questionType, question) => {
 
 const patch = async (req, res) => {
     const { sessionId } = req.query
-    const { label, conditions, phase, questions } = req.body;
-    const examSession = await prisma.examSession.update({
+
+    const currentExamSession = await prisma.examSession.findUnique({
         where: {
             id: sessionId
         },
-        data: {
-            label,
-            conditions,
-            phase,
-            questions: {
-                deleteMany: {},
-                create: questions.map(question => ({
-                    content: question.content,
-                    type: question.type,
-                    points: parseInt(question.points),
-                    [question.type]: {
-                        create: prepareTypeSpecific(question.type, question)
-                    }
-                }))
-            }
-        },
-        include: {
-            questions: {
-                include: {
-                    code: { select: { code: true, solution: true } },
-                }
-            }
+        select: {
+            phase: true
         }
+    });    
+    
+    if(!currentExamSession) {
+        res.status(404).json({ message: 'Exam session not found' });
+        return;
+    }
+
+    const { phase:nextPhase, label, conditions, questions, duration, endAt } = req.body;
+    
+    let data = {};
+
+    if(nextPhase){
+        data.phase = nextPhase;
+    }
+
+    if(label){
+        data.label = label;
+    }
+
+    if(conditions){
+        data.conditions = conditions;
+    }
+
+    if(questions){
+        data.questions = {
+            deleteMany: {},
+            create: questions.map(question => ({
+                content: question.content,
+                type: question.type,
+                points: parseInt(question.points),
+                [question.type]: {
+                    create: prepareTypeSpecific(question.type, question)
+                }
+            }))
+        }
+    }
+
+    if(duration){
+        data.startAt = new Date();
+        data.endAt = new Date(new Date().getTime() + duration.hours * 60 * 60 * 1000 + duration.minutes * 60 * 1000);
+    }
+
+    if(endAt){
+        data.endAt = endAt;
+    }
+
+    const examSessionAfterUpdate = await prisma.examSession.update({
+        where: {
+            id: sessionId
+        },
+        data: data
     });
                     
-    res.status(200).json(examSession);
+    res.status(200).json(examSessionAfterUpdate);
 }
 
 const del = async (req, res) => {

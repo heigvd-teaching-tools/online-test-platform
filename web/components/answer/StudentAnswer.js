@@ -21,7 +21,10 @@ const StudentAnswer = ({ question, page, onAnswer }) => {
                 </Row>
                 <Row>
                     <Column flexGrow={1}>
-                        <Editor editorState={editorState} readOnly={true} />
+                        <Editor 
+                            readOnly={true} 
+                            editorState={editorState} 
+                        />
                     </Column>
                     
                 </Row>
@@ -55,7 +58,7 @@ const displayQuestionType = (type) => {
         case 'trueFalse':
             return "True/False";
         case 'code':
-            return "Code";
+            return "Code Challenge";
         default:
             return "N/A";
     }

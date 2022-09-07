@@ -1,183 +1,90 @@
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { ExamSessionPhase } from '@prisma/client';
 
-import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField, Autocomplete, Box, Switch, Typography, Paper, FormGroup, FormControlLabel, Chip, List, ListItem, ListItemText  } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
-
-import { useInput } from '../../../utils/useInput';
+import { Stepper, Step, Stack, Typography  } from "@mui/material";
 
 import LoadingAnimation from '../../../components/layout/LoadingAnimation';
-import QuestionManager from '../../../components/question/QuestionManager';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
-import AlertFeedback from '../../../components/feedback/AlertFeedback';
-import UserAvatar from '../../../components/layout/UserAvatar';
+import StepNav from '../../../components/exam-session/StepNav';
+import StepGeneralInformation from '../../../components/exam-session/draft/StepGeneralInformation';
+import StepReferenceExam from '../../../components/exam-session/draft/StepReferenceExam';
 
-const stepPhaseRelation = {
-    0: 'DRAFT',
-    1: 'DRAFT',
-    2: 'DRAFT',
-    3: 'REGISTRATION',
-    4: 'IN_PROGRESS',
-    5: 'CORRECTION',
-}
-
-const DisplayPhase = ({phase}) => {
-    switch (phase) {
-      case 'DRAFT':
-        return <Chip label="Draft" color="warning" />;
-      case 'REGISTRATION':
-        return <Chip label="Registration" color="info" />;
-      case 'IN_PROGRESS':
-        return <Chip label="In progress" color="primary" />;
-      case 'CORRECTION':
-        return <Chip label="Correction" color="secondary" />;
-      case 'FINISHED':
-        return <Chip label="Finished" color="success" />;
-      default:
-        return <Chip label="N/A" color="error" />;
-    }
-  }
-  
-
-const UpdateSessionExam = () => {
-    const { query: { sessionId }} = useRouter();
+import DialogFeedback from '../../../components/feedback/DialogFeedback';
+const InitiateExamSession = () => {
+    const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
     const [ saveRunning, setSaveRunning ] = useState(false);
 
-    const { data: examSession, errorSession } = useSWR(
-        `/api/exam-sessions/${sessionId}`,
-        sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+    const { data, errorSession } = useSWR(
+        `/api/exam-sessions/${router.query.sessionId}`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
-    const { data: exams, errorExams } = useSWR(
-        `/api/exams`, 
-        (...args) => fetch(...args).then((res) => res.json())
-    );
-
-    const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${sessionId}/questions/with-answers/official`, 
-        sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
-    );
-        
-    const [ selectedExam, setSelectedExam ] = useState(null);
-
-    const { data: examQuestions, errorExamQuestions } = useSWR(
-        `/api/exams/${selectedExam && selectedExam.id}/questions`, 
-        selectedExam ? (...args) => fetch(...args).then((res) => res.json()) : null
-    );
-    
     const [ activeStep, setActiveStep ] = useState(1);
-    const [ phase, setPhase ] = useState("");
+    const [ finalStepDialogOpen, setFinalStepDialogOpen ] = useState(false);
+    const [ examSession, setExamSession ] = useState(data);
     
-    const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
-    const { value:conditions, bind:bindConditions, setValue:setConditions } = useInput('');
-    
-    const [ questionsValidated, setQuestionsValidated ] = useState(false);
-    const [ questions, setQuestions ] = useState([]);
-    
-    const [ students, setStudents ] = useState([]);
-
     useEffect(() => {
-        if(examSession) {
-            setLabel(examSession.label);
-            setConditions(examSession.conditions);
-            setStudents(examSession.students);
-            setPhase(examSession.phase);
-            setQuestionsValidated(["REGISTRATION", "IN_PROGRESS", "CORRECTION"].includes(examSession.phase));
-            let step = parseInt(Object.keys(stepPhaseRelation).reverse().find((key) => stepPhaseRelation[key] === examSession.phase));
-            if(examSession.phase === "DRAFT") {
-                sessionQuestions && sessionQuestions.length === 0 ? step = 1 : step = 2;
-            }
-            setActiveStep(step);
-        }
-    }, [examSession, sessionQuestions, setLabel, setConditions, setStudents]);
-
-    useEffect(() => {
-        if(examQuestions) {
-            setQuestions(examQuestions);
-        }
-    } , [examQuestions, setQuestions]);
-
-    useEffect(() => {
-        if(sessionQuestions && sessionQuestions.length > 0) {
-            setQuestions(sessionQuestions);
-        }
-    } , [sessionQuestions, setQuestions]);
-
-    useEffect(() => {
-        if(!selectedExam && !sessionQuestions) {
-            setQuestions([]);
-        }
-    } , [selectedExam, sessionQuestions, setQuestions]);
+        setExamSession(data);
+        setActiveStep(1);
+    }, [data, examSession]);
 
     const inputControl = (step) => {
         switch(step){
             case 0:
-                if(label.length === 0){
-                    setErrorLabel({ error: true, helperText: 'Label is required' });
-                }
-                return label.length > 0;
+                return examSession.label.length > 0;
             case 1:
-                if(questions && questions.length === 0){
+                if(examSession.questions && examSession.questions.length === 0){
                     showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');
                 }
-                return questions && questions.length > 0;
-            case 2:
-                if(!questionsValidated){
-                    showSnackbar('You did not validate your questions.', 'error');
-                }
-                return questionsValidated;
-           
+                return examSession.questions && examSession.questions.length > 0;     
             default:
                 return true;
         }
     }
 
-    const onExamChange = (value) => {
-        setSelectedExam(value);
-    }
-
     const handleBack = () => {
         let previousStep = activeStep - 1;
         setActiveStep(previousStep);
-        let newPhase = stepPhaseRelation[previousStep]
-        handleSave(newPhase);
+        handleSave(ExamSessionPhase.DRAFT);
     }
 
     const handleNext = () => {
         if(inputControl(activeStep)){
             let nextStep = activeStep + 1;
             setActiveStep(nextStep);
-            let nextPhase = stepPhaseRelation[nextStep];
-            handleSave(nextPhase);
+            handleSave(ExamSessionPhase.DRAFT);
         }
+    }
+
+    const handleFinalStep = () => {
+        setFinalStepDialogOpen(true);
+    }
+
+    const endDraftPhase = async () => {
+        await handleSave(ExamSessionPhase.SCHEDULING);
+        router.push(`/exam-sessions/${router.query.sessionId}/scheduling`);
     }
 
     const handleSave = async (changePhase) => {
         setSaveRunning(true);
         
-        await fetch(`/api/exam-sessions/${sessionId}`, {
+        await fetch(`/api/exam-sessions/${router.query.sessionId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                label,
-                questions, 
-                students,
+                ...examSession,
                 phase: changePhase,
             })
         })
         .then((res) => res.json())
-        .then((newSession) => {
-            setLabel(newSession.label);
-            setConditions(newSession.conditions);
-            setPhase(newSession.phase);
-            setQuestionsValidated(["REGISTRATION", "IN_PROGRESS", "CORRECTION"].includes(newSession.phase));
+        .then((_) => {
             showSnackbar('Exam session updated successfully');
         }).catch(() => {
             showSnackbar('Error updating exam session', 'error');
@@ -190,144 +97,53 @@ const UpdateSessionExam = () => {
     if (!examSession) return <LoadingAnimation /> 
 
     return (
-        <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
-            <RegistrationClipboard sessionId={sessionId} />
-            <StepNav activeStep={activeStep} phase={phase} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
-            
+        <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>          
             <Stepper activeStep={activeStep} orientation="vertical">
-            <Step key="general">
-                    <StepLabel>General informations</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>
-                            <TextField
-                                label="Label"
-                                id="exam-label"
-                                fullWidth
-                                value={label}
-                                {...bindLabel}
-                            />
-
-                            <TextField
-                                label="Conditions"
-                                id="exam-conditions"
-                                fullWidth
-                                multiline
-                                rows={4}
-                                value={conditions}
-                                {...bindConditions}
-                            />
-                            
-                        </Stack>
-                    </StepContent>
-            </Step>
-                
-            <Step key="chose-exam">
-                <StepLabel>Chose the reference exam</StepLabel>
-                <StepContent>
-                    <Stack spacing={2} pt={2}>                        
-                        <Autocomplete
-                            id="exam-id"
-                            inputValue={selectedExam ? selectedExam.label : ''}
-                            options={exams || []}
-                            renderInput={(params) => <TextField {...params} label="Find the reference exam" />}
-                            noOptionsText="No exams found"
-                            onChange={(_, value) => onExamChange(value)}
-                        />
-
-                         { exams && exams.length === 0 && 
-                           <Link href="/exams/new"><Button variant="contained">Create a new exam</Button></Link>
-                         }
-
-                        { selectedExam && 
-                            <AlertFeedback severity="info">
-                                The reference exam contains {selectedExam.questions.length} questions. Their copy will be assigned for this session.
-                            </AlertFeedback>
-                        }
-
-                        { sessionQuestions && selectedExam && sessionQuestions.length > 0 && 
-                            <AlertFeedback severity="warning">
-                                This session already has {sessionQuestions.length} questions. They will be replaced by the questions of the reference exam.
-                            </AlertFeedback>
-                        }
             
-                    </Stack>
-                        
-                    </StepContent>
-                </Step>
-                
-                <Step key="prepare-session">
-                    <StepLabel>Prepare questions and validate</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>  
-                            <FormGroup aria-label="position" row>
-                                <FormControlLabel
-                                    control={
-                                        <Switch 
-                                            color="primary" 
-                                            checked={questionsValidated} 
-                                            onChange={() => {
-                                                setQuestionsValidated(!questionsValidated);
-                                            }}
-                                    />}
-                                    label="Questions are ready, the session can go to the registration phase."
-                                    labelPlacement="end"
-                                />
-                            </FormGroup>
-                            <QuestionManager questions={questions} setQuestions={setQuestions} />
-                        </Stack>
-                    </StepContent>
-                </Step>
-
-                <Step key="student-registration">
-                    <StepLabel>Student registration</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>  
-                            {students && students.length > 0 && (
-                                <>
-                                    <Typography variant="h6">{students.length} registered students</Typography>
-                                    <List>
-                                        {students.map((student, index) => (
-                                            <UserAvatar key={index} user={student.user} />
-                                        ))}
-                                    </List>
-                                </>
-                            )}
-                        </Stack>
-                    </StepContent>
-                </Step>
+            <Step key="general">
+                <StepGeneralInformation 
+                    examSession={examSession} 
+                    onChange={(data)=>{
+                        examSession.label = data.label;
+                        examSession.description = data.description;
+                    }}
+                />
+            </Step>
+            <Step key="chose-exam">
+                <StepReferenceExam 
+                    examSession={examSession}
+                    onChange={(exam, questions)=>{
+                        examSession.questions = questions;
+                    }}
+                />
+            </Step>    
+                                
             </Stepper>      
 
-            <StepNav activeStep={activeStep} phase={phase} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext} onSave={handleSave}  />
-
-        </Stack>
-
-    )
-}
-
-const RegistrationClipboard = ({ sessionId }) => {
-    return (
-        <Paper>
-            <Stack direction="row" p={2} justifyContent="space-between" alignItems="center">
-                <Box><Typography variant="caption" size="small">{`http://localhost:3000/exam-sessions/${sessionId}/register`}</Typography></Box>
-                <Box><Button variant="outlined" color="secondary" onClick={() => {
-                    navigator.clipboard.writeText(`http://localhost:3000/exam-sessions/${sessionId}/register`);
-                }}>Copy</Button></Box>
-            </Stack>
-        </Paper>
-    )
-}
-
-const StepNav = ({ activeStep, phase, saveRunning, onBack, onNext, onSave }) => {
-    return (
-        <Stack direction="row" justifyContent="space-between">
-            <LoadingButton onClick={onBack} loading={saveRunning || false} disabled={activeStep === 0}>Back</LoadingButton>
-            
-            <DisplayPhase phase={phase} />
-
-            <LoadingButton onClick={onNext} loading={saveRunning || false}>Next</LoadingButton>
+            <StepNav 
+                activeStep={activeStep} 
+                totalSteps={2}
+                phase={examSession.phase} 
+                saveRunning={saveRunning} 
+                onBack={handleBack} 
+                onNext={handleNext} 
+                onFinalStep={handleFinalStep}
+            />
+            <DialogFeedback 
+                open={finalStepDialogOpen} 
+                title="End of DRAFT phase"
+                content={
+                    <>
+                    <Typography variant="body1" gutterBottom>You are about to move to the scheduling phase. You will not be able to change the exam session anymore.</Typography>
+                    <Typography variant="body1" gutterBottom>Next phase is the scheduling phase. You will be able to schedule the exam session and invite students to participate.</Typography>
+                    <Typography variant="button" gutterBottom> Are you sure you want to continue?`</Typography>
+                    </>
+                }
+                onClose={() => setFinalStepDialogOpen(false)}
+                onConfirm={endDraftPhase}
+            />
         </Stack>
     )
 }
 
-
-export default UpdateSessionExam;
+export default InitiateExamSession;

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
+import { ExamSessionPhase } from '@prisma/client';
 
 import { Stack, Pagination, PaginationItem, Button  } from "@mui/material";
 
@@ -66,7 +67,7 @@ const TakeExam = () => {
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
-    if(examSession && examSession.phase !== 'IN_PROGRESS') return <LoadingAnimation text={`${examSession.label} is not in progress.`} />;       
+    if(examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS) return <LoadingAnimation text={`${examSession.label} is not in progress.`} />;       
     
     return (
         <Stack sx={{ minWidth:'90vw' }} spacing={4} pb={40}>

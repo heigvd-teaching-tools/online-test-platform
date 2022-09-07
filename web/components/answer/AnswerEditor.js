@@ -9,6 +9,30 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
     const [ answer, setAnswer ] = useState(undefined);
 
+    const onAnswerByType = (newAnswer) => {
+        /* 
+            decide the answer submit or delete condition on per type basis
+            answer "undefined" means delete
+        */
+        switch(answer.type) {
+            case 'trueFalse':
+                onAnswer(newAnswer);
+                break;
+            case 'multipleChoice':
+                let countCorrect = newAnswer.filter(o => o.isCorrect).length;
+                onAnswer(countCorrect > 0 ? newAnswer : undefined);
+                break;
+            case 'essay':
+                onAnswer(newAnswer);
+                break;
+            case 'code':
+                onAnswer(newAnswer);
+                break;
+            default:
+                break;
+        }
+    }
+
     useEffect(() => {
         if(question){
 
@@ -54,7 +78,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     <TrueFalse 
                         allowUndefined={true}
                         isTrue={answer.isTrue} 
-                        onChange={onAnswer} 
+                        onChange={onAnswerByType} 
                     />
                 )
                 ||
@@ -62,7 +86,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     <MultipleChoice
                         selectOnly
                         options={answer.options}
-                        onChange={onAnswer}
+                        onChange={onAnswerByType}
                     />
                 )
                 || 
@@ -70,7 +94,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     <Essay
                         label="Your answer"
                         content={answer.content}
-                        onChange={onAnswer}
+                        onChange={onAnswerByType}
                     />
                 )
                 ||
@@ -83,7 +107,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                         }}
                         code={answer.code}
                         onChange={(which, newCode) => {
-                            onAnswer({
+                            onAnswerByType({
                                 [which]: newCode
                             })
                         }}

@@ -7,27 +7,11 @@ import { Box, Toolbar, Button, Chip, IconButton } from '@mui/material';
 import DataGrid from '../../components/ui/DataGrid';
 import { useSnackbar } from '../../context/SnackbarContext';
 import DialogFeedback from '../../components/feedback/DialogFeedback';
+import DisplayPhase from '../../components/exam-session/DisplayPhase';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
-}
-
-const displayPhase = (phase) => {
-  switch (phase) {
-    case 'DRAFT':
-      return <Chip label="Draft" color="warning" />;
-    case 'REGISTRATION':
-      return <Chip label="Registration" color="info" />;
-    case 'IN_PROGRESS':
-      return <Chip label="In progress" color="primary" />;
-    case 'CORRECTION':
-      return <Chip label="Correction" color="secondary" />;
-    case 'FINISHED':
-      return <Chip label="Finished" color="success" />;
-    default:
-      return 'N/A';
-  }
 }
 
 const gridHeader = {
@@ -126,12 +110,12 @@ const ExamSessions = () => {
           />
       )}
       <DialogFeedback 
-              open={deleteDialogOpen}  
-              title="Delete exam session"
-              content="Are you sure you want to delete this exam session?"
-              onClose={() => setDeleteDialogOpen(false)}
-              onConfirm={deleteExamSession}
-          />
+          open={deleteDialogOpen}  
+          title="Delete exam session"
+          content="Are you sure you want to delete this exam session?"
+          onClose={() => setDeleteDialogOpen(false)}
+          onConfirm={deleteExamSession}
+      />
     </Box>
   )
 }

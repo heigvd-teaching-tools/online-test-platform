@@ -23,7 +23,7 @@ import { useInput } from '../../utils/useInput';
 import { LoadingButton } from '@mui/lab';
 
 import DialogFeedback from '../feedback/DialogFeedback';
-import ContentEditor from './content/ContentEditor';
+import ContentEditor from '../input/ContentEditor';
 
 const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => {
     
