@@ -38,7 +38,10 @@ const DateCountdown = ({ untilDate, onFinish }) => {
     return (
     <>
         {timeLeft && (
-            <>{timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</>
+            <>
+            {timeLeft.hours > 0 ? `${timeLeft.hours}h `: ''} 
+            {timeLeft.minutes > 0 ? `${timeLeft.minutes}m `: ''} 
+            {timeLeft.seconds}s</>
         )}
     </>
     );

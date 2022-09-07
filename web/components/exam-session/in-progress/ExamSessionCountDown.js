@@ -5,7 +5,8 @@ import DateCountdown from '../../ui/DateCountdown';
 const ExamSessionCountDown = ({ untilDate, onFinish }) => {
     return (
         <Chip 
-            avatar={<AccessAlarmIcon style={{ color: '#01579b'}} />}
+            color='error'
+            avatar={<AccessAlarmIcon style={{ color: 'white'}} />}
             label={
                 <Typography variant="button">
                     <DateCountdown 
