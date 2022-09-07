@@ -90,7 +90,7 @@ const ExamSessions = () => {
             updatedAt: displayDateTime(examSession.updatedAt),
             questions: examSession.questions.length,
             students: examSession.students.length,
-            phase: displayPhase(examSession.phase),
+            phase: <DisplayPhase phase={examSession.phase} />,
             meta: {
               key: examSession.id,
               linkHref: `/exam-sessions/${examSession.id}`,
