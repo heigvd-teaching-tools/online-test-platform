@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ExamSessionPhase } from '@prisma/client';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import { Stack, Stepper, Step } from '@mui/material';
+import { Stack, Stepper, Step, StepLabel } from '@mui/material';
 import RegistrationClipboard from '../../../components/exam-session/RegistrationClipboard';
 import StepNav from '../../../components/exam-session/StepNav';
 
@@ -81,6 +81,9 @@ const InProgressExamSession = () => {
                     examSession={examSession}
                     handleSave={handleSave} 
                 />
+            </Step>
+            <Step key="correction">
+                <StepLabel>Correction</StepLabel>
             </Step>
         </Stepper>
 

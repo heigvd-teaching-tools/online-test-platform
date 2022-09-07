@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const DateCountdown = ({ untilDate }) => {
+const DateCountdown = ({ untilDate, onFinish }) => {
     const [ timeLeft, setTimeLeft ] = useState();
 
     const calculateTimeLeft = () => {
@@ -13,6 +13,15 @@ const DateCountdown = ({ untilDate }) => {
                 minutes: Math.floor((difference / 1000 / 60) % 60),
                 seconds: Math.floor((difference / 1000) % 60),
             };
+        }else{
+            timeLeft = {
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+            };
+            if(onFinish){
+                onFinish();
+            }
         }
 
         return timeLeft;

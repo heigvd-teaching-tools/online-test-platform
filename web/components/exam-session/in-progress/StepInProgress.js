@@ -3,8 +3,10 @@ import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import { StepLabel, StepContent, Typography,  Chip, Stack, Box } from '@mui/material';
 import DateCountdown from '../../../components/ui/DateCountdown';
 import MinutesSelector from '../../../components/exam-session/in-progress/MinutesSelector';
+import { useRouter } from 'next/router';
 
 const StepInProgress = ({ examSession, handleSave }) => {
+    const router = useRouter();
     return (
         <>
         <StepLabel>In progress</StepLabel>
@@ -25,10 +27,16 @@ const StepInProgress = ({ examSession, handleSave }) => {
                         />
                         <Chip 
                             avatar={<AccessAlarmIcon />}
-                            size="large"
                             label={
                                 <Typography variant="button">
-                                <DateCountdown untilDate={examSession.endAt} />
+                                    <DateCountdown 
+                                        untilDate={examSession.endAt} 
+                                        onFinish={async () => {
+                                            await handleSave(ExamSessionPhase.CORRECTION);
+                                            router.push(`/exam-sessions/${router.query.sessionId}/correction`);
+                                        }}
+                                        
+                                    />
                                 </Typography>
                             } 
                         />
