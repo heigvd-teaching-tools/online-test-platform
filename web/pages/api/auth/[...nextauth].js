@@ -4,7 +4,7 @@ import GithubProvider from 'next-auth/providers/github';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient, Role } from '@prisma/client';
 
-const professors = [ 'stefanteofanovic@hotmail.com' ];
+const professors = [ 'bchapuis@gmail.com', 'stefanteofanovic@hotmail.com'];
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
