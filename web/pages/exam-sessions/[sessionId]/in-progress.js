@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { ExamSessionPhase } from '@prisma/client';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import { Stack, Stepper, Step, StepLabel, StepContent, Typography,  Chip } from '@mui/material';
+import { Stack, Stepper, Step } from '@mui/material';
 import RegistrationClipboard from '../../../components/exam-session/RegistrationClipboard';
 import StepNav from '../../../components/exam-session/StepNav';
-
 
 import LoadingAnimation from '../../../components/layout/LoadingAnimation';
 import { useSnackbar } from '../../../context/SnackbarContext';
