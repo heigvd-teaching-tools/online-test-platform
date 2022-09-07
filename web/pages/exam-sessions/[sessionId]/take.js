@@ -74,7 +74,8 @@ const TakeExam = () => {
         <ExamSessionLayout appBarContent={
             <Stack direction="row" alignItems="center">
                 <ExamSessionCountDown
-                    untilDate={examSession.endAt}
+                    startDate={examSession.startAt}
+                    endDate={examSession.endAt}
                 />
                 {questions && questions.length > 0 && (
                     <QuestionPages 
@@ -109,7 +110,7 @@ const TakeExam = () => {
 }
 
 import CheckIcon from '@mui/icons-material/Check';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import CloseIcon from '@mui/icons-material/Close';
 import ExamSessionCountDown from '../../../components/exam-session/in-progress/ExamSessionCountDown';
 
 const QuestionPages = ({ count, page, setPage, hasAnswered }) => {
@@ -126,7 +127,7 @@ const QuestionPages = ({ count, page, setPage, hasAnswered }) => {
                     label={`Q${index + 1}`}	
                     iconPosition="start"
                     sx={{ minHeight: '50px', minWidth: 0 }}
-                    icon={hasAnswered(2) ? <CheckIcon sx={{ color: 'green' }}/> : <HourglassBottomIcon />}
+                    icon={hasAnswered(2) ? <CheckIcon sx={{ color: '#2e7d32' }}/> : <CloseIcon sx={{ color: '#da291c' }} />}
                 />
             ))}
         </Tabs>

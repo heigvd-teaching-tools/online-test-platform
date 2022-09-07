@@ -27,7 +27,8 @@ const StepInProgress = ({ examSession, handleSave }) => {
                             }}
                         />
                         <ExamSessionCountDown
-                            untilDate={examSession.endAt}
+                            startDate={examSession.startAt}
+                            endDate={examSession.endAt}
                             onFinish={async () => {
                                 await handleSave(ExamSessionPhase.CORRECTION);
                                 //router.push(`/exam-sessions/${router.query.sessionId}/correction`);
