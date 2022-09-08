@@ -28,7 +28,7 @@ export const runSandbox = (code, solution = "", mode = "run") => {
             } else {
                 resolve({
                     success: false,
-                    expected: "",
+                    expected: "N/A",
                     result: "Timeout"
                 });
             }
