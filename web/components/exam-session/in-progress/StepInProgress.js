@@ -26,7 +26,7 @@ const StepInProgress = ({ examSession, handleSave }) => {
                                 await handleSave(ExamSessionPhase.IN_PROGRESS);
                             }}
                         />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body1">
                             {`Started at ${new Date(examSession.startAt).toLocaleTimeString()}`}
                         </Typography>
                         <ExamSessionCountDown
@@ -37,7 +37,7 @@ const StepInProgress = ({ examSession, handleSave }) => {
                                 //router.push(`/exam-sessions/${router.query.sessionId}/correction`);
                             }}
                         />   
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body1">
                             {`Ends at ${new Date(examSession.endAt).toLocaleTimeString()}`}
                         </Typography>
                         <MinutesSelector
