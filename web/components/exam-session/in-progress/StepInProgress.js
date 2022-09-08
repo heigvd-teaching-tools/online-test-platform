@@ -30,7 +30,7 @@ const StepInProgress = ({ examSession, handleSave }) => {
                             startDate={examSession.startAt}
                             endDate={examSession.endAt}
                             onFinish={async () => {
-                                await handleSave(ExamSessionPhase.CORRECTION);
+                                //await handleSave(ExamSessionPhase.CORRECTION);
                                 //router.push(`/exam-sessions/${router.query.sessionId}/correction`);
                             }}
                         />   
