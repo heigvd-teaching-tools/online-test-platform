@@ -32,12 +32,7 @@ const ExamSessionLayout = ({children, appBarContent}) => {
             }
             { status === 'authenticated' &&
             <Box>
-                <AppBar 
-                    position="static" 
-                    enableColorOnDark
-                    color="transparent"
-                    sx={{ height: '48px', maxWidth: '100vw'  }}
-                    >
+                <AppBar position="static" enableColorOnDark color="transparent" sx={{ height: '48px', maxWidth: '100vw'  }}>
                     <Toolbar variant="dense">   
                         <Box sx={{ mr:2, pt:0 }}>
                             <Logo color="red" />
@@ -50,7 +45,7 @@ const ExamSessionLayout = ({children, appBarContent}) => {
                         <ContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
                     </Toolbar>
                 </AppBar>
-                <Stack sx={{ height: 'calc(100vh - 48px)', p:6 }} alignItems="center">
+                <Stack sx={{ height: 'calc(100vh - 48px)', width:'100vw' }} alignItems="center">
                     {children}
                 </Stack>
             </Box> 

@@ -41,7 +41,7 @@ const DateCountdown = ({ untilDate, onFinish }) => {
             <>
             {timeLeft.hours > 0 ? `${timeLeft.hours}h `: ''} 
             {timeLeft.minutes > 0 ? `${timeLeft.minutes}m `: ''} 
-            {timeLeft.seconds}s</>
+            </>
         )}
     </>
     );

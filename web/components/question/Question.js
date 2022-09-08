@@ -165,6 +165,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                         ( questionType === 'code' && question.code &&
                             <Stack spacing={2}>
                                 <Code 
+                                    editorHeight='450px'
                                     rightEditorLabel={{
                                         label: "Partial Code",
                                         subheader: "Provided to students" 

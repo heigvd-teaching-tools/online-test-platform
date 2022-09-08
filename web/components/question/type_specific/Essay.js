@@ -22,6 +22,7 @@ const Essay = ({ label, content:initial, onChange }) => {
             label={label}
             id="essay-content"
             value={content}
+            sx={{ p:1 }}
             {...bindContent}
         />
     )

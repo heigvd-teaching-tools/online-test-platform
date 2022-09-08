@@ -88,20 +88,18 @@ const TakeExam = () => {
                 
             </Stack>
         }>
-        <Stack sx={{ minWidth:'90vw' }} spacing={4} pb={40}>
+        <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
             { questions && questions.length > 0 && (
                 <>
                 {questions[page - 1] && (
                     <StudentAnswer
                         question={questions[page - 1]}
+                        totalPages={questions.length}
                         page={page} 
+                        setPage={setPage}
                         onAnswer={onAnswer}
                     />
                 )}
-                <Stack direction="row" justifyContent="space-between">
-                    <Button color="primary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
-                    <Button color="primary" disabled={page === questions.length} onClick={() => setPage(page + 1)}>Next</Button>
-                </Stack>
             </>
             )}
         </Stack>    

@@ -5,7 +5,7 @@ import CodeEditor from './CodeEditor';
 
 import Row from '../../layout/Row';
 
-const Code = ({ code:initial, mode = "full", rightEditorLabel, onChange }) => {
+const Code = ({ code:initial, mode = "full", editorHeight = '100%', rightEditorLabel, onChange }) => {
 
     const [ code, setCode ] = useState();
 
@@ -16,13 +16,14 @@ const Code = ({ code:initial, mode = "full", rightEditorLabel, onChange }) => {
     }, [initial]);
  
     return (
-        <Stack direction="column" spacing={2}>
+        <>
             {code && (
                 <Row align="flex-start" padding={0}>
                 {mode === "full" && (
                     <CodeEditor 
                         label="Solution Code"
                         subheader="Not visible for students."
+                        editorHeight={editorHeight}
                         code={initial.solution}
                         onChange={(newCode) => {
                             setCode({
@@ -35,8 +36,9 @@ const Code = ({ code:initial, mode = "full", rightEditorLabel, onChange }) => {
                 )}
                 
                 <CodeEditor 
-                    label={rightEditorLabel.label}
-                    subheader={rightEditorLabel.subheader}
+                    label={rightEditorLabel && rightEditorLabel.label ? rightEditorLabel.label : undefined}
+                    subheader={rightEditorLabel && rightEditorLabel.subheader? rightEditorLabel.subheader : undefined}
+                    editorHeight={editorHeight}
                     code={initial.code}
                     onChange={(newCode) => {
                         setCode({
@@ -51,7 +53,7 @@ const Code = ({ code:initial, mode = "full", rightEditorLabel, onChange }) => {
             
             
 
-        </Stack>
+        </>
     )
 }
 

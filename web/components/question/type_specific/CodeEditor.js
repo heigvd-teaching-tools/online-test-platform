@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Card, Collapse , CardActions, IconButton, TextField, Stack, Typography, CardHeader, CardContent  } from "@mui/material";
+import { Collapse , Paper, IconButton, TextField, Stack, Box } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
 
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ label, subheader, code:initial, onChange }) => {
+const CodeEditor = ({ label, subheader, editorHeight = '100%', code:initial, onChange }) => {
+    
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(initial || "");
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
+    
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -40,44 +42,42 @@ const CodeEditor = ({ label, subheader, code:initial, onChange }) => {
         });
     }
 
+    
+
     return (
-        <Card elevation={0} sx={{ flex:1 }}>
-            <CardHeader 
-                disableTypography 
-                title={<Typography variant='button' component="section">{label}</Typography>} 
-                subheader={<Typography variant='caption'>{subheader}</Typography>}
-            />     
-            <CardContent>
-                <Editor
-                    height="600px"
-                    defaultLanguage="javascript"
-                    value={code}
-                    onChange={onCodeChange}
-                />
-            </CardContent>       
-            <CardActions>
+        <Box sx={{ width:'100%', height:'100%', position:'relative' }}>
+            <Editor
+                width="100%"
+                height={editorHeight}
+                defaultLanguage="javascript"
+                value={code}
+                onChange={onCodeChange}
+            />
+            
+            <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:1, m:'0 !important'  }}>
                 <Stack direction="row" justifyContent="space-between" align="center" width="100%">
                     <LoadingButton color="info" loading={codeRunning} onClick={runCode}>Run</LoadingButton>
                     <IconButton onClick={handleExpandClick}>
-                        {expanded ? <ExpandLess /> : <ExpandMore />}
+                        {expanded ?  <ExpandMore /> : <ExpandLess />}
                     </IconButton>
                 </Stack>
-            </CardActions>
-            <Collapse in={expanded} timeout="auto" unmountOnExit >
-                <TextField
-                    label="Result"
-                    id="result-display"
-                    fullWidth
-                    multiline
-                    rows={10}
-                    value={result}
-                    variant="filled"
-                    InputProps={{
-                        readOnly: true,
-                    }}
-                />
-            </Collapse>
-        </Card>
+            
+                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                    <TextField
+                        label="Result"
+                        id="result-display"
+                        fullWidth
+                        multiline
+                        rows={20}
+                        value={result}
+                        variant="filled"
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                </Collapse>
+            </Paper>
+        </Box>
     )
     
 }

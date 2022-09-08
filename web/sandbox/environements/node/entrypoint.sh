@@ -1,11 +1,11 @@
 #!/bin/sh
 ## Licensed under the terms of http://www.apache.org/licenses/LICENSE-2.0
-set -e
-codeRun=$(node ${CODE})
+
+codeRun=$(node ${CODE} 2>&1)
 
 if [ "$MODE" = "test" ] 
 then
-    solutionRun=$(node ${SOLUTION})
+    solutionRun=$(node ${SOLUTION} 2>&1)
     
     if [ "${codeRun}" = "${solutionRun}" ] 
     then

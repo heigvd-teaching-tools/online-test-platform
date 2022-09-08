@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { Stack, Select, MenuItem } from '@mui/material';
+import { Stack, MenuItem } from '@mui/material';
 import { useInput } from '../../utils/useInput';
 import DropDown from './DropDown';
 import { Box } from '@mui/system';
