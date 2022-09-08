@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+import { Paper } from "@mui/material";
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
@@ -6,8 +8,33 @@ import Essay from '../question/type_specific/Essay';
 import Code from '../question/type_specific/Code';
 
 const AnswerEditor = ({ question, onAnswer }) => {
-
+    const container = useRef();
     const [ answer, setAnswer ] = useState(undefined);
+    const [ height, setHeight ] = useState(0);
+
+    const onAnswerByType = (newAnswer) => {
+        /* 
+            decide the answer submit or delete condition on per type basis
+            answer "undefined" means delete
+        */
+        switch(answer.type) {
+            case 'trueFalse':
+                onAnswer(newAnswer);
+                break;
+            case 'multipleChoice':
+                let countCorrect = newAnswer.filter(o => o.isCorrect).length;
+                onAnswer(countCorrect > 0 ? newAnswer : undefined);
+                break;
+            case 'essay':
+                onAnswer(newAnswer);
+                break;
+            case 'code':
+                onAnswer(newAnswer);
+                break;
+            default:
+                break;
+        }
+    }
 
     useEffect(() => {
         if(question){
@@ -46,15 +73,38 @@ const AnswerEditor = ({ question, onAnswer }) => {
         }
     }, [question]);
 
+    useEffect(() => {
+        // only execute all the code below in client side
+        if(typeof window !== 'undefined'){
+            var containerRef = container.current;
+            // Handler to call on window resize
+            function handleResize() {
+                // Set window width/height to state
+                setHeight(containerRef.offsetHeight - 9);
+            }
+            
+            // Add event listener
+            window.addEventListener("resize", handleResize);
+            
+            // Call handler right away so state gets updated with initial window size
+            handleResize();
+            
+            // Remove event listener on cleanup
+            return () => {
+                window.removeEventListener("resize", handleResize);
+          };
+        }
+      }, [container]);
+
     return (
-        <>
+        <Paper square elevation={0} sx={{ flex:1, height: '100%', width:'100%', position:'relative', overflow:'hidden', p:1 }} ref={container}>
         {
             answer && (
                 answer.type === 'trueFalse' && (
                     <TrueFalse 
                         allowUndefined={true}
                         isTrue={answer.isTrue} 
-                        onChange={onAnswer} 
+                        onChange={onAnswerByType} 
                     />
                 )
                 ||
@@ -62,7 +112,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     <MultipleChoice
                         selectOnly
                         options={answer.options}
-                        onChange={onAnswer}
+                        onChange={onAnswerByType}
                     />
                 )
                 || 
@@ -70,20 +120,17 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     <Essay
                         label="Your answer"
                         content={answer.content}
-                        onChange={onAnswer}
+                        onChange={onAnswerByType}
                     />
                 )
                 ||
                 answer.type === 'code' && (
                     <Code
                         mode="partial"
-                        rightEditorLabel={{
-                            label: "Your answer",
-                            subheader: "Test your output using `Run Test` button below"
-                        }}
                         code={answer.code}
+                        editorHeight={height}
                         onChange={(which, newCode) => {
-                            onAnswer({
+                            onAnswerByType({
                                 [which]: newCode
                             })
                         }}
@@ -92,7 +139,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
             )
         }
-        </>
+        </Paper>
     )
 }
 

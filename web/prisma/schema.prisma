@@ -142,7 +142,7 @@ model Code {
 
 enum ExamSessionPhase {
   DRAFT
-  REGISTRATION
+  SCHEDULING
   IN_PROGRESS
   CORRECTION
   FINISHED
@@ -156,8 +156,8 @@ model ExamSession {
   phase      ExamSessionPhase @default(DRAFT)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
-  startedAt  DateTime         @default(now())
-  finishedAt DateTime?
+  startAt    DateTime? 
+  endAt      DateTime?
 
   students  UserOnExamSession[]
   questions Question[]

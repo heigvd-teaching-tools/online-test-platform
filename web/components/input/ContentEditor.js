@@ -8,7 +8,7 @@ const Editor = dynamic(
     { ssr: false }
 );
 
-const ContentEditor = ({ content, onChange }) => {
+const ContentEditor = ({ readOnly = false, content, onChange }) => {
     const [ editorState, setEditorState ] = useState();
 
     useEffect(() => {
@@ -22,6 +22,7 @@ const ContentEditor = ({ content, onChange }) => {
 
     return (
         <Editor
+            readOnly={readOnly}
             editorState={editorState}
             onEditorStateChange={onEditorStateChange}
         />

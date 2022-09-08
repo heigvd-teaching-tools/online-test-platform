@@ -3,31 +3,15 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Box, Toolbar, Button, Chip, IconButton } from '@mui/material';
-
+import MainLayout from '../../components/layout/MainLayout';
 import DataGrid from '../../components/ui/DataGrid';
 import { useSnackbar } from '../../context/SnackbarContext';
 import DialogFeedback from '../../components/feedback/DialogFeedback';
+import DisplayPhase from '../../components/exam-session/DisplayPhase';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
-}
-
-const displayPhase = (phase) => {
-  switch (phase) {
-    case 'DRAFT':
-      return <Chip label="Draft" color="warning" />;
-    case 'REGISTRATION':
-      return <Chip label="Registration" color="info" />;
-    case 'IN_PROGRESS':
-      return <Chip label="In progress" color="primary" />;
-    case 'CORRECTION':
-      return <Chip label="Correction" color="secondary" />;
-    case 'FINISHED':
-      return <Chip label="Finished" color="success" />;
-    default:
-      return 'N/A';
-  }
 }
 
 const gridHeader = {
@@ -91,6 +75,7 @@ const ExamSessions = () => {
   }
 
   return (
+    <MainLayout>
     <Box sx={{ minWidth:'100%' }}>
       <Toolbar disableGutters variant="dense">
         <Link href="/exam-sessions/new">
@@ -106,7 +91,7 @@ const ExamSessions = () => {
             updatedAt: displayDateTime(examSession.updatedAt),
             questions: examSession.questions.length,
             students: examSession.students.length,
-            phase: displayPhase(examSession.phase),
+            phase: <DisplayPhase phase={examSession.phase} />,
             meta: {
               key: examSession.id,
               linkHref: `/exam-sessions/${examSession.id}`,
@@ -126,13 +111,14 @@ const ExamSessions = () => {
           />
       )}
       <DialogFeedback 
-              open={deleteDialogOpen}  
-              title="Delete exam session"
-              content="Are you sure you want to delete this exam session?"
-              onClose={() => setDeleteDialogOpen(false)}
-              onConfirm={deleteExamSession}
-          />
+          open={deleteDialogOpen}  
+          title="Delete exam session"
+          content="Are you sure you want to delete this exam session?"
+          onClose={() => setDeleteDialogOpen(false)}
+          onConfirm={deleteExamSession}
+      />
     </Box>
+    </MainLayout>
   )
 }
 

@@ -32,6 +32,7 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
             })
             .then(res => res.text())
             .then(data => {
+                console.log("data", data);
                 setTestRunning(false);
                 setTestResult(JSON.parse(data.replace(/\n/g, "\\n")));
                 setExpanded(true);
@@ -48,11 +49,11 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
         <>
             <Row padding={1}>
                 <Column flexGrow={1}>
-                    <LoadingButton variant="outlined" color="info" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
+                    <LoadingButton variant="contained" color="info" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
                 </Column>
                 <Column>
                     <IconButton onClick={() => setExpanded(!expanded)}>
-                        {expanded ? <ExpandLess /> : <ExpandMore />}
+                        {expanded ? <ExpandMore /> : <ExpandLess />}
                     </IconButton>
                 </Column>
             </Row>

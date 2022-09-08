@@ -14,7 +14,7 @@ import Logo from './Logo';
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
 
-const Main = ({children}) => {
+const ExamSessionLayout = ({children, appBarContent}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -32,20 +32,20 @@ const Main = ({children}) => {
             }
             { status === 'authenticated' &&
             <Box>
-                <AppBar position="static" enableColorOnDark>
+                <AppBar position="static" enableColorOnDark color="transparent" sx={{ height: '48px', maxWidth: '100vw'  }}>
                     <Toolbar variant="dense">   
                         <Box sx={{ mr:2, pt:0 }}>
-                            <Logo />
+                            <Logo color="red" />
                         </Box>
-                        <Box sx={{ flexGrow: 1 }}>
-                            <MainMenu />
+                        <Box sx={{ flex: 1, overflow:'hidden' }}>
+                            {appBarContent}
                         </Box>
                         
                         <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                         <ContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
                     </Toolbar>
                 </AppBar>
-                <Stack sx={{ height: 'calc(100vh - 48px)', p:6 }} alignItems="center">
+                <Stack sx={{ height: 'calc(100vh - 48px)', width:'100vw' }} alignItems="center">
                     {children}
                 </Stack>
             </Box> 
@@ -72,4 +72,4 @@ const ContextMenu = ({anchorElUser, handleCloseUserMenu }) =>
 
               
 
-export default Main;
+export default ExamSessionLayout;
