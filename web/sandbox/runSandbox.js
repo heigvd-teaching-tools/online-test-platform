@@ -1,9 +1,9 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
-const { GenericContainer } = require("testcontainers");
-
+const { GenericContainer, Wait } = require("testcontainers");
 
 // mode = run / test
+// https://www.npmjs.com/package/testcontainers
 export const runSandbox = (code, solution = "", mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
         
@@ -20,10 +20,27 @@ export const runSandbox = (code, solution = "", mode = "run") => {
             .withCmd(["sleep", "infinity"])
             .start();
 
+        // Exit the node process after 30 seconds
+        let timeout = setTimeout(() => {
+            container.stop();
+            if (mode === "run") {
+                reject("Timeout");
+            } else {
+                resolve({
+                    success: false,
+                    expected: "",
+                    result: "Timeout"
+                });
+            }
+        }, 1000 * 30);
+
         // Execute the code
-        const { output:result } = await container.exec(["node", "/app/code.js"]);
         const { output:expected } = await container.exec(["node", "/app/solution.js"]);
+        const { output:result } = await container.exec(["node", "/app/code.js"]);
         
+                
+        clearTimeout(timeout);
+
         // Stop the container
         await container.stop();
 
