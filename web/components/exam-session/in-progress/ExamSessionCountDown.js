@@ -11,8 +11,6 @@ const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
     const duration = end.getTime() - start.getTime();
     const elapsed = now.getTime() - start.getTime();
     const percentage = elapsed / duration * 100;
-    console.log(parseInt(percentage));
-
 
     return (
         <Chip 
