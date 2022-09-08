@@ -55,7 +55,7 @@ const CodeEditor = ({ label, subheader, editorHeight = '100%', code:initial, onC
             />
             
             <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:0  }}>
-                <Stack direction="row" alignItems="center" width="100%" spacing={1} sx={{ p:1 }}>
+                <Stack direction="row" alignItems="center" width="100%" spacing={1} sx={{ pt:1, pb:1 }}>
                     <LoadingButton 
                         color="info"  
                         loading={codeRunning} 
