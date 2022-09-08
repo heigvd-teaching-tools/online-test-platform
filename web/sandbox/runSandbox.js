@@ -27,8 +27,7 @@ export const runSandbox = (code, solution = "", mode = "run") => {
         // Prepare output based on mode
         let output;
         if (mode === "run") {
-            // simple run
-            output = result;
+            output = result; // simple run
         } else if (mode === "test") {
             // test run
             output = {
