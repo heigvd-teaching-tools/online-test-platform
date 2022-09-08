@@ -33,9 +33,9 @@ const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
 const Pie = ({percentage}) => (
     <Box sx={{ padding:'4px 0px 0px 6px' }}>
     <svg height="20" width="20" viewBox="0 0 20 20">
-        <circle r="10" cx="10" cy="10" fill="white" />
+        <circle r="10" cx="10" cy="10" fill="#01579b" />
         <circle r="5" cx="10" cy="10" fill="transparent"
-                stroke="#da291c"
+                stroke="white"
                 strokeWidth="10"
                 strokeDasharray={`calc(35 * ${percentage} / 100) 31.5`}
                 transform="rotate(-90) translate(-20)" />
