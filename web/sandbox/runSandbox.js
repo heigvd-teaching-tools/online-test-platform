@@ -24,26 +24,23 @@ export const runSandbox = (code, solution = "", mode = "run") => {
         const { output:result } = await container.exec(["node", "/app/code.js"]);
         const { output:expected } = await container.exec(["node", "/app/solution.js"]);
         
-        // Prepare output based on mode
-        let output;
-        if (mode === "run") {
-            output = result; // simple run
-        } else if (mode === "test") {
-            // test run
-            output = {
-                success: result === expected,
-                expected: expected,
-                result: result,
-            };
-        }
-
         // Stop the container
         await container.stop();
 
         // Delete the files
         fs.rmSync(directory, { recursive: true, force: true });
 
-        // Send the result
-        resolve(output);
+        // Prepare output based on mode
+        if (mode === "run") {
+            // Send the result
+            resolve(result);
+        } else if (mode === "test") {
+            // test run
+            resolve({
+                success: result === expected,
+                expected: expected,
+                result: result,
+            });
+        }
     });
 }
