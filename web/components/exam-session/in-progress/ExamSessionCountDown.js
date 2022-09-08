@@ -33,7 +33,7 @@ const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
 const Pie = ({percentage}) => (
     <Box sx={{ padding:'4px 0px 0px 6px' }}>
     <svg height="20" width="20" viewBox="0 0 20 20">
-        <circle r="10" cx="10" cy="10" fill="#01579b" />
+        <circle r="10" cx="10" cy="10" fill="#da291c" />
         <circle r="5" cx="10" cy="10" fill="transparent"
                 stroke="white"
                 strokeWidth="10"
