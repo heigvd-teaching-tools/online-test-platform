@@ -67,7 +67,7 @@ const CodeEditor = ({ label, subheader, editorHeight = '100%', code:initial, onC
                         color="info"
                         startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
                         onClick={handleExpandClick}>
-                        Run Result
+                        See Result
                     </Button>
                 </Stack>
             

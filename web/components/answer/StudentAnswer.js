@@ -19,7 +19,7 @@ const StudentAnswer = ({ question, page, totalPages, setPage, onAnswer }) => {
                         <Column flexGrow={1}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
                                     <Button color="primary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
-                                    <Typography variant="body1"><b>{page}</b> / {totalPages}</Typography>
+                                    <Typography variant="body1">{page} / <b>{totalPages}</b></Typography>
                                     <Button color="primary" onClick={() => setPage(page + 1)}>Next</Button>
                             </Stack>
                         </Column>
