@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { IconButton, Collapse, Stack, Typography, TextareaAutosize, Alert } from "@mui/material"
+import { IconButton, Collapse, Stack, Typography, TextareaAutosize, Button } from "@mui/material"
 import { LoadingButton } from '@mui/lab';
 
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -48,13 +48,16 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
     return(
         <>
             <Row padding={1}>
-                <Column flexGrow={1}>
+                <Column>
                     <LoadingButton variant="contained" color="info" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
                 </Column>
                 <Column>
-                    <IconButton onClick={() => setExpanded(!expanded)}>
-                        {expanded ? <ExpandMore /> : <ExpandLess />}
-                    </IconButton>
+                    <Button 
+                        color="info"
+                        startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
+                        onClick={() => setExpanded(!expanded)}>
+                        Test Result
+                    </Button>
                 </Column>
             </Row>
             <Collapse in={expanded}>

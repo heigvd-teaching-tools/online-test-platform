@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Collapse , Paper, IconButton, TextField, Stack, Box } from "@mui/material";
+import { Collapse , Paper, Button, TextField, Stack, Box } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
 
@@ -54,12 +54,21 @@ const CodeEditor = ({ label, subheader, editorHeight = '100%', code:initial, onC
                 onChange={onCodeChange}
             />
             
-            <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:1, m:'0 !important'  }}>
-                <Stack direction="row" justifyContent="space-between" align="center" width="100%">
-                    <LoadingButton color="info" loading={codeRunning} onClick={runCode}>Run</LoadingButton>
-                    <IconButton onClick={handleExpandClick}>
-                        {expanded ?  <ExpandMore /> : <ExpandLess />}
-                    </IconButton>
+            <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:0  }}>
+                <Stack direction="row" alignItems="center" width="100%" spacing={1} sx={{ p:1 }}>
+                    <LoadingButton 
+                        color="info"  
+                        loading={codeRunning} 
+                        onClick={runCode}
+                        variant="outlined"
+                    >Run</LoadingButton>
+                    
+                    <Button 
+                        color="info"
+                        startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
+                        onClick={handleExpandClick}>
+                        Run Result
+                    </Button>
                 </Stack>
             
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
