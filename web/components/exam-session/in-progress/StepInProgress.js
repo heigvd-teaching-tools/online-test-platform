@@ -13,7 +13,7 @@ const StepInProgress = ({ examSession, handleSave }) => {
         <StepLabel>In progress</StepLabel>
             <StepContent>
                 <Box pt={4} pb={4}>
-                    <Stack spacing={4} direction="row" justifyContent="space-between">
+                    <Stack spacing={4} direction="row" alignItems="center" justifyContent="space-between">
                         <MinutesSelector
                             label={'Reduce by'}
                             color="primary"
@@ -26,6 +26,9 @@ const StepInProgress = ({ examSession, handleSave }) => {
                                 await handleSave(ExamSessionPhase.IN_PROGRESS);
                             }}
                         />
+                        <Typography variant="body2" color="text.secondary">
+                            {`Started at ${new Date(examSession.startAt).toLocaleTimeString()}`}
+                        </Typography>
                         <ExamSessionCountDown
                             startDate={examSession.startAt}
                             endDate={examSession.endAt}
@@ -34,6 +37,9 @@ const StepInProgress = ({ examSession, handleSave }) => {
                                 //router.push(`/exam-sessions/${router.query.sessionId}/correction`);
                             }}
                         />   
+                        <Typography variant="body2" color="text.secondary">
+                            {`Ends at ${new Date(examSession.endAt).toLocaleTimeString()}`}
+                        </Typography>
                         <MinutesSelector
                             label={'Extend for'}
                             color="info"
