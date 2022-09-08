@@ -30,11 +30,10 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: initial.code })
             })
-            .then(res => res.text())
+            .then(res => res.json())
             .then(data => {
-                console.log("data", data);
                 setTestRunning(false);
-                setTestResult(JSON.parse(data.replace(/\n/g, "\\n")));
+                setTestResult(data);
                 setExpanded(true);
             }).catch(_ => {
                 showSnackbar("Error running test", "error");
