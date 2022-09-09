@@ -73,10 +73,12 @@ const TakeExam = () => {
     return (
         <ExamSessionLayout appBarContent={
             <Stack direction="row" alignItems="center">
-                <ExamSessionCountDown
-                    startDate={examSession.startAt}
-                    endDate={examSession.endAt}
-                />
+                {examSession.startAt && examSession.endAt && (
+                    <ExamSessionCountDown
+                        startDate={examSession.startAt}
+                        endDate={examSession.endAt}
+                    />
+                )}
                 {questions && questions.length > 0 && (
                     <QuestionPages 
                         count={questions.length} 

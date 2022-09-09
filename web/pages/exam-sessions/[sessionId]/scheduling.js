@@ -41,7 +41,7 @@ const ScheduleExamSession = () => {
     const handleBack = () => {}
 
     const handleFinalStep = () => {
-        if(duration.hours * 60 + duration.minutes === 0){
+        if(duration && duration.hours * 60 + duration.minutes === 0){
             showSnackbar('Please set the duration of the exam session.', 'error');
             return;
         }
@@ -115,7 +115,9 @@ const ScheduleExamSession = () => {
                     <>
                     <Typography variant="body1" gutterBottom>You are about to go into the <b>in-progress</b> phase.</Typography>
                     <Typography variant="body1" gutterBottom>Students will be able to start with their exam session.</Typography>
-                    <Typography variant="body1" gutterBottom>End time estimated at <b>{new Date(Date.now() + (duration.hours * 60 + duration.minutes) * 60000).toLocaleTimeString()}</b>.</Typography>
+                    {duration && (
+                        <Typography variant="body1" gutterBottom>End time estimated at <b>{new Date(Date.now() + (duration.hours * 60 + duration.minutes) * 60000).toLocaleTimeString()}</b>.</Typography>
+                    )}
                     <Typography variant="button" gutterBottom> Are you sure you want to continue?`</Typography>
                     </>
                 }

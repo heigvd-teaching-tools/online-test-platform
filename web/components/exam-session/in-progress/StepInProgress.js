@@ -12,7 +12,32 @@ const StepInProgress = ({ examSession, handleSave }) => {
         <>
         <StepLabel>In progress</StepLabel>
             <StepContent>
-                <Box pt={4} pb={4}>
+                { examSession.startAt && examSession.endAt ? 
+                    ( 
+                        <DurationManager 
+                            examSession={examSession} 
+                            handleSave={handleSave} 
+                        />
+                    ) : 
+                    <Stack spacing={4} direction="row" alignItems="center" justifyContent="center">
+                        <Box>
+                        <Typography variant="h6">The exam session is in progress.</Typography>
+                        <Typography variant="body1">Go to the next phase to end the session</Typography>
+                        </Box>
+                    </Stack>
+                }
+                    
+                
+                
+            </StepContent>
+        </>
+    )
+}
+
+const DurationManager = ({ examSession, handleSave }) => {
+    const router = useRouter();
+    return (
+        <Box pt={4} pb={4}>
                     <Stack spacing={4} direction="row" alignItems="center" justifyContent="space-between">
                         <MinutesSelector
                             label={'Reduce by'}
@@ -54,9 +79,8 @@ const StepInProgress = ({ examSession, handleSave }) => {
                         />
                     </Stack>
                 </Box>
-            </StepContent>
-        </>
     )
 }
+
 
 export default StepInProgress;

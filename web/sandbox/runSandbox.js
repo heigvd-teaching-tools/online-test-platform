@@ -20,7 +20,7 @@ export const runSandbox = (code, solution = "", mode = "run") => {
             .withCmd(["sleep", "infinity"])
             .start();
 
-        // Exit the node process after 30 seconds
+        // Stop the container after 30 seconds
         let timeout = setTimeout(() => {
             container.stop();
             if (mode === "run") {
