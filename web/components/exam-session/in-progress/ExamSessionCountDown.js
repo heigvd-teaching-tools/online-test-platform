@@ -19,7 +19,6 @@ const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
                     <DateCountdown 
                         untilDate={endDate} 
                         onFinish={onFinish}
-                        
                     />
                 </Typography>
             } 

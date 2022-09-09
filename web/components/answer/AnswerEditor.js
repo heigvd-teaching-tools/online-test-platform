@@ -12,6 +12,11 @@ const AnswerEditor = ({ question, onAnswer }) => {
     const [ answer, setAnswer ] = useState(undefined);
     const [ height, setHeight ] = useState(0);
 
+    const resizeObserver = useRef(new ResizeObserver(entries => {
+        const { height } = entries[0].contentRect;
+        setHeight(height);
+    }));
+    
     const onAnswerByType = (newAnswer) => {
         /* 
             decide the answer submit or delete condition on per type basis
@@ -74,30 +79,16 @@ const AnswerEditor = ({ question, onAnswer }) => {
     }, [question]);
 
     useEffect(() => {
-        // only execute all the code below in client side
-        if(typeof window !== 'undefined'){
-            var containerRef = container.current;
-            // Handler to call on window resize
-            function handleResize() {
-                // Set window width/height to state
-                setHeight(containerRef.offsetHeight - 9);
-            }
-            
-            // Add event listener
-            window.addEventListener("resize", handleResize);
-            
-            // Call handler right away so state gets updated with initial window size
-            handleResize();
-            
+            var element = container.current;
+            var observer = resizeObserver.current;
+            observer.observe(element);         
+
             // Remove event listener on cleanup
-            return () => {
-                window.removeEventListener("resize", handleResize);
-          };
-        }
-      }, [container]);
+            return () => observer.unobserve(element);
+      }, [resizeObserver, container]);
 
     return (
-        <Paper square elevation={0} sx={{ flex:1, height: '100%', width:'100%', position:'relative', overflow:'hidden', p:1 }} ref={container}>
+        <Paper ref={container} square elevation={0} sx={{ flex:1, height: '100%', width:'100%', position:'relative', overflow:'hidden', p:1 }}>
         {
             answer && (
                 answer.type === 'trueFalse' && (

@@ -40,12 +40,12 @@ const StudentAnswer = ({ question, page, totalPages, setPage, onAnswer }) => {
                 </Box>
             }
             rightPanel={
-                <Box sx={{ width:'100%', height:'100%', pt:1 }}>
+                <Stack sx={{ height:'100%', pt:1 }}>
                     <AnswerEditor 
                         question={question}
                         onAnswer={onAnswer} 
                     />          
-                </Box>  
+                </Stack>  
             }
         />
         { question.type === 'code' && (
