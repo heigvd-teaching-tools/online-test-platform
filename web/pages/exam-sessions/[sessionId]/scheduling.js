@@ -51,7 +51,7 @@ const ScheduleExamSession = () => {
     const endSchedulingPhase = async () => {
         setFinalStepDialogOpen(false);
         await handleSave(ExamSessionPhase.IN_PROGRESS);
-        router.push(`/exam-sessions/${router.query.sessionId}/in-progress`);
+        
     }
 
 
@@ -70,12 +70,22 @@ const ScheduleExamSession = () => {
             })
         })
         .then((res) => res.json())
-        .then((_) => {
+        .then((updatedExamSession) => {
+            console.log("updatedExamSession", updatedExamSession);
+            setSaveRunning(false);
             showSnackbar('Exam session updated successfully');
+            setExamSession({
+                ...examSession,
+                startAt: updatedExamSession.startAt,
+                endAt: updatedExamSession.endAt,
+            });
+            router.push(`/exam-sessions/${router.query.sessionId}/in-progress`);
+            
         }).catch(() => {
+            setSaveRunning(false);
             showSnackbar('Error updating exam session', 'error');
         });
-        setSaveRunning(false);
+        
     };
 
     if (errorSession) return <div>failed to load</div>

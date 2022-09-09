@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Collapse , Paper, Button, TextField, Stack, Box } from "@mui/material";
+import { Collapse , Paper, Button, TextField, Stack, Box, Typography } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
 
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ label, subheader, editorHeight = '100%', code:initial, onChange }) => {
+const CodeEditor = ({ label, code:initial, editorHeight,  onChange }) => {
     
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(initial || "");
@@ -46,6 +46,7 @@ const CodeEditor = ({ label, subheader, editorHeight = '100%', code:initial, onC
 
     return (
         <Box sx={{ width:'100%', height:'100%', position:'relative' }}>
+            { label && (<Typography variant="h6" sx={{ mb:2 }}>{label}</Typography>)}
             <Editor
                 width="100%"
                 height={editorHeight}

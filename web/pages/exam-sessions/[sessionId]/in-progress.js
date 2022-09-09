@@ -23,20 +23,11 @@ const InProgressExamSession = () => {
 
     const [ saveRunning, setSaveRunning ] = useState(false);
     const [ activeStep, setActiveStep ] = useState(0);
-    const [ examSession, setExamSession ] = useState(data);
+    const [ examSession, setExamSession ] = useState();
 
-    useEffect(() => {
-        if(!examSession){
-            setExamSession(data);
-        }
-    }, [data, examSession]);
+    useEffect(() => setExamSession(data), [data]);
 
     const handleNext = () => {
-        if(duration.hours * 60 + duration.minutes === 0){
-            showSnackbar('Please set the duration of the exam session.', 'error');
-            return;
-        }
-        handleSave(ExamSessionPhase.IN_PROGRESS);
         let nextStep = activeStep + 1;
         setActiveStep(nextStep);
     }

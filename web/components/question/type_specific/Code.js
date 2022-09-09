@@ -22,7 +22,6 @@ const Code = ({ code:initial, mode = "full", editorHeight = '100%', rightEditorL
                 {mode === "full" && (
                     <CodeEditor 
                         label="Solution Code"
-                        subheader="Not visible for students."
                         editorHeight={editorHeight}
                         code={initial.solution}
                         onChange={(newCode) => {
@@ -37,7 +36,6 @@ const Code = ({ code:initial, mode = "full", editorHeight = '100%', rightEditorL
                 
                 <CodeEditor 
                     label={rightEditorLabel && rightEditorLabel.label ? rightEditorLabel.label : undefined}
-                    subheader={rightEditorLabel && rightEditorLabel.subheader? rightEditorLabel.subheader : undefined}
                     editorHeight={editorHeight}
                     code={initial.code}
                     onChange={(newCode) => {

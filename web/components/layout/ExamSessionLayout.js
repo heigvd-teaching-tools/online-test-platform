@@ -34,7 +34,7 @@ const ExamSessionLayout = ({children, appBarContent}) => {
             <Box>
                 <AppBar position="static" enableColorOnDark color="transparent" sx={{ height: '48px', maxWidth: '100vw'  }}>
                     <Toolbar variant="dense">   
-                        <Box sx={{ mr:2, pt:0 }}>
+                        <Box sx={{ mr:0, pt:0 }}>
                             <Logo color="red" />
                         </Box>
                         <Box sx={{ flex: 1, overflow:'hidden' }}>

@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
-import { Stack, Pagination, PaginationItem, Button, Tabs, Tab, Chip   } from "@mui/material";
+import { Stack, Box, Tabs, Tab } from "@mui/material";
 
 import ExamSessionLayout from '../../../components/layout/ExamSessionLayout';
 import AlertFeedback from "../../../components/feedback/AlertFeedback";
@@ -74,10 +74,12 @@ const TakeExam = () => {
         <ExamSessionLayout appBarContent={
             <Stack direction="row" alignItems="center">
                 {examSession.startAt && examSession.endAt && (
+                    <Box sx={{ ml:2 }}>
                     <ExamSessionCountDown
                         startDate={examSession.startAt}
                         endDate={examSession.endAt}
                     />
+                    </Box>
                 )}
                 {questions && questions.length > 0 && (
                     <QuestionPages 

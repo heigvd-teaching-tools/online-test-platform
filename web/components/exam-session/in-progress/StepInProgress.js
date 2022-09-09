@@ -26,9 +26,6 @@ const StepInProgress = ({ examSession, handleSave }) => {
                         </Box>
                     </Stack>
                 }
-                    
-                
-                
             </StepContent>
         </>
     )
