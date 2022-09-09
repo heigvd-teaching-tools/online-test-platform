@@ -29,7 +29,7 @@ const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
         <>
         <ResizePanel 
             leftPanel={
-                <Stack spacing={2} sx={{ overflow:'auto', minWidth: 0, height:'100%', p:3 }}>
+                <Stack spacing={2} sx={{ overflow:'auto', minWidth: 0, height:'100%', pl:2, pt:2, pr:1 }}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                         <Column width="32px"><Image alt="Loading..." src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" /></Column>
                         <Column right><Typography variant="body1">{displayQuestionType(question.type)}</Typography></Column>
