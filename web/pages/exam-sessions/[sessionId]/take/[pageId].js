@@ -5,28 +5,30 @@ import { ExamSessionPhase } from '@prisma/client';
 
 import { Stack, Box, Tabs, Tab } from "@mui/material";
 
-import ExamSessionLayout from '../../../components/layout/ExamSessionLayout';
-import AlertFeedback from "../../../components/feedback/AlertFeedback";
-import LoadingAnimation from "../../../components/layout/LoadingAnimation";
-import StudentAnswer from "../../../components/answer/StudentAnswer";
-import { useSnackbar } from '../../../context/SnackbarContext';
+import ExamSessionLayout from '../../../../components/layout/ExamSessionLayout';
+import AlertFeedback from "../../../../components/feedback/AlertFeedback";
+import LoadingAnimation from "../../../../components/layout/LoadingAnimation";
+import StudentAnswer from "../../../../components/answer/StudentAnswer";
+import { useSnackbar } from '../../../../context/SnackbarContext';
 
 const TakeExam = () => {
-    const { query: { sessionId }} = useRouter();
+    const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
 
     const { data: examSession, errorSession } = useSWR(
-        `/api/exam-sessions/${sessionId}`,
-        sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        `/api/exam-sessions/${router.query.sessionId}`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     const { data: sessionQuestions, errorQuestions } = useSWR(
-        `/api/exam-sessions/${sessionId}/questions/with-answers/student`,
-        sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        `/api/exam-sessions/${router.query.sessionId}/questions/with-answers/student`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
-    const [ page, setPage ] = useState(1);
+    const [ page, setPage ] = useState(parseInt(router.query.pageId));
     const [ questions, setQuestions ] = useState(undefined);
+
+    useEffect(() => setPage(parseInt(router.query.pageId)), [router.query.pageId]);
 
     useEffect(() => {
         if(sessionQuestions){
@@ -36,7 +38,7 @@ const TakeExam = () => {
 
     const onAnswer = useCallback((answer) => {
         (async () => {
-            await fetch(`/api/exam-sessions/${sessionId}/questions/${questions[page - 1].id}/answer`, {
+            await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${questions[page - 1].id}/answer`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ const TakeExam = () => {
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
-    }, [questions, page, sessionId, showSnackbar]);
+    }, [questions, page, router.query.sessionId, showSnackbar]);
 
     const hasAnswered = useCallback((page) => {
         let question = questions[page - 1];
@@ -85,7 +87,7 @@ const TakeExam = () => {
                     <QuestionPages 
                         count={questions.length} 
                         page={page} 
-                        setPage={setPage} 
+                        router={router} 
                         hasAnswered={hasAnswered} 
                     />
                 )}
@@ -100,7 +102,6 @@ const TakeExam = () => {
                         question={questions[page - 1]}
                         totalPages={questions.length}
                         page={page} 
-                        setPage={setPage}
                         onAnswer={onAnswer}
                     />
                 )}
@@ -113,15 +114,16 @@ const TakeExam = () => {
 
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import ExamSessionCountDown from '../../../components/exam-session/in-progress/ExamSessionCountDown';
+import ExamSessionCountDown from '../../../../components/exam-session/in-progress/ExamSessionCountDown';
 
-const QuestionPages = ({ count, page, setPage, hasAnswered }) => {
+const QuestionPages = ({ count, page, hasAnswered }) => {
+    const router = useRouter();
     return (
         <Tabs
             value={page - 1}
             variant="scrollable"
             scrollButtons="auto"
-            onChange={(e, page) => setPage(page + 1)}
+            onChange={(e, page) => router.push(`/exam-sessions/${router.query.sessionId}/take/${page + 1}`)}
         >
             {Array.from(Array(count).keys()).map((_, index) => (
                 <Tab

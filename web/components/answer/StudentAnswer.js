@@ -6,10 +6,25 @@ import AnswerEditor from "./AnswerEditor";
 import CodeTestResult from '../question/type_specific/CodeTestResult';
 import { Editor, EditorState, convertFromRaw } from "draft-js"
 import ResizePanel from '../layout/ResizePanel';
+import { useRouter } from 'next/router';
 
-const StudentAnswer = ({ question, page, totalPages, setPage, onAnswer }) => {
+const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
+    const router = useRouter();
     const contentState = convertFromRaw(JSON.parse(question.content));
     const editorState = EditorState.createWithContent(contentState);
+
+    const nextPage = () => {
+        if(page < totalPages) {
+            router.push(`/exam-sessions/${router.query.sessionId}/take/${page + 1}`);
+        }
+    }
+
+    const previousPage = () => {
+        if(page > 1) {
+            router.push(`/exam-sessions/${router.query.sessionId}/take/${page - 1}`);
+        }
+    }
+
     return (
         <>
         <ResizePanel 
@@ -18,9 +33,9 @@ const StudentAnswer = ({ question, page, totalPages, setPage, onAnswer }) => {
                     <Row>
                         <Column flexGrow={1}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Button color="primary" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</Button>
+                                    <Button color="primary" disabled={page === 1} onClick={previousPage}>Previous</Button>
                                     <Typography variant="body1">{page} / <b>{totalPages}</b></Typography>
-                                    <Button color="primary" onClick={() => setPage(page + 1)}>Next</Button>
+                                    <Button color="primary" disabled={page === totalPages} onClick={nextPage}>Next</Button>
                             </Stack>
                         </Column>
                     </Row>
