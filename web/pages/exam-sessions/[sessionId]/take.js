@@ -123,13 +123,13 @@ const QuestionPages = ({ count, page, setPage, hasAnswered }) => {
             scrollButtons="auto"
             onChange={(e, page) => setPage(page + 1)}
         >
-            {Array.from(Array(count * 20).keys()).map((_, index) => (
+            {Array.from(Array(count).keys()).map((_, index) => (
                 <Tab
                     key={index}
                     label={`Q${index + 1}`}	
                     iconPosition="start"
                     sx={{ minHeight: '50px', minWidth: 0 }}
-                    icon={hasAnswered(2) ? <CheckIcon sx={{ color: '#2e7d32' }}/> : <CloseIcon sx={{ color: '#da291c' }} />}
+                    icon={hasAnswered(index + 1) ? <CheckIcon sx={{ color: '#2e7d32' }}/> : <CloseIcon sx={{ color: '#da291c' }} />}
                 />
             ))}
         </Tabs>
