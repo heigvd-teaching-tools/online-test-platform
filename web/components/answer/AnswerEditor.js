@@ -88,7 +88,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
       }, [resizeObserver, container]);
 
     return (
-        <Paper ref={container} square elevation={0} sx={{ flex:1, height: '100%', width:'100%', position:'relative', overflow:'hidden', p:1 }}>
+        <Paper ref={container} square elevation={0} sx={{ flex:1, height: '100%', width:'100%', position:'relative', overflow:'hidden', pt:2, pl:2, pb:1 }}>
         {
             answer && (
                 answer.type === 'trueFalse' && (

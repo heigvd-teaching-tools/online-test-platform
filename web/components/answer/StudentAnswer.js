@@ -29,30 +29,24 @@ const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
         <>
         <ResizePanel 
             leftPanel={
-                <Box sx={{ overflow:'auto', minWidth: 0, m:1 }}>
-                    <Row>
-                        <Column flexGrow={1}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Button color="primary" disabled={page === 1} onClick={previousPage}>Previous</Button>
-                                    <Typography variant="body1">{page} / <b>{totalPages}</b></Typography>
-                                    <Button color="primary" disabled={page === totalPages} onClick={nextPage}>Next</Button>
-                            </Stack>
-                        </Column>
-                    </Row>
-                    <Row>
+                <Stack spacing={2} sx={{ overflow:'auto', minWidth: 0, height:'100%', p:3 }}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
                         <Column width="32px"><Image alt="Loading..." src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" /></Column>
                         <Column right><Typography variant="body1">{displayQuestionType(question.type)}</Typography></Column>
                         <Column flexGrow={1} right><Chip color="info" label={`${question.points} pts`} /></Column>
-                    </Row>
-                    <Row>
-                        <Column flexGrow={1}>
-                            <Editor 
-                                readOnly={true} 
-                                editorState={editorState} 
-                            />
-                        </Column>
-                    </Row>
-                </Box>
+                    </Stack>
+                    <Stack flexGrow={1}>
+                        <Editor 
+                            readOnly={true} 
+                            editorState={editorState} 
+                        />
+                    </Stack>            
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            <Button color="primary" disabled={page === 1} onClick={previousPage}>Previous</Button>
+                            <Typography variant="body1">{page} / <b>{totalPages}</b></Typography>
+                            <Button color="primary" disabled={page === totalPages} onClick={nextPage}>Next</Button>
+                    </Stack>
+                </Stack>
             }
             rightPanel={
                 <Stack sx={{ height:'100%', pt:1 }}>

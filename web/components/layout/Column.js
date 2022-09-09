@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 
-const Column = ({ children, width, flexGrow, flex, right }) => {
+const Column = ({ children, width, flexGrow, flex, alignItems, right }) => {
     let sx = {};
 
     if (flexGrow) {
@@ -9,6 +9,10 @@ const Column = ({ children, width, flexGrow, flex, right }) => {
 
     if (flex) {
         sx.flex = flex;
+    }
+
+    if(alignItems){
+        sx.alignItems = alignItems;
     }
 
     if(right){
