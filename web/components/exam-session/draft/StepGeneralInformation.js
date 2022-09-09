@@ -16,7 +16,7 @@ const StepGeneralInformation = ({ examSession, onChange }) => {
             label,
             conditions
         });
-    }, [label, conditions, onChange, setErrorLabel]);
+    }, [label, conditions, setErrorLabel]);
 
     return(
         <>

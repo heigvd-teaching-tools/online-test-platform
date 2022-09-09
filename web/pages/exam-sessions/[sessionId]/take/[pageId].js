@@ -5,7 +5,7 @@ import { ExamSessionPhase } from '@prisma/client';
 
 import { Stack, Box, Tabs, Tab } from "@mui/material";
 
-import ExamSessionLayout from '../../../../components/layout/ExamSessionLayout';
+import TakeExamSessionLayout from '../../../../components/layout/TakeExamSessionLayout';
 import AlertFeedback from "../../../../components/feedback/AlertFeedback";
 import LoadingAnimation from "../../../../components/layout/LoadingAnimation";
 import StudentAnswer from "../../../../components/answer/StudentAnswer";
@@ -72,7 +72,7 @@ const TakeExam = () => {
     if(examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS) return <LoadingAnimation text={`${examSession.label} is not in progress.`} />;       
     
     return (
-        <ExamSessionLayout appBarContent={
+        <TakeExamSessionLayout appBarContent={
             <Stack direction="row" alignItems="center">
                 {examSession.startAt && examSession.endAt && (
                     <Box sx={{ ml:2 }}>
@@ -107,7 +107,7 @@ const TakeExam = () => {
             </>
             )}
         </Stack>    
-        </ExamSessionLayout>        
+        </TakeExamSessionLayout>        
     )
 }
 

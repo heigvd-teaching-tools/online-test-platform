@@ -91,7 +91,7 @@ model Question {
 
   position     Int         @default(0)
 
-  exam   Exam?   @relation(fields: [examId], references: [id])
+  exam   Exam?   @relation(fields: [examId], references: [id], onDelete: Cascade)
   examId String?
 
   multipleChoice MultipleChoice?
@@ -99,7 +99,7 @@ model Question {
   essay          Essay?
   code           Code?
 
-  examSession   ExamSession? @relation(fields: [examSessionId], references: [id])
+  examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 
   studentAnswer StudentAnswer?

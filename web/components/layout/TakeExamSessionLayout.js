@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { AppBar, Box, Toolbar, IconButton, Avatar, Menu, Button, Typography, Stack, ListItemText } from '@mui/material';
-
-import MainMenu from './MainMenu';
+import { AppBar, Box, Toolbar, Menu, Button, Stack } from '@mui/material';
 
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
@@ -13,8 +11,7 @@ import Logo from './Logo';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
-
-const ExamSessionLayout = ({children, appBarContent}) => {
+const TakeExamSessionLayout = ({children, appBarContent}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -72,4 +69,4 @@ const ContextMenu = ({anchorElUser, handleCloseUserMenu }) =>
 
               
 
-export default ExamSessionLayout;
+export default TakeExamSessionLayout;

@@ -11,8 +11,8 @@ const StepSchedule = ({ examSession, onChange }) => {
     });
 
     useEffect(() => {
-        onChange(duration);
-    }, [duration]);
+        onChange(useDuration ? duration : undefined);
+    }, [duration, useDuration, onChange]);
 
     return (
         <>

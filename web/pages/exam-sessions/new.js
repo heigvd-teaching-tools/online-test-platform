@@ -17,9 +17,7 @@ const NewExam = () => {
         if(label.length === 0){
             setErrorLabel({ error: true, helperText: 'Label is required' });
             return;
-        }
-        setActiveStep(activeStep + 1);
-        
+        }      
         
         let exam = await fetch('/api/exam-sessions', {
             method: 'POST',
@@ -74,14 +72,6 @@ const NewExam = () => {
                 <StepLabel>Chose the reference exam</StepLabel>
             </Step>
             
-            <Step key="prepare-session">
-                <StepLabel>Prepare questions and validate</StepLabel>
-            </Step>
-
-            <Step key="student-registration">
-                <StepLabel>Student registration</StepLabel>
-            </Step>
-
         </Stepper>      
         <Stack direction="row" justifyContent="flex-end">
             <Button onClick={handleNext}>Next</Button>

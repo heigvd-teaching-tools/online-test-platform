@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme, ThemeOptions } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { SessionProvider } from "next-auth/react"
 import { SnackbarProvider } from '../context/SnackbarContext';
+
 import '../styles/normalize.css'
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';

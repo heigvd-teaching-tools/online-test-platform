@@ -6,8 +6,7 @@ import MinutesSelector from '../../../components/exam-session/in-progress/Minute
 import { useRouter } from 'next/router';
 import ExamSessionCountDown from './ExamSessionCountDown';
 
-const StepInProgress = ({ examSession, handleSave }) => {
-    const router = useRouter();
+const StepInProgress = ({ examSession, onDurationChange, onSessionEnd }) => {
     return (
         <>
         <StepLabel>In progress</StepLabel>
@@ -16,7 +15,8 @@ const StepInProgress = ({ examSession, handleSave }) => {
                     ( 
                         <DurationManager 
                             examSession={examSession} 
-                            handleSave={handleSave} 
+                            onChange={onDurationChange}
+                            onSessionEnd={onSessionEnd}
                         />
                     ) : 
                     <Stack spacing={4} direction="row" alignItems="center" justifyContent="center">
@@ -31,51 +31,45 @@ const StepInProgress = ({ examSession, handleSave }) => {
     )
 }
 
-const DurationManager = ({ examSession, handleSave }) => {
-    const router = useRouter();
+const DurationManager = ({ examSession, onChange, onSessionEnd }) => {
     return (
         <Box pt={4} pb={4}>
-                    <Stack spacing={4} direction="row" alignItems="center" justifyContent="space-between">
-                        <MinutesSelector
-                            label={'Reduce by'}
-                            color="primary"
-                            onClick={async (minutes) => {
-                                // remove minutes to endAt
-                                let newEndAt = new Date(examSession.endAt);
-                                newEndAt.setMinutes(newEndAt.getMinutes() - minutes);
-                                newEndAt = new Date(newEndAt).toISOString();
-                                examSession.endAt = newEndAt;
-                                await handleSave(ExamSessionPhase.IN_PROGRESS);
-                            }}
-                        />
-                        <Typography variant="body1">
-                            {`Started at ${new Date(examSession.startAt).toLocaleTimeString()}`}
-                        </Typography>
-                        <ExamSessionCountDown
-                            startDate={examSession.startAt}
-                            endDate={examSession.endAt}
-                            onFinish={async () => {
-                                //await handleSave(ExamSessionPhase.CORRECTION);
-                                //router.push(`/exam-sessions/${router.query.sessionId}/correction`);
-                            }}
-                        />   
-                        <Typography variant="body1">
-                            {`Ends at ${new Date(examSession.endAt).toLocaleTimeString()}`}
-                        </Typography>
-                        <MinutesSelector
-                            label={'Extend for'}
-                            color="info"
-                            onClick={async (minutes) => {
-                                // add minutes to endAt
-                                let newEndAt = new Date(examSession.endAt);
-                                newEndAt.setMinutes(newEndAt.getMinutes() + minutes);
-                                newEndAt = new Date(newEndAt).toISOString();
-                                examSession.endAt = newEndAt;
-                                await handleSave(ExamSessionPhase.IN_PROGRESS);
-                            }}
-                        />
-                    </Stack>
-                </Box>
+            <Stack spacing={4} direction="row" alignItems="center" justifyContent="space-between">
+                <MinutesSelector
+                    label={'Reduce by'}
+                    color="primary"
+                    onClick={async (minutes) => {
+                        // remove minutes to endAt
+                        let newEndAt = new Date(examSession.endAt);
+                        newEndAt.setMinutes(newEndAt.getMinutes() - minutes);
+                        newEndAt = new Date(newEndAt).toISOString();
+                        onChange(newEndAt);
+                    }}
+                />
+                <Typography variant="body1">
+                    {`Started at ${new Date(examSession.startAt).toLocaleTimeString()}`}
+                </Typography>
+                <ExamSessionCountDown
+                    startDate={examSession.startAt}
+                    endDate={examSession.endAt}
+                    onFinish={onSessionEnd}
+                />   
+                <Typography variant="body1">
+                    {`Ends at ${new Date(examSession.endAt).toLocaleTimeString()}`}
+                </Typography>
+                <MinutesSelector
+                    label={'Extend for'}
+                    color="info"
+                    onClick={async (minutes) => {
+                        // add minutes to endAt
+                        let newEndAt = new Date(examSession.endAt);
+                        newEndAt.setMinutes(newEndAt.getMinutes() + minutes);
+                        newEndAt = new Date(newEndAt).toISOString();
+                        onChange(newEndAt);
+                    }}
+                />
+            </Stack>
+        </Box>
     )
 }
 
