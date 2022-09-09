@@ -4,6 +4,10 @@ const { GenericContainer, Wait } = require("testcontainers");
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
+// https://github.com/apocas/dockerode
+
+const EXECUTION_TIMEOUT = 30000;
+
 export const runSandbox = (code, solution = "", mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
         
@@ -20,8 +24,11 @@ export const runSandbox = (code, solution = "", mode = "run") => {
             .withCmd(["sleep", "infinity"])
             .start();
 
+        let containerStarted = true;
+
         // Stop the container after 30 seconds
         let timeout = setTimeout(() => {
+            containerStarted = false;
             container.stop();
             if (mode === "run") {
                 reject("Timeout");
@@ -32,17 +39,19 @@ export const runSandbox = (code, solution = "", mode = "run") => {
                     result: "Timeout"
                 });
             }
-        }, 1000 * 30);
+        }, EXECUTION_TIMEOUT);
 
         // Execute the code
-        const { output:expected } = await container.exec(["node", "/app/solution.js"]);
-        const { output:result } = await container.exec(["node", "/app/code.js"]);
         
-                
+        const { output:expected, exitCode:exitCodeExpected } = await container.exec(["node", "/app/solution.js"]);
+        const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js"]);
+
         clearTimeout(timeout);
 
-        // Stop the container
-        await container.stop();
+        if(containerStarted) {
+            // Stop the container
+            await container.stop();
+        }
 
         // Delete the files
         fs.rmSync(directory, { recursive: true, force: true });

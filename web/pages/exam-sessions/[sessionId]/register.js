@@ -20,9 +20,8 @@ const JoinExamSession = () => {
                 })
             })
             .then(res => res.json())
-            .then(res => {
-                console.log(res);
-                router.push(`/exam-sessions/${router.query.sessionId}/take`);
+            .then(_ => {
+                router.push(`/exam-sessions/${router.query.sessionId}/take/1`);
             });
         }
     }, [router, session]);

@@ -42,7 +42,6 @@ const post = async (req, res) => {
     const { type } = question;
     const { answer } = req.body;
     let a;
-    console.log("answer", answer);
     if(answer === undefined) {
         if(question.studentAnswer){
             a = await prisma.studentAnswer.delete({
@@ -84,7 +83,6 @@ const post = async (req, res) => {
 
 
 const prepareUpdateAnswer = (questionType, answer) => {
-    console.log("prepareUpdateAnswer", questionType, answer);
     switch(questionType) {
         case 'multipleChoice':
             return {

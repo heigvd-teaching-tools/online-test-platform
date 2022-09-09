@@ -71,7 +71,6 @@ const ScheduleExamSession = () => {
         })
         .then((res) => res.json())
         .then((updatedExamSession) => {
-            console.log("updatedExamSession", updatedExamSession);
             setSaveRunning(false);
             showSnackbar('Exam session updated successfully');
             setExamSession({

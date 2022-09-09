@@ -57,7 +57,6 @@ const TakeExam = () => {
                     showSnackbar('Answer submitted successfully', 'success');
                 }
             }).catch(err => {
-                console.log(err);
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
