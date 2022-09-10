@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from '../../context/SnackbarContext';
 
-import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton, CardActions, Button } from "@mui/material";
+import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton, CardActions, Box, CircularProgress, Alert, AlertTitle } from "@mui/material";
 
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -19,40 +19,75 @@ import TrueFalse from './type_specific/TrueFalse';
 
 import CodeTestResult from './type_specific/CodeTestResult';
 
-import { useInput } from '../../utils/useInput';
 import { LoadingButton } from '@mui/lab';
 
 import DialogFeedback from '../feedback/DialogFeedback';
 import ContentEditor from '../input/ContentEditor';
 
-const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => {
+import { useDebouncedCallback } from 'use-debounce';
+
+const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) => {
     
     const { show: showSnackbar } = useSnackbar();
     const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
     const [ deleteRunning, setDeleteRunning ] = useState(false);
     const [ saveRunning, setSaveRunning ] = useState(false);
 
-    const { value:points, setValue:setPoints, bind:bindPoints } = useInput(question.points);
+    const [ points, setPoints ] = useState(question.points);
         
     const [ questionType, setQuestionType ] = useState(question.type);
 
     useEffect(() => {
         setPoints(question.points);
         setQuestionType(question.type);
-        
     }, [setPoints, setQuestionType, question]);
 
-    useEffect(() => {
-        question.points = points;
-        question.type = questionType;    
-    }, [question, points, questionType]);
 
     const handleQuestionTypeChange = (newQuestionType) => {
         if(!question[newQuestionType]){
-            question[newQuestionType] = {};
+            question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
+                { text: 'Option 1', isCorrect: false },
+                { text: 'Option 2', isCorrect: true },
+            ] } : {};
         }
         setQuestionType(newQuestionType);
+        onQuestionChange({ type: newQuestionType, [newQuestionType]: question[newQuestionType] });
     }
+
+    const onContentChange = useCallback((content) => {
+        onQuestionChange({ content });
+    }, [onQuestionChange]);
+
+    const onQuestionChange = useCallback(async (anything) => {
+        let newQuestion = { 
+            ...question, 
+            ...anything 
+        };
+        
+        await saveQuestion(newQuestion);
+        onChange(index, newQuestion);
+    }, [onChange, index, question, saveQuestion]);
+
+    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {       
+        setSaveRunning(true);
+        await fetch(`/api/questions`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                question
+            })
+        })
+        .then((res) => res.json())
+        .then((_) => {
+            setSaveRunning(false);
+        }).catch(() => {
+            setSaveRunning(false);
+            showSnackbar('Error saving question', 'error');
+        });
+    } , [showSnackbar]), 1000);
 
     const deleteQuestion = useCallback(async () => {
         setDeleteRunning(true);
@@ -75,29 +110,6 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
         });
         setDeleteRunning(false);
     } , [setDeleteRunning, showSnackbar, question, onDelete]);
-
-    const saveQuestion = useCallback(async () => {
-        setSaveRunning(true);
-        
-        await fetch(`/api/questions`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                question
-            })
-        })
-        .then((res) => res.json())
-        .then((newQuestion) => {
-            showSnackbar('Question save successful');
-            onSave(newQuestion);
-        }).catch(() => {
-            showSnackbar('Error saving question', 'error');
-        });
-        setSaveRunning(false);
-    } , [setSaveRunning, showSnackbar, question, onSave]);
 
     return (
         <>
@@ -127,7 +139,10 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                             type="number"
                             variant="filled"
                             value={points}
-                            {...bindPoints}
+                            onChange={(e) => { 
+                                setPoints(e.target.value);
+                                onQuestionChange({points: e.target.value});
+                            }}
                         />
                     </Column>
                     <Column>
@@ -146,7 +161,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                     <Column flexGrow={1}>
                         <ContentEditor
                             content={question.content}
-                            onChange={(content) => question.content = content}
+                            onChange={onContentChange}
                         />
                     </Column>
                 </Row>
@@ -157,7 +172,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                             <MultipleChoice 
                                 options={question.multipleChoice.options}
                                 onChange={(newOptions) => {
-                                    question.multipleChoice.options = newOptions;
+                                    onQuestionChange({ multipleChoice: { options: newOptions } });
                                 }}
                             />
                         ) 
@@ -172,13 +187,12 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                                     }}
                                     code={question.code}
                                     onChange={(which, newCode) => {
-                                        question.code[which] = newCode;
+                                        onQuestionChange({ code: { [which]: newCode } });
                                     }}
                                 /> 
                                 <CodeTestResult 
                                     code={question.code} 
                                     questionId={question.id} 
-                                    beforeTestRun={saveQuestion} 
                                 />
                             </Stack>
                         )
@@ -187,7 +201,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
                             <TrueFalse 
                                 isTrue={question.trueFalse.isTrue}
                                 onChange={(newIsTrue) => {
-                                    question.trueFalse.isTrue = newIsTrue;
+                                    onQuestionChange({ trueFalse: { isTrue: newIsTrue } });
                                 }}
                             /> 
                         )
@@ -199,16 +213,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
             <CardActions>
                 <Row>
                     <Column flexGrow={1}>
-                        <LoadingButton 
-                            loading={saveRunning}
-                            disabled={deleteRunning}
-                            variant="contained"
-                            color="secondary"
-                            startIcon={<SaveIcon />}
-                            onClick={saveQuestion}
-                        >
-                            Save
-                        </LoadingButton>
+                        <SavingIndicator isSaving={saveRunning} />
                     </Column>
                     <Column>
                         <LoadingButton 
@@ -236,8 +241,14 @@ const Question = ({ index, question, clickUp, clickDown, onDelete, onSave }) => 
     )
 }
 
-
-
+const SavingIndicator = ({isSaving}) =>
+<Stack sx={{ visibility: isSaving ? 'visible': 'hidden' }} direction="row" spacing={1} alignItems="center" >
+    <CircularProgress
+        size={24}
+        color="info"
+    />
+    <Typography variant="caption">Save in progress...</Typography>
+</Stack>        
 
 const questionTypes = [
     {

@@ -46,9 +46,9 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
         })
         .then((res) => res.json())
         .then(() => {
-            showSnackbar('Question positions saved');
+            showSnackbar('Question positions changed');
         }).catch(() => {
-            showSnackbar('Error saving question positions', 'error');
+            showSnackbar('Error changing question positions', 'error');
         });
     }, [questions, showSnackbar]);
 
@@ -75,6 +75,14 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
         setCreateRunning(false);
     } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, setQuestions]);
 
+    const onQuestionChange  = useCallback(async (index, question) => {
+        questions[index] = question;
+        setQuestions([...questions]);
+      //  saveQuestion(index);
+    }, [questions]);
+
+    
+
     return (
         <Stack spacing={4} pt={2}>
             {questions && questions.map((question, index) =>
@@ -89,10 +97,8 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
                         const newQuestions = questions.filter((q, i) => i !== index);
                         setQuestions(newQuestions);
                     }}
-                    onSave={(newQuestion) => {
-                        questions[index] = newQuestion;
-                    }}          
-                                
+                   
+                    onChange={onQuestionChange}                                
                 />
             )}
             <LoadingButton variant="outlined" loading={createRunning} color="primary" onClick={createQuestion}>Add question</LoadingButton>

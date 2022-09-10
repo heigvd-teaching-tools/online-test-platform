@@ -34,7 +34,11 @@ const patch = async (req, res) => {
         },
         include: {
             code: true,
-            multipleChoice: true,
+            multipleChoice: {
+                include: {
+                    options: true
+                }
+            },
             trueFalse: true,
             essay: true,
         }
@@ -53,7 +57,7 @@ const patch = async (req, res) => {
                         delete: true
                     },
                     [question.type]: {
-                        create: prepareTypeSpecific(question.type, question)
+                        create: prepareTypeSpecific(question.type, question, currentQuestion)
                     }
                 }
             });
@@ -69,7 +73,7 @@ const patch = async (req, res) => {
             content: question.content,
             points: parseInt(question.points),
             [question.type]: {
-                update: prepareTypeSpecific(question.type, question)
+                update: prepareTypeSpecific(question.type, question, currentQuestion)
             }
         },
         include: {
@@ -92,17 +96,18 @@ const del = async (req, res) => {
     res.status(200).json(deletedQuestion);
 }
 
-const prepareTypeSpecific = (questionType, question) => {
+const prepareTypeSpecific = (questionType, question, currentQuestion) => {
     switch(questionType) {
         case QuestionType.multipleChoice:
-            return {
-                options: { 
-                    deleteMany: {},
-                    createMany: {
-                        data: question[questionType].options.length > 0 ? question[questionType].options : undefined,
-                    }
-                }
-            };
+            let toDeleteMany = currentQuestion.multipleChoice && currentQuestion.multipleChoice.options.length > 0;
+            let clauses = {};   
+            if(toDeleteMany) {
+                clauses.deleteMany = {};
+            }
+            clauses.createMany = {
+                data: question[questionType].options
+            }
+            return { options: {...clauses} };
         case QuestionType.trueFalse:
             return question[questionType];
         case QuestionType.essay:

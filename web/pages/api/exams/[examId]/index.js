@@ -69,7 +69,6 @@ const patch = async (req, res) => {
     }
 
     if(questions) {
-        // Make question copies for the exam session
         data.questions = {
             deleteMany: {},
             create: questions.map(question => ({

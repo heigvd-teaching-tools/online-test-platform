@@ -36,7 +36,7 @@ const get = async (req, res) => {
         },
         include: {
             code: { select: { solution: true, code: true } },
-            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
+            multipleChoice: { select: { options: { select: { id:true, text:true, isCorrect:true }} } },
             trueFalse: { select: { isTrue: true } },
             essay: true,
         },

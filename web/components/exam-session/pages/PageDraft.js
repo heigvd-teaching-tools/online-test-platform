@@ -83,10 +83,8 @@ const PageDraft = () => {
                 <StepGeneralInformation 
                     examSession={examSession} 
                     onChange={(data)=>{
-                        console.log("data", data);
                         examSession.label = data.label;
                         examSession.conditions = data.conditions;
-                        console.log("onChange generakl");
                     }}
                 />
             </Step>
