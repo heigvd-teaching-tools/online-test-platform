@@ -78,8 +78,8 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
     const onQuestionChange  = useCallback(async (index, question) => {
         questions[index] = question;
         setQuestions([...questions]);
-      //  saveQuestion(index);
-    }, [questions]);
+        
+    }, [questions, setQuestions]);
 
     
 

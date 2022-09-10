@@ -44,6 +44,8 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
 
 
     const handleQuestionTypeChange = (newQuestionType) => {
+        delete question[question.type];
+        question.type = newQuestionType;
         if(!question[newQuestionType]){
             question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
                 { text: 'Option 1', isCorrect: false },
@@ -55,7 +57,7 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
     }
 
     const onContentChange = useCallback((content) => {
-        onQuestionChange({ content });
+        onQuestionChange({ content: content });
     }, [onQuestionChange]);
 
     const onQuestionChange = useCallback(async (anything) => {
@@ -63,7 +65,6 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
             ...question, 
             ...anything 
         };
-        
         await saveQuestion(newQuestion);
         onChange(index, newQuestion);
     }, [onChange, index, question, saveQuestion]);
