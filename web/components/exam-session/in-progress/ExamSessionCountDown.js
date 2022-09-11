@@ -1,15 +1,25 @@
+import { useState, useEffect, useCallback } from 'react';
 import { Typography, Chip, Box } from '@mui/material';
 import DateCountdown from '../../ui/DateCountdown';
 
 const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
+    const [ percentage, setPercentage ] = useState(100);
 
-    // percentage of now between start and end
-    const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const duration = end.getTime() - start.getTime();
-    const elapsed = now.getTime() - start.getTime();
-    const percentage = elapsed / duration * 100;
+    const updatePercentage = useCallback(() => {
+        // percentage of now between start and end
+        const now = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const duration = end.getTime() - start.getTime();
+        const elapsed = now.getTime() - start.getTime();
+        const newPercentage = elapsed / duration * 100;
+        setPercentage(newPercentage);
+    }, [startDate, endDate]);
+
+    useEffect(() => {
+        // first render init percentage
+        updatePercentage();
+    }, []);
 
     return (
         <Chip 
@@ -18,6 +28,7 @@ const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
                 <Typography variant="button">
                     <DateCountdown 
                         untilDate={endDate} 
+                        onTic={updatePercentage}
                         onFinish={onFinish}
                     />
                 </Typography>

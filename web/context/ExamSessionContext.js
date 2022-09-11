@@ -9,11 +9,26 @@ export const useExamSession = () => useContext(ExamSessionContext);
 
 // phase / number of steps relationship
 const phaseSteps = {
-    'DRAFT': 2,
-    'SCHEDULING': 1,
-    'IN_PROGRESS': 1,
-    'CORRECTION': 1,
-    'FINISHED': 1,
+    'DRAFT': {
+        steps:2,
+        defaultStep:2
+    },
+    'SCHEDULING': {
+        steps:1,
+        defaultStep:1
+    },
+    'IN_PROGRESS': {
+        steps:1,
+        defaultStep:1
+    },
+    'CORRECTION': {
+        steps:1,
+        defaultStep:1
+    },
+    'FINISHED': {
+        steps:1,
+        defaultStep:1
+    },
 };
 
 const phasePageRelationship = {
@@ -53,12 +68,13 @@ export const ExamSessionProvider = ({ children }) => {
     );
 
     const [examSession, setExamSession] = useState();
-    const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState();
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         if (data) {
             setExamSession(data);
+            setActiveStep(phaseSteps[data.phase].defaultStep - 1);
             redirectToPhasePage(data.phase, router);
         }
     }, [data, router]);
@@ -72,7 +88,7 @@ export const ExamSessionProvider = ({ children }) => {
     }, [activeStep]);
 
     const stepNext = useCallback(() => {
-        if(activeStep < phaseSteps[examSession.phase]){
+        if(activeStep < phaseSteps[examSession.phase].steps){
             setActiveStep(activeStep + 1);
             return true;
         }

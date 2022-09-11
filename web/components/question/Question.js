@@ -156,7 +156,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                 <Row>
                     <Column flexGrow={1}>
                         <ContentEditor
-                            content={question.content}
+                            rawContent={question.content}
                             onChange={onContentChange}
                         />
                     </Column>

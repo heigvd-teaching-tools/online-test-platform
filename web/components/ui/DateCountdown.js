@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const DateCountdown = ({ untilDate, onFinish }) => {
+const DateCountdown = ({ untilDate, onTic, onFinish }) => {
     const [ timeLeft, setTimeLeft ] = useState();
 
     const calculateTimeLeft = () => {
@@ -29,7 +29,11 @@ const DateCountdown = ({ untilDate, onFinish }) => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            setTimeLeft(calculateTimeLeft());
+            let timeLeft = calculateTimeLeft();
+            setTimeLeft(timeLeft);
+            if(onTic){
+                onTic(timeLeft);
+            }
         }, 1000);
         // Clear timeout if the component is unmounted
         return () => clearTimeout(timer);
