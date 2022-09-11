@@ -55,16 +55,16 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
         onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
     }
 
-    const onContentChange = (content) => {
-        onQuestionChange("content", content);
-    }
-
     const onQuestionChange = async (property, newValue) => {
-        console.log("onQuestionChange", question);
-        question[property] = {
-            ...question[property],
-            ...newValue
-        };
+        if(typeof newValue === 'object'){
+            // we keep eventual existing properties when a property is an object
+            question[property] = {
+                ...question[property],
+                ...newValue
+            };
+        }else{
+            question[property] = newValue;
+        }
         await saveQuestion(question);
     }
 
@@ -161,7 +161,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                     <Column flexGrow={1}>
                         <ContentEditor
                             rawContent={question.content}
-                            onChange={onContentChange}
+                            onChange={(content) => onQuestionChange("content", content)}
                         />
                     </Column>
                 </Row>
@@ -171,9 +171,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                         ( questionType === 'multipleChoice' && question.multipleChoice &&
                             <MultipleChoice 
                                 options={question.multipleChoice.options}
-                                onChange={(newOptions) => {
-                                    onQuestionChange("multipleChoice", { options: newOptions });
-                                }}
+                                onChange={(newOptions) => onQuestionChange("multipleChoice", { options: newOptions })}
                             />
                         ) 
                         ||
@@ -186,9 +184,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                                         subheader: "Provided to students" 
                                     }}
                                     code={question.code}
-                                    onChange={(which, newCode) => {
-                                        onQuestionChange("code", { [which]: newCode });
-                                    }}
+                                    onChange={(which, newCode) => onQuestionChange("code", { [which]: newCode })}
                                 /> 
                                 <CodeTestResult 
                                     code={question.code} 
@@ -200,9 +196,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                         ( questionType === 'trueFalse' && question.trueFalse &&
                             <TrueFalse 
                                 isTrue={question.trueFalse.isTrue}
-                                onChange={(newIsTrue) => {
-                                    onQuestionChange("trueFalse", { isTrue: newIsTrue });
-                                }}
+                                onChange={(newIsTrue) => onQuestionChange("trueFalse", { isTrue: newIsTrue })}
                             /> 
                         )
                         
