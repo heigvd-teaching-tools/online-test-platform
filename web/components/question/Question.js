@@ -61,7 +61,10 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
 
     const onQuestionChange = async (property, newValue) => {
         console.log("onQuestionChange", question);
-        question[property] = newValue;
+        question[property] = {
+            ...question[property],
+            ...newValue
+        };
         await saveQuestion(question);
     }
 
