@@ -73,15 +73,7 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
             showSnackbar('Error creating question', 'error');
         });
         setCreateRunning(false);
-    } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, setQuestions]);
-
-    const onQuestionChange  = useCallback(async (index, question) => {
-        questions[index] = question;
-        setQuestions([...questions]);
-        
-    }, [questions, setQuestions]);
-
-    
+    } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, setQuestions]);   
 
     return (
         <Stack spacing={4} pt={2}>
@@ -97,8 +89,7 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
                         const newQuestions = questions.filter((q, i) => i !== index);
                         setQuestions(newQuestions);
                     }}
-                   
-                    onChange={onQuestionChange}                                
+                                      
                 />
             )}
             <LoadingButton variant="outlined" loading={createRunning} color="primary" onClick={createQuestion}>Add question</LoadingButton>

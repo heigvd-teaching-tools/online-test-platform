@@ -26,7 +26,7 @@ import ContentEditor from '../input/ContentEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
 
-const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) => {
+const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
     
     const { show: showSnackbar } = useSnackbar();
     const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
@@ -45,7 +45,6 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
 
     const handleQuestionTypeChange = (newQuestionType) => {
         delete question[question.type];
-        question.type = newQuestionType;
         if(!question[newQuestionType]){
             question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
                 { text: 'Option 1', isCorrect: false },
@@ -53,21 +52,17 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
             ] } : {};
         }
         setQuestionType(newQuestionType);
-        onQuestionChange({ type: newQuestionType, [newQuestionType]: question[newQuestionType] });
+        onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
     }
 
     const onContentChange = useCallback((content) => {
-        onQuestionChange({ content: content });
+        onQuestionChange("content", content);
     }, [onQuestionChange]);
 
-    const onQuestionChange = useCallback(async (anything) => {
-        let newQuestion = { 
-            ...question, 
-            ...anything 
-        };
-        await saveQuestion(newQuestion);
-        onChange(index, newQuestion);
-    }, [onChange, index, question, saveQuestion]);
+    const onQuestionChange = useCallback(async (property, newValue) => {
+        question[property] = newValue;
+        await saveQuestion(question);
+    }, [index, question, saveQuestion]);
 
     const saveQuestion = useDebouncedCallback(useCallback(async (question) => {       
         setSaveRunning(true);
@@ -88,7 +83,7 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
             setSaveRunning(false);
             showSnackbar('Error saving question', 'error');
         });
-    } , [showSnackbar]), 1000);
+    } , [showSnackbar]), 500);
 
     const deleteQuestion = useCallback(async () => {
         setDeleteRunning(true);
@@ -142,7 +137,7 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
                             value={points}
                             onChange={(e) => { 
                                 setPoints(e.target.value);
-                                onQuestionChange({points: e.target.value});
+                                onQuestionChange("points", e.target.value);
                             }}
                         />
                     </Column>
@@ -173,7 +168,7 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
                             <MultipleChoice 
                                 options={question.multipleChoice.options}
                                 onChange={(newOptions) => {
-                                    onQuestionChange({ multipleChoice: { options: newOptions } });
+                                    onQuestionChange("multipleChoice", { options: newOptions });
                                 }}
                             />
                         ) 
@@ -188,7 +183,7 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
                                     }}
                                     code={question.code}
                                     onChange={(which, newCode) => {
-                                        onQuestionChange({ code: { [which]: newCode } });
+                                        onQuestionChange("code", { [which]: newCode });
                                     }}
                                 /> 
                                 <CodeTestResult 
@@ -202,7 +197,7 @@ const Question = ({ index, question, clickUp, clickDown, onChange, onDelete }) =
                             <TrueFalse 
                                 isTrue={question.trueFalse.isTrue}
                                 onChange={(newIsTrue) => {
-                                    onQuestionChange({ trueFalse: { isTrue: newIsTrue } });
+                                    onQuestionChange("trueFalse", { isTrue: newIsTrue });
                                 }}
                             /> 
                         )
