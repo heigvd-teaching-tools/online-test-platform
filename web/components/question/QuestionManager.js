@@ -15,6 +15,7 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
             questions[index - 1].position++;
             questions.sort((a,b) => a.position - b.position);
             setQuestions([...questions]);
+            console.log([...questions]);
             await savePositions();
         })();
     } , [setQuestions, questions, savePositions]);
@@ -26,6 +27,7 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
             questions[index + 1].position--;
             questions.sort((a,b) => a.position - b.position);
             setQuestions([...questions]);
+            console.log([...questions]);
             await savePositions();
         })();
     } , [setQuestions, questions, savePositions]);

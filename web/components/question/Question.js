@@ -55,14 +55,15 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
         onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
     }
 
-    const onContentChange = useCallback((content) => {
+    const onContentChange = (content) => {
         onQuestionChange("content", content);
-    }, [onQuestionChange]);
+    }
 
-    const onQuestionChange = useCallback(async (property, newValue) => {
+    const onQuestionChange = async (property, newValue) => {
+        console.log("onQuestionChange", question);
         question[property] = newValue;
         await saveQuestion(question);
-    }, [index, question, saveQuestion]);
+    }
 
     const saveQuestion = useDebouncedCallback(useCallback(async (question) => {       
         setSaveRunning(true);
