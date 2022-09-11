@@ -49,8 +49,12 @@ const get = async (req, res) => {
 const prepareTypeSpecific = (questionType, question) => {
     switch(questionType) {
         case QuestionType.multipleChoice:
+            let options = question.multipleChoice.options.map(option => ({
+                text: option.text,
+                isCorrect: option.isCorrect
+            }));
             return {
-                options: { create: question[questionType].options.length > 0 ? question[questionType].options : undefined }
+                options: { create: options.length > 0 ? options : undefined }
             };
         case QuestionType.trueFalse:
             return question[questionType];
