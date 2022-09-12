@@ -6,7 +6,7 @@ import Editor from "@monaco-editor/react";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ label, code:initial, editorHeight,  onChange }) => {
+const CodeEditor = ({ code:initial, editorHeight,  onChange }) => {
     
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(initial || "");
@@ -46,7 +46,6 @@ const CodeEditor = ({ label, code:initial, editorHeight,  onChange }) => {
 
     return (
         <Box sx={{ width:'100%', height:'100%', position:'relative' }}>
-            { label && (<Typography variant="h6" sx={{ mb:2 }}>{label}</Typography>)}
             <Editor
                 width="100%"
                 height={editorHeight}

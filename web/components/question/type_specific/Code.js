@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 
-import { Stack } from "@mui/material"
+import { Stack, Tabs, Tab } from "@mui/material"
 import CodeEditor from './CodeEditor';
 
-import Row from '../../layout/Row';
-
-const Code = ({ code:initial, mode = "full", editorHeight = '100%', rightEditorLabel, onChange }) => {
+const Code = ({ code:initial, displaySolutionEditor, editorHeight = '100%', onChange }) => {
 
     const [ code, setCode ] = useState();
+    const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
+
 
     useEffect(() => {
         if (initial) {
@@ -18,35 +18,56 @@ const Code = ({ code:initial, mode = "full", editorHeight = '100%', rightEditorL
     return (
         <>
             {code && (
-                <Row align="flex-start" padding={0}>
-                {mode === "full" && (
-                    <CodeEditor 
-                        label="Solution Code"
-                        editorHeight={editorHeight}
-                        code={initial.solution}
-                        onChange={(newCode) => {
-                            setCode({
-                                ...code,
-                                solution: newCode
-                            });
-                            if(onChange) onChange("solution", newCode);
-                        }}
-                    /> 
-                )}
-                
-                <CodeEditor 
-                    label={rightEditorLabel && rightEditorLabel.label ? rightEditorLabel.label : undefined}
-                    editorHeight={editorHeight}
-                    code={initial.code}
-                    onChange={(newCode) => {
-                        setCode({
-                            ...code,
-                            code: newCode
-                        });
-                        if(onChange) onChange("code", newCode);
-                    }}
-                /> 
-            </Row>
+                <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+                   {displaySolutionEditor && (
+                    <>
+                        <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
+                            <Tab 
+                                label="Solution Code"  
+                                value={0}
+                            />
+                            <Tab 
+                                label="Partial Code" 
+                                value={1}
+                            />
+                        </Tabs>
+                        
+                        <TabPanel 
+                            id="solution"
+                            value={tab}
+                            index={0}
+                            >
+                            <CodeEditor 
+                                editorHeight={editorHeight}
+                                code={initial.solution}
+                                onChange={(newCode) => {
+                                    setCode({
+                                        ...code,
+                                        solution: newCode
+                                    });
+                                    if(onChange) onChange("solution", newCode);
+                                }}
+                            />  
+                        </TabPanel>
+                    </>
+                    )}
+                    <TabPanel 
+                        value={tab}
+                        index={1}
+                    >
+                        <CodeEditor 
+                            editorHeight={editorHeight}
+                            code={initial.code}
+                            onChange={(newCode) => {
+                                setCode({
+                                    ...code,
+                                    code: newCode
+                                });
+                                if(onChange) onChange("code", newCode);
+                            }}
+                        /> 
+                    </TabPanel>
+                </Stack>
             )}
             
             
@@ -55,6 +76,17 @@ const Code = ({ code:initial, mode = "full", editorHeight = '100%', rightEditorL
     )
 }
 
+const TabPanel = ({ children, value, index, ...other }) => (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && children}
+    </div>
+)
 
 
 export default Code;
