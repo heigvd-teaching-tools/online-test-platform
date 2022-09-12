@@ -8,7 +8,7 @@ const { GenericContainer, Wait } = require("testcontainers");
 
 const EXECUTION_TIMEOUT = 30000;
 
-export const runSandbox = (code, solution = "", mode = "run") => {
+export const runSandbox = (code = "", solution = "", mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
         
         // Create the files
@@ -25,30 +25,35 @@ export const runSandbox = (code, solution = "", mode = "run") => {
             .start();
 
         let containerStarted = true;
-
+        let response = undefined;
         // Stop the container after 30 seconds
         let timeout = setTimeout(() => {
             containerStarted = false;
             container.stop();
             if (mode === "run") {
-                reject("Timeout");
+                response = {
+                    fn: reject,
+                    arg: "Execution timed out",
+                };
             } else {
-                resolve({
-                    success: false,
-                    expected: "N/A",
-                    result: "Timeout"
-                });
+                response = {
+                    fn: resolve,
+                    arg: {
+                        success: false,
+                        expected: "N/A",
+                        result: "Timeout"
+                    },
+                };
             }
         }, EXECUTION_TIMEOUT);
 
         // Execute the code
-        
         const { output:expected, exitCode:exitCodeExpected } = await container.exec(["node", "/app/solution.js"]);
         const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js"]);
 
         clearTimeout(timeout);
 
-        if(containerStarted) {
+        if(containerStarted) { // If no timeout
             // Stop the container
             await container.stop();
         }
@@ -57,16 +62,25 @@ export const runSandbox = (code, solution = "", mode = "run") => {
         fs.rmSync(directory, { recursive: true, force: true });
 
         // Prepare output based on mode
-        if (mode === "run") {
-            // Send the result
-            resolve(result);
-        } else if (mode === "test") {
-            // test run
-            resolve({
-                success: result === expected,
-                expected: expected,
-                result: result,
-            });
+        if(!response){ // If no timeout
+            if (mode === "run") {
+                // Send the result
+                response = {
+                    fn: resolve,
+                    arg: result
+                };
+            } else if (mode === "test") {
+                // test run
+                response = {
+                    fn: resolve,
+                    arg: {
+                        success: result === expected,
+                        expected: expected,
+                        result: result,
+                    }
+                };
+            }
         }
+        response.fn(response.arg);
     });
 }

@@ -1,1 +1,0 @@
-The runs directory stores the source code executed by the sandboxed environments.
