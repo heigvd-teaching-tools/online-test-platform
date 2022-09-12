@@ -1,6 +1,6 @@
 import Image from 'next/image'
+import { useEffect, useState } from 'react';
 import { Box, Paper, Typography, Chip, Stack, Button } from "@mui/material";
-import Row from '../layout/Row';
 import Column from '../layout/Column';
 import AnswerEditor from "./AnswerEditor";
 import CodeTestResult from '../question/type_specific/CodeTestResult';
@@ -10,8 +10,14 @@ import { useRouter } from 'next/router';
 
 const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
     const router = useRouter();
-    const contentState = convertFromRaw(JSON.parse(question.content));
-    const editorState = EditorState.createWithContent(contentState);
+    const [ editorState, setEditorState ] = useState(EditorState.createEmpty());
+   
+    useEffect(() => {
+        if (question.content) {
+            const contentState = convertFromRaw(JSON.parse(question.content));
+            setEditorState(EditorState.createWithContent(contentState));
+        }
+    }, [question.content]);
 
     const nextPage = () => {
         if(page < totalPages) {
