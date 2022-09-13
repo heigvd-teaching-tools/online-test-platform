@@ -8,7 +8,6 @@ const Code = ({ code:initial, displaySolutionEditor, editorHeight = '100%', onCh
     const [ code, setCode ] = useState();
     const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
 
-
     useEffect(() => {
         if (initial) {
             setCode(initial);

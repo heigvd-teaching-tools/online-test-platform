@@ -88,7 +88,7 @@ const prepareUpdateAnswer = (questionType, answer) => {
             return {
                 options: {
                     set: [],
-                    connect: answer.filter(o => o.isCorrect).map((opt) => ({ id: opt.id }))               
+                    connect: answer.options.map((opt) => ({ id: opt.id }))               
                 }
             }
         case 'trueFalse':
@@ -113,7 +113,7 @@ const prepareCreateAnswer = (questionType, answer) => {
         case 'multipleChoice':
             return {
                 options: {
-                    connect: answer.filter(o => o.isCorrect).map((opt) => ({ id: opt.id }))               
+                    connect: answer.options.map((opt) => ({ id: opt.id }))               
                 }
             }
         case 'trueFalse':

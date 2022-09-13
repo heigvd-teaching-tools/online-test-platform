@@ -9,6 +9,7 @@ import ResizePanel from '../layout/ResizePanel';
 import { useRouter } from 'next/router';
 
 const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
+    
     const router = useRouter();
     const [ editorState, setEditorState ] = useState(EditorState.createEmpty());
    

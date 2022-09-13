@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Collapse , Paper, Button, TextField, Stack, Box, Typography } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import Editor from "@monaco-editor/react";
@@ -13,6 +13,11 @@ const CodeEditor = ({ code:initial, editorHeight,  onChange }) => {
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
     
+    useEffect(() => {
+        if(initial !== code) {
+            setCode(initial);
+        }
+    }, [initial]);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);

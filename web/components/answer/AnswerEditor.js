@@ -27,8 +27,11 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 onAnswer(newAnswer);
                 break;
             case 'multipleChoice':
-                let countCorrect = newAnswer.filter(o => o.isCorrect).length;
-                onAnswer(countCorrect > 0 ? newAnswer : undefined);
+                let selectedOptions = newAnswer.filter(o => o.isCorrect);
+                
+                onAnswer(selectedOptions.length > 0 ? {
+                    options: selectedOptions
+                } : undefined);
                 break;
             case 'essay':
                 onAnswer(newAnswer);
@@ -43,7 +46,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
     useEffect(() => {
         if(question){
-
+            
             var answerData = {
                 type: question.type,
             };
@@ -53,8 +56,11 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     answerData.isTrue = question.studentAnswer ? question.studentAnswer.trueFalse.isTrue : undefined;
                     break;
                 case 'multipleChoice':
+                    
                     let allOptions = question.multipleChoice.options;
                     let studentOptions = question.studentAnswer ? question.studentAnswer.multipleChoice.options : [];
+                    // studentOptions empty 
+                    console.log("AnswerEditor useEffect", question.studentAnswer);
                     answerData.options = allOptions.map(option => {
                         return {
                             ...option,

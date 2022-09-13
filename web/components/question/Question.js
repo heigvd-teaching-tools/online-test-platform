@@ -42,7 +42,6 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
         setQuestionType(question.type);
     }, [setPoints, setQuestionType, question]);
 
-
     const handleQuestionTypeChange = (newQuestionType) => {
         delete question[question.type];
         if(!question[newQuestionType]){
@@ -76,9 +75,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({
-                question
-            })
+            body: JSON.stringify({ question })
         })
         .then((res) => res.json())
         .then((_) => {

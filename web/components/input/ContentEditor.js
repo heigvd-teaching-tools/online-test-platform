@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { EditorState, convertToRaw, convertFromRaw } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-
 
 const Editor = dynamic(
     () => import('react-draft-wysiwyg').then((mod) => mod.Editor), 
@@ -15,9 +14,7 @@ const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
     useEffect(() => {
         if(rawContent){
             let currentRawContent = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
-            
             if(rawContent !== currentRawContent){
-                console.log("New raw content");
                 setEditorState(
                     EditorState.createWithContent(
                         convertFromRaw(JSON.parse(rawContent))

@@ -1,6 +1,6 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
-const { GenericContainer, Wait } = require("testcontainers");
+import { GenericContainer, Wait } from "../../../testcontainers-node";
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
@@ -19,10 +19,13 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
 
         // Prepare the container
         const container = await new GenericContainer("node:current-alpine3.16")
+            .withEnv("NODE_NO_WARNINGS", "1")
             .withCopyFileToContainer(`${directory}/code.js`, "/app/code.js")
             .withCopyFileToContainer(`${directory}/solution.js`, "/app/solution.js")
             .withCmd(["sleep", "infinity"])
             .start();
+
+
 
         let containerStarted = true;
         let response = undefined;
@@ -47,9 +50,25 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
             }
         }, EXECUTION_TIMEOUT);
 
+        let execOptions = {
+            Detach: false,
+            Tty: false,
+            stream: true,
+            stdin: true,
+            stdout: true,
+            stderr: true,
+        };
+
+
         // Execute the code
-        const { output:expected, exitCode:exitCodeExpected } = await container.exec(["node", "/app/solution.js"]);
-        const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js"]);
+        //const { output:expected2, exitCode:exitCodeExpected2 } = await container.exec(["node", "/app/solution.js", "2>&1"]);
+        const { output:expected, exitCode:exitCodeExpected } = await container.exec([
+            "node", "/app/solution.js"
+        ], execOptions);
+        //const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js", "2>&1"]);
+        const { output:result, exitCode:exitCodeResult } = await container.exec([
+            "node", "/app/code.js"
+        ], execOptions);
 
         clearTimeout(timeout);
 
