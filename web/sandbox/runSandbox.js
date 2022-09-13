@@ -1,6 +1,7 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
-import { GenericContainer, Wait } from "../../../testcontainers-node";
+// import { GenericContainer, Wait } from "../../testcontainers-node";
+import { GenericContainer, Wait } from "testcontainers";
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
