@@ -1,7 +1,7 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
-// import { GenericContainer, Wait } from "../../testcontainers-node";
-import { GenericContainer, Wait } from "testcontainers";
+import { GenericContainer, Wait } from "../../testcontainers-node";
+//import { GenericContainer, Wait } from "testcontainers";
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
@@ -51,25 +51,15 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
             }
         }, EXECUTION_TIMEOUT);
 
-        let execOptions = {
-            Detach: false,
-            Tty: false,
-            stream: true,
-            stdin: true,
-            stdout: true,
-            stderr: true,
-        };
-
-
         // Execute the code
         //const { output:expected2, exitCode:exitCodeExpected2 } = await container.exec(["node", "/app/solution.js", "2>&1"]);
         const { output:expected, exitCode:exitCodeExpected } = await container.exec([
             "node", "/app/solution.js"
-        ], execOptions);
+        ], { Tty: false });
         //const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js", "2>&1"]);
         const { output:result, exitCode:exitCodeResult } = await container.exec([
             "node", "/app/code.js"
-        ], execOptions);
+        ], { Tty: false });
 
         clearTimeout(timeout);
 

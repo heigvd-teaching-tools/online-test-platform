@@ -3,12 +3,13 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ExamSessionPhase } from '@prisma/client';
-import { Box, Toolbar, Button, Chip, IconButton } from '@mui/material';
+import { Box, Toolbar, Button, IconButton } from '@mui/material';
 import MainLayout from '../../components/layout/MainLayout';
 import DataGrid from '../../components/ui/DataGrid';
 import { useSnackbar } from '../../context/SnackbarContext';
 import DialogFeedback from '../../components/feedback/DialogFeedback';
 import DisplayPhase from '../../components/exam-session/DisplayPhase';
+import LoadingAnimation from '../../components/layout/LoadingAnimation';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
@@ -54,11 +55,13 @@ const ExamSessions = () => {
     `/api/exam-sessions`, 
     (...args) => fetch(...args).then((res) => res.json())
   );
-
+  
   const [ examSessions, setExamSession ] = useState(data);
 
   useEffect(() => {
-    setExamSession(data);
+    if(data){
+      setExamSession(data);
+    }
   }, [data]);
 
   const deleteExamSession = async () => {
@@ -89,9 +92,9 @@ const ExamSessions = () => {
         return `/exam-sessions`;
     }
   }
-      
 
-
+  if (error) return <div>failed to load</div>
+  if (!examSessions) return <LoadingAnimation /> 
 
   return (
     <MainLayout>
@@ -101,7 +104,7 @@ const ExamSessions = () => {
           <Button>New exam session</Button>
         </Link>
       </Toolbar>
-      {examSessions && (
+      {examSessions && examSessions.length > 0 && (
         <DataGrid 
           header={gridHeader} 
           items={examSessions.map(examSession => ({

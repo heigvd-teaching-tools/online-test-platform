@@ -43,6 +43,7 @@ const post = async (req, res) => {
     const { answer } = req.body;
     let a;
     if(answer === undefined) {
+        // remove eventual existing answer
         if(question.studentAnswer){
             a = await prisma.studentAnswer.delete({
                 where: {
@@ -93,11 +94,11 @@ const prepareUpdateAnswer = (questionType, answer) => {
             }
         case 'trueFalse':
             return {
-                isTrue: answer
+                isTrue: answer.isTrue
             }
         case 'essay': 
             return {
-                content: String(answer)
+                content: String(answer.content)
             }
         case 'code':
             return {
@@ -118,11 +119,11 @@ const prepareCreateAnswer = (questionType, answer) => {
             }
         case 'trueFalse':
             return {
-                isTrue: answer
+                isTrue: answer.isTrue
             }
         case 'essay':
             return {
-                content: String(answer)
+                content: String(answer.content)
             }
         case 'code':
             return {

@@ -24,17 +24,20 @@ const AnswerEditor = ({ question, onAnswer }) => {
         */
         switch(answer.type) {
             case 'trueFalse':
-                onAnswer(newAnswer);
+                onAnswer({
+                    isTrue: newAnswer
+                });
                 break;
             case 'multipleChoice':
                 let selectedOptions = newAnswer.filter(o => o.isCorrect);
-                
                 onAnswer(selectedOptions.length > 0 ? {
                     options: selectedOptions
                 } : undefined);
                 break;
             case 'essay':
-                onAnswer(newAnswer);
+                onAnswer({
+                    content: newAnswer
+                });
                 break;
             case 'code':
                 onAnswer(newAnswer);
@@ -59,8 +62,6 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     
                     let allOptions = question.multipleChoice.options;
                     let studentOptions = question.studentAnswer ? question.studentAnswer.multipleChoice.options : [];
-                    // studentOptions empty 
-                    console.log("AnswerEditor useEffect", question.studentAnswer);
                     answerData.options = allOptions.map(option => {
                         return {
                             ...option,

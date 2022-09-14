@@ -30,9 +30,6 @@ const PageTakeExam = () => {
 
     useEffect(() => {
         setPage(parseInt(router.query.pageId));
-        if(questions){
-         console.log('page useEffect', questions[router.query.pageId - 1]);
-        }
     }, [router.query.pageId]);
 
     useEffect(() => {
@@ -55,7 +52,6 @@ const PageTakeExam = () => {
                 questions[page - 1].studentAnswer = {
                     [questions[page - 1].type]: answer
                 };
-                console.log("onAnswer", questions[page - 1], answer);
                 if(answer === undefined){
                     delete questions[page - 1].studentAnswer;
                     showSnackbar('Your answer has been removed', 'success');

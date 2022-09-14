@@ -28,7 +28,6 @@ const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
         setEditorState(newEditorState);
         let newContent = newEditorState.getCurrentContent();
         if (editorState.getCurrentContent() !== newContent) {
-            console.log("notified");
             onChange(JSON.stringify(convertToRaw(newContent)));
         }
     }

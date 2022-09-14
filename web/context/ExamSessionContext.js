@@ -84,7 +84,6 @@ export const ExamSessionProvider = ({ children }) => {
 
     const stepNext = useCallback(() => {
         let activeStep = parseInt(router.query.activeStep);
-        console.log("stepNext", activeStep, phaseSteps[examSession.phase].steps);
         if(router.query.activeStep <= phaseSteps[examSession.phase].steps){
             router.push(`/exam-sessions/${router.query.sessionId}/${phaseSteps[examSession.phase].page}/${activeStep + 1}`);
             return true;

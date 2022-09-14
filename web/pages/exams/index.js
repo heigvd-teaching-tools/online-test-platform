@@ -79,7 +79,7 @@ const Exams = () => {
           <Button>Create a new exam</Button>
         </Link>
       </Toolbar>
-      {exams && (
+      {exams && exams.length > 0 && (
         <DataGrid 
           header={gridHeader} 
           items={exams.map(exam => ({
