@@ -1,4 +1,4 @@
-import { PrismaClient, Role, QuestionType, ExamSessionPhase } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 import { hasRole } from '../../../../utils/auth';
 
@@ -45,28 +45,6 @@ const get = async (req, res) => {
     res.status(200).json(exam);
 }
 
-
-const prepareTypeSpecific = (questionType, question) => {
-    switch(questionType) {
-        case QuestionType.multipleChoice:
-            let options = question.multipleChoice.options.map(option => ({
-                text: option.text,
-                isCorrect: option.isCorrect
-            }));
-            return {
-                options: { create: options.length > 0 ? options : undefined }
-            };
-        case QuestionType.trueFalse:
-            return question[questionType];
-        case QuestionType.essay:
-            return {}
-        case QuestionType.code:
-            return question[questionType]
-        default:
-            return undefined;
-    }
-}
-
 const patch = async (req, res) => {
     const { sessionId } = req.query
 
@@ -84,7 +62,7 @@ const patch = async (req, res) => {
         return;
     }
 
-    const { phase:nextPhase, label, conditions, questions, duration, endAt } = req.body;
+    const { phase:nextPhase, label, conditions, duration, endAt } = req.body;
     
     let data = {};
 
@@ -98,22 +76,6 @@ const patch = async (req, res) => {
 
     if(conditions){
         data.conditions = conditions;
-    }
-
-    if(questions){
-        // make question copies for the exam session
-        data.questions = {
-            deleteMany: {},
-            create: questions.map(question => ({
-                content: question.content,
-                type: question.type,
-                points: parseInt(question.points),
-                position: parseInt(question.position),
-                [question.type]: {
-                    create: prepareTypeSpecific(question.type, question)
-                }
-            }))
-        }
     }
 
     if(duration){

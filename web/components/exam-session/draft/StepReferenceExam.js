@@ -15,27 +15,14 @@ const StepReferenceExam = ({ examSession, onChange }) => {
         (...args) => fetch(...args).then((res) => res.json())
     );
 
-    const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${examSession.id}/questions/with-answers/official`, 
-        examSession && examSession.id ? (...args) => fetch(...args).then((res) => res.json()) : null
-    );
-  
     const { data: examQuestions, errorExamQuestions } = useSWR(
         `/api/exams/${selectedExam && selectedExam.id}/questions`, 
         selectedExam ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     useEffect(() => {
-        if(examQuestions) {
-            onChange(selectedExam, examQuestions);
-        }
+        onChange(selectedExam, examQuestions);
     } , [selectedExam, examQuestions, onChange]);
-    
-    useEffect(() => {
-        if(sessionQuestions && sessionQuestions.length > 0){
-            onChange(undefined, sessionQuestions);
-        }
-    }, [sessionQuestions, onChange]);
 
     return (
         <>
@@ -49,8 +36,11 @@ const StepReferenceExam = ({ examSession, onChange }) => {
                     renderInput={(params) => <TextField {...params} label="Find the reference exam" />}
                     noOptionsText="No exams found"
                     
-                    onInputChange={(event, newInputValue) => {
+                    onInputChange={(event, newInputValue, reason) => {
                         setInput(newInputValue);
+                        if(reason === 'clear'){
+                            setSelectedExam(null);
+                        }
                     }}
                     onChange={(_, exam) => { 
                         setSelectedExam(exam);
@@ -64,18 +54,6 @@ const StepReferenceExam = ({ examSession, onChange }) => {
                 { selectedExam && 
                     <AlertFeedback severity="info">
                         The reference exam contains {selectedExam.questions.length} questions. Their copy will be assigned for this session.
-                    </AlertFeedback>
-                }
-
-                { sessionQuestions && selectedExam && sessionQuestions.length > 0 && 
-                    <AlertFeedback severity="warning">
-                        This session already has {sessionQuestions.length} questions. They will be replaced by the questions of the reference exam.
-                    </AlertFeedback>
-                }
-
-                { sessionQuestions && sessionQuestions.length > 0 && 
-                    <AlertFeedback severity="success">
-                        This session has {sessionQuestions.length} questions. 
                     </AlertFeedback>
                 }
     

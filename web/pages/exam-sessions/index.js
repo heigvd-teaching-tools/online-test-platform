@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ExamSessionPhase } from '@prisma/client';
 import { Box, Toolbar, Button, Chip, IconButton } from '@mui/material';
 import MainLayout from '../../components/layout/MainLayout';
 import DataGrid from '../../components/ui/DataGrid';
@@ -74,6 +75,24 @@ const ExamSessions = () => {
     setExamSessionToDelete(null);
   }
 
+  const linkPerPhase = (phase, examSessionId) => {
+    switch(phase){
+      case ExamSessionPhase.DRAFT:
+        return `/exam-sessions/${examSessionId}/draft/1`;
+      case ExamSessionPhase.IN_PROGRESS:
+        return `/exam-sessions/${examSessionId}/in-progress/1`;
+      case ExamSessionPhase.GRADING:
+        return `/exam-sessions/${examSessionId}/grading/1`;
+      case ExamSessionPhase.FINISHED:
+        return `/exam-sessions/${examSessionId}/finished`;
+      default:
+        return `/exam-sessions`;
+    }
+  }
+      
+
+
+
   return (
     <MainLayout>
     <Box sx={{ minWidth:'100%' }}>
@@ -94,7 +113,7 @@ const ExamSessions = () => {
             phase: <DisplayPhase phase={examSession.phase} />,
             meta: {
               key: examSession.id,
-              linkHref: `/exam-sessions/${examSession.id}`,
+              linkHref: linkPerPhase(examSession.phase, examSession.id),
               actions:  [(
                 <IconButton key="delete-exam" onClick={(ev) => {
                   ev.preventDefault();

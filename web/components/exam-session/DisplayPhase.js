@@ -5,12 +5,10 @@ const DisplayPhase = ({phase}) => {
     switch (phase) {
       case ExamSessionPhase.DRAFT:
         return <Chip label="Draft" color="warning" />;
-      case ExamSessionPhase.SCHEDULING:
-        return <Chip label="Scheduling" color="info" />;
       case ExamSessionPhase.IN_PROGRESS:
-        return <Chip label="In progress" color="primary" />;
+        return <Chip label="In progress" color="info" />;
       case ExamSessionPhase.CORRECTION:
-        return <Chip label="Correction" color="secondary" />;
+        return <Chip label="Correction" color="primary" />;
       case ExamSessionPhase.FINISHED:
         return <Chip label="Finished" color="success" />;
       default:

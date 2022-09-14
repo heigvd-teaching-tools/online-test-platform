@@ -3,44 +3,36 @@ import { ExamSessionPhase } from '@prisma/client';
 
 import { Stepper, Step, Stack, Typography  } from "@mui/material";
 import MainLayout from '../../layout/MainLayout';
-
+import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { useExamSession } from '../../../context/ExamSessionContext';
 import StepNav from '../StepNav';
 import StepGeneralInformation from '../draft/StepGeneralInformation';
-import StepReferenceExam from '../draft/StepReferenceExam';
+import StepSchedule from '../draft/StepSchedule';
 
 import DialogFeedback from '../../feedback/DialogFeedback';
+import RegistrationClipboard from '../RegistrationClipboard';
 
 const PageDraft = () => {
+    const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
     const { examSession, activeStep, stepBack, stepNext, save, saving} = useExamSession();
     const [ finalStepDialogOpen, setFinalStepDialogOpen ] = useState(false);
+
+    const [ duration, setDuration ] = useState(undefined);
+    const onDurationChange = useCallback((duration) => setDuration(duration), [setDuration]);
 
     const inputControl = (step) => {
         switch(step){
             case 0:
                 return examSession.label.length > 0;
-            case 1:
-                if(examSession.questions && examSession.questions.length === 0){
-                    showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');
-                }
-                return examSession.questions && examSession.questions.length > 0;     
             default:
                 return true;
         }
     }
 
-    const handleBack = async () => {
-        if(stepBack()){
-            save({
-                phase: ExamSessionPhase.DRAFT,
-            }).then(() => {
-                showSnackbar('Saved', 'success');
-            }).catch(() => {
-                showSnackbar('Error', 'error');
-            }); 
-        }
+    const handleBack = () => {
+        stepBack();
     }
 
     const handleNext = async () => {
@@ -64,19 +56,21 @@ const PageDraft = () => {
     }
 
     const endDraftPhase = async () => {
+        setFinalStepDialogOpen(false);
         await save({
-            phase: ExamSessionPhase.SCHEDULING,
-            questions: examSession.questions
+            phase: ExamSessionPhase.IN_PROGRESS,
+            label: examSession.label,
+            conditions: examSession.conditions,
+            duration
         });
+        router.push(`/exam-sessions/${examSession.id}/in-progress/1`);
     }
-
-    const onChangeRefenceExam = useCallback((_, questions) => {
-        examSession.questions = questions;
-    }, [examSession]);
 
     return (
         <MainLayout>
+        
         <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>          
+            <RegistrationClipboard sessionId={examSession.id} />
             <Stepper activeStep={activeStep} orientation="vertical">
             
             <Step key="general">
@@ -88,12 +82,12 @@ const PageDraft = () => {
                     }}
                 />
             </Step>
-            <Step key="chose-exam">
-                <StepReferenceExam 
+            <Step key="scheduling-registration">
+                <StepSchedule
                     examSession={examSession}
-                    onChange={onChangeRefenceExam}
+                    onChange={onDurationChange}
                 />
-            </Step>    
+            </Step>   
                                 
             </Stepper>      
 
@@ -111,8 +105,12 @@ const PageDraft = () => {
                 title="End of DRAFT phase"
                 content={
                     <>
-                    <Typography variant="body1" gutterBottom>You are about to move to the scheduling phase. You will not be able to change the exam session anymore.</Typography>
-                    <Typography variant="body1" gutterBottom>Next phase is the scheduling phase. You will be able to schedule the exam session and invite students to participate.</Typography>
+                    <Typography variant="body1" gutterBottom>You are about to go into the <b>in-progress</b> phase.</Typography>
+                    <Typography variant="body1" gutterBottom>Registered students will be able to start with their exam session.</Typography>
+                    <Typography variant="body1" gutterBottom>Late student registrations will still be possible.</Typography>
+                    {duration && (
+                        <Typography variant="body1" gutterBottom>End time estimated at <b>{new Date(Date.now() + (duration.hours * 60 + duration.minutes) * 60000).toLocaleTimeString()}</b>.</Typography>
+                    )}
                     <Typography variant="button" gutterBottom> Are you sure you want to continue?`</Typography>
                     </>
                 }

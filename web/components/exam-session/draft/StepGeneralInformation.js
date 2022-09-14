@@ -5,8 +5,8 @@ import { Step, StepLabel, StepContent, Stack, TextField } from '@mui/material';
 
 const StepGeneralInformation = ({ examSession, onChange }) => {
 
-    const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput(examSession.label);
-    const { value:conditions, bind:bindConditions, setValue:setConditions } = useInput(examSession.conditions);
+    const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput(examSession.label || '');
+    const { value:conditions, bind:bindConditions, setValue:setConditions } = useInput(examSession.conditions || '');
 
     useEffect(() => {
         if(label.length === 0){

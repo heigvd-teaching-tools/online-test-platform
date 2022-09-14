@@ -10,52 +10,48 @@ export const useExamSession = () => useContext(ExamSessionContext);
 // phase / number of steps relationship
 const phaseSteps = {
     'DRAFT': {
+        page:'draft',
         steps:2,
-        defaultStep:2
-    },
-    'SCHEDULING': {
-        steps:1,
         defaultStep:1
     },
     'IN_PROGRESS': {
+        page:'in-progress',
         steps:1,
         defaultStep:1
     },
-    'CORRECTION': {
+    'GRADING': {
+        page:'grading',
         steps:1,
         defaultStep:1
     },
     'FINISHED': {
+        page:'finished',
         steps:1,
         defaultStep:1
     },
 };
 
 const phasePageRelationship = {
-    'DRAFT': '/exam-sessions/[sessionId]',
-    'SCHEDULING': '/exam-sessions/[sessionId]/scheduling',
-    'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress',
-    'CORRECTION': '/exam-sessions/[sessionId]/correction',
-    'FINISHED': '/exam-sessions/[sessionId]/finished',
+    'DRAFT': '/exam-sessions/[sessionId]/draft/[activeStep]',
+    'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress/[activeStep]',
+    'CORRECTION': '/exam-sessions/[sessionId]/correction/[activeStep]',
+    'FINISHED': '/exam-sessions/[sessionId]/finished/[activeStep]',
 };
 
 const redirectToPhasePage = (phase, router) => {
     if(router.pathname === phasePageRelationship[phase]) return;
     switch(phase){
         case ExamSessionPhase.DRAFT:
-            router.push(`/exam-sessions/${router.query.sessionId}`);
-            return;
-        case ExamSessionPhase.SCHEDULING:
-            router.push(`/exam-sessions/${router.query.sessionId}/scheduling`);
+            router.push(`/exam-sessions/${router.query.sessionId}/draft/1`);
             return;
         case ExamSessionPhase.IN_PROGRESS:
-            router.push(`/exam-sessions/${router.query.sessionId}/in-progress`);
+            router.push(`/exam-sessions/${router.query.sessionId}/in-progress/1`);
             return;
         case ExamSessionPhase.CORRECTION:
-            router.push(`/exam-sessions/${router.query.sessionId}/correction`);
+            router.push(`/exam-sessions/${router.query.sessionId}/correction/1`);
             return;
         case ExamSessionPhase.FINISHED:
-            router.push(`/exam-sessions/${router.query.sessionId}/finished`);
+            router.push(`/exam-sessions/${router.query.sessionId}/finished/1`);
             return;
     }
 }
@@ -68,32 +64,33 @@ export const ExamSessionProvider = ({ children }) => {
     );
 
     const [examSession, setExamSession] = useState();
-    const [activeStep, setActiveStep] = useState();
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         if (data) {
             setExamSession(data);
-            setActiveStep(phaseSteps[data.phase].defaultStep - 1);
             redirectToPhasePage(data.phase, router);
         }
     }, [data, router]);
 
     const stepBack = useCallback(() => {
-        if(activeStep > 0){
-            setActiveStep(activeStep - 1);
+        let activeStep = parseInt(router.query.activeStep);
+        if(router.query.activeStep > 1){
+            router.push(`/exam-sessions/${router.query.sessionId}/${phaseSteps[examSession.phase].page}/${activeStep - 1}`);
             return true;
         }
         return false;
-    }, [activeStep]);
+    }, [router]);
 
     const stepNext = useCallback(() => {
-        if(activeStep < phaseSteps[examSession.phase].steps){
-            setActiveStep(activeStep + 1);
+        let activeStep = parseInt(router.query.activeStep);
+        console.log("stepNext", activeStep, phaseSteps[examSession.phase].steps);
+        if(router.query.activeStep <= phaseSteps[examSession.phase].steps){
+            router.push(`/exam-sessions/${router.query.sessionId}/${phaseSteps[examSession.phase].page}/${activeStep + 1}`);
             return true;
         }
         return false;
-    }, [activeStep, examSession]);
+    }, [router, examSession]);
 
     const save = useCallback(async (data) => {
         setSaving(true);
@@ -130,7 +127,7 @@ export const ExamSessionProvider = ({ children }) => {
             {examSession && (
                 <ExamSessionContext.Provider value={{ 
                     examSession, 
-                    activeStep, 
+                    activeStep: parseInt(router.query.activeStep) - 1, 
                     stepBack, 
                     stepNext,
                     saving,

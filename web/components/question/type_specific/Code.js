@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { Stack, Tabs, Tab } from "@mui/material"
-import CodeEditor from './CodeEditor';
+import CodeEditor from '../../input/CodeEditor';
 
 const Code = ({ code:initial, displaySolutionEditor, editorHeight = '100%', onChange }) => {
 
