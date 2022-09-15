@@ -53,7 +53,7 @@ const ResizePanel = ({
 };
 
 ResizePanel.defaultProps = {
-    rightWidth: 50
+    rightWidth: 60
 };
 
 ResizePanel.propTypes = {
