@@ -48,7 +48,7 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
         <>
             <Row padding={1}>
                 <Column>
-                    <LoadingButton size="small" variant="contained" color="info" onClick={runTest} loading={testRunning}>Run Test</LoadingButton>
+                    <LoadingButton size="small" variant="contained" color="info" onClick={runTest} loading={testRunning}>Test</LoadingButton>
                 </Column>
                 <Column>
                     <Button 
@@ -56,7 +56,7 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
                         color="info"
                         startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
                         onClick={() => setExpanded(!expanded)}>
-                        Test Result
+                        Result
                     </Button>
                 </Column>
             </Row>

@@ -47,8 +47,6 @@ const CodeEditor = ({ code:initial, editorHeight,  onChange }) => {
         });
     }
 
-    
-
     return (
         <Box sx={{ width:'100%', height:'100%', position:'relative' }}>
             <Editor
@@ -58,7 +56,6 @@ const CodeEditor = ({ code:initial, editorHeight,  onChange }) => {
                 value={code}
                 onChange={onCodeChange}
             />
-            
             <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:0  }}>
                 <Stack direction="row" alignItems="center" width="100%" spacing={1} sx={{ pt:1, pb:1 }}>
                     <LoadingButton 
@@ -66,16 +63,16 @@ const CodeEditor = ({ code:initial, editorHeight,  onChange }) => {
                         loading={codeRunning} 
                         onClick={runCode}
                         variant="outlined"
+                        size="small"
                     >Run</LoadingButton>
-                    
                     <Button 
+                        size="small"
                         color="info"
                         startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
                         onClick={handleExpandClick}>
                         Result
                     </Button>
                 </Stack>
-            
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <TextField
                         label="Result"

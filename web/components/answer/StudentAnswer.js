@@ -60,18 +60,20 @@ const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
                     <AnswerEditor 
                         question={question}
                         onAnswer={onAnswer} 
-                    />          
+                    />    
+                    { question.type === 'code' && (
+                        <Paper elevation={2} square sx={{ p:1, mt:1 }}>
+                            <CodeTestResult 
+                                code={question.studentAnswer ? question.studentAnswer.code : question.code}
+                                questionId={question.id}
+                            />
+                        </Paper>
+                    ) }      
                 </Stack>  
             }
+        
         />
-        { question.type === 'code' && (
-            <Paper elevation={2} square sx={{ p:1, mt:1 }}>
-                <CodeTestResult 
-                    code={question.studentAnswer ? question.studentAnswer.code : question.code}
-                    questionId={question.id}
-                />
-            </Paper>
-        ) }
+        
         
         </>
     )
