@@ -1,6 +1,4 @@
-import { DataSaverOff } from '@mui/icons-material';
 import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
-
 
 import { hasRole } from '../../../../utils/auth';
 
@@ -72,15 +70,13 @@ const patch = async (req, res) => {
 
     if(nextPhase){
         data.phase = nextPhase;
-        console.log("nextPhase", nextPhase);
         if(nextPhase === ExamSessionPhase.IN_PROGRESS){
-            console.log("current duration", currentExamSession.durationHours,  currentExamSession.durationMins);
+            // handle start and end time
             let durationHours = currentExamSession.durationHours;
             let durationMins = currentExamSession.durationMins;
             if(durationHours > 0 || durationMins > 0){
                 data.startAt = new Date();
                 data.endAt = new Date(Date.now() + (durationHours * 3600000) + (durationMins * 60000));
-                console.log("start and end", data.startAt, data.endAt);
             }else{
                 data.startAt = null;
                 data.endAt = null;

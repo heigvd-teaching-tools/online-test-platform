@@ -42,10 +42,7 @@ const DateCountdown = ({ untilDate, onTic, onFinish }) => {
     return (
     <>
         {timeLeft && (
-            <>
-            {timeLeft.hours > 0 ? `${timeLeft.hours}h `: ''} 
-            {timeLeft.minutes > 0 ? `${timeLeft.minutes}m `: ''} 
-            </>
+            <>{`${timeLeft.hours.toString().padStart(2, '0')}:${timeLeft.minutes.toString().padStart(2, '0')}`}</>
         )}
     </>
     );
