@@ -10,7 +10,20 @@ const StepNav = ({ activeStep, totalSteps, phase, saveRunning, onBack, onNext, o
             
             <DisplayPhase phase={phase} />
 
-            <LoadingButton onClick={activeStep === totalSteps - 1 ? onFinalStep : onNext} loading={saveRunning || false}>Next</LoadingButton>
+            {
+                activeStep < totalSteps - 1 &&
+                <LoadingButton onClick={onNext} loading={saveRunning || false}>
+                    Next
+                </LoadingButton>
+            }
+            
+            {
+                activeStep === totalSteps - 1 && 
+                <LoadingButton onClick={onFinalStep} loading={saveRunning || false}>
+                    Finish
+                </LoadingButton>
+            }
+            
         </Stack>
     )
 }

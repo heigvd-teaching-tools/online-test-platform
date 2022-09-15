@@ -155,6 +155,10 @@ model ExamSession {
   phase      ExamSessionPhase @default(DRAFT)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
+
+  durationHours Int? @default(0)
+  durationMins  Int? @default(0)
+
   startAt    DateTime?
   endAt      DateTime?
 

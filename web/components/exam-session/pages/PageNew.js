@@ -39,7 +39,7 @@ const PageNew = () => {
 
     return (
     <MainLayout>
-    <Stack sx={{ minWidth:'800px' }} spacing={2}>
+    <Stack sx={{ width:'100%' }} spacing={2}>
         <Stack direction="row" justifyContent="flex-end">
             <Button onClick={handleNext}>Next</Button>
         </Stack>

@@ -6,8 +6,8 @@ import DropDown from './DropDown';
 import { Box } from '@mui/system';
 
 const DurationPicker = ({ value, onChange }) => {
-    const { value:hours, bind:bindHours, setValue:setHours } = useInput(value.hours);
-    const { value:minutes, bind:bindMinutes, setValue:setMinutes } = useInput(value.minutes);
+    const { value:hours, setValue:setHours } = useInput(value && value.hours || 0);
+    const { value:minutes, setValue:setMinutes } = useInput(value && value.minutes || 45);
 
     useEffect(() => {
         onChange({

@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useInput } from '../../../utils/useInput';
-import { Step, StepLabel, StepContent, Stack, TextField } from '@mui/material';
+import { Step, StepLabel, StepContent, Stack, TextField, Typography } from '@mui/material';
 
 const StepGeneralInformation = ({ examSession, onChange }) => {
 
@@ -16,34 +16,29 @@ const StepGeneralInformation = ({ examSession, onChange }) => {
             label,
             conditions
         });
-    }, [label, conditions, setErrorLabel]);
+    }, [label, conditions, setErrorLabel, onChange]);
 
     return(
-        <>
-        <StepLabel>General informations</StepLabel>
-        <StepContent>
-            <Stack spacing={2} pt={2}>
-                <TextField
-                    label="Label"
-                    id="exam-label"
-                    fullWidth
-                    value={label}
-                    {...bindLabel}
-                />
+        <Stack spacing={2} pt={2}>
+            <Typography variant="h6">General Informations</Typography>
+            <TextField
+                label="Label"
+                id="exam-label"
+                fullWidth
+                value={label}
+                {...bindLabel}
+            />
 
-                <TextField
-                    label="Conditions"
-                    id="exam-conditions"
-                    fullWidth
-                    multiline
-                    rows={4}
-                    value={conditions}
-                    {...bindConditions}
-                />
-                
-            </Stack>
-        </StepContent>
-        </>
+            <TextField
+                label="Conditions"
+                id="exam-conditions"
+                fullWidth
+                multiline
+                rows={4}
+                value={conditions}
+                {...bindConditions}
+            />
+        </Stack>
     )
 };
 
