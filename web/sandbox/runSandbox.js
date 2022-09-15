@@ -55,11 +55,11 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
         //const { output:expected2, exitCode:exitCodeExpected2 } = await container.exec(["node", "/app/solution.js", "2>&1"]);
         const { output:expected, exitCode:exitCodeExpected } = await container.exec([
             "node", "/app/solution.js"
-        ], { Tty: false });
+        ], { tty: false });
         //const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js", "2>&1"]);
         const { output:result, exitCode:exitCodeResult } = await container.exec([
             "node", "/app/code.js"
-        ], { Tty: false });
+        ], { tty: false });
 
         clearTimeout(timeout);
 

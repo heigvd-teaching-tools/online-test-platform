@@ -98,7 +98,7 @@ const Exams = () => {
                   setExamToDelete(exam.id);
                   setDeleteDialogOpen(true);
                 }}>
-                  <Image alt="Delete" src="/exam-delete.svg" layout="fixed" width="18" height="18" />
+                  <Image alt="Delete" src="/svg/exam/exam-delete.svg" layout="fixed" width="18" height="18" />
                 </IconButton>
               )]
             }

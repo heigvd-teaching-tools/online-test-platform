@@ -202,7 +202,6 @@ model StudentAnswer {
 }
 
 model StudentAnswerGraduation {
-  id            String        @id @default(cuid())
   studentAnswer StudentAnswer @relation(fields: [userEmail, examSessionId, questionId], references: [userEmail, examSessionId, questionId], onDelete: Cascade)
   userEmail     String
   examSessionId String
@@ -215,8 +214,9 @@ model StudentAnswerGraduation {
 
   signedBy            User?   @relation(fields: [signedByUserEmail], references: [email])
   signedByUserEmail   String?
+  signedByUserRemarks String?
 
-  @@unique([userEmail, examSessionId, questionId])
+  @@id([userEmail, examSessionId, questionId])
 }
 
 model StudentAnswerTrueFalse {
