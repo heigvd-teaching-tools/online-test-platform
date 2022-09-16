@@ -1,12 +1,13 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { ExamSessionPhase } from '@prisma/client';
 
-import { Step, Stack  } from "@mui/material";
+import { Stack  } from "@mui/material";
 import MainLayout from '../../layout/MainLayout';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { useExamSession } from '../../../context/ExamSessionContext';
 
+import StepReferenceExam from '../draft/StepReferenceExam';
 import StepGeneralInformation from '../draft/StepGeneralInformation';
 import StepSchedule from '../draft/StepSchedule';
 
@@ -18,6 +19,15 @@ const PageDraft = () => {
     const { show: showSnackbar } = useSnackbar();
     const { examSession, save, saving} = useExamSession();
 
+    const [ selectedExam, setSelectedExam ] = useState();
+    const [ questions, setQuestions ] = useState();
+
+    const onChangeRefenceExam = useCallback((exam, questions) => {
+        console.log('onChangeRefenceExam', exam, questions);
+        setSelectedExam(exam);
+        setQuestions(questions);
+    }, [setSelectedExam, setQuestions]);
+
     const [ duration, setDuration ] = useState(undefined);
     const onDurationChange = useCallback((duration) => {
         setDuration(duration);
@@ -26,23 +36,31 @@ const PageDraft = () => {
     const handleSave = useCallback(async () => {
         if(examSession.label.length === 0){
             showSnackbar('You exam session has no label. Please enter a label.', 'error');
-            return;
+            return false;
         }
-        await save({
+        let data = {
             phase: ExamSessionPhase.DRAFT,
             label: examSession.label,
             conditions: examSession.conditions,
             duration
-        }).then(() => {
+        };
+        console.log("selectedExam", selectedExam);
+        if(selectedExam){
+            data.questions = questions;
+        }
+        await save(data)
+        .then(() => {
             showSnackbar('Exam session saved', 'success');
         }).catch(() => {
             showSnackbar('Error', 'error');
         });
-    }, [examSession, duration, save, showSnackbar]);
+        return true;
+    }, [examSession, duration, questions, selectedExam, save, showSnackbar]);
 
     const handleFinalize = useCallback(async () => {
-        await handleSave();
-        router.push(`/exam-sessions`);
+        if(await handleSave()){
+            router.push(`/exam-sessions`);
+        }
     }, [router, handleSave]);
 
     return (
@@ -50,7 +68,11 @@ const PageDraft = () => {
         
         <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>          
             <RegistrationClipboard sessionId={examSession.id} />
-            
+            <StepReferenceExam 
+                examSession={examSession} 
+                onChange={onChangeRefenceExam}
+            />
+
             <StepGeneralInformation 
                 examSession={examSession} 
                 onChange={(data)=>{

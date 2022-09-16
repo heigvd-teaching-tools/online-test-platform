@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import useSWR from "swr";
+import Image from 'next/image';
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
@@ -10,6 +11,8 @@ import AlertFeedback from "../../feedback/AlertFeedback";
 import LoadingAnimation from "../../layout/LoadingAnimation";
 import StudentAnswer from "../../answer/StudentAnswer";
 import { useSnackbar } from '../../../context/SnackbarContext';
+
+import { useDebouncedCallback } from 'use-debounce';
 
 const PageTakeExam = () => {
     const router = useRouter();
@@ -38,7 +41,7 @@ const PageTakeExam = () => {
         }
     }, [sessionQuestions]);
 
-    const onAnswer = useCallback((answer) => {
+    const onAnswer = useDebouncedCallback(useCallback((answer) => {
         (async () => {
             await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${questions[page - 1].id}/answer`, {
                 method: 'POST',
@@ -62,7 +65,7 @@ const PageTakeExam = () => {
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
-    }, [questions, page, router.query.sessionId, showSnackbar]);
+    }, [questions, page, router.query.sessionId, showSnackbar]), 500);
 
     const hasAnswered = useCallback((page) => {
         let question = questions[page - 1];
@@ -71,7 +74,10 @@ const PageTakeExam = () => {
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
-    if(examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS) return <LoadingAnimation text={`${examSession.label} is not in progress.`} />;       
+    if(examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS) {
+        let text = examSession.label ? `${examSession.label} is not in progress.` : 'This exam session is not in progress.';
+        return <LoadingAnimation text={text} />;       
+    } 
     
     return (
         <TakeExamSessionLayout appBarContent={
@@ -88,11 +94,9 @@ const PageTakeExam = () => {
                     <QuestionPages 
                         count={questions.length} 
                         page={page} 
-                        router={router} 
                         hasAnswered={hasAnswered} 
                     />
                 )}
-                
             </Stack>
         }>
         <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
@@ -113,8 +117,6 @@ const PageTakeExam = () => {
     )
 }
 
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
 import ExamSessionCountDown from '../in-progress/ExamSessionCountDown';
 
 const QuestionPages = ({ count, page, hasAnswered }) => {
@@ -132,7 +134,16 @@ const QuestionPages = ({ count, page, hasAnswered }) => {
                     label={`Q${index + 1}`}	
                     iconPosition="start"
                     sx={{ minHeight: '50px', minWidth: 0 }}
-                    icon={hasAnswered(index + 1) ? <CheckIcon sx={{ color: '#2e7d32' }}/> : <CloseIcon sx={{ color: '#da291c' }} />}
+                    icon={
+                    <Stack sx={{ width: '20px', height: '20px' }} alignItems="center" justifyContent="center">
+                        { 
+                        hasAnswered(index + 1) ? 
+                            <Image src="/svg/answer/present.svg" alt="Answer present" layout="fixed" width={12} height={12} />                    
+                            : 
+                            <Image src="/svg/answer/empty.svg" alt="Answer empty" layout="fixed" width={12} height={12} />                
+                        }
+                    </Stack> 
+                }
                 />
             ))}
         </Tabs>

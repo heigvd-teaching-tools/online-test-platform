@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { Paper } from "@mui/material";
 
@@ -17,16 +17,17 @@ const AnswerEditor = ({ question, onAnswer }) => {
         setHeight(height);
     }));
     
-    const onAnswerByType = (newAnswer) => {
+    const onAnswerByType = useCallback((newAnswer) => {
         /* 
             decide the answer submit or delete condition on per type basis
             answer "undefined" means delete
         */
         switch(answer.type) {
+            // notify with undefined to remove answer
             case 'trueFalse':
-                onAnswer({
+                onAnswer(newAnswer !== undefined ? {
                     isTrue: newAnswer
-                });
+                } : undefined);
                 break;
             case 'multipleChoice':
                 let selectedOptions = newAnswer.filter(o => o.isCorrect);
@@ -35,9 +36,9 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 } : undefined);
                 break;
             case 'essay':
-                onAnswer({
+                onAnswer(newAnswer ? {
                     content: newAnswer
-                });
+                } : undefined);
                 break;
             case 'code':
                 onAnswer(newAnswer);
@@ -45,7 +46,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
             default:
                 break;
         }
-    }
+    }, [answer, onAnswer]);
 
     useEffect(() => {
         if(question){

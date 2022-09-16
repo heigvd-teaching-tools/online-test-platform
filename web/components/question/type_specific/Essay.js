@@ -1,17 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField } from "@mui/material";
-
-import { useInput } from '../../../utils/useInput';
 
 const Essay = ({ label, content:initial, onChange }) => {
     
-    const { value:content, bind:bindContent } = useInput(initial || '');
+    const [content, setContent] = useState();
     
     useEffect(() => {
-        if(content !== initial){
-            onChange(content === '' ? undefined : content);
-        }
-    }, [content]);
+        setContent(initial);
+    }, [initial]);
 
     return (
         <TextField 
@@ -22,8 +18,15 @@ const Essay = ({ label, content:initial, onChange }) => {
             label={label}
             id="essay-content"
             value={content}
+            onChange={(e) => {
+                let newContent = e.target.value;
+                if(newContent !== content){
+                    onChange(newContent === '' ? undefined : newContent);
+                }
+                setContent(newContent);
+            }}
             sx={{ p:1 }}
-            {...bindContent}
+            
         />
     )
     
