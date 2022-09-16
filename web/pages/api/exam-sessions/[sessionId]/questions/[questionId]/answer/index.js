@@ -36,7 +36,11 @@ const post = async (req, res) => {
             id: questionId 
         },
         include: {
-            studentAnswer: true
+            studentAnswer: true,
+            code: { select: { code: true, solution: true } },
+            multipleChoice: { select: { options: true } },
+            trueFalse: { select: { isTrue: true } },
+            essay: true
         } 
     });
     const { type } = question;
@@ -54,6 +58,7 @@ const post = async (req, res) => {
                 }
             });
         }
+    
     }else{
         a = await prisma.studentAnswer.upsert({
             where: {
@@ -64,22 +69,77 @@ const post = async (req, res) => {
             },
             update: {
                 [type]: {
-                    update: await prepareAnswer(type, answer, 'update')
+                    update: prepareAnswer(type, answer, 'update')
+                },
+                studentAnswerGraduation: {
+                    update: graduateAnswer(question, answer)
                 }
             },
             create: {
                 userEmail: studentEmail,
                 questionId: questionId,
                 [type]: {
-                    create: await prepareAnswer(type, answer, 'create')
+                    create: prepareAnswer(type, answer, 'create')
+                },
+                studentAnswerGraduation: {
+                    create: graduateAnswer(question, answer)
                 }
+
             }
         });
     }
     res.status(200).json(a);
 }
 
-const prepareAnswer = async (questionType, answer, mode) => {
+const graduateAnswer = (question, answer) => {
+    switch(question.type) {
+        case 'multipleChoice':
+            return gradeMultipleChoice(question, answer);
+        case 'trueFalse':
+            return gradeTrueFalse(question, answer);
+        case 'essay':
+            return gradeEssay(question, answer);
+        case 'code':
+            return gradeCode(question, answer);
+        default:
+            return undefined;
+    }
+}
+
+const gradeMultipleChoice = (question, answer) => {
+    let correctOptions = question.multipleChoice.options.filter((opt) => opt.isCorrect);
+    let answerOptions = answer.options;
+    let isCorrect = correctOptions.length === answerOptions.length && correctOptions.every((opt) => answerOptions.some((aOpt) => aOpt.id === opt.id));
+    
+    return {
+        pointsObtained: isCorrect ? question.points : 0,
+        isCorrect
+    }
+}
+
+const gradeTrueFalse = (question, answer) => {
+    return {
+        pointsObtained: 0,
+        isCorrect: false
+    }
+}
+
+const gradeEssay = (question, answer) => {
+    return {
+        pointsObtained: 0,
+        isCorrect: false
+    }
+}
+
+const gradeCode = (question, answer) => {
+   return {
+        pointsObtained: 0,
+        isCorrect: false
+    }
+}
+
+
+const prepareAnswer = (questionType, answer, mode) => {
     switch(questionType) {
         case 'multipleChoice':
             let options = {};

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { Stack, Tabs, Tab, Box, Paper } from "@mui/material"
+import { Stack, Tabs, Tab, Paper } from "@mui/material"
 import CodeEditor from '../../input/CodeEditor';
 import CodeTestResult from './CodeTestResult';
 
-const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, containerHeight, onChange }) => {
+const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, containerHeight, onChange, onTestResult }) => {
 
     const [ code, setCode ] = useState();
     const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
@@ -73,6 +73,7 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                         <CodeTestResult
                             where={where} 
                             questionId={questionId} 
+                            onTestResult={onTestResult}
                         />
                     </Paper>
                 </Stack>

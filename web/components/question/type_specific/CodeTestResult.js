@@ -13,35 +13,33 @@ import Column from '../../layout/Column';
 import AlertFeedback from '../../feedback/AlertFeedback';
 
 
-const CodeTestResult = ({ where, questionId, beforeTestRun, onTestResult }) => {
+const CodeTestResult = ({ where, questionId, onBeforeTestRun, onTestResult }) => {
     const { show: showSnackbar } = useSnackbar();
 
     const [ testRunning, setTestRunning ] = useState(false);
     const [ testResult, setTestResult ] = useState(null);
     const [ expanded, setExpanded ] = useState(false);
 
-    const runTest =  () => {
-        (async () => {
-            if(beforeTestRun) await beforeTestRun();
-            setTestRunning(true);
+    const runTest = async () => {
+        if(onBeforeTestRun) await onBeforeTestRun();
+        setTestRunning(true);
+        setTestResult(null);
+        fetch(`/api/code/test/${where}/${questionId}`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            setTestRunning(false);
+            setTestResult(data);
+            setExpanded(true);
+            if(onTestResult) onTestResult(data);
+        }).catch(_ => {
+            showSnackbar("Error running test", "error");
             setTestResult(null);
-            fetch(`/api/code/test/${where}/${questionId}`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(res => res.json())
-            .then(data => {
-                setTestRunning(false);
-                setTestResult(data);
-                setExpanded(true);
-                if(onTestResult) onTestResult(data);
-            }).catch(_ => {
-                showSnackbar("Error running test", "error");
-                setTestResult(null);
-                setTestRunning(false);
-                setExpanded(true);
-            });
-        })();
+            setTestRunning(false);
+            setExpanded(true);
+        });
     }
 
     return(
