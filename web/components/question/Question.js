@@ -175,20 +175,17 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                         ( questionType === 'code' && question.code &&
                             <Stack spacing={2}>
                                 <Code 
-                                    editorHeight='450px'
+                                    containerHeight='600'
                                     displaySolutionEditor
+                                    where="question"
                                     rightEditorLabel={{
                                         label: "Partial Code",
                                         subheader: "Provided to students" 
                                     }}
                                     code={question.code}
+                                    questionId={question.id}
                                     onChange={(which, newCode) => onQuestionChange("code", { [which]: newCode })}
                                 /> 
-                                <CodeTestResult 
-                                    code={question.code} 
-                                    where="question"
-                                    questionId={question.id} 
-                                />
                             </Stack>
                         )
                         ||

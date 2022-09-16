@@ -46,20 +46,16 @@ const CodeTestResult = ({ where, questionId, beforeTestRun, onTestResult }) => {
 
     return(
         <>
-            <Row padding={1}>
-                <Column>
-                    <LoadingButton size="small" variant="contained" color="info" onClick={runTest} loading={testRunning}>Test</LoadingButton>
-                </Column>
-                <Column>
-                    <Button 
-                        size="small"
-                        color="info"
-                        startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
-                        onClick={() => setExpanded(!expanded)}>
-                        Result
-                    </Button>
-                </Column>
-            </Row>
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ pt:1, pb:1 }}>
+                <LoadingButton size="small" variant="contained" color="info" onClick={runTest} loading={testRunning}>Test</LoadingButton>
+                <Button 
+                    size="small"
+                    color="info"
+                    startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
+                    onClick={() => setExpanded(!expanded)}>
+                    Result
+                </Button>
+            </Stack>
             <Collapse in={expanded}>
                 {testResult && (
                     <>

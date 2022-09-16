@@ -59,12 +59,7 @@ const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
                     <AnswerEditor 
                         question={question}
                         onAnswer={onAnswer} 
-                    />    
-                    { question.type === 'code' && (
-                        <Paper elevation={2} square sx={{ p:1, mt:1 }}>
-                            <CodeTestResult where="answer" questionId={question.id} />
-                        </Paper>
-                    ) }      
+                    />      
                 </Stack>  
             }
         

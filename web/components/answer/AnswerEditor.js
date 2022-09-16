@@ -131,9 +131,10 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 answer.type === 'code' && (
                     <Code
                         id={`answer-editor-${question.id}`}	
+                        where="answer"
                         mode="partial"
                         code={answer.code}
-                        editorHeight={height}
+                        containerHeight={height}
                         questionId={question.id}
                         onChange={(which, newCode) => {
                             onAnswerByType({
