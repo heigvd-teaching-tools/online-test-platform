@@ -82,13 +82,14 @@ const post = async (req, res) => {
 const prepareAnswer = async (questionType, answer, mode) => {
     switch(questionType) {
         case 'multipleChoice':
-            let options = {
-                connect: answer.options.map((opt) => ({ id: opt.id }))               
-            }
+            let options = {};
+            // the order of the properties is important, first set than connect
             if(mode === 'update') {
                 // remove eventual existing options
                 options.set = [];
             }
+            options.connect = answer.options.map((opt) => ({ id: opt.id })) 
+            console.log("multipleChoice", mode, options);
             return {
                 options
             }

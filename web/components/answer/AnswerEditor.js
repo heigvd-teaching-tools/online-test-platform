@@ -74,7 +74,6 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     break;
                 case 'essay':
                     answerData.content = question.studentAnswer && question.studentAnswer.essay ? question.studentAnswer.essay.content : "";
-                    console.log("AnswerEditor: essay", answerData);
                     break;
                 case 'code':
 

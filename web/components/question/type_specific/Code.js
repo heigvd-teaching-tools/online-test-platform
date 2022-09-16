@@ -17,7 +17,7 @@ const Code = ({ id = "code", code:initial, displaySolutionEditor, editorHeight, 
         <>
             {code && (
                 <>
-                <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+                <Stack id={id} direction="column" spacing={2} sx={{ width: '100%' }}>
                    {displaySolutionEditor && (
                     <>
                         <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">

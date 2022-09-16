@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { TextField } from "@mui/material";
 
 const Essay = ({ id = "essay", label, content:initial, onChange }) => {
-    console.log("Essay", initial);
     const [content, setContent] = useState();
     
     useEffect(() => {
-        console.log("initial", initial);
         setContent(initial || '');
     }, [initial, id]);
 
@@ -17,7 +15,7 @@ const Essay = ({ id = "essay", label, content:initial, onChange }) => {
             fullWidth
             rows={15}
             label={label}
-            id="essay-content"
+            id={id}
             value={content}
             onChange={(e) => {
                 let newContent = e.target.value;
