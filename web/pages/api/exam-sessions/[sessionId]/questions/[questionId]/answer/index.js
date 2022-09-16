@@ -29,7 +29,7 @@ const handler = async (req, res) => {
 const post = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
-    const { sessionId, questionId } = req.query;
+    const { questionId } = req.query;
     
     const question = await prisma.question.findUnique({ 
         where: { 
@@ -64,14 +64,14 @@ const post = async (req, res) => {
             },
             update: {
                 [type]: {
-                    update: await prepareAnswer(questionId, type, answer, 'update')
+                    update: await prepareAnswer(type, answer, 'update')
                 }
             },
             create: {
                 userEmail: studentEmail,
                 questionId: questionId,
                 [type]: {
-                    create: await prepareAnswer(questionId, type, answer, 'create')
+                    create: await prepareAnswer(type, answer, 'create')
                 }
             }
         });
@@ -79,7 +79,7 @@ const post = async (req, res) => {
     res.status(200).json(a);
 }
 
-const prepareAnswer = async (questionId, questionType, answer, mode) => {
+const prepareAnswer = async (questionType, answer, mode) => {
     switch(questionType) {
         case 'multipleChoice':
             let options = {
@@ -101,14 +101,7 @@ const prepareAnswer = async (questionId, questionType, answer, mode) => {
                 content: String(answer.content)
             }
         case 'code':
-            // get solution code
-            const code = await prisma.code.findUnique({
-                where: {
-                    questionId: questionId
-                }
-            });
             return {
-                solution: code.solution,
                 code: String(answer.code)
             }
         default:

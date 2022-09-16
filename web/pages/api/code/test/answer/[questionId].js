@@ -23,6 +23,17 @@ export default async function handler(req, res) {
     const { questionId } = req.query;  
 
     const { user: { email } } = await getSession({ req });
+    
+    // solution code retrieved from the question
+    const question = await prisma.question.findUnique({
+        where: {
+            id: questionId
+        },
+        include: {
+            code: true
+        }
+    });
+
     const studentAnswer = await prisma.studentAnswer.findUnique({
         where: {
             userEmail_questionId: {
@@ -35,23 +46,26 @@ export default async function handler(req, res) {
         }
     });
 
-    await runSandbox(studentAnswer.code.code, studentAnswer.code.solution, "test").then(async (reponse) => {
+    // student could run the test without having submitted an answer, run provided code
+    let code = studentAnswer ? studentAnswer.code.code : question.code.code;
 
-        // store the result in the student answer
-        console.log(reponse);
-        await prisma.StudentAnswerCode.update({
-            where: {
-                userEmail_questionId: {
-                    userEmail: email,
-                    questionId: questionId
+    await runSandbox(code, question.code.solution, "test").then(async (reponse) => {
+        if(studentAnswer){
+            // store the result in the student answer
+            await prisma.StudentAnswerCode.update({
+                where: {
+                    userEmail_questionId: {
+                        userEmail: email,
+                        questionId: questionId
+                    }
+                },
+                data: {
+                    expectedOutput: reponse.expected,
+                    resultOutput: reponse.result,
+                    success: reponse.success
                 }
-            },
-            data: {
-                expectedOutput: reponse.expected,
-                resultOutput: reponse.result,
-                success: reponse.success
-            }
-        });
+            });
+        }
         res.status(200).send(reponse);
     }).catch(error => {
         console.error(error);
