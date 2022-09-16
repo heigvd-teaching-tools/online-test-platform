@@ -6,7 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
-const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
+const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, selectOnly = false}) => {
     
     const [options, setOptions] = useState();
 
@@ -18,7 +18,7 @@ const MultipleChoice = ({ options:initial, onChange, selectOnly = false}) => {
                 setOptions(defaultOptions);
             }
         }
-    }, [initial]);
+    }, [initial, id]);
 
     return(
         <Stack direction="column" spacing={1} alignItems="flex-start">

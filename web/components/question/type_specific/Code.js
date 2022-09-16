@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Stack, Tabs, Tab } from "@mui/material"
 import CodeEditor from '../../input/CodeEditor';
 
-const Code = ({ code:initial, displaySolutionEditor, editorHeight, onChange }) => {
+const Code = ({ id = "code", code:initial, displaySolutionEditor, editorHeight, onChange }) => {
     const [ code, setCode ] = useState();
     const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
 
@@ -11,7 +11,7 @@ const Code = ({ code:initial, displaySolutionEditor, editorHeight, onChange }) =
         if (initial) {
             setCode(initial);
         }
-    }, [initial]);
+    }, [initial, id]);
 
     return (
         <>

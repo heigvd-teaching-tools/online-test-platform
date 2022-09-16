@@ -4,13 +4,13 @@ import { Stack, Box, ToggleButton, Typography  } from "@mui/material"
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 
-const TrueFalse = ({ isTrue:initial, onChange, allowUndefined = false }) => {
+const TrueFalse = ({ id = "true_false", isTrue:initial, onChange, allowUndefined = false }) => {
     
     const [isTrue, setIsTrue] = useState(initial);
 
     useEffect(() => {
         setIsTrue(initial);
-    }, [initial]);
+    }, [initial, id]);
 
     return(
         <Stack direction="row" justifyContent="flex-start" alignItems="center" spacing={2}>

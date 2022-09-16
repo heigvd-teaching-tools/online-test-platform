@@ -104,6 +104,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
             answer && (
                 answer.type === 'trueFalse' && (
                     <TrueFalse 
+                        id={`answer-editor-${question.id}`}	
                         allowUndefined={true}
                         isTrue={answer.isTrue} 
                         onChange={onAnswerByType} 
@@ -112,6 +113,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 ||
                 answer.type === 'multipleChoice' && answer.options && (
                     <MultipleChoice
+                        id={`answer-editor-${question.id}`}	
                         selectOnly
                         options={answer.options}
                         onChange={onAnswerByType}
@@ -129,6 +131,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 ||
                 answer.type === 'code' && (
                     <Code
+                        id={`answer-editor-${question.id}`}	
                         mode="partial"
                         code={answer.code}
                         editorHeight={height}
