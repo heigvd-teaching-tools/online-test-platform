@@ -13,7 +13,7 @@ import Column from '../../layout/Column';
 import AlertFeedback from '../../feedback/AlertFeedback';
 
 
-const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
+const CodeTestResult = ({ where, questionId, beforeTestRun, onTestResult }) => {
     const { show: showSnackbar } = useSnackbar();
 
     const [ testRunning, setTestRunning ] = useState(false);
@@ -25,16 +25,16 @@ const CodeTestResult = ({ code:initial, questionId, beforeTestRun }) => {
             if(beforeTestRun) await beforeTestRun();
             setTestRunning(true);
             setTestResult(null);
-            fetch(`/api/code/test/${questionId}`, { 
+            fetch(`/api/code/test/${where}/${questionId}`, { 
                 method: 'POST', 
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: initial.code })
+                headers: { 'Content-Type': 'application/json' }
             })
             .then(res => res.json())
             .then(data => {
                 setTestRunning(false);
                 setTestResult(data);
                 setExpanded(true);
+                if(onTestResult) onTestResult(data);
             }).catch(_ => {
                 showSnackbar("Error running test", "error");
                 setTestResult(null);

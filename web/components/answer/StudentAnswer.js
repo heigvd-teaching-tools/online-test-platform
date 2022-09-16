@@ -9,7 +9,6 @@ import ResizePanel from '../layout/ResizePanel';
 import { useRouter } from 'next/router';
 
 const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
-    
     const router = useRouter();
     const [ editorState, setEditorState ] = useState(EditorState.createEmpty());
    
@@ -63,10 +62,7 @@ const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
                     />    
                     { question.type === 'code' && (
                         <Paper elevation={2} square sx={{ p:1, mt:1 }}>
-                            <CodeTestResult 
-                                code={question.studentAnswer ? question.studentAnswer.code : question.code}
-                                questionId={question.id}
-                            />
+                            <CodeTestResult where="answer" questionId={question.id} />
                         </Paper>
                     ) }      
                 </Stack>  

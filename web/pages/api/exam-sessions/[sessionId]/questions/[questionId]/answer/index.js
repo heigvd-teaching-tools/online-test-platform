@@ -47,9 +47,8 @@ const post = async (req, res) => {
         if(question.studentAnswer){
             a = await prisma.studentAnswer.delete({
                 where: {
-                    userEmail_examSessionId_questionId: {
+                    userEmail_questionId: {
                         userEmail: studentEmail,
-                        examSessionId: sessionId,
                         questionId: questionId
                     }
                 }
@@ -58,23 +57,21 @@ const post = async (req, res) => {
     }else{
         a = await prisma.studentAnswer.upsert({
             where: {
-                userEmail_examSessionId_questionId: {
+                userEmail_questionId: {
                     userEmail: studentEmail,
-                    examSessionId: sessionId,
                     questionId: questionId
                 }
             },
             update: {
                 [type]: {
-                    update: prepareUpdateAnswer(type, answer)
+                    update: await prepareAnswer(questionId, type, answer, 'update')
                 }
             },
             create: {
                 userEmail: studentEmail,
-                examSessionId: sessionId,
                 questionId: questionId,
                 [type]: {
-                    create: prepareCreateAnswer(type, answer)
+                    create: await prepareAnswer(questionId, type, answer, 'create')
                 }
             }
         });
@@ -82,15 +79,18 @@ const post = async (req, res) => {
     res.status(200).json(a);
 }
 
-
-const prepareUpdateAnswer = (questionType, answer) => {
+const prepareAnswer = async (questionId, questionType, answer, mode) => {
     switch(questionType) {
         case 'multipleChoice':
+            let options = {
+                connect: answer.options.map((opt) => ({ id: opt.id }))               
+            }
+            if(mode === 'update') {
+                // remove eventual existing options
+                options.set = [];
+            }
             return {
-                options: {
-                    set: [],
-                    connect: answer.options.map((opt) => ({ id: opt.id }))               
-                }
+                options
             }
         case 'trueFalse':
             return {
@@ -101,39 +101,19 @@ const prepareUpdateAnswer = (questionType, answer) => {
                 content: String(answer.content)
             }
         case 'code':
-            return {
-                code: String(answer.code)
-            }
-        default:
-            return undefined;
-    }
-}
-
-const prepareCreateAnswer = (questionType, answer) => {
-    switch(questionType) {
-        case 'multipleChoice':
-            return {
-                options: {
-                    connect: answer.options.map((opt) => ({ id: opt.id }))               
+            // get solution code
+            const code = await prisma.code.findUnique({
+                where: {
+                    questionId: questionId
                 }
-            }
-        case 'trueFalse':
+            });
             return {
-                isTrue: answer.isTrue
-            }
-        case 'essay':
-            return {
-                content: String(answer.content)
-            }
-        case 'code':
-            return {
+                solution: code.solution,
                 code: String(answer.code)
             }
         default:
             return undefined;
     }
-}
-            
-
+}        
 
 export default handler;

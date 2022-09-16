@@ -1,0 +1,61 @@
+import { PrismaClient, Role } from '@prisma/client';
+import { getSession } from 'next-auth/react';
+import { hasRole } from '../../../../../utils/auth';
+import { runSandbox } from "../../../../../sandbox/runSandbox";
+
+
+if (!global.prisma) {
+    global.prisma = new PrismaClient()
+}
+
+const prisma = global.prisma
+
+export default async function handler(req, res) {
+    // Student Code test runs concerns the student answer
+    let isStudent = await hasRole(req, Role.STUDENT);
+    let isProf = await hasRole(req, Role.PROFESSOR);
+
+    if(!(isStudent || isProf)){
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
+    const { questionId } = req.query;  
+
+    const { user: { email } } = await getSession({ req });
+    const studentAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: email,
+                questionId: questionId
+            }
+        },
+        include: {
+            code: true
+        }
+    });
+
+    await runSandbox(studentAnswer.code.code, studentAnswer.code.solution, "test").then(async (reponse) => {
+
+        // store the result in the student answer
+        console.log(reponse);
+        await prisma.StudentAnswerCode.update({
+            where: {
+                userEmail_questionId: {
+                    userEmail: email,
+                    questionId: questionId
+                }
+            },
+            data: {
+                expectedOutput: reponse.expected,
+                resultOutput: reponse.result,
+                success: reponse.success
+            }
+        });
+        res.status(200).send(reponse);
+    }).catch(error => {
+        console.error(error);
+        res.status(500).send(error);
+        return;
+    });
+}

@@ -77,7 +77,7 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
                 // Send the result
                 response = {
                     fn: resolve,
-                    arg: result
+                    arg: cleanString(result)
                 };
             } else if (mode === "test") {
                 // test run
@@ -85,12 +85,24 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
                     fn: resolve,
                     arg: {
                         success: result === expected,
-                        expected: expected,
-                        result: result,
+                        expected: cleanString(expected),
+                        result: cleanString(result),
                     }
                 };
             }
         }
         response.fn(response.arg);
     });
+}
+
+// when running tests in ( tty : false ) mode the output contains some invalid characters
+const cleanString = (input) => {
+    var output = "";
+    for (var i=0; i<input.length; i++) {
+        let charCode = input.charCodeAt(i);
+        if (charCode >= 8 && charCode <= 126) {
+            output += input.charAt(i);
+        }
+    }
+    return output;
 }

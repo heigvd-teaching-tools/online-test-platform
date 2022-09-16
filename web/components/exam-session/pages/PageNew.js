@@ -40,23 +40,10 @@ const PageNew = () => {
     return (
     <MainLayout>
     <Stack sx={{ width:'100%' }} spacing={2}>
-        <Stack direction="row" justifyContent="flex-end">
-            <Button onClick={handleNext}>Next</Button>
-        </Stack>
-        <Stepper activeStep={0} orientation="vertical">
+        <StepReferenceExam 
+            onChange={onChangeRefenceExam}
+        />
             
-            <Step key="chose-exam">
-                <StepReferenceExam 
-                    onChange={onChangeRefenceExam}
-                />
-            </Step>    
-            
-
-            <Step key="chose-exam">
-                <StepLabel>General Informations</StepLabel>
-            </Step>
-            
-        </Stepper>      
         <Stack direction="row" justifyContent="flex-end">
             <Button onClick={handleNext}>Next</Button>
         </Stack>

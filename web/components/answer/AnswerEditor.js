@@ -57,7 +57,9 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
             switch(question.type){
                 case 'trueFalse':
+                    
                     answerData.isTrue = question.studentAnswer ? question.studentAnswer.trueFalse.isTrue : undefined;
+                    
                     break;
                 case 'multipleChoice':
                     
@@ -72,6 +74,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     break;
                 case 'essay':
                     answerData.content = question.studentAnswer && question.studentAnswer.essay ? question.studentAnswer.essay.content : "";
+                    console.log("AnswerEditor: essay", answerData);
                     break;
                 case 'code':
 
@@ -117,6 +120,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 || 
                 answer.type === 'essay' && (
                     <Essay
+                        id={`answer-editor-${question.id}`}	
                         label="Your answer"
                         content={answer.content}
                         onChange={onAnswerByType}
@@ -128,6 +132,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                         mode="partial"
                         code={answer.code}
                         editorHeight={height}
+                        questionId={question.id}
                         onChange={(which, newCode) => {
                             onAnswerByType({
                                 [which]: newCode

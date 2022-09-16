@@ -186,6 +186,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                                 /> 
                                 <CodeTestResult 
                                     code={question.code} 
+                                    where="question"
                                     questionId={question.id} 
                                 />
                             </Stack>

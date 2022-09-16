@@ -16,7 +16,7 @@ const StepReferenceExam = ({ examSession, onChange }) => {
     );
 
     const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${examSession.id}/questions/with-answers/official`, 
+        `/api/exam-sessions/${examSession && examSession.id}/questions/with-answers/official`, 
         examSession && examSession.id ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
   

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { TextField } from "@mui/material";
 
-const Essay = ({ label, content:initial, onChange }) => {
-    
+const Essay = ({ id = "essay", label, content:initial, onChange }) => {
+    console.log("Essay", initial);
     const [content, setContent] = useState();
     
     useEffect(() => {
-        setContent(initial);
-    }, [initial]);
+        console.log("initial", initial);
+        setContent(initial || '');
+    }, [initial, id]);
 
     return (
         <TextField 
