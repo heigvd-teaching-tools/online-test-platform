@@ -89,7 +89,6 @@ const prepareAnswer = async (questionType, answer, mode) => {
                 options.set = [];
             }
             options.connect = answer.options.map((opt) => ({ id: opt.id })) 
-            console.log("multipleChoice", mode, options);
             return {
                 options
             }
