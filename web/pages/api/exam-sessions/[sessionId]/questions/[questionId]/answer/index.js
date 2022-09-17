@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, StudentAnswerGradingStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../../../utils/auth';
 
@@ -71,8 +71,8 @@ const post = async (req, res) => {
                 [type]: {
                     update: prepareAnswer(type, answer, 'update')
                 },
-                studentAnswerGraduation: {
-                    update: graduateAnswer(question, answer)
+                studentAnswerGrading: {
+                    update: gradeAnswer(question, answer)
                 }
             },
             create: {
@@ -81,8 +81,8 @@ const post = async (req, res) => {
                 [type]: {
                     create: prepareAnswer(type, answer, 'create')
                 },
-                studentAnswerGraduation: {
-                    create: graduateAnswer(question, answer)
+                studentAnswerGrading: {
+                    create: gradeAnswer(question, answer)
                 }
 
             }
@@ -91,7 +91,7 @@ const post = async (req, res) => {
     res.status(200).json(a);
 }
 
-const graduateAnswer = (question, answer) => {
+const gradeAnswer = (question, answer) => {
     switch(question.type) {
         case 'multipleChoice':
             return gradeMultipleChoice(question, answer);
@@ -110,34 +110,33 @@ const gradeMultipleChoice = (question, answer) => {
     let correctOptions = question.multipleChoice.options.filter((opt) => opt.isCorrect);
     let answerOptions = answer.options;
     let isCorrect = correctOptions.length === answerOptions.length && correctOptions.every((opt) => answerOptions.some((aOpt) => aOpt.id === opt.id));
-    
     return {
+        status: StudentAnswerGradingStatus.AUTOGRADED,
         pointsObtained: isCorrect ? question.points : 0,
         isCorrect
     }
 }
 
 const gradeTrueFalse = (question, answer) => {
+    let isCorrect = question.trueFalse.isTrue === answer.isTrue;
     return {
-        pointsObtained: 0,
-        isCorrect: false
+        status: StudentAnswerGradingStatus.AUTOGRADED,
+        pointsObtained: isCorrect ? question.points : 0,
+        isCorrect
     }
 }
 
-const gradeEssay = (question, answer) => {
-    return {
-        pointsObtained: 0,
-        isCorrect: false
-    }
-}
+const gradeEssay = () => ({
+    status: StudentAnswerGradingStatus.UNGRADED,
+    pointsObtained: 0,
+    isCorrect: false
+});
 
-const gradeCode = (question, answer) => {
-   return {
-        pointsObtained: 0,
-        isCorrect: false
-    }
-}
-
+const gradeCode = () => ({
+    status: StudentAnswerGradingStatus.UNGRADED,
+    pointsObtained: 0,
+    isCorrect: false
+});
 
 const prepareAnswer = (questionType, answer, mode) => {
     switch(questionType) {

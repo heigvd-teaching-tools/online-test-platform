@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, StudentAnswerGradingStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../utils/auth';
 import { runSandbox } from "../../../../../sandbox/runSandbox";
@@ -63,6 +63,27 @@ export default async function handler(req, res) {
                     expectedOutput: reponse.expected,
                     resultOutput: reponse.result,
                     success: reponse.success
+                }
+            });
+            // code answer grading
+            await prisma.StudentAnswerGrading.upsert({
+                where: {
+                    userEmail_questionId: {
+                        userEmail: email,
+                        questionId: questionId
+                    }
+                },
+                update: {
+                    status: StudentAnswerGradingStatus.AUTOGRADED,
+                    isCorrect: reponse.success,
+                    pointsObtained: reponse.success ? question.points : 0
+                },
+                create: {
+                    userEmail: email,
+                    questionId: questionId,
+                    status: StudentAnswerGradingStatus.AUTOGRADED,
+                    isCorrect: reponse.success,
+                    pointsObtained: reponse.success ? question.points : 0
                 }
             });
         }

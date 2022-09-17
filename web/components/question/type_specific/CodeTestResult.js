@@ -13,12 +13,18 @@ import Column from '../../layout/Column';
 import AlertFeedback from '../../feedback/AlertFeedback';
 
 
-const CodeTestResult = ({ where, questionId, onBeforeTestRun, onTestResult }) => {
+const CodeTestResult = ({ id = "test-run", where, questionId, onBeforeTestRun, onTestResult }) => {
     const { show: showSnackbar } = useSnackbar();
 
     const [ testRunning, setTestRunning ] = useState(false);
     const [ testResult, setTestResult ] = useState(null);
     const [ expanded, setExpanded ] = useState(false);
+
+    useEffect(() => {
+        setTestResult(null);
+        setTestRunning(false);
+        setExpanded(false);
+    }, [id]);
 
     const runTest = async () => {
         if(onBeforeTestRun) await onBeforeTestRun();

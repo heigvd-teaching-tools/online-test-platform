@@ -48,7 +48,7 @@ model User {
   role          Role      @default(STUDENT)
 
   userOnExamSession       UserOnExamSession[]
-  studentAnswerGraduation StudentAnswerGraduation[]
+  studentAnswerGraduation StudentAnswerGrading[]
   studentAnswer           StudentAnswer[]
 }
 
@@ -195,18 +195,25 @@ model StudentAnswer {
 
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
-  studentAnswerGraduation StudentAnswerGraduation?
+  studentAnswerGrading    StudentAnswerGrading?
 
   @@id([userEmail, questionId])
 }
 
-model StudentAnswerGraduation {
+enum StudentAnswerGradingStatus {
+  UNGRADED
+  AUTOGRADED
+  SIGNED
+}
+
+model StudentAnswerGrading {
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
 
   createdAt DateTime @default(now())
 
+  status StudentAnswerGradingStatus @default(UNGRADED)
   pointsObtained Int     @default(0)
   isCorrect      Boolean @default(false)
 
@@ -215,6 +222,7 @@ model StudentAnswerGraduation {
   signedByUserRemarks String?
 
   @@id([userEmail, questionId])
+	@@map("StudentAnswerGraduation")
 }
 
 model StudentAnswerTrueFalse {

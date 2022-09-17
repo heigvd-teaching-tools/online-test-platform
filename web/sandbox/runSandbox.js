@@ -1,6 +1,6 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
-import { GenericContainer, Wait } from "../../testcontainers-node";
+import { GenericContainer } from "../../testcontainers-node";
 //import { GenericContainer, Wait } from "testcontainers";
 
 // mode = run / test
@@ -26,8 +26,6 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
             .withCmd(["sleep", "infinity"])
             .start();
 
-
-
         let containerStarted = true;
         let response = undefined;
         // Stop the container after 30 seconds
@@ -52,12 +50,11 @@ export const runSandbox = (code = "", solution = "", mode = "run") => {
         }, EXECUTION_TIMEOUT);
 
         // Execute the code
-        //const { output:expected2, exitCode:exitCodeExpected2 } = await container.exec(["node", "/app/solution.js", "2>&1"]);
-        const { output:expected, exitCode:exitCodeExpected } = await container.exec([
+        const { output:expected } = await container.exec([
             "node", "/app/solution.js"
         ], { tty: false });
-        //const { output:result, exitCode:exitCodeResult } = await container.exec(["node", "/app/code.js", "2>&1"]);
-        const { output:result, exitCode:exitCodeResult } = await container.exec([
+        
+        const { output:result } = await container.exec([
             "node", "/app/code.js"
         ], { tty: false });
 
