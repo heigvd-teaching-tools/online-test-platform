@@ -9,8 +9,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 
-import Row from '../layout/Row';
-import Column from '../layout/Column';
+import Row from '../layout/utils/Row';
+import Column from '../layout/utils/Column';
 import DropDown from '../input/DropDown';
 
 import Code from './type_specific/Code';

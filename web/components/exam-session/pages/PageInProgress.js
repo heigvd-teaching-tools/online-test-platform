@@ -7,7 +7,7 @@ import StepNav from '../StepNav';
 import { useExamSession } from '../../../context/ExamSessionContext';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import StepInProgress from '../in-progress/StepInProgress';
-import MainLayout from '../../layout/MainLayout';
+import LayoutMain from '../../layout/LayoutMain';
 
 const PageInProgress = () => {
     const router = useRouter();
@@ -30,7 +30,7 @@ const PageInProgress = () => {
     }, [save, showSnackbar]);
     
     return(
-        <MainLayout>
+        <LayoutMain>
             <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
             <RegistrationClipboard sessionId={router.query.sessionId} />        
             <Stepper activeStep={activeStep} orientation="vertical">
@@ -54,7 +54,7 @@ const PageInProgress = () => {
                 onFinalStep={handleFinalStep}
             />
             </Stack>
-        </MainLayout>
+        </LayoutMain>
     )
 }
 

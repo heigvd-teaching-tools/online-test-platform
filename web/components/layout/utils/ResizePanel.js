@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import * as resizePanelStyles from '../../styles/resize-panel.module.css';
+import * as resizePanelStyles from './ResizePanel.module.css';
 
 const ResizePanel = ({
     leftPanel, rightPanel, rightWidth

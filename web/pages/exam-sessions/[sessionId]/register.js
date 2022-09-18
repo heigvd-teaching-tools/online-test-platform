@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import LoadingAnimation from "../../../components/layout/LoadingAnimation";
+import LoadingAnimation from "../../../components/feedback/LoadingAnimation";
 
 const JoinExamSession = () => {
     const router = useRouter();

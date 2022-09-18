@@ -1,11 +1,11 @@
 import { Typography } from '@mui/material';
-import MainLayout from '../components/layout/MainLayout';
+import LayoutMain from '../components/layout/LayoutMain';
 
 const Home = () => {
   return (
-    <MainLayout>
+    <LayoutMain>
       <Typography variant="body2">Home</Typography>
-    </MainLayout>
+    </LayoutMain>
   );
 }
 

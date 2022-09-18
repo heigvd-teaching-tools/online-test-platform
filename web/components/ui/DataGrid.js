@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { List, ListItem, Typography } from '@mui/material';
 
-import Row from '../layout/Row';
-import Column from '../layout/Column';
+import Row from '../layout/utils/Row';
+import Column from '../layout/utils/Column';
 
 const Datagrid = ({ header, items }) => {
     

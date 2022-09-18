@@ -1,12 +1,12 @@
 import Image from 'next/image'
-import { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Chip, Stack, Button } from "@mui/material";
-import Column from '../layout/Column';
-import AnswerEditor from "./AnswerEditor";
-import CodeTestResult from '../question/type_specific/CodeTestResult';
-import { Editor, EditorState, convertFromRaw } from "draft-js"
-import ResizePanel from '../layout/ResizePanel';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { Typography, Chip, Stack, Button } from "@mui/material";
+import { Editor, EditorState, convertFromRaw } from "draft-js"
+
+import Column from '../../../layout/utils/Column';
+import ResizePanel from '../../../layout/utils/ResizePanel';
+import AnswerEditor from "./AnswerEditor";
 
 const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
     const router = useRouter();
@@ -62,10 +62,7 @@ const StudentAnswer = ({ question, page, totalPages, onAnswer }) => {
                     />      
                 </Stack>  
             }
-        
         />
-        
-        
         </>
     )
 }

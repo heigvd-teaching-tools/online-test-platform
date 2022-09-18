@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/router'
 import { ExamSessionPhase } from '@prisma/client';
 
-import MainLayout from '../../layout/MainLayout';
-import { Stepper, Step, StepLabel, Stack, Button  } from "@mui/material";
+import LayoutMain from '../../layout/LayoutMain';
+import { Stack, Button  } from "@mui/material";
 import { useSnackbar } from '../../../context/SnackbarContext';
 
 import StepReferenceExam from '../draft/StepReferenceExam';
@@ -38,7 +38,7 @@ const PageNew = () => {
     };
 
     return (
-    <MainLayout>
+    <LayoutMain>
     <Stack sx={{ width:'100%' }} spacing={2}>
         <StepReferenceExam 
             onChange={onChangeRefenceExam}
@@ -48,7 +48,7 @@ const PageNew = () => {
             <Button onClick={handleNext}>Next</Button>
         </Stack>
     </Stack>
-    </MainLayout>
+    </LayoutMain>
     )
 }
 

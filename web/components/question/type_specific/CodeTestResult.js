@@ -7,8 +7,8 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
-import Row from '../../layout/Row';
-import Column from '../../layout/Column';
+import Row from '../../layout/utils/Row';
+import Column from '../../layout/utils/Column';
 
 import AlertFeedback from '../../feedback/AlertFeedback';
 

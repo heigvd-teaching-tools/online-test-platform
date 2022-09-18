@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import { AppBar, Box, Toolbar, Menu, Button, Stack } from '@mui/material';
+import { AppBar, Box, Toolbar, Button, Stack } from '@mui/material';
 
 import MainMenu from './MainMenu';
 
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import LockClosedIcon from '@mui/icons-material/Lock';
 
-import { useSession, signOut, signIn } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import UserAvatar from './UserAvatar';
-import LoadingAnimation from './LoadingAnimation';
+import UserContextMenu from './UserContextMenu';
+import LoadingAnimation from '../feedback/LoadingAnimation';
 import Logo from './Logo';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
-
-const MainLayout = ({children}) => {
+const LayoutMain = ({children}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -42,7 +41,7 @@ const MainLayout = ({children}) => {
                         </Box>
                         
                         <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
-                        <ContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
+                        <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
                     </Toolbar>
                 </AppBar>
                 <Stack sx={{ height: 'calc(100vh - 48px)', p:6 }} alignItems="center">
@@ -56,20 +55,7 @@ const MainLayout = ({children}) => {
 }
 
 
-const ContextMenu = ({anchorElUser, handleCloseUserMenu }) =>  
-    <Menu
-        sx={{ mt: '45px' }}
-        id="menu-appbar"
-        anchorEl={anchorElUser}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right', }}
-        keepMounted
-        transformOrigin={{ vertical: 'top', horizontal: 'right', }}
-        open={Boolean(anchorElUser)}
-        onClose={handleCloseUserMenu}
-    >
-        <Button onClick={() => signOut()} startIcon={<LockClosedIcon />}>Sign Out</Button>
-    </Menu>
 
               
 
-export default MainLayout;
+export default LayoutMain;

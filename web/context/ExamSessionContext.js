@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
 import { ExamSessionPhase } from '@prisma/client';
-import LoadingAnimation from '../components/layout/LoadingAnimation';
+import LoadingAnimation from '../components/feedback/LoadingAnimation';
 
 const ExamSessionContext = createContext();
 export const useExamSession = () => useContext(ExamSessionContext);

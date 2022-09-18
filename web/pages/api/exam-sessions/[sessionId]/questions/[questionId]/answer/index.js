@@ -58,7 +58,6 @@ const post = async (req, res) => {
                 }
             });
         }
-    
     }else{
         a = await prisma.studentAnswer.upsert({
             where: {
@@ -132,6 +131,10 @@ const gradeEssay = () => ({
     isCorrect: false
 });
 
+/* 
+    code grading is done during the test run
+    check /api/code/test/answer/[questionId].js
+*/
 const gradeCode = () => ({
     status: StudentAnswerGradingStatus.UNGRADED,
     pointsObtained: 0,

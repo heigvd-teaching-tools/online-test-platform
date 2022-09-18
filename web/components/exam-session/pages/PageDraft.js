@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { ExamSessionPhase } from '@prisma/client';
 
 import { Stack  } from "@mui/material";
-import MainLayout from '../../layout/MainLayout';
+import LayoutMain from '../../layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { useExamSession } from '../../../context/ExamSessionContext';
@@ -64,7 +64,7 @@ const PageDraft = () => {
     }, [router, handleSave]);
 
     return (
-        <MainLayout>
+        <LayoutMain>
         
         <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>          
             <RegistrationClipboard sessionId={examSession.id} />
@@ -107,7 +107,7 @@ const PageDraft = () => {
             </Stack>
             
         </Stack>
-        </MainLayout>
+        </LayoutMain>
     )
 }
 

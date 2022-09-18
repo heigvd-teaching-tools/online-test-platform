@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { TextField, Stack, Button } from "@mui/material";
 import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
 
-import MainLayout from '../../components/layout/MainLayout';
+import LayoutMain from '../../components/layout/LayoutMain';
 import { useInput } from '../../utils/useInput';
 
 const NewExam = () => {
@@ -34,7 +34,7 @@ const NewExam = () => {
     };
 
     return (
-    <MainLayout>
+    <LayoutMain>
     <Stack sx={{ minWidth:'800px' }} spacing={2}>
         <Stack direction="row" justifyContent="flex-end">
             <Button onClick={handleNext}>Next</Button>
@@ -73,7 +73,7 @@ const NewExam = () => {
             <Button onClick={handleNext}>Next</Button>
         </Stack>
     </Stack>
-    </MainLayout>
+    </LayoutMain>
     )
 }
 

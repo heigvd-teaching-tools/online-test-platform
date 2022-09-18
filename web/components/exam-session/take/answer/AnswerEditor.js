@@ -2,10 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { Paper } from "@mui/material";
 
-import TrueFalse from '../question/type_specific/TrueFalse';
-import MultipleChoice from '../question/type_specific/MultipleChoice';
-import Essay from '../question/type_specific/Essay';
-import Code from '../question/type_specific/Code';
+import TrueFalse from '../../../question/type_specific/TrueFalse';
+import MultipleChoice from '../../../question/type_specific/MultipleChoice';
+import Essay from '../../../question/type_specific/Essay';
+import Code from '../../../question/type_specific/Code';
 
 const AnswerEditor = ({ question, onAnswer }) => {
     const container = useRef();

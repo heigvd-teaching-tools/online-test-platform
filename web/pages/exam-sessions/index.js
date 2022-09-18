@@ -5,12 +5,12 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { ExamSessionPhase } from '@prisma/client';
 import { Box, Toolbar, Button, IconButton, Typography, Stack } from '@mui/material';
-import MainLayout from '../../components/layout/MainLayout';
+import LayoutMain from '../../components/layout/LayoutMain';
 import DataGrid from '../../components/ui/DataGrid';
 import { useSnackbar } from '../../context/SnackbarContext';
 import DialogFeedback from '../../components/feedback/DialogFeedback';
 import DisplayPhase from '../../components/exam-session/DisplayPhase';
-import LoadingAnimation from '../../components/layout/LoadingAnimation';
+import LoadingAnimation from '../../components/feedback/LoadingAnimation';
 
 const displayDateTime = (date) => {
   const d = new Date(date);
@@ -113,7 +113,7 @@ const ExamSessions = () => {
   if (!examSessions) return <LoadingAnimation /> 
 
   return (
-    <MainLayout>
+    <LayoutMain>
     <Box sx={{ minWidth:'100%' }}>
       <Toolbar disableGutters variant="dense">
         <Link href="/exam-sessions/new">
@@ -143,7 +143,7 @@ const ExamSessions = () => {
                         }}
                         startIcon={<Image alt="Promote" src="/svg/exam/promote-in-progress.svg" layout="fixed" width="18" height="18" />}
                       >
-                        Promote
+                        Start
                     </Button>
                   )}
                 </Stack>,
@@ -192,7 +192,7 @@ const ExamSessions = () => {
           onConfirm={endDraftPhase}
       />
     </Box>
-    </MainLayout>
+    </LayoutMain>
   )
 }
 

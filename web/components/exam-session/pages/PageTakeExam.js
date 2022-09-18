@@ -1,16 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import useSWR from "swr";
-import Image from 'next/image';
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
-import { Stack, Box, Tabs, Tab } from "@mui/material";
+import { Stack, Box } from "@mui/material";
 
-import TakeExamSessionLayout from '../../layout/TakeExamSessionLayout';
+import LayoutFullScreen from '../../layout/LayoutFullScreen';
 import AlertFeedback from "../../feedback/AlertFeedback";
-import LoadingAnimation from "../../layout/LoadingAnimation";
-import StudentAnswer from "../../answer/StudentAnswer";
+import LoadingAnimation from "../../feedback/LoadingAnimation";
+import StudentAnswer from "../take/answer/StudentAnswer"; 
+import QuestionPages from '../take/QuestionPages';
 import { useSnackbar } from '../../../context/SnackbarContext';
+import ExamSessionCountDown from '../in-progress/ExamSessionCountDown';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -80,14 +81,11 @@ const PageTakeExam = () => {
     } 
     
     return (
-        <TakeExamSessionLayout appBarContent={
+        <LayoutFullScreen appBarContent={
             <Stack direction="row" alignItems="center">
                 {examSession.startAt && examSession.endAt && (
                     <Box sx={{ ml:2 }}>
-                    <ExamSessionCountDown
-                        startDate={examSession.startAt}
-                        endDate={examSession.endAt}
-                    />
+                        <ExamSessionCountDown startDate={examSession.startAt} endDate={examSession.endAt} />
                     </Box>
                 )}
                 {questions && questions.length > 0 && (
@@ -100,54 +98,17 @@ const PageTakeExam = () => {
             </Stack>
         }>
         <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
-            { questions && questions.length > 0 && (
-                <>
-                {questions[page - 1] && (
-                    <StudentAnswer
-                        question={questions[page - 1]}
-                        totalPages={questions.length}
-                        page={page} 
-                        onAnswer={onAnswer}
-                    />
-                )}
-            </>
+            { questions && questions.length > 0 && questions[page - 1] && (
+                <StudentAnswer
+                    question={questions[page - 1]}
+                    totalPages={questions.length}
+                    page={page} 
+                    onAnswer={onAnswer}
+                />
             )}
         </Stack>    
-        </TakeExamSessionLayout>        
+        </LayoutFullScreen>        
     )
 }
-
-import ExamSessionCountDown from '../in-progress/ExamSessionCountDown';
-
-const QuestionPages = ({ count, page, hasAnswered }) => {
-    const router = useRouter();
-    return (
-        <Tabs
-            value={page - 1}
-            variant="scrollable"
-            scrollButtons="auto"
-            onChange={(e, page) => router.push(`/exam-sessions/${router.query.sessionId}/take/${page + 1}`)}
-        >
-            {Array.from(Array(count).keys()).map((_, index) => (
-                <Tab
-                    key={index}
-                    label={`Q${index + 1}`}	
-                    iconPosition="start"
-                    sx={{ minHeight: '50px', minWidth: 0 }}
-                    icon={
-                    <Stack sx={{ width: '20px', height: '20px' }} alignItems="center" justifyContent="center">
-                        { 
-                        hasAnswered(index + 1) ? 
-                            <Image src="/svg/answer/present.svg" alt="Answer present" layout="fixed" width={12} height={12} />                    
-                            : 
-                            <Image src="/svg/answer/empty.svg" alt="Answer empty" layout="fixed" width={12} height={12} />                
-                        }
-                    </Stack> 
-                }
-                />
-            ))}
-        </Tabs>
-    )
-};
 
 export default PageTakeExam;

@@ -7,8 +7,8 @@ import { LoadingButton } from '@mui/lab';
 
 import { useInput } from '../../utils/useInput';
 
-import MainLayout from '../../components/layout/MainLayout';
-import LoadingAnimation from '../../components/layout/LoadingAnimation';
+import LayoutMain from '../../components/layout/LayoutMain';
+import LoadingAnimation from '../../components/feedback/LoadingAnimation';
 import QuestionManager from '../../components/question/QuestionManager';
 
 import { useSnackbar } from '../../context/SnackbarContext';
@@ -107,7 +107,7 @@ const UpdateExam = () => {
     if (!exam) return <LoadingAnimation /> 
 
     return (
-        <MainLayout>
+        <LayoutMain>
         <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
             <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
             
@@ -154,7 +154,7 @@ const UpdateExam = () => {
             <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
 
         </Stack>
-        </MainLayout>
+        </LayoutMain>
     )
 }
 
