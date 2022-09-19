@@ -1,4 +1,4 @@
-import { PrismaClient, Role, StudentAnswerGradingStatus } from '@prisma/client';
+import { PrismaClient, Role, StudentQuestionGradingStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../utils/auth';
 import { runSandbox } from "../../../../../sandbox/runSandbox";
@@ -50,6 +50,12 @@ export default async function handler(req, res) {
     let code = studentAnswer ? studentAnswer.code.code : question.code.code;
 
     await runSandbox(code, question.code.solution, "test").then(async (reponse) => {
+        // grading when no answer -> test code run before any answer
+        let grading = {
+            status: StudentQuestionGradingStatus.MISSING,
+            isCorrect: false,
+            pointsObtained: 0
+        }
         if(studentAnswer){
             // store the result in the student answer
             await prisma.StudentAnswerCode.update({
@@ -64,29 +70,31 @@ export default async function handler(req, res) {
                     resultOutput: reponse.result,
                     success: reponse.success
                 }
-            });
-            // code answer grading
-            await prisma.StudentAnswerGrading.upsert({
-                where: {
-                    userEmail_questionId: {
-                        userEmail: email,
-                        questionId: questionId
-                    }
-                },
-                update: {
-                    status: StudentAnswerGradingStatus.AUTOGRADED,
-                    isCorrect: reponse.success,
-                    pointsObtained: reponse.success ? question.points : 0
-                },
-                create: {
-                    userEmail: email,
-                    questionId: questionId,
-                    status: StudentAnswerGradingStatus.AUTOGRADED,
-                    isCorrect: reponse.success,
-                    pointsObtained: reponse.success ? question.points : 0
-                }
-            });
+            }); 
+            // grading when answer exists
+            grading = {
+                status: StudentQuestionGradingStatus.AUTOGRADED,
+                isCorrect: reponse.success,
+                pointsObtained: reponse.success ? question.points : 0
+            }
         }
+
+        // code question grading
+        await prisma.studentQuestionGrading.upsert({
+            where: {
+                userEmail_questionId: {
+                    userEmail: email,
+                    questionId: questionId
+                }
+            },
+            update: grading,
+            create: {
+                userEmail: email,
+                questionId: questionId,
+                ...grading
+            }
+        });
+
         res.status(200).send(reponse);
     }).catch(error => {
         console.error(error);

@@ -47,9 +47,10 @@ model User {
   sessions      Session[]
   role          Role      @default(STUDENT)
 
-  userOnExamSession       UserOnExamSession[]
-  studentAnswerGraduation StudentAnswerGrading[]
-  studentAnswer           StudentAnswer[]
+  userOnExamSession      UserOnExamSession[]
+  studentAnswer          StudentAnswer[]
+  studentQuestionGrading StudentQuestionGrading[] @relation("StudentQuestionGrading")
+  gradingSignedBy        StudentQuestionGrading[] @relation("GradingSignedBy")
 }
 
 enum Role {
@@ -104,7 +105,8 @@ model Question {
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 
-  studentAnswer StudentAnswer?
+  studentAnswer  StudentAnswer?
+  studentGrading StudentQuestionGrading?
 }
 
 model MultipleChoice {
@@ -193,36 +195,36 @@ model StudentAnswer {
   essay          StudentAnswerEssay?
   code           StudentAnswerCode?
 
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  studentAnswerGrading    StudentAnswerGrading?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([userEmail, questionId])
 }
 
-enum StudentAnswerGradingStatus {
+enum StudentQuestionGradingStatus {
+  MISSING
   UNGRADED
   AUTOGRADED
   SIGNED
 }
 
-model StudentAnswerGrading {
-  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-  userEmail     String
-  questionId    String
+model StudentQuestionGrading {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User     @relation(name: "StudentQuestionGrading", fields: [userEmail], references: [email], onDelete: Cascade)
+  questionId String   @unique
+  userEmail  String
 
   createdAt DateTime @default(now())
 
-  status StudentAnswerGradingStatus @default(UNGRADED)
-  pointsObtained Int     @default(0)
-  isCorrect      Boolean @default(false)
+  status         StudentQuestionGradingStatus @default(UNGRADED)
+  pointsObtained Int                          @default(0)
+  isCorrect      Boolean                      @default(false)
 
-  signedBy            User?   @relation(fields: [signedByUserEmail], references: [email])
+  signedBy            User?   @relation(name: "GradingSignedBy", fields: [signedByUserEmail], references: [email])
   signedByUserEmail   String?
   signedByUserRemarks String?
 
   @@id([userEmail, questionId])
-	@@map("StudentAnswerGraduation")
 }
 
 model StudentAnswerTrueFalse {
@@ -267,12 +269,12 @@ model StudentAnswerCode {
   userEmail     String
   questionId    String
 
-  code     String?
+  code String?
 
   expectedOutput String?
   resultOutput   String?
 
-  success   Boolean @default(false)
+  success Boolean @default(false)
 
   @@unique([userEmail, questionId])
 }
