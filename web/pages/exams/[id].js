@@ -23,12 +23,14 @@ const UpdateExam = () => {
 
     const { data: exam, error } = useSWR(
         `/api/exams/${id}`,
-        (...args) => fetch(...args).then((res) => res.json())
+        (...args) => fetch(...args).then((res) => res.json()),
+        { revalidateOnFocus: false }
     );
 
     const { data: examQuestions, errorSessionQuestions } = useSWR(
         `/api/exams/${id}/questions`, 
-        id ? (...args) => fetch(...args).then((res) => res.json()) : null
+        id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus: false }
     );
 
     const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');

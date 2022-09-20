@@ -21,7 +21,7 @@ const JoinExamSession = () => {
             })
             .then(res => res.json())
             .then(_ => {
-                router.push(`/exam-sessions/${router.query.sessionId}/take/1`);
+                router.push(`/exam-sessions/${router.query.sessionId}/waiting`);
             });
         }
     }, [router, session]);

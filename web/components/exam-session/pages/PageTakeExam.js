@@ -26,7 +26,8 @@ const PageTakeExam = () => {
 
     const { data: sessionQuestions, errorQuestions } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-answers/student`,
-        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus : false }
     );
 
     const [ page, setPage ] = useState(parseInt(router.query.pageId));
