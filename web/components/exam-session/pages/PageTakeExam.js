@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import useSWR from "swr";
+import useSWR, { SWRConfig  } from "swr";
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
@@ -24,7 +24,7 @@ const PageTakeExam = () => {
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
-    const { data: sessionQuestions, errorQuestions } = useSWR(
+    const { data: sessionQuestions, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-answers/student`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }

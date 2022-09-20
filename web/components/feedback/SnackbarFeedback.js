@@ -1,12 +1,19 @@
-import { Snackbar, Alert, Paper } from '@mui/material';
+import { Snackbar, Paper, Box, Stack, Typography } from '@mui/material';
 import { useSnackbar } from '../../context/SnackbarContext';
+import { useTheme } from '@mui/material';
 
 const SnackbarFeedback = () => {
+    const theme = useTheme();
     const { snackbar: { open, message, severity = "success"}, hide } = useSnackbar();
     return (
-        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal:'center' }} open={open} autoHideDuration={3000} onClose={hide}>
+        <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal:'left' }} open={open} autoHideDuration={3000} onClose={hide}>
             <Paper elevation={4}>
-                <Alert variant="filled" onClose={hide} severity={severity} sx={{ width: '100%' }}>{message}</Alert>
+                <Stack direction="row" sx={{ p:0 }}>
+                    <Box sx={{ minWidth: 8, maxWidth: 8, backgroundColor: theme.palette[severity].main }}></Box>
+                    <Box sx={{ pl:2, pr:2, pt:1, pb:1 }}>
+                        <Typography variant="caption">{message}</Typography>
+                    </Box>
+                </Stack>               
             </Paper>
         </Snackbar>
     )
