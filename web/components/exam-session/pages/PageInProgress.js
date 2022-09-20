@@ -25,7 +25,7 @@ const PageInProgress = () => {
         }).then(() => {
             showSnackbar(`Exam session will end at ${time}`);
         }).catch(() => {
-            showSnackbar('Error', 'error');
+            showSnackbar('Error during duration change', 'error');
         });
     }, [save, showSnackbar]);
     
@@ -41,8 +41,8 @@ const PageInProgress = () => {
                         onSessionEnd={() => {}}
                     />
                 </Step>
-                <Step key="correction">
-                    <StepLabel>Correction</StepLabel>
+                <Step key="grading">
+                    <StepLabel>Grading</StepLabel>
                 </Step>
             </Stepper>
 

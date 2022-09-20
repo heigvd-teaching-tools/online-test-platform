@@ -27,15 +27,8 @@ const UpdateExam = () => {
         { revalidateOnFocus: false }
     );
 
-    const { data: examQuestions, errorSessionQuestions } = useSWR(
-        `/api/exams/${id}/questions`, 
-        id ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        { revalidateOnFocus: false }
-    );
-
     const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
-    const [ questions, setQuestions ] = useState([]);
 
     useEffect(() => {
         if(exam) {
@@ -43,12 +36,6 @@ const UpdateExam = () => {
             setDescription(exam.description);
         }
     }, [exam, setLabel, setDescription]);
-
-    useEffect(() => {
-        if(examQuestions) {
-            setQuestions(examQuestions);
-        }
-    } , [examQuestions, setQuestions]);
 
     const inputControl = (step) => {
         switch(step){
@@ -145,8 +132,6 @@ const UpdateExam = () => {
                             <QuestionManager 
                                 partOf="exams"
                                 partOfId={id}
-                                questions={questions} 
-                                setQuestions={setQuestions} 
                             />
                         </Stack>
                     </StepContent>

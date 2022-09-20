@@ -1,34 +1,45 @@
 import { useCallback, useState } from 'react';
+import useSWR from 'swr';
+
 import { Stack } from "@mui/material";
 import Question from "./Question";
 import { LoadingButton } from '@mui/lab';
 import { useSnackbar } from '../../context/SnackbarContext';
 
-const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
+const QuestionManager = ({ partOf, partOfId }) => {
+
+    const { data: questions, mutate } = useSWR(
+        `/api/${partOf}/${partOfId}/questions`, 
+        partOfId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus: false }
+    );
+
     const [ createRunning, setCreateRunning ] = useState(false);
-    const { show: showSnackbar } = useSnackbar();
+    const { show: showSnackbar } = useSnackbar(); 
 
-    const handleQuestionUp = useCallback((index) => {
+    const handleQuestionUp = useCallback(async (index) => {
         if(index === 0) return;
-        (async () => {
-            questions[index].position--;
-            questions[index - 1].position++;
-            questions.sort((a,b) => a.position - b.position);
-            setQuestions([...questions]);
-            await savePositions();
-        })();
-    } , [setQuestions, questions, savePositions]);
+        mutate((questions) => {
+            const newQuestions = [...questions];
+            const temp = newQuestions[index];
+            newQuestions[index] = newQuestions[index - 1];
+            newQuestions[index - 1] = temp;
+            return newQuestions;
+        }, false);
+        await savePositions();
+    } , [mutate, savePositions]);
 
-    const handleQuestionDown = useCallback((index) => {
+    const handleQuestionDown = useCallback(async (index) => {
         if(index === questions.length - 1) return;
-        (async () => {
-            questions[index].position++;
-            questions[index + 1].position--;
-            questions.sort((a,b) => a.position - b.position);
-            setQuestions([...questions]);
-            await savePositions();
-        })();
-    } , [setQuestions, questions, savePositions]);
+        mutate((questions) => {
+            const newQuestions = [...questions];
+            const temp = newQuestions[index];
+            newQuestions[index] = newQuestions[index + 1];
+            newQuestions[index + 1] = temp;
+            return newQuestions;
+        }, false);
+        await savePositions();
+    } , [mutate, savePositions, questions]);
 
     const savePositions = useCallback(async () => {
         await fetch('/api/questions/positions', {
@@ -68,12 +79,12 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
         .then((res) => res.json())
         .then((createdQuestion) => {
             showSnackbar('New question created');
-            setQuestions([...questions, createdQuestion]);
+            mutate([...questions, createdQuestion]);
         }).catch(() => {
             showSnackbar('Error creating question', 'error');
         });
         setCreateRunning(false);
-    } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, setQuestions]);   
+    } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, mutate]);   
 
     return (
         <Stack spacing={4} pt={2}>
@@ -86,8 +97,7 @@ const QuestionManager = ({ partOf, partOfId, questions, setQuestions }) => {
                     clickUp={handleQuestionUp}
                     clickDown={handleQuestionDown}
                     onDelete={() => {
-                        const newQuestions = questions.filter((q, i) => i !== index);
-                        setQuestions(newQuestions);
+                        mutate(questions.filter((q, i) => i !== index));
                     }}
                                       
                 />
