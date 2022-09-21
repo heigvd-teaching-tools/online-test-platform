@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-const AlertDialog = ({ open, title, content, onClose, onConfirm }) => {
+const DialogFeedback = ({ open, title, content, onClose, onConfirm }) => {
   
     const handleCancel = () => {
         onClose(false);
@@ -43,4 +43,4 @@ const AlertDialog = ({ open, title, content, onClose, onConfirm }) => {
     );
   }
 
-export default AlertDialog;
+export default DialogFeedback;

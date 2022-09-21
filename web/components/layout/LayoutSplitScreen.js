@@ -10,7 +10,9 @@ import UserContextMenu from './UserContextMenu';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 
-const LayoutFullScreen = ({children, appBarContent}) => {
+import ResizePanel from './utils/ResizePanel';
+
+const LayoutSplitScreen = ({children, leftPanel, rightPanel, appBarContent}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -42,7 +44,12 @@ const LayoutFullScreen = ({children, appBarContent}) => {
                     </Toolbar>
                 </AppBar>
                 <Stack sx={{ height: 'calc(100vh - 48px)', width:'100vw' }} alignItems="center">
-                    {children}
+                    <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
+                        <ResizePanel 
+                            leftPanel={leftPanel}
+                            rightPanel={rightPanel}
+                        />
+                    </Stack>
                 </Stack>
             </Box> 
             }
@@ -52,4 +59,4 @@ const LayoutFullScreen = ({children, appBarContent}) => {
 }
 
 
-export default LayoutFullScreen;
+export default LayoutSplitScreen;

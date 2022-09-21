@@ -5,13 +5,16 @@ import { ExamSessionPhase } from '@prisma/client';
 
 import { Stack, Box } from "@mui/material";
 
-import LayoutFullScreen from '../../layout/LayoutFullScreen';
+import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 import AlertFeedback from "../../feedback/AlertFeedback";
 import LoadingAnimation from "../../feedback/LoadingAnimation";
-import StudentAnswer from "../take/answer/StudentAnswer"; 
 import QuestionPages from '../take/QuestionPages';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import ExamSessionCountDown from '../in-progress/ExamSessionCountDown';
+
+import QuestionView from '../take/QuestionView';
+import QuestionNav from '../take/QuestionNav';
+import AnswerEditor from '../take/answer/AnswerEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -82,33 +85,49 @@ const PageTakeExam = () => {
     } 
     
     return (
-        <LayoutFullScreen appBarContent={
-            <Stack direction="row" alignItems="center">
-                {examSession.startAt && examSession.endAt && (
-                    <Box sx={{ ml:2 }}>
-                        <ExamSessionCountDown startDate={examSession.startAt} endDate={examSession.endAt} />
+        <LayoutSplitScreen 
+            appBarContent={
+                <Stack direction="row" alignItems="center">
+                    {examSession.startAt && examSession.endAt && (
+                        <Box sx={{ ml:2 }}>
+                            <ExamSessionCountDown startDate={examSession.startAt} endDate={examSession.endAt} />
+                        </Box>
+                    )}
+                    {questions && questions.length > 0 && (
+                        <QuestionPages 
+                            count={questions.length} 
+                            page={page} 
+                            hasAnswered={hasAnswered} 
+                        />
+                    )}
+                </Stack>
+            }
+            leftPanel={
+                questions && questions.length > 0 && questions[page - 1] && (
+                <>
+                    <Box sx={{ height: 'calc(100% - 50px)' }}>
+                        <QuestionView 
+                            question={questions[page - 1]} 
+                            page={page} 
+                            totalPages={questions.length} 
+                        />
                     </Box>
-                )}
-                {questions && questions.length > 0 && (
-                    <QuestionPages 
-                        count={questions.length} 
+                    <QuestionNav 
                         page={page} 
-                        hasAnswered={hasAnswered} 
+                        totalPages={questions.length} 
                     />
-                )}
-            </Stack>
-        }>
-        <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
-            { questions && questions.length > 0 && questions[page - 1] && (
-                <StudentAnswer
-                    question={questions[page - 1]}
-                    totalPages={questions.length}
-                    page={page} 
-                    onAnswer={onAnswer}
-                />
+                </>
             )}
-        </Stack>    
-        </LayoutFullScreen>        
+            rightPanel={
+                questions && questions.length > 0 && questions[page - 1] && (
+                <Stack sx={{ height:'100%', pt:1 }}>
+                    <AnswerEditor 
+                        question={questions[page - 1]}
+                        onAnswer={onAnswer} 
+                    />      
+                </Stack>  
+            )}
+        />  
     )
 }
 

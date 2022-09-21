@@ -141,7 +141,7 @@ const ExamSessions = () => {
                           setCLickedExamSession(examSession);
                           setEndOfDraftDialogOpen(true);
                         }}
-                        startIcon={<Image alt="Promote" src="/svg/exam/promote-in-progress.svg" layout="fixed" width="18" height="18" />}
+                        startIcon={<Image alt="Promote" src="/svg/exam/finish-flag.svg" layout="fixed" width="18" height="18" />}
                       >
                         Start
                     </Button>

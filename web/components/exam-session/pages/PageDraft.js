@@ -23,7 +23,6 @@ const PageDraft = () => {
     const [ questions, setQuestions ] = useState();
 
     const onChangeRefenceExam = useCallback((exam, questions) => {
-        console.log('onChangeRefenceExam', exam, questions);
         setSelectedExam(exam);
         setQuestions(questions);
     }, [setSelectedExam, setQuestions]);
@@ -44,7 +43,6 @@ const PageDraft = () => {
             conditions: examSession.conditions,
             duration
         };
-        console.log("selectedExam", selectedExam);
         if(selectedExam){
             data.questions = questions;
         }
