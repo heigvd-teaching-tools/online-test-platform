@@ -2,11 +2,13 @@ import { useCallback, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Stack, Stepper, Step, StepLabel, Typography } from '@mui/material';
-import RegistrationClipboard from '../RegistrationClipboard';
+
 import { ExamSessionPhase } from '@prisma/client';
 
 import { useExamSession } from '../../../context/ExamSessionContext';
 import { useSnackbar } from '../../../context/SnackbarContext';
+
+import RegistrationClipboard from '../RegistrationClipboard';
 import StepInProgress from '../in-progress/StepInProgress';
 import LayoutMain from '../../layout/LayoutMain';
 import { LoadingButton } from '@mui/lab';
