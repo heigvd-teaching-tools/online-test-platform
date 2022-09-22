@@ -1,7 +1,7 @@
-import { PrismaClient, Role, StudentQuestionGradingStatus } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../../../utils/auth';
-
+import { grading } from '../../../../../../../code/grading';
 if (!global.prisma) {
     global.prisma = new PrismaClient()
 }
@@ -79,77 +79,26 @@ const post = async (req, res) => {
                 }
             }
         });
-
-        // grade question
-        await prisma.studentQuestionGrading.upsert({
-            where: {
-                userEmail_questionId: {
-                    userEmail: studentEmail,
-                    questionId: questionId
-                }
-            },
-            update: gradeAnswer(question, answer),
-            create: {
-                userEmail: studentEmail,
-                questionId: questionId,
-                ...gradeAnswer(question, answer)
-            }
-        });
-
     }
+
+    // grade question
+    await prisma.studentQuestionGrading.upsert({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        update: grading(question, answer), 
+        create: {
+            userEmail: studentEmail,
+            questionId: questionId,
+            ...grading(question, answer)
+        }
+    });
+    
     res.status(200).json(a);
 }
-
-const gradeAnswer = (question, answer) => {
-    switch(question.type) {
-        case 'multipleChoice':
-            return gradeMultipleChoice(question, answer);
-        case 'trueFalse':
-            return gradeTrueFalse(question, answer);
-        case 'essay':
-            return gradeEssay(question, answer);
-        case 'code':
-            return gradeCode(question, answer);
-        default:
-            return undefined;
-    }
-}
-
-const gradeMultipleChoice = (question, answer) => {
-    let correctOptions = question.multipleChoice.options.filter((opt) => opt.isCorrect);
-    let answerOptions = answer.options;
-    let isCorrect = correctOptions.length === answerOptions.length && correctOptions.every((opt) => answerOptions.some((aOpt) => aOpt.id === opt.id));
-    return {
-        status: StudentQuestionGradingStatus.AUTOGRADED,
-        pointsObtained: isCorrect ? question.points : 0,
-        isCorrect
-    }
-}
-
-const gradeTrueFalse = (question, answer) => {
-    let isCorrect = question.trueFalse.isTrue === answer.isTrue;
-    return {
-        status: StudentQuestionGradingStatus.AUTOGRADED,
-        pointsObtained: isCorrect ? question.points : 0,
-        isCorrect
-    }
-}
-
-const gradeEssay = () => ({
-    status: StudentQuestionGradingStatus.UNGRADED,
-    pointsObtained: 0,
-    isCorrect: false
-});
-
-/* 
-    code grading is done during the test run
-    check /api/code/test/answer/[questionId].js
-*/
-const gradeCode = () => ({
-    status: StudentQuestionGradingStatus.UNGRADED,
-    pointsObtained: 0,
-    isCorrect: false
-});
 
 const prepareAnswer = (questionType, answer, mode) => {
     switch(questionType) {

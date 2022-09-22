@@ -12,13 +12,10 @@ import LoadingAnimation from '../feedback/LoadingAnimation';
 import Logo from './Logo';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
+import Header from './Header';
 
 const LayoutMain = ({children}) => {
-    const { data: session, status } = useSession();
-
-    const [anchorElUser, setAnchorElUser] = useState(null);   
-    const handleOpenUserMenu    = (event) => setAnchorElUser(event.currentTarget);
-    const handleCloseUserMenu   = () => setAnchorElUser(null);
+    const { status } = useSession();
 
     return (
         <>            
@@ -31,19 +28,9 @@ const LayoutMain = ({children}) => {
             }
             { status === 'authenticated' &&
             <Box>
-                <AppBar position="static" enableColorOnDark>
-                    <Toolbar variant="dense">   
-                        <Box sx={{ mr:2, pt:0 }}>
-                            <Logo />
-                        </Box>
-                        <Box sx={{ flexGrow: 1 }}>
-                            <MainMenu />
-                        </Box>
-                        
-                        <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
-                        <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
-                    </Toolbar>
-                </AppBar>
+                <Header color="transparent">
+                    <MainMenu />
+                </Header>
                 <Stack sx={{ height: 'calc(100vh - 48px)', p:6 }} alignItems="center">
                     {children}
                 </Stack>

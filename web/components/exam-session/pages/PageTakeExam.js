@@ -86,7 +86,7 @@ const PageTakeExam = () => {
     
     return (
         <LayoutSplitScreen 
-            appBarContent={
+            header={
                 <Stack direction="row" alignItems="center">
                     {examSession.startAt && examSession.endAt && (
                         <Box sx={{ ml:2 }}>
@@ -97,7 +97,8 @@ const PageTakeExam = () => {
                         <QuestionPages 
                             count={questions.length} 
                             page={page} 
-                            hasAnswered={hasAnswered} 
+                            link={(page) => `/exam-sessions/${router.query.sessionId}/take/${page}`}
+                            isFilled={hasAnswered} 
                         />
                     )}
                 </Stack>

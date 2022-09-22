@@ -7,8 +7,8 @@ const DisplayPhase = ({phase}) => {
         return <Chip label="Draft" color="warning" />;
       case ExamSessionPhase.IN_PROGRESS:
         return <Chip label="In progress" color="info" />;
-      case ExamSessionPhase.CORRECTION:
-        return <Chip label="Correction" color="primary" />;
+      case ExamSessionPhase.GRADING:
+        return <Chip label="Grading" color="primary" />;
       case ExamSessionPhase.FINISHED:
         return <Chip label="Finished" color="success" />;
       default:

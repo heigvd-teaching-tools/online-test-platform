@@ -12,6 +12,8 @@ import LoadingAnimation from "../../feedback/LoadingAnimation";
 import { useSnackbar } from '../../../context/SnackbarContext';
 
 import { useDebouncedCallback } from 'use-debounce';
+import QuestionPages from '../take/QuestionPages';
+import MainMenu from '../../layout/MainMenu';
 
 const PageGrading = () => {
     const router = useRouter();
@@ -21,13 +23,27 @@ const PageGrading = () => {
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
+    const { data: sessionQuestions, mutate } = useSWR(
+        `/api/exam-sessions/${router.query.sessionId}/questions/with-answers/student`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus : false }
+    );
+
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
 
     return (
         <LayoutSplitScreen 
-            appBarContent={
-                <></>
+            header={<MainMenu />}
+            subheader={
+                sessionQuestions && sessionQuestions.length > 0 && (
+                    <QuestionPages
+                        count={sessionQuestions.length}
+                        page={router.query.activeQuestion}
+                        link={(page) => `/exam-sessions/${router.query.sessionId}/grading/${page}`}
+                        isFilled={() => true}
+                    />
+                )               
             }
             leftPanel={
                 <></>

@@ -9,10 +9,9 @@ import UserAvatar from './UserAvatar';
 import UserContextMenu from './UserContextMenu';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
-
 import ResizePanel from './utils/ResizePanel';
 
-const LayoutSplitScreen = ({children, leftPanel, rightPanel, appBarContent}) => {
+const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -22,7 +21,6 @@ const LayoutSplitScreen = ({children, leftPanel, rightPanel, appBarContent}) => 
     return (
         <>            
             { status === 'loading' && <LoadingAnimation /> }
-            
             { status === 'unauthenticated' && 
                 <Box sx={{ display:'flex', width:'100vw', height: '100vh', alignItems:"center", justifyContent: "center" }} >
                     <Button variant="contained" onClick={() => signIn("github")} startIcon={<LockOpenIcon />}>Sign In</Button> 
@@ -36,14 +34,16 @@ const LayoutSplitScreen = ({children, leftPanel, rightPanel, appBarContent}) => 
                             <Logo color="red" />
                         </Box>
                         <Box sx={{ flex: 1, overflow:'hidden' }}>
-                            {appBarContent}
+                            {header}
                         </Box>
-                        
                         <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                         <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
                     </Toolbar>
                 </AppBar>
-                <Stack sx={{ height: 'calc(100vh - 48px)', width:'100vw' }} alignItems="center">
+                { subheader && (
+                    <Stack sx={{ p:1 }}>{subheader}</Stack>
+                )}
+                <Stack sx={{ height: `calc(100vh - 48px - ${subheader ? '66px' : '0px'})`, width:'100vw' }} alignItems="center">
                     <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
                         <ResizePanel 
                             leftPanel={leftPanel}

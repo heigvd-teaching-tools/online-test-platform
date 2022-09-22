@@ -1,6 +1,7 @@
 import { PrismaClient, Role } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
+import { grading } from '../../../../code/grading';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -47,6 +48,32 @@ const post = async (req, res) => {
         }
 
     );
+
+    // add grading for each question
+    const questions = await prisma.question.findMany({
+        where: {
+            examSessionId: sessionId
+        }
+    });
+
+    for (const question of questions) {        
+        await prisma.studentQuestionGrading.upsert({
+            where: {
+                userEmail_questionId: {
+                    userEmail: studentEmail,
+                    questionId: question.id
+                }
+            },
+            update: grading(question, undefined),
+            create: {
+                userEmail: studentEmail,
+                questionId: question.id,
+                ...grading(question, undefined)
+            }
+        });
+    }
+
+
                         
     res.status(200).json(userOnExamSession);
 }

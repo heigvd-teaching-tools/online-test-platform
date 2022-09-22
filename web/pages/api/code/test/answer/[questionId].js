@@ -1,8 +1,8 @@
-import { PrismaClient, Role, StudentQuestionGradingStatus } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../utils/auth';
 import { runSandbox } from "../../../../../sandbox/runSandbox";
-
+import { grading } from '../../../../../code/grading';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -51,11 +51,6 @@ export default async function handler(req, res) {
 
     await runSandbox(code, question.code.solution, "test").then(async (reponse) => {
         // grading when no answer -> test code run before any answer
-        let grading = {
-            status: StudentQuestionGradingStatus.MISSING,
-            isCorrect: false,
-            pointsObtained: 0
-        }
         if(studentAnswer){
             // store the result in the student answer
             await prisma.StudentAnswerCode.update({
@@ -71,12 +66,6 @@ export default async function handler(req, res) {
                     success: reponse.success
                 }
             }); 
-            // grading when answer exists
-            grading = {
-                status: StudentQuestionGradingStatus.AUTOGRADED,
-                isCorrect: reponse.success,
-                pointsObtained: reponse.success ? question.points : 0
-            }
         }
 
         // code question grading
@@ -87,11 +76,11 @@ export default async function handler(req, res) {
                     questionId: questionId
                 }
             },
-            update: grading,
+            update: grading(question, reponse),
             create: {
                 userEmail: email,
                 questionId: questionId,
-                ...grading
+                ...grading(question, reponse)
             }
         });
 
