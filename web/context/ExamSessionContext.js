@@ -6,35 +6,10 @@ import LoadingAnimation from '../components/feedback/LoadingAnimation';
 
 const ExamSessionContext = createContext();
 export const useExamSession = () => useContext(ExamSessionContext);
-
-// phase / number of steps relationship
-const phaseSteps = {
-    'DRAFT': {
-        page:'draft',
-        steps:2,
-        defaultStep:1
-    },
-    'IN_PROGRESS': {
-        page:'in-progress',
-        steps:1,
-        defaultStep:1
-    },
-    'GRADING': {
-        page:'grading',
-        steps:1,
-        defaultStep:1
-    },
-    'FINISHED': {
-        page:'finished',
-        steps:1,
-        defaultStep:1
-    },
-};
-
 const phasePageRelationship = {
     'DRAFT': '/exam-sessions/[sessionId]/draft/[activeStep]',
     'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress/[activeStep]',
-    'GRADING': '/exam-sessions/[sessionId]/grading/[activeStep]',
+    'GRADING': '/exam-sessions/[sessionId]/grading/[activeQuestion]',
     'FINISHED': '/exam-sessions/[sessionId]/finished/[activeStep]',
 };
 
@@ -58,38 +33,18 @@ const redirectToPhasePage = (phase, router) => {
 
 export const ExamSessionProvider = ({ children }) => {
     const router = useRouter();
-    const { data, errorSession } = useSWR(
+    const { data:examSession, errorSession, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
-    const [examSession, setExamSession] = useState();
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (data) {
-            setExamSession(data);
-            redirectToPhasePage(data.phase, router);
+        if (examSession) {
+            redirectToPhasePage(examSession.phase, router);
         }
-    }, [data, router]);
-
-    const stepBack = useCallback(() => {
-        let activeStep = parseInt(router.query.activeStep);
-        if(router.query.activeStep > 1){
-            router.push(`/exam-sessions/${router.query.sessionId}/${phaseSteps[examSession.phase].page}/${activeStep - 1}`);
-            return true;
-        }
-        return false;
-    }, [router]);
-
-    const stepNext = useCallback(() => {
-        let activeStep = parseInt(router.query.activeStep);
-        if(router.query.activeStep <= phaseSteps[examSession.phase].steps){
-            router.push(`/exam-sessions/${router.query.sessionId}/${phaseSteps[examSession.phase].page}/${activeStep + 1}`);
-            return true;
-        }
-        return false;
-    }, [router, examSession]);
+    }, [examSession, router]);
 
     const save = useCallback(async (data) => {
         setSaving(true);
@@ -106,17 +61,14 @@ export const ExamSessionProvider = ({ children }) => {
             if(data.phase){
                 redirectToPhasePage(data.phase, router);            
             }
-            setExamSession({
-                ...examSession,
-                ...updatedExamSession
-            });
+            mutate(updatedExamSession);
             setSaving(false);
         })
         .catch(() => {
             setSaving(false);
         });
        
-    }, [router, setExamSession, examSession]);
+    }, [router, mutate]);
     
     if (errorSession) return <div>failed to load</div>
     if (!examSession) return <LoadingAnimation /> 
@@ -126,9 +78,6 @@ export const ExamSessionProvider = ({ children }) => {
             {examSession && (
                 <ExamSessionContext.Provider value={{ 
                     examSession, 
-                    activeStep: parseInt(router.query.activeStep) - 1, 
-                    stepBack, 
-                    stepNext,
                     saving,
                     save,  
                 }}>

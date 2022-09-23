@@ -37,7 +37,9 @@ const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel}) => {
                     </Toolbar>
                 </AppBar>
                 { subheader && (
-                    <Stack sx={{ p:1 }}>{subheader}</Stack>
+                    <Stack alignItems="center" sx={{ p:1 }}>
+                        <Box sx={{ maxWidth:'80vw' }}>{subheader}</Box>
+                    </Stack>
                 )}
                 <Stack sx={{ height: `calc(100vh - 48px - ${subheader ? '66px' : '0px'})`, width:'100vw' }} alignItems="center">
                     <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>

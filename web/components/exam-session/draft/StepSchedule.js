@@ -16,6 +16,7 @@ const StepSchedule = ({ examSession, onChange }) => {
 
     useEffect(() => {
         if(examSession){
+            console.log("examSession", examSession);
             if(examSession.durationHours > 0 || examSession.durationMinutes > 0){
                 // hours and minutes between startAt and endAt
                 setUseDuration(true);
@@ -58,10 +59,9 @@ const StepSchedule = ({ examSession, onChange }) => {
                 />
             )}
             <Typography variant="h6">Student registration</Typography>
-            <Typography variant="body1">{examSession.students.length} registered students</Typography>
             {examSession.students && examSession.students.length > 0 && (
                 <>
-                    
+                    <Typography variant="body1">{examSession.students.length} registered students</Typography>
                     <List>
                         {examSession.students.map((student, index) => (
                             <UserAvatar key={index} user={student.user} />
