@@ -3,7 +3,7 @@ import useSWR, { SWRConfig  } from "swr";
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
-import { Stack, Box } from "@mui/material";
+import { Stack, Box, Drawer } from "@mui/material";
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 import AlertFeedback from "../../feedback/AlertFeedback";
@@ -16,15 +16,19 @@ import QuestionPages from '../take/QuestionPages';
 import MainMenu from '../../layout/MainMenu';
 import UserAvatar from '../../layout/UserAvatar';
 import FilledBullet from '../../feedback/FilledBullet';
+import QuestionView from '../take/QuestionView';
+
+import AnswerCompare from '../../answer/AnswerCompare';
 
 const ParticipantItem = ({ participant, active, collapsed, onClick }) => {
     return (
-        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ p: 1, display:'inline-flex', cursor: 'pointer' }} onClick={onClick}>
-            <Stack direction="row" spacing={1}>
+       
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ pt: 1, pr:1, pb:1, display:'inline-flex', cursor: 'pointer' }} onClick={onClick}>
+            <Stack direction="row" spacing={0}>
                 {active ? (
-                    <Box sx={{ width: 3, bgcolor: 'secondary.main' }} /> 
+                    <Box sx={{ width: 2, bgcolor: 'primary.main' }} /> 
                 ) : (
-                    <Box sx={{ width: 3, bgcolor: 'transparent' }} />
+                    <Box sx={{ width: 2, bgcolor: 'transparent' }} />
                 )}
                 <UserAvatar 
                     collapsed={collapsed}
@@ -42,7 +46,6 @@ const ParticipantItem = ({ participant, active, collapsed, onClick }) => {
 
 const ParticipantNav = ({ participants, active, onParticipantClick }) => {
     const [ collapsed, setCollapsed ] = useState(true);
-
     return (
         <Stack spacing={1} sx={{ p:1, display:'inline-flex' }} onMouseEnter={() => setCollapsed(false)} onMouseLeave={() => setCollapsed(true)}>
             {
@@ -92,22 +95,46 @@ const PageGrading = () => {
                 )               
             }
             leftPanel={
-                <>{
-                    examSession && 
+                <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
+                    {
+                    examSession && <>
                     <ParticipantNav 
                         participants={examSession.students} 
                         active={examSession.students.find((student) => student.user.id === router.query.participantId)}
                         onParticipantClick={(participant) => {
                             router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.user.id}`);
                         }}
-                    />
-                }</>
+                    />    
+                    { sessionQuestions && (
+                        <QuestionView 
+                            question={sessionQuestions[router.query.activeQuestion - 1]}
+                            page={router.query.activeQuestion}
+                            count={sessionQuestions.length}
+                        />
+                    )}
+                                    
+                    </>   
+                }</Stack>
             }
             rightPanel={
-                <></>
+                <>
+                {sessionQuestions && (
+                    <AnswerCompare
+                        question={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1]}
+                        answer={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
+                    />
+                )}
+                </>
             }
         />  
     )
 }
+
+/*
+<AnswerEditor 
+                    question={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1]}
+                />
+
+*/
 
 export default PageGrading;

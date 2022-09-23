@@ -14,7 +14,7 @@ import ExamSessionCountDown from '../in-progress/ExamSessionCountDown';
 
 import QuestionView from '../take/QuestionView';
 import QuestionNav from '../take/QuestionNav';
-import AnswerEditor from '../take/answer/AnswerEditor';
+import AnswerEditor from '../../answer/AnswerEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
 
