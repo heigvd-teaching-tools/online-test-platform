@@ -11,7 +11,7 @@ import UserContextMenu from './UserContextMenu';
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 import ResizePanel from './utils/ResizePanel';
 
-const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel}) => {
+const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel, rightWidth = 60}) => {
     const { data: session, status } = useSession();
 
     const [anchorElUser, setAnchorElUser] = useState(null);   
@@ -24,9 +24,9 @@ const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel}) => {
             { status === 'unauthenticated' && <LoginGitHub />}
             { status === 'authenticated' &&
             <Box>
-                <AppBar position="static" enableColorOnDark color="transparent" sx={{ height: '48px', maxWidth: '100vw'  }}>
-                    <Toolbar variant="dense">   
-                        <Box sx={{ mr:0, pt:0 }}>
+                <AppBar position="static" enableColorOnDark color="transparent" sx={{ height: '48px', maxWidth: '100vw'  }}>  
+                    <Stack direction="row">
+                        <Box sx={{ mt:0.6, ml:1 }}>
                             <Logo color="red" />
                         </Box>
                         <Box sx={{ flex: 1, overflow:'hidden' }}>
@@ -34,7 +34,7 @@ const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel}) => {
                         </Box>
                         <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                         <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
-                    </Toolbar>
+                    </Stack>
                 </AppBar>
                 { subheader && (
                     <Box sx={{ flex: 1, overflow:'hidden' }}>{subheader}</Box>
@@ -42,6 +42,7 @@ const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel}) => {
                 <Stack sx={{ height: `calc(100vh - 48px - ${subheader ? '66px' : '0px'})`, width:'100vw' }} alignItems="center">
                     <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
                         <ResizePanel 
+                            rightWidth={rightWidth}
                             leftPanel={leftPanel}
                             rightPanel={rightPanel}
                         />

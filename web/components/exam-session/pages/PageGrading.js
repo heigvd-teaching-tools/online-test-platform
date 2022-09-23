@@ -3,7 +3,7 @@ import useSWR, { SWRConfig  } from "swr";
 import { useRouter } from "next/router";
 import { ExamSessionPhase } from '@prisma/client';
 
-import { Stack, Box, Drawer } from "@mui/material";
+import { Stack, Box, Drawer, Divider } from "@mui/material";
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 import AlertFeedback from "../../feedback/AlertFeedback";
@@ -47,7 +47,7 @@ const ParticipantItem = ({ participant, active, collapsed, onClick }) => {
 const ParticipantNav = ({ participants, active, onParticipantClick }) => {
     const [ collapsed, setCollapsed ] = useState(true);
     return (
-        <Stack spacing={1} sx={{ p:1, display:'inline-flex' }} onMouseEnter={() => setCollapsed(false)} onMouseLeave={() => setCollapsed(true)}>
+        <Stack spacing={0} sx={{ pl:1, pr:1, display:'inline-flex', bgcolor: 'background.paper' }} onMouseEnter={() => setCollapsed(false)} onMouseLeave={() => setCollapsed(true)}>
             {
                 participants.map(
                     (participant) => (
@@ -98,6 +98,20 @@ const PageGrading = () => {
                 <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
                     {
                     examSession && <>
+                    
+                    { sessionQuestions && (
+                        <QuestionView 
+                            question={sessionQuestions[router.query.activeQuestion - 1]}
+                            page={router.query.activeQuestion}
+                            count={sessionQuestions.length}
+                        />
+                    )}                    
+                    </>   
+                }</Stack>
+            }
+            rightWidth={75}
+            rightPanel={
+                <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
                     <ParticipantNav 
                         participants={examSession.students} 
                         active={examSession.students.find((student) => student.user.id === router.query.participantId)}
@@ -105,26 +119,18 @@ const PageGrading = () => {
                             router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.user.id}`);
                         }}
                     />    
-                    { sessionQuestions && (
-                        <QuestionView 
-                            question={sessionQuestions[router.query.activeQuestion - 1]}
-                            page={router.query.activeQuestion}
-                            count={sessionQuestions.length}
-                        />
-                    )}
-                                    
-                    </>   
-                }</Stack>
-            }
-            rightPanel={
-                <>
+                    <Divider 
+                        orientation="vertical" 
+                        light 
+                        flexItem 
+                    />     
                 {sessionQuestions && (
                     <AnswerCompare
                         question={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1]}
                         answer={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
                     />
                 )}
-                </>
+                </Stack>
             }
         />  
     )

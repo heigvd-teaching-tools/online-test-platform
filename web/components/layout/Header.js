@@ -14,8 +14,8 @@ const Header = ({children, color}) => {
     const handleCloseUserMenu   = () => setAnchorElUser(null);
 
     return (
-        <AppBar position="static" enableColorOnDark color={color} sx={{ height: '48px', maxWidth: '100vw'  }}>
-            <Toolbar variant="dense">   
+        <AppBar position="static" enableColorOnDark color={color} sx={{ height: '48px', maxWidth: '100vw', p:0  }}>
+            
                 <Box sx={{ mr:2, pt:0 }}>
                     <Logo color="red" />
                 </Box>
@@ -24,7 +24,7 @@ const Header = ({children, color}) => {
                 </Box>
                 <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                 <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
-            </Toolbar>
+            
         </AppBar>
     );
 }
