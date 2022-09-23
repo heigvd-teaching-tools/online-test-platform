@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../../../utils/auth';
 import { grading } from '../../../../../../../code/grading';
@@ -31,6 +31,8 @@ const post = async (req, res) => {
     const studentEmail = session.user.email;
     const { questionId } = req.query;
     
+   
+
     const question = await prisma.question.findUnique({ 
         where: { 
             id: questionId 
@@ -43,6 +45,23 @@ const post = async (req, res) => {
             essay: true
         } 
     });
+
+     // get the question exam session phase
+     const examSession = await prisma.examSession.findUnique({
+        where: {
+            id: question.examSessionId
+        },
+        select: {
+            phase: true
+        }
+    });
+
+    
+    if(examSession.phase !== ExamSessionPhase.IN_PROGRESS) {
+        res.status(400).json({ message: 'The exam session is not in the answering phase' });
+        return;
+    }
+
     const { type } = question;
     const { answer } = req.body;
     let a;

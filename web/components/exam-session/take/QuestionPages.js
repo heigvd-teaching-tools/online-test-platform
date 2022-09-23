@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { useRouter } from "next/router";
 import { Tabs, Tab, Stack } from "@mui/material";
+import FilledBullet from '../../feedback/FilledBullet';
 
 
 const QuestionPages = ({ count, page, link, isFilled }) => {
@@ -19,19 +20,16 @@ const QuestionPages = ({ count, page, link, isFilled }) => {
                     iconPosition="start"
                     sx={{ minHeight: '50px', minWidth: 0 }}
                     icon={
-                    <Stack sx={{ width: '20px', height: '20px' }} alignItems="center" justifyContent="center">
-                        { 
-                            isFilled(index + 1) ? 
-                            <Image src="/svg/answer/present.svg" alt="Answer present" layout="fixed" width={12} height={12} />                    
-                            : 
-                            <Image src="/svg/answer/empty.svg" alt="Answer empty" layout="fixed" width={12} height={12} />                
-                        }
-                    </Stack> 
-                }
+                        <FilledBullet 
+                            index={index}
+                            isFilled={isFilled} 
+                        />
+                    }
                 />
             ))}
         </Tabs>
     )
 };
+
 
 export default QuestionPages;

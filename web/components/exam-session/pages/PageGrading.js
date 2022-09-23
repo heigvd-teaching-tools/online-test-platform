@@ -14,6 +14,42 @@ import { useSnackbar } from '../../../context/SnackbarContext';
 import { useDebouncedCallback } from 'use-debounce';
 import QuestionPages from '../take/QuestionPages';
 import MainMenu from '../../layout/MainMenu';
+import UserAvatar from '../../layout/UserAvatar';
+import FilledBullet from '../../feedback/FilledBullet';
+
+const ParticipantItem = ({ participant, active }) => {
+    return (
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ p: 1, cursor: 'pointer' }}>
+            <Stack direction="row" alignItems="stretch" spacing={1}>
+                <Box sx={{ width: 3, bgcolor: 'secondary.main' }} /> 
+                <Box sx={{ maxWidth: 200, overflow:'hidden' }}>
+                    <UserAvatar user={participant} />
+                </Box>
+            </Stack>
+            <FilledBullet
+                index={0}
+                isFilled={(index) => true}
+            />
+        </Stack>
+    )
+}
+
+const ParticipantNav = ({ participants }) => {
+    return (
+        <Stack spacing={1} sx={{ p:1 }}>
+            {
+                participants.map(
+                    (participant) => (
+                        <ParticipantItem 
+                            key={participant.user.id}
+                            participant={participant.user}
+                        />
+                    )
+                )
+            }
+        </Stack>
+    )
+}
 
 const PageGrading = () => {
     const router = useRouter();
@@ -24,13 +60,16 @@ const PageGrading = () => {
     );
 
     const { data: sessionQuestions, mutate } = useSWR(
-        `/api/exam-sessions/${router.query.sessionId}/questions/with-answers/student`,
+        `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
+
+
+   
 
     return (
         <LayoutSplitScreen 
@@ -46,7 +85,15 @@ const PageGrading = () => {
                 )               
             }
             leftPanel={
-                <></>
+                <>
+                    {
+                        examSession && 
+                        <ParticipantNav 
+                            participants={examSession.students} 
+                        />
+                    }
+                
+                </>
             }
             rightPanel={
                 <></>
