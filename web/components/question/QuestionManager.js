@@ -18,8 +18,8 @@ const QuestionManager = ({ partOf, partOfId }) => {
     const { show: showSnackbar } = useSnackbar(); 
 
     const handleQuestionUp = useCallback(async (index) => {
-        if(index === 0) return;
-        mutate((questions) => {
+        if(!questions || index === 0) return;
+        await mutate((questions) => {
             const newQuestions = [...questions];
             const temp = newQuestions[index];
             newQuestions[index] = newQuestions[index - 1];
@@ -27,11 +27,11 @@ const QuestionManager = ({ partOf, partOfId }) => {
             return newQuestions;
         }, false);
         await savePositions();
-    } , [mutate, savePositions]);
+    } , [mutate, savePositions, questions]);
 
     const handleQuestionDown = useCallback(async (index) => {
         if(index === questions.length - 1) return;
-        mutate((questions) => {
+        await mutate((questions) => {
             const newQuestions = [...questions];
             const temp = newQuestions[index];
             newQuestions[index] = newQuestions[index + 1];
@@ -42,6 +42,7 @@ const QuestionManager = ({ partOf, partOfId }) => {
     } , [mutate, savePositions, questions]);
 
     const savePositions = useCallback(async () => {
+        console.log("Saving positions", questions);
         await fetch('/api/questions/positions', {
             method: 'PATCH',
             headers: {

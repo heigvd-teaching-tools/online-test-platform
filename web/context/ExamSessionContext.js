@@ -34,7 +34,7 @@ const phaseSteps = {
 const phasePageRelationship = {
     'DRAFT': '/exam-sessions/[sessionId]/draft/[activeStep]',
     'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress/[activeStep]',
-    'CORRECTION': '/exam-sessions/[sessionId]/correction/[activeStep]',
+    'GRADING': '/exam-sessions/[sessionId]/grading/[activeStep]',
     'FINISHED': '/exam-sessions/[sessionId]/finished/[activeStep]',
 };
 
@@ -47,8 +47,8 @@ const redirectToPhasePage = (phase, router) => {
         case ExamSessionPhase.IN_PROGRESS:
             router.push(`/exam-sessions/${router.query.sessionId}/in-progress/1`);
             return;
-        case ExamSessionPhase.CORRECTION:
-            router.push(`/exam-sessions/${router.query.sessionId}/correction/1`);
+        case ExamSessionPhase.GRADING:
+            router.push(`/exam-sessions/${router.query.sessionId}/grading/1`);
             return;
         case ExamSessionPhase.FINISHED:
             router.push(`/exam-sessions/${router.query.sessionId}/finished/1`);

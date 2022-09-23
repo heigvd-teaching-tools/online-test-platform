@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import LoadingAnimation from "../../../components/feedback/LoadingAnimation";
+import LoginGitHub from '../../../components/layout/LoginGitHub';
 
 const JoinExamSession = () => {
     const router = useRouter();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
 
     useEffect(() => {
-        if(router.query.sessionId && session){
+        if(router.query.sessionId && session && status === 'authenticated') {
             fetch(`/api/exam-sessions/${router.query.sessionId}/register`, {
                 method: 'POST',
                 headers: {
@@ -24,9 +25,13 @@ const JoinExamSession = () => {
                 router.push(`/exam-sessions/${router.query.sessionId}/waiting`);
             });
         }
-    }, [router, session]);
+    }, [router, session, status]);
 
-    return <LoadingAnimation />
+    return <>            
+            { status === 'loading' && <LoadingAnimation /> }
+            { status === 'unauthenticated' && <LoginGitHub /> }
+            { status === 'authenticated' && <LoadingAnimation /> }
+         </>
 }
 
 export default JoinExamSession;

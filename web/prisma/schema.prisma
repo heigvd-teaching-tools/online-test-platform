@@ -105,8 +105,8 @@ model Question {
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 
-  studentAnswer  StudentAnswer?
-  studentGrading StudentQuestionGrading?
+  studentAnswer  StudentAnswer[]
+  studentGrading StudentQuestionGrading[]
 }
 
 model MultipleChoice {
@@ -185,7 +185,7 @@ model UserOnExamSession {
 
 model StudentAnswer {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String   @unique
+  questionId String   
 
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
@@ -211,7 +211,7 @@ enum StudentQuestionGradingStatus {
 model StudentQuestionGrading {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   user       User     @relation(name: "StudentQuestionGrading", fields: [userEmail], references: [email], onDelete: Cascade)
-  questionId String   @unique
+  questionId String   
   userEmail  String
 
   createdAt DateTime @default(now())

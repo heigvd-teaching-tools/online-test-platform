@@ -55,11 +55,14 @@ const gradeTrueFalse = (question, answer) => {
     code test run : /api/code/test/answer/[questionId].js
 */
 const gradeCode = (question, response) => {
-    let grading = defaultGrading;
+    let grading = {
+        ...defaultGrading,
+        status: StudentQuestionGradingStatus.UNGRADED
+    };
     if(response && response.success !== undefined) {
         // answer is the response from the code test run
         grading = {
-            ...grading,
+            status: StudentQuestionGradingStatus.AUTOGRADED,
             pointsObtained: response.success ? question.points : 0,
             isCorrect: response.success
         }

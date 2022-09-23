@@ -1,4 +1,5 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { getSession } from 'next-auth/react';
 
 import { hasRole } from '../../../../../../utils/auth';
 
@@ -26,11 +27,16 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    const { sessionId } = req.query
+    
+    const session = await getSession({ req });
+    const studentEmail = session.user.email;
+
+    const { sessionId : examSessionId } = req.query
+
     const questions = await prisma.question.findMany({
         where: {
             examSession: {
-                id: sessionId
+                id: examSessionId
             }
         },
         include: {
@@ -38,12 +44,16 @@ const get = async (req, res) => {
             multipleChoice: { select: { options: { select: { id: true, text: true } } } },
             essay: true,
             studentAnswer: {
-                include: {
+                where: {
+                    userEmail: studentEmail
+                },
+                select: {
                     code: true,
                     multipleChoice: { select: { options: { select: { id: true, text: true } } } },
                     essay: { select: { content: true } },
                     trueFalse: true,
-                }
+                },
+                
             }
         },
         orderBy: {

@@ -9,10 +9,10 @@ if (!global.prisma) {
 const prisma = global.prisma
 
 const handler = async (req, res) => {
-    if(!(await hasRole(req, Role.PROFESSOR))) {
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
-    }
+
+    
+
+    
 
     switch(req.method) {
         case 'GET':
@@ -29,6 +29,13 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
+    const isProf = await hasRole(req, Role.PROFESSOR);
+    const isStudent = await hasRole(req, Role.STUDENT);
+    if(!(isProf || isStudent)){
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
     const { sessionId } = req.query
     const exam = await prisma.examSession.findUnique({
         where: {
@@ -46,6 +53,12 @@ const get = async (req, res) => {
 }
 
 const patch = async (req, res) => {
+    const isProf = await hasRole(req, Role.PROFESSOR);
+    if(!isProf){
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
     const { sessionId } = req.query
 
     const currentExamSession = await prisma.examSession.findUnique({
@@ -112,6 +125,11 @@ const patch = async (req, res) => {
 }
 
 const del = async (req, res) => {
+    const isProf = await hasRole(req, Role.PROFESSOR);
+    if(!isProf){
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
     const { sessionId } = req.query
     const examSession = await prisma.examSession.delete({
         where: {

@@ -50,18 +50,15 @@ const PageTakeExam = () => {
         (async () => {
             await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${questions[page - 1].id}/answer`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ answer: answer })
             })
             .then(_ => {
-                questions[page - 1].studentAnswer = {
+                questions[page - 1].studentAnswer = [{
                     [questions[page - 1].type]: answer
-                };
+                }];
                 if(answer === undefined){
-                    delete questions[page - 1].studentAnswer;
+                    questions[page - 1].studentAnswer = [];
                     showSnackbar('Your answer has been removed', 'success');
                 }else{
                     showSnackbar('Answer submitted successfully', 'success');
@@ -74,7 +71,7 @@ const PageTakeExam = () => {
 
     const hasAnswered = useCallback((page) => {
         let question = questions[page - 1];
-        return question.studentAnswer && question.studentAnswer[question.type] !== undefined;
+        return question.studentAnswer.length > 0 && question.studentAnswer[0][question.type] !== undefined;
     }, [questions]);
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 

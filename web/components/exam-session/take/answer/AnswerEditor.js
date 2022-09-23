@@ -57,14 +57,20 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
             switch(question.type){
                 case 'trueFalse':
-                    
-                    answerData.isTrue = question.studentAnswer ? question.studentAnswer.trueFalse.isTrue : undefined;
-                    
+                    let isTrue = undefined;
+                    if(question.studentAnswer.length > 0){
+                        isTrue = question.studentAnswer[0].trueFalse.isTrue;
+                    }
+                    answerData.isTrue = isTrue;
                     break;
                 case 'multipleChoice':
                     
                     let allOptions = question.multipleChoice.options;
-                    let studentOptions = question.studentAnswer ? question.studentAnswer.multipleChoice.options : [];
+                    let studentOptions = [];
+                    if(question.studentAnswer.length > 0){
+                        studentOptions = question.studentAnswer[0].multipleChoice.options;
+                    }
+
                     answerData.options = allOptions.map(option => {
                         return {
                             ...option,
@@ -73,15 +79,18 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     });
                     break;
                 case 'essay':
-                    answerData.content = question.studentAnswer && question.studentAnswer.essay ? question.studentAnswer.essay.content : "";
+                    let content = "";
+                    if(question.studentAnswer.length > 0){
+                        content = question.studentAnswer[0].essay.content;
+                    }
+                    answerData.content = content;
                     break;
                 case 'code':
-
-                    if(question.studentAnswer && question.studentAnswer.code){
-                        answerData.code = question.studentAnswer.code;
-                    }else{
-                        answerData.code = question.code;
+                    let code = question.code;
+                    if(question.studentAnswer.length > 0){
+                        code = question.studentAnswer[0].code;
                     }
+                    answerData.code = code;
                     break;
             }
             setAnswer(answerData);

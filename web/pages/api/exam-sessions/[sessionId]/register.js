@@ -11,14 +11,14 @@ const prisma = global.prisma
 
 
 const handler = async (req, res) => {
-
+    
     let isProfOrStudent = await hasRole(req, Role.PROFESSOR) || await hasRole(req, Role.STUDENT);
-
+    
     if(!isProfOrStudent) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
     }
-
+    
     switch(req.method) {
         case 'POST':
             await post(req, res);
@@ -31,7 +31,7 @@ const post = async (req, res) => {
     const { sessionId } = req.query;
     const session = await getSession({ req });
     const studentEmail = session.user.email;
-    
+   
     const userOnExamSession = await prisma.userOnExamSession.upsert(
         {
             where: {
