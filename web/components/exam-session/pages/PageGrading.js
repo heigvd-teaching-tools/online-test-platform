@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import useSWR, { SWRConfig  } from "swr";
 import { useRouter } from "next/router";
-import { ExamSessionPhase } from '@prisma/client';
+import { StudentQuestionGradingStatus } from '@prisma/client';
 
-import { Stack, Box, Drawer, Divider } from "@mui/material";
+import { Stack, Box, Drawer, Divider, Typography, Chip, Avatar, TextField, Paper } from "@mui/material";
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 import AlertFeedback from "../../feedback/AlertFeedback";
@@ -77,7 +77,7 @@ const PageGrading = () => {
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
-    
+
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
     return (
@@ -110,7 +110,7 @@ const PageGrading = () => {
             }
             rightWidth={75}
             rightPanel={
-                <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
+                <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto', pb:12 }}>
                     <ParticipantNav 
                         participants={examSession.students} 
                         active={examSession.students.find((student) => student.user.id === router.query.participantId)}
@@ -129,10 +129,138 @@ const PageGrading = () => {
                         answer={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
                     />
                 )}
+                <GradingSignOff
+                    grading={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                />
                 </Stack>
             }
         />  
     )
+}
+
+
+import RateReviewSharpIcon from '@mui/icons-material/RateReviewSharp';
+const GradingSignOff = ({ grading }) => {
+
+    const [ comment, setComment ] = useState();
+    const [ points, setPoints ] = useState();
+
+    useEffect(() => {
+        setComment(grading && grading.comment);
+        setPoints(grading && grading.pointsObtained);
+    }, [grading]);
+
+    return (
+        grading && (
+        <Paper sx={{ position:'absolute', bottom:0, left:0, right:0, height: 90 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:2 }} >
+            <Stack direction="row" alignItems="center" spacing={1}>       
+            <TextField
+                sx={{width:60}}
+                id="outlined-points"
+                label="Points"
+                type="number"
+                variant="filled"
+                value={points}
+                onChange={(event) => {
+                    setPoints(event.target.value);
+                }}
+            />
+
+            <TextField
+                label="Comment"
+                multiline
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                variant="filled"
+            />
+
+            <GradingStatus grading={grading} />
+            </Stack>
+
+            <LoadingButton
+                color='success'
+                variant="contained"
+                loading={false}
+                loadingPosition="start"
+                startIcon={<RateReviewSharpIcon />}
+                onClick={() => {
+                    console.log('save');
+                }}
+            >
+                Sign Off
+            </LoadingButton>
+
+        </Stack>
+        </Paper>
+        )
+    )
+}
+
+
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import { LoadingButton } from '@mui/lab';
+
+const GradingStatus = ({ grading }) => {
+    return (
+        <Chip 
+            variant="filled"
+            color={gradingStatusColor(grading.status)}
+            avatar={
+                <Stack alignItems="center" justifyContent="center" sx={{ ml:2, width:24, height:24, borderRadius: '50%',backgroundColor: 'white' }}>
+                    { grading.status !== StudentQuestionGradingStatus.UNGRADED && 
+                        (grading.isCorrect ? 
+                            <CheckIcon
+                                sx={{ color: 'success.main', width:16, height:16 }}
+                            /> 
+                        : 
+                            <ClearIcon
+                                sx={{ color: 'error.main', width:16, height:16 }}
+                            /> 
+                        )}    
+
+                    { grading.status === StudentQuestionGradingStatus.UNGRADED && (
+                        <PriorityHighIcon 
+                            sx={{ color: `${gradingStatusColor(grading.status)}.main`, width:16, height:16 }}
+                        />
+                    )}                    
+                </Stack>
+            }
+            label={
+                <Typography variant="caption">
+                    {
+                    ((status) => {
+                        switch (status) {
+                            case StudentQuestionGradingStatus.UNGRADED:
+                                return 'Not Graded';
+                            case StudentQuestionGradingStatus.GRADED:
+                                return 'Graded';
+                            case StudentQuestionGradingStatus.AUTOGRADED:
+                                return 'Autograded';
+                            default:
+                                return 'Unknown';
+                        }
+                    })(grading.status)
+                    }
+                </Typography>
+            } 
+        />
+    )
+}
+
+const gradingStatusColor = (status) => {
+    switch (status) {
+        case StudentQuestionGradingStatus.UNGRADED:
+            return 'warning';
+        case StudentQuestionGradingStatus.GRADED:
+            return 'success';
+        case StudentQuestionGradingStatus.AUTOGRADED:
+            return 'info';
+        default:
+            return 'error';
+    }
 }
 
 /*
