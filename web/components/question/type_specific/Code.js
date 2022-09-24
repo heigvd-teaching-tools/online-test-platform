@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { Stack, Tabs, Tab, Paper } from "@mui/material"
 import CodeEditor from '../../input/CodeEditor';
-import CodeTestResult from './CodeTestResult';
+import CodeCheck from './CodeCheck';
 
 const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, containerHeight, onChange, onTestResult }) => {
 
@@ -70,7 +70,7 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                         /> 
                     </TabPanel>
                     <Paper ref={runTestRef} square elevation={0} sx={{ position:'absolute', bottom:0, left:0, maxHeight: `${containerHeight}px`, width:'100%', p:0  }}>
-                        <CodeTestResult
+                        <CodeCheck
                             id={`${id}-test-run`}
                             where={where} 
                             questionId={questionId} 

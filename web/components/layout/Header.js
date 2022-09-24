@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import UserAvatar from './UserAvatar';
 import UserContextMenu from './UserContextMenu';
 import Logo from './Logo';
+import { Stack } from '@mui/system';
 
 const Header = ({children, color}) => {
     const { data: session } = useSession();
@@ -15,8 +16,8 @@ const Header = ({children, color}) => {
 
     return (
         <AppBar position="static" enableColorOnDark color={color} sx={{ height: '48px', maxWidth: '100vw', p:0  }}>
-            
-                <Box sx={{ mr:2, pt:0 }}>
+            <Stack direction="row" alignItems="center" sx={{ pl:1, pr:1 }}>
+                <Box sx={{ mr:1, pt:0 }}>
                     <Logo color="red" />
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>
@@ -24,7 +25,7 @@ const Header = ({children, color}) => {
                 </Box>
                 <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                 <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
-            
+            </Stack>
         </AppBar>
     );
 }

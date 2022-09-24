@@ -22,7 +22,6 @@ import AnswerCompare from '../../answer/AnswerCompare';
 
 const ParticipantItem = ({ participant, active, collapsed, onClick }) => {
     return (
-       
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ pt: 1, pr:1, pb:1, display:'inline-flex', cursor: 'pointer' }} onClick={onClick}>
             <Stack direction="row" spacing={0}>
                 {active ? (
@@ -78,7 +77,7 @@ const PageGrading = () => {
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
-
+    
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
     return (
@@ -111,7 +110,7 @@ const PageGrading = () => {
             }
             rightWidth={75}
             rightPanel={
-                <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
+                <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
                     <ParticipantNav 
                         participants={examSession.students} 
                         active={examSession.students.find((student) => student.user.id === router.query.participantId)}

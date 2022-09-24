@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as resizePanelStyles from './ResizePanel.module.css';
 
 const ResizePanel = ({
-    leftPanel, rightPanel, rightWidth
+    leftPanel, rightPanel, rightWidth, height = '100%'
 }) => {
     const container = useRef(null);
     const separator = useRef(null);
@@ -27,7 +27,7 @@ const ResizePanel = ({
         }
     }, [drag, container, setWidth]);
     return useMemo(() => (
-        <div className={resizePanelStyles.resizePanelContainer} data-testid="resize-panel" ref={container}>
+        <div className={resizePanelStyles.resizePanelContainer} style={{ height }} data-testid="resize-panel" ref={container}>
             <div className={`${resizePanelStyles.panelResizable} ${width === 100 ? ` ${resizePanelStyles.magnetic}` : ''}`} style={{ maxWidth: `${100 - width}%`, width: `${100 - width}%` }}>
                 {leftPanel}
             </div>
@@ -48,7 +48,7 @@ const ResizePanel = ({
                 {rightPanel}
             </div>
         </div>), [
-        container, leftPanel, separator, rightPanel, width, handleMouseMove, handleDrag
+        container, leftPanel, separator, rightPanel, width, height, handleMouseMove, handleDrag
     ]);
 };
 

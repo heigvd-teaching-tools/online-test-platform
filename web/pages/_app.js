@@ -10,6 +10,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import Authentication from '../components/layout/Authentication';
 
 export const themeOptions = {
   palette: {
@@ -51,7 +52,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps} }) {
         <CssBaseline />
         <Meta />
         <SessionProvider session={session}>
+          <Authentication>
             <Component {...pageProps} />
+          </Authentication>
         </SessionProvider>
       </SnackbarProvider>
     </ThemeProvider>

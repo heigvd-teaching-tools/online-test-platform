@@ -17,7 +17,7 @@ import Code from './type_specific/Code';
 import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
 
-import CodeTestResult from './type_specific/CodeTestResult';
+import CodeCheck from './type_specific/CodeCheck';
 
 import { LoadingButton } from '@mui/lab';
 

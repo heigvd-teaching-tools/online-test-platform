@@ -9,11 +9,12 @@ if (!global.prisma) {
 const prisma = global.prisma
 
 const handler = async (req, res) => {
-
+    const isProf = await hasRole(req, Role.PROFESSOR);
+    if(!isProf){
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
     
-
-    
-
     switch(req.method) {
         case 'GET':
             await get(req, res);
@@ -29,14 +30,9 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    const isProf = await hasRole(req, Role.PROFESSOR);
-    const isStudent = await hasRole(req, Role.STUDENT);
-    if(!(isProf || isStudent)){
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
-    }
-
-    const { sessionId } = req.query
+    
+    
+    const { sessionId } = req.query;
     const exam = await prisma.examSession.findUnique({
         where: {
             id: sessionId
@@ -53,11 +49,7 @@ const get = async (req, res) => {
 }
 
 const patch = async (req, res) => {
-    const isProf = await hasRole(req, Role.PROFESSOR);
-    if(!isProf){
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
-    }
+   
 
     const { sessionId } = req.query
 

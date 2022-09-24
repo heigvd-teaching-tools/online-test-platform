@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-import { Grid, Paper, Stack, ToggleButton, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, ToggleButton, Typography } from "@mui/material";
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
@@ -27,7 +27,7 @@ const AnswerCompare = ({ question, answer }) => {
       }, [resizeObserver, container]);
 
     return (
-        <Paper ref={container} square elevation={0} sx={{ flex:1, height:'100%', overflow:'hidden', pt:2, pl:2, pb:1 }}>
+        <Paper ref={container} square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
         {
             answer && (
                 question.type === 'trueFalse' && (
@@ -55,13 +55,11 @@ const AnswerCompare = ({ question, answer }) => {
                 )
                 ||
                 question.type === 'code' && (
-                    <Code
+                    <CompareCode
                         id={`answer-editor-${question.id}`}	
-                        where="answer"
-                        mode="partial"
-                        code={answer[question.type].code}
-                        containerHeight={height}
-                        
+                        height={height-60}
+                        solution={question[question.type]}
+                        answer={answer[question.type]}
                     />      
                 )       
 
@@ -74,6 +72,9 @@ const AnswerCompare = ({ question, answer }) => {
 
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
+import CodeCheckResult from '../question/type_specific/CodeCheckResult';
+import CodeEditor from '../input/CodeEditor';
+import ResizePanel from '../layout/utils/ResizePanel';
 
 const RadioViewer = ({ selected, filled }) => {
     return (
@@ -88,7 +89,7 @@ const RadioViewer = ({ selected, filled }) => {
 
 const CompareTrueFalse = ({ solution, answer }) => {
     return (
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{p:2}} alignItems="center">
             <RadioViewer selected={solution} filled={answer} />
             <Box>
                 <Typography variant="body1">True</Typography>
@@ -103,7 +104,7 @@ const CompareTrueFalse = ({ solution, answer }) => {
 
 const CompareMultipleChoice = ({ solution, answer }) => {
     return (
-        <Grid container display="grid" columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
+        <Grid container display="grid"  sx={{p:2}} columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
             { solution.map((option, index) => (
                  <Grid item key={index}>
                     <Stack direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
@@ -116,6 +117,82 @@ const CompareMultipleChoice = ({ solution, answer }) => {
             ))
             }
         </Grid>
+    )
+}
+
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+const CompareCode = ({ solution, answer, height }) => {
+
+    const [expanded, setExpanded] = useState(true);
+
+    const handleChange = () => {
+        setExpanded(!expanded);      
+    };
+
+    return (
+        <>
+        <Accordion  
+            sx={{
+                border: 'none',
+                '&.MuiPaper-root': {
+                    boxShadow: 'none',
+                }
+            }}
+            disableGutters square expanded={expanded} onChange={handleChange}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="body1">Student Answer / Solution</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+            <ResizePanel
+                leftPanel={
+                    <CodeEditor
+                        id={`answer-compare-student`}
+                        readOnly
+                        code={answer.code}
+                    />
+                }   
+                rightPanel={
+                    <CodeEditor
+                        id={`answer-compare-solution`}
+                        readOnly
+                        code={solution.solution}
+                    />
+                }
+                rightWidth={20}
+                height={height-66}
+            />
+            </AccordionDetails>
+        </Accordion>
+        <Accordion 
+            sx={{
+                border: 'none',
+                '&.MuiPaper-root': {
+                    boxShadow: 'none',
+                }
+            }}
+            disableGutters square expanded={!expanded} onChange={handleChange}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="body1">Check result</Typography>
+                {
+                    (answer.success && (
+                        <Box sx={{ ml:2 }}>
+                            <CheckIcon sx={{ color: 'success.main', width:24, height:24 }} />
+                        </Box>
+                    ))
+                    ||
+                    (answer.success === false && (
+                        <Box sx={{ ml:2 }}>
+                            <ClearIcon sx={{ color: 'error.main', width:24, height:24 }} />
+                        </Box>
+                    ))
+                }
+            </AccordionSummary>
+            <AccordionDetails>
+                <CodeCheckResult result={answer} />
+            </AccordionDetails>
+        </Accordion>
+        </>
     )
 }
 

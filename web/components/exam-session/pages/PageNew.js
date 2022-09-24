@@ -38,17 +38,17 @@ const PageNew = () => {
     };
 
     return (
-    <LayoutMain>
-    <Stack sx={{ width:'100%' }} spacing={2}>
-        <StepReferenceExam 
-            onChange={onChangeRefenceExam}
-        />
-            
-        <Stack direction="row" justifyContent="flex-end">
-            <Button onClick={handleNext}>Next</Button>
+        <LayoutMain>
+        <Stack sx={{ width:'100%' }} spacing={2}>
+            <StepReferenceExam 
+                onChange={onChangeRefenceExam}
+            />
+                
+            <Stack direction="row" justifyContent="flex-end">
+                <Button onClick={handleNext}>Next</Button>
+            </Stack>
         </Stack>
-    </Stack>
-    </LayoutMain>
+        </LayoutMain>
     )
 }
 

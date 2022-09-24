@@ -60,11 +60,7 @@ export default async function handler(req, res) {
                         questionId: questionId
                     }
                 },
-                data: {
-                    expectedOutput: reponse.expected,
-                    resultOutput: reponse.result,
-                    success: reponse.success
-                }
+                data: reponse
             }); 
         }
 

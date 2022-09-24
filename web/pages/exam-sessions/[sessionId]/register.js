@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import LoadingAnimation from "../../../components/feedback/LoadingAnimation";
-import LoginGitHub from '../../../components/layout/LoginGitHub';
+import Authentication from '../../../components/layout/Authentication';
 
 const JoinExamSession = () => {
     const router = useRouter();
@@ -27,11 +26,7 @@ const JoinExamSession = () => {
         }
     }, [router, session, status]);
 
-    return <>            
-            { status === 'loading' && <LoadingAnimation /> }
-            { status === 'unauthenticated' && <LoginGitHub /> }
-            { status === 'authenticated' && <LoadingAnimation /> }
-         </>
+    return <></>
 }
 
 export default JoinExamSession;

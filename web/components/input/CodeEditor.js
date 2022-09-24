@@ -6,7 +6,7 @@ import Editor from "@monaco-editor/react";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ code:initial, editorHeight, onChange }) => {
+const CodeEditor = ({ code:initial, editorHeight, readOnly = false, onChange }) => {
     
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(initial || "");
@@ -50,13 +50,17 @@ const CodeEditor = ({ code:initial, editorHeight, onChange }) => {
     return (
         <Box sx={{ width:'100%', height:'100%', position:'relative' }}>
             <Editor
+                options={{
+                    readOnly
+                }}
                 width="100%"
                 height={editorHeight}
                 defaultLanguage="javascript"
                 value={code}
                 onChange={onCodeChange}
             />
-            <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:0  }}>
+            { !readOnly && (
+                <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:0  }}>
                 <Stack direction="row" alignItems="center" width="100%" spacing={1} sx={{ pt:1, pb:1 }}>
                     <LoadingButton 
                         color="info"  
@@ -88,6 +92,8 @@ const CodeEditor = ({ code:initial, editorHeight, onChange }) => {
                     />
                 </Collapse>
             </Paper>
+            )}
+            
         </Box>
     )
     

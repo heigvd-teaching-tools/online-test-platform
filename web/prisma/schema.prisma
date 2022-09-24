@@ -271,8 +271,8 @@ model StudentAnswerCode {
 
   code String?
 
-  expectedOutput String?
-  resultOutput   String?
+  expected String?
+  result   String?
 
   success Boolean @default(false)
 
