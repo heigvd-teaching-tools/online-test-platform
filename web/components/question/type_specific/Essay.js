@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { TextField } from "@mui/material";
+import ContentEditor from '../../input/ContentEditor';
 
-const Essay = ({ id = "essay", label, content:initial, onChange }) => {
+const Essay = ({ id = "essay", content:initial, onChange }) => {
     const [content, setContent] = useState();
     
     useEffect(() => {
         setContent(initial || '');
+        console.log("Essay change", initial === undefined);
     }, [initial, id]);
 
     return (
-        <TextField 
-            variant='standard'
-            multiline
-            fullWidth
-            rows={15}
-            label={label}
+        <ContentEditor
             id={id}
-            value={content}
-            onChange={(e) => {
-                let newContent = e.target.value;
+            rawContent={content}
+            onChange={(newContent) => {
                 if(newContent !== content){
                     onChange(newContent === '' ? undefined : newContent);
                 }
                 setContent(newContent);
             }}
-            sx={{ p:1 }}
-            
         />
+        
     )
     
 }

@@ -39,8 +39,7 @@ const PageTakeExam = () => {
                     }
                     return res.json();
                 }) 
-            : null,
-        { refreshInterval  : 10000 }
+            : null
     );
 
     const [ page, setPage ] = useState(parseInt(router.query.pageId));

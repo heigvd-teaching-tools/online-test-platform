@@ -47,10 +47,9 @@ const AnswerCompare = ({ question, answer }) => {
                 )
                 || 
                 question.type === 'essay' && (
-                    <Essay
+                    <CompareEssay
                         id={`answer-editor-${question.id}`}	
-                        label="Your answer"
-                        content={answer[question.type].content}
+                        answer={answer[question.type]}
                     />
                 )
                 ||
@@ -104,7 +103,7 @@ const CompareTrueFalse = ({ solution, answer }) => {
 
 const CompareMultipleChoice = ({ solution, answer }) => {
     return (
-        <Grid container display="grid"  sx={{p:2}} columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
+        <Grid container display="grid" sx={{p:2}} columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
             { solution.map((option, index) => (
                  <Grid item key={index}>
                     <Stack direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
@@ -121,6 +120,7 @@ const CompareMultipleChoice = ({ solution, answer }) => {
 }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ContentEditor from '../input/ContentEditor';
 
 const CompareCode = ({ solution, answer, height }) => {
 
@@ -193,6 +193,18 @@ const CompareCode = ({ solution, answer, height }) => {
             </AccordionDetails>
         </Accordion>
         </>
+    )
+}
+
+const CompareEssay = ({ answer }) => {
+    return (
+        <Box sx={{ p:2 }}>
+            <ContentEditor
+                id={`answer-compare-essay`}
+                readOnly
+                rawContent={answer.content}
+            />
+        </Box>
     )
 }
 

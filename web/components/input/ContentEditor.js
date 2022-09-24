@@ -11,16 +11,14 @@ const Editor = dynamic(
 const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
     const [ editorState, setEditorState ] = useState(EditorState.createEmpty());
     
-    useEffect(() => {
-        if(rawContent){
-            let currentRawContent = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
-            if(rawContent !== currentRawContent){
-                setEditorState(
-                    EditorState.createWithContent(
-                        convertFromRaw(JSON.parse(rawContent))
-                    )
-                );
-            }
+    useEffect(() => {        
+        let currentRawContent = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
+        if(rawContent !== currentRawContent){
+            setEditorState(
+                EditorState.createWithContent(
+                    rawContent ? convertFromRaw(JSON.parse(rawContent)) : EditorState.createEmpty().getCurrentContent()
+                )
+            );
         }
     }, [rawContent]);
 
@@ -28,7 +26,7 @@ const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
         setEditorState(newEditorState);
         let newContent = newEditorState.getCurrentContent();
         if (editorState.getCurrentContent() !== newContent) {
-            onChange(JSON.stringify(convertToRaw(newContent)));
+            onChange(newContent.hasText() ? JSON.stringify(convertToRaw(newContent)) : undefined);
         }
     }
 

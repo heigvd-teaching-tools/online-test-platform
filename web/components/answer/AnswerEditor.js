@@ -131,7 +131,6 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 answer.type === 'essay' && (
                     <Essay
                         id={`answer-editor-${question.id}`}	
-                        label="Your answer"
                         content={answer.content}
                         onChange={onAnswerByType}
                     />

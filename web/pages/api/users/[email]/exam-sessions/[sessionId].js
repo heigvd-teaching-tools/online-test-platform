@@ -34,29 +34,36 @@ const get = async (req, res) => {
     };
 
     if(questions === 'true'){
-        include = {
-            examSession: {
-                include: {
-                    questions: {
-                        include: {
-                            code: { select: { code: true } },
-                            multipleChoice: { select: { options: { select: { id: true, text: true } } } },
-                            essay: true,
-                            studentAnswer: {
-                                where: {
-                                    userEmail: email
-                                },
-                                select: {
-                                    code: true,
-                                    multipleChoice: { select: { options: { select: { id: true, text: true } } } },
-                                    essay: { select: { content: true } },
-                                    trueFalse: true,
-                                },
-                                
+        // control the phase of the exam session
+        const examSession = await prisma.examSession.findUnique({
+            where: { id: sessionId },
+            select: { phase: true }
+        });
+        if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
+            include = {
+                examSession: {
+                    include: {
+                        questions: {
+                            include: {
+                                code: { select: { code: true } },
+                                multipleChoice: { select: { options: { select: { id: true, text: true } } } },
+                                essay: true,
+                                studentAnswer: {
+                                    where: {
+                                        userEmail: email
+                                    },
+                                    select: {
+                                        code: true,
+                                        multipleChoice: { select: { options: { select: { id: true, text: true } } } },
+                                        essay: { select: { content: true } },
+                                        trueFalse: true,
+                                    },
+                                    
+                                }
+                            },
+                            orderBy: {
+                                position: 'asc'
                             }
-                        },
-                        orderBy: {
-                            position: 'asc'
                         }
                     }
                 }
