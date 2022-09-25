@@ -1,38 +1,16 @@
-import { useState } from 'react';
-import { AppBar, Box, Toolbar, Stack } from '@mui/material';
-import { useSession } from 'next-auth/react';
-
-import LoadingAnimation from '../feedback/LoadingAnimation';
-import LoginGitHub from './LoginGitHub';
-import Logo from './Logo';
-import UserAvatar from './UserAvatar';
-import UserContextMenu from './UserContextMenu';
+import { Box, Stack } from '@mui/material';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 import ResizePanel from './utils/ResizePanel';
+import Header from './Header';
 
 const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel, rightWidth = 60}) => {
-    const { data: session } = useSession();
-
-    const [anchorElUser, setAnchorElUser] = useState(null);   
-    const handleOpenUserMenu    = (event) => setAnchorElUser(event.currentTarget);
-    const handleCloseUserMenu   = () => setAnchorElUser(null);
-
     return (
         <>
         <Box>
-            <AppBar position="static" enableColorOnDark color="transparent" sx={{ height: '48px', maxWidth: '100vw'  }}>  
-                <Stack direction="row">
-                    <Box sx={{ mt:0.6, ml:1 }}>
-                        <Logo color="red" />
-                    </Box>
-                    <Box sx={{ flex: 1, overflow:'hidden' }}>
-                        {header}
-                    </Box>
-                    <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
-                    <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
-                </Stack>
-            </AppBar>
+            <Header color="transparent">
+                {header}
+            </Header>
             { subheader && (
                 <Box sx={{ flex: 1, overflow:'hidden' }}>{subheader}</Box>
             )}

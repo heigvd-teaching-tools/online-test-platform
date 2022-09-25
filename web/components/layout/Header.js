@@ -17,7 +17,7 @@ const Header = ({children, color}) => {
     return (
         <AppBar position="static" enableColorOnDark color={color} sx={{ height: '48px', maxWidth: '100vw', p:0  }}>
             <Stack direction="row" alignItems="center" sx={{ pl:1, pr:1 }}>
-                <Box sx={{ mr:1, pt:0 }}>
+                <Box sx={{ mr:1, mt:0.5 }}>
                     <Logo color="red" />
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>

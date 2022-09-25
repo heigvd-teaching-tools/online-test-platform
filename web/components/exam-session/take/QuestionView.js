@@ -15,7 +15,7 @@ const QuestionView = ({ question, page, totalPages }) => {
     }, [question.content]);
    
     return (
-        <Stack spacing={2} sx={{ overflow:'auto', pl:2, pt:2, pr:1, pb:1 }}>
+        <Stack spacing={2} sx={{ overflow:'auto', pl:2, pt:2, pr:1, pb:1, maxHeight:'100%' }}>
             <Stack direction="row" alignItems="center" spacing={1}>
                 <Column width="32px"><Image alt="Loading..." src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" /></Column>
                 <Column right><Typography variant="body1"><b>Q{page}</b> / {totalPages} </Typography></Column>

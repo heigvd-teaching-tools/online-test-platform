@@ -54,7 +54,8 @@ const get = async (req, res) => {
                     status: true,
                     pointsObtained: true,
                     isCorrect: true,
-                    signedBy: true
+                    signedBy: true,
+                    comment: true,
                 }
             }
         },
