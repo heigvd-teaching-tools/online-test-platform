@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { StudentQuestionGradingStatus } from '@prisma/client';
 import Image from 'next/image';
 import { Button, Collapse, Box, Paper, Stack, TextField, Typography, Chip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -12,24 +13,18 @@ import UserAvatar from '../../layout/UserAvatar';
 import { useSession } from "next-auth/react";
 
 
-const GradingSignOff = ({ grading, onSignOff }) => {
-    const [ comment, setComment ] = useState();
-    const [ points, setPoints ] = useState();
-    const [ signedBy, setSignedBy ] = useState();
-
-    const { data, status } = useSession();
+const GradingSignOff = ({ grading:initial, onSignOff }) => {
+    
+    const [ grading, setGrading ] = useState(initial);
+    const { data } = useSession();
 
     useEffect(() => {
-        setComment(grading && grading.comment || '');
-        setPoints(grading && grading.pointsObtained);
-        setSignedBy(grading && grading.signedBy || undefined);
+        setGrading(initial);        
+    }, [initial]);
+
+    useEffect(() => {
+        console.log('grading', grading);
     }, [grading]);
-
-    useEffect(() => {
-        console.log('GradingSignOff signedBy', signedBy, grading);
-            
-        
-    }, [signedBy]);
 
     return (
         <Paper 
@@ -42,16 +37,17 @@ const GradingSignOff = ({ grading, onSignOff }) => {
             { grading && (
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:2 }} spacing={4} >
                 {
-                    signedBy ? (
+                    grading.signedBy ? (
                         <GradingSigned 
-                            signedBy={signedBy} 
+                            signedBy={grading.signedBy} 
                             grading={grading} 
                             onUnsign={() => {
-                                setSignedBy(undefined);
-                                onSignOff({
+                                let newGrading = { 
                                     ...grading,
-                                    signedBy: undefined
-                                });
+                                    signedBy: undefined,
+                                };
+                                setGrading(newGrading);
+                                onSignOff(newGrading);
                             }}
                         />
                     ) : 
@@ -68,13 +64,13 @@ const GradingSignOff = ({ grading, onSignOff }) => {
                                 />
                             }
                             onClick={async () => {
-                                setSignedBy(data.user);
-                                onSignOff({
+                                let newGrading = {
                                     ...grading,
-                                    comment,
-                                    pointsObtained: points,
+                                    status: grading.status === StudentQuestionGradingStatus.UNGRADED ? StudentQuestionGradingStatus.GRADED : grading.status,
                                     signedBy: data.user,
-                                });
+                                }
+                                setGrading(newGrading);
+                                onSignOff(newGrading);
                             }}
                         >
                             Sign Off
@@ -82,7 +78,7 @@ const GradingSignOff = ({ grading, onSignOff }) => {
                     
                 }
                 {
-                    !signedBy && (
+                    !grading.signedBy && (
                     <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>   
                         <TextField
                             sx={{width:60}}
@@ -90,9 +86,13 @@ const GradingSignOff = ({ grading, onSignOff }) => {
                             label="Points"
                             type="number"
                             variant="filled"
-                            value={points}
+                            value={grading.pointsObtained}
                             onChange={(event) => {
-                                setPoints(event.target.value);
+                                let newGrading = {
+                                    ...grading,
+                                    pointsObtained: event.target.value
+                                }
+                                setGrading(newGrading);
                             }}
                         />
 
@@ -100,15 +100,21 @@ const GradingSignOff = ({ grading, onSignOff }) => {
                             label="Comment"
                             fullWidth
                             multiline
-                            value={comment}
-                            onChange={(event) => setComment(event.target.value)}
+                            value={grading.comment}
+                            onChange={(event) => {
+                                let newGrading = {
+                                    ...grading,
+                                    comment: event.target.value
+                                }
+                                setGrading(newGrading);
+                            }}
                             variant="filled"
                         />
                     </Stack>
                 )}
                 {
-                    signedBy && (
-                        <GradingPointsComment points={points} comment={comment} />
+                    grading.signedBy && (
+                        <GradingPointsComment points={grading.pointsObtained} comment={grading.comment} />
                     )
                 }
                 

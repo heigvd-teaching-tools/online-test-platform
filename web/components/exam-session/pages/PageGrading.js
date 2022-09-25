@@ -45,7 +45,10 @@ const PageGrading = () => {
             const newSessionQuestions = [...sessionQuestions];
             newSessionQuestions[router.query.activeQuestion - 1].studentGrading = newSessionQuestions[router.query.activeQuestion - 1].studentGrading.map((studentGrading) => {
                 if (studentGrading.user.id === grading.user.id) {
-                    return grading;
+                    return {
+                        ...studentGrading,
+                        ...grading
+                    };
                 }
                 return studentGrading;
             });
@@ -96,7 +99,7 @@ const PageGrading = () => {
                             router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.user.id}`);
                         }}
                         isFilled={(participant) => {
-                            const grading = sessionQuestions[router.query.activeQuestion - 1].studentGrading.find((studentGrading) => studentGrading.user.id === participant.user.id);
+                            const grading = sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentGrading.find((studentGrading) => studentGrading.user.id === participant.user.id);
                             return grading && grading.signedBy;
                         }}
                     />    
