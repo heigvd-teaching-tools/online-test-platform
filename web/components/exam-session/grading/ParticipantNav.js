@@ -26,7 +26,7 @@ const ParticipantItem = ({ participant, active, collapsed, onClick, isFilled }) 
     )
 }
 
-const ParticipantNav = ({ participants, active, onParticipantClick, isFilled }) => {
+const ParticipantNav = ({ participants, active, onParticipantClick, isParticipantFilled }) => {
     const [ collapsed, setCollapsed ] = useState(true);
     return (
         <Stack spacing={0} sx={{ pl:1, pr:1, display:'inline-flex', bgcolor: 'background.paper' }} onMouseEnter={() => setCollapsed(false)} onMouseLeave={() => setCollapsed(true)}>
@@ -34,12 +34,12 @@ const ParticipantNav = ({ participants, active, onParticipantClick, isFilled }) 
                 participants.map(
                     (participant) => (
                         <ParticipantItem 
-                            key={participant.user.id}
-                            active={active && active.user.id === participant.user.id}
+                            key={participant.id}
+                            active={active && active.id === participant.id}
                             collapsed={collapsed}
-                            participant={participant.user}
+                            participant={participant}
                             onClick={() => onParticipantClick(participant)}
-                            isFilled={() => isFilled(participant)}
+                            isFilled={() => isParticipantFilled(participant)}
                         />
                     )
                 )

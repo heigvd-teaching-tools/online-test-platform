@@ -1,11 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-import { Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, ToggleButton, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, Typography } from "@mui/material";
 
-import TrueFalse from '../question/type_specific/TrueFalse';
-import MultipleChoice from '../question/type_specific/MultipleChoice';
-import Essay from '../question/type_specific/Essay';
-import Code from '../question/type_specific/Code';
 import { Box } from '@mui/system';
 
 const AnswerCompare = ({ question, answer }) => {

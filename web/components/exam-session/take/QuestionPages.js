@@ -1,8 +1,6 @@
-import Image from 'next/image';
 import { useRouter } from "next/router";
-import { Tabs, Tab, Stack } from "@mui/material";
+import { Tabs, Tab } from "@mui/material";
 import FilledBullet from '../../feedback/FilledBullet';
-
 
 const QuestionPages = ({ count, page, link, isFilled }) => {
     const router = useRouter();
@@ -22,7 +20,7 @@ const QuestionPages = ({ count, page, link, isFilled }) => {
                     icon={
                         <FilledBullet 
                             index={index}
-                            isFilled={isFilled} 
+                            isFilled={() => isFilled(index + 1)} 
                         />
                     }
                 />

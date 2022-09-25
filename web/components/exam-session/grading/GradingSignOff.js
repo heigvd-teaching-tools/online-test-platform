@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StudentQuestionGradingStatus } from '@prisma/client';
 import Image from 'next/image';
-import { Button, Collapse, Box, Paper, Stack, TextField, Typography, Chip } from '@mui/material';
+import { Button, Collapse, Box, Paper, Stack, TextField, Typography, Chip, IconButton } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import RateReviewSharpIcon from '@mui/icons-material/RateReviewSharp';
@@ -13,7 +13,7 @@ import UserAvatar from '../../layout/UserAvatar';
 import { useSession } from "next-auth/react";
 
 
-const GradingSignOff = ({ grading:initial, onSignOff }) => {
+const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) => {
     
     const [ grading, setGrading ] = useState(initial);
     const { data } = useSession();
@@ -35,7 +35,12 @@ const GradingSignOff = ({ grading:initial, onSignOff }) => {
                 height: 90 
             }}>
             { grading && (
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:2 }} spacing={4} >
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:1, pr:4 }} spacing={2} >
+                <Stack direction="row">
+                    <Button
+                        startIcon={<Arrow orientation="right" />}
+                        onClick={() => clickNextParticipant(grading.user)}
+                    />
                 {
                     grading.signedBy ? (
                         <GradingSigned 
@@ -77,6 +82,9 @@ const GradingSignOff = ({ grading:initial, onSignOff }) => {
                         </LoadingButton>
                     
                 }
+                </Stack>
+                
+               
                 {
                     !grading.signedBy && (
                     <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>   
@@ -119,9 +127,20 @@ const GradingSignOff = ({ grading:initial, onSignOff }) => {
                 }
                 
                 <GradingStatus grading={grading} />  
+                
             </Stack>
             )}
         </Paper>
+    )
+}
+
+const Arrow = ({ orientation }) => {
+    return (
+        <Image
+            src={`/svg/grading/ctrl-${orientation}.svg`}
+            alt="Arrow"
+            layout="fixed" width={16} height={16}
+        />
     )
 }
 
@@ -144,7 +163,7 @@ const GradingSigned = ({ signedBy, onUnsign }) => {
     return (
         <Stack 
             direction="row" alignItems="center" spacing={1}
-            sx={{ cursor:'pointer', height:'100%', pl:2, pr:2, borderRadius:1 }}
+            sx={{ cursor:'pointer', height:'100%', borderRadius:1 }}
             onMouseOver={() => setExpanded(true)}
             onMouseOut={() => setExpanded(false)}
             >

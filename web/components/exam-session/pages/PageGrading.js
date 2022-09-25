@@ -29,98 +29,116 @@ const PageGrading = () => {
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
-    const { data: sessionQuestions, mutate } = useSWR(
+    const { data, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 
+    const [ questions, setQuestions ] = useState([]);
+
+    const [ participants, setParticipants ] = useState([]);
+
     useEffect(() => {
-        console.log('sessionQuestions', sessionQuestions);
-    }, [sessionQuestions]);
+        setQuestions(data);
+    }, [data]);
+
+    useEffect(() => {
+        if (questions && questions.length > 0) {
+            setParticipants(questions[router.query.activeQuestion-1].studentGrading.map((sg) => sg.user));
+        }
+    }, [questions, router.query.activeQuestion]);
+
 
 
     const onSignOff = useCallback((grading) => {
-        mutate((sessionQuestions) => {
-            const newSessionQuestions = [...sessionQuestions];
-            newSessionQuestions[router.query.activeQuestion - 1].studentGrading = newSessionQuestions[router.query.activeQuestion - 1].studentGrading.map((studentGrading) => {
-                if (studentGrading.user.id === grading.user.id) {
-                    return {
-                        ...studentGrading,
-                        ...grading
-                    };
-                }
-                return studentGrading;
-            });
-            console.log('newSessionQuestions', newSessionQuestions);
-            return newSessionQuestions;
-
-        }, true);
-    }, [router.query.activeQuestion, mutate]);
+        const newQuestions = [...questions];
+        newQuestions[router.query.activeQuestion - 1].studentGrading = newQuestions[router.query.activeQuestion - 1].studentGrading.map((studentGrading) => {
+            if (studentGrading.user.id === grading.user.id) {
+                return {
+                    ...studentGrading,
+                    ...grading
+                };
+            }
+            return studentGrading;
+        });
+        setQuestions(newQuestions);
+        mutate(newQuestions, false);
+    }, [router.query.activeQuestion, mutate, questions]);
 
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
     return (
-        <LayoutSplitScreen 
-            header={<MainMenu />}
-            subheader={
-                sessionQuestions && sessionQuestions.length > 0 && (
+        <>
+           { questions && questions.length > 0 && (
+            <LayoutSplitScreen 
+                header={<MainMenu />}
+                subheader={
                     <QuestionPages
-                        count={sessionQuestions.length}
+                        count={questions.length}
                         page={router.query.activeQuestion}
                         link={(page) => `/exam-sessions/${router.query.sessionId}/grading/${page}?participantId=${router.query.participantId}`}
-                        isFilled={() => true}
-                    />
-                )               
-            }
-            leftPanel={
-                <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
-                    {
-                    examSession && <>
-                    
-                    { sessionQuestions && (
-                        <QuestionView 
-                            question={sessionQuestions[router.query.activeQuestion - 1]}
-                            page={router.query.activeQuestion}
-                            count={sessionQuestions.length}
+                        isFilled={(questionOrder) => {
+                            const question = questions[questionOrder - 1];
+                            return question.studentGrading.every((studentGrading) => studentGrading.signedBy);
+                        }}
+                    />  
+                }
+                leftPanel={
+                    <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
+                        {
+                        examSession && <>
+                        
+                        { questions && (
+                            <QuestionView 
+                                question={questions[router.query.activeQuestion - 1]}
+                                page={router.query.activeQuestion}
+                                count={questions.length}
+                            />
+                        )}                    
+                        </>   
+                    }</Stack>
+                }
+                rightWidth={75}
+                rightPanel={
+                    <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto', pb:12 }}>
+                        { participants && participants.length > 0 && (
+                            <ParticipantNav 
+                                participants={participants} 
+                                active={participants.find((participant) => participant.id === router.query.participantId)}
+                                onParticipantClick={(participant) => {
+                                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
+                                }}
+                                isParticipantFilled={(participant) => {
+                                    const grading = questions[router.query.activeQuestion - 1].studentGrading.find((studentGrading) => studentGrading.user.id === participant.id);
+                                    return grading && grading.signedBy;
+                                }}
+                            />    
+                        )}
+                        
+                        <Divider orientation="vertical" light flexItem />     
+                        <AnswerCompare
+                            question={questions[router.query.activeQuestion - 1]}
+                            answer={questions[router.query.activeQuestion - 1].studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
                         />
-                    )}                    
-                    </>   
-                }</Stack>
-            }
-            rightWidth={75}
-            rightPanel={
-                <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto', pb:12 }}>
-                    <ParticipantNav 
-                        participants={examSession.students} 
-                        active={examSession.students.find((student) => student.user.id === router.query.participantId)}
-                        onParticipantClick={(participant) => {
-                            router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.user.id}`);
-                        }}
-                        isFilled={(participant) => {
-                            const grading = sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentGrading.find((studentGrading) => studentGrading.user.id === participant.user.id);
-                            return grading && grading.signedBy;
-                        }}
-                    />    
-                    <Divider 
-                        orientation="vertical" 
-                        light 
-                        flexItem 
-                    />     
-                {sessionQuestions && (
-                    <AnswerCompare
-                        question={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1]}
-                        answer={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
-                    />
-                )}
-                <GradingSignOff
-                    grading={sessionQuestions && sessionQuestions[router.query.activeQuestion - 1].studentGrading.find((grading) => grading.user.id === router.query.participantId)}
-                    onSignOff={onSignOff}
-                />
-                </Stack>
-            }
-        />  
+                        <GradingSignOff
+                            grading={questions[router.query.activeQuestion - 1].studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                            onSignOff={onSignOff}
+                            clickNextParticipant={(current) => {
+                                const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                if (next < participants.length) {
+                                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
+                                }
+                                
+                            }}
+                        />
+                    </Stack>
+                }
+            />  
+           )}
+        </>
+        
     )
 }
 
