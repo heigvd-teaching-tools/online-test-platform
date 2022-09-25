@@ -35,12 +35,9 @@ const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) =>
                 height: 90 
             }}>
             { grading && (
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:1, pr:4 }} spacing={2} >
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:1, p:2 }} spacing={2} >
                 <Stack direction="row">
-                    <Button
-                        startIcon={<Arrow orientation="right" />}
-                        onClick={() => clickNextParticipant(grading.user)}
-                    />
+                    
                 {
                     grading.signedBy ? (
                         <GradingSigned 
@@ -134,15 +131,6 @@ const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) =>
     )
 }
 
-const Arrow = ({ orientation }) => {
-    return (
-        <Image
-            src={`/svg/grading/ctrl-${orientation}.svg`}
-            alt="Arrow"
-            layout="fixed" width={16} height={16}
-        />
-    )
-}
 
 const GradingPointsComment = ({ points, comment }) => {
     let color = points > 0 ? 'success' : 'error';
