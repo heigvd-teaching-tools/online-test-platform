@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, Box, Button } from '@mui/material';
+import { Stack, Box, Button, IconButton } from '@mui/material';
 import Image from 'next/image';
 import UserAvatar from '../../layout/UserAvatar';
 import FilledBullet from '../../feedback/FilledBullet';
@@ -29,7 +29,21 @@ const ParticipantItem = ({ participant, active, collapsed, onClick, isFilled }) 
 const ParticipantNav = ({ participants, active, onParticipantClick, isParticipantFilled }) => {
     const [ collapsed, setCollapsed ] = useState(true);
     return (
-        <Stack spacing={0} sx={{ pl:1, pr:1, display:'inline-flex', bgcolor: 'background.paper' }} onMouseEnter={() => setCollapsed(false)} onMouseLeave={() => setCollapsed(true)}>
+        <Stack spacing={0} sx={{ p:1, display:'inline-flex', bgcolor: 'background.paper' }}>
+            <Button onClick={() => setCollapsed(!collapsed)}>
+                { collapsed ? 
+                    <Image
+                        src={`/svg/grading/expand.svg`}
+                        alt="Arrow"
+                        layout="fixed" width={16} height={16}
+                    /> : 
+                    <Image
+                        src={`/svg/grading/collapse.svg`}
+                        alt="Arrow"
+                        layout="fixed" width={16} height={16}
+                    />
+                    }
+            </Button>
             <Stack flexGrow={1}>
             {
                 participants.map(
@@ -46,8 +60,8 @@ const ParticipantNav = ({ participants, active, onParticipantClick, isParticipan
                 )
             }
             </Stack> 
+         
             <Button
-                startIcon={<Arrow orientation="up" />}
                 onClick={() => {
                     // previous participant
                     let index = participants.findIndex((p) => p.id === active.id);
@@ -55,9 +69,10 @@ const ParticipantNav = ({ participants, active, onParticipantClick, isParticipan
                         onParticipantClick(participants[index-1]);
                     }
                 }}
-            />
+            >
+                <Arrow orientation="up" />
+            </Button>
             <Button
-                startIcon={<Arrow orientation="down" />}
                 onClick={() => {
                     // next participant
                     let index = participants.findIndex((p) => p.id === active.id);
@@ -65,7 +80,9 @@ const ParticipantNav = ({ participants, active, onParticipantClick, isParticipan
                         onParticipantClick(participants[index+1]);
                     }
                 }}
-            />
+            >
+                <Arrow orientation="down" />
+            </Button>
         </Stack>
     )
 }
