@@ -54,15 +54,15 @@ const PageGrading = () => {
         switch(filter){
             case 'unsigned':
                 let questionToDisplay = questions.filter(q => q.studentGrading.some(sg => !sg.signedBy));
-                if(questionToDisplay.findIndex(q => q.id === question?.id) === -1){
+                if(questionToDisplay.length > 0 && questionToDisplay.findIndex(q => q.id === question?.id) === -1){
                     // active question is not in the filtered list -> jump to first
-                    setQuestion(questionToDisplay[0]);
+                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${questionToDisplay[0].id}?participantId=${questionToDisplay[0].studentGrading[0].user.id}`);
                 }
                 return questionToDisplay;
             default:
                 return questions;
         }
-    }, [filter, question]);
+    }, [filter, question, router]);
 
     useEffect(() => {
         if (questions && questions.length > 0) {
