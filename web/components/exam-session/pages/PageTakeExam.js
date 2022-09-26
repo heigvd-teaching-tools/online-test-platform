@@ -39,7 +39,8 @@ const PageTakeExam = () => {
                     }
                     return res.json();
                 }) 
-            : null
+            : null,
+            { revalidateOnFocus: false }
     );
 
     const [ page, setPage ] = useState(parseInt(router.query.pageId));

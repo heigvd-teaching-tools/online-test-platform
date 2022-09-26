@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { StudentQuestionGradingStatus } from '@prisma/client';
 import Image from 'next/image';
-import { Button, Collapse, Box, Paper, Stack, TextField, Typography, Chip, IconButton } from '@mui/material';
+import { Button, Collapse, Box, Paper, Stack, TextField, Typography, Chip, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import RateReviewSharpIcon from '@mui/icons-material/RateReviewSharp';
 import GradingStatus from './GradingStatus';
 
 import ClearIcon from '@mui/icons-material/Clear';
@@ -13,7 +12,7 @@ import UserAvatar from '../../layout/UserAvatar';
 import { useSession } from "next-auth/react";
 
 
-const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) => {
+const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
     
     const [ grading, setGrading ] = useState(initial);
     const { data } = useSession();
@@ -86,16 +85,30 @@ const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) =>
                     !grading.signedBy && (
                     <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>   
                         <TextField
-                            sx={{width:60}}
-                            id="outlined-points"
-                            label="Points"
+                            label="Pts"
+                            sx={{ width:110 }}
+                            id="filled-points"
                             type="number"
                             variant="filled"
                             value={grading.pointsObtained}
+                            InputProps={{
+                                inputProps: {
+                                    min: 0,
+                                    max: maxPoints,
+                                },
+                                endAdornment: <InputAdornment position="end" sx={{ mt:2.2 }}>/ {maxPoints}</InputAdornment>,
+                            }}                            
                             onChange={(event) => {
+                                let points = parseInt(event.target.value);
+                                if (points > maxPoints) {
+                                    points = maxPoints;
+                                }
+                                if(points < 0) {
+                                    points = 0;
+                                }
                                 let newGrading = {
                                     ...grading,
-                                    pointsObtained: event.target.value
+                                    pointsObtained: points
                                 }
                                 setGrading(newGrading);
                             }}
@@ -105,6 +118,7 @@ const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) =>
                             label="Comment"
                             fullWidth
                             multiline
+                            variant="filled"
                             value={grading.comment}
                             onChange={(event) => {
                                 let newGrading = {
@@ -113,13 +127,13 @@ const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) =>
                                 }
                                 setGrading(newGrading);
                             }}
-                            variant="filled"
+                            
                         />
                     </Stack>
                 )}
                 {
                     grading.signedBy && (
-                        <GradingPointsComment points={grading.pointsObtained} comment={grading.comment} />
+                        <GradingPointsComment points={grading.pointsObtained} maxPoints={maxPoints} comment={grading.comment} />
                     )
                 }
                 
@@ -132,14 +146,19 @@ const GradingSignOff = ({ grading:initial, onSignOff, clickNextParticipant }) =>
 }
 
 
-const GradingPointsComment = ({ points, comment }) => {
+const GradingPointsComment = ({ points, maxPoints, comment }) => {
     let color = points > 0 ? 'success' : 'error';
     return (
         <Stack direction="row" alignItems="center" spacing={1}>
             <Chip 
                 variant='outlined'
                 
-                color={color} label={`${points} pts`}
+                color={color} label={
+                    <>
+                        <Typography variant="body2" component="span" sx={{ mr:1 }}><b>{points}</b></Typography>
+                        <Typography variant="caption" component="span">/ {maxPoints} pts</Typography>
+                    </>
+                }
             />
             <Typography variant="body2" sx={{ color:'text.secondary' }}>{comment}</Typography>
         </Stack>

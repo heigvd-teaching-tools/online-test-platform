@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import Authentication from '../../../components/layout/Authentication';
 
 const JoinExamSession = () => {
     const router = useRouter();
