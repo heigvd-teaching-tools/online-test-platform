@@ -39,16 +39,18 @@ const PageGrading = () => {
     );
 
     const [ questions, setQuestions ] = useState([]);
-    const [ filter, setFilter ] = useState(undefined);
-    const [ question, setQuestion ] = useState(null);
-
     const [ participants, setParticipants ] = useState([]);
+    
+    const [ filter, setFilter ] = useState();
+    const [ question, setQuestion ] = useState();
 
     useEffect(() => {
-        applyFilter(filter, data);
+        if(data){
+            applyFilter(filter, [...data]);
+        }
     }, [data]);
 
-    const applyFilter = (filter, questions) => {
+    const applyFilter = useCallback((filter, questions) => {
         console.log('applyFilter', filter);
         if(!filter){
             setQuestions(questions);
@@ -62,13 +64,16 @@ const PageGrading = () => {
                 let unsignedQuestions = questions.filter(q => q.studentGrading.some(sg => !sg.signedBy));
                 if(unsignedQuestions.length > 0){
                     setQuestions(unsignedQuestions);
+                }else{
+                    // TODO: Trigger grading end...
+                    setQuestions(questions);
                 }
                 break;
             default:
                 setQuestions(questions);
                 break;
         }
-    }
+    }, []);
 
     useEffect(() => {
         if (questions && questions.length > 0) {
@@ -89,7 +94,7 @@ const PageGrading = () => {
 
 
     const onSignOff = useCallback((grading) => {
-        const newQuestions = [...questions];
+        const newQuestions = [...data];
         question.studentGrading = question.studentGrading.map((studentGrading) => {
             if (studentGrading.user.id === grading.user.id) {
                 return {
@@ -101,7 +106,7 @@ const PageGrading = () => {
         });
         applyFilter(filter, newQuestions);
         mutate(newQuestions, false);
-    }, [question, mutate, questions, filter]);
+    }, [question, mutate, filter, data, applyFilter]);
 
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
@@ -141,10 +146,9 @@ const PageGrading = () => {
                             }}
                         />
                         <GradingFilters 
-                            filter={filter}
                             onFilter={(filter) => {
                                 setFilter(filter);
-                                applyFilter(filter, questions);
+                                applyFilter(filter, data);
                             }}
                         />
                     </Stack>
@@ -235,7 +239,7 @@ const GradingFilters = ({ onFilter }) => {
             >{filter ? filter : 'none' }</Button>
             <Menu anchorEl={buttonRef.current} open={open} keepMounted onClose={() => setOpen(false)}>
                 <MenuList onClick={() => setOpen(false)}>
-                    <MenuItem onClick={() => setFilter(undefined)}>All</MenuItem>
+                    <MenuItem onClick={() => setFilter(undefined)}>None</MenuItem>
                     <MenuItem onClick={() => setFilter('unsigned')}>Unsigned</MenuItem>
                 </MenuList>
             </Menu>
