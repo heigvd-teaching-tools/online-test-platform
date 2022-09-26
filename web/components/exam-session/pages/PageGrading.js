@@ -39,25 +39,48 @@ const PageGrading = () => {
     );
 
     const [ questions, setQuestions ] = useState([]);
+    const [ filter, setFilter ] = useState(undefined);
     const [ question, setQuestion ] = useState(null);
 
     const [ participants, setParticipants ] = useState([]);
 
     useEffect(() => {
-        setQuestions(data);
+        applyFilter(filter, data);
     }, [data]);
 
-
+    const applyFilter = (filter, questions) => {
+        console.log('applyFilter', filter);
+        if(!filter){
+            setQuestions(questions);
+            return;
+        }
+        switch(filter){
+            case 'graded':
+                setQuestions(questions.filter(q => q.studentGrading.every(sg => sg.status === StudentQuestionGradingStatus.GRADED)));
+                break;
+            case 'unsigned':
+                let unsignedQuestions = questions.filter(q => q.studentGrading.some(sg => !sg.signedBy));
+                if(unsignedQuestions.length > 0){
+                    setQuestions(unsignedQuestions);
+                }
+                break;
+            default:
+                setQuestions(questions);
+                break;
+        }
+    }
 
     useEffect(() => {
         if (questions && questions.length > 0) {
             let activeQuestionId = router.query.activeQuestion;
-            if (parseInt(activeQuestionId) === 1) {
+            let activeQuestion = questions.find(q => q.id ===  activeQuestionId);
+            if (parseInt(activeQuestionId) === 1 || !activeQuestion) {
+                // redirect to first question and first participant
                 let firstQuestion = questions[0];
                 router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentGrading[0].user.id}`);
                 return;
             }
-            let activeQuestion = questions.find(q => q.id ===  activeQuestionId);
+            
             setQuestion(activeQuestion);
             setParticipants(activeQuestion.studentGrading.map((sg) => sg.user));
         }
@@ -76,16 +99,16 @@ const PageGrading = () => {
             }
             return studentGrading;
         });
-        setQuestions(newQuestions);
+        applyFilter(filter, newQuestions);
         mutate(newQuestions, false);
-    }, [question, mutate, questions]);
+    }, [question, mutate, questions, filter]);
 
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
     return (
         <>
-           { questions && questions.length > 0 && question && (
+           { questions && (
             <LayoutSplitScreen 
                 header={<MainMenu />}
                 subheader={
@@ -117,12 +140,18 @@ const PageGrading = () => {
                                 }
                             }}
                         />
-                        <GradingFilters />
+                        <GradingFilters 
+                            filter={filter}
+                            onFilter={(filter) => {
+                                setFilter(filter);
+                                applyFilter(filter, questions);
+                            }}
+                        />
                     </Stack>
                 }
                 leftPanel={
                     <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
-                        { questions && (
+                        { question && (
                             <QuestionView 
                                 question={question}
                                 totalPages={questions.length}
@@ -133,7 +162,8 @@ const PageGrading = () => {
                 rightWidth={75}
                 rightPanel={
                     <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto', pb:12 }}>
-                        { participants && participants.length > 0 && (
+                        { question && participants && participants.length > 0 && (
+                            <>
                             <ParticipantNav 
                                 participants={participants} 
                                 active={participants.find((participant) => participant.id === router.query.participantId)}
@@ -141,29 +171,34 @@ const PageGrading = () => {
                                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
                                 }}
                                 isParticipantFilled={(participant) => {
-                                    const grading = question.studentGrading.find((studentGrading) => studentGrading.user.id === participant.id);
+                                    const grading = question && question.studentGrading.find((studentGrading) => studentGrading.user.id === participant.id);
                                     return grading && grading.signedBy;
                                 }}
                             />    
+                            <Divider orientation="vertical" light flexItem />  
+                            </>
                         )}
                         
-                        <Divider orientation="vertical" light flexItem />     
-                        <AnswerCompare
-                            question={question}
-                            answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
-                        />
-                        <GradingSignOff
-                            grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
-                            maxPoints={question.points}
-                            onSignOff={onSignOff}
-                            clickNextParticipant={(current) => {
-                                const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
-                                if (next < participants.length) {
-                                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
-                                }
-                                
-                            }}
-                        />
+                        { question && (   
+                            <>
+                            <AnswerCompare
+                                question={question}
+                                answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
+                            />
+                            <GradingSignOff
+                                grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                                maxPoints={question.points}
+                                onSignOff={onSignOff}
+                                clickNextParticipant={(current) => {
+                                    const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                    if (next < participants.length) {
+                                        router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
+                                    }
+                                    
+                                }}
+                            />
+                            </>
+                        )}
                     </Stack>
                 }
             />  
@@ -174,14 +209,17 @@ const PageGrading = () => {
 }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-const GradingFilters = ({ onChange }) => {
+const GradingFilters = ({ onFilter }) => {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef(null);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState(undefined);
+
+    useEffect(() => {
+        onFilter(filter);
+    }, [filter]);
 
     return (
         <Stack direction="row" sx={{ ml:2 }}>
-          
             <Button 
                 ref={buttonRef}
                 color="info" 
@@ -194,10 +232,10 @@ const GradingFilters = ({ onChange }) => {
                 }
                 endIcon={<ExpandMoreIcon />}
                 onClick={() => setOpen(!open)}
-            >{filter}</Button>
+            >{filter ? filter : 'none' }</Button>
             <Menu anchorEl={buttonRef.current} open={open} keepMounted onClose={() => setOpen(false)}>
                 <MenuList onClick={() => setOpen(false)}>
-                    <MenuItem onClick={() => setFilter('all')}>All</MenuItem>
+                    <MenuItem onClick={() => setFilter(undefined)}>All</MenuItem>
                     <MenuItem onClick={() => setFilter('unsigned')}>Unsigned</MenuItem>
                 </MenuList>
             </Menu>

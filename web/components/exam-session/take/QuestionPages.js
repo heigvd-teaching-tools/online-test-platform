@@ -1,12 +1,9 @@
 import { useRouter } from "next/router";
-import { Tabs, Tab, Divider } from "@mui/material";
+import { Tabs, Tab } from "@mui/material";
 import FilledBullet from '../../feedback/FilledBullet';
 
 const QuestionPages = ({ questions, activeQuestion, link, isFilled }) => {
     const router = useRouter();
-
-    console.log("QuestionPages", questions);
-
     return (
         <Tabs
             value={questions.indexOf(activeQuestion)}
