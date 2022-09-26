@@ -116,7 +116,7 @@ const PageGrading = () => {
                                 }}
                             />  
                         </Stack>
-                        <GradingFilters 
+                        <GradingQuestionFilter 
                             onFilter={(filter) => {
                                 setFilter(filter);
                             }}
@@ -200,7 +200,7 @@ const PageGrading = () => {
 }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-const GradingFilters = ({ onFilter }) => {
+const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef(null);
     const [filter, setFilter] = useState(undefined);
