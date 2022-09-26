@@ -129,6 +129,12 @@ const PageGrading = () => {
                                 }}
                             />  
                         </Stack>
+                        <GradingFilters 
+                            onFilter={(filter) => {
+                                setFilter(filter);
+                                applyFilter(filter, data);
+                            }}
+                        />
                         <GradingToolbar
                             onAction={(action) => {
                                 if(action === 'sign-off-all-autograded'){
@@ -145,12 +151,7 @@ const PageGrading = () => {
                                 }
                             }}
                         />
-                        <GradingFilters 
-                            onFilter={(filter) => {
-                                setFilter(filter);
-                                applyFilter(filter, data);
-                            }}
-                        />
+                        
                     </Stack>
                 }
                 leftPanel={
@@ -254,6 +255,7 @@ const GradingToolbar = ({ onAction }) => {
     return (
         <Stack direction="row" sx={{ ml:2 }}>
             <Button 
+                color='info'
                 ref={buttonRef}
                 startIcon={
                     <Image 
