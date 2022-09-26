@@ -46,39 +46,28 @@ const PageGrading = () => {
 
     useEffect(() => {
         if(data){
-            applyFilter(filter, [...data]);
+            setQuestions(data)
         }
     }, [data]);
 
-    const applyFilter = useCallback((filter, questions) => {
-        console.log('applyFilter', filter);
-        if(!filter){
-            setQuestions(questions);
-            return;
-        }
+    const applyFilter = useCallback((questions) => {
         switch(filter){
-            case 'graded':
-                setQuestions(questions.filter(q => q.studentGrading.every(sg => sg.status === StudentQuestionGradingStatus.GRADED)));
-                break;
             case 'unsigned':
-                let unsignedQuestions = questions.filter(q => q.studentGrading.some(sg => !sg.signedBy));
-                if(unsignedQuestions.length > 0){
-                    setQuestions(unsignedQuestions);
-                }else{
-                    // TODO: Trigger grading end...
-                    setQuestions(questions);
+                let questionToDisplay = questions.filter(q => q.studentGrading.some(sg => !sg.signedBy));
+                if(questionToDisplay.findIndex(q => q.id === question?.id) === -1){
+                    // active question is not in the filtered list -> jump to first
+                    setQuestion(questionToDisplay[0]);
                 }
-                break;
+                return questionToDisplay;
             default:
-                setQuestions(questions);
-                break;
+                return questions;
         }
-    }, []);
+    }, [filter, question]);
 
     useEffect(() => {
         if (questions && questions.length > 0) {
             let activeQuestionId = router.query.activeQuestion;
-            let activeQuestion = questions.find(q => q.id ===  activeQuestionId);
+            let activeQuestion = applyFilter(questions).find(q => q.id ===  activeQuestionId);
             if (parseInt(activeQuestionId) === 1 || !activeQuestion) {
                 // redirect to first question and first participant
                 let firstQuestion = questions[0];
@@ -89,12 +78,10 @@ const PageGrading = () => {
             setQuestion(activeQuestion);
             setParticipants(activeQuestion.studentGrading.map((sg) => sg.user));
         }
-    }, [questions, router]);
-
-
+    }, [questions, router, applyFilter]);
 
     const onSignOff = useCallback((grading) => {
-        const newQuestions = [...data];
+        const newQuestions = [...questions];
         question.studentGrading = question.studentGrading.map((studentGrading) => {
             if (studentGrading.user.id === grading.user.id) {
                 return {
@@ -104,9 +91,9 @@ const PageGrading = () => {
             }
             return studentGrading;
         });
-        applyFilter(filter, newQuestions);
+        setQuestions(newQuestions);
         mutate(newQuestions, false);
-    }, [question, mutate, filter, data, applyFilter]);
+    }, [questions, question, mutate]);
 
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
@@ -120,7 +107,7 @@ const PageGrading = () => {
                     <Stack direction="row">
                         <Stack flex={1} sx={{ overflow:'hidden' }}>
                             <QuestionPages
-                                questions={questions}
+                                questions={applyFilter(questions)}
                                 activeQuestion={question}
                                 link={(questionId, _) => `/exam-sessions/${router.query.sessionId}/grading/${questionId}?participantId=${router.query.participantId}`}
                                 isFilled={(questionId) => {
@@ -132,7 +119,6 @@ const PageGrading = () => {
                         <GradingFilters 
                             onFilter={(filter) => {
                                 setFilter(filter);
-                                applyFilter(filter, data);
                             }}
                         />
                         <GradingToolbar
