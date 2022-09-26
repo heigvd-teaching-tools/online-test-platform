@@ -62,7 +62,7 @@ const get = async (req, res) => {
                                 }
                             },
                             orderBy: {
-                                position: 'asc'
+                                order: 'asc'
                             }
                         }
                     }

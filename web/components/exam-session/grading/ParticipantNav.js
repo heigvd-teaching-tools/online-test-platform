@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, Box, Button, IconButton } from '@mui/material';
+import { Stack, Box, Button } from '@mui/material';
 import Image from 'next/image';
 import UserAvatar from '../../layout/UserAvatar';
 import FilledBullet from '../../feedback/FilledBullet';
@@ -44,7 +44,7 @@ const ParticipantNav = ({ participants, active, onParticipantClick, isParticipan
                     />
                     }
             </Button>
-            <Stack flexGrow={1}>
+            <Stack flex={1} sx={{ overflow:'auto' }}>
             {
                 participants.map(
                     (participant) => (

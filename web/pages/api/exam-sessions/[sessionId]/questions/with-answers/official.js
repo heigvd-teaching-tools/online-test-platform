@@ -38,7 +38,7 @@ const get = async (req, res) => {
             essay: true,
         },
         orderBy: {
-            position: 'asc'
+            order: 'asc'
         }
     });
     res.status(200).json(questions);

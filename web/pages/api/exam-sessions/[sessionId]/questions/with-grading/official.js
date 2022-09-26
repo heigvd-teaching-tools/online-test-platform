@@ -60,7 +60,7 @@ const get = async (req, res) => {
             }
         },
         orderBy: {
-            position: 'asc'
+            order: 'asc'
         }
     });
     res.status(200).json(questions);

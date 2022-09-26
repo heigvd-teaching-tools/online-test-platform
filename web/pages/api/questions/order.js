@@ -22,7 +22,7 @@ const handler = async (req, res) => {
 }
 
 const patch = async (req, res) => {
-    // Update question positions
+    // Update question order
     const { questions } = req.body;
     for(let i = 0; i < questions.length; i++) {
         await prisma.question.update({
@@ -30,11 +30,11 @@ const patch = async (req, res) => {
                 id: questions[i].id
             },
             data: {
-                position: i
+                order: i
             }
         });
     }
-    res.status(200).json({ message: 'Question positions updated' });
+    res.status(200).json({ message: 'Question order updated' });
 }
 
 export default handler;

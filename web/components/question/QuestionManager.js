@@ -42,8 +42,7 @@ const QuestionManager = ({ partOf, partOfId }) => {
     } , [mutate, savePositions, questions]);
 
     const savePositions = useCallback(async () => {
-        console.log("Saving positions", questions);
-        await fetch('/api/questions/positions', {
+        await fetch('/api/questions/order', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -58,9 +57,9 @@ const QuestionManager = ({ partOf, partOfId }) => {
         })
         .then((res) => res.json())
         .then(() => {
-            showSnackbar('Question positions changed');
+            showSnackbar('Question order changed');
         }).catch(() => {
-            showSnackbar('Error changing question positions', 'error');
+            showSnackbar('Error changing question order', 'error');
         });
     }, [questions, showSnackbar]);
 
@@ -74,7 +73,7 @@ const QuestionManager = ({ partOf, partOfId }) => {
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                position: questions.length
+                order: questions.length
             })
         })
         .then((res) => res.json())

@@ -20,9 +20,9 @@ const Header = ({children, color}) => {
                 <Box sx={{ mr:1, mt:0.5 }}>
                     <Logo color="red" />
                 </Box>
-                <Box sx={{ flexGrow: 1 }}>
+                <Stack flex={1} sx={{ overflow:'hidden' }}>
                     {children}
-                </Box>
+                </Stack>
                 <UserAvatar user={session.user} onCLick={handleOpenUserMenu} />
                 <UserContextMenu anchorElUser={anchorElUser} handleCloseUserMenu={handleCloseUserMenu} /> 
             </Stack>

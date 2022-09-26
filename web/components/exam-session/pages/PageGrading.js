@@ -39,6 +39,7 @@ const PageGrading = () => {
     );
 
     const [ questions, setQuestions ] = useState([]);
+    const [ question, setQuestion ] = useState(null);
 
     const [ participants, setParticipants ] = useState([]);
 
@@ -46,17 +47,27 @@ const PageGrading = () => {
         setQuestions(data);
     }, [data]);
 
+
+
     useEffect(() => {
         if (questions && questions.length > 0) {
-            setParticipants(questions[router.query.activeQuestion-1].studentGrading.map((sg) => sg.user));
+            let activeQuestionId = router.query.activeQuestion;
+            if (parseInt(activeQuestionId) === 0) {
+                let firstQuestion = questions[0];
+                router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentGrading[0].user.id}`);
+                return;
+            }
+            let activeQuestion = questions.find(q => q.id ===  activeQuestionId);
+            setQuestion(activeQuestion);
+            setParticipants(activeQuestion.studentGrading.map((sg) => sg.user));
         }
-    }, [questions, router.query.activeQuestion]);
+    }, [questions, router]);
 
 
 
     const onSignOff = useCallback((grading) => {
         const newQuestions = [...questions];
-        newQuestions[router.query.activeQuestion - 1].studentGrading = newQuestions[router.query.activeQuestion - 1].studentGrading.map((studentGrading) => {
+        question.studentGrading = question.studentGrading.map((studentGrading) => {
             if (studentGrading.user.id === grading.user.id) {
                 return {
                     ...studentGrading,
@@ -67,26 +78,26 @@ const PageGrading = () => {
         });
         setQuestions(newQuestions);
         mutate(newQuestions, false);
-    }, [router.query.activeQuestion, mutate, questions]);
+    }, [question, mutate, questions]);
 
 
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
     return (
         <>
-           { questions && questions.length > 0 && (
+           { questions && questions.length > 0 && question && (
             <LayoutSplitScreen 
                 header={<MainMenu />}
                 subheader={
                     <Stack direction="row">
-                        <Stack flexGrow={1}>
+                        <Stack flex={1} sx={{ overflow:'hidden' }}>
                             <QuestionPages
-                                count={questions.length}
-                                page={router.query.activeQuestion}
-                                link={(page) => `/exam-sessions/${router.query.sessionId}/grading/${page}?participantId=${router.query.participantId}`}
-                                isFilled={(questionOrder) => {
-                                    const question = questions[questionOrder - 1];
-                                    return question.studentGrading.every((studentGrading) => studentGrading.signedBy);
+                                questions={questions}
+                                activeQuestion={question}
+                                link={(questionId, _) => `/exam-sessions/${router.query.sessionId}/grading/${questionId}?participantId=${router.query.participantId}`}
+                                isFilled={(questionId) => {
+                                    const question = questions.find((q) => q.id === questionId);
+                                    return question && question.studentGrading.every((studentGrading) => studentGrading.signedBy);
                                 }}
                             />  
                         </Stack>
@@ -110,19 +121,14 @@ const PageGrading = () => {
                     </Stack>
                 }
                 leftPanel={
-                    <Stack direction="row" sx={{ position:'relative', height:'100%'   }}>
-                        {
-                        examSession && <>
-                        
+                    <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
                         { questions && (
                             <QuestionView 
-                                question={questions[router.query.activeQuestion - 1]}
-                                page={router.query.activeQuestion}
-                                count={questions.length}
+                                question={question}
+                                totalPages={questions.length}
                             />
                         )}                    
-                        </>   
-                    }</Stack>
+                    </Stack>
                 }
                 rightWidth={75}
                 rightPanel={
@@ -135,7 +141,7 @@ const PageGrading = () => {
                                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
                                 }}
                                 isParticipantFilled={(participant) => {
-                                    const grading = questions[router.query.activeQuestion - 1].studentGrading.find((studentGrading) => studentGrading.user.id === participant.id);
+                                    const grading = question.studentGrading.find((studentGrading) => studentGrading.user.id === participant.id);
                                     return grading && grading.signedBy;
                                 }}
                             />    
@@ -143,12 +149,12 @@ const PageGrading = () => {
                         
                         <Divider orientation="vertical" light flexItem />     
                         <AnswerCompare
-                            question={questions[router.query.activeQuestion - 1]}
-                            answer={questions[router.query.activeQuestion - 1].studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
+                            question={question}
+                            answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
                         />
                         <GradingSignOff
-                            grading={questions[router.query.activeQuestion - 1].studentGrading.find((grading) => grading.user.id === router.query.participantId)}
-                            maxPoints={questions[router.query.activeQuestion - 1].points}
+                            grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                            maxPoints={question.points}
                             onSignOff={onSignOff}
                             clickNextParticipant={(current) => {
                                 const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
@@ -223,6 +229,7 @@ const GradingToolbar = ({ onAction }) => {
             <Menu anchorEl={buttonRef.current} open={open} keepMounted onClose={() => setOpen(false)}>
                 <MenuList onClick={() => setOpen(false)}>
                     <MenuItem onClick={() => onAction('sign-off-all-autograded')}>Sign off all autograded</MenuItem>
+                    <MenuItem onClick={() => onAction('end-grading')}>End grading</MenuItem>
                 </MenuList>
             </Menu>
         </Stack>

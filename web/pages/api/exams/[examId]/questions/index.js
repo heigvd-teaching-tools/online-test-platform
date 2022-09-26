@@ -41,7 +41,7 @@ const get = async (req, res) => {
             essay: true,
         },
         orderBy: {
-            position: 'asc'
+            order: 'asc'
         }
     });
     res.status(200).json(questions);
@@ -49,13 +49,13 @@ const get = async (req, res) => {
 
 const post = async (req, res) => {
     const { examId } = req.query
-    const { position } = req.body;
+    const { order } = req.body;
     const createdQuestion = await prisma.question.create({
         data: {
             type: 'multipleChoice',
             content: '',
             points: 4,
-            position: position,
+            order: order,
             multipleChoice: {
                 create: {
                     options: { create: [

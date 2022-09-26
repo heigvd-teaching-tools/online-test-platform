@@ -72,9 +72,9 @@ const PageTakeExam = () => {
         })();
     }, [examSession, page, router.query.sessionId, showSnackbar]), 500);
 
-    const hasAnswered = useCallback((page) => {
-        let question = examSession.questions[page - 1];
-        return question.studentAnswer.length > 0 && question.studentAnswer[0][question.type] !== undefined;
+    const hasAnswered = useCallback((questionId) => {
+        let question = examSession.questions.find(q => q.id === questionId);
+        return question && question.studentAnswer.length > 0 && question.studentAnswer[0][question.type] !== undefined;
     }, [examSession]);
 
     if(error) return <LoadingAnimation content={error.message} />     
@@ -95,9 +95,9 @@ const PageTakeExam = () => {
                     )}
                     {examSession.questions && examSession.questions.length > 0 && (
                         <QuestionPages 
-                            count={examSession.questions.length} 
-                            page={page} 
-                            link={(page) => `/exam-sessions/${router.query.sessionId}/take/${page}`}
+                            questions={examSession.questions}
+                            activeQuestion={examSession.questions[page - 1]}
+                            link={(_, index) => `/exam-sessions/${router.query.sessionId}/take/${index + 1}`}
                             isFilled={hasAnswered} 
                         />
                     )}

@@ -75,7 +75,7 @@ const patch = async (req, res) => {
                 content: question.content,
                 type: question.type,
                 points: parseInt(question.points),
-                position: parseInt(question.position),
+                order: parseInt(question.order),
                 [question.type]: {
                     create: prepareTypeSpecific(question.type, question)
                 }

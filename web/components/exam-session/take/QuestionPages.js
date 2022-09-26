@@ -1,30 +1,35 @@
 import { useRouter } from "next/router";
-import { Tabs, Tab } from "@mui/material";
+import { Tabs, Tab, Divider } from "@mui/material";
 import FilledBullet from '../../feedback/FilledBullet';
 
-const QuestionPages = ({ count, page, link, isFilled }) => {
+const QuestionPages = ({ questions, activeQuestion, link, isFilled }) => {
     const router = useRouter();
+
+    console.log("QuestionPages", questions);
+
     return (
         <Tabs
-            value={page - 1}
+            value={questions.indexOf(activeQuestion)}
             variant="scrollable"
             scrollButtons="auto"
-            onChange={(e, index) => router.push(link(index + 1))}
+            onChange={(e, index) => router.push(link(questions[index].id, index))}
         >
-            {Array.from(Array(count).keys()).map((_, index) => (
+
+            {questions.map(({id, order}, index) => (
                 <Tab
-                    key={index}
-                    label={`Q${index + 1}`}	
+                    key={id}
+                    label={`Q${order + 1}`}
                     iconPosition="start"
                     sx={{ minHeight: '50px', minWidth: 0 }}
+                    value={index}
                     icon={
                         <FilledBullet 
                             index={index}
-                            isFilled={() => isFilled(index + 1)} 
+                            isFilled={() => isFilled(id)} 
                         />
                     }
                 />
-            ))}
+            ))}            
         </Tabs>
     )
 };
