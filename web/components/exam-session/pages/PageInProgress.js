@@ -32,7 +32,7 @@ const PageInProgress = () => {
         await save({
             phase: ExamSessionPhase.GRADING
         }).then(() => {
-            router.push(`/exam-sessions/${examSession.id}/grading/0`);
+            router.push(`/exam-sessions/${examSession.id}/grading/1`);
         }).catch(() => {
             showSnackbar('Error', 'error');
         });

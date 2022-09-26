@@ -52,7 +52,7 @@ const PageGrading = () => {
     useEffect(() => {
         if (questions && questions.length > 0) {
             let activeQuestionId = router.query.activeQuestion;
-            if (parseInt(activeQuestionId) === 0) {
+            if (parseInt(activeQuestionId) === 1) {
                 let firstQuestion = questions[0];
                 router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentGrading[0].user.id}`);
                 return;
