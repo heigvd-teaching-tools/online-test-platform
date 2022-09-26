@@ -96,7 +96,7 @@ const PageGrading = () => {
                                     const newQuestions = [...questions];
                                     for(const question of newQuestions){
                                         for(const studentGrading of question.studentGrading){
-                                            if(studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
+                                            if(!studentGrading.signedBy && studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
                                                 studentGrading.signedBy = session.user;
                                             }
                                         }
