@@ -20,6 +20,32 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
         setGrading(initial);        
     }, [initial]);
 
+    const signOffGrading = () => {
+
+        let status = grading.status;
+        switch(grading.status) {
+            case StudentQuestionGradingStatus.UNGRADED:
+                status = StudentQuestionGradingStatus.GRADED;
+                break;
+            case StudentQuestionGradingStatus.AUTOGRADED:
+                if(grading.pointsObtained !== initial.pointsObtained) {
+                    status = StudentQuestionGradingStatus.GRADED;
+                }
+                break;
+            default:
+                break;
+        }
+
+        let newGrading = {
+            ...grading,
+            isCorrect: grading.pointsObtained === maxPoints,
+            status: status,
+            signedBy: data.user
+        }
+        setGrading(newGrading);
+        onSignOff(newGrading);
+    }
+
     return (
         <Paper 
             sx={{
@@ -58,15 +84,7 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
                                     layout="fixed" width={16} height={16}
                                 />
                             }
-                            onClick={async () => {
-                                let newGrading = {
-                                    ...grading,
-                                    status: grading.status === StudentQuestionGradingStatus.UNGRADED ? StudentQuestionGradingStatus.GRADED : grading.status,
-                                    signedBy: data.user,
-                                }
-                                setGrading(newGrading);
-                                onSignOff(newGrading);
-                            }}
+                            onClick={signOffGrading}
                         >
                             Sign Off
                         </LoadingButton>
