@@ -44,6 +44,8 @@ const PageGrading = () => {
     const [ filter, setFilter ] = useState();
     const [ question, setQuestion ] = useState();
 
+    const [ loading, setLoading ] = useState(false);
+
     useEffect(() => {
         if(data){
             setQuestions(data)
@@ -81,7 +83,8 @@ const PageGrading = () => {
     }, [questions, router, applyFilter]);
 
     const saveGrading = async (grading) => {
-        return await fetch(`/api/gradings`, {
+        setLoading(true);
+        let newGrading = await fetch(`/api/gradings`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -90,6 +93,8 @@ const PageGrading = () => {
                 grading
             })
         }).then((res) => res.json());
+        setLoading(false);
+        return newGrading;
     };
 
     const onSignOff = useCallback(async (grading) => {
@@ -203,6 +208,7 @@ const PageGrading = () => {
                             <Stack direction="row" justifyContent="space-between" sx={{ position:'absolute', bottom:0, left:0, right:0, height: 90 }}>
                                 
                                 <GradingSignOff
+                                    loading={loading}
                                     grading={question.studentGrading.find((grading) => {
                                         console.log("grading", grading);
                                         return grading.user.id === router.query.participantId;
@@ -223,6 +229,7 @@ const PageGrading = () => {
                                 />
                                 <GradingActions
                                     questions={questions}
+                                    loading={loading}
                                     signOffAllAutograded={signOffAllAutograded}
                                 />
                             </Stack>
@@ -264,7 +271,7 @@ const PiePercent = ({ value, size = 45 }) => {
     )
 }
 
-const GradingActions = ({ questions, signOffAllAutograded }) => {
+const GradingActions = ({ questions, loading, signOffAllAutograded }) => {
     let totalGradings = questions.reduce((acc, question) => acc + question.studentGrading.length, 0);
     let totalSigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length, 0);
     let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy).length, 0);
@@ -290,7 +297,7 @@ const GradingActions = ({ questions, signOffAllAutograded }) => {
                 
                 { 
                     totalAutogradedUnsigned > 0 && (
-                        <Button size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</Button>
+                        <LoadingButton loading={loading} size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</LoadingButton>
                     )
                 }
         </Stack>

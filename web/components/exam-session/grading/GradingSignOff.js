@@ -11,7 +11,7 @@ import UserAvatar from '../../layout/UserAvatar';
 
 import { useSession } from "next-auth/react";
 
-const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
+const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
     
     const [ grading, setGrading ] = useState(initial);
     const { data } = useSession();
@@ -46,6 +46,16 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
         onSignOff(newGrading);
     }
 
+    const unsignGrading = () => {
+        let newGrading = { 
+            ...grading,
+            status: grading.status === StudentQuestionGradingStatus.GRADED ? StudentQuestionGradingStatus.UNGRADED : grading.status,
+            signedBy: undefined,
+        };
+        setGrading(newGrading);
+        onSignOff(newGrading);
+    }
+
     return (
         <Paper 
             sx={{
@@ -62,20 +72,13 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
                         <GradingSigned 
                             signedBy={grading.signedBy} 
                             grading={grading} 
-                            onUnsign={() => {
-                                let newGrading = { 
-                                    ...grading,
-                                    signedBy: undefined,
-                                };
-                                setGrading(newGrading);
-                                onSignOff(newGrading);
-                            }}
+                            onUnsign={unsignGrading}
                         />
                     ) : 
                         <LoadingButton
                             color='success'
                             variant="contained"
-                            loading={false}
+                            loading={loading}
                             loadingPosition="start"
                             startIcon={
                                 <Image 
