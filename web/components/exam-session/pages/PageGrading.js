@@ -266,7 +266,7 @@ const GradingActions = ({ questions, signOffAllAutograded }) => {
                 
                 {
                     totalSigned === totalGradings && (
-                        <Button fullWidth variant="contained" size="small" onClick={() => {} }>End grading</Button>
+                        <Button color="success" fullWidth variant="contained" size="small" onClick={() => {} }>End grading</Button>
                     )
                 }
                 
