@@ -229,12 +229,12 @@ const SuccessRate = ({ value }) => {
     )
 }
 
-const PiePercent = ({ value }) => {
+const PiePercent = ({ value, size = 45 }) => {
     const color = value > 70 ? 'success' : value > 40 ? 'info' : 'error';
     return (
         <Box sx={{ position:'relative', display:'inline-flex' }}>
             <CircularProgress
-                size={45}
+                size={size}
                 variant="determinate"
                 value={value}
                 sx={{ color: (theme) => theme.palette[color].main }}
@@ -253,27 +253,26 @@ const GradingActions = ({ questions, signOffAllAutograded }) => {
 
     return(
         <Paper sx={{ p:1 }}>
-            <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ height:"100%" }}>
-                <Stack flexGrow={1} alignItems="start" direction="row">
-                    
+            <Stack justifyContent="center" spacing={1} sx={{ height:"100%" }}>
+                <Stack flexGrow={1} alignItems="start" justifyContent="space-between" direction="row">
                     <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
                         <Typography variant="body2" sx={{ mr:1 }}>Signed:</Typography>
                         <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned} / {totalGradings}</Typography>
-                    </Stack>                    
+                    </Stack>    
+                    {totalSigned < totalGradings && (
+                        <PiePercent size={39} value={Math.round((totalSigned / totalGradings) * 100)} />
+                    )}                
                 </Stack>
-                { 
-                    totalAutogradedUnsigned > 0 && (
-                        <Button size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</Button>
-                    )
-                }
+                
                 {
                     totalSigned === totalGradings && (
                         <Button fullWidth variant="contained" size="small" onClick={() => {} }>End grading</Button>
                     )
                 }
-                {
-                    totalSigned < totalGradings && (
-                        <PiePercent value={Math.round((totalSigned / totalGradings) * 100)} />
+                
+                { 
+                    totalAutogradedUnsigned > 0 && (
+                        <Button size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</Button>
                     )
                 }
         </Stack>
