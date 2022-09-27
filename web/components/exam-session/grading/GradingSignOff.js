@@ -27,12 +27,11 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
 
     return (
         <Paper 
+            sx={{
+                flex:1
+            }}
             square
-            sx={{ 
-                position:'absolute', 
-                bottom:0, left:0, right:0, 
-                height: 90 
-            }}>
+            >
             { grading && (
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:1, p:2 }} spacing={2} >
                 <Stack direction="row">

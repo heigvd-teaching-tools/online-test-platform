@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { StudentQuestionGradingStatus } from '@prisma/client';
 import Image from 'next/image';
 
-import { Stack, Box, Divider, TextField, Paper, Button, Menu, MenuList, MenuItem } from "@mui/material";
+import { Stack, Box, Divider, TextField, Paper, Button, Menu, MenuList, MenuItem, Typography, CircularProgress } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
@@ -95,7 +95,31 @@ const PageGrading = () => {
         mutate(newQuestions, false);
     }, [questions, question, mutate]);
 
+    const signOffAllAutograded = useCallback(() => {
+        const newQuestions = [...questions];
+        for(const question of newQuestions){
+            for(const studentGrading of question.studentGrading){
+                if(!studentGrading.signedBy && studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
+                    studentGrading.signedBy = session.user;
+                }
+            }
+        }
+        setQuestions(newQuestions);
+        mutate(newQuestions, false);
+    }, [questions, mutate, session]);
 
+    const getSuccessRate = () => {
+        // total signed points
+        let totalSignedPoints = questions.reduce((acc, question) => {
+            let signedGradings = question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length;
+            return acc + signedGradings * question.points;
+        }, 0);
+        // total signed obtained points
+        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).reduce((acc, studentGrading) => acc + studentGrading.pointsObtained, 0), 0);
+        return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
+    }
+
+   
     if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
     if (!examSession) return <LoadingAnimation /> 
     return (
@@ -104,7 +128,7 @@ const PageGrading = () => {
             <LayoutSplitScreen 
                 header={<MainMenu />}
                 subheader={
-                    <Stack direction="row">
+                    <Stack direction="row" alignItems="center">
                         <Stack flex={1} sx={{ overflow:'hidden' }}>
                             <QuestionPages
                                 questions={applyFilter(questions)}
@@ -121,22 +145,7 @@ const PageGrading = () => {
                                 setFilter(filter);
                             }}
                         />
-                        <GradingToolbar
-                            onAction={(action) => {
-                                if(action === 'sign-off-all-autograded'){
-                                    const newQuestions = [...questions];
-                                    for(const question of newQuestions){
-                                        for(const studentGrading of question.studentGrading){
-                                            if(!studentGrading.signedBy && studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
-                                                studentGrading.signedBy = session.user;
-                                            }
-                                        }
-                                    }
-                                    setQuestions(newQuestions);
-                                    mutate(newQuestions, false);
-                                }
-                            }}
-                        />
+                        
                         
                     </Stack>
                 }
@@ -176,18 +185,29 @@ const PageGrading = () => {
                                 question={question}
                                 answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
                             />
-                            <GradingSignOff
-                                grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
-                                maxPoints={question.points}
-                                onSignOff={onSignOff}
-                                clickNextParticipant={(current) => {
-                                    const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
-                                    if (next < participants.length) {
-                                        router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
-                                    }
-                                    
-                                }}
-                            />
+                            <Stack direction="row" justifyContent="space-between" sx={{ position:'absolute', bottom:0, left:0, right:0, height: 90 }}>
+                                
+                                <GradingSignOff
+                                    grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                                    maxPoints={question.points}
+                                    onSignOff={onSignOff}
+                                    clickNextParticipant={(current) => {
+                                        const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                        if (next < participants.length) {
+                                            router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
+                                        }
+                                        
+                                    }}
+                                />
+                                
+                                <SuccessRate 
+                                    value={getSuccessRate()} 
+                                />
+                                <GradingActions
+                                    questions={questions}
+                                    signOffAllAutograded={signOffAllAutograded}
+                                />
+                            </Stack>
                             </>
                         )}
                     </Stack>
@@ -195,6 +215,74 @@ const PageGrading = () => {
             />  
            )}
         </>
+    )
+}
+
+const SuccessRate = ({ value }) => {
+    return (
+        <Paper sx={{ p:1 }}>
+            <Stack alignItems="center" justifyContent="center" spacing={1}>
+                <Typography variant="body2" sx={{ mr:1 }}>Success Rate</Typography>
+                <PiePercent value={value} />
+            </Stack>
+        </Paper>
+    )
+}
+
+const PiePercent = ({ value }) => {
+    const color = value > 70 ? 'success' : value > 40 ? 'info' : 'error';
+    return (
+        <Box sx={{ position:'relative' }}>
+            <CircularProgress
+                size={45}
+                variant="determinate"
+                value={value}
+                sx={{ color: (theme) => theme.palette[color].main }}
+            />
+            <Typography variant="caption" sx={{ position:'absolute', top:-4, left:0, right:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                {value}%
+            </Typography>
+        </Box>
+    )
+}
+
+const GradingActions = ({ questions, signOffAllAutograded }) => {
+    let totalUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => !studentGrading.signedBy).length, 0);
+    let totalSigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length, 0);
+    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy).length, 0);
+   
+    return(
+        <Paper sx={{ p:1 }}>
+            <Stack alignItems="center" justifyContent="center" spacing={1}>
+                <Stack flexGrow={1} alignItems="start" direction="row">
+                    
+                    <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
+                        <Typography variant="body2" sx={{ mr:1 }}>Unsigned:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalUnsigned}</Typography>
+                    </Stack>
+                    <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
+                        <Typography variant="body2" sx={{ mr:1 }}>Signed:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned}</Typography>
+                    </Stack>
+                    
+                </Stack>
+                { 
+                    totalAutogradedUnsigned > 0 && (
+                        <Button size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</Button>
+                    )
+                }
+                {
+                    totalUnsigned === 0 && (
+                        <Button fullWidth variant="contained" size="small" onClick={() => {} }>End grading</Button>
+                    )
+                }
+                {
+                    totalUnsigned > 0 && (
+                        <PiePercent value={Math.round((totalSigned / (totalUnsigned + totalSigned)) * 100)} />
+                    )
+                }
+        </Stack>
+    </Paper>
     )
 }
 
@@ -232,40 +320,6 @@ const GradingQuestionFilter = ({ onFilter }) => {
         </Stack>
     )
 }
-
-const GradingToolbar = ({ onAction }) => {
-    const [open, setOpen] = useState(false);
-    const buttonRef = useRef(null);
-
-    return (
-        <Stack direction="row" sx={{ ml:2 }}>
-            <Button 
-                color='info'
-                ref={buttonRef}
-                startIcon={
-                    <Image 
-                        src="/svg/grading/bulk-actions.svg"
-                        alt="Filter inactive"
-                        layout="fixed" width={18} height={18} 
-                    />
-                }
-                endIcon={<ExpandMoreIcon />}
-                onClick={() => setOpen(!open)}
-            >
-            Actions
-            </Button>
-           
-            <Menu anchorEl={buttonRef.current} open={open} keepMounted onClose={() => setOpen(false)}>
-                <MenuList onClick={() => setOpen(false)}>
-                    <MenuItem onClick={() => onAction('sign-off-all-autograded')}>Sign off all autograded</MenuItem>
-                    <MenuItem onClick={() => onAction('end-grading')}>End grading</MenuItem>
-                </MenuList>
-            </Menu>
-        </Stack>
-    )
-}
-
-
-    
+   
 
 export default PageGrading;
