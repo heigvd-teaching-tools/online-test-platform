@@ -165,10 +165,9 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
 const GradingPointsComment = ({ points, maxPoints, comment }) => {
     let color = points > 0 ? 'success' : 'error';
     return (
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="column" alignItems="center" spacing={1}>
             <Chip 
                 variant='outlined'
-                
                 color={color} label={
                     <>
                         <Typography variant="body2" component="span" sx={{ mr:1 }}><b>{points}</b></Typography>

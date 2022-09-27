@@ -78,7 +78,7 @@ const PageGrading = () => {
             }
             
             setQuestion(activeQuestion);
-            setParticipants(activeQuestion.studentGrading.map((sg) => sg.user));
+            setParticipants(activeQuestion.studentGrading.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
         }
     }, [questions, router, applyFilter]);
 
