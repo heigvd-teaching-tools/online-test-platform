@@ -17,6 +17,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
     const { data } = useSession();
 
     useEffect(() => {
+        console.log('GradingSignOff: useEffect', initial.comment);
         setGrading(initial);        
     }, [initial]);
 
@@ -135,7 +136,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
                             fullWidth
                             multiline
                             variant="filled"
-                            value={grading.comment}
+                            value={grading.comment || ''}
                             onChange={(event) => {
                                 let newGrading = {
                                     ...grading,

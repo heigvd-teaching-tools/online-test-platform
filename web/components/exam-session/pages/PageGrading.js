@@ -209,10 +209,7 @@ const PageGrading = () => {
                                 
                                 <GradingSignOff
                                     loading={loading}
-                                    grading={question.studentGrading.find((grading) => {
-                                        console.log("grading", grading);
-                                        return grading.user.id === router.query.participantId;
-                                    })}
+                                    grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
                                     maxPoints={question.points}
                                     onSignOff={onSignOff}
                                     clickNextParticipant={(current) => {
