@@ -232,14 +232,14 @@ const SuccessRate = ({ value }) => {
 const PiePercent = ({ value }) => {
     const color = value > 70 ? 'success' : value > 40 ? 'info' : 'error';
     return (
-        <Box sx={{ position:'relative' }}>
+        <Box sx={{ position:'relative', display:'inline-flex' }}>
             <CircularProgress
                 size={45}
                 variant="determinate"
                 value={value}
                 sx={{ color: (theme) => theme.palette[color].main }}
             />
-            <Typography variant="caption" sx={{ position:'absolute', top:-4, left:0, right:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <Typography variant="caption" sx={{ position:'absolute', top:0, left:0, right:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
                 {value}%
             </Typography>
         </Box>
@@ -247,24 +247,19 @@ const PiePercent = ({ value }) => {
 }
 
 const GradingActions = ({ questions, signOffAllAutograded }) => {
-    let totalUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => !studentGrading.signedBy).length, 0);
+    let totalGradings = questions.reduce((acc, question) => acc + question.studentGrading.length, 0);
     let totalSigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length, 0);
     let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy).length, 0);
-   
+
     return(
         <Paper sx={{ p:1 }}>
-            <Stack alignItems="center" justifyContent="center" spacing={1}>
+            <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ height:"100%" }}>
                 <Stack flexGrow={1} alignItems="start" direction="row">
                     
                     <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
-                        <Typography variant="body2" sx={{ mr:1 }}>Unsigned:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalUnsigned}</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
                         <Typography variant="body2" sx={{ mr:1 }}>Signed:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned}</Typography>
-                    </Stack>
-                    
+                        <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned} / {totalGradings}</Typography>
+                    </Stack>                    
                 </Stack>
                 { 
                     totalAutogradedUnsigned > 0 && (
@@ -272,13 +267,13 @@ const GradingActions = ({ questions, signOffAllAutograded }) => {
                     )
                 }
                 {
-                    totalUnsigned === 0 && (
+                    totalSigned === totalGradings && (
                         <Button fullWidth variant="contained" size="small" onClick={() => {} }>End grading</Button>
                     )
                 }
                 {
-                    totalUnsigned > 0 && (
-                        <PiePercent value={Math.round((totalSigned / (totalUnsigned + totalSigned)) * 100)} />
+                    totalSigned < totalGradings && (
+                        <PiePercent value={Math.round((totalSigned / totalGradings) * 100)} />
                     )
                 }
         </Stack>
