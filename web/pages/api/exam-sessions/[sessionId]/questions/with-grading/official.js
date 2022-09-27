@@ -50,6 +50,7 @@ const get = async (req, res) => {
                 select: {
                     user: true,
                     questionId: true,
+                    userEmail: true,
                     createdAt: true,
                     status: true,
                     pointsObtained: true,

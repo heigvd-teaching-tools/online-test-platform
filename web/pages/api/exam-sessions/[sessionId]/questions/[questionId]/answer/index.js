@@ -31,8 +31,6 @@ const post = async (req, res) => {
     const studentEmail = session.user.email;
     const { questionId } = req.query;
     
-   
-
     const question = await prisma.question.findUnique({ 
         where: { 
             id: questionId 
@@ -58,7 +56,7 @@ const post = async (req, res) => {
 
     
     if(examSession.phase !== ExamSessionPhase.IN_PROGRESS) {
-        res.status(400).json({ message: 'The exam session is not in the answering phase' });
+        res.status(400).json({ message: 'The exam session is not in the in-progress phase' });
         return;
     }
 

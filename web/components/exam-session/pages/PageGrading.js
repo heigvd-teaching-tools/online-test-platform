@@ -80,30 +80,45 @@ const PageGrading = () => {
         }
     }, [questions, router, applyFilter]);
 
-    const onSignOff = useCallback((grading) => {
+    const saveGrading = async (grading) => {
+        return await fetch(`/api/gradings`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                grading
+            })
+        }).then((res) => res.json());
+    };
+
+    const onSignOff = useCallback(async (grading) => {
         const newQuestions = [...questions];
+        let newGrading = grading;
         question.studentGrading = question.studentGrading.map((studentGrading) => {
             if (studentGrading.user.id === grading.user.id) {
-                return {
-                    ...studentGrading,
-                    ...grading
-                };
+                newGrading = { ...studentGrading,  ...newGrading }
+                return newGrading;
             }
             return studentGrading;
         });
+        await saveGrading(newGrading);
         setQuestions(newQuestions);
         mutate(newQuestions, false);
     }, [questions, question, mutate]);
 
-    const signOffAllAutograded = useCallback(() => {
+    const signOffAllAutograded = useCallback(async () => {
+        let updated = [];
         const newQuestions = [...questions];
         for(const question of newQuestions){
             for(const studentGrading of question.studentGrading){
                 if(!studentGrading.signedBy && studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
                     studentGrading.signedBy = session.user;
+                    updated.push(studentGrading);
                 }
             }
         }
+        await Promise.all(updated.map(grading => saveGrading(grading)));
         setQuestions(newQuestions);
         mutate(newQuestions, false);
     }, [questions, mutate, session]);
@@ -188,7 +203,10 @@ const PageGrading = () => {
                             <Stack direction="row" justifyContent="space-between" sx={{ position:'absolute', bottom:0, left:0, right:0, height: 90 }}>
                                 
                                 <GradingSignOff
-                                    grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                                    grading={question.studentGrading.find((grading) => {
+                                        console.log("grading", grading);
+                                        return grading.user.id === router.query.participantId;
+                                    })}
                                     maxPoints={question.points}
                                     onSignOff={onSignOff}
                                     clickNextParticipant={(current) => {

@@ -221,7 +221,6 @@ model StudentQuestionGrading {
 
   signedBy            User?   @relation(name: "GradingSignedBy", fields: [signedByUserEmail], references: [email])
   signedByUserEmail   String?
-  signedByUserRemarks String?
 
   comment String?
 

@@ -11,7 +11,6 @@ import UserAvatar from '../../layout/UserAvatar';
 
 import { useSession } from "next-auth/react";
 
-
 const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
     
     const [ grading, setGrading ] = useState(initial);
@@ -20,10 +19,6 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
     useEffect(() => {
         setGrading(initial);        
     }, [initial]);
-
-    useEffect(() => {
-        console.log('grading', grading);
-    }, [grading]);
 
     return (
         <Paper 
@@ -78,41 +73,42 @@ const GradingSignOff = ({ grading:initial, maxPoints, onSignOff }) => {
                     
                 }
                 </Stack>
-                
-               
+                               
                 {
                     !grading.signedBy && (
                     <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>   
-                        <TextField
-                            label="Pts"
-                            sx={{ width:110 }}
-                            id="filled-points"
-                            type="number"
-                            variant="filled"
-                            value={grading.pointsObtained}
-                            InputProps={{
-                                inputProps: {
-                                    min: 0,
-                                    max: maxPoints,
-                                },
-                                endAdornment: <InputAdornment position="end" sx={{ mt:2.2 }}>/ {maxPoints}</InputAdornment>,
-                            }}                            
-                            onChange={(event) => {
-                                let points = parseInt(event.target.value);
-                                if (points > maxPoints) {
-                                    points = maxPoints;
-                                }
-                                if(points < 0) {
-                                    points = 0;
-                                }
-                                let newGrading = {
-                                    ...grading,
-                                    pointsObtained: points
-                                }
-                                setGrading(newGrading);
-                            }}
-                        />
-
+                        <Box>
+                            <TextField
+                                label="Pts"
+                                id="filled-points"
+                                type="number"
+                                variant="filled"
+                                value={grading.pointsObtained}
+                                InputProps={{
+                                    sx:{ pr:2 },
+                                    inputProps: {
+                                        min: 0,
+                                        max: maxPoints,
+                                        sx:{ minWidth: 30 }
+                                    },
+                                    endAdornment: <InputAdornment position="end" sx={{ mt:2.2 }}>/ {maxPoints}</InputAdornment>,
+                                }}                            
+                                onChange={(event) => {
+                                    let points = parseInt(event.target.value);
+                                    if (points > maxPoints) {
+                                        points = maxPoints;
+                                    }
+                                    if(points < 0) {
+                                        points = 0;
+                                    }
+                                    let newGrading = {
+                                        ...grading,
+                                        pointsObtained: points
+                                    }
+                                    setGrading(newGrading);
+                                }}
+                            />
+                        </Box>
                         <TextField
                             label="Comment"
                             fullWidth
