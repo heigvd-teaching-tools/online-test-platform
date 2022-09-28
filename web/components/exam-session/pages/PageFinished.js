@@ -67,9 +67,10 @@ const PageFinished = () => {
         <>
            { questions && (
             <LayoutMain>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-                {examSession.label} - {getSuccessRate()}% success rate
-            </Typography>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                    <Typography variant="h6">Success Rate</Typography>
+                    <PiePercent value={getSuccessRate()} />
+                </Stack>
             </LayoutMain>
            )}
 

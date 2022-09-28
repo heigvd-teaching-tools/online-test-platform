@@ -293,23 +293,6 @@ const SuccessRate = ({ value }) => {
     )
 }
 
-const PiePercent = ({ value, size = 45 }) => {
-    const color = value > 70 ? 'success' : value > 40 ? 'info' : 'error';
-    return (
-        <Box sx={{ position:'relative', display:'inline-flex' }}>
-            <CircularProgress
-                size={size}
-                variant="determinate"
-                value={value}
-                sx={{ color: (theme) => theme.palette[color].main }}
-            />
-            <Typography variant="caption" sx={{ position:'absolute', top:0, left:0, right:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                {value}%
-            </Typography>
-        </Box>
-    )
-}
-
 const GradingActions = ({ questions, loading, signOffAllAutograded, endGrading }) => {
     let totalGradings = questions.reduce((acc, question) => acc + question.studentGrading.length, 0);
     let totalSigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length, 0);
@@ -346,6 +329,7 @@ const GradingActions = ({ questions, loading, signOffAllAutograded, endGrading }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DialogFeedback from '../../feedback/DialogFeedback';
+import PiePercent from '../../feedback/PiePercent';
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef(null);
