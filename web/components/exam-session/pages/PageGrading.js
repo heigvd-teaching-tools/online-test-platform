@@ -4,17 +4,13 @@ import { useRouter } from "next/router";
 import { StudentQuestionGradingStatus, ExamSessionPhase } from '@prisma/client';
 import Image from 'next/image';
 
-import { Stack, Box, Divider, TextField, Paper, Button, Menu, MenuList, MenuItem, Typography, CircularProgress } from "@mui/material";
+import { Stack, Divider, Paper, Button, Menu, MenuList, MenuItem, Typography } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
-import AlertFeedback from "../../feedback/AlertFeedback";
-import LoadingAnimation from "../../feedback/LoadingAnimation";
 
 import { useExamSession } from '../../../context/ExamSessionContext';
-import { useSnackbar } from '../../../context/SnackbarContext';
 
-import { useDebouncedCallback } from 'use-debounce';
 import QuestionPages from '../take/QuestionPages';
 import MainMenu from '../../layout/MainMenu';
 import QuestionView from '../take/QuestionView';
