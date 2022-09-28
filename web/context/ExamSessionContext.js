@@ -26,7 +26,7 @@ const redirectToPhasePage = (phase, router) => {
             router.push(`/exam-sessions/${router.query.sessionId}/grading/1`);
             return;
         case ExamSessionPhase.FINISHED:
-            router.push(`/exam-sessions/${router.query.sessionId}/finished/1`);
+            router.push(`/exam-sessions/${router.query.sessionId}/finished`);
             return;
     }
 }

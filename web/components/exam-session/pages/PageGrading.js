@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import { StudentQuestionGradingStatus } from '@prisma/client';
+import { StudentQuestionGradingStatus, ExamSessionPhase } from '@prisma/client';
 import Image from 'next/image';
 
 import { Stack, Box, Divider, TextField, Paper, Button, Menu, MenuList, MenuItem, Typography, CircularProgress } from "@mui/material";
@@ -11,6 +11,7 @@ import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 import AlertFeedback from "../../feedback/AlertFeedback";
 import LoadingAnimation from "../../feedback/LoadingAnimation";
 
+import { useExamSession } from '../../../context/ExamSessionContext';
 import { useSnackbar } from '../../../context/SnackbarContext';
 
 import { useDebouncedCallback } from 'use-debounce';
@@ -27,10 +28,7 @@ const PageGrading = () => {
     const router = useRouter();
     const { data:session } = useSession();
 
-    const { data: examSession, errorSession } = useSWR(
-        `/api/exam-sessions/${router.query.sessionId}`,
-        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
-    );
+    const { save, saving } = useExamSession();
 
     const { data, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
@@ -45,6 +43,9 @@ const PageGrading = () => {
     const [ question, setQuestion ] = useState();
 
     const [ loading, setLoading ] = useState(false);
+
+    const [ autoGradeSignOffDialogOpen, setAutoGradeSignOffDialogOpen ] = useState(false);
+    const [ endGradingDialogOpen, setEndGradingDialogOpen ] = useState(false);
 
     useEffect(() => {
         if(data){
@@ -128,6 +129,16 @@ const PageGrading = () => {
         mutate(newQuestions, false);
     }, [questions, mutate, session]);
 
+    const endGrading = useCallback(async () => {
+        await save({
+            phase: ExamSessionPhase.FINISHED
+        }).then(() => {
+            router.push(`/exam-sessions/${router.query.sessionId}/finished`);
+        }).catch(() => {
+            showSnackbar('Error', 'error');
+        });
+    }, [save, router]);
+
     const getSuccessRate = () => {
         // total signed points
         let totalSignedPoints = questions.reduce((acc, question) => {
@@ -138,10 +149,7 @@ const PageGrading = () => {
         let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).reduce((acc, studentGrading) => acc + studentGrading.pointsObtained, 0), 0);
         return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
     }
-
    
-    if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
-    if (!examSession) return <LoadingAnimation /> 
     return (
         <>
            { questions && (
@@ -226,8 +234,9 @@ const PageGrading = () => {
                                 />
                                 <GradingActions
                                     questions={questions}
-                                    loading={loading}
-                                    signOffAllAutograded={signOffAllAutograded}
+                                    loading={loading || saving}
+                                    signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
+                                    endGrading={() => setEndGradingDialogOpen(true)}
                                 />
                             </Stack>
                             </>
@@ -236,6 +245,39 @@ const PageGrading = () => {
                 }
             />  
            )}
+           <DialogFeedback
+                open={autoGradeSignOffDialogOpen}
+                onClose={() => setAutoGradeSignOffDialogOpen(false)}
+                title="Sign off all autograded"
+                content={
+                    <>
+                        <Typography variant="body1" sx={{ mb:2 }}>
+                            There are {questions.filter((question) => question.studentGrading.some((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy)).length} autograded answers that are not signed off. 
+                        </Typography>
+                        <Typography variant="button" gutterBottom>
+                            Are you sure you want to sign off all autograded questions?
+                        </Typography>
+                    </>
+                }
+                onConfirm={signOffAllAutograded}
+            />
+            <DialogFeedback
+                open={endGradingDialogOpen}
+                onClose={() => setEndGradingDialogOpen(false)}
+                title="End grading"
+                content={
+                    <>
+                        <Typography variant="body1" sx={{ mb:2 }}>
+                            You wont be able to get back to the grading phase.
+                        </Typography>
+                        <Typography variant="button" gutterBottom>
+                            Are you sure you want to end grading?
+                        </Typography>
+                    </>
+                }
+                onConfirm={endGrading}
+            /> 
+
         </>
     )
 }
@@ -268,7 +310,7 @@ const PiePercent = ({ value, size = 45 }) => {
     )
 }
 
-const GradingActions = ({ questions, loading, signOffAllAutograded }) => {
+const GradingActions = ({ questions, loading, signOffAllAutograded, endGrading }) => {
     let totalGradings = questions.reduce((acc, question) => acc + question.studentGrading.length, 0);
     let totalSigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length, 0);
     let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy).length, 0);
@@ -288,7 +330,7 @@ const GradingActions = ({ questions, loading, signOffAllAutograded }) => {
                 
                 {
                     totalSigned === totalGradings && (
-                        <Button color="success" fullWidth variant="contained" size="small" onClick={() => {} }>End grading</Button>
+                        <Button color="success" fullWidth variant="contained" size="small" onClick={endGrading}>End grading</Button>
                     )
                 }
                 
@@ -303,6 +345,7 @@ const GradingActions = ({ questions, loading, signOffAllAutograded }) => {
 }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DialogFeedback from '../../feedback/DialogFeedback';
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef(null);
