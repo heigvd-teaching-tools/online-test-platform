@@ -250,10 +250,10 @@ const PageGrading = () => {
                 content={
                     <>
                         <Typography variant="body1" sx={{ mb:2 }}>
-                            There are {questions.filter((question) => question.studentGrading.some((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy)).length} autograded answers that are not signed off. 
+                            Its is recommended to control the autograded answers before signing them off.
                         </Typography>
                         <Typography variant="button" gutterBottom>
-                            Are you sure you want to sign off all autograded questions?
+                            Are you sure you want to sign off all autograded answers?
                         </Typography>
                     </>
                 }
