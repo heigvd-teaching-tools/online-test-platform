@@ -173,8 +173,6 @@ const PageGrading = () => {
                                 setFilter(filter);
                             }}
                         />
-                        
-                        
                     </Stack>
                 }
                 leftPanel={
