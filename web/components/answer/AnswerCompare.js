@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import { Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, Typography } from "@mui/material";
-
-import { Box } from '@mui/system';
+import { Box, Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, Typography } from "@mui/material";
 
 const AnswerCompare = ({ question, answer }) => {
     const container = useRef();
