@@ -303,7 +303,7 @@ const GradingActions = ({ questions, loading, signOffAllAutograded, endGrading }
             <Stack justifyContent="center" spacing={1} sx={{ height:"100%" }}>
                 <Stack flexGrow={1} alignItems="start" justifyContent="space-between" direction="row">
                     <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
-                        <Typography variant="body2" sx={{ mr:1 }}>Signed:</Typography>
+                        <Typography variant="body2" sx={{ mr:1 }}>Grading progress:</Typography>
                         <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned} / {totalGradings}</Typography>
                     </Stack>    
                     {totalSigned < totalGradings && (
