@@ -56,7 +56,15 @@ const PageTakeExam = () => {
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ answer: answer })
             })
-            .then(_ => {
+            .then(data => {
+                if(!data.ok){
+                    if(data.status === 400){
+                        showSnackbar('The answer is not submited, this exam session is not in the in-progress phase', 'error');
+                    }else {
+                        showSnackbar('The answer is not submited, an error occurred', 'error');
+                    }
+                    return;
+                }
                 examSession.questions[page - 1].studentAnswer = [{
                     [examSession.questions[page - 1].type]: answer
                 }];

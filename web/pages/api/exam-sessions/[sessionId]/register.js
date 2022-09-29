@@ -32,22 +32,22 @@ const post = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
    
-    const userOnExamSession = await prisma.userOnExamSession.upsert(
-        {
-            where: {
-                userEmail_examSessionId: {
-                    userEmail: studentEmail,
-                    examSessionId: sessionId
-                }
-            },
-            update: {},
-            create: {
+    const userOnExamSession = await prisma.userOnExamSession.upsert({
+        where: {
+            userEmail_examSessionId: {
                 userEmail: studentEmail,
                 examSessionId: sessionId
             }
+        },
+        update: {
+            registeredAt: new Date()
+        },
+        create: {
+            userEmail: studentEmail,
+            examSessionId: sessionId,
+            registeredAt: new Date()
         }
-
-    );
+    });
 
     // add grading for each question
     const questions = await prisma.question.findMany({

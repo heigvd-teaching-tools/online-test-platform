@@ -24,6 +24,8 @@ import GradingSignOff from '../grading/GradingSignOff';
 import ParticipantNav from '../grading/ParticipantNav';
 import { useSession } from "next-auth/react";
 import LayoutMain from '../../layout/LayoutMain';
+import Datagrid from '../../ui/DataGrid';
+import UserAvatar from '../../layout/UserAvatar';
 
 const PageFinished = () => {
     const router = useRouter();
@@ -62,6 +64,46 @@ const PageFinished = () => {
         let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).reduce((acc, studentGrading) => acc + studentGrading.pointsObtained, 0), 0);
         return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
     }
+
+    const questionColumns = () => questions.map((question) => {
+            return {
+                label: `Q${question.order + 1}`,
+                column: {
+                    width: '80px'
+                }
+            }
+        });
+
+
+
+    const gridHeaders = {
+        columns: [
+        {
+            label: 'Participant',
+            column: { flexGrow: 1, }
+        },
+        ...questionColumns(),
+        {
+            label: 'Success rate',
+            column: { width: '80px' }
+        }
+        ]
+    };
+    console.log("question columns", questionColumns(), questions);
+    const gridRows = () => participants.map((participant) => {
+
+        const participantQuestions = questions.map((question) => {
+            const grading = question.studentGrading.find((sg) => sg.user.email === participant.email);
+            return grading ? grading.pointsObtained : 0;
+        });
+        console.log("participant questions", participant, participantQuestions);
+        return {
+            participant: <UserAvatar user={participant} />,
+            ...participantQuestions,
+            successRate: `${getSuccessRate()}%`
+        }
+    });
+
    
     return (
         <>
@@ -71,6 +113,12 @@ const PageFinished = () => {
                     <Typography variant="h6">Overall success rate</Typography>
                     <PiePercent value={getSuccessRate()} />
                 </Stack>
+                <Datagrid
+                    header={gridHeaders}
+                    items={gridRows()}
+                />
+                    
+
             </LayoutMain>
            )}
 

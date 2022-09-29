@@ -5,7 +5,6 @@ import Row from '../layout/utils/Row';
 import Column from '../layout/utils/Column';
 
 const Datagrid = ({ header, items }) => {
-    
     return (
         <List>
         <ListItem divider>
@@ -25,31 +24,39 @@ const Datagrid = ({ header, items }) => {
             </Row>
         </ListItem>
         { items && items.length > 0 && items.map((item) => (
-            <Link key={item.meta.key} href={item.meta.linkHref}>
-            <ListItem button divider>
-                <Row>
-                    { 
-                    Object.keys(item).map((key, index) => {
-                        if(index < header.columns.length && key !== 'meta') {
-                            return (
-                                <Column key={key} {...header.columns[index].column}>
-                                    <Typography variant="body2">{item[key] || ""}</Typography>
-                                </Column>
-                            )
-                        }
-                    }
-                    )}
-                    {
-                        item.meta.actions && header.actions &&
-                        <Column key="actions" width={header.actions.width} right>{item.meta.actions}</Column>
-                    }
-                    
-                </Row>
-            </ListItem>
-            </Link>
+            item.meta && item.meta.link ? (
+                <Link key={item.meta.key} href={item.meta.linkHref}>
+                    <ListItemContent item={item} header={header} />
+                </Link>
+            ) : (
+                <ListItemContent item={item} header={header} />
+            )            
         ))}
       </List>
     )
+}
+
+const ListItemContent = ({ item, header }) => {
+    <ListItem button divider>
+        <Row>
+            { 
+            Object.keys(item).map((key, index) => {
+                if(index < header.columns.length && key !== 'meta') {
+                    return (
+                        <Column key={key} {...header.columns[index].column}>
+                            <Typography variant="body2">{item[key] || ""}</Typography>
+                        </Column>
+                    )
+                }
+            }
+            )}
+            {
+                item.meta && item.meta.actions && header.actions &&
+                <Column key="actions" width={header.actions.width} right>{item.meta.actions}</Column>
+            }
+            
+        </Row>
+    </ListItem>
 }
 
 export default Datagrid;
