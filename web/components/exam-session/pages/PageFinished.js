@@ -1,27 +1,11 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import { StudentQuestionGradingStatus, ExamSessionPhase } from '@prisma/client';
-import Image from 'next/image';
 
-import { Stack, Box, Divider, TextField, Paper, Button, Menu, MenuList, MenuItem, Typography, CircularProgress } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
-
-import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
-import AlertFeedback from "../../feedback/AlertFeedback";
-import LoadingAnimation from "../../feedback/LoadingAnimation";
+import { Stack, Divider, Typography } from "@mui/material";
 
 import { useExamSession } from '../../../context/ExamSessionContext';
-import { useSnackbar } from '../../../context/SnackbarContext';
 
-import { useDebouncedCallback } from 'use-debounce';
-import QuestionPages from '../take/QuestionPages';
-import MainMenu from '../../layout/MainMenu';
-import QuestionView from '../take/QuestionView';
-
-import AnswerCompare from '../../answer/AnswerCompare';
-import GradingSignOff from '../grading/GradingSignOff';
-import ParticipantNav from '../grading/ParticipantNav';
 import { useSession } from "next-auth/react";
 import LayoutMain from '../../layout/LayoutMain';
 import Datagrid from '../../ui/DataGrid';
@@ -30,9 +14,6 @@ import PiePercent from '../../feedback/PiePercent';
 
 const PageFinished = () => {
     const router = useRouter();
-    const { data:session } = useSession();
-
-    const { examSession, save, saving } = useExamSession();
 
     const { data, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
@@ -91,7 +72,7 @@ const PageFinished = () => {
         
         ]
     };
-    console.log("question columns", questionColumns(), questions);
+
     const gridRows = () => participants.map((participant) => {
 
         let obtainedPoints = questions.reduce((acc, question) => {
@@ -149,17 +130,6 @@ const PageFinished = () => {
            )}
 
         </>
-    )
-}
-
-const SuccessRate = ({ value }) => {
-    return (
-        <Paper sx={{ p:1 }}>
-            <Stack alignItems="center" justifyContent="center" spacing={1}>
-                <Typography variant="body2" sx={{ mr:1 }}>Success Rate</Typography>
-                <PiePercent value={value} />
-            </Stack>
-        </Paper>
     )
 }
 
