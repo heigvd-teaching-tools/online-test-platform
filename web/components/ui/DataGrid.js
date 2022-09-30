@@ -5,7 +5,6 @@ import Row from '../layout/utils/Row';
 import Column from '../layout/utils/Column';
 
 const Datagrid = ({ header, items }) => {
-    console.log("datagrid", header, items);
     return (
         <List>
         <ListItem divider>
@@ -27,14 +26,12 @@ const Datagrid = ({ header, items }) => {
         { items && items.length > 0 && items.map((item) => (
             item.meta && item.meta.linkHref ? (
                 <Link key={item.meta.key} href={item.meta.linkHref}>
-                                    <a>
+                    <a>
                     <ListItemContent item={item} header={header} />         
                     </a>
                 </Link>           
             ) : (
-                <>test
                 <ListItemContent item={item} header={header} />
-                </>
             )            
         ))}
       </List>

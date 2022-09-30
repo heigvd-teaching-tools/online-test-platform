@@ -26,6 +26,7 @@ import { useSession } from "next-auth/react";
 import LayoutMain from '../../layout/LayoutMain';
 import Datagrid from '../../ui/DataGrid';
 import UserAvatar from '../../layout/UserAvatar';
+import PiePercent from '../../feedback/PiePercent';
 
 const PageFinished = () => {
     const router = useRouter();
@@ -82,26 +83,53 @@ const PageFinished = () => {
             label: 'Participant',
             column: { flexGrow: 1, }
         },
-        ...questionColumns(),
         {
-            label: 'Success rate',
+            label: 'Success',
             column: { width: '80px' }
-        }
+        },
+        ...questionColumns(),
+        
         ]
     };
     console.log("question columns", questionColumns(), questions);
     const gridRows = () => participants.map((participant) => {
 
-        const participantQuestions = questions.map((question) => {
+        let obtainedPoints = questions.reduce((acc, question) => {
+            let studentGrading = question.studentGrading.find((sg) => sg.user.id === participant.id);
+            return acc + (studentGrading ? studentGrading.pointsObtained : 0);
+        }, 0);
+
+        let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
+
+        let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
+
+        const questionColumnValues = {};
+    
+        questions.forEach((question) => {
             const grading = question.studentGrading.find((sg) => sg.user.email === participant.email);
-            return grading ? grading.pointsObtained : 0;
+            let pointsObtained = grading ? grading.pointsObtained : 0;
+            let totalPoints = question.points;
+            let successRate = totalPoints > 0 ? Math.round(pointsObtained / totalPoints * 100) : 0;
+
+            let color = successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error';
+            questionColumnValues[`Q${question.order + 1}`] = 
+                <Typography variant="button" sx={{ color: `${color}.main` }}>
+                    <b>{`${pointsObtained}/${totalPoints}`}</b>
+                </Typography>
         });
-        console.log("participant questions", participant, participantQuestions);
-        return {
+
+        let row = {
             participant: <UserAvatar user={participant} />,
-            ...participantQuestions,
-            successRate: `${getSuccessRate()}%`
-        }
+            successRate: <PiePercent size={60} value={participantSuccessRate} label={
+                <Stack alignItems="center" justifyContent="center" spacing={0}>
+                    <Typography variant="body2">{`${obtainedPoints}`}</Typography>
+                    <Divider sx={{ width: '100%' }} />
+                    <Typography variant="caption">{`${totalPoints}`}</Typography>
+                </Stack>
+            } />,
+            ...questionColumnValues,
+        };
+        return row
     });
 
    
@@ -117,8 +145,6 @@ const PageFinished = () => {
                     header={gridHeaders}
                     items={gridRows()}
                 />
-                    
-
             </LayoutMain>
            )}
 
@@ -136,23 +162,5 @@ const SuccessRate = ({ value }) => {
         </Paper>
     )
 }
-
-const PiePercent = ({ value, size = 45 }) => {
-    const color = value > 70 ? 'success' : value > 40 ? 'info' : 'error';
-    return (
-        <Box sx={{ position:'relative', display:'inline-flex' }}>
-            <CircularProgress
-                size={size}
-                variant="determinate"
-                value={value}
-                sx={{ color: (theme) => theme.palette[color].main }}
-            />
-            <Typography variant="caption" sx={{ position:'absolute', top:0, left:0, right:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                {value}%
-            </Typography>
-        </Box>
-    )
-}
-
 
 export default PageFinished;
