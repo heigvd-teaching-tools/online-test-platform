@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
 
-import { Stack, Divider, Typography } from "@mui/material";
-
 import { useExamSession } from '../../../context/ExamSessionContext';
 
-import { useSession } from "next-auth/react";
+import { Stack, Divider, Typography, Toolbar, Button, Box } from "@mui/material";
+
 import LayoutMain from '../../layout/LayoutMain';
 import Datagrid from '../../ui/DataGrid';
 import UserAvatar from '../../layout/UserAvatar';
@@ -14,6 +13,7 @@ import PiePercent from '../../feedback/PiePercent';
 
 const PageFinished = () => {
     const router = useRouter();
+    const { examSession } = useExamSession();
 
     const { data, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
@@ -47,41 +47,27 @@ const PageFinished = () => {
         return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
     }
 
-    const questionColumns = () => questions.map((question) => {
-            return {
-                label: `Q${question.order + 1}`,
-                column: {
-                    width: '80px'
-                }
-            }
-        });
-
-
-
     const gridHeaders = {
-        columns: [
-        {
+        columns: [{
             label: 'Participant',
             column: { flexGrow: 1, }
-        },
-        {
+        },{
             label: 'Success',
             column: { width: '80px' }
         },
-        ...questionColumns(),
-        
-        ]
+        ...questions.map((question) => ({
+            label: <b>{`Q${question.order + 1}`}</b>,
+            column: { width: '50px' }
+        }))]
     };
 
     const gridRows = () => participants.map((participant) => {
-
         let obtainedPoints = questions.reduce((acc, question) => {
             let studentGrading = question.studentGrading.find((sg) => sg.user.id === participant.id);
             return acc + (studentGrading ? studentGrading.pointsObtained : 0);
         }, 0);
 
         let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
-
         let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
 
         const questionColumnValues = {};
@@ -99,7 +85,7 @@ const PageFinished = () => {
                 </Typography>
         });
 
-        let row = {
+        return {
             participant: <UserAvatar user={participant} />,
             successRate: <PiePercent size={60} value={participantSuccessRate} label={
                 <Stack alignItems="center" justifyContent="center" spacing={0}>
@@ -109,26 +95,70 @@ const PageFinished = () => {
                 </Stack>
             } />,
             ...questionColumnValues,
-        };
-        return row
+        }
     });
 
-   
+    const exportAsCSV = () => {
+
+        let COLUMN_SEPARATOR = ';';
+        let LINE_SEPARATOR = '\r';
+
+        let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`;
+        questions.forEach((question) => csv += `Q${question.order + 1}${COLUMN_SEPARATOR}`);
+        csv += LINE_SEPARATOR;
+
+        participants.forEach((participant) => {
+            let obtainedPoints = questions.reduce((acc, question) => {
+                let studentGrading = question.studentGrading.find((sg) => sg.user.id === participant.id);
+                return acc + (studentGrading ? studentGrading.pointsObtained : 0);
+            }, 0);
+
+            let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
+            let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
+            
+            csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${participantSuccessRate}${COLUMN_SEPARATOR}${totalPoints}${COLUMN_SEPARATOR}${obtainedPoints}${COLUMN_SEPARATOR}`;
+            
+            questions.forEach((question) => {
+                const grading = question.studentGrading.find((sg) => sg.user.email === participant.email);
+                let pointsObtained = grading ? grading.pointsObtained : 0;
+                csv += `${pointsObtained}${COLUMN_SEPARATOR}`;
+            });
+
+            csv += LINE_SEPARATOR;
+        });
+
+        let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        let url = URL.createObjectURL(blob);
+        let link = document.createElement('a');
+        link.setAttribute('href', url);
+
+        let sessionLabel = examSession.label.replace(/ /g, '_').toLowerCase();
+
+        link.setAttribute('download', `exam-session-${examSession.id}-${sessionLabel}-results.csv`);
+        link.click();
+    }
+
+
     return (
         <>
            { questions && (
             <LayoutMain>
-                <Stack direction="row" alignItems="center" spacing={2}>
-                    <Typography variant="h6">Overall success rate</Typography>
-                    <PiePercent value={getSuccessRate()} />
-                </Stack>
-                <Datagrid
-                    header={gridHeaders}
-                    items={gridRows()}
-                />
+                <Box sx={{ minWidth:'100%' }}>
+                    <Toolbar disableGutters variant="dense">
+                        <Button onClick={exportAsCSV}>Export as csv</Button>
+                    </Toolbar>
+                </Box>
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                        <Typography variant="h6">Overall success rate</Typography>
+                        <PiePercent value={getSuccessRate()} />
+                    </Stack>
+                    <Datagrid
+                        header={gridHeaders}
+                        items={gridRows()}
+                    />
+                
             </LayoutMain>
            )}
-
         </>
     )
 }
