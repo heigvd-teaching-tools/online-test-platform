@@ -26,11 +26,11 @@ const Datagrid = ({ header, items }) => {
         </ListItem>
         { items && items.length > 0 && items.map((item) => (
             item.meta && item.meta.linkHref ? (
-                <Link key={item.meta.key} href={item.meta.linkHref} passHref>
-                    <a>
-                    <ListItemContent item={item} header={header} />                    
+                <Link key={item.meta.key} href={item.meta.linkHref}>
+                                    <a>
+                    <ListItemContent item={item} header={header} />         
                     </a>
-                </Link>
+                </Link>           
             ) : (
                 <>test
                 <ListItemContent item={item} header={header} />

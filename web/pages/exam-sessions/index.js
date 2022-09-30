@@ -138,6 +138,7 @@ const ExamSessions = () => {
                         color="info"
                         onClick={(ev) => {
                           ev.stopPropagation();
+                          ev.preventDefault();
                           setCLickedExamSession(examSession);
                           setEndOfDraftDialogOpen(true);
                         }}
