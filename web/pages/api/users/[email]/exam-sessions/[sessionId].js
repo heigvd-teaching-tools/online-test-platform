@@ -53,6 +53,7 @@ const get = async (req, res) => {
                                         userEmail: email
                                     },
                                     select: {
+                                        status: true,
                                         code: true,
                                         multipleChoice: { select: { options: { select: { id: true, text: true } } } },
                                         essay: { select: { content: true } },

@@ -32,18 +32,18 @@ const PageFinished = () => {
 
     useEffect(() => {
         if (questions && questions.length > 0) {
-            setParticipants(questions[0].studentGrading.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
+            setParticipants(questions[0].studentAnswer.map((sa) => sa.user).sort((a, b) => a.name.localeCompare(b.name)));
         }
     }, [questions]);
 
     const getSuccessRate = () => {
         // total signed points
         let totalSignedPoints = questions.reduce((acc, question) => {
-            let signedGradings = question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length;
+            let signedGradings = question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
             return acc + signedGradings * question.points;
         }, 0);
         // total signed obtained points
-        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).reduce((acc, studentGrading) => acc + studentGrading.pointsObtained, 0), 0);
+        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
         return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
     }
 
@@ -63,7 +63,7 @@ const PageFinished = () => {
 
     const gridRows = () => participants.map((participant) => {
         let obtainedPoints = questions.reduce((acc, question) => {
-            let studentGrading = question.studentGrading.find((sg) => sg.user.id === participant.id);
+            let studentGrading = question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
             return acc + (studentGrading ? studentGrading.pointsObtained : 0);
         }, 0);
 
@@ -73,7 +73,7 @@ const PageFinished = () => {
         const questionColumnValues = {};
     
         questions.forEach((question) => {
-            const grading = question.studentGrading.find((sg) => sg.user.email === participant.email);
+            const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
             let pointsObtained = grading ? grading.pointsObtained : 0;
             let totalPoints = question.points;
             let successRate = totalPoints > 0 ? Math.round(pointsObtained / totalPoints * 100) : 0;
@@ -109,7 +109,7 @@ const PageFinished = () => {
 
         participants.forEach((participant) => {
             let obtainedPoints = questions.reduce((acc, question) => {
-                let studentGrading = question.studentGrading.find((sg) => sg.user.id === participant.id);
+                let studentGrading = question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
                 return acc + (studentGrading ? studentGrading.pointsObtained : 0);
             }, 0);
 
@@ -119,7 +119,7 @@ const PageFinished = () => {
             csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${participantSuccessRate}${COLUMN_SEPARATOR}${totalPoints}${COLUMN_SEPARATOR}${obtainedPoints}${COLUMN_SEPARATOR}`;
             
             questions.forEach((question) => {
-                const grading = question.studentGrading.find((sg) => sg.user.email === participant.email);
+                const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
                 let pointsObtained = grading ? grading.pointsObtained : 0;
                 csv += `${pointsObtained}${COLUMN_SEPARATOR}`;
             });
@@ -137,7 +137,6 @@ const PageFinished = () => {
         link.setAttribute('download', `exam-session-${examSession.id}-${sessionLabel}-results.csv`);
         link.click();
     }
-
 
     return (
         <>

@@ -1,4 +1,4 @@
-import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
+import { PrismaClient, Role, ExamSessionPhase, StudentAnswerStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../../../utils/auth';
 import { grading } from '../../../../../../../code/grading';
@@ -62,42 +62,24 @@ const post = async (req, res) => {
 
     const { type } = question;
     const { answer } = req.body;
-    let a;
-    if(answer === undefined) {
-        // remove eventual existing answer
-        if(question.studentAnswer){
-            a = await prisma.studentAnswer.delete({
-                where: {
-                    userEmail_questionId: {
-                        userEmail: studentEmail,
-                        questionId: questionId
-                    }
-                }
-            });
-        }
-    }else{
-        a = await prisma.studentAnswer.upsert({
-            where: {
-                userEmail_questionId: {
-                    userEmail: studentEmail,
-                    questionId: questionId
-                }
-            },
-            update: {
-                [type]: {
-                    update: prepareAnswer(type, answer, 'update')
-                }
-            },
-            create: {
-                userEmail: studentEmail,
-                questionId: questionId,
-                [type]: {
-                    create: prepareAnswer(type, answer, 'create')
-                }
-            }
-        });
-    }
+    
+    let status = answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING;
 
+    let a = await prisma.studentAnswer.update({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        data: {
+            status,
+            [type]: {
+                update: prepareAnswer(type, answer, 'update')
+            }
+        }
+    });
+    
     // grade question
     await prisma.studentQuestionGrading.upsert({
         where: {
@@ -126,21 +108,21 @@ const prepareAnswer = (questionType, answer, mode) => {
                 // remove eventual existing options
                 options.set = [];
             }
-            options.connect = answer.options.map((opt) => ({ id: opt.id })) 
+            options.connect = answer ? answer.options.map((opt) => ({ id: opt.id })) : [];
             return {
                 options
             }
         case 'trueFalse':
             return {
-                isTrue: answer.isTrue
+                isTrue: answer ? answer.isTrue : null
             }
         case 'essay': 
             return {
-                content: String(answer.content)
+                content: answer ? String(answer.content) : null
             }
         case 'code':
             return {
-                code: String(answer.code)
+                code: answer ? String(answer.code) : null
             }
         default:
             return undefined;

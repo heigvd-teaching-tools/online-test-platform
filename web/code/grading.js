@@ -18,8 +18,7 @@ export const grading = (question, answer) => {
 
 const defaultGrading = ({
     status: StudentQuestionGradingStatus.AUTOGRADED,
-    pointsObtained: 0,
-    isCorrect: false
+    pointsObtained: 0
 });
 
 const gradeMultipleChoice = (question, answer) => {
@@ -30,8 +29,7 @@ const gradeMultipleChoice = (question, answer) => {
         let isCorrect = correctOptions.length === answerOptions.length && correctOptions.every((opt) => answerOptions.some((aOpt) => aOpt.id === opt.id));
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: isCorrect ? question.points : 0,
-            isCorrect
+            pointsObtained: isCorrect ? question.points : 0
         };
     }   
     return grading
@@ -43,8 +41,7 @@ const gradeTrueFalse = (question, answer) => {
         let isCorrect = question.trueFalse.isTrue === answer.isTrue;
         grading = {
             ...grading,
-            pointsObtained: isCorrect ? question.points : 0,
-            isCorrect
+            pointsObtained: isCorrect ? question.points : 0
         }
     }    
     return grading;
@@ -63,8 +60,7 @@ const gradeCode = (question, response) => {
         // answer is the response from the code test run
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: response.success ? question.points : 0,
-            isCorrect: response.success
+            pointsObtained: response.success ? question.points : 0
         }
     }
     return grading

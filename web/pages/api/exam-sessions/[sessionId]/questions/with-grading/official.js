@@ -44,19 +44,17 @@ const get = async (req, res) => {
                     multipleChoice: { select: { options: true } },
                     essay: { select: { content: true } },
                     trueFalse: true,
-                }
-            },
-            studentGrading: {
-                select: {
-                    user: true,
-                    questionId: true,
-                    userEmail: true,
-                    createdAt: true,
-                    status: true,
-                    pointsObtained: true,
-                    isCorrect: true,
-                    signedBy: true,
-                    comment: true,
+                    studentGrading: {
+                        select: {
+                            questionId: true,
+                            userEmail: true,
+                            createdAt: true,
+                            status: true,
+                            pointsObtained: true,
+                            signedBy: true,
+                            comment: true,
+                        }
+                    }
                 }
             }
         },

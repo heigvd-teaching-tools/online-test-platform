@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, QuestionType } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
 import { grading } from '../../../../code/grading';
@@ -31,7 +31,7 @@ const post = async (req, res) => {
     const { sessionId } = req.query;
     const session = await getSession({ req });
     const studentEmail = session.user.email;
-   
+
     const userOnExamSession = await prisma.userOnExamSession.upsert({
         where: {
             userEmail_examSessionId: {
@@ -39,41 +39,75 @@ const post = async (req, res) => {
                 examSessionId: sessionId
             }
         },
-        update: {
-            registeredAt: new Date()
-        },
+        update: {},
         create: {
             userEmail: studentEmail,
-            examSessionId: sessionId,
-            registeredAt: new Date()
-        }
-    });
-
-    // add grading for each question
-    const questions = await prisma.question.findMany({
-        where: {
             examSessionId: sessionId
         }
     });
 
-    for (const question of questions) {        
-        await prisma.studentQuestionGrading.upsert({
+    // add empty answers and gradings for each question
+    const questions = await prisma.question.findMany({
+        where: {
+            examSessionId: sessionId
+        },
+        include: {
+            code: true,
+            multipleChoice: true,
+            trueFalse: true,
+            essay: true
+        }
+    });
+
+    for (const question of questions) {   
+        let query = {
             where: {
                 userEmail_questionId: {
                     userEmail: studentEmail,
                     questionId: question.id
                 }
             },
-            update: grading(question, undefined),
+            update: {},
             create: {
                 userEmail: studentEmail,
                 questionId: question.id,
-                ...grading(question, undefined)
+                [question.type]: {
+                    create: prepareTypeSpecific(question.type, question)
+                },
+                studentGrading: {
+                    create: grading(question, undefined)
+                }
             }
-        });
+        }
+        await prisma.studentAnswer.upsert(query);
     }
          
     res.status(200).json(userOnExamSession);
+}
+
+const prepareTypeSpecific = (questionType, question) => {
+    switch(questionType) {
+        case QuestionType.multipleChoice:
+            return {
+                options: {
+                    create: []
+                }
+            }
+        case QuestionType.trueFalse:
+            return {
+                isTrue: null
+            }
+        case QuestionType.code:
+            return {
+                code: question.code.code,
+            }
+        case QuestionType.essay:
+            return {
+                content: ''
+            }
+        default:
+            return {}
+    }
 }
 
 export default handler;

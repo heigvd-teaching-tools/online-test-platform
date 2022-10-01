@@ -47,10 +47,9 @@ model User {
   sessions      Session[]
   role          Role      @default(STUDENT)
 
-  userOnExamSession      UserOnExamSession[]
-  studentAnswer          StudentAnswer[]
-  studentQuestionGrading StudentQuestionGrading[] @relation("StudentQuestionGrading")
-  gradingSignedBy        StudentQuestionGrading[] @relation("GradingSignedBy")
+  userOnExamSession UserOnExamSession[]
+  studentAnswer     StudentAnswer[]
+  gradingSignedBy   StudentQuestionGrading[]
 }
 
 enum Role {
@@ -105,8 +104,7 @@ model Question {
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 
-  studentAnswer  StudentAnswer[]
-  studentGrading StudentQuestionGrading[]
+  studentAnswer StudentAnswer[]
 }
 
 model MultipleChoice {
@@ -117,12 +115,15 @@ model MultipleChoice {
 }
 
 model Option {
-  id               String                        @id @default(cuid())
-  multipleChoice   MultipleChoice                @relation(fields: [multipleChoiceId], references: [ids], onDelete: Cascade)
-  multipleChoiceId String
-  text             String?
-  isCorrect        Boolean                       @default(false)
-  answers          StudentAnswerMultipleChoice[]
+  id                                    String                       @id @default(cuid())
+  multipleChoice                        MultipleChoice               @relation(fields: [multipleChoiceId], references: [ids], onDelete: Cascade)
+  multipleChoiceId                      String
+  text                                  String?
+  isCorrect                             Boolean                      @default(false)
+  
+  studentAnswerMultipleChoice           StudentAnswerMultipleChoice? @relation(fields: [userEmail, questionId], references: [userEmail, questionId])
+  userEmail  String?
+  questionId String?
 }
 
 model TrueFalse {
@@ -183,12 +184,19 @@ model UserOnExamSession {
   @@id([userEmail, examSessionId])
 }
 
+enum StudentAnswerStatus {
+  MISSING
+  SUBMITTED
+}
+
 model StudentAnswer {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String   
+  questionId String
 
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
+
+  status StudentAnswerStatus @default(MISSING)
 
   multipleChoice StudentAnswerMultipleChoice?
   trueFalse      StudentAnswerTrueFalse?
@@ -197,6 +205,8 @@ model StudentAnswer {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  studentGrading StudentQuestionGrading?
 
   @@id([userEmail, questionId])
 }
@@ -208,19 +218,18 @@ enum StudentQuestionGradingStatus {
 }
 
 model StudentQuestionGrading {
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  user       User     @relation(name: "StudentQuestionGrading", fields: [userEmail], references: [email], onDelete: Cascade)
-  questionId String   
-  userEmail  String
+  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt 
 
   status         StudentQuestionGradingStatus @default(UNGRADED)
   pointsObtained Int                          @default(0)
-  isCorrect      Boolean                      @default(false)
 
-  signedBy            User?   @relation(name: "GradingSignedBy", fields: [signedByUserEmail], references: [email])
-  signedByUserEmail   String?
+  signedBy          User?   @relation(fields: [signedByUserEmail], references: [email])
+  signedByUserEmail String?
 
   comment String?
 
@@ -228,43 +237,36 @@ model StudentQuestionGrading {
 }
 
 model StudentAnswerTrueFalse {
-  id            String        @id @default(cuid())
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
 
-  isTrue Boolean @default(true)
+  isTrue Boolean? @default(true)
 
-  @@unique([userEmail, questionId])
+  @@id([userEmail, questionId])
 }
 
 model StudentAnswerEssay {
-  id String @id @default(cuid())
-
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
 
   content String?
 
-  @@unique([userEmail, questionId])
+  @@id([userEmail, questionId])
 }
 
 model StudentAnswerMultipleChoice {
-  id String @id @default(cuid())
-
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
 
   options Option[]
 
-  @@unique([userEmail, questionId])
+  @@id([userEmail, questionId])
 }
 
 model StudentAnswerCode {
-  id String @id @default(cuid())
-
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
@@ -276,5 +278,5 @@ model StudentAnswerCode {
 
   success Boolean @default(false)
 
-  @@unique([userEmail, questionId])
+  @@id([userEmail, questionId])
 }

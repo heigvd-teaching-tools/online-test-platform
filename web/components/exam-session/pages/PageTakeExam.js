@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import { ExamSessionPhase } from '@prisma/client';
+import { ExamSessionPhase, StudentAnswerStatus } from '@prisma/client';
 import { useSession } from "next-auth/react";
 
 import { Stack, Box } from "@mui/material";
@@ -66,15 +66,18 @@ const PageTakeExam = () => {
                     return;
                 }
                 examSession.questions[page - 1].studentAnswer = [{
-                    [examSession.questions[page - 1].type]: answer
+                    status: answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING,
+                    [examSession.questions[page - 1].type]: {
+                        ...answer
+                    }
                 }];
+
                 if(answer === undefined){
-                    examSession.questions[page - 1].studentAnswer = [];
                     showSnackbar('Your answer has been removed', 'success');
                 }else{
                     showSnackbar('Answer submitted successfully', 'success');
                 }
-            }).catch(err => {
+            }).catch(_ => {
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
@@ -82,7 +85,7 @@ const PageTakeExam = () => {
 
     const hasAnswered = useCallback((questionId) => {
         let question = examSession.questions.find(q => q.id === questionId);
-        return question && question.studentAnswer.length > 0 && question.studentAnswer[0][question.type] !== undefined;
+        return question && question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED && question.studentAnswer[0][question.type] !== undefined;
     }, [examSession]);
 
     if(error) return <LoadingAnimation content={error.message} />     

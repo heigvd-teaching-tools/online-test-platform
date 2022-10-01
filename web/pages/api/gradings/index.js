@@ -31,7 +31,6 @@ const patch = async (req, res) => {
             userEmail, 
             pointsObtained, 
             comment, 
-            isCorrect,  
             signedBy,
             status
         } } = req.body;
@@ -46,13 +45,11 @@ const patch = async (req, res) => {
         data: {
             status: status,
             pointsObtained: pointsObtained,
-            isCorrect: isCorrect,
             signedByUserEmail: signedBy ? signedBy.email : null, 
             comment: comment
         },
         include: {
-            signedBy: true,
-            user: true,
+            signedBy: true
         }  
     });
 

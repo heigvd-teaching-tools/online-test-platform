@@ -52,7 +52,7 @@ const PageGrading = () => {
     const applyFilter = useCallback((questions) => {
         switch(filter){
             case 'unsigned':
-                let questionToDisplay = questions.filter(q => q.studentGrading.some(sg => !sg.signedBy));
+                let questionToDisplay = questions.filter(q => q.studentAnswer.some(sg => !sg.studentGrading.signedBy));
                 if(questionToDisplay.length > 0 && questionToDisplay.findIndex(q => q.id === question?.id) === -1){
                     // active question is not in the filtered list -> jump to first
                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${questionToDisplay[0].id}?participantId=${questionToDisplay[0].studentGrading[0].user.id}`);
@@ -66,16 +66,16 @@ const PageGrading = () => {
     useEffect(() => {
         if (questions && questions.length > 0) {
             let activeQuestionId = router.query.activeQuestion;
-            let activeQuestion = applyFilter(questions).find(q => q.id ===  activeQuestionId);
+            let activeQuestion = applyFilter(questions).find(q => q.id === activeQuestionId);
             if (parseInt(activeQuestionId) === 1 || !activeQuestion) {
                 // redirect to first question and first participant
                 let firstQuestion = questions[0];
-                router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentGrading[0].user.id}`);
+                router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentAnswer[0].user.id}`);
                 return;
             }
             
             setQuestion(activeQuestion);
-            setParticipants(activeQuestion.studentGrading.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
+            setParticipants(activeQuestion.studentAnswer.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
         }
     }, [questions, router, applyFilter]);
 
@@ -97,12 +97,17 @@ const PageGrading = () => {
     const onSignOff = useCallback(async (grading) => {
         const newQuestions = [...questions];
         let newGrading = grading;
-        question.studentGrading = question.studentGrading.map((studentGrading) => {
-            if (studentGrading.user.id === grading.user.id) {
-                newGrading = { ...studentGrading,  ...newGrading }
-                return newGrading;
+        question.studentAnswer = question.studentAnswer.map((sa) => {
+            if (sa.user.email === grading.userEmail) {
+                return {
+                    ...sa,
+                    studentGrading: {
+                        ...sa.studentGrading,
+                        ...grading
+                    }
+                };
             }
-            return studentGrading;
+            return sa;
         });
         await saveGrading(newGrading);
         setQuestions(newQuestions);
@@ -113,7 +118,7 @@ const PageGrading = () => {
         let updated = [];
         const newQuestions = [...questions];
         for(const question of newQuestions){
-            for(const studentGrading of question.studentGrading){
+            for(const { studentGrading } of question.studentAnswer){
                 if(!studentGrading.signedBy && studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
                     studentGrading.signedBy = session.user;
                     updated.push(studentGrading);
@@ -138,11 +143,11 @@ const PageGrading = () => {
     const getSuccessRate = () => {
         // total signed points
         let totalSignedPoints = questions.reduce((acc, question) => {
-            let signedGradings = question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length;
+            let signedGradings = question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
             return acc + signedGradings * question.points;
         }, 0);
         // total signed obtained points
-        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).reduce((acc, studentGrading) => acc + studentGrading.pointsObtained, 0), 0);
+        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
         return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
     }
    
@@ -160,7 +165,7 @@ const PageGrading = () => {
                                 link={(questionId, _) => `/exam-sessions/${router.query.sessionId}/grading/${questionId}?participantId=${router.query.participantId}`}
                                 isFilled={(questionId) => {
                                     const question = questions.find((q) => q.id === questionId);
-                                    return question && question.studentGrading.every((studentGrading) => studentGrading.signedBy);
+                                    return question && question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
                                 }}
                             />  
                         </Stack>
@@ -193,7 +198,7 @@ const PageGrading = () => {
                                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
                                 }}
                                 isParticipantFilled={(participant) => {
-                                    const grading = question && question.studentGrading.find((studentGrading) => studentGrading.user.id === participant.id);
+                                    const grading = question && question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
                                     return grading && grading.signedBy;
                                 }}
                             />    
@@ -211,7 +216,7 @@ const PageGrading = () => {
                                 
                                 <GradingSignOff
                                     loading={loading}
-                                    grading={question.studentGrading.find((grading) => grading.user.id === router.query.participantId)}
+                                    grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
                                     maxPoints={question.points}
                                     onSignOff={onSignOff}
                                     clickNextParticipant={(current) => {
@@ -288,9 +293,9 @@ const SuccessRate = ({ value }) => {
 }
 
 const GradingActions = ({ questions, loading, signOffAllAutograded, endGrading }) => {
-    let totalGradings = questions.reduce((acc, question) => acc + question.studentGrading.length, 0);
-    let totalSigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.signedBy).length, 0);
-    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentGrading.filter((studentGrading) => studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !studentGrading.signedBy).length, 0);
+    let totalGradings = questions.reduce((acc, question) => acc + question.studentAnswer.length, 0);
+    let totalSigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length, 0);
+    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !sa.studentGrading.signedBy).length, 0);
 
     return(
         <Paper sx={{ p:1 }}>
