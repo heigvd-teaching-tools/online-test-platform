@@ -19,9 +19,6 @@ const handler = async (req, res) => {
         case 'GET':
             await get(req, res);
             break;
-        case 'POST':
-            await post(req, res);
-            break;
         case 'PATCH':
             await patch(req, res);
             break;

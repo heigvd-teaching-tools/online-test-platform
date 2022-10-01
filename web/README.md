@@ -58,3 +58,94 @@ Run interactive shell in the sandbox
 ```bash
     docker exec -it sandbox-docker /bin/sh
 ```
+
+## API endpoints
+
+### Code 
+- /api/code/ [ANY]
+- /api/code/test/answer/:questionId [ANY]
+- /api/code/test/question/:questionId [ANY]
+
+### Exam Sessions
+- /api/exam-sessions/ 
+    [
+        GET - include questions, students, 
+        POST - prepareTypeSpecific = (questionType, question)
+    ]
+
+- /api/exam-sessions/:examSessionId
+    [
+        GET - include students { user }, 
+        PATCH - select phase, durationHours, durationMins
+        DELETE - delete - 200 examSession
+    ]
+
+- /api/exam-sessions/:examSessionId/register
+    [
+        POST - use prepareTypeSpecific = (questionType, question)
+    ]
+
+- /api/exam-sessions/:examSessionId/questions/with-grading/official
+    [
+       GET - include typeSpecific with answer and grading
+    ]
+
+- /api/exam-sessions/:examSessionId/questions/with-answer/official
+    [
+       GET - include typeSpecific with answer
+    ]
+
+- /api/exam-sessions/:examSessionId/questions/:questionId/answer
+    [
+        POST - use prepareAnswer, grading 
+    ]
+
+### Exams 
+
+- /api/exams 
+    [
+        GET - include questions 
+        POST - label, description
+    ]
+
+- /api/exams/:examId
+    [
+        GET  
+        PATCH - label, description, questions - use prepareTypeSpecific = (questionType, question)
+        DELETE - delete - 200 exam
+    ]
+
+- /api/exams/:examId/questions
+    [
+        GET - include typeSpecific
+        POST - create default question
+    ]
+
+### Grading 
+
+- /api/grading
+    [
+        PATCH - { status, pointsObtained, signedByUserEmail, comment}, include signedBy
+    ]
+
+### Questions
+
+- /api/questions
+    [
+        PATCH - include type_specific, use prepareTypeSpecific
+        DELETE - 200 question
+    ]
+
+- /api/questions/order
+    [
+        PATCH - questions, ret message
+    ]
+
+### users 
+
+- /api/users/:email/exam-sessions/:sessionId
+    [
+        GET - include questions, answers
+    ]
+    
+  
