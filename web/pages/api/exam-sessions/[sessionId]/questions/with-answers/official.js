@@ -1,5 +1,6 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
 
+import { buildPrismaQuestionsQuery } from '../../../../../../code/questions';
 import { hasRole } from '../../../../../../utils/auth';
 
 if (!global.prisma) {
@@ -24,19 +25,17 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    const { sessionId } = req.query
+    const { sessionId } = req.query;
+
+    let selectQuery = buildPrismaQuestionsQuery({
+        parentResource: 'examSession',
+        parentResourceId: sessionId,
+        includeTypeSpecific: true,
+        includeOfficialAnswers: true
+    });
+
     const questions = await prisma.question.findMany({
-        where: {
-            examSession: {
-                id: sessionId
-            }
-        },
-        include: {
-            code: { select: { code: true, solution: true } },
-            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-            trueFalse: { select: { isTrue: true } },
-            essay: true,
-        },
+        ...selectQuery,
         orderBy: {
             order: 'asc'
         }

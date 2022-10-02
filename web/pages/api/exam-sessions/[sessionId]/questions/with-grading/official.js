@@ -1,6 +1,7 @@
 import { PrismaClient, Role } from '@prisma/client';
 
 import { hasRole } from '../../../../../../utils/auth';
+import { buildPrismaQuestionsQuery, IncludeStrategy } from '../../../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -24,40 +25,21 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    const { sessionId } = req.query
+    const { sessionId } = req.query;
+
+    let selectQuestionsQuery = buildPrismaQuestionsQuery({
+        parentResource: 'examSession',
+        parentResourceId: sessionId,
+        includeTypeSpecific: true,
+        includeOfficialAnswers: true,
+        includeUserAnswers: {
+            strategy: IncludeStrategy.ALL
+        },
+        includeGradings: true
+    });
     
     const questions = await prisma.question.findMany({
-        where: {
-            examSession: {
-                id: sessionId
-            }
-        },
-        include: {
-            code: { select: { code: true, solution: true } },
-            multipleChoice: { select: { options: true } },
-            trueFalse: { select: { isTrue: true } },
-            essay: true,
-            studentAnswer: {
-                select: {
-                    user: true,
-                    code: true,
-                    multipleChoice: { select: { options: true } },
-                    essay: { select: { content: true } },
-                    trueFalse: true,
-                    studentGrading: {
-                        select: {
-                            questionId: true,
-                            userEmail: true,
-                            createdAt: true,
-                            status: true,
-                            pointsObtained: true,
-                            signedBy: true,
-                            comment: true,
-                        }
-                    }
-                }
-            }
-        },
+        ...selectQuestionsQuery,
         orderBy: {
             order: 'asc'
         }

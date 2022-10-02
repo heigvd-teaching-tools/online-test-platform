@@ -1,4 +1,4 @@
-import { PrismaClient, Role, ExamSessionPhase, StudentAnswerStatus } from '@prisma/client';
+import { PrismaClient, Role, ExamSessionPhase, StudentAnswerStatus, QuestionType } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../../../utils/auth';
 import { grading } from '../../../../../../../code/grading';
@@ -101,7 +101,7 @@ const post = async (req, res) => {
 
 const prepareAnswer = (questionType, answer, mode) => {
     switch(questionType) {
-        case 'multipleChoice':
+        case QuestionType.multipleChoice:
             let options = {};
             // the order of the properties is important, first set than connect
             if(mode === 'update') {
@@ -112,15 +112,15 @@ const prepareAnswer = (questionType, answer, mode) => {
             return {
                 options
             }
-        case 'trueFalse':
+        case QuestionType.trueFalse:
             return {
                 isTrue: answer ? answer.isTrue : null
             }
-        case 'essay': 
+        case QuestionType.essay: 
             return {
                 content: answer ? String(answer.content) : null
             }
-        case 'code':
+        case QuestionType.code:
             return {
                 code: answer ? String(answer.code) : null
             }

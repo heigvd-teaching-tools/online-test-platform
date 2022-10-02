@@ -145,7 +145,7 @@ Run interactive shell in the sandbox
 
 - /api/users/:email/exam-sessions/:sessionId
     [
-        GET - include questions, answers
+        GET - include examSession {  questions, answers }
     ]
     
   

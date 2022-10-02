@@ -1,6 +1,7 @@
 import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
 
 import { hasRole } from '../../../../../utils/auth';
+import { buildPrismaQuestionsQuery, IncludeStrategy } from '../../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -40,28 +41,19 @@ const get = async (req, res) => {
             select: { phase: true }
         });
         if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
+            let questionsQuery = buildPrismaQuestionsQuery({
+                includeTypeSpecific: true,
+                includeUserAnswers: {
+                    strategy: IncludeStrategy.USER_SPECIFIC,
+                    userEmail: email
+                }
+            });
+
             include = {
                 examSession: {
                     include: {
                         questions: {
-                            include: {
-                                code: { select: { code: true } },
-                                multipleChoice: { select: { options: { select: { id: true, text: true } } } },
-                                essay: true,
-                                studentAnswer: {
-                                    where: {
-                                        userEmail: email
-                                    },
-                                    select: {
-                                        status: true,
-                                        code: true,
-                                        multipleChoice: { select: { options: { select: { id: true, text: true } } } },
-                                        essay: { select: { content: true } },
-                                        trueFalse: true,
-                                    },
-                                    
-                                }
-                            },
+                            ...questionsQuery,
                             orderBy: {
                                 order: 'asc'
                             }

@@ -3,6 +3,8 @@ import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
 import { grading } from '../../../../code/grading';
 
+import { buildPrismaQuestionsQuery } from '../../../../code/questions';
+
 if (!global.prisma) {
     global.prisma = new PrismaClient()
 }
@@ -46,18 +48,14 @@ const post = async (req, res) => {
         }
     });
 
-    // add empty answers and gradings for each question
-    const questions = await prisma.question.findMany({
-        where: {
-            examSessionId: sessionId
-        },
-        include: {
-            code: true,
-            multipleChoice: true,
-            trueFalse: true,
-            essay: true
-        }
+    let selectQuery = buildPrismaQuestionsQuery({
+        parentResource: 'examSession',
+        parentResourceId: sessionId,
+        includeTypeSpecific: true
     });
+
+    // add empty answers and gradings for each question
+    const questions = await prisma.question.findMany(selectQuery);
 
     for (const question of questions) {   
         let query = {

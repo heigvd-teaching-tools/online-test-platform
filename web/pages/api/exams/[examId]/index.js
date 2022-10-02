@@ -2,6 +2,7 @@ import { PrismaClient, Role, QuestionType } from '@prisma/client';
 
 import { hasRole } from '../../../../utils/auth';
 
+
 if (!global.prisma) {
     global.prisma = new PrismaClient()
 }
@@ -30,7 +31,10 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    const { examId } = req.query
+    const { examId } = req.query;
+
+
+
     const exam = await prisma.exam.findUnique({
         where: {
             id: examId
