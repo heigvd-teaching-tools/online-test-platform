@@ -7,7 +7,7 @@ export const IncludeStrategy = {
 
 /*
 
-console.log(buildPrismaQuestionsQuery({
+console.log(includeQuestions({
     parentResource: 'exam',
     parentResourceId: examId,
     includeOfficialAnswers: true,
@@ -37,7 +37,7 @@ const code = (withAnswer) => ({
 
 const trueFalse = (withAnswer) => withAnswer;
 
-export const buildPrismaQuestionsQuery = ( { 
+export const includeQuestions = ( { 
     parentResource, 
     parentResourceId, 
     includeTypeSpecific,
@@ -102,19 +102,41 @@ export const buildPrismaQuestionsQuery = ( {
     }
 }
 
-
-const prepareTypeSpecific = (questionType, question) => {
+export const questionTypeSpecific = (questionType, question, currentQuestion) => {
+    let typeSpecificCopy = { ...question[questionType] };
+    delete typeSpecificCopy.questionId;
     switch(questionType) {
         case QuestionType.multipleChoice:
-            return {
-                options: { create: question[questionType].options.length > 0 ? question[questionType].options : undefined }
+            let clauses = {};   
+            if(currentQuestion) { 
+                // updating existing question -> delete all existing options before create
+                let toDeleteMany = currentQuestion.multipleChoice && currentQuestion.multipleChoice.options.length > 0;
+                if(toDeleteMany) {
+                    clauses.deleteMany = {};
+                }
+            }
+
+            let options = question.multipleChoice.options.map(option => ({
+                text: option.text,
+                isCorrect: option.isCorrect
+            }));
+
+            clauses.createMany = {
+                data: options.length > 0 ? options : undefined
+            }
+
+            return { 
+                options: {
+                    ...clauses
+                } 
             };
         case QuestionType.trueFalse:
-            return question[questionType];
+            return typeSpecificCopy;
         case QuestionType.essay:
-            return {}
+            // type specific does not have any specific fields, might carry the solution in the future
+            return {} 
         case QuestionType.code:
-            return question[questionType]
+            return typeSpecificCopy
         default:
             return undefined;
     }

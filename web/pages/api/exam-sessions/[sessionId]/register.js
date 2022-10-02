@@ -3,7 +3,7 @@ import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
 import { grading } from '../../../../code/grading';
 
-import { buildPrismaQuestionsQuery } from '../../../../code/questions';
+import { includeQuestions } from '../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -48,17 +48,17 @@ const post = async (req, res) => {
         }
     });
 
-    let selectQuery = buildPrismaQuestionsQuery({
+    let query = includeQuestions({
         parentResource: 'examSession',
         parentResourceId: sessionId,
         includeTypeSpecific: true
     });
 
     // add empty answers and gradings for each question
-    const questions = await prisma.question.findMany(selectQuery);
+    const questions = await prisma.question.findMany(query);
 
     for (const question of questions) {   
-        let query = {
+        await prisma.studentAnswer.upsert({
             where: {
                 userEmail_questionId: {
                     userEmail: studentEmail,
@@ -70,42 +70,20 @@ const post = async (req, res) => {
                 userEmail: studentEmail,
                 questionId: question.id,
                 [question.type]: {
-                    create: prepareTypeSpecific(question.type, question)
+                    // only code questions have type specific data, "partial code", in empty answer
+                    create: question.type === QuestionType.code ? { 
+                        code: question.code.code
+                    } : {}
                 },
                 studentGrading: {
                     create: grading(question, undefined)
                 }
             }
-        }
-        await prisma.studentAnswer.upsert(query);
+        });
     }
          
     res.status(200).json(userOnExamSession);
 }
 
-const prepareTypeSpecific = (questionType, question) => {
-    switch(questionType) {
-        case QuestionType.multipleChoice:
-            return {
-                options: {
-                    create: []
-                }
-            }
-        case QuestionType.trueFalse:
-            return {
-                isTrue: null
-            }
-        case QuestionType.code:
-            return {
-                code: question.code.code,
-            }
-        case QuestionType.essay:
-            return {
-                content: ''
-            }
-        default:
-            return {}
-    }
-}
 
 export default handler;

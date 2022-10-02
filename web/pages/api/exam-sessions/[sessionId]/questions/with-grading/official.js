@@ -1,7 +1,7 @@
 import { PrismaClient, Role } from '@prisma/client';
 
 import { hasRole } from '../../../../../../utils/auth';
-import { buildPrismaQuestionsQuery, IncludeStrategy } from '../../../../../../code/questions';
+import { includeQuestions, IncludeStrategy } from '../../../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -27,7 +27,7 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
     const { sessionId } = req.query;
 
-    let selectQuestionsQuery = buildPrismaQuestionsQuery({
+    let query = includeQuestions({
         parentResource: 'examSession',
         parentResourceId: sessionId,
         includeTypeSpecific: true,
@@ -39,7 +39,7 @@ const get = async (req, res) => {
     });
     
     const questions = await prisma.question.findMany({
-        ...selectQuestionsQuery,
+        ...query,
         orderBy: {
             order: 'asc'
         }

@@ -1,6 +1,6 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
 import { hasRole } from '../../../utils/auth';
-import { ExamSessionPhase } from '@prisma/client';
+import { questionTypeSpecific } from '../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -48,7 +48,7 @@ const post = async (req, res) => {
                     points: parseInt(question.points),
                     order: parseInt(question.order),
                     [question.type]: {
-                        create: prepareTypeSpecific(question.type, question)
+                        create: questionTypeSpecific(question.type, question)
                     }
                 }))
             }
@@ -58,25 +58,5 @@ const post = async (req, res) => {
     res.status(200).json(examSession);
 }
 
-const prepareTypeSpecific = (questionType, question) => {
-    switch(questionType) {
-        case QuestionType.multipleChoice:
-            let options = question.multipleChoice.options.map(option => ({
-                text: option.text,
-                isCorrect: option.isCorrect
-            }));
-            return {
-                options: { create: options.length > 0 ? options : undefined }
-            };
-        case QuestionType.trueFalse:
-            return question[questionType];
-        case QuestionType.essay:
-            return {}
-        case QuestionType.code:
-            return question[questionType]
-        default:
-            return undefined;
-    }
-}
 
 export default handler;

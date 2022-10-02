@@ -1,7 +1,5 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
-
+import { PrismaClient, Role } from '@prisma/client';
 import { hasRole } from '../../../../utils/auth';
-
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -43,47 +41,16 @@ const get = async (req, res) => {
     res.status(200).json(exam);
 }
 
-const prepareTypeSpecific = (questionType, question) => {
-    switch(questionType) {
-        case QuestionType.multipleChoice:
-            return {
-                options: { create: question[questionType].options.length > 0 ? question[questionType].options : undefined }
-            };
-        case QuestionType.trueFalse:
-            return question[questionType];
-        case QuestionType.essay:
-            return {}
-        case QuestionType.code:
-            return question[questionType]
-        default:
-            return undefined;
-    }
-}
-
 const patch = async (req, res) => {
     const { examId } = req.query
-    const { label, description, questions } = req.body;
+    const { label, description } = req.body;
 
     let data = {
         label,
         description,
     }
 
-    if(questions) {
-        data.questions = {
-            deleteMany: {},
-            create: questions.map(question => ({
-                content: question.content,
-                type: question.type,
-                points: parseInt(question.points),
-                order: parseInt(question.order),
-                [question.type]: {
-                    create: prepareTypeSpecific(question.type, question)
-                }
-            }))
-        };
-    }
-
+    
     const exam = await prisma.exam.update({
         where: {
             id: examId

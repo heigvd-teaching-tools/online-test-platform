@@ -1,7 +1,7 @@
 import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
 
 import { hasRole } from '../../../../../utils/auth';
-import { buildPrismaQuestionsQuery, IncludeStrategy } from '../../../../../code/questions';
+import { includeQuestions, IncludeStrategy } from '../../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -41,7 +41,7 @@ const get = async (req, res) => {
             select: { phase: true }
         });
         if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
-            let questionsQuery = buildPrismaQuestionsQuery({
+            let queryQuestions = includeQuestions({
                 includeTypeSpecific: true,
                 includeUserAnswers: {
                     strategy: IncludeStrategy.USER_SPECIFIC,
@@ -53,7 +53,7 @@ const get = async (req, res) => {
                 examSession: {
                     include: {
                         questions: {
-                            ...questionsQuery,
+                            ...queryQuestions,
                             orderBy: {
                                 order: 'asc'
                             }

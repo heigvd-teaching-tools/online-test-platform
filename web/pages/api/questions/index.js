@@ -1,5 +1,5 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
-
+import { questionTypeSpecific } from '../../../code/questions';
 import { hasRole } from '../../../utils/auth';
 
 if (!global.prisma) {
@@ -57,13 +57,13 @@ const patch = async (req, res) => {
                         delete: true
                     },
                     [question.type]: {
-                        create: prepareTypeSpecific(question.type, question, currentQuestion)
+                        create: questionTypeSpecific(question.type, question, currentQuestion)
                     }
                 }
             });
         }
     }
-       
+    
     const updatedQuestion = await prisma.question.update({
         where: {
             id: question.id
@@ -73,7 +73,7 @@ const patch = async (req, res) => {
             content: question.content,
             points: parseInt(question.points),
             [question.type]: {
-                update: prepareTypeSpecific(question.type, question, currentQuestion)
+                update: questionTypeSpecific(question.type, question, currentQuestion)
             }
         },
         include: {
@@ -94,29 +94,6 @@ const del = async (req, res) => {
         }
     });
     res.status(200).json(deletedQuestion);
-}
-
-const prepareTypeSpecific = (questionType, question, currentQuestion) => {
-    switch(questionType) {
-        case QuestionType.multipleChoice:
-            let toDeleteMany = currentQuestion.multipleChoice && currentQuestion.multipleChoice.options.length > 0;
-            let clauses = {};   
-            if(toDeleteMany) {
-                clauses.deleteMany = {};
-            }
-            clauses.createMany = {
-                data: question[questionType].options
-            }
-            return { options: {...clauses} };
-        case QuestionType.trueFalse:
-            return question[questionType];
-        case QuestionType.essay:
-            return {}
-        case QuestionType.code:
-            return question[questionType]
-        default:
-            return undefined;
-    }
 }
 
 

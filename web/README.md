@@ -70,7 +70,7 @@ Run interactive shell in the sandbox
 - /api/exam-sessions/ 
     [
         GET - include questions, students, 
-        POST - prepareTypeSpecific = (questionType, question)
+        POST - 
     ]
 
 - /api/exam-sessions/:examSessionId

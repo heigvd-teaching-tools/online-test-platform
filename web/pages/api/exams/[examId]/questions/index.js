@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { buildPrismaQuestionsQuery } from '../../../../../code/questions';
+import { includeQuestions } from '../../../../../code/questions';
 import { hasRole } from '../../../../../utils/auth';
 
 if (!global.prisma) {
@@ -29,7 +29,7 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
     const { examId } = req.query
 
-    let selectQuery = buildPrismaQuestionsQuery({
+    let query = includeQuestions({
         parentResource: 'exam',
         parentResourceId: examId,
         includeTypeSpecific: true,
@@ -37,7 +37,7 @@ const get = async (req, res) => {
     });
 
     const questions = await prisma.question.findMany({
-        ...selectQuery,
+        ...query,
         orderBy: {
             order: 'asc'
         }

@@ -138,7 +138,7 @@ model StudentAnswerMultipleChoice {
 model TrueFalse {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  isTrue     Boolean  @default(true)
+  isTrue     Boolean?  
 }
 
 model Essay {
@@ -250,7 +250,7 @@ model StudentAnswerTrueFalse {
   userEmail     String
   questionId    String
 
-  isTrue Boolean? @default(true)
+  isTrue Boolean? 
 
   @@id([userEmail, questionId])
 }
