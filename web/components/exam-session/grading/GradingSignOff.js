@@ -189,19 +189,18 @@ const GradingSigned = ({ signedBy, onUnsign }) => {
             onMouseOver={() => setExpanded(true)}
             onMouseOut={() => setExpanded(false)}
             >
-            
+            <Stack alignItems="center">
+                <Image 
+                    src="/svg/grading/signed-off.svg"  
+                    alt="Signed Off"
+                    layout="fixed" width={32} height={32}
+                />
+            </Stack>
             <UserAvatar
                 collapsed={!expanded}
                 user={signedBy}
                 size={32}
             />
-            <Box>
-            <Image 
-                src="/svg/grading/signed-off.svg"  
-                alt="Signed Off"
-                layout="fixed" width={32} height={32}
-            />
-            </Box>
             <Collapse 
                 in={expanded} timeout="auto" unmountOnExit
                 orientation='horizontal'
