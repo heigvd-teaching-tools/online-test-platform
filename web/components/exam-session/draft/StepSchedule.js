@@ -16,7 +16,6 @@ const StepSchedule = ({ examSession, onChange }) => {
 
     useEffect(() => {
         if(examSession){
-            console.log("examSession", examSession);
             if(examSession.durationHours > 0 || examSession.durationMinutes > 0){
                 // hours and minutes between startAt and endAt
                 setUseDuration(true);

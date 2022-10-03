@@ -36,14 +36,27 @@ const get = async (res) => {
 
 const post = async (req, res) => {
     const { label, description } = req.body;
-    const exam = await prisma.exam.create({
-        data: {
-            label,
-            description
+    try {
+        const exam = await prisma.exam.create({
+            data: {
+                label,
+                description
+            }
+        });
+        res.status(200).json(exam);
+    } catch (e) {
+        switch(e.code) {
+            case 'P2002':
+                res.status(409).json({ message: 'Exam already exists' });
+                break;
+            default:
+                res.status(500).json({ message: 'Internal server error' });
         }
-    });
+        return;
+    }
+
                     
-    res.status(200).json(exam);
+    
 }
 
 export default handler;

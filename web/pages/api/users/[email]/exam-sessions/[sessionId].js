@@ -30,9 +30,7 @@ const get = async (req, res) => {
 
     const { sessionId, email, questions } = req.query;
 
-    let include = {
-        examSession: true
-    };
+    let include = { examSession: true };
 
     if(questions === 'true'){
         // control the phase of the exam session
@@ -40,6 +38,12 @@ const get = async (req, res) => {
             where: { id: sessionId },
             select: { phase: true }
         });
+
+        if(!examSession){
+            res.status(404).json({ message: 'Exam session not found' });
+            return;
+        }
+
         if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
             let queryQuestions = questionsWithIncludes({
                 includeTypeSpecific: true,
@@ -73,6 +77,7 @@ const get = async (req, res) => {
         },
         include
     });
+
     if(!userOnExamSession){
         res.status(403).json({ message: 'You are not allowed to access this exam session' });
         return;

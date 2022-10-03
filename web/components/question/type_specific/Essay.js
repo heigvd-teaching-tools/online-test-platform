@@ -7,7 +7,6 @@ const Essay = ({ id = "essay", content:initial, onChange }) => {
     
     useEffect(() => {
         setContent(initial || '');
-        console.log("Essay change", initial === undefined);
     }, [initial, id]);
 
     return (

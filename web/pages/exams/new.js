@@ -5,10 +5,11 @@ import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
 
 import LayoutMain from '../../components/layout/LayoutMain';
 import { useInput } from '../../utils/useInput';
+import { useSnackbar } from '../../context/SnackbarContext';
 
 const NewExam = () => {
     const router = useRouter()
-
+    const { show: showSnackbar } = useSnackbar();
     const { value:label, bind:bindLabel, setError:setErrorLabel } = useInput('');
     const { value:description, bind:bindDescription } = useInput('');
 
@@ -17,7 +18,8 @@ const NewExam = () => {
             setErrorLabel({ error: true, helperText: 'Label is required' });
             return;
         }
-        let exam = await fetch('/api/exams', {
+
+        await fetch('/api/exams', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,10 +29,16 @@ const NewExam = () => {
                 label,
                 description
             })
-        });
-        
-        exam = await exam.json();
-        router.push(`/exams/${exam.id}`);
+        })
+        .then((res) => {
+            res.json().then((data) => {
+                if(res.ok) {
+                    router.push(`/exams/${data.id}`);
+                } else {
+                    showSnackbar(data.message, 'error');
+                } 
+            });
+        });        
     };
 
     return (

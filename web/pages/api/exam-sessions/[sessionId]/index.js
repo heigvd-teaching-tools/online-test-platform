@@ -106,14 +106,24 @@ const patch = async (req, res) => {
         data.endAt = endAt;
     }
 
-    const examSessionAfterUpdate = await prisma.examSession.update({
-        where: {
-            id: sessionId
-        },
-        data: data
-    });
-                    
-    res.status(200).json(examSessionAfterUpdate);
+    try {
+        const examSessionAfterUpdate = await prisma.examSession.update({
+            where: {
+                id: sessionId
+            },
+            data: data
+        });           
+        res.status(200).json(examSessionAfterUpdate);
+    } catch (e) {
+        switch(e.code){
+            case 'P2002':
+                res.status(409).json({ message: 'Exam session label already exists' });
+                break;
+            default:
+                res.status(500).json({ message: 'Error while updating exam session' });
+                break;
+        }
+    }    
 }
 
 const del = async (req, res) => {

@@ -163,7 +163,7 @@ enum ExamSessionPhase {
 model ExamSession {
   id String @id @default(cuid())
 
-  label      String?
+  label      String? @unique
   conditions String?
   phase      ExamSessionPhase @default(DRAFT)
   createdAt  DateTime         @default(now())

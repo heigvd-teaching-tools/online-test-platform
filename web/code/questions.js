@@ -20,21 +20,6 @@ console.log(questionsWithIncludes({
 
 */
 
-const multiChoiceOptions = (withAnswer) => ({
-    select: {
-        id: true,
-        text: true,
-        ...(withAnswer ? { isCorrect: true } : {})
-    }
-});
-
-const code = (withAnswer) => ({
-    select: {
-        ...(withAnswer ? { solution: true } : {}),
-        code: true
-    }
-});
-
 const trueFalse = (withAnswer) => withAnswer;
 
 export const questionsWithIncludes = ( { 
@@ -52,19 +37,38 @@ export const questionsWithIncludes = ( {
         }
     } : undefined;
 
+
+    // including type specifics with or without official answers
     let include = includeTypeSpecific ? {
-        code: code(includeOfficialAnswers),
+        code: ({
+            select: {
+                ...(includeOfficialAnswers ? { solution: true } : {}),
+                code: true
+            }
+        }),
         multipleChoice: { 
             select: { 
-                options: multiChoiceOptions(includeOfficialAnswers) 
+                options: ({
+                    select: {
+                        id: true,
+                        text: true,
+                        ...(includeOfficialAnswers ? { isCorrect: true } : {})
+                    }
+                })
             }
         },
-        trueFalse: trueFalse(includeOfficialAnswers),
+        trueFalse: includeOfficialAnswers,
         essay: true,
     } : undefined;
 
+    /*  including user answers
+        studentAnswer is returned as an array of answers -> one to many relationship
+        For IncludeStrategy.USER_SPECIFIC we will have an array with one answer only
+        For IncludeStrategy.ALL we will have an array with all the answers related to that question
+    */
     if(includeTypeSpecific && includeUserAnswers) {
 
+        // no "where" for IncludeStrategy.ALL
         let saWhere = includeUserAnswers.strategy === IncludeStrategy.USER_SPECIFIC ? {
             userEmail: includeUserAnswers.userEmail
         } : undefined;
@@ -81,6 +85,7 @@ export const questionsWithIncludes = ( {
             }
         };
         
+        // include gradings
         if(includeGradings) {
             include.studentAnswer.select.studentGrading = {
                 select: {

@@ -3,9 +3,12 @@ import useSWR from 'swr';
 import { useRouter } from 'next/router';
 import { ExamSessionPhase } from '@prisma/client';
 import LoadingAnimation from '../components/feedback/LoadingAnimation';
+import { useSnackbar } from './SnackbarContext';
 
 const ExamSessionContext = createContext();
+
 export const useExamSession = () => useContext(ExamSessionContext);
+
 const phasePageRelationship = {
     'DRAFT': '/exam-sessions/[sessionId]/draft/[activeStep]',
     'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress/[activeStep]',
@@ -33,6 +36,7 @@ const redirectToPhasePage = (phase, router) => {
 
 export const ExamSessionProvider = ({ children }) => {
     const router = useRouter();
+    const { show: showSnackbar } = useSnackbar();
     const { data:examSession, errorSession, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
@@ -56,7 +60,15 @@ export const ExamSessionProvider = ({ children }) => {
             },
             body: JSON.stringify(data)
         })
-        .then((res) => res.json())
+        .then((res) => {
+            if(res.ok){
+                return res.json();
+            }else{
+                res.json().then((data) => {
+                    showSnackbar(data.message, 'error');
+                });
+            }
+        })
         .then((updatedExamSession) => {
             if(data.phase){
                 redirectToPhasePage(data.phase, router);            
@@ -68,7 +80,7 @@ export const ExamSessionProvider = ({ children }) => {
             setSaving(false);
         });
        
-    }, [router, mutate]);
+    }, [router, mutate, showSnackbar]);
     
     if (errorSession) return <div>failed to load</div>
     if (!examSession) return <LoadingAnimation /> 

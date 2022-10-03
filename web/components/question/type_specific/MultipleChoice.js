@@ -7,7 +7,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
 const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, selectOnly = false}) => {
-    console.log("MultipleChoice", id, initial, onChange, selectOnly);
     const [options, setOptions] = useState();
 
     useEffect(() => {
