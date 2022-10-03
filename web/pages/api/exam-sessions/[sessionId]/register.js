@@ -3,7 +3,7 @@ import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
 import { grading } from '../../../../code/grading';
 
-import { includeQuestions } from '../../../../code/questions';
+import { questionsWithIncludes } from '../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -48,7 +48,7 @@ const post = async (req, res) => {
         }
     });
 
-    let query = includeQuestions({
+    let query = questionsWithIncludes({
         parentResource: 'examSession',
         parentResourceId: sessionId,
         includeTypeSpecific: true

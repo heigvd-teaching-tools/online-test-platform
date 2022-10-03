@@ -1,6 +1,6 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
 
-import { includeQuestions } from '../../../../../../code/questions';
+import { questionsWithIncludes } from '../../../../../../code/questions';
 import { hasRole } from '../../../../../../utils/auth';
 
 if (!global.prisma) {
@@ -27,7 +27,7 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
     const { sessionId } = req.query;
 
-    let query = includeQuestions({
+    let query = questionsWithIncludes({
         parentResource: 'examSession',
         parentResourceId: sessionId,
         includeTypeSpecific: true,

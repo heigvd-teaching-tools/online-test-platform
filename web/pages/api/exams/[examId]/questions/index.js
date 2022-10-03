@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { includeQuestions } from '../../../../../code/questions';
+import { questionsWithIncludes } from '../../../../../code/questions';
 import { hasRole } from '../../../../../utils/auth';
 
 if (!global.prisma) {
@@ -29,7 +29,7 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
     const { examId } = req.query
 
-    let query = includeQuestions({
+    let query = questionsWithIncludes({
         parentResource: 'exam',
         parentResourceId: examId,
         includeTypeSpecific: true,

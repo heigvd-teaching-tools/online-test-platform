@@ -1,4 +1,4 @@
-import { Role, QuestionType } from '@prisma/client';
+import { QuestionType } from '@prisma/client';
 
 export const IncludeStrategy = {
     ALL: 'all',
@@ -7,7 +7,7 @@ export const IncludeStrategy = {
 
 /*
 
-console.log(includeQuestions({
+console.log(questionsWithIncludes({
     parentResource: 'exam',
     parentResourceId: examId,
     includeOfficialAnswers: true,
@@ -37,7 +37,7 @@ const code = (withAnswer) => ({
 
 const trueFalse = (withAnswer) => withAnswer;
 
-export const includeQuestions = ( { 
+export const questionsWithIncludes = ( { 
     parentResource, 
     parentResourceId, 
     includeTypeSpecific,
