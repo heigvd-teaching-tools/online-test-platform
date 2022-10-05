@@ -153,7 +153,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
                     )
                 }
                 
-                <GradingStatus grading={grading} />  
+                <GradingStatus grading={grading} maxPoints={maxPoints} />  
                 
             </Stack>
             )}

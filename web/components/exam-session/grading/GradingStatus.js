@@ -2,12 +2,10 @@ import { StudentQuestionGradingStatus } from '@prisma/client';
 
 import { Chip, Stack, Typography } from "@mui/material";
 
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import PiePercent from '../../feedback/PiePercent';
 
-
-const GradingStatus = ({ grading }) => {
+const GradingStatus = ({ grading, maxPoints }) => {
     return (
         <Chip 
             variant="filled"
@@ -15,16 +13,14 @@ const GradingStatus = ({ grading }) => {
             avatar={
                 <Stack alignItems="center" justifyContent="center" sx={{ ml:2, width:24, height:24, borderRadius: '50%',backgroundColor: 'white' }}>
                     { grading.status !== StudentQuestionGradingStatus.UNGRADED && 
-                        (grading.isCorrect ? 
-                            <CheckIcon
-                                sx={{ color: 'success.main', width:16, height:16 }}
-                            /> 
-                        : 
-                            <ClearIcon
-                                sx={{ color: 'error.main', width:16, height:16 }}
-                            /> 
-                        )}    
-
+                        <PiePercent 
+                            value={grading.pointsObtained}
+                            max={maxPoints}
+                            size={20}
+                            label=" "
+                            thickness={12}
+                            />
+                    }
                     { grading.status === StudentQuestionGradingStatus.UNGRADED && (
                         <PriorityHighIcon 
                             sx={{ color: `${gradingStatusColor(grading.status)}.main`, width:16, height:16 }}

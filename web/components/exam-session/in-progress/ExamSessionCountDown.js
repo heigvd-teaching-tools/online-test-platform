@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Typography, Chip, Box } from '@mui/material';
+import { Typography, Chip, Box, Stack } from '@mui/material';
 import DateCountdown from '../../ui/DateCountdown';
+import PiePercent from '../../feedback/PiePercent';
 
 const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
     const [ percentage, setPercentage ] = useState(100);
@@ -23,7 +24,21 @@ const ExamSessionCountDown = ({ startDate, endDate, onFinish }) => {
 
     return (
         <Chip 
-            avatar={<Pie percentage={parseInt(percentage)}  />}
+            avatar={
+                <Stack alignItems="center" justifyContent="center" sx={{ bgcolor:'white', borderRadius:'50%' }}>
+                <PiePercent
+                    value={percentage}
+                    size={24}
+                    thickness={22}
+                    label=" "
+                    colors={{
+                        0: '#2e7d32',
+                        40: '#0288d1',
+                        70: '#d32f2f'
+                    }}
+                />
+                </Stack>
+            }
             label={
                 <Typography variant="button">
                     <DateCountdown 
