@@ -21,6 +21,7 @@ import ParticipantNav from '../grading/ParticipantNav';
 import { useSession } from "next-auth/react";
 
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 const PageGrading = () => {
     const router = useRouter();
@@ -166,6 +167,19 @@ const PageGrading = () => {
             }
         }
     }, [participants, router, question, questions, applyFilter]);
+
+    const prevParticipantOrQuestion = useCallback(() => {
+        let prevParticipantIndex = participants.findIndex((p) => p.id === router.query.participantId) - 1;
+        if (prevParticipantIndex >= 0) {
+            router.push(`/exam-sessions/${router.query.sessionId}/grading/${question.id}?participantId=${participants[prevParticipantIndex].id}`);
+        } else {
+            let prevQuestionIndex = applyFilter(questions).findIndex((q) => q.id === question.id) - 1;
+            if (prevQuestionIndex >= 0) {
+                router.push(`/exam-sessions/${router.query.sessionId}/grading/${questions[prevQuestionIndex].id}?participantId=${participants[participants.length - 1].id}`);
+            }
+        }
+    }, [participants, router, question, questions, applyFilter]);
+
    
     return (
         <>
@@ -237,14 +251,11 @@ const PageGrading = () => {
                 footer={
                     question && (
                         <Stack direction="row" justifyContent="space-between" >
-                        <IconButton 
-                            onClick={nextParticipantOrQuestion}
-                            disabled={loading}
-                            sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
-                        >
-                            <ArrowForwardIosIcon />
-                        </IconButton>
-                        
+                        <GradingNav 
+                            isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
+                            onPrev={prevParticipantOrQuestion}
+                            onNext={nextParticipantOrQuestion}
+                        />
                         <GradingSignOff
                             loading={loading}
                             grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
@@ -312,6 +323,24 @@ const PageGrading = () => {
     )
 }
 
+const GradingNav = ({ isFirst, onPrev, onNext }) => {
+    return(
+        <Paper>
+            <Stack direction="row" justifyContent="space-between" >
+                <IconButton onClick={onPrev} disabled={isFirst}
+                    sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
+                >
+                    <ArrowBackIosIcon />
+                </IconButton>
+                <IconButton onClick={onNext}
+                    sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
+                >
+                    <ArrowForwardIosIcon />
+                </IconButton>
+                </Stack>
+        </Paper>
+    )
+}
 
 const SuccessRate = ({ value }) => {
     return (
