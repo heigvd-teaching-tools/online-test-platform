@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import {  Grid, Stack, TextField, IconButton, ToggleButton, Button, Typography  } from "@mui/material"
+import {  Grid, Stack, TextField, IconButton, ToggleButton, Button, Typography, Box  } from "@mui/material"
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
@@ -20,7 +20,8 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
     }, [initial, id]);
 
     return(
-        <Stack id={id} direction="column" spacing={1} alignItems="flex-start">
+        <Stack id={id} direction="column" spacing={2}>
+            <Box>
             { !selectOnly && (
                <Button color="primary" startIcon={<AddIcon />} onClick={() => {
                     let newOptions = [...options, {
@@ -33,56 +34,52 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                     Add Option
                 </Button>
             )}
+            </Box>
             
-            <Grid container display="grid" columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
-                {options && options.length > 0 && options.map((option, index) =>
-                    <Grid item key={index}>
-                            <Stack direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
-                                <ToggleButton
-                                    value="correct"
-                                    selected={option.isCorrect}
-                                    color='success'
-                                    onChange={(e) => {
-                                        const newOptions = [...options];
-                                        newOptions[index].isCorrect = !newOptions[index].isCorrect;
-                                        setOptions(newOptions);
-                                        onChange(newOptions);
-                                    } }
-                                >
-                                    { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
-                                </ToggleButton>
-                                { !selectOnly && (<>
-                                    <TextField
-                                        id="outlined-text"
-                                        label={`Option ${index + 1}`}
-                                        variant="outlined"
-                                        value={option.text}
-                                        fullWidth
-                                        onChange={(e) => {
-                                            const newOptions = [...options];
-                                            newOptions[index].text = e.target.value;
-                                            setOptions(newOptions);
-                                            onChange(newOptions);
-                                        } }
-                                    />
-                                    <IconButton variant="small" color="error" onClick={() => {
-                                        let newOptions = [...options];
-                                        newOptions.splice(index, 1);
-                                        setOptions(newOptions);
-                                        onChange(newOptions);
-                                    } }>
-                                        <DeleteIcon />
-                                    </IconButton></>
-                                )}
+            {options && options.length > 0 && options.map((option, index) =>
+                <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
+                    <ToggleButton
+                        value="correct"
+                        selected={option.isCorrect}
+                        color='success'
+                        onChange={(e) => {
+                            const newOptions = [...options];
+                            newOptions[index].isCorrect = !newOptions[index].isCorrect;
+                            setOptions(newOptions);
+                            onChange(newOptions);
+                        } }
+                    >
+                        { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
+                    </ToggleButton>
+                    { !selectOnly && (<>
+                        <TextField
+                            id="outlined-text"
+                            label={`Option ${index + 1}`}
+                            variant="outlined"
+                            value={option.text}
+                            fullWidth
+                            onChange={(e) => {
+                                const newOptions = [...options];
+                                newOptions[index].text = e.target.value;
+                                setOptions(newOptions);
+                                onChange(newOptions);
+                            } }
+                        />
+                        <IconButton variant="small" color="error" onClick={() => {
+                            let newOptions = [...options];
+                            newOptions.splice(index, 1);
+                            setOptions(newOptions);
+                            onChange(newOptions);
+                        } }>
+                            <DeleteIcon />
+                        </IconButton></>
+                    )}
 
-                                { selectOnly && (
-                                    <Typography variant="body1">{option.text}</Typography>
-                                )}
-                            </Stack>
-                        
-                    </Grid>
-                )}
-            </Grid>
+                    { selectOnly && (
+                        <Typography variant="body1">{option.text}</Typography>
+                    )}
+                </Stack>
+            )}
         </Stack>
     )
 }
