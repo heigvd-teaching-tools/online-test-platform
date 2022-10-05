@@ -251,7 +251,7 @@ const PageGrading = () => {
                 footer={
                     question && (
                         <Stack direction="row" justifyContent="space-between" >
-                        <GradingNav 
+                        <GradingNextBack 
                             isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
                             onPrev={prevParticipantOrQuestion}
                             onNext={nextParticipantOrQuestion}
@@ -323,7 +323,7 @@ const PageGrading = () => {
     )
 }
 
-const GradingNav = ({ isFirst, onPrev, onNext }) => {
+const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
     return(
         <Paper>
             <Stack direction="row" justifyContent="space-between" >
