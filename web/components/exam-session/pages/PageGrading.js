@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { StudentQuestionGradingStatus, ExamSessionPhase } from '@prisma/client';
 import Image from 'next/image';
 
-import { Stack, Divider, Paper, Button, Menu, MenuList, MenuItem, Typography } from "@mui/material";
+import { Stack, Divider, Paper, Button, Menu, MenuList, MenuItem, Typography, IconButton } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
@@ -19,6 +19,8 @@ import AnswerCompare from '../../answer/AnswerCompare';
 import GradingSignOff from '../grading/GradingSignOff';
 import ParticipantNav from '../grading/ParticipantNav';
 import { useSession } from "next-auth/react";
+
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const PageGrading = () => {
     const router = useRouter();
@@ -150,10 +152,25 @@ const PageGrading = () => {
         let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
         return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
     }
+
+    const nextParticipantOrQuestion = useCallback(() => {
+        let nextParticipantIndex = participants.findIndex((p) => p.id === router.query.participantId) + 1;
+        if (nextParticipantIndex < participants.length) {
+            router.push(`/exam-sessions/${router.query.sessionId}/grading/${question.id}?participantId=${participants[nextParticipantIndex].id}`);
+        } else {
+            let nextQuestionIndex = applyFilter(questions).findIndex((q) => q.id === question.id) + 1;
+            if (nextQuestionIndex < questions.length) {
+                router.push(`/exam-sessions/${router.query.sessionId}/grading/${questions[nextQuestionIndex].id}?participantId=${participants[0].id}`);
+            } else {
+                setEndGradingDialogOpen(true);
+            }
+        }
+    }, [participants, router, question, questions, applyFilter]);
    
     return (
         <>
            { questions && (
+            <>
             <LayoutSplitScreen 
                 header={<MainMenu />}
                 subheader={
@@ -188,7 +205,7 @@ const PageGrading = () => {
                 }
                 rightWidth={75}
                 rightPanel={
-                    <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto', pb:12 }}>
+                    <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
                         { question && participants && participants.length > 0 && (
                             <>
                             <ParticipantNav 
@@ -212,37 +229,51 @@ const PageGrading = () => {
                                 question={question}
                                 answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
                             />
-                            <Stack direction="row" justifyContent="space-between" sx={{ position:'absolute', bottom:0, left:0, right:0, height: 90 }}>
-                                
-                                <GradingSignOff
-                                    loading={loading}
-                                    grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
-                                    maxPoints={question.points}
-                                    onSignOff={onSignOff}
-                                    clickNextParticipant={(current) => {
-                                        const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
-                                        if (next < participants.length) {
-                                            router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
-                                        }
-                                        
-                                    }}
-                                />
-                                
-                                <SuccessRate 
-                                    value={getSuccessRate()} 
-                                />
-                                <GradingActions
-                                    questions={questions}
-                                    loading={loading || saving}
-                                    signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
-                                    endGrading={() => setEndGradingDialogOpen(true)}
-                                />
-                            </Stack>
                             </>
                         )}
                     </Stack>
                 }
+                footerHeight={90}
+                footer={
+                    question && (
+                        <Stack direction="row" justifyContent="space-between" >
+                        <IconButton 
+                            onClick={nextParticipantOrQuestion}
+                            disabled={loading}
+                            sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
+                        >
+                            <ArrowForwardIosIcon />
+                        </IconButton>
+                        
+                        <GradingSignOff
+                            loading={loading}
+                            grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
+                            maxPoints={question.points}
+                            onSignOff={onSignOff}
+                            clickNextParticipant={(current) => {
+                                const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                if (next < participants.length) {
+                                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
+                                }
+                                
+                            }}
+                        />
+                    
+                        <SuccessRate 
+                            value={getSuccessRate()} 
+                        />
+                        <GradingActions
+                            questions={questions}
+                            loading={loading || saving}
+                            signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
+                            endGrading={() => setEndGradingDialogOpen(true)}
+                        />
+                    </Stack>
+                    )
+                }
             />  
+        
+            </>
            )}
            <DialogFeedback
                 open={autoGradeSignOffDialogOpen}
@@ -280,6 +311,7 @@ const PageGrading = () => {
         </>
     )
 }
+
 
 const SuccessRate = ({ value }) => {
     return (
