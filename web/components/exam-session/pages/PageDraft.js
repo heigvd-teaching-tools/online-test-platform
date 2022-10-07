@@ -82,8 +82,8 @@ const PageDraft = () => {
             await create(data)
             .then((response) => {
                 if(response.ok){
-                    response.json().then((data) => {
-                        router.push(`/exam-sessions/${data.id}/draft`);
+                    response.json().then(async (data) => {
+                        await router.push(`/exam-sessions/${data.id}/draft`);
                     });
                 }else{
                     response.json().then((data) => {
@@ -100,7 +100,7 @@ const PageDraft = () => {
 
     const handleFinalize = useCallback(async () => {
         if(await handleSave()){
-            router.push(`/exam-sessions`);
+            await router.push(`/exam-sessions`);
         }
     }, [router, handleSave]);
 
@@ -108,7 +108,7 @@ const PageDraft = () => {
         <PhaseRedirect phase={examSession?.phase}>
             <LayoutMain>
             <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>  
-            {examSession && (
+            { examSession && examSession.id && (
                 <RegistrationClipboard sessionId={examSession.id} />
             )}        
                 
@@ -137,19 +137,18 @@ const PageDraft = () => {
                         variant="outlined"
                         color="info"
                     >
-                        Save
+                        { examSession && examSession.id ? 'Save' : 'Create' }
                     </LoadingButton>
-
-                    <LoadingButton
-                        onClick={handleFinalize}
-                        loading={saving}
-                        variant="contained"
-                    >
-                        Finalize
-                    </LoadingButton>
-
+                    { examSession && examSession.id && (
+                        <LoadingButton
+                            onClick={handleFinalize}
+                            loading={saving}
+                            variant="contained"
+                        >
+                            Finalize
+                        </LoadingButton>
+                    )}
                 </Stack>
-                
             </Stack>
             </LayoutMain>
         </PhaseRedirect>

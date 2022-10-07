@@ -36,7 +36,8 @@ const StepReferenceExam = ({ examSession, onChange }) => {
     const hasQuestions = () => (sessionQuestions && sessionQuestions.length > 0) || (examQuestions && examQuestions.length > 0);
 
     return (
-        <Stack spacing={2} pt={2}>                        
+        <Stack spacing={2} pt={2}>
+                <Typography variant="h6">Reference Exam</Typography>
                 <Autocomplete
                     id="exam-id"
                     inputValue={input}

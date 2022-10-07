@@ -7,7 +7,7 @@ import { GenericContainer } from "../../testcontainers-node";
 // https://www.npmjs.com/package/testcontainers
 // https://github.com/apocas/dockerode
 
-const EXECUTION_TIMEOUT = 30000;
+const EXECUTION_TIMEOUT = 5000;
 
 export const runSandbox = (code = "", solution = "", mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
