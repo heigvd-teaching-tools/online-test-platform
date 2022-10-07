@@ -50,7 +50,6 @@ const get = async (req, res) => {
 
 const patch = async (req, res) => {
    
-
     const { sessionId } = req.query
 
     const currentExamSession = await prisma.examSession.findUnique({
@@ -59,6 +58,7 @@ const patch = async (req, res) => {
         },
         select: {
             phase: true,
+            startAt: true,
             durationHours: true,
             durationMins: true
         }
@@ -103,6 +103,12 @@ const patch = async (req, res) => {
     }
 
     if(endAt){
+        let startAt = new Date(currentExamSession.startAt);
+        let newEndAt = new Date(endAt);
+        if(newEndAt < startAt){
+            res.status(400).json({ message: 'End time must be after start time' });
+            return;
+        }
         data.endAt = endAt;
     }
 

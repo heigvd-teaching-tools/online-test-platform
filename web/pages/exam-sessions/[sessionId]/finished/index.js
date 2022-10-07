@@ -1,9 +1,5 @@
-import { ExamSessionProvider } from '../../../../context/ExamSessionContext';
 import PageFinished from '../../../../components/exam-session/pages/PageFinished';
 
-const Grading = () =>  
-<ExamSessionProvider>
-    <PageFinished />
-</ExamSessionProvider>
+const Grading = () => <PageFinished />;
 
 export default Grading;

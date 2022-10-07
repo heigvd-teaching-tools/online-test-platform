@@ -2,22 +2,25 @@ import { useEffect, useState } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
 
-import { useExamSession } from '../../../context/ExamSessionContext';
-
 import { Stack, Divider, Typography, Toolbar, Button, Box } from "@mui/material";
 
 import LayoutMain from '../../layout/LayoutMain';
 import Datagrid from '../../ui/DataGrid';
 import UserAvatar from '../../layout/UserAvatar';
 import PiePercent from '../../feedback/PiePercent';
+import PhaseRedirect from './PhaseRedirect';
 
 const PageFinished = () => {
     const router = useRouter();
-    const { examSession } = useExamSession();
 
-    const { data, mutate } = useSWR(
+    const { data:examSession } = useSWR(
+        `/api/exam-sessions/${router.query.sessionId}`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+    );
+
+    const { data } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
-        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        examSession && router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 
@@ -139,7 +142,7 @@ const PageFinished = () => {
     }
 
     return (
-        <>
+        <PhaseRedirect phase={examSession?.phase}>
            { questions && (
             <LayoutMain>
                 <Box sx={{ minWidth:'100%' }}>
@@ -158,7 +161,7 @@ const PageFinished = () => {
                 
             </LayoutMain>
            )}
-        </>
+        </PhaseRedirect>
     )
 }
 

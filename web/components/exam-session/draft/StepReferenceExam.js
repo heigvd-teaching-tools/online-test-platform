@@ -33,13 +33,23 @@ const StepReferenceExam = ({ examSession, onChange }) => {
         }
     }, [sessionQuestions, onChange]);
 
+    const hasQuestions = () => (sessionQuestions && sessionQuestions.length > 0) || (examQuestions && examQuestions.length > 0);
+
     return (
         <Stack spacing={2} pt={2}>                        
                 <Autocomplete
                     id="exam-id"
                     inputValue={input}
                     options={exams || []}
-                    renderInput={(params) => <TextField {...params} label="Find the reference exam" />}
+                    renderInput={(params) => 
+                        <TextField 
+                            {...params} 
+                            label="Find the reference exam" 
+                            error={!hasQuestions()}
+                            helperText={!hasQuestions() && 'Please select the reference exam'}
+                        />
+                
+                    }
                     noOptionsText="No exams found"
                     
                     onInputChange={(event, newInputValue) => {

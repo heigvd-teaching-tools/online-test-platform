@@ -37,25 +37,54 @@ const get = async (res) => {
 }
 
 const post = async (req, res) => {
-    const { questions } = req.body;
-    const examSession = await prisma.examSession.create({
-        data: {
-            phase: ExamSessionPhase.DRAFT,
-            questions: {
-                create: questions.map(question => ({
-                    content: question.content,
-                    type: question.type,
-                    points: parseInt(question.points),
-                    order: parseInt(question.order),
-                    [question.type]: {
-                        create: questionTypeSpecific(question.type, question)
-                    }
-                }))
-            }
+    const { label, conditions, duration, questions } = req.body;
+
+    if(!questions || questions && questions.length === 0){
+        res.status(400).json({ message: 'You exam session has no questions. Please select the reference exam.' });
+        return;
+    }
+
+    if(label.length === 0){
+        res.status(400).json({ message: 'You exam session has no label. Please enter a label.' });
+        return;
+    }
+
+    let data = {
+        phase: ExamSessionPhase.DRAFT,
+        label,
+        conditions,
+        questions: {
+            create: questions.map(question => ({
+                content: question.content,
+                type: question.type,
+                points: parseInt(question.points),
+                order: parseInt(question.order),
+                [question.type]: {
+                    create: questionTypeSpecific(question.type, question)
+                }
+            }))
         }
-    });
+    }
+
+    if(duration){
+        data.durationHours = parseInt(duration.hours);
+        data.durationMins = parseInt(duration.minutes);
+    }
+    try {
+        const examSession = await prisma.examSession.create({ data });
                     
-    res.status(200).json(examSession);
+        res.status(200).json(examSession);
+    } catch (e) {
+        switch(e.code){
+            case 'P2002':
+                res.status(409).json({ message: 'Exam session label already exists' });
+                break;
+            default:
+                res.status(500).json({ message: 'Error while updating exam session' });
+                break;
+        }
+    }    
+
 }
 
 

@@ -1,6 +1,6 @@
 
-import PageNew from "../../components/exam-session/pages/PageNew";
+import PageDraft from "../../components/exam-session/pages/PageDraft";
 
-const NewExamSession = () => <PageNew />;
+const NewExamSession = () => <PageDraft />;
 
 export default NewExamSession;

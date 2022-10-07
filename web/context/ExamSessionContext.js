@@ -9,31 +9,6 @@ const ExamSessionContext = createContext();
 
 export const useExamSession = () => useContext(ExamSessionContext);
 
-const phasePageRelationship = {
-    'DRAFT': '/exam-sessions/[sessionId]/draft/[activeStep]',
-    'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress/[activeStep]',
-    'GRADING': '/exam-sessions/[sessionId]/grading/[activeQuestion]',
-    'FINISHED': '/exam-sessions/[sessionId]/finished',
-};
-
-const redirectToPhasePage = (phase, router) => {
-    if(router.pathname === phasePageRelationship[phase]) return;
-    switch(phase){
-        case ExamSessionPhase.DRAFT:
-            router.push(`/exam-sessions/${router.query.sessionId}/draft/1`);
-            return;
-        case ExamSessionPhase.IN_PROGRESS:
-            router.push(`/exam-sessions/${router.query.sessionId}/in-progress/1`);
-            return;
-        case ExamSessionPhase.GRADING:
-            router.push(`/exam-sessions/${router.query.sessionId}/grading/1`);
-            return;
-        case ExamSessionPhase.FINISHED:
-            router.push(`/exam-sessions/${router.query.sessionId}/finished`);
-            return;
-    }
-}
-
 export const ExamSessionProvider = ({ children }) => {
     const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
@@ -43,12 +18,6 @@ export const ExamSessionProvider = ({ children }) => {
     );
 
     const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-        if (examSession) {
-            redirectToPhasePage(examSession.phase, router);
-        }
-    }, [examSession, router]);
 
     const save = useCallback(async (data) => {
         setSaving(true);
@@ -81,22 +50,15 @@ export const ExamSessionProvider = ({ children }) => {
         });
        
     }, [router, mutate, showSnackbar]);
-    
-    if (errorSession) return <div>failed to load</div>
-    if (!examSession) return <LoadingAnimation /> 
-
     return (
         <>
-            {examSession && (
-                <ExamSessionContext.Provider value={{ 
-                    examSession, 
-                    saving,
-                    save,  
-                }}>
-                        {children}
-                </ExamSessionContext.Provider>
-            )}
-            
+            <ExamSessionContext.Provider value={{ 
+                examSession, 
+                saving,
+                save,  
+            }}>
+                    {children}
+            </ExamSessionContext.Provider>
         </>
     );
 }

@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 import { ExamSessionPhase } from '@prisma/client';
+import useSWR from 'swr';
 
 import { Stack  } from "@mui/material";
 import LayoutMain from '../../layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
-import { useExamSession } from '../../../context/ExamSessionContext';
 
 import StepReferenceExam from '../draft/StepReferenceExam';
 import StepGeneralInformation from '../draft/StepGeneralInformation';
@@ -13,19 +13,32 @@ import StepSchedule from '../draft/StepSchedule';
 
 import RegistrationClipboard from '../RegistrationClipboard';
 import { LoadingButton } from '@mui/lab';
+import { update, create } from './crud';
+import PhaseRedirect from './PhaseRedirect';
 
 const PageDraft = () => {
     const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
-    const { examSession, save, saving} = useExamSession();
+    
+    const { data:examSession, errorSession, mutate } = useSWR(
+        `/api/exam-sessions/${router.query.sessionId}`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        {
+            fallbackData: {
+                id: undefined,
+                label: '',
+                conditions: ''
+            }
+        }
+    );
 
-    const [ selectedExam, setSelectedExam ] = useState();
+    const [ saving, setSaving ] = useState(false);
+    
     const [ questions, setQuestions ] = useState();
 
-    const onChangeRefenceExam = useCallback((exam, questions) => {
-        setSelectedExam(exam);
+    const onChangeRefenceExam = useCallback((_, questions) => {
         setQuestions(questions);
-    }, [setSelectedExam, setQuestions]);
+    }, [setQuestions]);
 
     const [ duration, setDuration ] = useState(undefined);
     const onDurationChange = useCallback((duration) => {
@@ -33,27 +46,57 @@ const PageDraft = () => {
     } , [setDuration]);
 
     const handleSave = useCallback(async () => {
-        if(examSession.label.length === 0){
-            showSnackbar('You exam session has no label. Please enter a label.', 'error');
-            return false;
-        }
+        setSaving(true);
         let data = {
             phase: ExamSessionPhase.DRAFT,
             label: examSession.label,
             conditions: examSession.conditions,
+            questions,
             duration
         };
-        if(selectedExam){
-            data.questions = questions;
+
+        if(!data.questions || data.questions && data.questions.length === 0){
+            showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');
+            return false;
         }
-        await save(data)
-        .then(() => {
-            showSnackbar('Exam session saved', 'success');
-        }).catch(() => {
-            showSnackbar('Error', 'error');
-        });
+
+        if(data.label.length === 0){
+            showSnackbar('You exam session has no label. Please enter a label.', 'error');
+            return false;
+        }
+        
+        if(router.query.sessionId){
+            await update(router.query.sessionId, data)
+            .then((response) => {
+                if(response.ok){
+                    showSnackbar('Exam session saved', 'success');
+                }else{
+                    response.json().then((data) => {
+                        showSnackbar(data.message, 'error');
+                    });
+                }
+            }).catch(() => {
+                showSnackbar('Error while saving exam session', 'error');
+            });
+        } else {
+            await create(data)
+            .then((response) => {
+                if(response.ok){
+                    response.json().then((data) => {
+                        router.push(`/exam-sessions/${data.id}/draft`);
+                    });
+                }else{
+                    response.json().then((data) => {
+                        showSnackbar(data.message, 'error');
+                    });
+                }
+            }).catch(() => {
+                showSnackbar('Error while saving exam session', 'error');
+            });
+        }
+        setSaving(false);
         return true;
-    }, [examSession, duration, questions, selectedExam, save, showSnackbar]);
+    }, [examSession, duration, questions, showSnackbar, router]);
 
     const handleFinalize = useCallback(async () => {
         if(await handleSave()){
@@ -62,50 +105,54 @@ const PageDraft = () => {
     }, [router, handleSave]);
 
     return (
-        <LayoutMain>
-        
-        <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>          
-            <RegistrationClipboard sessionId={examSession.id} />
-            <StepReferenceExam 
-                examSession={examSession} 
-                onChange={onChangeRefenceExam}
-            />
+        <PhaseRedirect phase={examSession?.phase}>
+            <LayoutMain>
+            <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>  
+            {examSession && (
+                <RegistrationClipboard sessionId={examSession.id} />
+            )}        
+                
+                <StepReferenceExam 
+                    examSession={examSession} 
+                    onChange={onChangeRefenceExam}
+                />
 
-            <StepGeneralInformation 
-                examSession={examSession} 
-                onChange={(data)=>{
-                    examSession.label = data.label;
-                    examSession.conditions = data.conditions;
-                }}
-            />
-            
-            <StepSchedule
-                examSession={examSession}
-                onChange={onDurationChange}
-            />
-            
-            <Stack direction="row" justifyContent="space-between">
-                <LoadingButton
-                    onClick={handleSave}
-                    loading={saving}
-                    variant="outlined"
-                    color="info"
-                >
-                    Save
-                </LoadingButton>
+                <StepGeneralInformation 
+                    examSession={examSession} 
+                    onChange={(data)=>{
+                        examSession.label = data.label;
+                        examSession.conditions = data.conditions;
+                    }}
+                />
+                
+                <StepSchedule
+                    examSession={examSession}
+                    onChange={onDurationChange}
+                />
+                
+                <Stack direction="row" justifyContent="space-between">
+                    <LoadingButton
+                        onClick={handleSave}
+                        loading={saving}
+                        variant="outlined"
+                        color="info"
+                    >
+                        Save
+                    </LoadingButton>
 
-                <LoadingButton
-                    onClick={handleFinalize}
-                    loading={saving}
-                    variant="contained"
-                >
-                    Finalize
-                </LoadingButton>
+                    <LoadingButton
+                        onClick={handleFinalize}
+                        loading={saving}
+                        variant="contained"
+                    >
+                        Finalize
+                    </LoadingButton>
 
+                </Stack>
+                
             </Stack>
-            
-        </Stack>
-        </LayoutMain>
+            </LayoutMain>
+        </PhaseRedirect>
     )
 }
 

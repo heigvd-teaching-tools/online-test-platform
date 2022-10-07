@@ -13,7 +13,7 @@ const DialogFeedback = ({ open, title, content, onClose, onConfirm }) => {
   
     const handleConfirm = () => {
         onClose(false);
-        onConfirm();
+        onConfirm && onConfirm();
     };
   
     return (
@@ -34,9 +34,12 @@ const DialogFeedback = ({ open, title, content, onClose, onConfirm }) => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCancel}>Cancel</Button>
-            <Button variant="contained" color="success" onClick={handleConfirm} autoFocus>
-              Confirm
-            </Button>
+            { onConfirm && (
+              <Button variant="contained" color="success" onClick={handleConfirm} autoFocus>
+                Confirm
+              </Button>
+            )}
+            
           </DialogActions>
         </Dialog>
       </div>

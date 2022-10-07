@@ -84,9 +84,9 @@ const ExamSessions = () => {
   const linkPerPhase = (phase, examSessionId) => {
     switch(phase){
       case ExamSessionPhase.DRAFT:
-        return `/exam-sessions/${examSessionId}/draft/1`;
+        return `/exam-sessions/${examSessionId}/draft`;
       case ExamSessionPhase.IN_PROGRESS:
-        return `/exam-sessions/${examSessionId}/in-progress/1`;
+        return `/exam-sessions/${examSessionId}/in-progress`;
       case ExamSessionPhase.GRADING:
         return `/exam-sessions/${examSessionId}/grading/1`;
       case ExamSessionPhase.FINISHED:
@@ -106,7 +106,7 @@ const ExamSessions = () => {
         },
         body: JSON.stringify({ phase: ExamSessionPhase.IN_PROGRESS })
     });
-    router.push(`/exam-sessions/${clickedExamSession.id}/in-progress/1`);
+    router.push(`/exam-sessions/${clickedExamSession.id}/in-progress`);
   }
 
   if (error) return <div>failed to load</div>

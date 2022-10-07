@@ -4,12 +4,12 @@ import { useRouter } from "next/router";
 import { StudentQuestionGradingStatus, ExamSessionPhase } from '@prisma/client';
 import Image from 'next/image';
 
+import { update } from './crud';
+
 import { Stack, Divider, Paper, Button, Menu, MenuList, MenuItem, Typography, IconButton } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
-
-import { useExamSession } from '../../../context/ExamSessionContext';
 
 import QuestionPages from '../take/QuestionPages';
 import MainMenu from '../../layout/MainMenu';
@@ -23,15 +23,29 @@ import { useSession } from "next-auth/react";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
+const getStats = (questions) => {
+    let totalGradings = questions.reduce((acc, question) => acc + question.studentAnswer.length, 0);
+    let totalSigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length, 0);
+    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !sa.studentGrading.signedBy).length, 0);
+    return {
+        totalGradings,
+        totalSigned,
+        totalAutogradedUnsigned
+    }
+}
+
 const PageGrading = () => {
     const router = useRouter();
     const { data:session } = useSession();
 
-    const { save, saving } = useExamSession();
+    const { data:examSession } = useSWR(
+        `/api/exam-sessions/${router.query.sessionId}`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
 
     const { data, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
-        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        examSession && router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 
@@ -41,10 +55,12 @@ const PageGrading = () => {
     const [ filter, setFilter ] = useState();
     const [ question, setQuestion ] = useState();
 
+    const [ saving, setSaving ] = useState(false);
     const [ loading, setLoading ] = useState(false);
 
     const [ autoGradeSignOffDialogOpen, setAutoGradeSignOffDialogOpen ] = useState(false);
     const [ endGradingDialogOpen, setEndGradingDialogOpen ] = useState(false);
+    const [ someUnsignedDialogOpen, setSomeUnsignedDialogOpen ] = useState(false);
 
     useEffect(() => {
         if(data){
@@ -134,16 +150,18 @@ const PageGrading = () => {
     }, [questions, mutate, session]);
 
     const endGrading = useCallback(async () => {
-        await save({
+        setSaving(true);
+        await update(router.query.sessionId, {
             phase: ExamSessionPhase.FINISHED
         }).then(() => {
             router.push(`/exam-sessions/${router.query.sessionId}/finished`);
         }).catch(() => {
             showSnackbar('Error', 'error');
         });
-    }, [save, router]);
+        setSaving(false);
+    }, [router]);
 
-    const getSuccessRate = () => {
+    const getCurrentSuccessRate = () => {
         // total signed points
         let totalSignedPoints = questions.reduce((acc, question) => {
             let signedGradings = question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
@@ -163,7 +181,14 @@ const PageGrading = () => {
             if (nextQuestionIndex < questions.length) {
                 router.push(`/exam-sessions/${router.query.sessionId}/grading/${questions[nextQuestionIndex].id}?participantId=${participants[0].id}`);
             } else {
-                setEndGradingDialogOpen(true);
+                // count signed gradings vs total gradings
+                let stats = getStats(questions);
+                if(stats.totalSigned === stats.totalGradings){
+                    setEndGradingDialogOpen(true);
+                } else {
+                    setSomeUnsignedDialogOpen(true);
+                }
+
             }
         }
     }, [participants, router, question, questions, applyFilter]);
@@ -182,7 +207,7 @@ const PageGrading = () => {
 
    
     return (
-        <>
+        <PhaseRedirect phase={examSession?.phase}>
            { questions && (
             <>
             <LayoutSplitScreen 
@@ -269,12 +294,11 @@ const PageGrading = () => {
                                 
                             }}
                         />
-                    
                         <SuccessRate 
-                            value={getSuccessRate()} 
+                            value={getCurrentSuccessRate()} 
                         />
                         <GradingActions
-                            questions={questions}
+                            stats={getStats(questions)}
                             loading={loading || saving}
                             signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
                             endGrading={() => setEndGradingDialogOpen(true)}
@@ -317,8 +341,18 @@ const PageGrading = () => {
                 }
                 onConfirm={endGrading}
             /> 
+            <DialogFeedback
+                open={someUnsignedDialogOpen}
+                onClose={() => setSomeUnsignedDialogOpen(false)}
+                title="End grading"
+                content={                        
+                    <Typography variant="body1" sx={{ mb:2 }}>
+                        The signoff process is not complete.
+                    </Typography>
+                }
+            /> 
 
-        </>
+        </PhaseRedirect>
     )
 }
 
@@ -352,43 +386,31 @@ const SuccessRate = ({ value }) => {
     )
 }
 
-const GradingActions = ({ questions, loading, signOffAllAutograded, endGrading }) => {
-    let totalGradings = questions.reduce((acc, question) => acc + question.studentAnswer.length, 0);
-    let totalSigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length, 0);
-    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !sa.studentGrading.signedBy).length, 0);
-
-    return(
-        <Paper sx={{ p:1 }}>
-            <Stack justifyContent="center" spacing={1} sx={{ height:"100%" }}>
-                <Stack flexGrow={1} alignItems="start" justifyContent="space-between" direction="row">
-                    <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
-                        <Typography variant="body2" sx={{ mr:1 }}>Grading progress:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned} / {totalGradings}</Typography>
-                    </Stack>    
-                    {totalSigned < totalGradings && (
-                        <PiePercent size={39} value={Math.round((totalSigned / totalGradings) * 100)} />
-                    )}                
-                </Stack>
-                
-                {
-                    totalSigned === totalGradings && (
-                        <Button color="success" fullWidth variant="contained" size="small" onClick={endGrading}>End grading</Button>
-                    )
-                }
-                
-                { 
-                    totalAutogradedUnsigned > 0 && (
-                        <LoadingButton loading={loading} size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</LoadingButton>
-                    )
-                }
+const GradingActions = ({ stats: { totalSigned, totalGradings, totalAutogradedUnsigned }, loading, signOffAllAutograded, endGrading }) => 
+<Paper sx={{ p:1 }}>
+    <Stack justifyContent="center" spacing={1} sx={{ height:"100%" }}>
+        <Stack flexGrow={1} alignItems="start" justifyContent="space-between" direction="row">
+            <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
+                <Typography variant="body2" sx={{ mr:1 }}>Grading progress:</Typography>
+                <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned} / {totalGradings}</Typography>
+            </Stack>    
+            { totalSigned < totalGradings && (
+                <PiePercent size={39} value={Math.round((totalSigned / totalGradings) * 100)} />
+            )}                
         </Stack>
-    </Paper>
-    )
-}
+        { totalSigned === totalGradings && (
+            <Button color="success" fullWidth variant="contained" size="small" onClick={endGrading}>End grading</Button>
+        )}
+        { totalAutogradedUnsigned > 0 && (
+            <LoadingButton loading={loading} size="small" onClick={signOffAllAutograded}>Sign off {totalAutogradedUnsigned} autograded unsigned</LoadingButton>
+        )}
+    </Stack>
+</Paper>
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DialogFeedback from '../../feedback/DialogFeedback';
 import PiePercent from '../../feedback/PiePercent';
+import PhaseRedirect from './PhaseRedirect';
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef(null);

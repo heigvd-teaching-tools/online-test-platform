@@ -1,22 +1,35 @@
-
-import { useEffect } from 'react';
-import { useInput } from '../../../utils/useInput';
-import { Step, StepLabel, StepContent, Stack, TextField, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Stack, TextField, Typography } from '@mui/material';
 
 const StepGeneralInformation = ({ examSession, onChange }) => {
 
-    const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput(examSession.label || '');
-    const { value:conditions, bind:bindConditions, setValue:setConditions } = useInput(examSession.conditions || '');
+    const [ label, setLabel ] = useState(examSession && examSession.label ? examSession.label : '');
+    const [ errorLabel, setErrorLabel ] = useState(false);
+    const [ conditions, setConditions ] = useState(examSession && examSession.conditions ? examSession.conditions : '');
 
     useEffect(() => {
-        if(label.length === 0){
-            setErrorLabel({ error: true, helperText: 'Label is required' });
+        if(!label && examSession){
+            setLabel(examSession.label);
+            setErrorLabel({ error: false });
+            setConditions(examSession.conditions);
         }
+    }, [examSession, setLabel, setErrorLabel, setConditions, label, conditions]);
+
+    useEffect(() => {        
         onChange({
             label,
             conditions
         });
     }, [label, conditions, setErrorLabel, onChange]);
+
+    useEffect(() => {
+        let error = !label || label.length === 0;
+        setErrorLabel(error);
+        if(error){
+            setLabel('');
+        }
+
+    }, [label, setErrorLabel, setLabel]);
 
     return(
         <Stack spacing={2} pt={2}>
@@ -26,7 +39,9 @@ const StepGeneralInformation = ({ examSession, onChange }) => {
                 id="exam-label"
                 fullWidth
                 value={label}
-                {...bindLabel}
+                onChange={(e) => setLabel(e.target.value)}
+                error={errorLabel}
+                helperText={errorLabel ? 'Label is required' : ''}
             />
 
             <TextField
@@ -35,8 +50,8 @@ const StepGeneralInformation = ({ examSession, onChange }) => {
                 fullWidth
                 multiline
                 rows={4}
-                value={conditions}
-                {...bindConditions}
+                value={conditions || ''}
+                onChange={(e) => setConditions(e.target.value)}
             />
         </Stack>
     )

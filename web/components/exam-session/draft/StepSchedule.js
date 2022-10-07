@@ -58,7 +58,7 @@ const StepSchedule = ({ examSession, onChange }) => {
                 />
             )}
             <Typography variant="h6">Student registration</Typography>
-            {examSession.students && examSession.students.length > 0 && (
+            {examSession && examSession.students && examSession.students.length > 0 && (
                 <>
                     <Typography variant="body1">{examSession.students.length} registered students</Typography>
                     <List>
