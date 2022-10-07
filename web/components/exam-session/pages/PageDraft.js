@@ -107,49 +107,51 @@ const PageDraft = () => {
     return (
         <PhaseRedirect phase={examSession?.phase}>
             <LayoutMain>
-            <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>  
-            { examSession && examSession.id && (
-                <RegistrationClipboard sessionId={examSession.id} />
-            )}        
-                
-                <StepReferenceExam 
-                    examSession={examSession} 
-                    onChange={onChangeRefenceExam}
-                />
-
-                <StepGeneralInformation 
-                    examSession={examSession} 
-                    onChange={(data)=>{
-                        examSession.label = data.label;
-                        examSession.conditions = data.conditions;
-                    }}
-                />
-                
-                <StepSchedule
-                    examSession={examSession}
-                    onChange={onDurationChange}
-                />
-                
-                <Stack direction="row" justifyContent="space-between">
-                    <LoadingButton
-                        onClick={handleSave}
-                        loading={saving}
-                        variant="outlined"
-                        color="info"
-                    >
-                        { examSession && examSession.id ? 'Save' : 'Create' }
-                    </LoadingButton>
-                    { examSession && examSession.id && (
-                        <LoadingButton
-                            onClick={handleFinalize}
-                            loading={saving}
-                            variant="contained"
-                        >
-                            Finalize
-                        </LoadingButton>
+                { examSession && (
+                    <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
+                    { examSession.id && (
+                        <RegistrationClipboard sessionId={examSession.id} />
                     )}
+
+                    <StepReferenceExam
+                        examSession={examSession}
+                        onChange={onChangeRefenceExam}
+                    />
+
+                    <StepGeneralInformation
+                        examSession={examSession}
+                        onChange={(data)=>{
+                            examSession.label = data.label;
+                            examSession.conditions = data.conditions;
+                        }}
+                    />
+
+                    <StepSchedule
+                        examSession={examSession}
+                        onChange={onDurationChange}
+                    />
+
+                    <Stack direction="row" justifyContent="space-between">
+                        <LoadingButton
+                            onClick={handleSave}
+                            loading={saving}
+                            variant="outlined"
+                            color="info"
+                        >
+                            { examSession.id ? 'Save' : 'Create' }
+                        </LoadingButton>
+                        { examSession.id && (
+                            <LoadingButton
+                                onClick={handleFinalize}
+                                loading={saving}
+                                variant="contained"
+                            >
+                                Finalize
+                            </LoadingButton>
+                        )}
+                    </Stack>
                 </Stack>
-            </Stack>
+                )}
             </LayoutMain>
         </PhaseRedirect>
     )
