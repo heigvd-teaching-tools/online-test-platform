@@ -39,3 +39,6 @@ next-env.d.ts
 
 # project
 sandbox/runs
+
+.idea
+.vscode
