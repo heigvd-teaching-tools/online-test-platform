@@ -39,13 +39,13 @@ const PageGrading = () => {
     const { data:session } = useSession();
 
     const { data:examSession } = useSWR(
-        `/api/exam-sessions/${router.query.sessionId}/phase`,
+        `/api/exam-sessions/${router.query.sessionId}`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
     );
 
     const { data, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/questions/with-grading/official`,
-        examSession && router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 

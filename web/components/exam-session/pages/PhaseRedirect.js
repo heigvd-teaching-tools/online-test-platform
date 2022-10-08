@@ -10,7 +10,6 @@ const phasePageRelationship = {
 };
 
 const redirectToPhasePage = (phase, router) => {
-    console.log('redirectToPhasePage', phase, router.pathname, phasePageRelationship[phase]);
     if(router.pathname === phasePageRelationship[phase]) return;
     switch(phase){
         case ExamSessionPhase.NEW:

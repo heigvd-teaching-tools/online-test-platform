@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TextField } from "@mui/material";
-import ContentEditor from '../../input/ContentEditor';
+import ContentEditor from '../../input/content/ContentEditor';
 
 const Essay = ({ id = "essay", content:initial, onChange }) => {
     const [content, setContent] = useState();

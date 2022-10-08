@@ -22,7 +22,7 @@ import CodeCheck from './type_specific/CodeCheck';
 import { LoadingButton } from '@mui/lab';
 
 import DialogFeedback from '../feedback/DialogFeedback';
-import ContentEditor from '../input/ContentEditor';
+import ContentEditor from '../input/content/ContentEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
 

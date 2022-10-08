@@ -114,7 +114,7 @@ const CompareMultipleChoice = ({ solution, answer }) => {
 }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ContentEditor from '../input/ContentEditor';
+import ContentEditor from '../input/content/ContentEditor';
 
 const CompareCode = ({ solution, answer, height }) => {
 

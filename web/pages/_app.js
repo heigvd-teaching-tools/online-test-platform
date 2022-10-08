@@ -10,6 +10,9 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+
+import "../components/input/content/ContentEditor.css";
+
 import Authentication from '../components/layout/Authentication';
 
 export const themeOptions = {

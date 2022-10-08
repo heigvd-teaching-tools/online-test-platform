@@ -17,7 +17,7 @@ import QuestionNav from '../take/QuestionNav';
 import AnswerEditor from '../../answer/AnswerEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
-// TODO : Bye bye
+
 const PageTakeExam = () => {
     const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
