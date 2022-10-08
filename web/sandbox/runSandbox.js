@@ -9,14 +9,14 @@ import { GenericContainer } from "../../testcontainers-node";
 
 const EXECUTION_TIMEOUT = 5000;
 
-export const runSandbox = (code = "", solution = "", mode = "run") => {
+export const runSandbox = (code, solution, mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
         
         // Create the files
         let directory = `sandbox/runs/${uniqid()}`;
         fs.mkdirSync(directory);
-        fs.writeFileSync(`${directory}/code.js`, code);
-        fs.writeFileSync(`${directory}/solution.js`, solution);
+        fs.writeFileSync(`${directory}/code.js`, code || "");
+        fs.writeFileSync(`${directory}/solution.js`, solution || "");
 
         // Prepare the container
         const container = await new GenericContainer("node:current-alpine3.16")
