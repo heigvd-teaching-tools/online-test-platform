@@ -97,19 +97,16 @@ const CompareTrueFalse = ({ solution, answer }) => {
 
 const CompareMultipleChoice = ({ solution, answer }) => {
     return (
-        <Grid container display="grid" sx={{p:2}} columnGap={4} rowSpacing={2} gridTemplateColumns={"repeat(2, 1fr)"}>
+        <Stack spacing={2} sx={{p:2}}>
             { solution.map((option, index) => (
-                 <Grid item key={index}>
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
+                <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
                     <RadioViewer key={index} selected={option.isCorrect} filled={answer.some((opt) => opt.id === option.id)} />
                     <Box>
                         <Typography variant="body1">{option.text}</Typography>
                     </Box>
-                    </Stack>
-                </Grid>
-            ))
-            }
-        </Grid>
+                </Stack>
+            ))}
+        </Stack>
     )
 }
 

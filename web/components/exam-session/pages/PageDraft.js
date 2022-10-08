@@ -57,11 +57,13 @@ const PageDraft = () => {
 
         if(!data.questions || data.questions && data.questions.length === 0){
             showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');
+            setSaving(false);
             return false;
         }
 
         if(data.label.length === 0){
             showSnackbar('You exam session has no label. Please enter a label.', 'error');
+            setSaving(false);
             return false;
         }
         

@@ -7,7 +7,7 @@ const StepSchedule = ({ examSession, onChange }) => {
     const [ useDuration, setUseDuration ] = useState(false);
     const [ duration, setDuration ] = useState({
         hours: 0,
-        minutes: 45,
+        minutes: 15,
     });
 
     useEffect(() => {
@@ -16,12 +16,12 @@ const StepSchedule = ({ examSession, onChange }) => {
 
     useEffect(() => {
         if(examSession){
-            if(examSession.durationHours > 0 || examSession.durationMinutes > 0){
+            if(examSession.durationHours > 0 || examSession.durationMins > 0){
                 // hours and minutes between startAt and endAt
                 setUseDuration(true);
                 setDuration({ 
                     hours: examSession.durationHours, 
-                    minutes:examSession.durationMinutes
+                    minutes:examSession.durationMins
                 });
             }
         }

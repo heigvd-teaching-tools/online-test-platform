@@ -23,7 +23,7 @@ import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
 import {OnChangePlugin} from "@lexical/react/LexicalOnChangePlugin";
 
 function Placeholder() {
-    return <div className="editor-placeholder">Enter some rich text...</div>;
+    return <div className="editor-placeholder"></div>;
 }
 
 const editorConfig = {
@@ -51,7 +51,8 @@ const editorConfig = {
 
 const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
     const [editorState, setEditorState] = useState(rawContent);
-    const onChangeState = (newEditorState, editor) => {
+
+    const onChangeState = (newEditorState) => {
         setEditorState(newEditorState);
         if (newEditorState !== editorState) {
             if(onChange) onChange(JSON.stringify(newEditorState.toJSON()));
@@ -60,7 +61,7 @@ const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
     return (
         <LexicalComposer initialConfig={{
             ...editorConfig,
-            editorState: editorState,
+            editorState: editorState || undefined,
             editable: !readOnly
 
         }}>

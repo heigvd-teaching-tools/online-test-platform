@@ -20,23 +20,15 @@ import GradingSignOff from '../grading/GradingSignOff';
 import ParticipantNav from '../grading/ParticipantNav';
 import { useSession } from "next-auth/react";
 
+import { useSnackbar } from "../../../context/SnackbarContext";
+
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-
-const getStats = (questions) => {
-    let totalGradings = questions.reduce((acc, question) => acc + question.studentAnswer.length, 0);
-    let totalSigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length, 0);
-    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !sa.studentGrading.signedBy).length, 0);
-    return {
-        totalGradings,
-        totalSigned,
-        totalAutogradedUnsigned
-    }
-}
 
 const PageGrading = () => {
     const router = useRouter();
     const { data:session } = useSession();
+    const { show: showSnackbar } = useSnackbar();
 
     const { data:examSession } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}`,
@@ -130,7 +122,7 @@ const PageGrading = () => {
         });
         await saveGrading(newGrading);
         setQuestions(newQuestions);
-        mutate(newQuestions, false);
+        await mutate(newQuestions, false);
     }, [questions, question, mutate]);
 
     const signOffAllAutograded = useCallback(async () => {
@@ -146,7 +138,7 @@ const PageGrading = () => {
         }
         await Promise.all(updated.map(grading => saveGrading(grading)));
         setQuestions(newQuestions);
-        mutate(newQuestions, false);
+        await mutate(newQuestions, false);
     }, [questions, mutate, session]);
 
     const endGrading = useCallback(async () => {
@@ -161,17 +153,6 @@ const PageGrading = () => {
         setSaving(false);
     }, [router]);
 
-    const getCurrentSuccessRate = () => {
-        // total signed points
-        let totalSignedPoints = questions.reduce((acc, question) => {
-            let signedGradings = question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
-            return acc + signedGradings * question.points;
-        }, 0);
-        // total signed obtained points
-        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
-        return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
-    }
-
     const nextParticipantOrQuestion = useCallback(() => {
         let nextParticipantIndex = participants.findIndex((p) => p.id === router.query.participantId) + 1;
         if (nextParticipantIndex < participants.length) {
@@ -182,7 +163,7 @@ const PageGrading = () => {
                 router.push(`/exam-sessions/${router.query.sessionId}/grading/${questions[nextQuestionIndex].id}?participantId=${participants[0].id}`);
             } else {
                 // count signed gradings vs total gradings
-                let stats = getStats(questions);
+                let stats = getGradingStats(questions);
                 if(stats.totalSigned === stats.totalGradings){
                     setEndGradingDialogOpen(true);
                 } else {
@@ -295,10 +276,10 @@ const PageGrading = () => {
                             }}
                         />
                         <SuccessRate 
-                            value={getCurrentSuccessRate()} 
+                            value={getSignedSuccessRate(questions)}
                         />
                         <GradingActions
-                            stats={getStats(questions)}
+                            stats={getGradingStats(questions)}
                             loading={loading || saving}
                             signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
                             endGrading={() => setEndGradingDialogOpen(true)}
@@ -411,6 +392,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DialogFeedback from '../../feedback/DialogFeedback';
 import PiePercent from '../../feedback/PiePercent';
 import PhaseRedirect from './PhaseRedirect';
+import {getGradingStats, getSignedSuccessRate} from "./stats";
+
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef(null);

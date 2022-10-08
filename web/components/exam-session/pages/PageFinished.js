@@ -9,6 +9,7 @@ import Datagrid from '../../ui/DataGrid';
 import UserAvatar from '../../layout/UserAvatar';
 import PiePercent from '../../feedback/PiePercent';
 import PhaseRedirect from './PhaseRedirect';
+import {getObtainedPoints, getSignedSuccessRate} from "./stats";
 
 const PageFinished = () => {
     const router = useRouter();
@@ -39,17 +40,6 @@ const PageFinished = () => {
         }
     }, [questions]);
 
-    const getSuccessRate = () => {
-        // total signed points
-        let totalSignedPoints = questions.reduce((acc, question) => {
-            let signedGradings = question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
-            return acc + signedGradings * question.points;
-        }, 0);
-        // total signed obtained points
-        let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
-        return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
-    }
-
     const gridHeaders = {
         columns: [{
             label: 'Participant',
@@ -65,11 +55,7 @@ const PageFinished = () => {
     };
 
     const gridRows = () => participants.map((participant) => {
-        let obtainedPoints = questions.reduce((acc, question) => {
-            let studentGrading = question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
-            return acc + (studentGrading ? studentGrading.pointsObtained : 0);
-        }, 0);
-
+        let obtainedPoints = getObtainedPoints(questions, participant);
         let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
         let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
 
@@ -111,10 +97,7 @@ const PageFinished = () => {
         csv += LINE_SEPARATOR;
 
         participants.forEach((participant) => {
-            let obtainedPoints = questions.reduce((acc, question) => {
-                let studentGrading = question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
-                return acc + (studentGrading ? studentGrading.pointsObtained : 0);
-            }, 0);
+            let obtainedPoints = getObtainedPoints(questions, participant);
 
             let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
             let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
@@ -152,7 +135,7 @@ const PageFinished = () => {
                 </Box>
                     <Stack direction="row" alignItems="center" spacing={2}>
                         <Typography variant="h6">Overall success rate</Typography>
-                        <PiePercent value={getSuccessRate()} />
+                        <PiePercent value={ getSignedSuccessRate(questions) } />
                     </Stack>
                     <Datagrid
                         header={gridHeaders}
