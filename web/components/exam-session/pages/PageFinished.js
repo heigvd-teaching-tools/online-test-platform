@@ -148,14 +148,12 @@ const PageFinished = () => {
                 }
             >
             <TabPanel value={1} >
-                <Box sx={{ minWidth:'100%' }}>
-                    <Toolbar disableGutters variant="dense">
-                        <Button onClick={exportAsCSV}>Export as csv</Button>
-                    </Toolbar>
-                </Box>
-                <Stack direction="row" alignItems="center" spacing={2}>
-                    <Typography variant="h6">Overall success rate</Typography>
-                    <PiePercent value={ getSignedSuccessRate(questions) } />
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                        <Typography variant="h6">Overall success rate</Typography>
+                        <PiePercent value={ getSignedSuccessRate(questions) } />
+                    </Stack>
+                    <Button onClick={exportAsCSV}>Export as csv</Button>
                 </Stack>
                 <DataGrid
                     header={gridHeaders}
