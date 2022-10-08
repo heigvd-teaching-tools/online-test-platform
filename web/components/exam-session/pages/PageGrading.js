@@ -39,7 +39,7 @@ const PageGrading = () => {
     const { data:session } = useSession();
 
     const { data:examSession } = useSWR(
-        `/api/exam-sessions/${router.query.sessionId}`,
+        `/api/exam-sessions/${router.query.sessionId}/phase`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
     );
 

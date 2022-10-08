@@ -23,7 +23,21 @@ const PageTakeExam = () => {
     const { show: showSnackbar } = useSnackbar();
     const { data } = useSession();
 
-    const { data: examSession, error, mutate } = useSWR(
+    const { data:examSessionPhase } = useSWR(
+        `/api/exam-sessions/${router.query.sessionId}/phase`,
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { refreshInterval  : 1000 }
+    );
+
+    useEffect(() => {
+
+        if(examSessionPhase && examSessionPhase.phase !== ExamSessionPhase.IN_PROGRESS){
+            router.push(`/exam-sessions/${router.query.sessionId}/waiting`);
+        }
+    }, [examSessionPhase, router]);
+
+
+    const { data: userOnExamSession, error } = useSWR(
         `/api/users/${data && data.user.email}/exam-sessions/${router.query.sessionId}?questions=true`,
         data && router.query.sessionId ? 
             (...args) => 
@@ -51,7 +65,7 @@ const PageTakeExam = () => {
 
     const onAnswer = useDebouncedCallback(useCallback((answer) => {
         (async () => {
-            await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${examSession.questions[page - 1].id}/answer`, {
+            await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${userOnExamSession.questions[page - 1].id}/answer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ answer: answer })
@@ -65,9 +79,9 @@ const PageTakeExam = () => {
                     }
                     return;
                 }
-                examSession.questions[page - 1].studentAnswer = [{
+                userOnExamSession.questions[page - 1].studentAnswer = [{
                     status: answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING,
-                    [examSession.questions[page - 1].type]: {
+                    [userOnExamSession.questions[page - 1].type]: {
                         ...answer
                     }
                 }];
@@ -81,17 +95,17 @@ const PageTakeExam = () => {
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
-    }, [examSession, page, router.query.sessionId, showSnackbar]), 500);
+    }, [userOnExamSession, page, router.query.sessionId, showSnackbar]), 500);
 
     const hasAnswered = useCallback((questionId) => {
-        let question = examSession.questions.find(q => q.id === questionId);
+        let question = userOnExamSession.questions.find(q => q.id === questionId);
         return question && question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED && question.studentAnswer[0][question.type] !== undefined;
-    }, [examSession]);
+    }, [userOnExamSession]);
 
     if(error) return <LoadingAnimation content={error.message} />     
-    if (!examSession) return <LoadingAnimation /> 
-    if(examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS) {
-        let text = examSession.label ? `${examSession.label} is not in progress.` : 'This exam session is not in progress.';
+    if (!userOnExamSession) return <LoadingAnimation />
+    if(userOnExamSession && userOnExamSession.phase !== ExamSessionPhase.IN_PROGRESS) {
+        let text = userOnExamSession.label ? `${userOnExamSession.label} is not in progress.` : 'This exam session is not in progress.';
         return <LoadingAnimation text={text} />;       
     } 
     
@@ -99,15 +113,15 @@ const PageTakeExam = () => {
         <LayoutSplitScreen 
             header={
                 <Stack direction="row" alignItems="center">
-                    {examSession.startAt && examSession.endAt && (
+                    {userOnExamSession.startAt && userOnExamSession.endAt && (
                         <Box sx={{ ml:2 }}>
-                            <ExamSessionCountDown startDate={examSession.startAt} endDate={examSession.endAt} />
+                            <ExamSessionCountDown startDate={userOnExamSession.startAt} endDate={userOnExamSession.endAt} />
                         </Box>
                     )}
-                    {examSession.questions && examSession.questions.length > 0 && (
+                    {userOnExamSession.questions && userOnExamSession.questions.length > 0 && (
                         <QuestionPages 
-                            questions={examSession.questions}
-                            activeQuestion={examSession.questions[page - 1]}
+                            questions={userOnExamSession.questions}
+                            activeQuestion={userOnExamSession.questions[page - 1]}
                             link={(_, index) => `/exam-sessions/${router.query.sessionId}/take/${index + 1}`}
                             isFilled={hasAnswered} 
                         />
@@ -115,26 +129,26 @@ const PageTakeExam = () => {
                 </Stack>
             }
             leftPanel={
-                examSession.questions && examSession.questions.length > 0 && examSession.questions[page - 1] && (
+                userOnExamSession.questions && userOnExamSession.questions.length > 0 && userOnExamSession.questions[page - 1] && (
                 <>
                     <Box sx={{ height: 'calc(100% - 50px)' }}>
                         <QuestionView 
-                            question={examSession.questions[page - 1]} 
+                            question={userOnExamSession.questions[page - 1]}
                             page={page} 
-                            totalPages={examSession.questions.length} 
+                            totalPages={userOnExamSession.questions.length}
                         />
                     </Box>
                     <QuestionNav 
                         page={page} 
-                        totalPages={examSession.questions.length} 
+                        totalPages={userOnExamSession.questions.length}
                     />
                 </>
             )}
             rightPanel={
-                examSession.questions && examSession.questions.length > 0 && examSession.questions[page - 1] && (
+                userOnExamSession.questions && userOnExamSession.questions.length > 0 && userOnExamSession.questions[page - 1] && (
                 <Stack sx={{ height:'100%', pt:1 }}>
                     <AnswerEditor 
-                        question={examSession.questions[page - 1]}
+                        question={userOnExamSession.questions[page - 1]}
                         onAnswer={onAnswer} 
                     />      
                 </Stack>  

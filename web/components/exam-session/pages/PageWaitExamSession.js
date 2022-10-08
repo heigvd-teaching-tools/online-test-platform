@@ -6,7 +6,6 @@ import { ExamSessionPhase } from '@prisma/client';
 
 import AlertFeedback from "../../feedback/AlertFeedback";
 import LoadingAnimation from "../../feedback/LoadingAnimation";
-import LoginGitHub from '../../layout/LoginGitHub';
 import { Button, Typography } from "@mui/material";
 import Authentication from "../../layout/Authentication";
 

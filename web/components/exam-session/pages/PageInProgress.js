@@ -25,14 +25,7 @@ const PageInProgress = () => {
 
     const { data:examSession, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}`,
-        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        {
-            fallbackData: {
-                id: undefined,
-                label: '',
-                conditions: ''
-            }
-        }
+        router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     const [ saving, setSaving ] = useState(false);
