@@ -124,16 +124,6 @@ model Option {
   studentAnswerMultipleChoice StudentAnswerMultipleChoice[]
 }
 
-model StudentAnswerMultipleChoice {
-  id            String        @id @default(cuid())
-  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-  userEmail     String
-  questionId    String
-
-  options Option[]
-
-  @@unique([userEmail, questionId])
-}
 
 model TrueFalse {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -244,6 +234,18 @@ model StudentQuestionGrading {
   comment String?
 
   @@id([userEmail, questionId])
+}
+
+
+model StudentAnswerMultipleChoice {
+  id            String        @id @default(cuid())
+  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
+
+  options Option[]
+
+  @@unique([userEmail, questionId])
 }
 
 model StudentAnswerTrueFalse {

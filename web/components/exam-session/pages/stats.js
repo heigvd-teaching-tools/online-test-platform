@@ -1,4 +1,4 @@
-import { StudentQuestionGradingStatus } from "@prisma/client";
+import {QuestionType, StudentAnswerStatus, StudentQuestionGradingStatus} from "@prisma/client";
 
 export const getSignedSuccessRate = (questions) => {
     // total signed points
@@ -25,5 +25,78 @@ export const getGradingStats = (questions) => {
         totalGradings,
         totalSigned,
         totalAutogradedUnsigned
+    }
+}
+
+export const getQuestionSuccessRate = (question) => {
+    let totalPoints = question.points * question.studentAnswer.length;
+    let totalObtainedPoints = question.studentAnswer.reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0);
+    return totalPoints > 0 ? Math.round(totalObtainedPoints / totalPoints * 100) : 0;
+}
+
+export const typeSpecificStats = (question) => {
+    switch(question.type) {
+        case QuestionType.multipleChoice:
+            return question[question.type].options.map((option, index) => {
+                // number of times this option was selected in student answers
+                let chosen = question.studentAnswer.reduce((acc, sa) => {
+                    if(sa.status === StudentAnswerStatus.SUBMITTED) {
+                        let isChosen = sa[question.type].options.some((o) => o.id === option.id);
+                        if(isChosen) {
+                            return acc + 1;
+                        }
+                    }
+                    return acc;
+                }, 0);
+                return {
+                    label: `O${index + 1}`,
+                    chosen
+                }
+            });
+        case QuestionType.trueFalse:
+            let trueChosen = question.studentAnswer.reduce((acc, sa) => {
+                if(sa.status === StudentAnswerStatus.SUBMITTED && sa[question.type].isTrue) {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
+            let falseChosen = question.studentAnswer.reduce((acc, sa) => {
+                if(sa.status === StudentAnswerStatus.SUBMITTED && !sa[question.type].isTrue) {
+                    return acc + 1;
+                }
+                return acc;
+
+            }, 0);
+            return {
+                true: {
+                    chosen: trueChosen
+                },
+                false: {
+                    chosen: falseChosen
+                }
+            }
+        case QuestionType.code:
+            let success  = question.studentAnswer.reduce((acc, sa) => {
+                if(sa.status === StudentAnswerStatus.SUBMITTED && sa[question.type].success) {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
+            let failure = question.studentAnswer.reduce((acc, sa) => {
+                if(sa.status === StudentAnswerStatus.SUBMITTED && !sa[question.type].success) {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
+            return {
+                success: {
+                    accomplished: success
+                },
+                failure: {
+                    accomplished: failure
+                }
+            }
+        default:
+            return null
     }
 }
