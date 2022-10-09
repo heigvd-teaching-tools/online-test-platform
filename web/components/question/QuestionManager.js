@@ -15,12 +15,37 @@ const QuestionManager = ({ partOf, partOfId }) => {
     );
 
     const [ createRunning, setCreateRunning ] = useState(false);
-    const { show: showSnackbar } = useSnackbar(); 
+    const { show: showSnackbar } = useSnackbar();
+
+    const savePositions = async () => {
+        await fetch('/api/questions/order', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                questions: questions.map((q) => ({
+                    id: q.id,
+                    points: q.points,
+                    order: q.order
+                }))
+            })
+        })
+            .then((res) => res.json())
+            .then(() => {
+                showSnackbar('Question order changed');
+            }).catch(() => {
+                showSnackbar('Error changing question order', 'error');
+            });
+    }
 
     const handleQuestionUp = useCallback(async (index) => {
         if(!questions || index === 0) return;
         await mutate((questions) => {
             const newQuestions = [...questions];
+            newQuestions[index].order = index - 1;
+            newQuestions[index - 1].order = index;
             const temp = newQuestions[index];
             newQuestions[index] = newQuestions[index - 1];
             newQuestions[index - 1] = temp;
@@ -33,6 +58,8 @@ const QuestionManager = ({ partOf, partOfId }) => {
         if(index === questions.length - 1) return;
         await mutate((questions) => {
             const newQuestions = [...questions];
+            newQuestions[index].order = index + 1;
+            newQuestions[index + 1].order = index;
             const temp = newQuestions[index];
             newQuestions[index] = newQuestions[index + 1];
             newQuestions[index + 1] = temp;
@@ -41,27 +68,7 @@ const QuestionManager = ({ partOf, partOfId }) => {
         await savePositions();
     } , [mutate, savePositions, questions]);
 
-    const savePositions = useCallback(async () => {
-        await fetch('/api/questions/order', {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                questions: questions.map(q => ({
-                    id: q.id,
-                    order: q.order
-                }))
-            })
-        })
-        .then((res) => res.json())
-        .then(() => {
-            showSnackbar('Question order changed');
-        }).catch(() => {
-            showSnackbar('Error changing question order', 'error');
-        });
-    }, [questions, showSnackbar]);
+
 
 
     const createQuestion = useCallback(async () => {
