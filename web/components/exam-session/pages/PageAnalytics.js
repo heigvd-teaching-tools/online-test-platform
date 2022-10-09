@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import useSWR from "swr";
 import ExamSessionAnalytics from "../analytics/ExamSessionAnalytics";
 import {Autocomplete, TextField} from "@mui/material";
+import {useEffect, useState} from "react";
 
 const PageAnalytics = () => {
     const router = useRouter();
@@ -23,23 +24,40 @@ const PageAnalytics = () => {
         { refreshInterval  : 1000 }
     );
 
+    const [ value, setValue ] = useState(null);
+    const [ inputValue, setInputValue ] = useState('');
+
+    useEffect(() => {
+        if(examSession){
+            setValue(examSession);
+            setInputValue(examSession.label);
+        }
+    }, [examSession]);
+
     return (
         <LayoutMain>
-            { examSession && (
-            <Autocomplete
-                id="chose-exam-session"
-                inputValue={examSession.label}
-                options={examSessions || []}
-                getOptionLabel={(option) => option.label}
-                sx={{ width: '70%' }}
-                renderInput={(params) => <TextField {...params} label="Exam session" variant="outlined" />}
-                onChange={async (_, examSession) => {
-                    await router.push(`/exam-sessions/${examSession.id}/analytics`);
-                }}
-            />
-            )}
-            { questions && (
+            { examSession && examSessions && questions && (
+                <>
+                <Autocomplete
+                    id="chose-exam-session"
+                    options={examSessions}
+                    getOptionLabel={(option) => option.label}
+                    sx={{ width: '70%' }}
+                    renderInput={(params) => <TextField {...params} label="Exam session" variant="outlined" />}
+                    value={value}
+                    onChange={async (event, newValue) => {
+                        if(examSession){
+                            await router.push(`/exam-sessions/${newValue.id}/analytics`);
+                        }
+                    }}
+                    inputValue={inputValue}
+                    onInputChange={(event, newInputValue) => {
+                        setInputValue(newInputValue);
+                    }}
+
+                />
                 <ExamSessionAnalytics questions={questions} />
+                </>
             )}
         </LayoutMain>
     )
