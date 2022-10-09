@@ -51,11 +51,11 @@ const editorConfig = {
 
 const emptyStateContent = `{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
 
-const ContentLoaderPlugin = ({ rawContent }) => {
+const ContentLoaderPlugin = ({ id, rawContent }) => {
     const [ editor ] = useLexicalComposerContext();
     useEffect(() => {
         editor.setEditorState(editor.parseEditorState(rawContent || emptyStateContent))
-    } ,  [editor, rawContent]);
+    } ,  [id, editor, rawContent]);
     return null;
 };
 
@@ -64,7 +64,7 @@ const isEditorEmpty = (editorState) => {
     return jsonState.root.children.length === 1 && jsonState.root.children[0].children.length === 0;
 }
 
-const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
+const ContentEditor = ({ id = "content-editor", readOnly = false, rawContent, onChange }) => {
 
     const [ currentEditorState, setCurrentEditorState ] = useState(null);
 
@@ -107,7 +107,7 @@ const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
                         <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
                         </>
                     )}
-                    <ContentLoaderPlugin rawContent={rawContent} />
+                    <ContentLoaderPlugin id={id} rawContent={rawContent} />
                 </div>
             </div>
         </LexicalComposer>
