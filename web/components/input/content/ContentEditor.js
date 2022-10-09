@@ -57,6 +57,11 @@ const ContentLoaderPlugin = ({ rawContent }) => {
     return null;
 };
 
+const isEditorEmpty = (editorState) => {
+    let jsonState = editorState.toJSON();
+    return jsonState.root.children.length === 1 && jsonState.root.children[0].children.length === 0;
+}
+
 const ContentEditor = ({ id, readOnly = false, rawContent, onChange }) => {
 
     const [ currentEditorState, setCurrentEditorState ] = useState(null);
@@ -64,11 +69,9 @@ const ContentEditor = ({ id, readOnly = false, rawContent, onChange }) => {
     const onContentChange = (editorState) => {
         const currentContent = currentEditorState ? currentEditorState.toJSON() : null;
         const newContent = editorState.toJSON();
-
-        console.log("COMPARE", currentContent && JSON.stringify(currentContent) !== JSON.stringify(newContent));
         if(currentContent && JSON.stringify(currentContent) !== JSON.stringify(newContent)){
             setCurrentEditorState(editorState);
-            if(onChange) onChange(JSON.stringify(editorState.toJSON()));
+            if(onChange) onChange(JSON.stringify(!isEditorEmpty(editorState) ? editorState.toJSON() : undefined));
         }
 
         if(!currentContent){
