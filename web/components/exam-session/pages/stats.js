@@ -90,10 +90,31 @@ export const typeSpecificStats = (question) => {
             }, 0);
             return {
                 success: {
-                    accomplished: success
+                    count: success
                 },
                 failure: {
-                    accomplished: failure
+                    count: failure
+                }
+            }
+        case QuestionType.essay:
+            let submitted = question.studentAnswer.reduce((acc, sa) => {
+                if(sa.status === StudentAnswerStatus.SUBMITTED) {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
+            let missing = question.studentAnswer.reduce((acc, sa) => {
+                if(sa.status === StudentAnswerStatus.MISSING) {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
+            return {
+                submitted: {
+                    count: submitted
+                },
+                missing: {
+                    count: missing
                 }
             }
         default:

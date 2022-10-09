@@ -36,9 +36,15 @@ const QuestionAnalytics = ({ question }) => {
                     break;
                 }
                 case QuestionType.code: {
-                    let maxValue = Math.max(data[question.type].success.accomplished, data[question.type].failure.accomplished);
-                    data[question.type].success.percentage = maxValue > 0 ? Math.round(data[question.type].success.accomplished / maxValue * 100) : 0;
-                    data[question.type].failure.percentage = maxValue > 0 ? Math.round(data[question.type].failure.accomplished / maxValue * 100) : 0;
+                    let maxValue = Math.max(data[question.type].success.count, data[question.type].failure.count);
+                    data[question.type].success.percentage = maxValue > 0 ? Math.round(data[question.type].success.count / maxValue * 100) : 0;
+                    data[question.type].failure.percentage = maxValue > 0 ? Math.round(data[question.type].failure.count / maxValue * 100) : 0;
+                    break;
+                }
+                case QuestionType.essay: {
+                    let maxValue = Math.max(data[question.type].submitted.count, data[question.type].missing.count);
+                    data[question.type].submitted.percentage = maxValue > 0 ? Math.round(data[question.type].submitted.count / maxValue * 100) : 0;
+                    data[question.type].missing.percentage = maxValue > 0 ? Math.round(data[question.type].missing.count / maxValue * 100) : 0;
                     break;
                 }
                 default:
@@ -49,7 +55,6 @@ const QuestionAnalytics = ({ question }) => {
     }, [question]);
 
     return (
-        question.type !== QuestionType.essay &&
         <Paper sx={{ p:2, width:'70%' }}>
             <Stack spacing={2}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -103,13 +108,30 @@ const QuestionAnalytics = ({ question }) => {
                                     label="Success"
                                     color="success"
                                     percent={questionData[questionData.type].success.percentage}
-                                    amount={questionData[questionData.type].success.accomplished}
+                                    amount={questionData[questionData.type].success.count}
                                 />
                                 <AnalyticsRow
                                     label="Failure"
                                     color="error"
                                     percent={questionData[questionData.type].failure.percentage}
-                                    amount={questionData[questionData.type].failure.accomplished}
+                                    amount={questionData[questionData.type].failure.count}
+                                />
+                            </>
+                        ))
+                        ||
+                        (questionData.type === QuestionType.essay && (
+                            <>
+                                <AnalyticsRow
+                                    label="Submitted"
+                                    color="success"
+                                    percent={questionData[questionData.type].submitted.percentage}
+                                    amount={questionData[questionData.type].submitted.count}
+                                />
+                                <AnalyticsRow
+                                    label="Missing"
+                                    color="error"
+                                    percent={questionData[questionData.type].missing.percentage}
+                                    amount={questionData[questionData.type].missing.count}
                                 />
                             </>
                         ))
@@ -126,7 +148,7 @@ const QuestionAnalytics = ({ question }) => {
 
 const AnalyticsRow = ({ label, percent, amount, color = 'info' }) =>
     <Stack direction="row" alignItems="center" spacing={2} sx={{ width:'100%' }}>
-        <Box sx={{ width:45, maxWidth:45 }}>
+        <Box sx={{ width:60, maxWidth:60 }}>
             <Typography variant="body1">{label}</Typography>
         </Box>
         <Stack sx={{ flex:1 }} direction="row" spacing={2} alignItems="center">
