@@ -73,7 +73,6 @@ const ContentEditor = ({ id, readOnly = false, rawContent, onChange }) => {
             setCurrentEditorState(editorState);
             if(onChange) onChange(JSON.stringify(!isEditorEmpty(editorState) ? editorState.toJSON() : undefined));
         }
-
         if(!currentContent){
             setCurrentEditorState(editorState);
         }

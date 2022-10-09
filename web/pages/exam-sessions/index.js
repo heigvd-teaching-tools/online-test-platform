@@ -152,6 +152,16 @@ const ExamSessions = () => {
               key: examSession.id,
               linkHref: linkPerPhase(examSession.phase, examSession.id),
               actions:  [(
+                  <>
+                <IconButton key="analytics"
+                    onClick={async (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        await router.push(`/exam-sessions/${examSession.id}/analytics`);
+                    }}
+                >
+                    <Image alt="Analytics" src="/svg/exam/analytics.svg" layout="fixed" width="18" height="18" />
+                </IconButton>
                   <IconButton key="delete-exam" onClick={(ev) => {
                     ev.preventDefault();
                     ev.stopPropagation();
@@ -160,6 +170,7 @@ const ExamSessions = () => {
                   }}>
                     <Image alt="Delete" src="/svg/exam/exam-delete.svg" layout="fixed" width="18" height="18" />
                   </IconButton>
+                  </>
               )]
             }
           }))
