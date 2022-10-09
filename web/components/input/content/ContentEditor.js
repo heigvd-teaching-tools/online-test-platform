@@ -5,7 +5,6 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
-import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
@@ -20,7 +19,8 @@ import { TRANSFORMERS } from "@lexical/markdown";
 import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentLevelPlugin";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
-import {OnChangePlugin} from "@lexical/react/LexicalOnChangePlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 
 function Placeholder() {
     return <div className="editor-placeholder"></div>;
@@ -49,40 +49,61 @@ const editorConfig = {
     ]
 };
 
-const ContentEditor = ({ readOnly = false, rawContent, onChange }) => {
-    const [editorState, setEditorState] = useState(rawContent);
+const emptyStateContent = `{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}`;
 
-    const onChangeState = (newEditorState) => {
-        setEditorState(newEditorState);
-        if (newEditorState !== editorState) {
-            if(onChange) onChange(JSON.stringify(newEditorState.toJSON()));
+const ContentLoaderPlugin = ({ rawContent }) => {
+    const [ editor ] = useLexicalComposerContext();
+    useEffect(() =>  editor.setEditorState(editor.parseEditorState(rawContent || emptyStateContent)),  [rawContent]);
+    return null;
+};
+
+const ContentEditor = ({ id, readOnly = false, rawContent, onChange }) => {
+
+    const [ currentEditorState, setCurrentEditorState ] = useState(null);
+
+    const onContentChange = (editorState) => {
+        const currentContent = currentEditorState ? currentEditorState.toJSON() : null;
+        const newContent = editorState.toJSON();
+
+        console.log("COMPARE", currentContent && JSON.stringify(currentContent) !== JSON.stringify(newContent));
+        if(currentContent && JSON.stringify(currentContent) !== JSON.stringify(newContent)){
+            setCurrentEditorState(editorState);
+            if(onChange) onChange(JSON.stringify(editorState.toJSON()));
+        }
+
+        if(!currentContent){
+            setCurrentEditorState(editorState);
         }
     }
+
     return (
         <LexicalComposer initialConfig={{
             ...editorConfig,
-            editorState: editorState || undefined,
             editable: !readOnly
-
         }}>
-                <div className="editor-container">
+            <div className="editor-container">
+                {!readOnly && (
+                    <ToolbarPlugin />
+                )}
+                <div className="editor-inner">
+                    <RichTextPlugin
+                        contentEditable={<ContentEditable className="editor-input" />}
+                        placeholder={<Placeholder />}
+                    />
                     {!readOnly && (
-                        <ToolbarPlugin />
-                    )}
-                        <div className="editor-inner">
-                        <RichTextPlugin
-                            contentEditable={<ContentEditable className="editor-input" />}
-                            placeholder={<Placeholder />}
-                        />
+                        <>
                         <HistoryPlugin />
                         <AutoFocusPlugin />
                         <CodeHighlightPlugin />
                         <ListPlugin />
                         <LinkPlugin />
                         <AutoLinkPlugin />
-                            <OnChangePlugin ignoreSelectionChange onChange={onChangeState} />
+                        <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onContentChange} />
                         <ListMaxIndentLevelPlugin maxDepth={7} />
                         <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+                        </>
+                    )}
+                    <ContentLoaderPlugin readOnly={readOnly} id={id} rawContent={rawContent} />
                 </div>
             </div>
         </LexicalComposer>
