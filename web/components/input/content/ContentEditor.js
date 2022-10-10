@@ -97,15 +97,6 @@ const isEditorEmpty = (editorState) => {
 }
 
 const ContentEditor = ({ id = "content-editor", readOnly = false, rawContent, onChange }) => {
-
-    const [ currentEditorState, setCurrentEditorState ] = useState(null);
-
-    useEffect(() => {
-        setCurrentEditorState(null);
-    }, [id]);
-
-
-
     return (
         <LexicalComposer initialConfig={{
             ...editorConfig,
