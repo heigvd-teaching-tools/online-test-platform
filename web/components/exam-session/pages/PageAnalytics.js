@@ -46,7 +46,7 @@ const PageAnalytics = () => {
                     renderInput={(params) => <TextField {...params} label="Exam session" variant="outlined" />}
                     value={value}
                     onChange={async (event, newValue) => {
-                        if(examSession){
+                        if(newValue && newValue.id){
                             await router.push(`/exam-sessions/${newValue.id}/analytics`);
                         }
                     }}
