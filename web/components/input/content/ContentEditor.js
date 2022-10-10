@@ -55,18 +55,41 @@ const ContentLoaderPlugin = ({ id, rawContent }) => {
     const [ editor ] = useLexicalComposerContext();
     useEffect(() => {
         // compare raw content to editor state before update
-        if(editor && rawContent){
-            const editorState = editor.getEditorState();
-            const editorStateJSON = editorState.toJSON();
-            const editorStateString = JSON.stringify(editorStateJSON);
-            if(editorStateString !== rawContent){
-                let newEditorState = editor.parseEditorState(rawContent || emptyStateContent);
-                editor.setEditorState(newEditorState)
-            }
+        const editorState = JSON.stringify(editor.getEditorState().toJSON());
+        if(editorState !== rawContent){
+            let newEditorState = editor.parseEditorState(rawContent || emptyStateContent);
+            editor.setEditorState(newEditorState)
         }
     } ,  [id, editor, rawContent]);
     return null;
 };
+
+const StrictOnChangePlugin = ({ id, onChange }) => {
+
+    const [ editor ] = useLexicalComposerContext();
+
+    const [ prevContent, setPrevContent ] = useState(null);
+
+    useEffect(() => setPrevContent(null), [id, editor]);
+
+    const onContentChange = (editorState) => {
+        const newContent = editorState.toJSON();
+        /* DEBUG
+        console.log("COMPARE", JSON.stringify(prevContent) !== JSON.stringify(newContent));
+        console.log("PREV",  JSON.stringify(prevContent));
+        console.log("NEW",  JSON.stringify(newContent));
+        */
+        if(prevContent && JSON.stringify(prevContent) !== JSON.stringify(newContent)){
+            setPrevContent(newContent);
+            if(onChange) onChange(JSON.stringify(!isEditorEmpty(editorState) ? editorState.toJSON() : undefined));
+        }
+        if(!prevContent){
+            setPrevContent(newContent);
+        }
+    }
+
+    return <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onContentChange} />;
+}
 
 const isEditorEmpty = (editorState) => {
     let jsonState = editorState.toJSON();
@@ -77,17 +100,11 @@ const ContentEditor = ({ id = "content-editor", readOnly = false, rawContent, on
 
     const [ currentEditorState, setCurrentEditorState ] = useState(null);
 
-    const onContentChange = (editorState) => {
-        const currentContent = currentEditorState ? currentEditorState.toJSON() : null;
-        const newContent = editorState.toJSON();
-        if(currentContent && JSON.stringify(currentContent) !== JSON.stringify(newContent)){
-            setCurrentEditorState(editorState);
-            if(onChange) onChange(JSON.stringify(!isEditorEmpty(editorState) ? editorState.toJSON() : undefined));
-        }
-        if(!currentContent){
-            setCurrentEditorState(editorState);
-        }
-    }
+    useEffect(() => {
+        setCurrentEditorState(null);
+    }, [id]);
+
+
 
     return (
         <LexicalComposer initialConfig={{
@@ -110,7 +127,7 @@ const ContentEditor = ({ id = "content-editor", readOnly = false, rawContent, on
                         <ListPlugin />
                         <LinkPlugin />
                         <AutoLinkPlugin />
-                        <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onContentChange} />
+                        <StrictOnChangePlugin id={id} onChange={onChange} />
                         <ListMaxIndentLevelPlugin maxDepth={7} />
                         <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
                         </>
