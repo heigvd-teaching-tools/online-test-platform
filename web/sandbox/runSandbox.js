@@ -50,11 +50,11 @@ export const runSandbox = (code, solution, mode = "run") => {
         }, EXECUTION_TIMEOUT);
 
         // Execute the code
-        const { output:expected } = await container.exec([
+        let { output:expected } = await container.exec([
             "node", "/app/solution.js"
         ], { tty: false });
-        
-        const { output:result } = await container.exec([
+
+        let { output:result } = await container.exec([
             "node", "/app/code.js"
         ], { tty: false });
 
@@ -68,13 +68,17 @@ export const runSandbox = (code, solution, mode = "run") => {
         // Delete the files
         fs.rmSync(directory, { recursive: true, force: true });
 
+        // clean the output
+        expected = cleanString(expected);
+        result = cleanString(result);
+
         // Prepare output based on mode
         if(!response){ // If no timeout
             if (mode === "run") {
                 // Send the result
                 response = {
                     fn: resolve,
-                    arg: cleanString(result)
+                    arg: result
                 };
             } else if (mode === "test") {
                 // test run
@@ -82,8 +86,8 @@ export const runSandbox = (code, solution, mode = "run") => {
                     fn: resolve,
                     arg: {
                         success: result === expected,
-                        expected: cleanString(expected),
-                        result: cleanString(result),
+                        expected: expected,
+                        result: result,
                     }
                 };
             }
@@ -94,12 +98,15 @@ export const runSandbox = (code, solution, mode = "run") => {
 
 // when running tests in ( tty : false ) mode the output contains some invalid characters
 const cleanString = (input) => {
-    var output = "";
-    for (var i=0; i<input.length; i++) {
+    let output = "";
+    for (let i=0; i<input.length; i++) {
         let charCode = input.charCodeAt(i);
-        if (charCode >= 8 && charCode <= 126) {
+        if (isLegalCharCode(charCode)) {
             output += input.charAt(i);
         }
     }
     return output;
 }
+
+// tab, linebreak, space, numbers, letters, punctuation
+const isLegalCharCode = (charCode) => (charCode === 9 || charCode === 10 || charCode === 13 || (charCode >= 32 && charCode <= 126));
