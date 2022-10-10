@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react';
 import useSWR from "swr";
-import Image from "next/image";
-
 import { useRouter } from "next/router";
-import { QuestionType, StudentAnswerStatus } from '@prisma/client';
-import {Stack, Divider, Typography, Toolbar, Button, Box, LinearProgress, Paper, Tab} from "@mui/material";
+import {Stack, Divider, Typography, Button, Tab} from "@mui/material";
 
 import LayoutMain from '../../layout/LayoutMain';
 import DataGrid from '../../ui/DataGrid';
 import UserAvatar from '../../layout/UserAvatar';
 import PiePercent from '../../feedback/PiePercent';
 import PhaseRedirect from './PhaseRedirect';
-import { getObtainedPoints, getSignedSuccessRate, getQuestionSuccessRate, typeSpecificStats } from "./stats";
+import { getObtainedPoints, getSignedSuccessRate } from "./stats";
 
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
