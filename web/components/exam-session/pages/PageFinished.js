@@ -22,7 +22,7 @@ const PageFinished = () => {
     const router = useRouter();
 
     const { data:examSession } = useSWR(
-        `/api/exam-sessions/${router.query.sessionId}/phase`,
+        `/api/exam-sessions/${router.query.sessionId}`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
     );
 
