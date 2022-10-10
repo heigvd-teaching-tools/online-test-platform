@@ -16,6 +16,8 @@ const CodeEditor = ({ code:initial, editorHeight, readOnly = false, onChange }) 
     useEffect(() => {
         if(initial !== code) {
             setCode(initial);
+            setResult('');
+            setExpanded(false);
         }
     }, [initial]);
 
