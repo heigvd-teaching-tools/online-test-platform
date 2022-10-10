@@ -7,7 +7,6 @@ import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton, 
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/SaveOutlined';
 
 import Row from '../layout/utils/Row';
 import Column from '../layout/utils/Column';
@@ -16,8 +15,6 @@ import DropDown from '../input/DropDown';
 import Code from './type_specific/Code';
 import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
-
-import CodeCheck from './type_specific/CodeCheck';
 
 import { LoadingButton } from '@mui/lab';
 
@@ -42,7 +39,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
         setQuestionType(question.type);
     }, [setPoints, setQuestionType, question]);
 
-    const handleQuestionTypeChange = (newQuestionType) => {
+    const handleQuestionTypeChange = async (newQuestionType) => {
         delete question[question.type];
         if(!question[newQuestionType]){
             question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
@@ -51,7 +48,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
             ] } : {};
         }
         setQuestionType(newQuestionType);
-        onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
+        await onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
     }
 
     const onQuestionChange = async (property, newValue) => {
@@ -157,6 +154,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                 <Row>
                     <Column flexGrow={1}>
                         <ContentEditor
+                            id={`question-${index}`}
                             rawContent={question.content}
                             onChange={(content) => onQuestionChange("content", content)}
                         />

@@ -54,7 +54,16 @@ const emptyStateContent = `{"root":{"children":[{"children":[],"direction":null,
 const ContentLoaderPlugin = ({ id, rawContent }) => {
     const [ editor ] = useLexicalComposerContext();
     useEffect(() => {
-        editor.setEditorState(editor.parseEditorState(rawContent || emptyStateContent))
+        // compare raw content to editor state before update
+        if(editor && rawContent){
+            const editorState = editor.getEditorState();
+            const editorStateJSON = editorState.toJSON();
+            const editorStateString = JSON.stringify(editorStateJSON);
+            if(editorStateString !== rawContent){
+                let newEditorState = editor.parseEditorState(rawContent || emptyStateContent);
+                editor.setEditorState(newEditorState)
+            }
+        }
     } ,  [id, editor, rawContent]);
     return null;
 };
@@ -97,7 +106,6 @@ const ContentEditor = ({ id = "content-editor", readOnly = false, rawContent, on
                     {!readOnly && (
                         <>
                         <HistoryPlugin />
-                        <AutoFocusPlugin />
                         <CodeHighlightPlugin />
                         <ListPlugin />
                         <LinkPlugin />

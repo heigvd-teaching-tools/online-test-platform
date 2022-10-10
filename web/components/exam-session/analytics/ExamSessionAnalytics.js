@@ -7,8 +7,7 @@ import PiePercent from "../../feedback/PiePercent";
 
 const ExamSessionAnalytics = ({questions}) => {
     return(
-        <Stack spacing={8} alignItems="center" sx={{ width : '100%', mt:2}}>
-            <Typography variant="h6">Question Analytics</Typography>
+        <Stack spacing={8} alignItems="center" sx={{ width : '100%', mt:8 }}>
             { questions.map((question, index) => <QuestionAnalytics key={index} question={question} />) }
         </Stack>
     )
