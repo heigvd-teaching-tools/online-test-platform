@@ -6,7 +6,7 @@ import Editor from "@monaco-editor/react";
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
-const CodeEditor = ({ code:initial, editorHeight, readOnly = false, onChange }) => {
+const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly = false, onChange }) => {
     
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(initial || "");
@@ -14,12 +14,10 @@ const CodeEditor = ({ code:initial, editorHeight, readOnly = false, onChange }) 
     const [ expanded, setExpanded ] = useState(false);
     
     useEffect(() => {
-        if(initial !== code) {
-            setCode(initial);
-            setResult('');
-            setExpanded(false);
-        }
-    }, [initial]);
+        setCode(initial);
+        setResult('');
+        setExpanded(false);
+    }, [id, initial]);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);

@@ -57,7 +57,8 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                         value={tab}
                         index={1}
                     >
-                        <CodeEditor 
+                        <CodeEditor
+                            id={`${id}-partial`}
                             editorHeight={editorHeight}
                             code={initial.code}
                             onChange={(newCode) => {
