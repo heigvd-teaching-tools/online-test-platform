@@ -53,8 +53,7 @@ export default async function handler(req, res) {
         // grading when no answer -> test code run before any answer
         if(studentAnswer){
 
-
-            // store the result in the student answer
+            // store the result in the student answer and keep track of the code in history
             await prisma.StudentAnswerCode.update({
                 where: {
                     userEmail_questionId: {
