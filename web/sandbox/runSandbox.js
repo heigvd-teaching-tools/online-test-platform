@@ -85,7 +85,7 @@ export const runSandbox = (code, solution, mode = "run") => {
                 response = {
                     fn: resolve,
                     arg: {
-                        success: result === expected,
+                        success: cleanForComparison(result) === cleanForComparison(expected),
                         expected: expected,
                         result: result,
                     }
@@ -110,3 +110,16 @@ const cleanString = (input) => {
 
 // tab, linebreak, space, numbers, letters, punctuation
 const isLegalCharCode = (charCode) => (charCode === 9 || charCode === 10 || charCode === 13 || (charCode >= 32 && charCode <= 126));
+
+// used only for comparison between expected and result
+// removed tab and enter
+const cleanForComparison = (input) => {
+    let output = "";
+    for (let i=0; i<input.length; i++) {
+        let charCode = input.charCodeAt(i);
+        if (charCode !== 9 && charCode !== 10 && charCode !== 13) {
+            output += input.charAt(i);
+        }
+    }
+    return output;
+}
