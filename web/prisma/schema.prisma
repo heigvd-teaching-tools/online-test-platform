@@ -108,7 +108,7 @@ model Question {
 }
 
 model MultipleChoice {
-  id        String   @id @default(cuid())
+  id         String   @id @default(cuid())
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @unique
   options    Option[]
@@ -124,11 +124,10 @@ model Option {
   studentAnswerMultipleChoice StudentAnswerMultipleChoice[]
 }
 
-
 model TrueFalse {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  isTrue     Boolean?  
+  isTrue     Boolean?
 }
 
 model Essay {
@@ -154,7 +153,7 @@ enum ExamSessionPhase {
 model ExamSession {
   id String @id @default(cuid())
 
-  label      String? @unique
+  label      String?          @unique
   conditions String?
   phase      ExamSessionPhase @default(DRAFT)
   createdAt  DateTime         @default(now())
@@ -236,7 +235,6 @@ model StudentQuestionGrading {
   @@id([userEmail, questionId])
 }
 
-
 model StudentAnswerMultipleChoice {
   id            String        @id @default(cuid())
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
@@ -253,7 +251,7 @@ model StudentAnswerTrueFalse {
   userEmail     String
   questionId    String
 
-  isTrue Boolean? 
+  isTrue Boolean?
 
   @@id([userEmail, questionId])
 }
@@ -278,7 +276,21 @@ model StudentAnswerCode {
   expected String?
   result   String?
 
-  success Boolean @default(false)
+  success                  Boolean                    @default(false)
+
+  studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
   @@id([userEmail, questionId])
+}
+
+model StudentAnswerCodeHistory {
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail         String
+  questionId        String
+
+  createdAt DateTime @default(now())
+
+  code String?
+
+  @@id([userEmail, questionId, createdAt])
 }

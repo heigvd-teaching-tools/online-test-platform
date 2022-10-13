@@ -52,6 +52,8 @@ export default async function handler(req, res) {
     await runSandbox(code, question.code.solution, "test").then(async (reponse) => {
         // grading when no answer -> test code run before any answer
         if(studentAnswer){
+
+
             // store the result in the student answer
             await prisma.StudentAnswerCode.update({
                 where: {
@@ -60,8 +62,18 @@ export default async function handler(req, res) {
                         questionId: questionId
                     }
                 },
-                data: reponse
-            }); 
+                data: {
+                    success: reponse.success,
+                    expected: reponse.expected,
+                    result: reponse.result,
+                    studentAnswerCodeHistory: {
+                        create: [{
+                            code: code,
+                        }]
+                    }
+                }
+            });
+
         }
 
         // code question grading
