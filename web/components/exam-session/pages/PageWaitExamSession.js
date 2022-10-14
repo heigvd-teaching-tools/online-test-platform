@@ -39,8 +39,8 @@ const PageWaitExamSession = () => {
         }
     }, [examSession, router]);
     
-    if(error) return <LoadingAnimation content={error.message} />      
-    if (errorSession) return <AlertFeedback type="error" message={errorSession.message} />; 
+    if(error) return <LoadingAnimation failed={true}  content={error.message} />
+    if (errorSession) return <LoadingAnimation failed={true} message={errorSession.message} />;
     if (!examSession) return <LoadingAnimation /> 
     
     return (

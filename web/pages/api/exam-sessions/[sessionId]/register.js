@@ -34,6 +34,17 @@ const post = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
 
+    const examSession = await prisma.examSession.findUnique({
+        where: {
+            id: sessionId
+        }
+    });
+
+    if(!examSession) {
+        res.status(404).json({ message: 'Exam session not found' });
+        return;
+    }
+
     const userOnExamSession = await prisma.userOnExamSession.upsert({
         where: {
             userEmail_examSessionId: {
