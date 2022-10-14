@@ -102,7 +102,7 @@ const ExamSessions = () => {
                     </TabList>
                     { tab === 1 && (
                         <Link href="/exam-sessions/new">
-                            <Button>New exam session</Button>
+                            <Button>Create a new exam session</Button>
                         </Link>
                     )}
                 </Stack>

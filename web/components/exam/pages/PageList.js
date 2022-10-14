@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import LayoutMain from '../../layout/LayoutMain';
-import { Box, Toolbar, Button, IconButton } from '@mui/material';
+import {Box, Toolbar, Button, IconButton, Stack} from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import DataGrid from '../../ui/DataGrid';
 import DialogFeedback from '../../feedback/DialogFeedback';
@@ -72,13 +72,16 @@ const PageList = () => {
   }
 
   return (
-    <LayoutMain>
-    <Box sx={{ minWidth:'100%' }}>
-      <Toolbar disableGutters variant="dense">
+    <LayoutMain
+      subheader={
+      <Stack alignItems="flex-end" sx={{ p : 1}}>
         <Link href="/exams/new">
           <Button>Create a new exam</Button>
         </Link>
-      </Toolbar>
+      </Stack>
+      }
+    >
+    <Box sx={{ minWidth:'100%' }}>
       {exams && exams.length > 0 && (
         <DataGrid 
           header={gridHeader} 
