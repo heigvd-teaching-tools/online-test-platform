@@ -115,7 +115,7 @@ const PageTakeExam = () => {
         <LayoutSplitScreen 
             header={
                 <Stack direction="row" alignItems="center">
-                    {userOnExamSession.startAt && userOnExamSession.endAt && (
+                    { userOnExamSession.startAt && userOnExamSession.endAt && (
                         <Box sx={{ ml:2 }}>
                             <ExamSessionCountDown startDate={userOnExamSession.startAt} endDate={userOnExamSession.endAt} />
                         </Box>
