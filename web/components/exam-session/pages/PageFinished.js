@@ -47,19 +47,25 @@ const PageFinished = () => {
         }
     }, [questions]);
 
-    const gridHeaders = {
-        columns: [{
-            label: 'Participant',
-            column: { flexGrow: 1, }
-        },{
-            label: 'Success',
-            column: { width: '80px' }
-        },
-        ...questions.map((question) => ({
+    const gridHeaders = () => {
+
+        let q = questions.map((question) => ({
             label: <b>{`Q${question.order + 1}`}</b>,
             column: { width: '50px' }
-        }))]
-    };
+        }));
+
+        return {
+            columns: [{
+                label: 'Participant',
+                column: { flexGrow: 1, }
+            },{
+                label: 'Success',
+                column: { width: '80px' }
+            },
+            ...q
+            ]
+        }
+    }
 
     const gridRows = () => participants.map((participant) => {
         let obtainedPoints = getObtainedPoints(questions, participant);
@@ -139,7 +145,7 @@ const PageFinished = () => {
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             <TabContext value={tab}>
-           { questions && (
+           { questions && questions.length > 0 && (
             <LayoutMain
                 subheader={
                     <TabList onChange={handleTabChange} >
@@ -157,7 +163,7 @@ const PageFinished = () => {
                     <Button onClick={exportAsCSV}>Export as csv</Button>
                 </Stack>
                 <DataGrid
-                    header={gridHeaders}
+                    header={gridHeaders()}
                     items={gridRows()}
                 />
             </TabPanel>
