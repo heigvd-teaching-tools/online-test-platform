@@ -3,7 +3,7 @@ import LoadingAnimation from "../feedback/LoadingAnimation";
 import LoginGitHub from "./LoginGitHub";
 
 const Authentication = ({ children }) => {
-    const { data, status } = useSession();
+    const { status } = useSession();
     return(
         <>
         { status === 'loading' && <LoadingAnimation /> }

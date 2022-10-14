@@ -4,6 +4,8 @@ import useSWR from "swr";
 import ExamSessionAnalytics from "../analytics/ExamSessionAnalytics";
 import {Autocomplete, TextField} from "@mui/material";
 import {useEffect, useState} from "react";
+import {Role} from "@prisma/client";
+import Authorisation from "../../security/Authorisation";
 
 const PageAnalytics = () => {
     const router = useRouter();
@@ -35,6 +37,7 @@ const PageAnalytics = () => {
     }, [examSession]);
 
     return (
+        <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <LayoutMain>
             { examSession && examSessions && questions && (
                 <>
@@ -60,6 +63,7 @@ const PageAnalytics = () => {
                 </>
             )}
         </LayoutMain>
+        </Authorisation>
     )
 }
 

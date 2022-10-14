@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ExamSessionPhase } from '@prisma/client';
+import {ExamSessionPhase, Role} from '@prisma/client';
 import useSWR from 'swr';
 
 import { Stack  } from "@mui/material";
@@ -15,6 +15,7 @@ import RegistrationClipboard from '../RegistrationClipboard';
 import { LoadingButton } from '@mui/lab';
 import { update, create } from './crud';
 import PhaseRedirect from './PhaseRedirect';
+import Authorisation from "../../security/Authorisation";
 
 const PageDraft = () => {
     const router = useRouter();
@@ -107,6 +108,7 @@ const PageDraft = () => {
     }, [router, handleSave]);
 
     return (
+        <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             <LayoutMain>
                 { examSession && (
@@ -156,6 +158,7 @@ const PageDraft = () => {
                 )}
             </LayoutMain>
         </PhaseRedirect>
+        </Authorisation>
     )
 }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import { ExamSessionPhase, StudentAnswerStatus } from '@prisma/client';
+import {ExamSessionPhase, Role, StudentAnswerStatus} from '@prisma/client';
 import { useSession } from "next-auth/react";
 
 import { Stack, Box } from "@mui/material";
@@ -17,6 +17,7 @@ import QuestionNav from '../take/QuestionNav';
 import AnswerEditor from '../../answer/AnswerEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
+import Authorisation from "../../security/Authorisation";
 
 const PageTakeExam = () => {
     const router = useRouter();
@@ -110,6 +111,7 @@ const PageTakeExam = () => {
     } 
     
     return (
+        <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
         <LayoutSplitScreen 
             header={
                 <Stack direction="row" alignItems="center">
@@ -153,7 +155,8 @@ const PageTakeExam = () => {
                     />      
                 </Stack>  
             )}
-        />  
+        />
+        </Authorisation>
     )
 }
 

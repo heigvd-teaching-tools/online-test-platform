@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import { useRouter } from "next/router";
 import { useSession, signOut } from "next-auth/react";
-import { ExamSessionPhase } from '@prisma/client';
+import {ExamSessionPhase, Role} from '@prisma/client';
 
 import AlertFeedback from "../../feedback/AlertFeedback";
 import LoadingAnimation from "../../feedback/LoadingAnimation";
 import { Button, Typography } from "@mui/material";
-import Authentication from "../../layout/Authentication";
+import Authorisation from "../../security/Authorisation";
 
 const PageWaitExamSession = () => {
     const router = useRouter();
@@ -44,8 +44,8 @@ const PageWaitExamSession = () => {
     if (!examSession) return <LoadingAnimation /> 
     
     return (
-    <Authentication>
-        {examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS && (
+        <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>{
+        examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS && (
             <LoadingAnimation content={
                 <>
                 <Typography variant="body1" gutterBottom>
@@ -54,11 +54,9 @@ const PageWaitExamSession = () => {
                 <Button onClick={() => signOut()}>Sign out</Button>
                 </>
             } />
-        )
-    }
-    </Authentication>
+        )}
+        </Authorisation>
     )
 }
-
 
 export default PageWaitExamSession;

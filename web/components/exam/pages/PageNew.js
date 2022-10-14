@@ -6,6 +6,8 @@ import { Stepper, Step, StepLabel, StepContent } from "@mui/material";
 import LayoutMain from '../../layout/LayoutMain';
 import { useInput } from '../../../utils/useInput';
 import { useSnackbar } from '../../../context/SnackbarContext';
+import {Role} from "@prisma/client";
+import Authorisation from "../../security/Authorisation";
 
 const PageNew = () => {
     const router = useRouter()
@@ -42,46 +44,48 @@ const PageNew = () => {
     };
 
     return (
-    <LayoutMain>
-    <Stack sx={{ minWidth:'800px' }} spacing={2}>
-        <Stack direction="row" justifyContent="flex-end">
-            <Button onClick={handleNext}>Next</Button>
+        <Authorisation allowRoles={[ Role.PROFESSOR ]}>
+        <LayoutMain>
+        <Stack sx={{ minWidth:'800px' }} spacing={2}>
+            <Stack direction="row" justifyContent="flex-end">
+                <Button onClick={handleNext}>Next</Button>
+            </Stack>
+            <Stepper activeStep={0} orientation="vertical">
+                <Step key="general">
+                    <StepLabel>General informations</StepLabel>
+                    <StepContent>
+                        <Stack spacing={2} pt={2}>
+                            <TextField
+                                label="Label"
+                                id="exam-label"
+                                fullWidth
+                                value={label}
+                                {...bindLabel}
+                            />
+                            <TextField
+                                label="Description"
+                                id="exam-desctiption"
+                                fullWidth
+                                multiline
+                                rows={4}
+                                value={description}
+                                {...bindDescription}
+                            />
+                        </Stack>
+                    </StepContent>
+                </Step>
+
+                <Step key="write-questions">
+                    <StepLabel>Write questions</StepLabel>
+
+                </Step>
+            </Stepper>
+            <Stack direction="row" justifyContent="flex-end">
+                <Button onClick={handleNext}>Next</Button>
+            </Stack>
         </Stack>
-        <Stepper activeStep={0} orientation="vertical">
-            <Step key="general">
-                <StepLabel>General informations</StepLabel>
-                <StepContent>
-                    <Stack spacing={2} pt={2}>
-                        <TextField
-                            label="Label"
-                            id="exam-label"
-                            fullWidth
-                            value={label}
-                            {...bindLabel}
-                        />
-                        <TextField
-                            label="Description"
-                            id="exam-desctiption"
-                            fullWidth
-                            multiline
-                            rows={4}
-                            value={description}
-                            {...bindDescription}
-                        />
-                    </Stack>
-                </StepContent>
-            </Step>
-            
-            <Step key="write-questions">
-                <StepLabel>Write questions</StepLabel>
-                
-            </Step>
-        </Stepper>      
-        <Stack direction="row" justifyContent="flex-end">
-            <Button onClick={handleNext}>Next</Button>
-        </Stack>
-    </Stack>
-    </LayoutMain>
+        </LayoutMain>
+        </Authorisation>
     )
 }
 

@@ -12,6 +12,8 @@ import LoadingAnimation from '../../feedback/LoadingAnimation';
 import QuestionManager from '../../question/QuestionManager';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
+import {Role} from "@prisma/client";
+import Authorisation from "../../security/Authorisation";
 
 const PageUpdate = () => {
     const { query: { id }} = useRouter();
@@ -96,6 +98,7 @@ const PageUpdate = () => {
     if (!exam) return <LoadingAnimation /> 
 
     return (
+        <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <LayoutMain>
         <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
             <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
@@ -142,6 +145,7 @@ const PageUpdate = () => {
 
         </Stack>
         </LayoutMain>
+        </Authorisation>
     )
 }
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 
-import {ExamSessionPhase, ExamSessionStatus} from '@prisma/client';
+import {ExamSessionPhase, ExamSessionStatus, Role} from '@prisma/client';
 import {Box, Toolbar, Button, IconButton, Typography, Stack, Tab} from '@mui/material';
 import LayoutMain from '../../layout/LayoutMain';
 
@@ -13,6 +13,7 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import DialogFeedback from "../../feedback/DialogFeedback";
 import {useRouter} from "next/router";
+import Authorisation from "../../security/Authorisation";
 
 const ExamSessions = () => {
 
@@ -92,6 +93,7 @@ const ExamSessions = () => {
   if (!examSessions) return <LoadingAnimation /> 
 
   return (
+      <Authorisation allowRoles={[ Role.PROFESSOR ]}>
       <TabContext value={tab}>
         <LayoutMain
             subheader={
@@ -167,6 +169,7 @@ const ExamSessions = () => {
           />
 
       </TabContext>
+      </Authorisation>
   )
 }
 

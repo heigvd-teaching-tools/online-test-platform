@@ -13,7 +13,7 @@ import '@fontsource/roboto/700.css';
 
 import "../components/input/content/ContentEditor.css";
 
-import Authentication from '../components/layout/Authentication';
+import Authentication from '../components/security/Authentication';
 
 export const themeOptions = {
   palette: {

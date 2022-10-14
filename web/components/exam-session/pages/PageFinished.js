@@ -14,6 +14,8 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import ExamSessionAnalytics from "../analytics/ExamSessionAnalytics";
+import {Role} from "@prisma/client";
+import Authorisation from "../../security/Authorisation";
 
 const PageFinished = () => {
     const router = useRouter();
@@ -134,6 +136,7 @@ const PageFinished = () => {
     }
 
     return (
+        <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             <TabContext value={tab}>
            { questions && (
@@ -165,6 +168,7 @@ const PageFinished = () => {
            )}
             </TabContext>
         </PhaseRedirect>
+        </Authorisation>
     )
 }
 

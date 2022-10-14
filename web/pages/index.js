@@ -1,11 +1,12 @@
-import { Typography } from '@mui/material';
 import LayoutMain from '../components/layout/LayoutMain';
+import { Role } from "@prisma/client";
+import Authorisation from "../components/security/Authorisation";
 
 const Home = () => {
   return (
-    <LayoutMain>
-      <Typography variant="body2">Home</Typography>
-    </LayoutMain>
+      <Authorisation allowRoles={[ Role.PROFESSOR ]}>
+          <LayoutMain />
+      </Authorisation>
   );
 }
 

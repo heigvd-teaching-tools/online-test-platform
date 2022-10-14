@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import useSWR from "swr";
 import { useRouter } from "next/router";
-import { StudentQuestionGradingStatus, ExamSessionPhase } from '@prisma/client';
+import {StudentQuestionGradingStatus, ExamSessionPhase, Role} from '@prisma/client';
 import Image from 'next/image';
 
 import { update } from './crud';
@@ -24,6 +24,7 @@ import { useSnackbar } from "../../../context/SnackbarContext";
 
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import Authorisation from "../../security/Authorisation";
 
 const PageGrading = () => {
     const router = useRouter();
@@ -188,6 +189,7 @@ const PageGrading = () => {
 
    
     return (
+        <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
            { questions && (
             <>
@@ -334,6 +336,7 @@ const PageGrading = () => {
             /> 
 
         </PhaseRedirect>
+        </Authorisation>
     )
 }
 
