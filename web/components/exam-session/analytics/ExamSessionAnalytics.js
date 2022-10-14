@@ -1,4 +1,4 @@
-import {Box, Paper, Stack, Typography} from "@mui/material";
+import {Box, Paper, Slide, Stack, Typography} from "@mui/material";
 import {useEffect, useState} from "react";
 import {getQuestionSuccessRate, typeSpecificStats} from "../pages/stats";
 import {QuestionType, StudentAnswerStatus} from "@prisma/client";
@@ -161,7 +161,9 @@ const AnalyticsRow = ({ label, percent, amount, color = 'info' }) =>
 const LinearPercent = ({ percent, thickness = 10, color = 'info' }) =>
     <Stack sx={{ flex:1 }}>
         <Box sx={{ width:'100%', height:thickness, backgroundColor:'grey.200', borderRadius:thickness, overflow:'hidden' }}>
-            <Box sx={{ height: thickness, width: `${percent}%`, bgcolor:`${color}.main` }} color={color}/>
+            <Slide direction="right" in={percent > 0} timeout={500}>
+                <Box sx={{ height: thickness, width: `${percent}%`, bgcolor:`${color}.main` }} color={color}/>
+            </Slide>
         </Box>
     </Stack>
 
