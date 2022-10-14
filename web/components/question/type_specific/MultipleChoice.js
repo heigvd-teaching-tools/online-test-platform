@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import {  Grid, Stack, TextField, IconButton, ToggleButton, Button, Typography, Box  } from "@mui/material"
+import {  Stack, TextField, IconButton, ToggleButton, Button, Typography, Box  } from "@mui/material"
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
@@ -15,9 +15,21 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                 setOptions(initial);
             }else{
                 setOptions(defaultOptions);
+                onChange(defaultOptions);
             }
         }
     }, [initial, id]);
+
+    const selectOption = (index) => {
+        const newOptions = [...options];
+        newOptions[index].isCorrect = !newOptions[index].isCorrect;
+        // must have at least one selected option
+        if(!selectOnly && !newOptions.some((option) => option.isCorrect)){
+            return;
+        }
+        setOptions(newOptions);
+        onChange(newOptions);
+    }
 
     return(
         <Stack id={id} direction="column" spacing={2}>
@@ -42,12 +54,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                         value="correct"
                         selected={option.isCorrect}
                         color='success'
-                        onChange={(e) => {
-                            const newOptions = [...options];
-                            newOptions[index].isCorrect = !newOptions[index].isCorrect;
-                            setOptions(newOptions);
-                            onChange(newOptions);
-                        } }
+                        onChange={(e) => selectOption(index) }
                     >
                         { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
                     </ToggleButton>

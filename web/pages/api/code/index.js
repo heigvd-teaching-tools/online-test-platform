@@ -3,7 +3,7 @@ import { hasRole } from '../../../utils/auth';
 import {Role} from "@prisma/client";
 
 export default async function handler(req, res) {
-    // Student Code test runs concerns the student answer
+    // Student Code Cheks concerns the student answer
     let isStudent = await hasRole(req, Role.STUDENT);
     let isProf = await hasRole(req, Role.PROFESSOR);
 

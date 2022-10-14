@@ -126,8 +126,10 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
                 isCorrect: option.isCorrect
             }));
 
-            clauses.createMany = {
-                data: options.length > 0 ? options : undefined
+            if(options.length > 0){
+                clauses.createMany = {
+                    data: options
+                }
             }
 
             return { 
