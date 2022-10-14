@@ -1,210 +1,172 @@
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { ExamSessionPhase } from '@prisma/client';
-import { Box, Toolbar, Button, IconButton, Typography, Stack } from '@mui/material';
+
+import {ExamSessionPhase, ExamSessionStatus} from '@prisma/client';
+import {Box, Toolbar, Button, IconButton, Typography, Stack, Tab} from '@mui/material';
 import LayoutMain from '../../layout/LayoutMain';
-import DataGrid from '../../ui/DataGrid';
+
 import { useSnackbar } from '../../../context/SnackbarContext';
-import DialogFeedback from '../../feedback/DialogFeedback';
-import DisplayPhase from '../../exam-session/DisplayPhase';
 import LoadingAnimation from '../../feedback/LoadingAnimation';
-
-const displayDateTime = (date) => {
-  const d = new Date(date);
-  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
-}
-
-const gridHeader = {
-  actions: {
-    label: 'Actions',
-    width: '80px',
-  },
-  columns: [
-    {
-        label: 'Label',
-        column: { flexGrow: 1, }
-    },{
-        label: 'Created At',
-        column: { width: '160px', }
-    },{
-        label: 'Updated At',
-        column: { width: '160px', }
-    },{
-        label: 'Questions',
-        column: { width: '80px', }
-    },{
-        label: 'Students',
-        column: { width: '80px', }
-    },{
-        label: 'Phase',
-        column: { width: '200px', }
-    }
-  ]
-};
+import ListExamSession from "../list/ListExamSession";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import DialogFeedback from "../../feedback/DialogFeedback";
+import {useRouter} from "next/router";
 
 const ExamSessions = () => {
-  const router = useRouter();
-  const { show: showSnackbar } = useSnackbar();
 
-  const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
-  const [ clickedExamSession, setCLickedExamSession ] = useState(null);
+    const router = useRouter();
 
-  const { data, error } = useSWR(
-    `/api/exam-sessions`, 
-    (...args) => fetch(...args).then((res) => res.json())
-  );
-  
-  const [ examSessions, setExamSession ] = useState(data);
+    const { show: showSnackbar } = useSnackbar();
+    const [ selected, setSelected ] = useState(null);
 
-  const [ endOfDraftDialogOpen, setEndOfDraftDialogOpen ] = useState(false);
+    const { data, error } = useSWR(
+        `/api/exam-sessions`,
+        (...args) => fetch(...args).then((res) => res.json())
+    );
 
-  useEffect(() => {
-    if(data){
-      setExamSession(data);
+    const [ tab, setTab ] = useState(1);
+    const [ examSessions, setExamSession ] = useState(data);
+
+    const [ archiveDialogOpen, setArchiveDialogOpen ] = useState(false);
+    const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
+    const [ endOfDraftDialogOpen, setEndOfDraftDialogOpen ] = useState(false);
+
+    useEffect(() => {
+        if(data){
+          setExamSession(data);
+        }
+    }, [data]);
+
+    const endDraftPhase = async () => {
+        setEndOfDraftDialogOpen(false);
+        await fetch(`/api/exam-sessions/${selected.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ phase: ExamSessionPhase.IN_PROGRESS })
+        });
+        await router.push(`/exam-sessions/${selected.id}/in-progress`);
     }
-  }, [data]);
 
-  const deleteExamSession = async () => {
-    await fetch(`/api/exam-sessions/${clickedExamSession.id}`, {
-      method: 'DELETE',
-    })
-    .then((_) => {
-      setExamSession(examSessions.filter((exam) => exam.id !== clickedExamSession.id));
-      showSnackbar('Exam session deleted', 'success');
-    })
-    .catch((_) => {
-      showSnackbar('Error deleting exam session', 'error');
-    });
-    setCLickedExamSession(null);
-  }
-
-  const linkPerPhase = (phase, examSessionId) => {
-    switch(phase){
-      case ExamSessionPhase.DRAFT:
-        return `/exam-sessions/${examSessionId}/draft`;
-      case ExamSessionPhase.IN_PROGRESS:
-        return `/exam-sessions/${examSessionId}/in-progress`;
-      case ExamSessionPhase.GRADING:
-        return `/exam-sessions/${examSessionId}/grading/1`;
-      case ExamSessionPhase.FINISHED:
-        return `/exam-sessions/${examSessionId}/finished`;
-      default:
-        return `/exam-sessions`;
+    const archiveExamSession = async () => {
+        await fetch(`/api/exam-sessions/${selected.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: ExamSessionStatus.ARCHIVED }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then((_) => {
+            setExamSession(examSessions.map((exam) => {
+                if(exam.id === selected.id){
+                    exam.status = ExamSessionPhase.ARCHIVED;
+                }
+                return exam;
+            }));
+            showSnackbar('Exam session archived', 'success');
+        })
+        .catch((_) => {
+            showSnackbar('Error archiving exam session', 'error');
+        });
+        setSelected(null);
     }
-  }
 
-  const endDraftPhase = async () => {
-    setEndOfDraftDialogOpen(false);
-    await fetch(`/api/exam-sessions/${clickedExamSession.id}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        body: JSON.stringify({ phase: ExamSessionPhase.IN_PROGRESS })
-    });
-    router.push(`/exam-sessions/${clickedExamSession.id}/in-progress`);
-  }
+    const deleteExamSession = async () => {
+        await fetch(`/api/exam-sessions/${selected.id}`, {
+            method: 'DELETE',
+        })
+        .then((_) => {
+            setExamSession(examSessions.filter((exam) => exam.id !== selected.id));
+            showSnackbar('Exam session deleted', 'success');
+        })
+        .catch((_) => {
+            showSnackbar('Error deleting exam session', 'error');
+        });
+        setSelected(null);
+    }
+
 
   if (error) return <div>failed to load</div>
   if (!examSessions) return <LoadingAnimation /> 
 
   return (
-    <LayoutMain>
-    <Box sx={{ minWidth:'100%' }}>
-      <Toolbar disableGutters variant="dense">
-        <Link href="/exam-sessions/new">
-          <Button>New exam session</Button>
-        </Link>
-      </Toolbar>
-      {examSessions && examSessions.length > 0 && (
-        <DataGrid 
-          header={gridHeader} 
-          items={examSessions.map(examSession => ({
-            label: examSession.label,
-            createdAt: displayDateTime(examSession.createdAt),
-            updatedAt: displayDateTime(examSession.updatedAt),
-            questions: examSession.questions.length,
-            students: examSession.students.length,
-            phase: 
-              <Stack direction="row" spacing={1} sx={{ width:'100%' }}>
-                <DisplayPhase phase={examSession.phase} />
-                  {examSession.phase === ExamSessionPhase.DRAFT && (
-                      <Button
-                        key="promote-to-in-progress"
-                        color="info"
-                        onClick={(ev) => {
-                          ev.stopPropagation();
-                          ev.preventDefault();
-                          setCLickedExamSession(examSession);
-                          setEndOfDraftDialogOpen(true);
-                        }}
-                        startIcon={<Image alt="Promote" src="/svg/exam/finish-flag.svg" layout="fixed" width="18" height="18" />}
-                      >
-                        Start
-                    </Button>
-                  )}
-                </Stack>,
-            meta: {
-              key: examSession.id,
-              linkHref: linkPerPhase(examSession.phase, examSession.id),
-              actions:  [(
-                  <>
-                <IconButton key="analytics"
-                    onClick={async (ev) => {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                        await router.push(`/exam-sessions/${examSession.id}/analytics`);
-                    }}
-                >
-                    <Image alt="Analytics" src="/svg/exam/analytics.svg" layout="fixed" width="18" height="18" />
-                </IconButton>
-                  <IconButton key="delete-exam" onClick={(ev) => {
+      <TabContext value={tab}>
+        <LayoutMain
+            subheader={
+                <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ pr: 2}}>
+                    <TabList onChange={(e, v) => setTab(v)} aria-label="simple tabs example">
+                        <Tab label="Active" value={1} />
+                        <Tab label="Archived" value={2} />
+                    </TabList>
+                    { tab === 1 && (
+                        <Link href="/exam-sessions/new">
+                            <Button>New exam session</Button>
+                        </Link>
+                    )}
+                </Stack>
+            }
+        >
+        <Box sx={{ minWidth:'100%' }}>
+          { examSessions && examSessions.length > 0 && (
+            <ListExamSession
+                examSessions={examSessions.filter((exam) => exam.status === (tab === 1 ? ExamSessionStatus.ACTIVE : ExamSessionStatus.ARCHIVED))}
+                onStart={(ev, examSession) => {
+                    ev.stopPropagation();
+                    ev.preventDefault();
+                    setSelected(examSession);
+                    setEndOfDraftDialogOpen(true);
+                }}
+                onDelete={(ev, examSession) => {
                     ev.preventDefault();
                     ev.stopPropagation();
-                    setCLickedExamSession(examSession);
-                    setDeleteDialogOpen(true);
-                  }}>
-                    <Image alt="Delete" src="/svg/exam/exam-delete.svg" layout="fixed" width="18" height="18" />
-                  </IconButton>
-                  </>
-              )]
-            }
-          }))
-          } 
+                    setSelected(examSession);
+                    if(examSession.status === ExamSessionStatus.ARCHIVED){
+                        setDeleteDialogOpen(true);
+                    }else{
+                        setArchiveDialogOpen(true);
+                    }
+                }}
+            />
+          )}
+        </Box>
+        </LayoutMain>
+          <DialogFeedback
+              open={archiveDialogOpen}
+              title="Archive this exam session"
+              content="Are you sure you want to archive this exam session?"
+              onClose={() => setArchiveDialogOpen(false)}
+              onConfirm={archiveExamSession}
           />
-      )}
-      <DialogFeedback 
-          open={deleteDialogOpen}  
-          title="Delete exam session"
-          content="Are you sure you want to delete this exam session?"
-          onClose={() => setDeleteDialogOpen(false)}
-          onConfirm={deleteExamSession}
-      />
-      <DialogFeedback 
-          open={endOfDraftDialogOpen} 
-          title="End of DRAFT phase"
-          content={
-              <>
-              <Typography variant="body1" gutterBottom>This exam session is about to go to the <b>in-progress</b> phase.</Typography>
-              <Typography variant="body1" gutterBottom>Registered students will be able to start with their exam session.</Typography>
-              <Typography variant="body1" gutterBottom>Late student registrations will still be possible.</Typography>
-              {clickedExamSession && ( clickedExamSession.durationHours > 0 || clickedExamSession.durationMins > 0 ) && (
-                  <Typography variant="body1" gutterBottom>End time estimated at <b>{
-                    new Date(Date.now() + (clickedExamSession.durationHours * 3600000) + (clickedExamSession.durationMins * 60000)).toLocaleTimeString()
-                  }</b>.</Typography>
-              )}
-              <Typography variant="button" gutterBottom> Are you sure you want to continue?`</Typography>
-              </>
-          }
-          onClose={() => setEndOfDraftDialogOpen(false)}
-          onConfirm={endDraftPhase}
-      />
-    </Box>
-    </LayoutMain>
+          <DialogFeedback
+              open={deleteDialogOpen}
+              title="Delete this exam session"
+              content="Are you sure you want to delete this exam session?"
+              onClose={() => setDeleteDialogOpen(false)}
+              onConfirm={deleteExamSession}
+          />
+          <DialogFeedback
+              open={endOfDraftDialogOpen}
+              title="End of DRAFT phase"
+              content={
+                  <>
+                      <Typography variant="body1" gutterBottom>This exam session is about to go to the <b>in-progress</b> phase.</Typography>
+                      <Typography variant="body1" gutterBottom>Registered students will be able to start with their exam session.</Typography>
+                      <Typography variant="body1" gutterBottom>Late student registrations will still be possible.</Typography>
+                      {selected && ( selected.durationHours > 0 || selected.durationMins > 0 ) && (
+                          <Typography variant="body1" gutterBottom>End time estimated at <b>{
+                              new Date(Date.now() + (selected.durationHours * 3600000) + (selected.durationMins * 60000)).toLocaleTimeString()
+                          }</b>.</Typography>
+                      )}
+                      <Typography variant="button" gutterBottom> Are you sure you want to continue?`</Typography>
+                  </>
+              }
+              onClose={() => setEndOfDraftDialogOpen(false)}
+              onConfirm={endDraftPhase}
+          />
+
+      </TabContext>
   )
 }
 

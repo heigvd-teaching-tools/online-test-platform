@@ -150,11 +150,17 @@ enum ExamSessionPhase {
   FINISHED
 }
 
+enum ExamSessionStatus {
+  ACTIVE
+  ARCHIVED
+}
+
 model ExamSession {
   id String @id @default(cuid())
 
   label      String?          @unique
   conditions String?
+  status     ExamSessionStatus @default(ACTIVE)
   phase      ExamSessionPhase @default(DRAFT)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt

@@ -139,7 +139,7 @@ const PageFinished = () => {
            { questions && (
             <LayoutMain
                 subheader={
-                    <TabList onChange={handleTabChange} aria-label="lab API tabs example">
+                    <TabList onChange={handleTabChange} >
                         <Tab label="Results" value={1} />
                         <Tab label="Analytics" value={2} />
                     </TabList>

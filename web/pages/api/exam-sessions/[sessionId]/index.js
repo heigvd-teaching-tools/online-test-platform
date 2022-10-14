@@ -69,7 +69,7 @@ const patch = async (req, res) => {
         return;
     }
 
-    const { phase:nextPhase, label, conditions, duration, endAt } = req.body;
+    const { phase:nextPhase, label, conditions, duration, endAt, status } = req.body;
     
     let data = {};
 
@@ -95,6 +95,10 @@ const patch = async (req, res) => {
 
     if(conditions){
         data.conditions = conditions;
+    }
+
+    if(status){
+        data.status = status;
     }
 
     if(duration){
