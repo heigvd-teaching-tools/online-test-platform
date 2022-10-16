@@ -21,7 +21,7 @@ import Authorisation from "../../security/Authorisation";
 
 const PageTakeExam = () => {
     const router = useRouter();
-    const { show: showSnackbar } = useSnackbar();
+    const { showTopRight: showSnackbar } = useSnackbar();
     const { data } = useSession();
 
     const { data:examSessionPhase } = useSWR(

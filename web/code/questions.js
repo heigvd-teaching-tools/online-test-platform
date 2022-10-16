@@ -57,7 +57,12 @@ export const questionsWithIncludes = ( {
                 })
             }
         },
-        trueFalse: includeOfficialAnswers,
+        trueFalse: {
+            select: {
+                questionId: true,
+                ...(includeOfficialAnswers ? { isCorrect: true } : {})
+            }
+        },
         essay: true,
     } : undefined;
 
