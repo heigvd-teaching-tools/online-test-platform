@@ -52,7 +52,7 @@ export const questionsWithIncludes = ( {
                     select: {
                         id: true,
                         text: true,
-                        ...(includeOfficialAnswers ? { isCorrect: true } : {})
+                        ...(includeOfficialAnswers ? { isCorrect: true } : { })
                     }
                 })
             }
@@ -60,7 +60,7 @@ export const questionsWithIncludes = ( {
         trueFalse: {
             select: {
                 questionId: true,
-                ...(includeOfficialAnswers ? { isCorrect: true } : {})
+                ...(includeOfficialAnswers ? { isTrue: true } : {})
             }
         },
         essay: true,
