@@ -41,6 +41,7 @@ const patch = async (req, res) => {
             },
             trueFalse: true,
             essay: true,
+            web: true
         }
     });
 
