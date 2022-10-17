@@ -61,7 +61,7 @@ const QuestionAnalytics = ({ question }) => {
                     <Box sx={{ width:'32px', height:'32px' }}>
                         <Image src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
                     </Box>
-                    <Typography variant="h6"><b>{`Q${question.order + 1}`}</b></Typography>
+                    <Typography variant="h6"><b>{`Q${question.order}`}</b></Typography>
 
                     <Typography variant="body2">
                         Submitted Answers :
