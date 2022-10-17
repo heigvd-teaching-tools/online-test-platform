@@ -7,7 +7,8 @@
 .resizePanelContainer .panelResizable{
     overflow:auto;
     height:100%;
-    min-width: 20%;
+    min-width: 55px;
+    flex:1;
 }
 
 .resizePanelContainer .panelResizable.magnetic{
@@ -17,9 +18,7 @@
 .resizePanelContainer .panelSeparator{
     cursor: ew-resize;
     display:flex;
-    direction:column;
     width:24px;
-    border-left: var(--app-border);
     justify-content: center;
     align-items: center;
     box-shadow:none;

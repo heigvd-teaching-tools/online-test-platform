@@ -97,6 +97,7 @@ export const typeSpecificStats = (question) => {
                 }
             }
         case QuestionType.essay:
+        case QuestionType.web:
             let submitted = question.studentAnswer.reduce((acc, sa) => {
                 if(sa.status === StudentAnswerStatus.SUBMITTED) {
                     return acc + 1;

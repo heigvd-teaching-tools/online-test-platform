@@ -50,7 +50,7 @@ const PageFinished = () => {
     const gridHeaders = () => {
 
         let q = questions.map((question) => ({
-            label: <b>{`Q${question.order + 1}`}</b>,
+            label: <b>{`Q${question.order}`}</b>,
             column: { width: '50px' }
         }));
 
@@ -106,7 +106,7 @@ const PageFinished = () => {
         let LINE_SEPARATOR = '\r';
 
         let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`;
-        questions.forEach((question) => csv += `Q${question.order + 1}${COLUMN_SEPARATOR}`);
+        questions.forEach((question) => csv += `Q${question.order}${COLUMN_SEPARATOR}`);
         csv += LINE_SEPARATOR;
 
         participants.forEach((participant) => {

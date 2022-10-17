@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-
+import { QuestionType } from '@prisma/client';
 import { Box, Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, Typography } from "@mui/material";
 
 const AnswerCompare = ({ question, answer }) => {
@@ -12,19 +12,19 @@ const AnswerCompare = ({ question, answer }) => {
     }));
    
     useEffect(() => {
-            var element = container.current;
-            var observer = resizeObserver.current;
-            observer.observe(element);         
+        const element = container.current;
+        const observer = resizeObserver.current;
+        observer.observe(element);
 
-            // Remove event listener on cleanup
-            return () => observer.unobserve(element);
+        // Remove event listener on cleanup
+        return () => observer.unobserve(element);
       }, [resizeObserver, container]);
 
     return (
         <Paper ref={container} square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
         {
             answer && (
-                question.type === 'trueFalse' && (
+                question.type === QuestionType.trueFalse && (
                     <CompareTrueFalse 
                         id={`answer-comparator-${question.id}`}	
                         solution={question[question.type].isTrue}
@@ -32,7 +32,7 @@ const AnswerCompare = ({ question, answer }) => {
                     />
                 )
                 ||
-                question.type === 'multipleChoice' && answer[question.type].options && (
+                question.type === QuestionType.multipleChoice && answer[question.type].options && (
                     <CompareMultipleChoice
                         id={`answer-editor-${question.id}`}	
                         solution={question[question.type].options}
@@ -40,22 +40,30 @@ const AnswerCompare = ({ question, answer }) => {
                     />
                 )
                 || 
-                question.type === 'essay' && (
+                question.type === QuestionType.essay && (
                     <CompareEssay
                         id={`answer-editor-${question.id}`}	
                         answer={answer[question.type]}
                     />
                 )
                 ||
-                question.type === 'code' && (
+                question.type === QuestionType.code && (
                     <CompareCode
                         id={`answer-editor-${question.id}`}	
                         height={height-60}
                         solution={question[question.type]}
                         answer={answer[question.type]}
                     />      
-                )       
-
+                )
+                ||
+                question.type === QuestionType.web && (
+                    <CompareWeb
+                        id={`answer-editor-${question.id}`}
+                        height={height-60}
+                        solution={question[question.type]}
+                        answer={answer[question.type]}
+                    />
+                )
             )
         }
         </Paper>
@@ -112,6 +120,7 @@ const CompareMultipleChoice = ({ solution, answer }) => {
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentEditor from '../input/content/ContentEditor';
+import Web from "../question/type_specific/Web";
 
 const CompareCode = ({ solution, answer, height }) => {
 
@@ -194,6 +203,19 @@ const CompareEssay = ({ answer }) => {
                 id={`answer-compare-essay`}
                 readOnly
                 rawContent={answer.content}
+            />
+        </Box>
+    )
+}
+
+const CompareWeb = ({ answer, height }) => {
+    return (
+        <Box sx={{ p:2 }}>
+            <Web
+                readOnly={true}
+                web={answer}
+                containerHeight={height}
+
             />
         </Box>
     )

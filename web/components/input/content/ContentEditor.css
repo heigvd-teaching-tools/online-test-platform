@@ -1,13 +1,11 @@
 
 .editor-container {
-    border-radius: 2px;
     color: #000;
     position: relative;
     line-height: 20px;
     font-weight: 400;
     text-align: left;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-radius: 10px 10px 2px 2px;
 }
 
 .editor-inner {
@@ -18,7 +16,6 @@
     min-height: 150px;
     resize: none;
     font-size: 15px;
-    caret-color: rgb(5, 5, 5);
     position: relative;
     tab-size: 1;
     outline: 0;
@@ -94,9 +91,7 @@
     padding: 8px 8px 8px 52px;
     line-height: 1.53;
     font-size: 13px;
-    margin: 0;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin: 8px 0;
     tab-size: 2;
     /* white-space: pre; */
     overflow-x: auto;

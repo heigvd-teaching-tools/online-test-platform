@@ -40,7 +40,8 @@ const QuestionAnalytics = ({ question }) => {
                     data[question.type].failure.percentage = maxValue > 0 ? Math.round(data[question.type].failure.count / maxValue * 100) : 0;
                     break;
                 }
-                case QuestionType.essay: {
+                case QuestionType.essay:
+                case QuestionType.web: {
                     let maxValue = Math.max(data[question.type].submitted.count, data[question.type].missing.count);
                     data[question.type].submitted.percentage = maxValue > 0 ? Math.round(data[question.type].submitted.count / maxValue * 100) : 0;
                     data[question.type].missing.percentage = maxValue > 0 ? Math.round(data[question.type].missing.count / maxValue * 100) : 0;
@@ -118,7 +119,7 @@ const QuestionAnalytics = ({ question }) => {
                             </>
                         ))
                         ||
-                        (questionData.type === QuestionType.essay && (
+                        ((questionData.type === QuestionType.essay || questionData.type === QuestionType.web) && (
                             <>
                                 <AnalyticsRow
                                     label="Submitted"

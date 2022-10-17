@@ -40,7 +40,8 @@ const post = async (req, res) => {
             code: { select: { code: true, solution: true } },
             multipleChoice: { select: { options: true } },
             trueFalse: { select: { isTrue: true } },
-            essay: true
+            essay: true,
+            web: true,
         } 
     });
 
@@ -123,6 +124,12 @@ const prepareAnswer = (questionType, answer, mode) => {
         case QuestionType.code:
             return {
                 code: answer ? String(answer.code) : null
+            }
+        case QuestionType.web:
+            return {
+                css: answer ? answer.css : null,
+                html: answer ? answer.html : null,
+                js: answer ? answer.js : null
             }
         default:
             return undefined;

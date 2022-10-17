@@ -44,7 +44,6 @@ const patch = async (req, res) => {
         }
     });
 
-    // TODO : do better - this is a mess
     if(currentQuestion.type !== question.type) {
         if(currentQuestion[currentQuestion.type]) {
             await prisma.question.update({
@@ -81,6 +80,7 @@ const patch = async (req, res) => {
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,
+            web: true
         }
     });
     res.status(200).json(updatedQuestion);

@@ -1,16 +1,18 @@
-import { StudentQuestionGradingStatus } from '@prisma/client';
+import { StudentQuestionGradingStatus, QuestionType } from '@prisma/client';
 
 export const grading = (question, answer) => {
     switch(question.type) {
-        case 'multipleChoice':
+        case QuestionType.multipleChoice:
             return gradeMultipleChoice(question, answer);
-        case 'trueFalse':
+        case QuestionType.trueFalse:
             return gradeTrueFalse(question, answer);
-        case 'essay':
+        case QuestionType.essay:
             return gradeEssay(question, answer);
-        case 'code':
+        case QuestionType.code:
             // student code submission is graded during code test run
             return gradeCode(question, answer);
+        case QuestionType.web:
+            return gradeWeb(question, answer);
         default:
             return undefined;
     }
@@ -67,6 +69,11 @@ const gradeCode = (question, response) => {
 };
 
 const gradeEssay = (_, answer) => ({
+    ...defaultGrading,
+    status: answer ? StudentQuestionGradingStatus.UNGRADED : StudentQuestionGradingStatus.AUTOGRADED
+});
+
+const gradeWeb = (_, answer) => ({
     ...defaultGrading,
     status: answer ? StudentQuestionGradingStatus.UNGRADED : StudentQuestionGradingStatus.AUTOGRADED
 });

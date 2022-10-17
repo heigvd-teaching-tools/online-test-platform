@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+import { QuestionType, StudentAnswerStatus } from '@prisma/client';
+
 import { Paper } from "@mui/material";
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
 import Code from '../question/type_specific/Code';
+import Web from '../question/type_specific/Web';
 
 const AnswerEditor = ({ question, onAnswer }) => {
     const container = useRef();
@@ -24,23 +27,26 @@ const AnswerEditor = ({ question, onAnswer }) => {
         */
         switch(answer.type) {
             // notify with undefined to remove answer
-            case 'trueFalse':
+            case QuestionType.trueFalse:
                 onAnswer(newAnswer !== undefined ? {
                     isTrue: newAnswer
                 } : undefined);
                 break;
-            case 'multipleChoice':
+            case QuestionType.multipleChoice:
                 let selectedOptions = newAnswer.filter(o => o.isCorrect);
                 onAnswer(selectedOptions.length > 0 ? {
                     options: selectedOptions
                 } : undefined);
                 break;
-            case 'essay':
+            case QuestionType.essay:
                 onAnswer(newAnswer ? {
                     content: newAnswer
                 } : undefined);
                 break;
-            case 'code':
+            case QuestionType.code:
+                onAnswer(newAnswer);
+                break;
+            case QuestionType.web:
                 onAnswer(newAnswer);
                 break;
             default:
@@ -56,18 +62,18 @@ const AnswerEditor = ({ question, onAnswer }) => {
             };
 
             switch(question.type){
-                case 'trueFalse':
+                case QuestionType.trueFalse:
                     let isTrue = undefined;
-                    if(question.studentAnswer.length > 0){
+                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
                         isTrue = question.studentAnswer[0].trueFalse.isTrue;
                     }
                     answerData.isTrue = isTrue;
                     break;
-                case 'multipleChoice':
+                case QuestionType.multipleChoice:
                     
                     let allOptions = question.multipleChoice.options;
                     let studentOptions = [];
-                    if(question.studentAnswer.length > 0){
+                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
                         studentOptions = question.studentAnswer[0].multipleChoice.options;
                     }
 
@@ -78,39 +84,47 @@ const AnswerEditor = ({ question, onAnswer }) => {
                         }
                     });
                     break;
-                case 'essay':
+                case QuestionType.essay:
                     let content = "";
-                    if(question.studentAnswer.length > 0){
+                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
                         content = question.studentAnswer[0].essay.content;
                     }
                     answerData.content = content;
                     break;
-                case 'code':
+                case QuestionType.code:
                     let code = question.code;
-                    if(question.studentAnswer.length > 0){
+                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
                         code = question.studentAnswer[0].code;
                     }
                     answerData.code = code;
                     break;
+                case QuestionType.web:
+                    let web = question.web;
+                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
+                        web = question.studentAnswer[0].web;
+                    }
+                    answerData.web = web;
+                    break;
+
             }
             setAnswer(answerData);
         }
     }, [question]);
 
     useEffect(() => {
-            var element = container.current;
-            var observer = resizeObserver.current;
-            observer.observe(element);         
+        const element = container.current;
+        const observer = resizeObserver.current;
+        observer.observe(element);
 
-            // Remove event listener on cleanup
-            return () => observer.unobserve(element);
+        // Remove event listener on cleanup
+        return () => observer.unobserve(element);
       }, [resizeObserver, container]);
 
     return (
         <Paper ref={container} square elevation={0} sx={{ flex:1, position:'relative', overflow:'hidden', pt:2, pl:2, pb:1 }}>
         {
             answer && (
-                answer.type === 'trueFalse' && (
+                answer.type === QuestionType.trueFalse && (
                     <TrueFalse 
                         id={`answer-editor-${question.id}`}	
                         allowUndefined={true}
@@ -119,7 +133,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     />
                 )
                 ||
-                answer.type === 'multipleChoice' && answer.options && (
+                answer.type === QuestionType.multipleChoice && answer.options && (
                     <MultipleChoice
                         id={`answer-editor-${question.id}`}	
                         selectOnly
@@ -128,7 +142,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     />
                 )
                 || 
-                answer.type === 'essay' && (
+                answer.type === QuestionType.essay && (
                     <Essay
                         id={`answer-editor-${question.id}`}	
                         content={answer.content}
@@ -136,7 +150,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     />
                 )
                 ||
-                answer.type === 'code' && (
+                answer.type === QuestionType.code && (
                     <Code
                         id={`answer-editor-${question.id}`}	
                         where="answer"
@@ -151,8 +165,16 @@ const AnswerEditor = ({ question, onAnswer }) => {
                         }}
                         
                     />      
-                )       
-
+                )
+                ||
+                answer.type === QuestionType.web && (
+                    <Web
+                        id={`answer-editor-${question.id}`}
+                        web={answer.web}
+                        containerHeight={height}
+                        onChange={onAnswerByType}
+                    />
+                )
             )
         }
         </Paper>

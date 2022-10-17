@@ -70,6 +70,7 @@ enum QuestionType {
   trueFalse
   essay
   code
+  web
 }
 
 model Exam {
@@ -100,6 +101,7 @@ model Question {
   trueFalse      TrueFalse?
   essay          Essay?
   code           Code?
+  web            Web?
 
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
@@ -140,6 +142,14 @@ model Code {
   questionId String   @id
   solution   String?
   code       String?
+}
+
+model Web {
+    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    questionId String   @id
+    html       String?
+    css        String?
+    js         String?
 }
 
 enum ExamSessionPhase {
@@ -207,6 +217,7 @@ model StudentAnswer {
   trueFalse      StudentAnswerTrueFalse?
   essay          StudentAnswerEssay?
   code           StudentAnswerCode?
+  web            StudentAnswerWeb?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -287,6 +298,18 @@ model StudentAnswerCode {
   studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
   @@id([userEmail, questionId])
+}
+
+model StudentAnswerWeb {
+    studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+    userEmail     String
+    questionId    String
+
+    html String?
+    css  String?
+    js   String?
+
+    @@id([userEmail, questionId])
 }
 
 model StudentAnswerCodeHistory {

@@ -64,6 +64,7 @@ export const questionsWithIncludes = ( {
             }
         },
         essay: true,
+        web: true,
     } : undefined;
 
     /*  including user answers
@@ -86,6 +87,7 @@ export const questionsWithIncludes = ( {
                 multipleChoice: { select: { options: { select: { id: true, text: true } } } },
                 essay: { select: { content: true } },
                 trueFalse: true,
+                web: true,
                 user: true
             }
         };
@@ -114,7 +116,7 @@ export const questionsWithIncludes = ( {
 
 export const questionTypeSpecific = (questionType, question, currentQuestion) => {
     let typeSpecificCopy = { ...question[questionType] };
-    delete typeSpecificCopy.questionId;
+    delete typeSpecificCopy.questionId; // remove questionId from type specific data
     switch(questionType) {
         case QuestionType.multipleChoice:
             let clauses = {};   
@@ -148,6 +150,8 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
             // type specific does not have any specific fields, might carry the solution in the future
             return {} 
         case QuestionType.code:
+            return typeSpecificCopy
+        case QuestionType.web:
             return typeSpecificCopy
         default:
             return undefined;

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from '../../context/SnackbarContext';
-
+import { QuestionType } from '@prisma/client';
 import { Card, CardContent, Stack, Typography, MenuItem, TextField, IconButton, CardActions, Box, CircularProgress, Alert, AlertTitle } from "@mui/material";
 
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -15,6 +15,7 @@ import DropDown from '../input/DropDown';
 import Code from './type_specific/Code';
 import MultipleChoice from './type_specific/MultipleChoice';
 import TrueFalse from './type_specific/TrueFalse';
+import Web from "./type_specific/Web";
 
 import { LoadingButton } from '@mui/lab';
 
@@ -163,14 +164,14 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                 <Row>
                     <Column flexGrow={1}>
                     {(
-                        ( questionType === 'multipleChoice' && question.multipleChoice &&
+                        ( questionType === QuestionType.multipleChoice && question.multipleChoice &&
                             <MultipleChoice 
                                 options={question.multipleChoice.options}
                                 onChange={(newOptions) => onQuestionChange("multipleChoice", { options: newOptions })}
                             />
                         ) 
                         ||
-                        ( questionType === 'code' && question.code &&
+                        ( questionType === QuestionType.code && question.code &&
                             <Stack spacing={2}>
                                 <Code 
                                     containerHeight='600'
@@ -187,11 +188,19 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                             </Stack>
                         )
                         ||
-                        ( questionType === 'trueFalse' && question.trueFalse &&
+                        ( questionType === QuestionType.trueFalse && question.trueFalse &&
                             <TrueFalse 
                                 isTrue={question.trueFalse.isTrue}
                                 onChange={(newIsTrue) => onQuestionChange("trueFalse", { isTrue: newIsTrue })}
                             /> 
+                        )
+                        ||
+                        ( questionType === QuestionType.web && question.web &&
+                            <Web
+                                containerHeight='400'
+                                web={question.web}
+                                onChange={(newWeb) => onQuestionChange("web", newWeb)}
+                            />
                         )
                         
                     )}
@@ -254,6 +263,10 @@ const questionTypes = [
     {
         value: 'code',
         label: 'Code'
+    },
+    {
+        value: 'web',
+        label: 'Web'
     }
 ];
 

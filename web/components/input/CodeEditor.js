@@ -55,7 +55,7 @@ const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly =
                 }}
                 width="100%"
                 height={editorHeight}
-                defaultLanguage="javascript"
+                language="javascript"
                 value={code}
                 onChange={onCodeChange}
             />
