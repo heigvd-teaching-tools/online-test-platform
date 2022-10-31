@@ -8,8 +8,6 @@ import TabPanel from "@mui/lab/TabPanel";
 import TabContext from "@mui/lab/TabContext";
 import ResizePanel from "../../layout/utils/ResizePanel";
 
-// TODO : Preview
-
 const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onChange }) => {
 
     const [ web, setWeb ] = useState(initial);
@@ -105,7 +103,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
     )
 }
 
-const EditorSwitchWrapper = ({ id, which, value:initial, language, readOnly, height, onChange }) => {
+const EditorSwitchWrapper = ({ id, value:initial, language, readOnly, height, onChange }) => {
     const [ value, setValue ] = useState("");
     useEffect(() => {
         setValue(initial);
