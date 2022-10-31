@@ -13,12 +13,12 @@ import ResizePanel from "../../layout/utils/ResizePanel";
 const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onChange }) => {
 
     const [ web, setWeb ] = useState(initial);
+
     const [ tab, setTab ] = useState(0);
     const [ editorHeight, setEditorHeight ] = useState(0);
 
     useEffect(() => {
         setWeb(initial);
-
     }, [initial, id]);
 
     const tabRef = useCallback(node => {
@@ -28,14 +28,19 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
     }, [containerHeight]);
 
     const onProjectChange = useCallback((what, content) => {
-        let newWeb = {...web, [what]: content};
-        setWeb(newWeb);
-        onChange(newWeb);
+        if(content !== web[what]){
+            let newWeb = {
+                ...web,
+                [what]: content
+            };
+            setWeb(newWeb);
+            onChange(newWeb);
+        }
     }, [web, onChange]);
 
     return(
         <Stack spacing={1} sx={{ width:'100%', height:'100%', position:'relative' }}>
-            <TabContext value={tab}>
+            <TabContext value={tab.toString()}>
             <ResizePanel
                 leftPanel={
                 <>
@@ -44,54 +49,50 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
                             icon={<Box><Image src="/svg/questions/web/html5.svg" alt="HTML" width={24} height={24} /></Box>}
                             iconPosition="start"
                             label="HTML"
-                            value={0}
+                            value={"0"}
                         />
                         <Tab
                             icon={<Box><Image src="/svg/questions/web/css3.svg" alt="CSS" width={24} height={24} /></Box>}
                             iconPosition="start"
                             label="CSS"
-                            value={1}
+                            value={"1"}
                         />
                         <Tab
                             icon={<Box><Image src="/svg/questions/web/js.svg" alt="JavaScript" width={24} height={24} /></Box>}
                             iconPosition="start"
                             label="JavaScript"
-                            value={2}
+                            value={"2"}
                         />
                     </Tabs>
-                    <TabPanel id="html" value={0}>
-                        <Editor
-                            width="100%"
-                            height={`${editorHeight}px`}
-                            options={{
-                                readOnly
-                            }}
+                    <TabPanel id="html" value={"0"}>
+                        <EditorSwitchWrapper
+                            id={`${id}-html`}
+                            readOnly={readOnly}
                             language="html"
-                            value={web?.html || ""}
-                            onChange={(html) => onProjectChange("html", html)}
+                            value={web?.html}
+                            height={editorHeight}
+                            onChange={(content) => {
+                                onProjectChange("html", content);
+                            }}
                         />
                     </TabPanel>
-                    <TabPanel id="css" value={1}>
-                        <Editor
-                            width="100%"
-                            height={`${editorHeight}px`}
-                            options={{
-                                readOnly
-                            }}
+                    <TabPanel id="css" value={"1"}>
+                        <EditorSwitchWrapper
+                            id={`${id}-css`}
+                            readOnly={readOnly}
                             language="css"
-                            value={web?.css || ""}
+                            value={web?.css}
+                            height={editorHeight}
                             onChange={(css) => onProjectChange("css", css)}
                         />
                     </TabPanel>
-                    <TabPanel id="js" value={2}>
-                        <Editor
-                            width="100%"
-                            height={`${editorHeight}px`}
-                            options={{
-                                readOnly
-                            }}
+                    <TabPanel id="js" value={"2"}>
+                        <EditorSwitchWrapper
+                            id={`${id}-js`}
+                            readOnly={readOnly}
                             language="javascript"
-                            value={web?.js || ""}
+                            value={web?.js}
+                            height={editorHeight}
                             onChange={(js) => onProjectChange("js", js)}
                         />
                     </TabPanel>
@@ -102,6 +103,22 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
             </TabContext>
         </Stack>
     )
+}
+
+const EditorSwitchWrapper = ({ id, which, value:initial, language, readOnly, height, onChange }) => {
+    const [ value, setValue ] = useState("");
+    useEffect(() => {
+        setValue(initial);
+    }, [id, initial]);
+
+    return <Editor
+        width="100%"
+        height={`${height}px`}
+        options={{ readOnly }}
+        language={language}
+        value={value}
+        onChange={onChange}
+    />
 }
 
 const PreviewPanel = ({ web }) => {
