@@ -23,9 +23,11 @@ const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly =
         setExpanded(!expanded);
     };
 
-    const onCodeChange = (code) => {
-        setCode(code);
-        onChange(code);
+    const onCodeChange = (newCode) => {
+        setCode(newCode);
+        if(newCode !== initial) {
+            onChange(newCode);
+        }
     }
 
     const runCode =  () => {

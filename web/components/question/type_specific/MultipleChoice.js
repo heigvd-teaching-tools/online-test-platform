@@ -10,6 +10,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
     const [options, setOptions] = useState();
 
     useEffect(() => {
+        console.log("MultipleChoice useEffect");
         if (initial) {
             if (initial && initial.length > 0) {
                 setOptions(initial);

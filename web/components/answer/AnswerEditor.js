@@ -28,26 +28,26 @@ const AnswerEditor = ({ question, onAnswer }) => {
         switch(answer.type) {
             // notify with undefined to remove answer
             case QuestionType.trueFalse:
-                onAnswer(newAnswer !== undefined ? {
+                onAnswer(question, newAnswer !== undefined ? {
                     isTrue: newAnswer
                 } : undefined);
                 break;
             case QuestionType.multipleChoice:
                 let selectedOptions = newAnswer.filter(o => o.isCorrect);
-                onAnswer(selectedOptions.length > 0 ? {
+                onAnswer(question, selectedOptions.length > 0 ? {
                     options: selectedOptions
                 } : undefined);
                 break;
             case QuestionType.essay:
-                onAnswer(newAnswer ? {
+                onAnswer(question, newAnswer ? {
                     content: newAnswer
                 } : undefined);
                 break;
             case QuestionType.code:
-                onAnswer(newAnswer);
+                onAnswer(question, newAnswer);
                 break;
             case QuestionType.web:
-                onAnswer(newAnswer);
+                onAnswer(question, newAnswer);
                 break;
             default:
                 break;

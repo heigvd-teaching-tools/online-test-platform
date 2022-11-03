@@ -12,7 +12,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
 
     const [ web, setWeb ] = useState(initial);
 
-    const [ tab, setTab ] = useState(0);
+    const [ tab, setTab ] = useState("0");
     const [ editorHeight, setEditorHeight ] = useState(0);
 
     useEffect(() => {

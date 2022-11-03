@@ -23,7 +23,7 @@ const PageTakeExam = () => {
     const router = useRouter();
     const { showTopRight: showSnackbar } = useSnackbar();
     const { data } = useSession();
-
+/*
     const { data:examSessionPhase } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/phase`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
@@ -36,9 +36,9 @@ const PageTakeExam = () => {
             router.push(`/exam-sessions/${router.query.sessionId}/waiting`);
         }
     }, [examSessionPhase, router]);
+*/
 
-
-    const { data: userOnExamSession, error } = useSWR(
+    const { data: userOnExamSession, error, mutate } = useSWR(
         `/api/users/${data && data.user.email}/exam-sessions/${router.query.sessionId}?questions=true`,
         data && router.query.sessionId ? 
             (...args) => 
@@ -60,19 +60,37 @@ const PageTakeExam = () => {
 
     const [ page, setPage ] = useState(parseInt(router.query.pageId));
 
+    const [ questions, setQuestions ] = useState([]);
+
+    useEffect(() => {
+        if(userOnExamSession){
+            setQuestions(userOnExamSession.questions);
+        }
+    }, [userOnExamSession]);
+
     useEffect(() => {
         setPage(parseInt(router.query.pageId));
     }, [router.query.pageId]);
 
-    const onAnswer = useDebouncedCallback(useCallback((answer) => {
+    const onAnswer = useDebouncedCallback(useCallback((question, answer) => {
+        let previousAnswer = { ...question.studentAnswer }; // clone the previous answer to restore it if the api call fails
+        question.studentAnswer = [{
+            status: answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING,
+            [question.type]: {
+                ...answer
+            }
+        }];
         (async () => {
-            await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${userOnExamSession.questions[page - 1].id}/answer`, {
+            await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${question.id}/answer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ answer: answer })
             })
             .then(data => {
                 if(!data.ok){
+                    // force re-render to restore the previous answer -> must change the reference of the question object
+                    let index = questions.findIndex(q => q.id === question.id);
+                    questions[index] = { ...question, studentAnswer: previousAnswer };
                     if(data.status === 400){
                         showSnackbar('The answer is not submited, this exam session is not in the in-progress phase', 'error');
                     }else {
@@ -80,12 +98,6 @@ const PageTakeExam = () => {
                     }
                     return;
                 }
-                userOnExamSession.questions[page - 1].studentAnswer = [{
-                    status: answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING,
-                    [userOnExamSession.questions[page - 1].type]: {
-                        ...answer
-                    }
-                }];
 
                 if(answer === undefined){
                     showSnackbar('Your answer has been removed', 'success');
@@ -96,12 +108,12 @@ const PageTakeExam = () => {
                 showSnackbar('Error submitting answer', 'error');
             });
         })();
-    }, [userOnExamSession, page, router.query.sessionId, showSnackbar]), 500);
+    }, [questions, router.query.sessionId, showSnackbar]), 300);
 
     const hasAnswered = useCallback((questionId) => {
-        let question = userOnExamSession.questions.find(q => q.id === questionId);
+        let question = questions.find(q => q.id === questionId);
         return question && question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED && question.studentAnswer[0][question.type] !== undefined;
-    }, [userOnExamSession]);
+    }, [questions]);
 
     if(error) return <LoadingAnimation content={error.message} />     
     if (!userOnExamSession) return <LoadingAnimation />
@@ -120,10 +132,10 @@ const PageTakeExam = () => {
                             <ExamSessionCountDown startDate={userOnExamSession.startAt} endDate={userOnExamSession.endAt} />
                         </Box>
                     )}
-                    {userOnExamSession.questions && userOnExamSession.questions.length > 0 && (
+                    {questions && questions.length > 0 && (
                         <QuestionPages 
-                            questions={userOnExamSession.questions}
-                            activeQuestion={userOnExamSession.questions[page - 1]}
+                            questions={questions}
+                            activeQuestion={questions[page - 1]}
                             link={(_, index) => `/exam-sessions/${router.query.sessionId}/take/${index + 1}`}
                             isFilled={hasAnswered} 
                         />
@@ -131,26 +143,26 @@ const PageTakeExam = () => {
                 </Stack>
             }
             leftPanel={
-                userOnExamSession.questions && userOnExamSession.questions.length > 0 && userOnExamSession.questions[page - 1] && (
+                questions && questions.length > 0 && questions[page - 1] && (
                 <>
                     <Box sx={{ height: 'calc(100% - 50px)' }}>
                         <QuestionView 
-                            question={userOnExamSession.questions[page - 1]}
+                            question={questions[page - 1]}
                             page={page} 
-                            totalPages={userOnExamSession.questions.length}
+                            totalPages={questions.length}
                         />
                     </Box>
                     <QuestionNav 
                         page={page} 
-                        totalPages={userOnExamSession.questions.length}
+                        totalPages={questions.length}
                     />
                 </>
             )}
             rightPanel={
-                userOnExamSession.questions && userOnExamSession.questions.length > 0 && userOnExamSession.questions[page - 1] && (
+                questions && questions.length > 0 && questions[page - 1] && (
                 <Stack sx={{ height:'100%', pt:1 }}>
                     <AnswerEditor 
-                        question={userOnExamSession.questions[page - 1]}
+                        question={questions[page - 1]}
                         onAnswer={onAnswer} 
                     />      
                 </Stack>  
