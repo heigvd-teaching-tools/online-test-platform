@@ -91,10 +91,7 @@ export default async function handler(req, res) {
             }
         });
 
-        res.status(200).send({
-            questionId: questionId,
-            ...reponse
-        });
+        res.status(200).send(reponse);
     }).catch(error => {
         console.error(error);
         res.status(500).send(error);

@@ -26,29 +26,23 @@ const CodeCheck = ({ id = "test-run", where, questionId, onBeforeCodeCheckRun, o
         if(onBeforeCodeCheckRun) await onBeforeCodeCheckRun();
         setCodeCheckRunning(true);
         setResult(null);
-        console.log("runCodeCheck", questionId);
         fetch(`/api/code/test/${where}/${questionId}`, { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }
         })
         .then(res => res.json())
         .then(data => {
-            console.log(data.questionId, questionId);
-            if(data.questionId === questionId){
-                setCodeCheckRunning(false);
-                setResult(data);
-                setExpanded(true);
-                if(onCodeCheckResult) onCodeCheckResult(data);
-            } else {
-                showSnackbar(data.success ? "Your code check passed " : "Your code check failed", data.success ? "success" : "error");
-            }
+            setCodeCheckRunning(false);
+            setResult(data);
+            setExpanded(true);
+            if(onCodeCheckResult) onCodeCheckResult(data);
         }).catch(_ => {
             showSnackbar("Error running test", "error");
             setResult(null);
             setCodeCheckRunning(false);
             setExpanded(true);
         });
-    }, [id, where, questionId, onBeforeCodeCheckRun, onCodeCheckResult, showSnackbar]);
+    }, [where, questionId, onBeforeCodeCheckRun, onCodeCheckResult, showSnackbar]);
 
     return(
         <>
