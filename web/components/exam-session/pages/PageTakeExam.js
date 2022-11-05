@@ -23,7 +23,7 @@ const PageTakeExam = () => {
     const router = useRouter();
     const { showTopRight: showSnackbar } = useSnackbar();
     const { data } = useSession();
-/*
+
     const { data:examSessionPhase } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/phase`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
@@ -36,7 +36,7 @@ const PageTakeExam = () => {
             router.push(`/exam-sessions/${router.query.sessionId}/waiting`);
         }
     }, [examSessionPhase, router]);
-*/
+
 
     const { data: userOnExamSession, error, mutate } = useSWR(
         `/api/users/${data && data.user.email}/exam-sessions/${router.query.sessionId}?questions=true`,
