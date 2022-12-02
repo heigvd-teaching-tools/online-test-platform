@@ -1,4 +1,4 @@
-import PageTakeExam from "../../../../components/exam-session/pages/PageTakeExam";
+import PageTakeExam from "../../../../components/exam-session/pages/student/PageTakeExam";
 
 const TakeExam = () => <PageTakeExam />;
     

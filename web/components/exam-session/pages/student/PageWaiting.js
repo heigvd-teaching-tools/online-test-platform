@@ -4,12 +4,29 @@ import { useRouter } from "next/router";
 import { useSession, signOut } from "next-auth/react";
 import {ExamSessionPhase, Role} from '@prisma/client';
 
-import AlertFeedback from "../../feedback/AlertFeedback";
-import LoadingAnimation from "../../feedback/LoadingAnimation";
+import AlertFeedback from "../../../feedback/AlertFeedback";
+import LoadingAnimation from "../../../feedback/LoadingAnimation";
 import { Button, Typography } from "@mui/material";
-import Authorisation from "../../security/Authorisation";
+import Authorisation from "../../../security/Authorisation";
+import StudentPhaseRedirect from "./StudentPhaseRedirect";
 
-const PageWaitExamSession = () => {
+const phaseToPhrase = (phase) => {
+    switch(phase){
+        case ExamSessionPhase.NEW:
+        case ExamSessionPhase.DRAFT:
+            return 'not is progress';
+        case ExamSessionPhase.IN_PROGRESS:
+            return 'in progress';
+        case ExamSessionPhase.GRADING:
+            return 'being graded';
+        case ExamSessionPhase.FINISHED:
+            return 'finished';
+        default:
+            return 'unknown';
+    }
+}
+
+const PageWaiting = () => {
     const router = useRouter();
     const { data } = useSession();
     
@@ -46,17 +63,19 @@ const PageWaitExamSession = () => {
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>{
         examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS && (
-            <LoadingAnimation content={
-                <>
-                <Typography variant="body1" gutterBottom>
-                    {examSession.label ? `${examSession.label} is not in progress.` : 'This exam session is not in progress.'}
-                </Typography>
-                <Button onClick={() => signOut()}>Sign out</Button>
-                </>
-            } />
+            <StudentPhaseRedirect phase={examSession.phase}>
+                <LoadingAnimation content={
+                    <>
+                    <Typography variant="body1" gutterBottom>
+                        {examSession.label ? `${examSession.label} is ${phaseToPhrase(examSession.phase)}.` : 'This exam session is not in progress.'}
+                    </Typography>
+                    <Button onClick={() => signOut()}>Sign out</Button>
+                    </>
+                } />
+            </StudentPhaseRedirect>
         )}
         </Authorisation>
     )
 }
 
-export default PageWaitExamSession;
+export default PageWaiting;

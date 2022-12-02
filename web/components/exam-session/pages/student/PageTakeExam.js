@@ -6,18 +6,19 @@ import { useSession } from "next-auth/react";
 
 import { Stack, Box } from "@mui/material";
 
-import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
-import LoadingAnimation from "../../feedback/LoadingAnimation";
-import QuestionPages from '../take/QuestionPages';
-import { useSnackbar } from '../../../context/SnackbarContext';
-import ExamSessionCountDown from '../in-progress/ExamSessionCountDown';
+import LayoutSplitScreen from '../../../layout/LayoutSplitScreen';
+import LoadingAnimation from "../../../feedback/LoadingAnimation";
+import QuestionPages from '../../take/QuestionPages';
+import { useSnackbar } from '../../../../context/SnackbarContext';
+import ExamSessionCountDown from '../../in-progress/ExamSessionCountDown';
 
-import QuestionView from '../take/QuestionView';
-import QuestionNav from '../take/QuestionNav';
-import AnswerEditor from '../../answer/AnswerEditor';
+import QuestionView from '../../take/QuestionView';
+import QuestionNav from '../../take/QuestionNav';
+import AnswerEditor from '../../../answer/AnswerEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
-import Authorisation from "../../security/Authorisation";
+import Authorisation from "../../../security/Authorisation";
+import StudentPhaseRedirect from "./StudentPhaseRedirect";
 
 const PageTakeExam = () => {
     const router = useRouter();
@@ -124,50 +125,52 @@ const PageTakeExam = () => {
     
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
-        <LayoutSplitScreen 
-            header={
-                <Stack direction="row" alignItems="center">
-                    { userOnExamSession.startAt && userOnExamSession.endAt && (
-                        <Box sx={{ ml:2 }}>
-                            <ExamSessionCountDown startDate={userOnExamSession.startAt} endDate={userOnExamSession.endAt} />
-                        </Box>
+            <StudentPhaseRedirect phase={userOnExamSession.phase}>
+                <LayoutSplitScreen
+                    header={
+                        <Stack direction="row" alignItems="center">
+                            { userOnExamSession.startAt && userOnExamSession.endAt && (
+                                <Box sx={{ ml:2 }}>
+                                    <ExamSessionCountDown startDate={userOnExamSession.startAt} endDate={userOnExamSession.endAt} />
+                                </Box>
+                            )}
+                            {questions && questions.length > 0 && (
+                                <QuestionPages
+                                    questions={questions}
+                                    activeQuestion={questions[page - 1]}
+                                    link={(_, index) => `/exam-sessions/${router.query.sessionId}/take/${index + 1}`}
+                                    isFilled={hasAnswered}
+                                />
+                            )}
+                        </Stack>
+                    }
+                    leftPanel={
+                        questions && questions.length > 0 && questions[page - 1] && (
+                        <>
+                            <Box sx={{ height: 'calc(100% - 50px)' }}>
+                                <QuestionView
+                                    question={questions[page - 1]}
+                                    page={page}
+                                    totalPages={questions.length}
+                                />
+                            </Box>
+                            <QuestionNav
+                                page={page}
+                                totalPages={questions.length}
+                            />
+                        </>
                     )}
-                    {questions && questions.length > 0 && (
-                        <QuestionPages 
-                            questions={questions}
-                            activeQuestion={questions[page - 1]}
-                            link={(_, index) => `/exam-sessions/${router.query.sessionId}/take/${index + 1}`}
-                            isFilled={hasAnswered} 
-                        />
+                    rightPanel={
+                        questions && questions.length > 0 && questions[page - 1] && (
+                        <Stack sx={{ height:'100%', pt:1 }}>
+                            <AnswerEditor
+                                question={questions[page - 1]}
+                                onAnswer={onAnswer}
+                            />
+                        </Stack>
                     )}
-                </Stack>
-            }
-            leftPanel={
-                questions && questions.length > 0 && questions[page - 1] && (
-                <>
-                    <Box sx={{ height: 'calc(100% - 50px)' }}>
-                        <QuestionView 
-                            question={questions[page - 1]}
-                            page={page} 
-                            totalPages={questions.length}
-                        />
-                    </Box>
-                    <QuestionNav 
-                        page={page} 
-                        totalPages={questions.length}
-                    />
-                </>
-            )}
-            rightPanel={
-                questions && questions.length > 0 && questions[page - 1] && (
-                <Stack sx={{ height:'100%', pt:1 }}>
-                    <AnswerEditor 
-                        question={questions[page - 1]}
-                        onAnswer={onAnswer} 
-                    />      
-                </Stack>  
-            )}
-        />
+                />
+            </StudentPhaseRedirect>
         </Authorisation>
     )
 }

@@ -9,7 +9,7 @@ import { Stack, Stepper, Step, StepLabel, Typography } from '@mui/material';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
 
-import RegistrationClipboard from '../RegistrationClipboard';
+import JoinClipboard from '../JoinClipboard';
 import StepInProgress from '../in-progress/StepInProgress';
 import LayoutMain from '../../layout/LayoutMain';
 import { LoadingButton } from '@mui/lab';
@@ -76,7 +76,7 @@ const PageInProgress = () => {
             {examSession && (
                 <LayoutMain>
                 <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
-                <RegistrationClipboard sessionId={router.query.sessionId} />        
+                <JoinClipboard sessionId={router.query.sessionId} />
                 <Stepper activeStep={0} orientation="vertical">
                     <Step key="in-progress">
                         <StepInProgress 

@@ -11,7 +11,7 @@ import StepReferenceExam from '../draft/StepReferenceExam';
 import StepGeneralInformation from '../draft/StepGeneralInformation';
 import StepSchedule from '../draft/StepSchedule';
 
-import RegistrationClipboard from '../RegistrationClipboard';
+import JoinClipboard from '../JoinClipboard';
 import { LoadingButton } from '@mui/lab';
 import { update, create } from './crud';
 import PhaseRedirect from './PhaseRedirect';
@@ -114,7 +114,7 @@ const PageDraft = () => {
                 { examSession && (
                     <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
                     { examSession.id && (
-                        <RegistrationClipboard sessionId={examSession.id} />
+                        <JoinClipboard sessionId={examSession.id} />
                     )}
 
                     <StepReferenceExam
