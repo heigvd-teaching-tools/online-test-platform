@@ -69,22 +69,24 @@ const StrictOnChangePlugin = ({ id, onChange }) => {
     const [ editor ] = useLexicalComposerContext();
 
     const [ prevContent, setPrevContent ] = useState(null);
+    const [ prevId, setPrevId ] = useState(null);
 
     useEffect(() => setPrevContent(null), [id, editor]);
 
     const onContentChange = (editorState) => {
         const newContent = editorState.toJSON();
         /* DEBUG
-        console.log("COMPARE", JSON.stringify(prevContent) !== JSON.stringify(newContent));
-        console.log("PREV",  JSON.stringify(prevContent));
-        console.log("NEW",  JSON.stringify(newContent));
+        console.log("DIFFERENT", JSON.stringify(prevContent) !== JSON.stringify(newContent));
+        console.log("PREV",  JSON.stringify(prevContent), prevId);
+        console.log("NEW",  JSON.stringify(newContent), id);
         */
-        if(prevContent && JSON.stringify(prevContent) !== JSON.stringify(newContent)){
+        if(id === prevId && JSON.stringify(prevContent) !== JSON.stringify(newContent)){
             setPrevContent(newContent);
             if(onChange) onChange(JSON.stringify(!isEditorEmpty(editorState) ? editorState.toJSON() : undefined));
         }
         if(!prevContent){
             setPrevContent(newContent);
+            setPrevId(id);
         }
     }
 
