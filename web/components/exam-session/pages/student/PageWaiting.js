@@ -31,7 +31,7 @@ const PageWaiting = () => {
     const { data } = useSession();
     
     const { data: examSession, errorSession, error  } = useSWR(
-        `/api/users/${data && data.user.email}/exam-sessions/${router.query.sessionId}`,
+        `/api/users/exam-sessions/${router.query.sessionId}/take`,
         data && router.query.sessionId ? 
             (...args) => 
                 fetch(...args)

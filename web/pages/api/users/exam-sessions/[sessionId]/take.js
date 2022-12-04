@@ -1,6 +1,6 @@
 import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
 
-import { hasRole } from '../../../../../utils/auth';
+import { hasRole, getUser } from '../../../../../utils/auth';
 import { questionsWithIncludes, IncludeStrategy } from '../../../../../code/questions';
 
 if (!global.prisma) {
@@ -23,51 +23,50 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
     const isProf = await hasRole(req, Role.PROFESSOR);
     const isStudent = await hasRole(req, Role.STUDENT);
+
     if(!(isProf || isStudent)){
         res.status(401).json({ message: 'Unauthorized' });
         return;
     }
 
-    const { sessionId, email, questions } = req.query;
-
+    const { sessionId } = req.query;
+    const { email } = await getUser(req);
     let include = { examSession: true };
 
-    if(questions === 'true'){
-        // control the phase of the exam session
-        const examSession = await prisma.examSession.findUnique({
-            where: { id: sessionId },
-            select: { phase: true }
+    // control the phase of the exam session
+    const examSession = await prisma.examSession.findUnique({
+        where: { id: sessionId },
+        select: { phase: true }
+    });
+
+    if(!examSession){
+        res.status(404).json({ message: 'Exam session not found' });
+        return;
+    }
+
+    if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
+        let queryQuestions = questionsWithIncludes({
+            includeTypeSpecific: true,
+            includeUserAnswers: {
+                strategy: IncludeStrategy.USER_SPECIFIC,
+                userEmail: email
+            }
         });
 
-        if(!examSession){
-            res.status(404).json({ message: 'Exam session not found' });
-            return;
-        }
-
-        if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
-            let queryQuestions = questionsWithIncludes({
-                includeTypeSpecific: true,
-                includeUserAnswers: {
-                    strategy: IncludeStrategy.USER_SPECIFIC,
-                    userEmail: email
-                }
-            });
-
-            include = {
-                examSession: {
-                    include: {
-                        questions: {
-                            ...queryQuestions,
-                            orderBy: {
-                                order: 'asc'
-                            }
+        include = {
+            examSession: {
+                include: {
+                    questions: {
+                        ...queryQuestions,
+                        orderBy: {
+                            order: 'asc'
                         }
                     }
                 }
             }
         }
-    }    
-    
+    }
+
     const userOnExamSession = await prisma.userOnExamSession.findUnique({
         where: {
             userEmail_examSessionId: {

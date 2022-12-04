@@ -5,4 +5,9 @@ const hasRole = async (req, role) => {
     return session && session.user && session.user.role === role;
 }
 
-export { hasRole };
+const getUser = async (req) => {
+    const session = await getSession({ req });
+    return session && session.user;
+}
+
+export { hasRole, getUser };

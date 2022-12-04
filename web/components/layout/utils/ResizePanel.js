@@ -57,8 +57,8 @@ ResizePanel.defaultProps = {
 };
 
 ResizePanel.propTypes = {
-    leftPannel: PropTypes.element.isRequired,
-    rightPannel: PropTypes.element.isRequired,
+    leftPanel: PropTypes.element.isRequired,
+    rightPanel: PropTypes.element.isRequired,
     rightWidth: PropTypes.number
 };
 

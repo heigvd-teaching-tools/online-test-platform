@@ -96,7 +96,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
                     </TabPanel>
                 </>
                 }
-                rightPanel={<PreviewPanel web={web} />}
+                rightPanel={<PreviewPanel id={`${id}-preview`} web={web} />}
             />
             </TabContext>
         </Stack>
@@ -119,11 +119,13 @@ const EditorSwitchWrapper = ({ id, value:initial, language, readOnly, height, on
     />
 }
 
-const PreviewPanel = ({ web }) => {
+const PreviewPanel = ({ id, web }) => {
         let frame = useRef();
 
         useEffect(() => {
+
             if (web && frame) {
+
                 let iframe = frame.current;
 
                 let html = web.html || "";
@@ -147,14 +149,15 @@ const PreviewPanel = ({ web }) => {
 
                 // set html into iframe body
                 doc.body.innerHTML = html;
+                doc.body.style.margin = "0";
 
                 iframe.style.width = "100%";
                 // set frame height based on content
                 iframe.style.height = `${doc.body.scrollHeight}px`;
                 iframe.style.border = "none";
-                doc.body.style.margin = "0";
+
             }
-        }, [web, frame]);
+        }, [id, web]);
 
         return <Box sx={{ height:'100%' }}><iframe ref={frame} /></Box>
 }

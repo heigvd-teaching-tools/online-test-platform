@@ -51,7 +51,7 @@ const gradeTrueFalse = (question, answer) => {
 
 /* 
     code grading call is done during answer submission and code test run
-    code test run : /api/code/test/answer/[questionId].js
+    code test run : /api/code/test/answer/[questionPage].js
 */
 const gradeCode = (question, response) => {
     let grading = {

@@ -32,15 +32,14 @@ const PageTakeExam = () => {
     );
 
     useEffect(() => {
-
         if(examSessionPhase && examSessionPhase.phase !== ExamSessionPhase.IN_PROGRESS){
-            router.push(`/exam-sessions/${router.query.sessionId}/waiting`);
+            router.push(`/exam-sessions/${router.query.sessionId}/wait`);
         }
     }, [examSessionPhase, router]);
 
 
-    const { data: userOnExamSession, error, mutate } = useSWR(
-        `/api/users/${data && data.user.email}/exam-sessions/${router.query.sessionId}?questions=true`,
+    const { data: userOnExamSession, error } = useSWR(
+        `/api/users/exam-sessions/${router.query.sessionId}/take`,
         data && router.query.sessionId ? 
             (...args) => 
                 fetch(...args)
