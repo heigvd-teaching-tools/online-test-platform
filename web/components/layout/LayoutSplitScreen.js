@@ -24,7 +24,7 @@ const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel, footer, ri
                 </Stack>
             </Stack>
         </Box> 
-        <Box sx={{ maxHeight: `${footerHeight}px` }}>
+        <Box sx={{ maxHeight: `${footerHeight}px`, height: `${footerHeight}px` }}>
             {footer}
         </Box>
         <SnackbarFeedback />

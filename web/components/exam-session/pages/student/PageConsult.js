@@ -3,12 +3,14 @@ import useSWR from "swr";
 import { Role } from "@prisma/client";
 import Authorisation from "../../../security/Authorisation";
 import LayoutSplitScreen from "../../../layout/LayoutSplitScreen";
-import {Stack} from "@mui/material";
+import {Paper, Stack} from "@mui/material";
 import QuestionPages from "../../take/QuestionPages";
 import {useEffect, useState} from "react";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
 import QuestionView from "../../take/QuestionView";
 import AnswerCompare from "../../../answer/AnswerCompare";
+import GradingSigned from "../../grading/GradingSigned";
+import GradingPointsComment from "../../grading/GradingPointsComment";
 
 const PageConsult = () => {
     const router = useRouter();
@@ -77,6 +79,27 @@ const PageConsult = () => {
                                         )}
                                     </Stack>
                                 }
+                                footerHeight={90}
+                                footer={
+                                    <Stack direction="row" justifyContent="center" sx={{ height:'100%' }}>
+                                        {question && (
+                                            <Paper sx={{ flex:1 }} square>
+                                                <Stack spacing={1} direction="row" justifyContent="center" alignItems="center" sx={{ height:'100%' }}>
+                                                    <GradingSigned
+                                                        signedBy={question.studentAnswer[0].studentGrading.signedBy}
+                                                        readOnly={true}
+                                                    />
+                                                    <GradingPointsComment
+                                                        points={question.studentAnswer[0].studentGrading.pointsObtained}
+                                                        maxPoints={question.points}
+                                                        comment={question.studentAnswer[0].studentGrading.comment}
+                                                    />
+                                                </Stack>
+                                            </Paper>
+                                        )}
+                                        </Stack>
+                                }
+
                             />
                     )}
                 </StudentPhaseRedirect>

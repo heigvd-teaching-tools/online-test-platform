@@ -10,6 +10,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 import UserAvatar from '../../layout/UserAvatar';
 
 import { useSession } from "next-auth/react";
+import GradingSigned from "./GradingSigned";
+import GradingPointsComment from "./GradingPointsComment";
 
 const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
     
@@ -64,12 +66,12 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
             square
             >
             { grading && (
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:1, p:2 }} spacing={2} >
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:2 }} spacing={2} >
                 <Stack direction="row">
                     
                 {
                     grading.signedBy ? (
-                        <GradingSigned 
+                        <GradingSigned
                             signedBy={grading.signedBy} 
                             grading={grading} 
                             onUnsign={unsignGrading}
@@ -162,61 +164,6 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
 }
 
 
-const GradingPointsComment = ({ points, maxPoints, comment }) => {
-    let color = points > 0 ? 'success' : 'error';
-    return (
-        <Stack direction="column" alignItems="center" spacing={1}>
-            <Chip 
-                variant='outlined'
-                color={color} label={
-                    <>
-                        <Typography variant="body2" component="span" sx={{ mr:1 }}><b>{points}</b></Typography>
-                        <Typography variant="caption" component="span">/ {maxPoints} pts</Typography>
-                    </>
-                }
-            />
-            <Typography variant="body2" sx={{ color:'text.secondary' }}>{comment}</Typography>
-        </Stack>
-    )
-}
 
-const GradingSigned = ({ signedBy, onUnsign }) => {
-    const [ expanded, setExpanded ] = useState(false);
-    return (
-        <Stack 
-            direction="row" alignItems="center" spacing={1}
-            sx={{ cursor:'pointer', height:'100%', borderRadius:1 }}
-            onMouseOver={() => setExpanded(true)}
-            onMouseOut={() => setExpanded(false)}
-            >
-            
-            <UserAvatar
-                collapsed={!expanded}
-                user={signedBy}
-                size={32}
-            />
-            <Stack alignItems="center">
-                <Image 
-                    src="/svg/grading/signed-off.svg"  
-                    alt="Signed Off"
-                    layout="fixed" width={32} height={32}
-                />
-            </Stack>
-            <Collapse 
-                in={expanded} timeout="auto" unmountOnExit
-                orientation='horizontal'
-                >
-            <Button 
-                size="small"
-                id="grading-sign-off-remove"
-                startIcon={<ClearIcon sx={{ color: 'error.main', width:24, height:24 }} />}
-                onClick={onUnsign}
-            >
-                <Typography variant="body1">Unsign</Typography>
-            </Button>
-            </Collapse>
-        </Stack>
-    )
-}
 
 export default GradingSignOff;
