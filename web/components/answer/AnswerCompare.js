@@ -91,11 +91,11 @@ const RadioViewer = ({ selected, filled }) => {
 const CompareTrueFalse = ({ solution, answer }) => {
     return (
         <Stack direction="row" spacing={2} sx={{p:2}} alignItems="center">
-            <RadioViewer selected={solution} filled={answer} />
+            <RadioViewer selected={solution && solution === true} filled={answer} />
             <Box>
                 <Typography variant="body1">True</Typography>
             </Box>
-            <RadioViewer selected={!solution} filled={!answer} />
+            <RadioViewer selected={solution && solution === false} filled={!answer} />
             <Box>
                 <Typography variant="body1">False</Typography>
             </Box>
@@ -153,13 +153,14 @@ const CompareCode = ({ solution, answer, height }) => {
                     />
                 }   
                 rightPanel={
+                    solution.solution &&
                     <CodeEditor
                         id={`answer-compare-solution`}
                         readOnly
                         code={solution.solution}
                     />
                 }
-                rightWidth={20}
+                rightWidth={solution.solution ? 20 : 0}
                 height={height-66}
             />
             </AccordionDetails>
