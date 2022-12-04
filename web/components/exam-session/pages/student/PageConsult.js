@@ -81,10 +81,10 @@ const PageConsult = () => {
                                 }
                                 footerHeight={90}
                                 footer={
-                                    <Stack direction="row" justifyContent="center" sx={{ height:'100%' }}>
+                                    <Stack direction="row" sx={{ height:'100%' }}>
                                         {question && (
                                             <Paper sx={{ flex:1 }} square>
-                                                <Stack spacing={1} direction="row" justifyContent="center" alignItems="center" sx={{ height:'100%' }}>
+                                                <Stack spacing={2} direction="row" justifyContent="flex-start" alignItems="center" sx={{ height:'100%' }}>
                                                     <GradingSigned
                                                         signedBy={question.studentAnswer[0].studentGrading.signedBy}
                                                         readOnly={true}
