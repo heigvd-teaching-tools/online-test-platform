@@ -16,6 +16,7 @@ import TabPanel from '@mui/lab/TabPanel';
 import ExamSessionAnalytics from "../analytics/ExamSessionAnalytics";
 import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
+import JoinClipboard from "../JoinClipboard";
 
 const PageFinished = () => {
     const router = useRouter();
@@ -155,17 +156,22 @@ const PageFinished = () => {
                 }
             >
             <TabPanel value={1} >
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                        <Typography variant="h6">Overall success rate</Typography>
-                        <PiePercent value={ getSignedSuccessRate(questions) } />
+                <Stack spacing={4}>
+                    <JoinClipboard sessionId={router.query.sessionId} />
+
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            <Typography variant="h6">Overall success rate</Typography>
+                            <PiePercent value={ getSignedSuccessRate(questions) } />
+                        </Stack>
+                        <Button onClick={exportAsCSV}>Export as csv</Button>
                     </Stack>
-                    <Button onClick={exportAsCSV}>Export as csv</Button>
+
+                    <DataGrid
+                        header={gridHeaders()}
+                        items={gridRows()}
+                    />
                 </Stack>
-                <DataGrid
-                    header={gridHeaders()}
-                    items={gridRows()}
-                />
             </TabPanel>
             <TabPanel value={2} sx={{ minWidth:'100%' }}>
                 <ExamSessionAnalytics questions={questions} />

@@ -2,7 +2,10 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import LoadingAnimation from "../../../feedback/LoadingAnimation";
-
+/*
+*    Used as entry point for students
+*    Sends a join request to the server and redirects to the waiting page
+*  */
 const PageJoin = () => {
     const router = useRouter();
     const { data: session, status } = useSession();
