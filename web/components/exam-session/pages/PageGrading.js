@@ -248,8 +248,11 @@ const PageGrading = () => {
                         { question && (   
                             <>
                             <AnswerCompare
-                                question={question}
-                                answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)}
+                                id={`question-grading-${question.id}`}
+                                mode="compare"
+                                questionType={question.type}
+                                solution={question[question.type]}
+                                answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)[question.type]}
                             />
                             </>
                         )}

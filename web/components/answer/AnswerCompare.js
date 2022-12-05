@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { QuestionType } from '@prisma/client';
-import { Box, Accordion, AccordionDetails, AccordionSummary, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Box, Accordion, AccordionDetails, AccordionSummary, Paper, Stack, Typography } from "@mui/material";
 
-const AnswerCompare = ({ question, answer }) => {
+
+const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer }) => {
+
     const container = useRef();
     const [ height, setHeight ] = useState(0);
 
@@ -24,44 +26,49 @@ const AnswerCompare = ({ question, answer }) => {
         <Paper ref={container} square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
         {
             answer && (
-                question.type === QuestionType.trueFalse && (
+                questionType === QuestionType.trueFalse && (
                     <CompareTrueFalse 
-                        id={`answer-comparator-${question.id}`}	
-                        solution={question[question.type].isTrue}
-                        answer={answer[question.type].isTrue}
+                        id={id}
+                        mode={mode}
+                        solution={solution.isTrue}
+                        answer={answer.isTrue}
                     />
                 )
                 ||
-                question.type === QuestionType.multipleChoice && answer[question.type].options && (
+                questionType === QuestionType.multipleChoice && answer.options && (
                     <CompareMultipleChoice
-                        id={`answer-editor-${question.id}`}	
-                        solution={question[question.type].options}
-                        answer={answer[question.type].options}
-                    />
-                )
-                || 
-                question.type === QuestionType.essay && (
-                    <CompareEssay
-                        id={`answer-editor-${question.id}`}	
-                        answer={answer[question.type]}
+                        id={id}
+                        mode={mode}
+                        solution={solution.options}
+                        answer={answer.options}
                     />
                 )
                 ||
-                question.type === QuestionType.code && (
+                questionType === QuestionType.essay && (
+                    <CompareEssay
+                        id={id}
+                        mode={mode}
+                        answer={answer}
+                    />
+                )
+                ||
+                questionType === QuestionType.code && (
                     <CompareCode
-                        id={`answer-editor-${question.id}`}	
+                        id={id}
+                        mode={mode}
                         height={height-60}
-                        solution={question[question.type]}
-                        answer={answer[question.type]}
+                        solution={solution}
+                        answer={answer}
                     />      
                 )
                 ||
-                question.type === QuestionType.web && (
+                questionType === QuestionType.web && (
                     <CompareWeb
-                        id={`answer-editor-${question.id}`}
+                        id={id}
+                        mode={mode}
                         height={height-60}
-                        solution={question[question.type]}
-                        answer={answer[question.type]}
+                        solution={solution}
+                        answer={answer}
                     />
                 )
             )
@@ -77,25 +84,35 @@ import CodeCheckResult from '../question/type_specific/CodeCheckResult';
 import CodeEditor from '../input/CodeEditor';
 import ResizePanel from '../layout/utils/ResizePanel';
 
-const RadioViewer = ({ selected, filled }) => {
+const RadioViewer = ({ mode, selected, filled }) => {
+    const getColor = (mode, filled, selected ) => {
+        if (mode === "compare") {
+            if(filled && selected) return "success";
+            if(filled && !selected) return "error";
+        } else {
+            return "info";
+        }
+    }
+
     return (
         <Stack alignItems="center" justifyContent="center" sx={{ border: '1px solid', borderColor: selected ? 'success.main' : 'grey.400', borderRadius: 2, p:1}}>
             <Box sx={{ width:24, height:24 }}>
-                { filled && selected && (<CheckIcon sx={{ color: 'success.main', width:24, height:24 }} /> )}
-                { filled && !selected && (<ClearIcon sx={{ color: 'error.main', width:24, height:24 }} /> )}
+                { filled && (
+                    <CheckIcon sx={{ color: `${getColor(mode, filled, selected)}.main`, width:24, height:24 }} />
+                )}
             </Box>
         </Stack>
     )
 }
 
-const CompareTrueFalse = ({ solution, answer }) => {
+const CompareTrueFalse = ({ mode, solution, answer }) => {
     return (
-        <Stack direction="row" spacing={2} sx={{p:2}} alignItems="center">
-            <RadioViewer selected={solution && solution === true} filled={answer} />
+        <Stack direction="row" spacing={2} sx={{ p:2 }} alignItems="center">
+            <RadioViewer mode={mode} selected={solution && solution === true} filled={answer} />
             <Box>
                 <Typography variant="body1">True</Typography>
             </Box>
-            <RadioViewer selected={solution && solution === false} filled={!answer} />
+            <RadioViewer mode={mode} selected={solution && solution === false} filled={!answer} />
             <Box>
                 <Typography variant="body1">False</Typography>
             </Box>
@@ -103,12 +120,12 @@ const CompareTrueFalse = ({ solution, answer }) => {
     )
 }
 
-const CompareMultipleChoice = ({ solution, answer }) => {
+const CompareMultipleChoice = ({ mode, solution, answer }) => {
     return (
         <Stack spacing={2} sx={{p:2}}>
             { solution.map((option, index) => (
                 <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
-                    <RadioViewer key={index} selected={option.isCorrect} filled={answer.some((opt) => opt.id === option.id)} />
+                    <RadioViewer mode={mode} key={index} selected={option.isCorrect} filled={answer.some((opt) => opt.id === option.id)} />
                     <Box>
                         <Typography variant="body1">{option.text}</Typography>
                     </Box>
@@ -122,7 +139,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentEditor from '../input/content/ContentEditor';
 import Web from "../question/type_specific/Web";
 
-const CompareCode = ({ solution, answer, height }) => {
+const CompareCode = ({ mode, solution, answer, height }) => {
 
     const [expanded, setExpanded] = useState(true);
 
@@ -144,25 +161,36 @@ const CompareCode = ({ solution, answer, height }) => {
                 <Typography variant="body1">Student Answer / Solution</Typography>
             </AccordionSummary>
             <AccordionDetails>
-            <ResizePanel
-                leftPanel={
+                <>
+                { mode === "compare" && (
+                    <ResizePanel
+                        leftPanel={
+                            <CodeEditor
+                                id={`answer-compare-student`}
+                                readOnly
+                                code={answer.code}
+                            />
+                        }
+                        rightPanel={
+                            <CodeEditor
+                                id={`answer-compare-solution`}
+                                readOnly
+                                code={solution.solution}
+                            />
+                        }
+                        rightWidth={solution.solution ? 20 : 0}
+                        height={height-66}
+                    />
+                )}
+                { mode === "consult" && (
                     <CodeEditor
                         id={`answer-compare-student`}
                         readOnly
                         code={answer.code}
+                        editorHeight={height-66}
                     />
-                }   
-                rightPanel={
-                    solution.solution &&
-                    <CodeEditor
-                        id={`answer-compare-solution`}
-                        readOnly
-                        code={solution.solution}
-                    />
-                }
-                rightWidth={solution.solution ? 20 : 0}
-                height={height-66}
-            />
+                )}
+                </>
             </AccordionDetails>
         </Accordion>
         <Accordion 
@@ -209,7 +237,7 @@ const CompareEssay = ({ answer }) => {
     )
 }
 
-const CompareWeb = ({ answer, height }) => {
+const CompareWeb = ({ mode, answer, height }) => {
     return (
         <Box sx={{ p:2 }}>
             <Web

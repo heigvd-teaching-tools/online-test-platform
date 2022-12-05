@@ -24,7 +24,7 @@ const PageConsult = () => {
     const [ question, setQuestion ] = useState();
 
     useEffect(() => {
-        if(examSession){
+        if(examSession && examSession.questions && examSession.questions.length > 0) {
             setQuestions(examSession.questions)
             setQuestion(examSession.questions[router.query.questionPage - 1]);
         }
@@ -73,8 +73,11 @@ const PageConsult = () => {
                                         {
                                          question && (
                                             <AnswerCompare
-                                                question={question}
-                                                answer={question.studentAnswer[0]}
+                                                id={`answer-viewer-${question.id}`}
+                                                mode="consult"
+                                                questionType={question.type}
+                                                solution={question[question.type]}
+                                                answer={question.studentAnswer[0][question.type]}
                                             />
                                         )}
                                     </Stack>

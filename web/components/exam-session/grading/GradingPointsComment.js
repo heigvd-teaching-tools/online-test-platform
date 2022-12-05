@@ -3,7 +3,7 @@ import {Chip, Stack, Typography} from "@mui/material";
 const GradingPointsComment = ({ points, maxPoints, comment }) => {
     let color = points > 0 ? 'success' : 'error';
     return (
-        <Stack direction="column" alignItems="center" spacing={1}>
+        <Stack direction="row" alignItems="center" spacing={1}>
             <Chip
                 variant='outlined'
                 color={color} label={
