@@ -49,6 +49,7 @@ const post = async (req, res) => {
     if(phaseGT(examSession.phase, ExamSessionPhase.IN_PROGRESS)) {
 
         // cant join anymore, check if user is already in the session
+        // in case they are already in, they can still access the session (consulting their answers)
         const alreadyIn = await prisma.userOnExamSession.findUnique({
             where: {
                 userEmail_examSessionId: {

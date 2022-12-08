@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { Role } from "@prisma/client";
 import Authorisation from "../../../security/Authorisation";
 import LayoutSplitScreen from "../../../layout/LayoutSplitScreen";
-import {Paper, Stack} from "@mui/material";
+import {Paper, Stack, Typography} from "@mui/material";
 import QuestionPages from "../../take/QuestionPages";
 import {useEffect, useState} from "react";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
@@ -88,15 +88,23 @@ const PageConsult = () => {
                                         {question && (
                                             <Paper sx={{ flex:1 }} square>
                                                 <Stack spacing={2} direction="row" justifyContent="flex-start" alignItems="center" sx={{ height:'100%' }}>
-                                                    <GradingSigned
-                                                        signedBy={question.studentAnswer[0].studentGrading.signedBy}
-                                                        readOnly={true}
-                                                    />
-                                                    <GradingPointsComment
-                                                        points={question.studentAnswer[0].studentGrading.pointsObtained}
-                                                        maxPoints={question.points}
-                                                        comment={question.studentAnswer[0].studentGrading.comment}
-                                                    />
+                                                    { question.studentAnswer[0].studentGrading.signedBy ? (
+                                                        <>
+                                                            <GradingSigned
+                                                                signedBy={question.studentAnswer[0].studentGrading.signedBy}
+                                                                readOnly={true}
+                                                            />
+                                                            <GradingPointsComment
+                                                                points={question.studentAnswer[0].studentGrading.pointsObtained}
+                                                                maxPoints={question.points}
+                                                                comment={question.studentAnswer[0].studentGrading.comment}
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <Typography variant="body1" color="textSecondary">
+                                                            No grading yet
+                                                        </Typography>
+                                                    )}
                                                 </Stack>
                                             </Paper>
                                         )}
