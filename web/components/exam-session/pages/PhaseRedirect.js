@@ -6,7 +6,7 @@ const phasePageRelationship = {
     'DRAFT': '/exam-sessions/[sessionId]/draft',
     'IN_PROGRESS': '/exam-sessions/[sessionId]/in-progress',
     'GRADING': '/exam-sessions/[sessionId]/grading/[activeQuestion]',
-    'FINISHED': '/exam-sessions/[sessionId]/consult',
+    'FINISHED': '/exam-sessions/[sessionId]/finished',
 };
 
 const redirectToPhasePage = (phase, router) => {
