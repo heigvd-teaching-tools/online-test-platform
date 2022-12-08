@@ -1,7 +1,8 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { PrismaClient, Role, QuestionType, ExamSessionPhase } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../utils/auth';
 import { grading } from '../../../../code/grading';
+import { phaseGT } from "../../../../code/phase";
 
 import { questionsWithIncludes } from '../../../../code/questions';
 
@@ -43,6 +44,24 @@ const post = async (req, res) => {
     if(!examSession) {
         res.status(404).json({ message: 'Exam session not found' });
         return;
+    }
+
+    if(phaseGT(examSession.phase, ExamSessionPhase.IN_PROGRESS)) {
+
+        // cant join anymore, check if user is already in the session
+        const alreadyIn = await prisma.userOnExamSession.findUnique({
+            where: {
+                userEmail_examSessionId: {
+                    userEmail: studentEmail,
+                    examSessionId: sessionId
+                }
+            }
+        });
+
+        if(!alreadyIn) {
+            res.status(400).json({ message: 'Too late' });
+            return;
+        }
     }
 
     const userOnExamSession = await prisma.userOnExamSession.upsert({
