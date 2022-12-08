@@ -152,6 +152,7 @@ model Web {
     js         String?
 }
 
+// Order is important here
 enum ExamSessionPhase {
   NEW
   DRAFT
