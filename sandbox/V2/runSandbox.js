@@ -1,9 +1,7 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
-import Docker  from "dockerode";
-import tar from "tar-stream";
 
-
+import { GenericContainer } from "testcontainers";
 //import { GenericContainer } from "../../testcontainers-node";
 
 // mode = run / test
@@ -12,79 +10,90 @@ import tar from "tar-stream";
 
 const EXECUTION_TIMEOUT = 5000;
 
-const runPath = "./runs/node/testcontainers";
-
 export const runSandbox = (code, solution, mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
         
-        const docker = new Docker();
-
-        await docker.pull("node:current-alpine3.16");
-
         // Create the files
-        let directory = `${runPath}/${uniqid()}`;
+        let directory = `sandbox/runs/${uniqid()}`;
         fs.mkdirSync(directory);
         fs.writeFileSync(`${directory}/code.js`, code || "");
         fs.writeFileSync(`${directory}/solution.js`, solution || "");
 
-        // Create a container using the image
-        const container = await docker.createContainer({
-            Image: "node:current-alpine3.16",
-            Tty: true,
-        });
+        // Prepare the container
+        const container = await new GenericContainer("node:current-alpine3.16")
+            .withEnv("NODE_NO_WARNINGS", "1")
+            .withCopyFileToContainer(`${directory}/code.js`, "/app/code.js")
+            .withCopyFileToContainer(`${directory}/solution.js`, "/app/solution.js")
+            .withCmd(["sleep", "infinity"])
+            .start();
 
-        // Start the container
-        await container.start();
+        let containerStarted = true;
+        let response = undefined;
+        // Stop the container after 30 seconds
+        let timeout = setTimeout(() => {
+            containerStarted = false;
+            container.stop();
+            if (mode === "run") {
+                response = {
+                    fn: reject,
+                    arg: "Execution timed out",
+                };
+            } else {
+                response = {
+                    fn: resolve,
+                    arg: {
+                        success: false,
+                        expected: "N/A",
+                        result: "Timeout"
+                    },
+                };
+            }
+        }, EXECUTION_TIMEOUT);
 
-        // extract code.js from the container
-        await container.exec({
-            Cmd: ['mkdir', '-p', 'sandbox']
-        });
+        // Execute the code
+        let { output:expected } = await container.exec([
+            "node", "/app/solution.js"
+        ], { tty: false });
 
-          
-        const pack = tar.pack();
+        let { output:result } = await container.exec([
+            "node", "/app/code.js"
+        ], { tty: false });
 
-        // add the files to the tar stream
-        pack.entry({ name: 'code.js' }, fs.readFileSync(`${directory}/code.js`));
-        pack.entry({ name: 'solution.js' }, fs.readFileSync(`${directory}/solution.js`));
-        
-        pack.finalize();
+        clearTimeout(timeout);
 
-        // copy code.js into the container
-        await container.putArchive(pack, { 
-            path: "/app/code.tar" 
-        });
+        if(containerStarted) { // If no timeout
+            // Stop the container
+            await container.stop();
+        }
 
-        // extract code.js from the container
-        await container.exec({
-            Cmd: ['tar', '-xvf', '/app/code.tar'],
-            AttachStdout: true,
-            AttachStderr: true,
-        });
+        // Delete the files
+        fs.rmSync(directory, { recursive: true, force: true });
 
-        
-        // Execute the Node.js script in the container
-        const exec = await container.exec({
-            Cmd: ['node', '/app/code.js'],
-            Tty: true,
-        });
+        // clean the output
+        expected = cleanString(expected);
+        result = cleanString(result);
 
-        // Get the stream for the exec instance
-        const stream = await exec.start({
-            hijack: true,
-        });
-
-        // Send input to the console
-        stream.write('input1\n');
-        stream.write('input2\n');
-
-        // Close the stream
-        stream.end();
-
-
-
-        
-       console.log("hello");
+        // Prepare output based on mode
+        if(!response){ // If no timeout
+            if (mode === "run") {
+                // Send the result
+                response = {
+                    fn: resolve,
+                    arg: result
+                };
+            } else if (mode === "test") {
+                // test run
+                response = {
+                    fn: resolve,
+                    arg: {
+                        success: cleanForComparison(result) === cleanForComparison(expected),
+                        expected: expected,
+                        result: result,
+                    }
+                };
+            }
+        }
+        response.fn(response.arg);
     });
 }
 

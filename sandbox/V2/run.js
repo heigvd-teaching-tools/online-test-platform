@@ -1,25 +1,33 @@
-import { runSandbox } from "./runSandboxAPI.js";
+import { runSandboxNode, runSandboxJava } from "./runSandboxTC.js";
 
-const code = `
-process.stdout.write("Testing standard streams");
-process.stdout.write("\\n");
+const codeNodejs = `
 process.stdin.on("data", data => {
     data = data.toString().toUpperCase()
     process.stdout.write(data)
-    process.stdout.write("\\n");
 })
 
 process.stdin.on("end", () => {
-    process.stdout.write("Input stream ended")
-    process.stdout.write("\\n");
 });
+`;
+
+const codeJava = `
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        while(sc.hasNextLine()) {
+            System.out.println(sc.nextLine().toUpperCase());
+        }
+    }
+}
 `;
 
 
 const tests = [
   {
-    "input": "Hello World",
-    "output": "HELLO WORLD"
+    "input": "test world\ntest world2\ntest world3",
+    "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
   },
   {
     "input": "Hello World1",
@@ -32,6 +40,10 @@ const tests = [
 ]
 
 
-runSandbox(code, tests, "test").then((result) => {
-    console.log("RESULT : ", result);
+runSandboxNode(codeNodejs, tests, "test").then((result) => {
+    console.log("NODEJS RESULT : ", result);
+});
+
+runSandboxJava(codeJava, tests, "test").then((result) => {
+    console.log("JAVA RESULT : ", result);
 });
