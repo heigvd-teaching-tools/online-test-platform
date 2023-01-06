@@ -8,147 +8,84 @@ import { GenericContainer } from "testcontainers";
 // https://www.npmjs.com/package/testcontainers
 // https://github.com/apocas/dockerode
 
-const EXECUTION_TIMEOUT = 5000;
+const IMAGES = {
+    "js": "node:latest",
+    "py": "python:latest",
+    "java": "openjdk:latest",
+    "cpp": "gcc:latest"
+}
 
-export const runSandboxNode = (code, tests, mode = "run") => {
+const EXEC_COMMANDS = {
+    "js": (fileName, testIndex) => ["sh", "-c", `node /app/${fileName}.js < /app/test${testIndex}.txt`],
+    "py": (fileName, testIndex) => ["sh", "-c", `python3 /app/${fileName}.py < /app/test${testIndex}.txt`],
+    "java": (fileName, testIndex) => ["sh", "-c", `javac /app/${fileName}.java && java -cp /app ${fileName} < /app/test${testIndex}.txt`],
+    "cpp": (fileName, testIndex) => ["sh", "-c", `g++ /app/${fileName}.cpp -o /app/${fileName} && /app/${fileName} < /app/test${testIndex}.txt`]
+}
+
+const EXECUTION_TIMEOUT = 30000;
+
+
+export const runSandbox = ({ 
+    language = 'js', // also used as file extention
+    code = '',
+    tests = [],
+    mode = 'run'
+}) => {
     return new Promise(async (resolve, reject) =>  {
-        
-        /* ## CONTENT CREATE */
 
-        // Create the files
-        let directory = `runs/node/tc/${uniqid()}`;
-        fs.mkdirSync(directory);
+        let directory = prepareContent(language, code, tests);
 
-        const testsString = tests.map(({ input }) => {
-            return input + "\n";
-        }).join("");
-
-        const expectedString = tests.map(({ output }) => {
-            return output + "\n";
-        }).join("");
-
-        
-        fs.writeFileSync(`${directory}/code.js`, code || "");
-        fs.writeFileSync(`${directory}/tests.txt`, testsString || "");
-
-
-        /* ## CONTAINER  */
-        // Prepare the container
-        const container = await new GenericContainer("node:current-alpine3.16")
-            .withEnvironment(
-                "NODE_NO_WARNINGS", "1"
-            )
-            .withCopyFilesToContainer([{
-               source: `${directory}/code.js`,
-               target: "/app/code.js"
-            },{
-               source: `${directory}/tests.txt`,
-               target: "/app/tests.txt"
-            }])
-            .withCommand(["sleep", "infinity"])
-            .start();
-
-        /* ## CONTENT DELETE */
-
-        // Delete the files
-        fs.rmSync(directory, { recursive: true, force: true });
+        let container = await startContainer(directory, language, tests);
 
         /* ## TIMEOUT  */
         let containerStarted = true;
         let response = undefined;
-        // Stop the container after 30 seconds
-        let timeout = setTimeout(() => {
-            containerStarted = false;
+        let timeout = prepareTimeout(() => {
             container.stop();
-            if (mode === "run") {
-                response = {
-                    fn: reject,
-                    arg: "Execution timed out",
-                };
-            } else {
-                response = {
-                    fn: resolve,
-                    arg: {
-                        success: false,
-                        expected: "N/A",
-                        result: "Timeout"
-                    },
-                };
-            }
-        }, EXECUTION_TIMEOUT);
+            containerStarted = false;
+        });
 
-        /* ## EXECUTION  */
-
-        // Execute the code
-        let { output:result } = await container.exec([
-            "sh", "-c", "node /app/code.js < /app/tests.txt"
-        ], { tty: false });
+        let result = await execCode(container, language, tests, mode);
 
         clearTimeout(timeout);
 
         if(containerStarted) { // If no timeout
             // Stop the container
             await container.stop();
+        }else{
+            reject("Execution timed out");
         }
+
+        let output = prepareOutput(response, mode, result, tests);
         
-
-        // remove first 8 bytes ( 4 bytes for length and 4 bytes for stream )
-        result = result.slice(8);
-               
-
-        // Prepare output based on mode
-        if(!response){ // If no timeout
-            if (mode === "run") {
-                // Send the result
-                response = {
-                    fn: resolve,
-                    arg: result
-                };
-            } else if (mode === "test") {
-                // test run
-                response = {
-                    fn: resolve,
-                    arg: {
-                        success: result === expectedString,
-                        expected: expectedString,
-                        result: result,
-                    }
-                };
-            }
-        }
-        response.fn(response.arg);
+        resolve(output);
     });
 }
 
-export const runSandboxJava = (code, tests, mode = "run") => {
-    return new Promise(async (resolve, reject) =>  {
-        
-        /* ## CONTENT CREATE */
 
-        // Create the files
-        let directory = `runs/java/tc/${uniqid()}`;
-        fs.mkdirSync(directory);
+const prepareContent = (language, code, tests = []) => {
+    let directory = `runs/${language}/tc/${uniqid()}`;
+    fs.mkdirSync(directory);
 
-        tests.map(({ input }, index) => {
-            fs.writeFileSync(`${directory}/test${index}.txt`, input || "");
-        }).join("");
+    tests.map(({ input }, index) => {
+        fs.writeFileSync(`${directory}/test${index}.txt`, input || "");
+    }).join("");
 
-        const expectedString = tests.map(({ output }) => {
-            return output + "\n";
-        }).join("");
+    fs.writeFileSync(`${directory}/Main.${language}`, code || "");
 
-        fs.writeFileSync(`${directory}/Main.java`, code || "");
+    return directory;
+}
 
-        /* ## CONTAINER  */
-
-        // Prepare the container
-        const container = await new GenericContainer("openjdk:16-alpine")
+const startContainer = async (directory, extention, tests) => {
+    
+    let container = await (
+        new GenericContainer(IMAGES[extention])
             .withEnvironment(
                 "NODE_NO_WARNINGS", "1"
             )
             .withCopyFilesToContainer([{
-                source: `${directory}/Main.java`,
-                target: "/app/Main.java"
+                source: `${directory}/Main.${extention}`,
+                target: `/app/Main.${extention}`
             },
             ...tests.map((_, index) => {
                 return {
@@ -158,102 +95,87 @@ export const runSandboxJava = (code, tests, mode = "run") => {
             })
             ])
             .withCommand(["sleep", "infinity"])
-            .start();
+            .start()
+    );
 
         /* ## CONTENT DELETE */
         fs.rmSync(directory, { recursive: true, force: true });
 
-         /* ## TIMEOUT  */
-         let containerStarted = true;
-         let response = undefined;
-         // Stop the container after 30 seconds
-         let timeout = setTimeout(() => {
-             containerStarted = false;
-             container.stop();
-             if (mode === "run") {
-                 response = {
-                     fn: reject,
-                     arg: "Execution timed out",
-                 };
-             } else {
-                 response = {
-                     fn: resolve,
-                     arg: {
-                         success: false,
-                         expected: "N/A",
-                         result: "Timeout"
-                     },
-                 };
-             }
-         }, EXECUTION_TIMEOUT);
+        return container;
+}
 
-        /* ## EXECUTION  */
+const prepareTimeout = (timeoutCallback) => {
+     // Stop the container after 30 seconds
+    return setTimeout(() => {
+        timeoutCallback("Execution timed out");   
+    }, EXECUTION_TIMEOUT);
+}
 
-        let results = []
 
-        
-        for (let index = 0; index < tests.length; index++) {
+const execCode = async (container, language, tests, mode) => {
+    let results = []
 
-            // Execute the code
-            let { output:result } = await container.exec([
-                "sh", "-c", "javac /app/Main.java && java -cp /app Main < /app/test"+index+".txt"
-            ], { tty: false });
+    for (let index = 0; index < tests.length; index++) {
+        let { output:result } = await container.exec(
+            EXEC_COMMANDS[language](`Main`, index),
+            { tty: false }
+        );
+        results.push(result);
+    };
 
-            // check if first by is \x01
-            if(result[0] === "\x01"){
-                result = result.slice(8);
-            }
+    return cleanResponseHeaders(results.join(""));
 
-            let t = result.split("\n").map((line) => {
-                if(line[0] === "\x01"){
-                    return line.slice(8);
+}
+
+const prepareOutput = (response, mode, result, tests) => {
+
+    if(!response){ // If no timeout
+
+        switch(mode){
+            case "run":
+                return result;
+            case "test":
+
+                const expectedString = tests.map(({ output }) => {
+                    return output + "\n";
+                }).join("");
+
+                return {
+                    success: result === expectedString,
+                    expected: expectedString,
+                    result: result,
                 }
-                return line;
-            });
-
-            result = t.join("\n");
-                
-
-
-
-            results.push(result);
-
-        };
-        
-       
-        
-        clearTimeout(timeout);
-
-        if(containerStarted) { // If no timeout
-            // Stop the container
-            await container.stop();
-        }
-
-        let result = results.join("");
-
-        // Prepare output based on mode
-        if(!response){ // If no timeout
-            if (mode === "run") {
-                // Send the result
-                response = {
-                    fn: resolve,
-                    arg: result
-                };
-            } else if (mode === "test") {
-                // test run
-                response = {
-                    fn: resolve,
-                    arg: {
-                        success: result === expectedString,
-                        expected: expectedString,
-                        result: result,
-                    }
-                };
             }
+    }
+
+    return response;
+}
+
+
+            
+
+const cleanResponseHeaders = (input) => {
+    /*
+        The response contains some headers that we need to remove
+        \x01 -> response comes from stdout 
+        \x02 -> response comes from stderr
+        and the first 8 bytes are the length of the message
+    */
+    // find \x01 or \x02 and remove the next 8 bytes
+    /*
+        tried with regexp : input.replaceAll(/(\x01|\x02).{8}/gm, '')
+        but it didnt not work
+    */
+
+    let output = '';
+
+    for (let i = 0; i < input.length; i++) {
+        if (input[i] !== '\x01' && input[i] !== '\x02') {
+            output += input[i];
+        } else {
+            i += 7;
         }
-        response.fn(response.arg);
+    }
 
- 
-
-    });
+    return output;
 }

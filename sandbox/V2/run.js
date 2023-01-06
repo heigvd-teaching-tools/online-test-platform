@@ -1,9 +1,10 @@
-import { runSandboxNode, runSandboxJava } from "./runSandboxTC.js";
+import { runSandbox } from "./runSandboxTC.js";
 
 const codeNodejs = `
 process.stdin.on("data", data => {
     data = data.toString().toUpperCase()
     process.stdout.write(data)
+    process.stdout.write("\\n")
 })
 
 process.stdin.on("end", () => {
@@ -23,6 +24,31 @@ public class Main {
 }
 `;
 
+const codeCPP = `
+#include <iostream>
+#include <string>
+using namespace std;
+
+string toUpperCase(string str) {
+    for(int i = 0; i < str.length(); i++) {
+        if(str[i] >= 'a' && str[i] <= 'z') {
+            str[i] = str[i] - 32;
+        }
+    }
+    return str;
+}
+
+
+int main() {
+    string line;
+    while(getline(cin, line)) {
+        cout << toUpperCase(line) << endl;
+    }
+    return 0;
+}
+
+`;
+
 
 const tests = [
   {
@@ -39,11 +65,12 @@ const tests = [
   },
 ]
 
-
-runSandboxNode(codeNodejs, tests, "test").then((result) => {
-    console.log("NODEJS RESULT : ", result);
+runSandbox({
+  language: 'java', // also used as file extention
+  code: codeJava,
+  tests: tests,
+  mode: 'test'
+}).then((result) => {
+    console.log("REFACTOR RESULT : ", result);
 });
 
-runSandboxJava(codeJava, tests, "test").then((result) => {
-    console.log("JAVA RESULT : ", result);
-});
