@@ -1,4 +1,4 @@
-import { runSandbox } from "./runSandboxTCV2.js";
+import { runSandbox } from "./runSandboxTC.js";
 
 const codeNodejs = `
 process.stdin.on("data", data => {
@@ -67,6 +67,8 @@ runSandbox({
 });
 */
 
+
+
 runSandbox({
     image: 'node:latest',
     files: [{
@@ -92,8 +94,96 @@ runSandbox({
       ],
     compile: undefined,
 }).then((result) => {
-    console.log("API RESULT : ", result);
+    console.log("NODEJS RESULT : ", result);
 });
+
+
+
+runSandbox({
+    image: 'openjdk:latest',
+    files: [{
+        path: 'src/Main.java',
+        content: codeJava
+    }],
+    compile: "javac /src/Main.java",
+    tests: [
+        {
+            "exec": "java -cp /src Main",
+            "input": "test world\ntest world2\ntest world3",
+            "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
+        },
+        {
+            "exec": "java -cp /src Main",
+            "input": "Hello World1",
+            "output": "HELLO WORLD1"
+        },
+        {
+            "exec": "java -cp /src Main",
+            "input": "Hello World2",
+            "output": "HELLO WORLD2"
+        },
+    ],
+}).then((result) => {
+    console.log("JAVA RESULT : ", result);
+});
+
+runSandbox({
+    image: 'gcc:latest',
+    files: [{
+        path: 'src/main.cpp',
+        content: codeCPP
+    }],
+    compile: "g++ /src/main.cpp -o /src/main",
+    tests: [
+        {
+            "exec": "/src/main",
+            "input": "test world\ntest world2\ntest world3",
+            "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
+        },
+        {
+            "exec": "/src/main",
+            "input": "Hello World1",
+            "output": "HELLO WORLD1"
+        },
+        {
+            "exec": "/src/main",
+            "input": "Hello World2",
+            "output": "HELLO WORLD2"
+        },
+    ],
+}).then((result) => {
+    console.log("CPP RESULT : ", result);
+});
+
+runSandbox({
+    image: 'python:latest',
+    files: [{
+        path: 'src/main.py',
+        content: codePython
+    }],
+    tests: [
+        {
+            "exec": "python /src/main.py",
+            "input": "test world\ntest world2\ntest world3",
+            "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
+        },
+        {
+            "exec": "python /src/main.py",
+            "input": "Hello World1",
+            "output": "HELLO WORLD1"
+        },
+        {
+            "exec": "python /src/main.py",
+            "input": "Hello World2",
+            "output": "HELLO WORLD2"
+        },
+    ],
+}).then((result) => {
+    console.log("PYTHON RESULT : ", result);
+});
+
+
+
 
 /*
 runSandbox(codeNodejs, tests, "test").then((result) => {
