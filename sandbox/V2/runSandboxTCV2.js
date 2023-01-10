@@ -1,5 +1,6 @@
 import uniqid from "uniqid"; 
 import fs from "fs";
+import tar from "tar";
 
 import { GenericContainer } from "testcontainers";
 //import { GenericContainer } from "../../testcontainers-node";
@@ -31,7 +32,7 @@ export const runSandbox = ({
     tests = [], // { exec, input, output }
 }) => {
     return new Promise(async (resolve, reject) =>  {
-        const directory = prepareContent(files, tests);
+        const directory = await prepareContent(files, tests);
 
         const container = await startContainer(image, directory, compile);
 
@@ -61,12 +62,13 @@ export const runSandbox = ({
     });
 }
 
-const prepareContent = (files, tests) => {
+const prepareContent = (files, tests) => new Promise((resolve, _) => {
     let codeDirectory = `runs/tc/${uniqid()}`;
     fs.mkdirSync(codeDirectory, { recursive: true });
+    fs.mkdirSync(`${codeDirectory}/tests`);
 
     tests.map(({ input }, index) => {
-        fs.writeFileSync(`${codeDirectory}/test${index}.txt`, input || "");
+        fs.writeFileSync(`${codeDirectory}/tests/test${index}.txt`, input || "");
     });
 
     files.map(({ path, content }) => {
@@ -78,25 +80,21 @@ const prepareContent = (files, tests) => {
         fs.writeFileSync(`${filesDirectory}/${fileName}`, content || "");
     });
 
-    return codeDirectory;
-}
+    tar.c({ gzip: true, cwd: codeDirectory }, ["."]).pipe(fs.createWriteStream(`${codeDirectory}/code.tar.gz`)).on("close", () => resolve(codeDirectory));    
+});
+
 
 const startContainer = async (image, filesDirectory, compile) => {
 
-    const files = fs.readdirSync(filesDirectory).map((file) => ({
-        source: `${filesDirectory}/${file}`,
-        destination: `/app/${file}`,
-    }));
-    
     let container = await (
         new GenericContainer(image)
-            .withEnvironment(
-                "NODE_NO_WARNINGS", "1"
-            )
-            .withCopyFilesToContainer(files)
+            .withEnvironment("NODE_NO_WARNINGS", "1")
+            .withCopyFilesToContainer([{ source: `${filesDirectory}/code.tar.gz`, target: "/code.tar.gz" }])
             .withCommand(["sleep", "infinity"])
             .start()
     );
+
+    await container.exec(["sh", "-c", "tar -xzf code.tar.gz -C /"], { tty: false });
 
     if(compile){
         await container.exec(compile, { tty: false });
@@ -116,8 +114,8 @@ const execCode = async (container, tests) => {
 
     for (let index = 0; index < tests.length; index++) {
         let { exec, input } = tests[index];
-        let result = await container.exec(
-            ["sh", "-c", exec, "<", `/app/test${index}.txt`],
+        let { output:result } = await container.exec(
+            ["sh", "-c", `${exec} < /tests/test${index}.txt`],
             { tty: false });
         results.push(result);
     };

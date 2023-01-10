@@ -56,27 +56,6 @@ for line in sys.stdin:
     print(line.upper(), end='')
 `;
 
-
-
-const tests = [
-  {
-    "exec": "node ./app/src/main.js",
-    "input": "test world\ntest world2\ntest world3",
-    "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
-  },
-  {
-    "exec": "node ./app/src/main.js",
-    "input": "Hello World1",
-    "output": "HELLO WORLD1"
-  },
-  {
-    "exec": "node ./app/src/main.js",
-    "input": "Hello World2",
-    "output": "HELLO WORLD2"
-  },
-]
-
-
 /*
 runSandbox({
   language: 'py', // also used as file extention
@@ -94,8 +73,24 @@ runSandbox({
         path: 'src/main.js',
         content: codeNodejs
     }],
+    tests: [
+        {
+          "exec": "node /src/main.js",
+          "input": "test world\ntest world2\ntest world3",
+          "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
+        },
+        {
+          "exec": "node /src/main.js",
+          "input": "Hello World1",
+          "output": "HELLO WORLD1"
+        },
+        {
+          "exec": "node /src/main.js",
+          "input": "Hello World2",
+          "output": "HELLO WORLD2"
+        },
+      ],
     compile: undefined,
-    tests: tests
 }).then((result) => {
     console.log("API RESULT : ", result);
 });
