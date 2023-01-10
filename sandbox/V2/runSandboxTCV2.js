@@ -24,26 +24,16 @@ const EXEC_COMMANDS = {
 
 const EXECUTION_TIMEOUT = 30000;
 
-export const runSandboxV2 = ({
+export const runSandbox = ({
     image = 'node:latest',
     files = [], // { name, content }
     compile = undefined,
-    tests = [], // { command, input, output }
-}) => {
-
-}
-
-export const runSandbox = ({ 
-    language = 'js', // also used as file extention
-    code = '',
-    tests = [],
-    mode = 'run'
+    tests = [], // { exec, input, output }
 }) => {
     return new Promise(async (resolve, reject) =>  {
+        const directory = prepareContent(files, tests);
 
-        let directory = prepareContent(language, code, tests);
-
-        let container = await startContainer(directory, language, tests);
+        const container = await startContainer(image, directory, compile);
 
         /* ## TIMEOUT  */
         let containerStarted = true;
@@ -53,7 +43,7 @@ export const runSandbox = ({
             containerStarted = false;
         });
 
-        let result = await execCode(container, language, tests, mode);
+        let result = await execCode(container, tests);
 
         clearTimeout(timeout);
 
@@ -64,65 +54,71 @@ export const runSandbox = ({
             reject("Execution timed out");
         }
 
-        let output = prepareOutput(response, mode, result, tests);
-        
+        let output = prepareOutput(response, result, tests);
+
         resolve(output);
+    
     });
 }
 
-
-const prepareContent = (language, code, tests = []) => {
-    let directory = `runs/${language}/tc/${uniqid()}`;
-    fs.mkdirSync(directory);
+const prepareContent = (files, tests) => {
+    let codeDirectory = `runs/tc/${uniqid()}`;
+    fs.mkdirSync(codeDirectory, { recursive: true });
 
     tests.map(({ input }, index) => {
-        fs.writeFileSync(`${directory}/test${index}.txt`, input || "");
-    }).join("");
+        fs.writeFileSync(`${codeDirectory}/test${index}.txt`, input || "");
+    });
 
-    fs.writeFileSync(`${directory}/Main.${language}`, code || "");
+    files.map(({ path, content }) => {
+        let filesDirectory = `${codeDirectory}/${path.split("/").slice(0, -1).join("/")}`;
+        let fileName = path.split("/").slice(-1)[0];
 
-    return directory;
+        fs.mkdirSync(filesDirectory, { recursive: true });
+
+        fs.writeFileSync(`${filesDirectory}/${fileName}`, content || "");
+    });
+
+    return codeDirectory;
 }
 
-const startContainer = async (directory, extention, tests) => {
+const startContainer = async (image, filesDirectory, compile) => {
+
+    const files = fs.readdirSync(filesDirectory).map((file) => ({
+        source: `${filesDirectory}/${file}`,
+        destination: `/app/${file}`,
+    }));
     
     let container = await (
-        new GenericContainer(IMAGES[extention])
+        new GenericContainer(image)
             .withEnvironment(
                 "NODE_NO_WARNINGS", "1"
             )
-            .withCopyFilesToContainer([{
-                source: `${directory}/Main.${extention}`,
-                target: `/app/Main.${extention}`
-            },
-            ...tests.map((_, index) => {
-                return {
-                    source: `${directory}/test${index}.txt`,
-                    target: `/app/test${index}.txt`
-                }
-            })
-            ])
+            .withCopyFilesToContainer(files)
             .withCommand(["sleep", "infinity"])
             .start()
     );
 
-        /* ## CONTENT DELETE */
-        fs.rmSync(directory, { recursive: true, force: true });
+    if(compile){
+        await container.exec(compile, { tty: false });
+    }
 
-        return container;
+    /* ## CONTENT DELETE */
+    fs.rmSync(filesDirectory, { recursive: true, force: true });
+
+    return container;
 }
 
 const prepareTimeout = (timeoutCallback) => setTimeout(() => timeoutCallback("Execution timed out"), EXECUTION_TIMEOUT);
 
 
-const execCode = async (container, language, tests, mode) => {
+const execCode = async (container, tests) => {
     let results = []
 
     for (let index = 0; index < tests.length; index++) {
-        let { output:result } = await container.exec(
-            EXEC_COMMANDS[language](`Main`, index),
-            { tty: false }
-        );
+        let { exec, input } = tests[index];
+        let result = await container.exec(
+            ["sh", "-c", exec, "<", `/app/test${index}.txt`],
+            { tty: false });
         results.push(result);
     };
 
@@ -130,25 +126,18 @@ const execCode = async (container, language, tests, mode) => {
 
 }
 
-const prepareOutput = (response, mode, result, tests) => {
+const prepareOutput = (response, result, tests) => {
 
     if(!response){ // If no timeout
+        const expectedString = tests.map(({ output }) => {
+            return output + "\n";
+        }).join("");
 
-        switch(mode){
-            case "run":
-                return result;
-            case "test":
-
-                const expectedString = tests.map(({ output }) => {
-                    return output + "\n";
-                }).join("");
-
-                return {
-                    success: result === expectedString,
-                    expected: expectedString,
-                    result: result,
-                }
-            }
+        return {
+            success: result === expectedString,
+            expected: expectedString,
+            result: result,
+        };
     }
 
     return response;

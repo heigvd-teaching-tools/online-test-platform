@@ -1,4 +1,4 @@
-import { runSandbox } from "./runSandboxTC.js";
+import { runSandbox } from "./runSandboxTCV2.js";
 
 const codeNodejs = `
 process.stdin.on("data", data => {
@@ -49,28 +49,61 @@ int main() {
 
 `;
 
+const codePython = `
+import sys
+
+for line in sys.stdin:
+    print(line.upper(), end='')
+`;
+
+
 
 const tests = [
   {
+    "exec": "node ./app/src/main.js",
     "input": "test world\ntest world2\ntest world3",
     "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3"
   },
   {
+    "exec": "node ./app/src/main.js",
     "input": "Hello World1",
     "output": "HELLO WORLD1"
   },
   {
+    "exec": "node ./app/src/main.js",
     "input": "Hello World2",
     "output": "HELLO WORLD2"
   },
 ]
 
+
+/*
 runSandbox({
-  language: 'java', // also used as file extention
-  code: codeJava,
+  language: 'py', // also used as file extention
+  code: codePython,
   tests: tests,
   mode: 'test'
 }).then((result) => {
     console.log("REFACTOR RESULT : ", result);
 });
+*/
+
+runSandbox({
+    image: 'node:latest',
+    files: [{
+        path: 'src/main.js',
+        content: codeNodejs
+    }],
+    compile: undefined,
+    tests: tests
+}).then((result) => {
+    console.log("API RESULT : ", result);
+});
+
+/*
+runSandbox(codeNodejs, tests, "test").then((result) => {
+    console.log("API RESULT : ", result);
+});
+*/
+
 

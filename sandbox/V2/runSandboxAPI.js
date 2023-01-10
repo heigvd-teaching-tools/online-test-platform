@@ -41,8 +41,16 @@ export const runSandbox = (code, tests, mode = "run") => {
                         let { Id: containerId } = await startContainer(`sandbox:img-${runUniqId}`, `run-${runUniqId}`);
                         
                         let response = await attachToContainer(containerId);
-
                         
+                        console.log(response.data.on);
+
+                        response.data.on('data', (chunk) => {
+                            console.log("CHUNK : ", chunk.toString());
+                        });
+
+                        response.data.on('end', () => {
+                            console.log("END");
+                        });
                         //await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
                         //await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
                         // resolve(logData.substring(8, logData.length - 1).replaceAll(/\n.{8}/g, "\n"));
