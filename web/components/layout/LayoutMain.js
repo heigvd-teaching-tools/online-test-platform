@@ -26,7 +26,4 @@ const LayoutMain = ({children, subheader}) => {
 }
 
 
-
-              
-
 export default LayoutMain;

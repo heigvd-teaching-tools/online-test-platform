@@ -1,4 +1,5 @@
 import { runSandbox } from "./runSandboxTC.js";
+import {getProject} from "./git_browser/readFromGit.js";
 
 const codeNodejs = `
 process.stdin.on("data", data => {
@@ -67,7 +68,12 @@ runSandbox({
 });
 */
 
-
+await getProject({
+    pat:  "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",
+    owner: "Ovich",
+    repo: "fastapi_keycloak_service_account",
+    ref: "main"
+});
 
 runSandbox({
     image: 'node:latest',
