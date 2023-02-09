@@ -110,7 +110,7 @@ const prepareTimeout = (timeoutCallback) => setTimeout(() => timeoutCallback("Ex
 
 
 const execCode = async (container, tests) => {
-    let results = []
+    let results = [];
 
     for (let index = 0; index < tests.length; index++) {
         let { exec, input } = tests[index];

@@ -16,16 +16,40 @@ const privateKey = readFileSync('./git_browser/key.pem', 'utf8');
     You can find it in the URL of the installation page.
 * */
 
-const authOptions = {
-    appId: 284699,
-    privateKey: privateKey,
-    installationId: 33423700
-}
 
-export async function getProject({ pat, owner, repo, ref }) {
+/*  
+    This function returns a map of all the files in the repository.
+    Its using App authentication with an installation ID to access the repository.
+*/
+export async function getProjectApp({ installationId, owner, repo, ref }) {
+    console.log("getProjectApp")
     const octokit = new Octokit({
         authStrategy: createAppAuth,
-        auth: authOptions
+        auth: {
+            appId: 284699,
+            privateKey: privateKey,
+            installationId: installationId
+        }
+    });
+
+
+    let filesMap = await getContents(octokit, { owner, repo, ref });
+    for(const [key, value] of filesMap){
+        console.log("KEY", key);
+        console.log("VALUE", value);
+    }
+    return filesMap;
+}
+
+/*
+    This function returns a map of all the files in the repository.
+    Its using Personal Access Token to access the repository.
+*/
+
+export const getProjectPat = async ({ pat, owner, repo, ref }) => {
+    console.log("getProjectPat")
+    const octokit = new Octokit({
+        auth: pat
     });
 
     let filesMap = await getContents(octokit, { owner, repo, ref });
@@ -35,6 +59,7 @@ export async function getProject({ pat, owner, repo, ref }) {
     }
     return filesMap;
 }
+
 
 export async function getContents(octokit, params, path = undefined) {
     const filesMap = new Map();
