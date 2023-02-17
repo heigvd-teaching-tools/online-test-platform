@@ -22,13 +22,13 @@ console.log(questionsWithIncludes({
 
 const trueFalse = (withAnswer) => withAnswer;
 
-export const questionsWithIncludes = ( { 
-    parentResource, 
-    parentResourceId, 
+export const questionsWithIncludes = ( {
+    parentResource,
+    parentResourceId,
     includeTypeSpecific,
-    includeOfficialAnswers, 
-    includeUserAnswers, 
-    includeGradings 
+    includeOfficialAnswers,
+    includeUserAnswers,
+    includeGradings
 }) => {
 
     let where = parentResource ? {
@@ -46,8 +46,8 @@ export const questionsWithIncludes = ( {
                 code: true
             }
         }),
-        multipleChoice: { 
-            select: { 
+        multipleChoice: {
+            select: {
                 options: ({
                     select: {
                         id: true,
@@ -70,7 +70,7 @@ export const questionsWithIncludes = ( {
     /*  including user answers
         studentAnswer is returned as an array of answers -> one to many relationship
         For IncludeStrategy.USER_SPECIFIC we will have an array with one answer only
-        For IncludeStrategy.ALL we will have an array with all the answers related to that question
+        For IncludeStrategy.ALL we will have an array with all the answers related to that questions
     */
     if(includeTypeSpecific && includeUserAnswers) {
 
@@ -78,7 +78,7 @@ export const questionsWithIncludes = ( {
         let saWhere = includeUserAnswers.strategy === IncludeStrategy.USER_SPECIFIC ? {
             userEmail: includeUserAnswers.userEmail
         } : undefined;
-        
+
         include.studentAnswer = {
             where: saWhere,
             select: {
@@ -91,7 +91,7 @@ export const questionsWithIncludes = ( {
                 user: true
             }
         };
-        
+
         // include gradings
         if(includeGradings) {
             include.studentAnswer.select.studentGrading = {
@@ -119,9 +119,9 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
     delete typeSpecificCopy.questionId; // remove questionId from type specific data
     switch(questionType) {
         case QuestionType.multipleChoice:
-            let clauses = {};   
-            if(currentQuestion) { 
-                // updating existing question -> delete all existing options before create
+            let clauses = {};
+            if(currentQuestion) {
+                // updating existing questions -> delete all existing options before create
                 let toDeleteMany = currentQuestion.multipleChoice && currentQuestion.multipleChoice.options.length > 0;
                 if(toDeleteMany) {
                     clauses.deleteMany = {};
@@ -139,16 +139,16 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
                 }
             }
 
-            return { 
+            return {
                 options: {
                     ...clauses
-                } 
+                }
             };
         case QuestionType.trueFalse:
             return typeSpecificCopy;
         case QuestionType.essay:
             // type specific does not have any specific fields, might carry the solution in the future
-            return {} 
+            return {}
         case QuestionType.code:
             return typeSpecificCopy
         case QuestionType.web:

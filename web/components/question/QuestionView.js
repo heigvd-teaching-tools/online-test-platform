@@ -15,7 +15,7 @@ const QuestionView = ({ question, totalPages }) => {
             </Stack>
             <Stack flexGrow={1}>
                 <ContentEditor
-                    id={'question-view-' + question.id}
+                    id={'questions-view-' + question.id}
                     readOnly={true}
                     rawContent={question.content}
                 />

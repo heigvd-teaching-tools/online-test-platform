@@ -80,7 +80,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
             setSaveRunning(false);
         }).catch(() => {
             setSaveRunning(false);
-            showSnackbar('Error saving question', 'error');
+            showSnackbar('Error saving questions', 'error');
         });
     } , [showSnackbar]), 500);
 
@@ -101,7 +101,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
             showSnackbar('Question delete successful');
             onDelete();
         }).catch(() => {
-            showSnackbar('Error deleting question', 'error');
+            showSnackbar('Error deleting questions', 'error');
         });
         setDeleteRunning(false);
     } , [setDeleteRunning, showSnackbar, question, onDelete]);

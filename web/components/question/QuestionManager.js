@@ -9,7 +9,7 @@ import { useSnackbar } from '../../context/SnackbarContext';
 const QuestionManager = ({ partOf, partOfId }) => {
 
     const { data: questions, mutate } = useSWR(
-        `/api/${partOf}/${partOfId}/questions`, 
+        `/api/${partOf}/${partOfId}/questions`,
         partOfId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
@@ -36,7 +36,7 @@ const QuestionManager = ({ partOf, partOfId }) => {
             .then(() => {
                 showSnackbar('Question order changed');
             }).catch(() => {
-                showSnackbar('Error changing question order', 'error');
+                showSnackbar('Error changing questions order', 'error');
             });
     }
 
@@ -85,28 +85,28 @@ const QuestionManager = ({ partOf, partOfId }) => {
         })
         .then((res) => res.json())
         .then((createdQuestion) => {
-            showSnackbar('New question created');
+            showSnackbar('New questions created');
             mutate([...questions, createdQuestion]);
         }).catch(() => {
-            showSnackbar('Error creating question', 'error');
+            showSnackbar('Error creating questions', 'error');
         });
         setCreateRunning(false);
-    } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, mutate]);   
+    } , [partOf, partOfId, setCreateRunning, showSnackbar, questions, mutate]);
 
     return (
         <Stack spacing={4} pt={2}>
             {questions && questions.map((question, index) =>
-                <Question 
-                    key={index} 
-                    index={index} 
+                <Question
+                    key={index}
+                    index={index}
                     lastIndex={questions.length}
-                    question={question} 
+                    question={question}
                     clickUp={handleQuestionUp}
                     clickDown={handleQuestionDown}
                     onDelete={() => {
                         mutate(questions.filter((q, i) => i !== index));
                     }}
-                                      
+
                 />
             )}
             <LoadingButton variant="outlined" loading={createRunning} color="primary" onClick={createQuestion}>Add question</LoadingButton>

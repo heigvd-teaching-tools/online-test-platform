@@ -16,11 +16,12 @@ import { LoadingButton } from '@mui/lab';
 import { update, create } from './crud';
 import PhaseRedirect from './PhaseRedirect';
 import Authorisation from "../../security/Authorisation";
+import MainMenu from "../../layout/MainMenu";
 
 const PageDraft = () => {
     const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
-    
+
     const { data:examSession, errorSession, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
@@ -34,7 +35,7 @@ const PageDraft = () => {
     );
 
     const [ saving, setSaving ] = useState(false);
-    
+
     const [ questions, setQuestions ] = useState();
 
     const onChangeRefenceExam = useCallback((_, questions) => {
@@ -67,7 +68,7 @@ const PageDraft = () => {
             setSaving(false);
             return false;
         }
-        
+
         if(router.query.sessionId){
             await update(router.query.sessionId, data)
             .then((response) => {
@@ -110,7 +111,7 @@ const PageDraft = () => {
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
-            <LayoutMain>
+            <LayoutMain header={ <MainMenu /> }>
                 { examSession && (
                     <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
                     { examSession.id && (

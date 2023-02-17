@@ -66,7 +66,7 @@ const PageGrading = () => {
             case 'unsigned':
                 let questionToDisplay = questions.filter(q => q.studentAnswer.some(sg => !sg.studentGrading.signedBy));
                 if(questionToDisplay.length > 0 && questionToDisplay.findIndex(q => q.id === question?.id) === -1){
-                    // active question is not in the filtered list -> jump to first
+                    // active questions is not in the filtered list -> jump to first
                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${questionToDisplay[0].id}?participantId=${questionToDisplay[0].studentGrading[0].user.id}`);
                 }
                 return questionToDisplay;
@@ -80,7 +80,7 @@ const PageGrading = () => {
             let activeQuestionId = router.query.activeQuestion;
             let activeQuestion = applyFilter(questions).find(q => q.id === activeQuestionId);
             if (parseInt(activeQuestionId) === 1 || !activeQuestion) {
-                // redirect to first question and first participant
+                // redirect to first questions and first participant
                 let firstQuestion = questions[0];
                 router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentAnswer[0].user.id}`);
                 return;

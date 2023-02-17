@@ -20,11 +20,11 @@ export default async function handler(req, res) {
         return;
     }
 
-    const { questionId } = req.query;  
+    const { questionId } = req.query;
 
     const { user: { email } } = await getSession({ req });
-    
-    // solution code retrieved from the question
+
+    // solution code retrieved from the questions
     const question = await prisma.question.findUnique({
         where: {
             id: questionId
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
 
         }
 
-        // code question grading
+        // code questions grading
         await prisma.studentQuestionGrading.upsert({
             where: {
                 userEmail_questionId: {

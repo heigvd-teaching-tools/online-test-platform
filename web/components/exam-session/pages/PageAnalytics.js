@@ -6,6 +6,7 @@ import {Autocomplete, TextField} from "@mui/material";
 import {useEffect, useState} from "react";
 import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
+import MainMenu from "../../layout/MainMenu";
 
 const PageAnalytics = () => {
     const router = useRouter();
@@ -38,7 +39,7 @@ const PageAnalytics = () => {
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <LayoutMain>
+        <LayoutMain header={ <MainMenu /> }>
             { examSession && examSessions && questions && (
                 <>
                 <Autocomplete

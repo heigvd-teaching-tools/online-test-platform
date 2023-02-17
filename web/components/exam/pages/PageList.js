@@ -12,6 +12,7 @@ import DialogFeedback from '../../feedback/DialogFeedback';
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
 import AddExamDialog from "../AddExamDialog";
+import MainMenu from "../../layout/MainMenu";
 
 const displayDateTime = (date) => {
   const d = new Date(date);
@@ -80,11 +81,12 @@ const PageList = () => {
   return (
       <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <LayoutMain
-          subheader={
-          <Stack alignItems="flex-end" sx={{ p : 1}}>
-              <Button onClick={() => setAddDialogOpen(true)}>Create a new exam</Button>
-          </Stack>
-          }
+            header={ <MainMenu /> }
+            subheader={
+                <Stack alignItems="flex-end" sx={{ p : 1}}>
+                  <Button onClick={() => setAddDialogOpen(true)}>Create a new exam</Button>
+                </Stack>
+            }
         >
         <Box sx={{ minWidth:'100%' }}>
           {exams && exams.length > 0 && (
@@ -98,7 +100,7 @@ const PageList = () => {
                 questions: exam.questions?.length,
                 meta: {
                   key: exam.id,
-                  linkHref: `/exams/${exam.id}`,
+                  linkHref: `/exams/${exam.id}/questions/1`,
                   actions:  [(
                     <IconButton key="delete-exam" onClick={(ev) => {
                       ev.preventDefault();
@@ -106,7 +108,7 @@ const PageList = () => {
                       setExamToDelete(exam.id);
                       setDeleteDialogOpen(true);
                     }}>
-                      <Image alt="Delete" src="/svg/exam/exam-delete.svg" layout="fixed" width="18" height="18" />
+                      <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
                     </IconButton>
                   )]
                 }

@@ -53,7 +53,7 @@ const patch = async (req, res) => {
                 },
                 data: {
                     type: question.type,
-                    [currentQuestion.type]: {  
+                    [currentQuestion.type]: {
                         delete: true
                     },
                     [question.type]: {
@@ -63,7 +63,7 @@ const patch = async (req, res) => {
             });
         }
     }
-    
+
     const updatedQuestion = await prisma.question.update({
         where: {
             id: question.id
@@ -89,11 +89,39 @@ const patch = async (req, res) => {
 
 const del = async (req, res) => {
     const { question } = req.body;
+    if(!question.id){
+        res.status(400).json({ message: 'Bad Request' });
+        return;
+    }
+
     const deletedQuestion = await prisma.question.delete({
         where: {
             id: question.id
         }
     });
+
+    // decrease the order of all questions after the deleted one
+    const questions = await prisma.question.findMany({
+        where: {
+            examId: question.examId,
+            examSessionId: question.examSessionId,
+            order: {
+                gt: question.order
+            }
+        }
+    });
+
+    for(const q of questions) {
+        await prisma.question.update({
+            where: {
+                id: q.id
+            },
+            data: {
+                order: q.order - 1
+            }
+        });
+    }
+
     res.status(200).json(deletedQuestion);
 }
 

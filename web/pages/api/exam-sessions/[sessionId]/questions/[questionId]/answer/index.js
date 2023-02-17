@@ -30,10 +30,10 @@ const post = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
     const { questionId } = req.query;
-    
-    const question = await prisma.question.findUnique({ 
-        where: { 
-            id: questionId 
+
+    const question = await prisma.question.findUnique({
+        where: {
+            id: questionId
         },
         include: {
             studentAnswer: true,
@@ -42,10 +42,10 @@ const post = async (req, res) => {
             trueFalse: { select: { isTrue: true } },
             essay: true,
             web: true,
-        } 
+        }
     });
 
-     // get the question exam session phase
+     // get the questions exam session phase
      const examSession = await prisma.examSession.findUnique({
         where: {
             id: question.examSessionId
@@ -55,7 +55,7 @@ const post = async (req, res) => {
         }
     });
 
-    
+
     if(examSession.phase !== ExamSessionPhase.IN_PROGRESS) {
         res.status(400).json({ message: 'The exam session is not in the in-progress phase' });
         return;
@@ -63,7 +63,7 @@ const post = async (req, res) => {
 
     const { type } = question;
     const { answer } = req.body;
-    
+
     let status = answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING;
 
     let a = await prisma.studentAnswer.update({
@@ -80,8 +80,8 @@ const post = async (req, res) => {
             }
         }
     });
-    
-    // grade question
+
+    // grade questions
     await prisma.studentQuestionGrading.upsert({
         where: {
             userEmail_questionId: {
@@ -89,14 +89,14 @@ const post = async (req, res) => {
                 questionId: questionId
             }
         },
-        update: grading(question, answer), 
+        update: grading(question, answer),
         create: {
             userEmail: studentEmail,
             questionId: questionId,
             ...grading(question, answer)
         }
     });
-    
+
     res.status(200).json(a);
 }
 
@@ -117,7 +117,7 @@ const prepareAnswer = (questionType, answer, mode) => {
             return {
                 isTrue: answer ? answer.isTrue : null
             }
-        case QuestionType.essay: 
+        case QuestionType.essay:
             return {
                 content: answer ? String(answer.content) : null
             }
@@ -134,6 +134,6 @@ const prepareAnswer = (questionType, answer, mode) => {
         default:
             return undefined;
     }
-}        
+}
 
 export default handler;

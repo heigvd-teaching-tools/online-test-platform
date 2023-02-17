@@ -18,6 +18,7 @@ import DisplayPhase from '../DisplayPhase';
 import DialogFeedback from '../../feedback/DialogFeedback';
 import PhaseRedirect from './PhaseRedirect';
 import Authorisation from "../../security/Authorisation";
+import MainMenu from "../../layout/MainMenu";
 
 const PageInProgress = () => {
     const router = useRouter();
@@ -69,17 +70,17 @@ const PageInProgress = () => {
         });
         setSaving(false);
     }, [examSession, showSnackbar, mutate]);
-    
+
     return(
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             {examSession && (
-                <LayoutMain>
+                <LayoutMain header={ <MainMenu /> }>
                 <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
                 <JoinClipboard sessionId={router.query.sessionId} />
                 <Stepper activeStep={0} orientation="vertical">
                     <Step key="in-progress">
-                        <StepInProgress 
+                        <StepInProgress
                             examSession={examSession}
                             onDurationChange={handleDurationChange}
                             onSessionEnd={() => {}}
@@ -89,10 +90,10 @@ const PageInProgress = () => {
                         <StepLabel>Grading</StepLabel>
                     </Step>
                 </Stepper>
-    
+
                 <Stack direction="row" justifyContent="center" spacing={1}>
                     <DisplayPhase phase={ExamSessionPhase.IN_PROGRESS} />
-    
+
                     <LoadingButton
                         key="promote-to-grading"
                         onClick={handleEndInProgress}
@@ -102,10 +103,10 @@ const PageInProgress = () => {
                     >
                         End session
                     </LoadingButton>
-    
+
                 </Stack>
                 </Stack>
-                <DialogFeedback 
+                <DialogFeedback
                     open={endSessionDialogOpen}
                     title="End of In-Progress phase"
                     content={

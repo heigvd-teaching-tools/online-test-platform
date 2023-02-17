@@ -88,7 +88,7 @@ const PageTakeExam = () => {
             })
             .then(data => {
                 if(!data.ok){
-                    // force re-render to restore the previous answer -> must change the reference of the question object
+                    // force re-render to restore the previous answer -> must change the reference of the questions object
                     let index = questions.findIndex(q => q.id === question.id);
                     questions[index] = { ...question, studentAnswer: previousAnswer };
                     if(data.status === 400){

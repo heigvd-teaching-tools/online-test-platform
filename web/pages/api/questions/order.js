@@ -22,7 +22,7 @@ const handler = async (req, res) => {
 }
 
 const patch = async (req, res) => {
-    // Update question order
+    // Update questions order
     const { questions } = req.body;
     for(let i = 0; i < questions.length; i++) {
         await prisma.question.update({
