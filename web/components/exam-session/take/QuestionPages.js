@@ -6,12 +6,11 @@ const QuestionPages = ({ questions, activeQuestion, link, isFilled }) => {
     const router = useRouter();
     return (
         <Tabs
-            value={questions.indexOf(activeQuestion)}
+            value={questions.map(({id}) => id).indexOf(activeQuestion.id)}
             variant="scrollable"
             scrollButtons="auto"
             onChange={(e, index) => router.push(link(questions[index].id, index))}
         >
-
             {questions.map(({id, order}, index) => (
                 <Tab
                     key={id}
@@ -20,13 +19,13 @@ const QuestionPages = ({ questions, activeQuestion, link, isFilled }) => {
                     sx={{ minHeight: '50px', minWidth: 0 }}
                     value={index}
                     icon={
-                        <FilledBullet 
+                        isFilled && <FilledBullet
                             index={index}
-                            isFilled={() => isFilled(id)} 
+                            isFilled={() => isFilled && isFilled(id)}
                         />
                     }
                 />
-            ))}            
+            ))}
         </Tabs>
     )
 };

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
 
-import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField } from "@mui/material";
+import {Stepper, Step, StepLabel, StepContent, Stack, Button, TextField, IconButton, Typography} from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
 import { useInput } from '../../../utils/useInput';
@@ -12,32 +12,36 @@ import LoadingAnimation from '../../feedback/LoadingAnimation';
 import QuestionManager from '../../question/QuestionManager';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
-import {Role} from "@prisma/client";
+import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
+import LayoutSplitScreen from "../../layout/LayoutSplitScreen";
+import QuestionPages from "../../exam-session/take/QuestionPages";
+import QuestionUpdate from "../../question/QuestionUpdate";
+import QuestionTypeSpecific from "../../question/QuestionTypeSpecific";
+import {useDebouncedCallback} from "use-debounce";
+import Link from "next/link";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 const PageUpdate = () => {
-    const { query: { id }} = useRouter();
+    const { query: { examId, questionIndex }} = useRouter();
 
     const { show: showSnackbar } = useSnackbar();
 
-    const [ activeStep, setActiveStep ] = useState(1);
+    const [ question, setQuestion ] = useState(null);
+
     const [ saveRunning, setSaveRunning ] = useState(false);
 
-    const { data: exam, error } = useSWR(
-        `/api/exams/${id}`,
-        (...args) => fetch(...args).then((res) => res.json()),
+    const { data: questions, mutate, error } = useSWR(
+        `/api/exams/${examId}/questions`,
+        examId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
-    const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
-    const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
-
     useEffect(() => {
-        if(exam) {
-            setLabel(exam.label);
-            setDescription(exam.description);
+        if(questions && questions.length >= questionIndex - 1){
+            setQuestion(questions[questionIndex - 1]);
         }
-    }, [exam, setLabel, setDescription]);
+    }, [questions, questionIndex]);
 
     const inputControl = (step) => {
         switch(step){
@@ -56,107 +60,139 @@ const PageUpdate = () => {
         }
     }
 
-    const handleBack = () => {
-        setActiveStep(activeStep - 1);
-    }
-
-    const handleNext = () => {
-        if(inputControl(activeStep)){
-            if(activeStep === 0){
-                saveExamGeneralInformation();
-            }
-            setActiveStep(activeStep + 1);
-            
+    const onQuestionTypeChange = async (newQuestionType) => {
+        delete question[question.type];
+        if(!question[newQuestionType]){
+            question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
+                    { text: 'Option 1', isCorrect: false },
+                    { text: 'Option 2', isCorrect: true },
+                ] } : {};
         }
+        setQuestion({ ...question });
+
+        await onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
     }
 
-    const saveExamGeneralInformation = async (changePhase) => {
+    const onQuestionChange = async (property, newValue) => {
+        if(typeof newValue === 'object'){
+            // we keep eventual existing properties when a property is an object
+            question[property] = {
+                ...question[property],
+                ...newValue
+            };
+        }else{
+            question[property] = newValue;
+        }
+        setQuestion({ ...question });
+        await saveQuestion(question);
+    }
+
+    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {
         setSaveRunning(true);
-        
-        await fetch(`/api/exams/${id}`, {
+        await fetch(`/api/questions`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then((_) => {
+                setSaveRunning(false);
+            }).catch(() => {
+                setSaveRunning(false);
+                showSnackbar('Error saving question', 'error');
+            });
+    } , [showSnackbar]), 500);
+
+    const createQuestion = useCallback(async () => {
+        setSaveRunning(true);
+        await fetch(`/api/exams/${examId}/questions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
             body: JSON.stringify({
-                label,
-                description,
+                order: questions.length
             })
         })
-        .then((res) => res.json())
-        .then((_) => {
-            showSnackbar('Exam updated successfully');
-        }).catch(() => {
-            showSnackbar('Error updating exam', 'error');
-        });
+            .then((res) => res.json())
+            .then((createdQuestion) => {
+                showSnackbar('New question created');
+                setQuestion(createdQuestion)
+                mutate([...questions, createdQuestion]);
+            }).catch(() => {
+                showSnackbar('Error creating question', 'error');
+            });
         setSaveRunning(false);
-    };
+    } , [examId, setSaveRunning, showSnackbar, questions, mutate]);
 
-           
+    const deleteQuestion = useCallback(async () => {
+        setSaveRunning(true);
+        await fetch(`/api/questions`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                question
+            })
+        })
+            .then((res) => res.json())
+            .then(() => {
+                mutate(questions.filter((q) => q.id !== question.id));
+                showSnackbar('Question delete successful');
+            }).catch(() => {
+                showSnackbar('Error deleting question', 'error');
+            });
+        setSaveRunning(false);
+    } , [setSaveRunning, showSnackbar, question]);
+
     if (error) return <div>failed to load</div>
-    if (!exam) return <LoadingAnimation /> 
+    if (!questions) return <LoadingAnimation />
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <LayoutMain>
-        <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
-            
-            <Stepper activeStep={activeStep} orientation="vertical">
-                <Step key="general">
-                    <StepLabel>General informations</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>
-                            <TextField
-                                label="Label"
-                                id="exam-label"
-                                fullWidth
-                                value={label}
-                                {...bindLabel}
-                            />
-                            <TextField
-                                label="Description"
-                                id="exam-desctiption"
-                                fullWidth
-                                multiline
-                                rows={4}
-                                value={description}
-                                {...bindDescription}
-                            />
+            { question && (
+                <LayoutSplitScreen
+                    header={
+                        <Stack direction="row" alignItems="center">
+                            <Link href={`/exams`}>
+                               <Button startIcon={<ArrowBackIosIcon />}>
+                                      Back
+                               </Button>
+                            </Link>
+                            { question &&
+                                <QuestionPages
+                                    questions={questions}
+                                    activeQuestion={question}
+                                    link={(_, index) => `/exams/${examId}/question/${index + 1}`}
+                                />
+                            }
+                            <LoadingButton loading={saveRunning} color="primary" onClick={createQuestion}>Add question</LoadingButton>
+                            <LoadingButton loading={saveRunning} color="primary" onClick={deleteQuestion}>Delete</LoadingButton>
                         </Stack>
-                    </StepContent>
-                </Step>
-                
-                <Step key="write-questions">
-                    <StepLabel>Write questions</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>
-                            <QuestionManager 
-                                partOf="exams"
-                                partOfId={id}
-                            />
-                        </Stack>
-                    </StepContent>
-                </Step>
-            </Stepper>      
-
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
-
-        </Stack>
-        </LayoutMain>
+                    }
+                    leftPanel={
+                        <QuestionUpdate
+                            index={questionIndex}
+                            question={question}
+                            onQuestionChange={onQuestionChange}
+                            onQuestionTypeChange={onQuestionTypeChange}
+                        />
+                    }
+                    rightPanel={
+                        <QuestionTypeSpecific
+                            question={question}
+                            onQuestionChange={onQuestionChange}
+                        />
+                    }
+                />
+            )}
         </Authorisation>
-    )
-}
-
-const StepNav = ({ activeStep, onBack, onNext, saveRunning }) => {
-    return (
-        <Stack direction="row" justifyContent="space-between">
-            <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep ===  0 && <LoadingButton loading={saveRunning} onClick={onNext}>Next</LoadingButton> }
-
-            { activeStep ===  1 && <Button onClick={onNext}>Finish</Button> }
-        </Stack>
     )
 }
 

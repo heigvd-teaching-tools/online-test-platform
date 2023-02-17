@@ -12,7 +12,7 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
         const { height } = entries[0].contentRect;
         setHeight(height);
     }));
-   
+
     useEffect(() => {
         const element = container.current;
         const observer = resizeObserver.current;
@@ -27,7 +27,7 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
         {
             answer && (
                 questionType === QuestionType.trueFalse && (
-                    <CompareTrueFalse 
+                    <CompareTrueFalse
                         id={id}
                         mode={mode}
                         solution={solution.isTrue}
@@ -59,7 +59,7 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
                         height={height-60}
                         solution={solution}
                         answer={answer}
-                    />      
+                    />
                 )
                 ||
                 questionType === QuestionType.web && (
@@ -135,7 +135,7 @@ const CompareMultipleChoice = ({ mode, solution, answer }) => {
 }
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ContentEditor from '../input/content/ContentEditor';
+import ContentEditor from '../input/ContentEditor';
 import Web from "../question/type_specific/Web";
 
 const CompareCode = ({ mode, solution, answer, height }) => {
@@ -143,12 +143,12 @@ const CompareCode = ({ mode, solution, answer, height }) => {
     const [expanded, setExpanded] = useState(true);
 
     const handleChange = () => {
-        setExpanded(!expanded);      
+        setExpanded(!expanded);
     };
 
     return (
         <>
-        <Accordion  
+        <Accordion
             sx={{
                 border: 'none',
                 '&.MuiPaper-root': {
@@ -192,7 +192,7 @@ const CompareCode = ({ mode, solution, answer, height }) => {
                 </>
             </AccordionDetails>
         </Accordion>
-        <Accordion 
+        <Accordion
             sx={{
                 border: 'none',
                 '&.MuiPaper-root': {

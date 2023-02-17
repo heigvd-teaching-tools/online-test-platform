@@ -12,7 +12,7 @@ import QuestionPages from '../../take/QuestionPages';
 import { useSnackbar } from '../../../../context/SnackbarContext';
 import ExamSessionCountDown from '../../in-progress/ExamSessionCountDown';
 
-import QuestionView from '../../take/QuestionView';
+import QuestionView from '../../../question/QuestionView';
 import QuestionNav from '../../take/QuestionNav';
 import AnswerEditor from '../../../answer/AnswerEditor';
 
@@ -40,8 +40,8 @@ const PageTakeExam = () => {
 
     const { data: userOnExamSession, error } = useSWR(
         `/api/users/exam-sessions/${router.query.sessionId}/take`,
-        data && router.query.sessionId ? 
-            (...args) => 
+        data && router.query.sessionId ?
+            (...args) =>
                 fetch(...args)
                 .then((res) => {
                     if(!res.ok){
@@ -53,7 +53,7 @@ const PageTakeExam = () => {
                         }
                     }
                     return res.json();
-                }) 
+                })
             : null,
             { revalidateOnFocus: false }
     );
@@ -115,13 +115,13 @@ const PageTakeExam = () => {
         return question && question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED && question.studentAnswer[0][question.type] !== undefined;
     }, [questions]);
 
-    if(error) return <LoadingAnimation content={error.message} />     
+    if(error) return <LoadingAnimation content={error.message} />
     if (!userOnExamSession) return <LoadingAnimation />
     if(userOnExamSession && userOnExamSession.phase !== ExamSessionPhase.IN_PROGRESS) {
         let text = userOnExamSession.label ? `${userOnExamSession.label} is not in progress.` : 'This exam session is not in progress.';
-        return <LoadingAnimation text={text} />;       
-    } 
-    
+        return <LoadingAnimation text={text} />;
+    }
+
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
             <StudentPhaseRedirect phase={userOnExamSession.phase}>

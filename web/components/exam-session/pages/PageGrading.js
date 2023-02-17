@@ -13,7 +13,7 @@ import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 
 import QuestionPages from '../take/QuestionPages';
 import MainMenu from '../../layout/MainMenu';
-import QuestionView from '../take/QuestionView';
+import QuestionView from '../../question/QuestionView';
 
 import AnswerCompare from '../../answer/AnswerCompare';
 import GradingSignOff from '../grading/GradingSignOff';
@@ -44,7 +44,7 @@ const PageGrading = () => {
 
     const [ questions, setQuestions ] = useState([]);
     const [ participants, setParticipants ] = useState([]);
-    
+
     const [ filter, setFilter ] = useState();
     const [ question, setQuestion ] = useState();
 
@@ -85,7 +85,7 @@ const PageGrading = () => {
                 router.push(`/exam-sessions/${router.query.sessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentAnswer[0].user.id}`);
                 return;
             }
-            
+
             setQuestion(activeQuestion);
             setParticipants(activeQuestion.studentAnswer.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
         }
@@ -187,13 +187,13 @@ const PageGrading = () => {
         }
     }, [participants, router, question, questions, applyFilter]);
 
-   
+
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
            { questions && (
             <>
-            <LayoutSplitScreen 
+            <LayoutSplitScreen
                 header={<MainMenu />}
                 subheader={
                     <Stack direction="row" alignItems="center">
@@ -206,9 +206,9 @@ const PageGrading = () => {
                                     const question = questions.find((q) => q.id === questionId);
                                     return question && question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
                                 }}
-                            />  
+                            />
                         </Stack>
-                        <GradingQuestionFilter 
+                        <GradingQuestionFilter
                             onFilter={(filter) => {
                                 setFilter(filter);
                             }}
@@ -218,11 +218,11 @@ const PageGrading = () => {
                 leftPanel={
                     <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
                         { question && (
-                            <QuestionView 
+                            <QuestionView
                                 question={question}
                                 totalPages={questions.length}
                             />
-                        )}                    
+                        )}
                     </Stack>
                 }
                 rightWidth={75}
@@ -230,8 +230,8 @@ const PageGrading = () => {
                     <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
                         { question && participants && participants.length > 0 && (
                             <>
-                            <ParticipantNav 
-                                participants={participants} 
+                            <ParticipantNav
+                                participants={participants}
                                 active={participants.find((participant) => participant.id === router.query.participantId)}
                                 onParticipantClick={(participant) => {
                                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
@@ -240,12 +240,12 @@ const PageGrading = () => {
                                     const grading = question && question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
                                     return grading && grading.signedBy;
                                 }}
-                            />    
-                            <Divider orientation="vertical" light flexItem />  
+                            />
+                            <Divider orientation="vertical" light flexItem />
                             </>
                         )}
-                        
-                        { question && (   
+
+                        { question && (
                             <>
                             <AnswerCompare
                                 id={`question-grading-${question.id}`}
@@ -262,7 +262,7 @@ const PageGrading = () => {
                 footer={
                     question && (
                         <Stack direction="row" justifyContent="space-between" >
-                        <GradingNextBack 
+                        <GradingNextBack
                             isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
                             onPrev={prevParticipantOrQuestion}
                             onNext={nextParticipantOrQuestion}
@@ -277,10 +277,10 @@ const PageGrading = () => {
                                 if (next < participants.length) {
                                     router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
                                 }
-                                
+
                             }}
                         />
-                        <SuccessRate 
+                        <SuccessRate
                             value={getSignedSuccessRate(questions)}
                         />
                         <GradingActions
@@ -292,7 +292,7 @@ const PageGrading = () => {
                     </Stack>
                     )
                 }
-            />  
+            />
             </>
            )}
            <DialogFeedback
@@ -326,17 +326,17 @@ const PageGrading = () => {
                     </>
                 }
                 onConfirm={endGrading}
-            /> 
+            />
             <DialogFeedback
                 open={someUnsignedDialogOpen}
                 onClose={() => setSomeUnsignedDialogOpen(false)}
                 title="End grading"
-                content={                        
+                content={
                     <Typography variant="body1" sx={{ mb:2 }}>
                         The signoff process is not complete.
                     </Typography>
                 }
-            /> 
+            />
 
         </PhaseRedirect>
         </Authorisation>
@@ -373,17 +373,17 @@ const SuccessRate = ({ value }) => {
     )
 }
 
-const GradingActions = ({ stats: { totalSigned, totalGradings, totalAutogradedUnsigned }, loading, signOffAllAutograded, endGrading }) => 
+const GradingActions = ({ stats: { totalSigned, totalGradings, totalAutogradedUnsigned }, loading, signOffAllAutograded, endGrading }) =>
 <Paper sx={{ p:1 }}>
     <Stack justifyContent="center" spacing={1} sx={{ height:"100%" }}>
         <Stack flexGrow={1} alignItems="start" justifyContent="space-between" direction="row">
             <Stack direction="row" alignItems="center" sx={{ mr:2 }}>
                 <Typography variant="body2" sx={{ mr:1 }}>Grading progress:</Typography>
                 <Typography variant="body2" sx={{ fontWeight:'bold' }}>{totalSigned} / {totalGradings}</Typography>
-            </Stack>    
+            </Stack>
             { totalSigned < totalGradings && (
                 <PiePercent size={39} value={Math.round((totalSigned / totalGradings) * 100)} />
-            )}                
+            )}
         </Stack>
         { totalSigned === totalGradings && (
             <Button color="success" fullWidth variant="contained" size="small" onClick={endGrading}>End grading</Button>
@@ -411,14 +411,14 @@ const GradingQuestionFilter = ({ onFilter }) => {
 
     return (
         <Stack direction="row" sx={{ ml:2 }}>
-            <Button 
+            <Button
                 ref={buttonRef}
-                color="info" 
+                color="info"
                 startIcon={
-                    <Image 
+                    <Image
                         src="/svg/grading/filter-inactive.svg"
                         alt="Filter inactive"
-                        layout="fixed" width={18} height={18} 
+                        layout="fixed" width={18} height={18}
                     />
                 }
                 endIcon={<ExpandMoreIcon />}
@@ -433,6 +433,6 @@ const GradingQuestionFilter = ({ onFilter }) => {
         </Stack>
     )
 }
-   
+
 
 export default PageGrading;

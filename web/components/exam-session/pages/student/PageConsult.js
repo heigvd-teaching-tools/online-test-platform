@@ -7,7 +7,7 @@ import {Paper, Stack, Typography} from "@mui/material";
 import QuestionPages from "../../take/QuestionPages";
 import {useEffect, useState} from "react";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
-import QuestionView from "../../take/QuestionView";
+import QuestionView from "../../../question/QuestionView";
 import AnswerCompare from "../../../answer/AnswerCompare";
 import GradingSigned from "../../grading/GradingSigned";
 import GradingPointsComment from "../../grading/GradingPointsComment";

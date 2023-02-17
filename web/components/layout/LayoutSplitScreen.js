@@ -1,4 +1,4 @@
-import { Box, Stack } from '@mui/material';
+import {Box, Paper, Stack} from '@mui/material';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 import ResizePanel from './utils/ResizePanel';
@@ -16,14 +16,18 @@ const LayoutSplitScreen = ({header, subheader, leftPanel, rightPanel, footer, ri
             )}
             <Stack sx={{ height: `calc(100vh - 48px - ${subheader ? '52px' : '0px'} - ${footer ? `${footerHeight}px` : '0px'})`, width:'100vw' }} alignItems="center">
                 <Stack sx={{ minWidth:'100%', minHeight: '100%' }}>
-                    <ResizePanel 
+                    <ResizePanel
                         rightWidth={rightWidth}
                         leftPanel={leftPanel}
-                        rightPanel={rightPanel}
+                        rightPanel={
+                            <Paper square elevation={0} sx={{ flex:1, position:'relative', overflow:'hidden', pt:2, pl:2, pb:1, m:1, height:'100%' }}>
+                                {rightPanel}
+                            </Paper>
+                        }
                     />
                 </Stack>
             </Stack>
-        </Box> 
+        </Box>
         <Box sx={{ maxHeight: `${footerHeight}px`, height: `${footerHeight}px` }}>
             {footer}
         </Box>

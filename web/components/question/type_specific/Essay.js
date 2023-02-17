@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ContentEditor from '../../input/content/ContentEditor';
+import ContentEditor from '../../input/ContentEditor';
 
 const Essay = ({ id = "essay", content, onChange }) => {
     return (
@@ -10,9 +10,9 @@ const Essay = ({ id = "essay", content, onChange }) => {
                 onChange(newContent === '' ? undefined : newContent);
             }}
         />
-        
+
     )
-    
+
 }
 
 export default Essay;

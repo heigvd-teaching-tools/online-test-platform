@@ -20,19 +20,19 @@ import Web from "./type_specific/Web";
 import { LoadingButton } from '@mui/lab';
 
 import DialogFeedback from '../feedback/DialogFeedback';
-import ContentEditor from '../input/content/ContentEditor';
+import ContentEditor from '../input/ContentEditor';
 
 import { useDebouncedCallback } from 'use-debounce';
 
 const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
-    
+
     const { show: showSnackbar } = useSnackbar();
     const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
     const [ deleteRunning, setDeleteRunning ] = useState(false);
     const [ saveRunning, setSaveRunning ] = useState(false);
 
     const [ points, setPoints ] = useState(question.points);
-        
+
     const [ questionType, setQuestionType ] = useState(question.type);
 
     useEffect(() => {
@@ -65,7 +65,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
         await saveQuestion(question);
     }
 
-    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {       
+    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {
         setSaveRunning(true);
         await fetch(`/api/questions`, {
             method: 'PATCH',
@@ -119,7 +119,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                     </Column>
                     <Column>
                         <DropDown id="question" name="Type" defaultValue={questionType} minWidth="160px" onChange={handleQuestionTypeChange}>
-                            {questionTypes.map(({value, label}) => 
+                            {questionTypes.map(({value, label}) =>
                                 <MenuItem key={value} value={value}>
                                     <Typography variant="caption">{label}</Typography>
                                 </MenuItem>
@@ -134,7 +134,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                             type="number"
                             variant="filled"
                             value={points}
-                            onChange={(e) => { 
+                            onChange={(e) => {
                                 setPoints(e.target.value);
                                 onQuestionChange("points", e.target.value);
                             }}
@@ -145,7 +145,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                             <IconButton size="small" onClick={() => clickUp(index)}>
                                 <ArrowDropUpIcon />
                             </IconButton>
-                            
+
                             <IconButton size="small" onClick={() => clickDown(index)}>
                                 <ArrowDropDownIcon />
                             </IconButton>
@@ -165,34 +165,34 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                     <Column flexGrow={1}>
                     {(
                         ( questionType === QuestionType.multipleChoice && question.multipleChoice &&
-                            <MultipleChoice 
+                            <MultipleChoice
                                 options={question.multipleChoice.options}
                                 onChange={(newOptions) => onQuestionChange("multipleChoice", { options: newOptions })}
                             />
-                        ) 
+                        )
                         ||
                         ( questionType === QuestionType.code && question.code &&
                             <Stack spacing={2}>
-                                <Code 
+                                <Code
                                     containerHeight='600'
                                     displaySolutionEditor
                                     where="question"
                                     rightEditorLabel={{
                                         label: "Partial Code",
-                                        subheader: "Provided to students" 
+                                        subheader: "Provided to students"
                                     }}
                                     code={question.code}
                                     questionId={question.id}
                                     onChange={(which, newCode) => onQuestionChange("code", { [which]: newCode })}
-                                /> 
+                                />
                             </Stack>
                         )
                         ||
                         ( questionType === QuestionType.trueFalse && question.trueFalse &&
-                            <TrueFalse 
+                            <TrueFalse
                                 isTrue={question.trueFalse.isTrue}
                                 onChange={(newIsTrue) => onQuestionChange("trueFalse", { isTrue: newIsTrue })}
-                            /> 
+                            />
                         )
                         ||
                         ( questionType === QuestionType.web && question.web &&
@@ -202,7 +202,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                                 onChange={(newWeb) => onQuestionChange("web", newWeb)}
                             />
                         )
-                        
+
                     )}
                     </Column>
                 </Row>
@@ -213,7 +213,7 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                         <SavingIndicator isSaving={saveRunning} />
                     </Column>
                     <Column>
-                        <LoadingButton 
+                        <LoadingButton
                             loading={deleteRunning}
                             disabled={saveRunning}
                             variant="contained"
@@ -227,8 +227,8 @@ const Question = ({ index, question, clickUp, clickDown, onDelete }) => {
                 </Row>
             </CardActions>
         </Card>
-        <DialogFeedback 
-            open={deleteDialogOpen}  
+        <DialogFeedback
+            open={deleteDialogOpen}
             title="Delete Question"
             content="Are you sure you want to delete this question?"
             onClose={() => setDeleteDialogOpen(false)}
@@ -245,7 +245,7 @@ const SavingIndicator = ({isSaving}) =>
         color="info"
     />
     <Typography variant="caption">Save in progress...</Typography>
-</Stack>        
+</Stack>
 
 const questionTypes = [
     {

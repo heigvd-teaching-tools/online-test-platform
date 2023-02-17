@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { QuestionType, StudentAnswerStatus } from '@prisma/client';
 
-import { Paper } from "@mui/material";
+import {Stack} from "@mui/material";
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
@@ -19,9 +19,9 @@ const AnswerEditor = ({ question, onAnswer }) => {
         const { height } = entries[0].contentRect;
         setHeight(height);
     }));
-    
+
     const onAnswerByType = useCallback((newAnswer) => {
-        /* 
+        /*
             decide the answer submit or delete condition on per type basis
             answer "undefined" means delete
         */
@@ -56,7 +56,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
     useEffect(() => {
         if(question){
-            
+
             var answerData = {
                 type: question.type,
             };
@@ -70,7 +70,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     answerData.isTrue = isTrue;
                     break;
                 case QuestionType.multipleChoice:
-                    
+
                     let allOptions = question.multipleChoice.options;
                     let studentOptions = [];
                     if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
@@ -121,30 +121,30 @@ const AnswerEditor = ({ question, onAnswer }) => {
       }, [resizeObserver, container]);
 
     return (
-        <Paper ref={container} square elevation={0} sx={{ flex:1, position:'relative', overflow:'hidden', pt:2, pl:2, pb:1 }}>
+        <Stack ref={container}>
         {
             answer && (
                 answer.type === QuestionType.trueFalse && (
-                    <TrueFalse 
-                        id={`answer-editor-${question.id}`}	
+                    <TrueFalse
+                        id={`answer-editor-${question.id}`}
                         allowUndefined={true}
-                        isTrue={answer.isTrue} 
-                        onChange={onAnswerByType} 
+                        isTrue={answer.isTrue}
+                        onChange={onAnswerByType}
                     />
                 )
                 ||
                 answer.type === QuestionType.multipleChoice && answer.options && (
                     <MultipleChoice
-                        id={`answer-editor-${question.id}`}	
+                        id={`answer-editor-${question.id}`}
                         selectOnly
                         options={answer.options}
                         onChange={onAnswerByType}
                     />
                 )
-                || 
+                ||
                 answer.type === QuestionType.essay && (
                     <Essay
-                        id={`answer-editor-${question.id}`}	
+                        id={`answer-editor-${question.id}`}
                         content={answer.content}
                         onChange={onAnswerByType}
                     />
@@ -152,7 +152,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 ||
                 answer.type === QuestionType.code && (
                     <Code
-                        id={`answer-editor-${question.id}`}	
+                        id={`answer-editor-${question.id}`}
                         where="answer"
                         mode="partial"
                         code={answer.code}
@@ -163,8 +163,8 @@ const AnswerEditor = ({ question, onAnswer }) => {
                                 [which]: newCode
                             })
                         }}
-                        
-                    />      
+
+                    />
                 )
                 ||
                 answer.type === QuestionType.web && (
@@ -177,7 +177,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
                 )
             )
         }
-        </Paper>
+        </Stack>
     )
 }
 

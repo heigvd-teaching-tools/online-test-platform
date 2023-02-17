@@ -11,6 +11,7 @@ import DialogFeedback from '../../feedback/DialogFeedback';
 
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
+import AddExamDialog from "../AddExamDialog";
 
 const displayDateTime = (date) => {
   const d = new Date(date);
@@ -18,7 +19,7 @@ const displayDateTime = (date) => {
 }
 
 const gridHeader = {
-  
+
   actions: {
     label: 'Actions',
     width: '80px',
@@ -46,11 +47,12 @@ const gridHeader = {
 const PageList = () => {
   const { show: showSnackbar } = useSnackbar();
 
+  const [ addDialogOpen, setAddDialogOpen ] = useState(false);
   const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
   const [ examToDelete, setExamToDelete ] = useState(null);
 
   const { data, error } = useSWR(
-    `/api/exams`, 
+    `/api/exams`,
     (...args) => fetch(...args).then((res) => res.json())
   );
 
@@ -72,6 +74,7 @@ const PageList = () => {
       showSnackbar('Error deleting exam', 'error');
     });
     setExamToDelete(null);
+    setDeleteDialogOpen(false);
   }
 
   return (
@@ -79,9 +82,7 @@ const PageList = () => {
         <LayoutMain
           subheader={
           <Stack alignItems="flex-end" sx={{ p : 1}}>
-            <Link href="/exams/new">
-              <Button>Create a new exam</Button>
-            </Link>
+              <Button onClick={() => setAddDialogOpen(true)}>Create a new exam</Button>
           </Stack>
           }
         >
@@ -94,7 +95,7 @@ const PageList = () => {
                 description: exam.description,
                 createdAt: displayDateTime(exam.createdAt),
                 updatedAt: displayDateTime(exam.updatedAt),
-                questions: exam.questions.length,
+                questions: exam.questions?.length,
                 meta: {
                   key: exam.id,
                   linkHref: `/exams/${exam.id}`,
@@ -119,6 +120,14 @@ const PageList = () => {
                 content="Are you sure you want to delete this exam?"
                 onClose={() => setDeleteDialogOpen(false)}
                 onConfirm={deleteExam}
+            />
+            <AddExamDialog
+                open={addDialogOpen}
+                onClose={() => setAddDialogOpen(false)}
+                handleAddExam={(exam) => {
+                    setExams([exam, ...exams]);
+                    setAddDialogOpen(false);
+                }}
             />
         </Box>
         </LayoutMain>
