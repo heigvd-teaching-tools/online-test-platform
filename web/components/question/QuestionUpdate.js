@@ -7,8 +7,7 @@ import Row from "../layout/utils/Row";
 import DropDown from "../input/DropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import {useSnackbar} from "../../context/SnackbarContext";
-import {useDebouncedCallback} from "use-debounce";
+
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
 
@@ -35,54 +34,37 @@ const questionTypes = [
     }
 ];
 
-const QuestionUpdate = ({ index, question, onQuestionChange, onQuestionTypeChange, clickUp, clickDown }) => {
+const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, clickUp, clickDown }) => {
 
-    const { show: showSnackbar } = useSnackbar();
     const [ points, setPoints ] = useState(question.points);
 
-    useEffect(() => {
-        console.log("Component mounted")
-        return () => {
-            console.log("Component unmounted")
+    const onQuestionTypeChange = useCallback(async (newQuestionType) => {
+        // changing the question type means we need to delete the old type and add the new type
+        // the change is done by reference
+        delete question[question.type];
+        if(!question[newQuestionType]){
+            question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
+                    { text: 'Option 1', isCorrect: false },
+                    { text: 'Option 2', isCorrect: true },
+                ]} : {};
         }
-    }, []);
+        await onQuestionChange(question.id, "type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
+    }, [question]);
 
-    const deleteQuestion = useCallback(async () => {
-        await fetch(`/api/questions`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                question
-            })
-        })
-            .then((res) => res.json())
-            .then(() => {
-                mutate(questions.filter((q) => q.id !== question.id).map((q) => {
-                    if(q.order > question.order){
-                        q.order--;
-                    }
-                    return q;
-                }));
-                showSnackbar('Question delete successful');
-            }).catch(() => {
-                showSnackbar('Error deleting questions', 'error');
-            });
-    } , [showSnackbar, question]);
+    const onChange = useCallback((which, newData) => {
+        onQuestionChange(question.id, which, newData);
+    }, [question]);
 
     return (
-
         <LayoutSplitScreen
             subheader={
                 <Stack direction="row" justifyContent="space-between" sx={{ width:'100%'}}>
-                    <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={deleteQuestion}>Delete this question</Button>
+                    <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => onQuestionDelete(question.id)}>Delete this question</Button>
                 </Stack>
             }
             leftPanel={
                 question && (
-                    <Stack spacing={2} sx={{ overflow:'auto', pl:2, pt:2, pr:1, pb:1, maxHeight:'100%' }}>
+                    <Stack spacing={2} sx={{ overflow:'hidden', pl:2, pt:2, pr:1, pb:1, border:'1px solid green', height:'100%' }}>
                         <Row>
                             <Column width="32px">
                                 <Image alt="Loading..." src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
@@ -109,7 +91,7 @@ const QuestionUpdate = ({ index, question, onQuestionChange, onQuestionTypeChang
                                     value={points}
                                     onChange={(e) => {
                                         setPoints(e.target.value);
-                                        onQuestionChange("points", e.target.value);
+                                        onChange("points", e.target.value);
                                     }}
                                 />
                             </Column>
@@ -131,7 +113,7 @@ const QuestionUpdate = ({ index, question, onQuestionChange, onQuestionTypeChang
                                     id={`question-${index}`}
                                     language="markdown"
                                     rawContent={question.content}
-                                    onChange={(content) => onQuestionChange("content", content)}
+                                    onChange={(content) => onChange("content", content)}
                                 />
                             </Column>
                         </Row>
@@ -142,7 +124,7 @@ const QuestionUpdate = ({ index, question, onQuestionChange, onQuestionTypeChang
                 question && (
                     <QuestionTypeSpecific
                         question={question}
-                        onQuestionChange={onQuestionChange}
+                        onQuestionChange={onChange}
                     />
                 )
             }

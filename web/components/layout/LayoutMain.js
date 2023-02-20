@@ -13,7 +13,7 @@ const LayoutMain = ({children, header, subheader}) => {
                 { subheader && (
                     <Box sx={{ flex: 1, overflow:'hidden' }}>{subheader}</Box>
                 )}
-                <Stack sx={{ height: 'calc(100vh - 48px)' }} alignItems="center">
+                <Stack sx={{ height: 'calc(100vh - 48px)', minWidth:'100vw' }} alignItems="center">
                     {children}
                 </Stack>
             </Box>

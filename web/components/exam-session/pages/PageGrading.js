@@ -258,38 +258,37 @@ const PageGrading = () => {
                         )}
                     </Stack>
                 }
-                footerHeight={90}
                 footer={
                     question && (
-                        <Stack direction="row" justifyContent="space-between" >
-                        <GradingNextBack
-                            isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
-                            onPrev={prevParticipantOrQuestion}
-                            onNext={nextParticipantOrQuestion}
-                        />
-                        <GradingSignOff
-                            loading={loading}
-                            grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
-                            maxPoints={question.points}
-                            onSignOff={onSignOff}
-                            clickNextParticipant={(current) => {
-                                const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
-                                if (next < participants.length) {
-                                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
-                                }
+                        <Stack direction="row" justifyContent="space-between" sx={{ height:'90px' }} >
+                            <GradingNextBack
+                                isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
+                                onPrev={prevParticipantOrQuestion}
+                                onNext={nextParticipantOrQuestion}
+                            />
+                            <GradingSignOff
+                                loading={loading}
+                                grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
+                                maxPoints={question.points}
+                                onSignOff={onSignOff}
+                                clickNextParticipant={(current) => {
+                                    const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                    if (next < participants.length) {
+                                        router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
+                                    }
 
-                            }}
-                        />
-                        <SuccessRate
-                            value={getSignedSuccessRate(questions)}
-                        />
-                        <GradingActions
-                            stats={getGradingStats(questions)}
-                            loading={loading || saving}
-                            signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
-                            endGrading={() => setEndGradingDialogOpen(true)}
-                        />
-                    </Stack>
+                                }}
+                            />
+                            <SuccessRate
+                                value={getSignedSuccessRate(questions)}
+                            />
+                            <GradingActions
+                                stats={getGradingStats(questions)}
+                                loading={loading || saving}
+                                signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
+                                endGrading={() => setEndGradingDialogOpen(true)}
+                            />
+                        </Stack>
                     )
                 }
             />

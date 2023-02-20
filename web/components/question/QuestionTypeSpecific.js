@@ -8,7 +8,6 @@ import Web from "./type_specific/Web";
 import Row from "../layout/utils/Row";
 
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
-
     return (
         <Row>
             <Column flexGrow={1}>

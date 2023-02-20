@@ -82,9 +82,8 @@ const PageConsult = () => {
                                         )}
                                     </Stack>
                                 }
-                                footerHeight={90}
                                 footer={
-                                    <Stack direction="row" sx={{ height:'100%' }}>
+                                    <Stack direction="row" sx={{ height:'90px' }}>
                                         {question && (
                                             <Paper sx={{ flex:1 }} square>
                                                 <Stack spacing={2} direction="row" justifyContent="flex-start" alignItems="center" sx={{ height:'100%' }}>
@@ -108,7 +107,7 @@ const PageConsult = () => {
                                                 </Stack>
                                             </Paper>
                                         )}
-                                        </Stack>
+                                    </Stack>
                                 }
 
                             />

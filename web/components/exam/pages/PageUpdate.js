@@ -30,21 +30,9 @@ const PageUpdate = () => {
         { revalidateOnFocus: false }
     );
 
-    const onQuestionTypeChange = async (newQuestionType) => {
-        delete question[question.type];
-        if(!question[newQuestionType]){
-            question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
-                    { text: 'Option 1', isCorrect: false },
-                    { text: 'Option 2', isCorrect: true },
-                ] } : {};
-        }
-      //  setQuestion({ ...question });
-
-        await onQuestionChange("type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
-    }
-
-    const onQuestionChange = async (property, newValue) => {
-        let question = questions[router.query.questionIndex - 1];
+    const onQuestionChange = async (questionId, property, newValue) => {
+        let question = questions.find((q) => q.id === questionId);
+        console.log("onQuestionChange", questionId, property, newValue)
         if(typeof newValue === 'object'){
             // we keep eventual existing properties when a property is an object
             question[property] = {
@@ -54,7 +42,7 @@ const PageUpdate = () => {
         }else{
             question[property] = newValue;
         }
-       //setQuestion({ ...question });
+
         await saveQuestion(question);
     }
 
@@ -69,9 +57,12 @@ const PageUpdate = () => {
         })
             .then((res) => res.json())
             .then((_) => {
-                showSnackbar('Question saved');
-                mutate(questions.map((q) => q.id === question.id ? question : q));
+                showSnackbar('Question saved', questions);
+                let newQuestions = questions.map((q) => q.id === question.id ? question : q);
+                console.log("newQuestions", newQuestions);
+               // mutate(questions.map((q) => q.id === question.id ? question : q));
             }).catch(() => {
+                console.log("error")
                 showSnackbar('Error saving questions', 'error');
             });
     } , [showSnackbar]), 500);
@@ -89,13 +80,39 @@ const PageUpdate = () => {
         })
             .then((res) => res.json())
             .then((createdQuestion) => {
+                console.log("createdQuestion", createdQuestion);
                 showSnackbar('Question created', createdQuestion);
                 mutate([...questions, createdQuestion]);
                 router.push(`/exams/${router.query.examId}/questions/${questions.length + 1}`);
             }).catch(() => {
+                console.log("error")
                 showSnackbar('Error creating questions', 'error');
             });
     } , [router.query.examId, showSnackbar, questions, mutate]);
+
+    const deleteQuestion = useCallback(async (questionId) => {
+        let question = questions.find((q) => q.id === questionId);
+        await fetch(`/api/questions`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then(() => {
+                mutate(questions.filter((q) => q.id !== question.id).map((q) => {
+                    if(q.order > question.order){
+                        q.order--;
+                    }
+                    return q;
+                }));
+                showSnackbar('Question delete successful');
+            }).catch(() => {
+                showSnackbar('Error deleting questions', 'error');
+            });
+    } , [questions, showSnackbar]);
 
 
     if (error) return <div>failed to load</div>
@@ -116,7 +133,6 @@ const PageUpdate = () => {
                                 questions={questions}
                                 activeQuestion={questions[parseInt(router.query.questionIndex) - 1]}
                                 link={(_, index) => {
-                                    console.log("index", index);
                                     return `/exams/${router.query.examId}/questions/${index + 1}`;
                                 }}
                             />
@@ -129,7 +145,10 @@ const PageUpdate = () => {
             >
                 {
                     questions && questions.length > 0 && questions.map((q, index) =>
-                        <Box sx={{ display: (index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none' }}>
+                        <Box key={index} sx={{
+                            width:'100%', height:'100%',
+                            display: (index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none'
+                        }}>
                             { /*
                                 Not a traditional conditional rendering approach.
                                 Used to mount all the components at once, so that each component state can be updated independently.
@@ -139,8 +158,8 @@ const PageUpdate = () => {
                                 key={q.id}
                                 index={index + 1}
                                 question={q}
-                                onQuestionTypeChange={onQuestionTypeChange}
                                 onQuestionChange={onQuestionChange}
+                                onQuestionDelete={deleteQuestion}
                             />
                         </Box>
                     )

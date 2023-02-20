@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { ThemeProvider, createTheme, ThemeOptions } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { SessionProvider } from "next-auth/react"

@@ -9,11 +9,11 @@ const SnackbarFeedback = () => {
         <Snackbar sx={{ mt:5 }} anchorOrigin={{ vertical, horizontal }} open={open} autoHideDuration={3000} onClose={hide}>
             <Paper elevation={4}>
                 <Stack direction="row" sx={{ p:0 }}>
-                    <Box sx={{ minWidth: 8, maxWidth: 8, backgroundColor: theme.palette[severity].main }}></Box>
+                    <Box sx={{ minWidth: 8, maxWidth: 8, backgroundColor: theme.palette[severity]?.main }}></Box>
                     <Box sx={{ pl:2, pr:2, pt:1, pb:1 }}>
                         <Typography variant="caption">{message}</Typography>
                     </Box>
-                </Stack>               
+                </Stack>
             </Paper>
         </Snackbar>
     )
