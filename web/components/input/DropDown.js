@@ -4,7 +4,7 @@ import { Select, InputLabel, FormControl, Typography } from "@mui/material";
 
 const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWidth = '120px', onChange}) => {
     const selectRef = useRef();
-    
+
     const [value, setValue] = useState(defaultValue || '');
     const handleChange = (event) => {
         if(blurOnChange) {
@@ -26,11 +26,12 @@ const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWi
                 ref={selectRef}
                 labelId={`label-${id}`}
                 id={id}
+                size="small"
                 autoWidth
                 onChange={handleChange}
                 value={value}
                 MenuProps={{ variant: 'selectedMenu'}}
-                sx={{padding:0}} 
+                sx={{padding:0}}
             >
                 {children}
             </Select>

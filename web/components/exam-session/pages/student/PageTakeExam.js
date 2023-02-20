@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import {ExamSessionPhase, Role, StudentAnswerStatus} from '@prisma/client';
 import { useSession } from "next-auth/react";
 
-import { Stack, Box } from "@mui/material";
+import {Stack, Box, Paper} from "@mui/material";
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen';
 import LoadingAnimation from "../../../feedback/LoadingAnimation";
@@ -19,6 +19,8 @@ import AnswerEditor from '../../../answer/AnswerEditor';
 import { useDebouncedCallback } from 'use-debounce';
 import Authorisation from "../../../security/Authorisation";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
+import LayoutMain from "../../../layout/LayoutMain";
+import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext";
 
 const PageTakeExam = () => {
     const router = useRouter();
@@ -125,7 +127,7 @@ const PageTakeExam = () => {
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
             <StudentPhaseRedirect phase={userOnExamSession.phase}>
-                <LayoutSplitScreen
+                <LayoutMain
                     header={
                         <Stack direction="row" alignItems="center">
                             { userOnExamSession.startAt && userOnExamSession.endAt && (
@@ -143,32 +145,38 @@ const PageTakeExam = () => {
                             )}
                         </Stack>
                     }
-                    leftPanel={
-                        questions && questions.length > 0 && questions[page - 1] && (
-                        <>
-                            <Box sx={{ height: 'calc(100% - 50px)' }}>
-                                <QuestionView
-                                    question={questions[page - 1]}
-                                    page={page}
-                                    totalPages={questions.length}
-                                />
-                            </Box>
-                            <QuestionNav
-                                page={page}
-                                totalPages={questions.length}
-                            />
-                        </>
-                    )}
-                    rightPanel={
-                        questions && questions.length > 0 && questions[page - 1] && (
-                        <Stack sx={{ height:'100%', pt:1 }}>
-                            <AnswerEditor
-                                question={questions[page - 1]}
-                                onAnswer={onAnswer}
-                            />
-                        </Stack>
-                    )}
-                />
+                    >
+                    <Box sx={{ width:'100%', height:'100%'  }}>
+                        <LayoutSplitScreen
+                            leftPanel={
+                                questions && questions.length > 0 && questions[page - 1] && (
+                                <>
+                                    <Box sx={{ height: 'calc(100% - 50px)' }}>
+                                        <QuestionView
+                                            question={questions[page - 1]}
+                                            page={page}
+                                            totalPages={questions.length}
+                                        />
+                                    </Box>
+                                    <QuestionNav
+                                        page={page}
+                                        totalPages={questions.length}
+                                    />
+                                </>
+                            )}
+                            rightPanel={
+                                questions && questions.length > 0 && questions[page - 1] && (
+                                    <ResizeObserverProvider>
+                                        <AnswerEditor
+                                            question={questions[page - 1]}
+                                            onAnswer={onAnswer}
+                                        />
+                                    </ResizeObserverProvider>
+                                )
+                            }
+                        />
+                    </Box>
+                </LayoutMain>
             </StudentPhaseRedirect>
         </Authorisation>
     )

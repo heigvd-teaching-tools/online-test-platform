@@ -1,7 +1,7 @@
 import {useState, useCallback, useEffect} from 'react';
 import Image from 'next/image';
 import ContentEditor from '../input/ContentEditor';
-import {Stack, Chip, Typography, MenuItem, TextField, IconButton, Button, Box} from '@mui/material';
+import {Stack, Chip, Typography, MenuItem, TextField, IconButton, Button, Box, Paper} from '@mui/material';
 import Column from '../layout/utils/Column';
 import Row from "../layout/utils/Row";
 import DropDown from "../input/DropDown";
@@ -10,6 +10,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
+import {ResizeObserverProvider} from "../../context/ResizeObserverContext";
 
 const questionTypes = [
     {
@@ -34,7 +35,7 @@ const questionTypes = [
     }
 ];
 
-const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, clickUp, clickDown }) => {
+const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, onClickUp, onClickDown }) => {
 
     const [ points, setPoints ] = useState(question.points);
 
@@ -64,10 +65,10 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, c
             }
             leftPanel={
                 question && (
-                    <Stack spacing={2} sx={{ overflow:'hidden', pl:2, pt:2, pr:1, pb:1, border:'1px solid green', height:'100%' }}>
+                    <Stack spacing={2} sx={{ overflow:'hidden', pl:1, height:'100%' }}>
                         <Row>
                             <Column width="32px">
-                                <Image alt="Loading..." src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
+                                <Image alt="Question Type Icon" src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
                             </Column>
                             <Column flexGrow={1}>
                                 <Typography variant="h6">Q{index}</Typography>
@@ -85,6 +86,7 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, c
                                 <TextField
                                     sx={{width:60}}
                                     id="outlined-points"
+                                    size="small"
                                     label="Points"
                                     type="number"
                                     variant="filled"
@@ -97,11 +99,10 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, c
                             </Column>
                             <Column>
                                 <Stack>
-                                    <IconButton size="small" onClick={() => clickUp(index)}>
+                                    <IconButton size="small" onClick={() => onClickUp(index)}>
                                         <ArrowDropUpIcon />
                                     </IconButton>
-
-                                    <IconButton size="small" onClick={() => clickDown(index)}>
+                                    <IconButton size="small" onClick={() => onClickDown(index)}>
                                         <ArrowDropDownIcon />
                                     </IconButton>
                                 </Stack>
@@ -122,10 +123,12 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, c
             }
             rightPanel={
                 question && (
-                    <QuestionTypeSpecific
-                        question={question}
-                        onQuestionChange={onChange}
-                    />
+                    <ResizeObserverProvider>
+                        <QuestionTypeSpecific
+                            question={question}
+                            onQuestionChange={onChange}
+                        />
+                    </ResizeObserverProvider>
                 )
             }
         />

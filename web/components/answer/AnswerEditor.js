@@ -1,24 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { QuestionType, StudentAnswerStatus } from '@prisma/client';
-
-import {Stack} from "@mui/material";
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
 import Code from '../question/type_specific/Code';
 import Web from '../question/type_specific/Web';
+import { ResizeObserverProvider } from "../../context/ResizeObserverContext";
 
 const AnswerEditor = ({ question, onAnswer }) => {
-    const container = useRef();
     const [ answer, setAnswer ] = useState(undefined);
-    const [ height, setHeight ] = useState(0);
-
-    const resizeObserver = useRef(new ResizeObserver(entries => {
-        const { height } = entries[0].contentRect;
-        setHeight(height);
-    }));
 
     const onAnswerByType = useCallback((newAnswer) => {
         /*
@@ -111,73 +103,58 @@ const AnswerEditor = ({ question, onAnswer }) => {
         }
     }, [question]);
 
-    useEffect(() => {
-        const element = container.current;
-        const observer = resizeObserver.current;
-        observer.observe(element);
-
-        // Remove event listener on cleanup
-        return () => observer.unobserve(element);
-      }, [resizeObserver, container]);
-
     return (
-        <Stack ref={container}>
-        {
-            answer && (
-                answer.type === QuestionType.trueFalse && (
-                    <TrueFalse
-                        id={`answer-editor-${question.id}`}
-                        allowUndefined={true}
-                        isTrue={answer.isTrue}
-                        onChange={onAnswerByType}
-                    />
-                )
-                ||
-                answer.type === QuestionType.multipleChoice && answer.options && (
-                    <MultipleChoice
-                        id={`answer-editor-${question.id}`}
-                        selectOnly
-                        options={answer.options}
-                        onChange={onAnswerByType}
-                    />
-                )
-                ||
-                answer.type === QuestionType.essay && (
-                    <Essay
-                        id={`answer-editor-${question.id}`}
-                        content={answer.content}
-                        onChange={onAnswerByType}
-                    />
-                )
-                ||
-                answer.type === QuestionType.code && (
-                    <Code
-                        id={`answer-editor-${question.id}`}
-                        where="answer"
-                        mode="partial"
-                        code={answer.code}
-                        containerHeight={height}
-                        questionId={question.id}
-                        onChange={(which, newCode) => {
-                            onAnswerByType({
-                                [which]: newCode
-                            })
-                        }}
-
-                    />
-                )
-                ||
-                answer.type === QuestionType.web && (
-                    <Web
-                        id={`answer-editor-${question.id}`}
-                        web={answer.web}
-                        containerHeight={height}
-                        onChange={onAnswerByType}
-                    />
-                )
+        answer && (
+            answer.type === QuestionType.trueFalse && (
+                <TrueFalse
+                    id={`answer-editor-${question.id}`}
+                    allowUndefined={true}
+                    isTrue={answer.isTrue}
+                    onChange={onAnswerByType}
+                />
             )
-        }
-        </Stack>
+            ||
+            answer.type === QuestionType.multipleChoice && answer.options && (
+                <MultipleChoice
+                    id={`answer-editor-${question.id}`}
+                    selectOnly
+                    options={answer.options}
+                    onChange={onAnswerByType}
+                />
+            )
+            ||
+            answer.type === QuestionType.essay && (
+                <Essay
+                    id={`answer-editor-${question.id}`}
+                    content={answer.content}
+                    onChange={onAnswerByType}
+                />
+            )
+            ||
+            answer.type === QuestionType.code && (
+                <Code
+                    id={`answer-editor-${question.id}`}
+                    where="answer"
+                    mode="partial"
+                    code={answer.code}
+                    questionId={question.id}
+                    onChange={(which, newCode) => {
+                        onAnswerByType({
+                            [which]: newCode
+                        })
+                    }}
+
+                />
+            )
+            ||
+            answer.type === QuestionType.web && (
+                <Web
+                    id={`answer-editor-${question.id}`}
+                    web={answer.web}
+                    onChange={onAnswerByType}
+                />
+            )
+        )
     )
 }
 

@@ -46,26 +46,7 @@ const PageUpdate = () => {
         await saveQuestion(question);
     }
 
-    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {
-        await fetch(`/api/questions`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ question })
-        })
-            .then((res) => res.json())
-            .then((_) => {
-                showSnackbar('Question saved', questions);
-                let newQuestions = questions.map((q) => q.id === question.id ? question : q);
-                console.log("newQuestions", newQuestions);
-               // mutate(questions.map((q) => q.id === question.id ? question : q));
-            }).catch(() => {
-                console.log("error")
-                showSnackbar('Error saving questions', 'error');
-            });
-    } , [showSnackbar]), 500);
+
 
     const createQuestion = useCallback(async () => {
         await fetch(`/api/exams/${router.query.examId}/questions`, {
@@ -79,13 +60,11 @@ const PageUpdate = () => {
             })
         })
             .then((res) => res.json())
-            .then((createdQuestion) => {
-                console.log("createdQuestion", createdQuestion);
-                showSnackbar('Question created', createdQuestion);
-                mutate([...questions, createdQuestion]);
-                router.push(`/exams/${router.query.examId}/questions/${questions.length + 1}`);
+            .then(async (createdQuestion) => {
+                showSnackbar('Question created', "success");
+                await mutate([...questions, createdQuestion]);
+                await router.push(`/exams/${router.query.examId}/questions/${questions.length + 1}`);
             }).catch(() => {
-                console.log("error")
                 showSnackbar('Error creating questions', 'error');
             });
     } , [router.query.examId, showSnackbar, questions, mutate]);
@@ -113,6 +92,73 @@ const PageUpdate = () => {
                 showSnackbar('Error deleting questions', 'error');
             });
     } , [questions, showSnackbar]);
+
+    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {
+        await fetch(`/api/questions`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then((_) => {
+                showSnackbar('Question saved', "success");
+            }).catch(() => {
+                showSnackbar('Error saving questions', 'error');
+            });
+    } , [showSnackbar]), 500);
+
+    const savePositions = async () => {
+        await fetch('/api/questions/order', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                questions: questions.map((q) => ({
+                    id: q.id,
+                    order: q.order
+                }))
+            })
+        })
+            .then((res) => res.json())
+            .then(() => {
+                showSnackbar('Question order changed');
+            }).catch(() => {
+                showSnackbar('Error changing questions order', 'error');
+            });
+    }
+
+    const handleQuestionUp = useCallback(async (index) => {
+        if(!questions || index === 0) return;
+        await mutate((questions) => {
+            const newQuestions = [...questions];
+            newQuestions[index].order = index - 1;
+            newQuestions[index - 1].order = index;
+            const temp = newQuestions[index];
+            newQuestions[index] = newQuestions[index - 1];
+            newQuestions[index - 1] = temp;
+            return newQuestions;
+        }, false);
+        await savePositions();
+    } , [mutate, savePositions, questions]);
+
+    const handleQuestionDown = useCallback(async (index) => {
+        if(index === questions.length - 1) return;
+        await mutate((questions) => {
+            const newQuestions = [...questions];
+            newQuestions[index].order = index + 1;
+            newQuestions[index + 1].order = index;
+            const temp = newQuestions[index];
+            newQuestions[index] = newQuestions[index + 1];
+            newQuestions[index + 1] = temp;
+            return newQuestions;
+        }, false);
+        await savePositions();
+    } , [mutate, savePositions, questions]);
 
 
     if (error) return <div>failed to load</div>
@@ -160,6 +206,8 @@ const PageUpdate = () => {
                                 question={q}
                                 onQuestionChange={onQuestionChange}
                                 onQuestionDelete={deleteQuestion}
+                                onClickUp={handleQuestionUp}
+                                onClickDown={handleQuestionDown}
                             />
                         </Box>
                     )

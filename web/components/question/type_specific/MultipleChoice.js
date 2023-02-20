@@ -7,7 +7,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
 const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, selectOnly = false}) => {
-    const [options, setOptions] = useState();
+    const [options, setOptions] = useState([]);
 
     useEffect(() => {
         if (initial) {
@@ -30,10 +30,9 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
         setOptions(newOptions);
         onChange(newOptions);
     }
-
     return(
         <Stack id={id} direction="column" spacing={2}>
-            <Box>
+            <Box sx={{ pt:1 }}>
             { !selectOnly && (
                <Button color="primary" startIcon={<AddIcon />} onClick={() => {
                     let newOptions = [...options, {
@@ -47,8 +46,8 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                 </Button>
             )}
             </Box>
-            
-            {options && options.length > 0 && options.map((option, index) =>
+
+            { options?.map((option, index) =>
                 <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
                     <ToggleButton
                         value="correct"
@@ -56,7 +55,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                         color='success'
                         onChange={(e) => selectOption(index) }
                     >
-                        { option.isCorrect ? <CheckIcon /> : <ClearIcon /> } 
+                        { option.isCorrect ? <CheckIcon /> : <ClearIcon /> }
                     </ToggleButton>
                     { !selectOnly && (<>
                         <TextField
