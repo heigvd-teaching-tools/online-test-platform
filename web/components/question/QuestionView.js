@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import ContentEditor from '../input/ContentEditor';
 import { Stack, Chip, Typography } from '@mui/material';

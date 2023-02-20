@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect} from 'react';
+import {useState, useCallback } from 'react';
 import Image from 'next/image';
 import ContentEditor from '../input/ContentEditor';
 import {Stack, Chip, Typography, MenuItem, TextField, IconButton, Button, Box, Paper} from '@mui/material';
