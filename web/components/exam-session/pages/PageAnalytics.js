@@ -2,7 +2,7 @@ import LayoutMain from "../../layout/LayoutMain";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import ExamSessionAnalytics from "../analytics/ExamSessionAnalytics";
-import {Autocomplete, TextField} from "@mui/material";
+import {Autocomplete, Stack, TextField} from "@mui/material";
 import {useEffect, useState} from "react";
 import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
@@ -39,29 +39,34 @@ const PageAnalytics = () => {
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <LayoutMain header={ <MainMenu /> }>
-            { examSession && examSessions && questions && (
-                <>
-                <Autocomplete
-                    id="chose-exam-session"
-                    options={examSessions}
-                    getOptionLabel={(option) => option.label}
-                    sx={{ width: '70%' }}
-                    renderInput={(params) => <TextField {...params} label="Exam session" variant="outlined" />}
-                    value={value}
-                    onChange={async (event, newValue) => {
-                        if(newValue && newValue.id){
-                            await router.push(`/exam-sessions/${newValue.id}/analytics`);
-                        }
-                    }}
-                    inputValue={inputValue}
-                    onInputChange={(event, newInputValue) => {
-                        setInputValue(newInputValue);
-                    }}
+        <LayoutMain
+            header={ <MainMenu /> }
+            padding={2}
+            spacing={2}
 
-                />
-                <ExamSessionAnalytics questions={questions} />
-                </>
+        >
+            { examSession && examSessions && questions && (
+                <Stack alignItems="center" spacing={2} padding={2}>
+                    <Autocomplete
+                        id="chose-exam-session"
+                        options={examSessions}
+                        getOptionLabel={(option) => option.label}
+                        sx={{ width: '70%' }}
+                        renderInput={(params) => <TextField {...params} label="Exam session" variant="outlined" />}
+                        value={value}
+                        onChange={async (event, newValue) => {
+                            if(newValue && newValue.id){
+                                await router.push(`/exam-sessions/${newValue.id}/analytics`);
+                            }
+                        }}
+                        inputValue={inputValue}
+                        onInputChange={(event, newInputValue) => {
+                            setInputValue(newInputValue);
+                        }}
+
+                    />
+                    <ExamSessionAnalytics questions={questions} />
+                </Stack>
             )}
         </LayoutMain>
         </Authorisation>

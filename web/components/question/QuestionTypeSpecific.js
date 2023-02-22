@@ -9,7 +9,7 @@ import { ResizeObserverProvider } from "../../context/ResizeObserverContext";
 
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
     return (
-        <Box sx={{ pl:2, pr:2, height:'100%' }}>
+        <Stack sx={{ height:'100%', overflow:'auto'}}>
             {(
                 ( question.type === QuestionType.multipleChoice && question.multipleChoice &&
                     <MultipleChoice
@@ -46,7 +46,7 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                     />
                 )
             )}
-        </Box>
+        </Stack>
     )
 }
 

@@ -146,36 +146,34 @@ const PageTakeExam = () => {
                         </Stack>
                     }
                     >
-                    <Box sx={{ width:'100%', height:'100%'  }}>
-                        <LayoutSplitScreen
-                            leftPanel={
-                                questions && questions.length > 0 && questions[page - 1] && (
-                                <>
-                                    <Box sx={{ height: 'calc(100% - 50px)' }}>
-                                        <QuestionView
-                                            question={questions[page - 1]}
-                                            page={page}
-                                            totalPages={questions.length}
-                                        />
-                                    </Box>
-                                    <QuestionNav
+                    <LayoutSplitScreen
+                        leftPanel={
+                            questions && questions.length > 0 && questions[page - 1] && (
+                            <>
+                                <Box sx={{ height: 'calc(100% - 50px)' }}>
+                                    <QuestionView
+                                        question={questions[page - 1]}
                                         page={page}
                                         totalPages={questions.length}
                                     />
-                                </>
-                            )}
-                            rightPanel={
-                                questions && questions.length > 0 && questions[page - 1] && (
-                                    <ResizeObserverProvider>
-                                        <AnswerEditor
-                                            question={questions[page - 1]}
-                                            onAnswer={onAnswer}
-                                        />
-                                    </ResizeObserverProvider>
-                                )
-                            }
-                        />
-                    </Box>
+                                </Box>
+                                <QuestionNav
+                                    page={page}
+                                    totalPages={questions.length}
+                                />
+                            </>
+                        )}
+                        rightPanel={
+                            questions && questions.length > 0 && questions[page - 1] && (
+                                <ResizeObserverProvider>
+                                    <AnswerEditor
+                                        question={questions[page - 1]}
+                                        onAnswer={onAnswer}
+                                    />
+                                </ResizeObserverProvider>
+                            )
+                        }
+                    />
                 </LayoutMain>
             </StudentPhaseRedirect>
         </Authorisation>

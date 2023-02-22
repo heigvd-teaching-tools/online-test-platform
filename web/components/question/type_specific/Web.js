@@ -7,6 +7,7 @@ import Image from "next/image";
 import TabPanel from "@mui/lab/TabPanel";
 import TabContext from "@mui/lab/TabContext";
 import ResizePanel from "../../layout/utils/ResizePanel";
+import {ResizeObserverProvider, useResizeObserver} from "../../../context/ResizeObserverContext";
 
 const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onChange }) => {
 
@@ -40,8 +41,9 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
         <Stack spacing={1} sx={{ width:'100%', height:'100%', position:'relative' }}>
             <TabContext value={tab.toString()}>
             <ResizePanel
+                height={containerHeight}
                 leftPanel={
-                <>
+                <Stack sx={{ height: '100%'}}>
                     <Tabs ref={tabRef} value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                         <Tab
                             icon={<Box><Image src="/svg/questions/web/html5.svg" alt="HTML" width={24} height={24} /></Box>}
@@ -62,13 +64,13 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
                             value={"2"}
                         />
                     </Tabs>
+                    <ResizeObserverProvider>
                     <TabPanel id="html" value={"0"}>
                         <EditorSwitchWrapper
                             id={`${id}-html`}
                             readOnly={readOnly}
                             language="html"
                             value={web?.html}
-                            height={editorHeight}
                             onChange={(content) => {
                                 onProjectChange("html", content);
                             }}
@@ -80,7 +82,6 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
                             readOnly={readOnly}
                             language="css"
                             value={web?.css}
-                            height={editorHeight}
                             onChange={(css) => onProjectChange("css", css)}
                         />
                     </TabPanel>
@@ -90,11 +91,11 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
                             readOnly={readOnly}
                             language="javascript"
                             value={web?.js}
-                            height={editorHeight}
                             onChange={(js) => onProjectChange("js", js)}
                         />
                     </TabPanel>
-                </>
+                    </ResizeObserverProvider>
+                </Stack>
                 }
                 rightPanel={<PreviewPanel id={`${id}-preview`} web={web} />}
             />
@@ -103,7 +104,8 @@ const Web = ({ id = "web", readOnly = false, web:initial, containerHeight, onCha
     )
 }
 
-const EditorSwitchWrapper = ({ id, value:initial, language, readOnly, height, onChange }) => {
+const EditorSwitchWrapper = ({ id, value:initial, language, readOnly, onChange }) => {
+    const { height: containerHeight } = useResizeObserver();
     const [ value, setValue ] = useState("");
     useEffect(() => {
         setValue(initial);
@@ -111,7 +113,7 @@ const EditorSwitchWrapper = ({ id, value:initial, language, readOnly, height, on
 
     return <Editor
         width="100%"
-        height={`${height}px`}
+        height={`${containerHeight}px`}
         options={{ readOnly }}
         language={language}
         value={value}

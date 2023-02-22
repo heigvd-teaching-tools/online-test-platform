@@ -5,14 +5,15 @@ import Editor from "@monaco-editor/react";
 
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
+import {ResizeObserverProvider, useResizeObserver} from "../../context/ResizeObserverContext";
 
-const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly = false, onChange }) => {
-    
+const CodeEditor = ({ id = "code-editor", code:initial, readOnly = false, onChange }) => {
+
     const [ codeRunning, setCodeRunning ] = useState(false);
     const [ code, setCode ] = useState(initial || "");
     const [ result, setResult ] = useState('');
     const [ expanded, setExpanded ] = useState(false);
-    
+
     useEffect(() => {
         setCode(initial);
         setResult('');
@@ -32,8 +33,8 @@ const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly =
 
     const runCode =  () => {
         setCodeRunning(true);
-        fetch('/api/code', { 
-            method: 'POST', 
+        fetch('/api/code', {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code })
         })
@@ -50,28 +51,25 @@ const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly =
     }
 
     return (
-        <Box sx={{ width:'100%', height:'100%', position:'relative' }}>
-            <Editor
-                options={{
-                    readOnly
-                }}
-                width="100%"
-                height={editorHeight}
-                language="javascript"
-                value={code}
-                onChange={onCodeChange}
-            />
+        <Stack sx={{ position:'relative', height:'100%' }}>
+            <ResizeObserverProvider>
+                <MonacoEditor
+                    code={code}
+                    readOnly={readOnly}
+                    onChange={onCodeChange}
+                />
+            </ResizeObserverProvider>
             { !readOnly && (
                 <Paper square elevation={0} sx={{ position:'absolute', bottom:0, left:0, width:'100%', p:0  }}>
                 <Stack direction="row" alignItems="center" width="100%" spacing={1} sx={{ pt:1, pb:1 }}>
-                    <LoadingButton 
-                        color="info"  
-                        loading={codeRunning} 
+                    <LoadingButton
+                        color="info"
+                        loading={codeRunning}
                         onClick={runCode}
                         variant="outlined"
                         size="small"
                     >Run</LoadingButton>
-                    <Button 
+                    <Button
                         size="small"
                         color="info"
                         startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
@@ -95,10 +93,27 @@ const CodeEditor = ({ id = "code-editor", code:initial, editorHeight, readOnly =
                 </Collapse>
             </Paper>
             )}
-            
-        </Box>
+
+        </Stack>
     )
-    
+
+}
+
+const MonacoEditor = ({ code, readOnly, onChange }) => {
+    const { height: containerHeight } = useResizeObserver();
+    return (
+        <Editor
+            options={{
+                readOnly
+            }}
+            width="100%"
+            height={containerHeight}
+            language="javascript"
+            value={code}
+            onChange={onChange}
+        />
+    )
+
 }
 
 

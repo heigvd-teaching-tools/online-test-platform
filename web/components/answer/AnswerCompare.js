@@ -4,26 +4,8 @@ import { Box, Accordion, AccordionDetails, AccordionSummary, Paper, Stack, Typog
 
 
 const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer }) => {
-
-    const container = useRef();
-    const [ height, setHeight ] = useState(0);
-
-    const resizeObserver = useRef(new ResizeObserver(entries => {
-        const { height } = entries[0].contentRect;
-        setHeight(height);
-    }));
-
-    useEffect(() => {
-        const element = container.current;
-        const observer = resizeObserver.current;
-        observer.observe(element);
-
-        // Remove event listener on cleanup
-        return () => observer.unobserve(element);
-      }, [resizeObserver, container]);
-
     return (
-        <Paper ref={container} square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
+        <Paper square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
         {
             answer && (
                 questionType === QuestionType.trueFalse && (
@@ -56,7 +38,6 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
                     <CompareCode
                         id={id}
                         mode={mode}
-                        height={height-60}
                         solution={solution}
                         answer={answer}
                     />
@@ -66,7 +47,6 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
                     <CompareWeb
                         id={id}
                         mode={mode}
-                        height={height-60}
                         solution={solution}
                         answer={answer}
                     />
@@ -137,10 +117,15 @@ const CompareMultipleChoice = ({ mode, solution, answer }) => {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentEditor from '../input/ContentEditor';
 import Web from "../question/type_specific/Web";
+import {useResizeObserver} from "../../context/ResizeObserverContext";
 
-const CompareCode = ({ mode, solution, answer, height }) => {
+const accordionSummaryHeight = 64;
+
+const CompareCode = ({ mode, solution, answer }) => {
 
     const [expanded, setExpanded] = useState(true);
+
+    const { height: containerHeight } = useResizeObserver();
 
     const handleChange = () => {
         setExpanded(!expanded);
@@ -150,7 +135,6 @@ const CompareCode = ({ mode, solution, answer, height }) => {
         <>
         <Accordion
             sx={{
-                border: 'none',
                 '&.MuiPaper-root': {
                     boxShadow: 'none',
                 }
@@ -178,16 +162,17 @@ const CompareCode = ({ mode, solution, answer, height }) => {
                             />
                         }
                         rightWidth={solution.solution ? 20 : 0}
-                        height={height-66}
+                        height={ containerHeight - 2*accordionSummaryHeight }
                     />
                 )}
                 { mode === "consult" && (
+                    <Box sx={{ flex:1, height:containerHeight-2*accordionSummaryHeight }}>
                     <CodeEditor
                         id={`answer-compare-student`}
                         readOnly
                         code={answer.code}
-                        editorHeight={height-66}
                     />
+                    </Box>
                 )}
                 </>
             </AccordionDetails>
@@ -236,14 +221,15 @@ const CompareEssay = ({ answer }) => {
     )
 }
 
-const CompareWeb = ({ mode, answer, height }) => {
+const containerPadding = 32; // 2 * 16px
+const CompareWeb = ({ answer }) => {
+    const { height: containerHeight } = useResizeObserver();
     return (
         <Box sx={{ p:2 }}>
             <Web
                 readOnly={true}
                 web={answer}
-                containerHeight={height}
-
+                containerHeight={containerHeight - containerPadding}
             />
         </Box>
     )

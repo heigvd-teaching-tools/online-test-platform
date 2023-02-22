@@ -123,12 +123,10 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, o
             }
             rightPanel={
                 question && (
-                    <ResizeObserverProvider>
-                        <QuestionTypeSpecific
-                            question={question}
-                            onQuestionChange={onChange}
-                        />
-                    </ResizeObserverProvider>
+                    <QuestionTypeSpecific
+                        question={question}
+                        onQuestionChange={onChange}
+                    />
                 )
             }
         />

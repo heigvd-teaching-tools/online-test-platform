@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import {ExamSessionPhase, Role} from '@prisma/client';
 import useSWR from 'swr';
 
-import { Stack  } from "@mui/material";
+import {Box, Stack} from "@mui/material";
 import LayoutMain from '../../layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
@@ -111,7 +111,7 @@ const PageDraft = () => {
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
-            <LayoutMain header={ <MainMenu /> }>
+            <LayoutMain header={ <MainMenu /> } padding={2}>
                 { examSession && (
                     <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
                     { examSession.id && (

@@ -23,7 +23,7 @@ const ListExamSession = ({ examSessions, onStart, onDelete }) =>
                             key="promote-to-in-progress"
                             color="info"
                             onClick={(ev) => onStart(ev, examSession)}
-                            startIcon={<Image alt="Promote" src="/svg/exam/finish-flag.svg" layout="fixed" width="18" height="18" />}
+                            startIcon={<Image alt="Promote" src="/svg/icons/finish.svg" layout="fixed" width="18" height="18" />}
                         >
                             Start
                         </Button>
@@ -36,11 +36,11 @@ const ListExamSession = ({ examSessions, onStart, onDelete }) =>
                     <>
                         <Link href={`/exam-sessions/${examSession.id}/analytics`} passHref>
                         <IconButton key="analytics">
-                            <Image alt="Analytics" src="/svg/exam/analytics.svg" layout="fixed" width="18" height="18" />
+                            <Image alt="Analytics" src="/svg/icons/analytics.svg" layout="fixed" width="18" height="18" />
                         </IconButton>
                         </Link>
                         <IconButton key="delete-exam" onClick={(ev) => onDelete(ev, examSession)}>
-                            <Image alt="Delete" src="/svg/exam/exam-delete.svg" layout="fixed" width="18" height="18" />
+                            <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
                         </IconButton>
                     </>
                 )]

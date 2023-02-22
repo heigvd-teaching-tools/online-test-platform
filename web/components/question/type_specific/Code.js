@@ -5,6 +5,9 @@ import CodeEditor from '../../input/CodeEditor';
 import CodeCheck from './CodeCheck';
 import {ResizeObserverProvider, useResizeObserver} from "../../../context/ResizeObserverContext";
 
+const tabsHeight = 48;
+const codeCheckHeight = 60;
+
 const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, onChange, onTestResult }) => {
     const tabsRef = useRef();
     const codeCheckRef = useRef();
@@ -12,7 +15,7 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
     const [ code, setCode ] = useState();
     const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
     const [ editorHeight, setEditorHeight ] = useState(0);
-    const { height: containerHeight } = useResizeObserver();
+
 
     useEffect(() => {
         if (initial) {
@@ -20,32 +23,23 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
         }
     }, [initial, id]);
 
-    useEffect(() => {
-        if (containerHeight) {
-            let tabsHeight = tabsRef?.current?.clientHeight || 0;
-            let codeCheckHeight = codeCheckRef?.current?.clientHeight || 0;
-            let newEditorHeight = containerHeight - tabsHeight - codeCheckHeight - 22;
-            setEditorHeight(newEditorHeight);
-        }
-    }, [containerHeight, tabsRef, codeCheckRef]);
+
 
     return (
         code && (
-            <Stack id={id} sx={{ p:2, overflow: 'auto' }}>
+            <Stack id={id} sx={{ p:2, height:'100%' }}>
                {displaySolutionEditor && (
                 <>
                     <Tabs ref={tabsRef} value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                         <Tab label="Solution Code" value={0} />
                         <Tab label="Partial Code" value={1} />
                     </Tabs>
-
                     <TabPanel
                         id="solution"
                         value={tab}
                         index={0}
                         >
                         <CodeEditor
-                            editorHeight={editorHeight}
                             code={initial.solution}
                             onChange={(newCode) => {
                                 setCode({
@@ -61,10 +55,10 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                 <TabPanel
                     value={tab}
                     index={1}
-
                 >
                     <CodeEditor
                         id={`${id}-partial`}
+                        fitContainer
                         editorHeight={editorHeight}
                         code={initial.code}
                         onChange={(newCode) => {
@@ -76,7 +70,7 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                         }}
                     />
                 </TabPanel>
-                <Paper ref={codeCheckRef} square elevation={0} sx={{ maxHeight: `${containerHeight}px`, width:'100%', p:0  }}>
+                <Paper ref={codeCheckRef} square elevation={0} sx={{ maxHeight: `100%`, width:'100%', p:0  }}>
                     <CodeCheck
                         id={`${id}-test-run`}
                         where={where}
@@ -95,6 +89,7 @@ const TabPanel = ({ children, value, index, ...other }) => (
       hidden={value !== index}
       id={`tabpanel-${index}`}
       aria-labelledby={`tab-${index}`}
+      style={{ height:'100%' }}
       {...other}
     >
       {value === index && children}

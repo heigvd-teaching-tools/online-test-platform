@@ -32,7 +32,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
     }
     return(
         <Stack id={id} direction="column" spacing={2}>
-            <Box sx={{ pt:1 }}>
+            <Box>
             { !selectOnly && (
                <Button color="primary" startIcon={<AddIcon />} onClick={() => {
                     let newOptions = [...options, {

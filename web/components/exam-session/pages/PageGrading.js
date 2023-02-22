@@ -192,107 +192,111 @@ const PageGrading = () => {
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
            { questions && (
-            <>
-            <LayoutSplitScreen
-                header={<MainMenu />}
-                subheader={
-                    <Stack direction="row" alignItems="center">
-                        <Stack flex={1} sx={{ overflow:'hidden' }}>
-                            <QuestionPages
-                                questions={applyFilter(questions)}
-                                activeQuestion={question}
-                                link={(questionId, _) => `/exam-sessions/${router.query.sessionId}/grading/${questionId}?participantId=${router.query.participantId}`}
-                                isFilled={(questionId) => {
-                                    const question = questions.find((q) => q.id === questionId);
-                                    return question && question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
-                                }}
-                            />
+               <LayoutMain
+                   header={ <MainMenu /> }
+                   subheader={
+                       <Stack direction="row" alignItems="center">
+                           <Stack flex={1} sx={{ overflow:'hidden' }}>
+                               <QuestionPages
+                                   questions={applyFilter(questions)}
+                                   activeQuestion={question}
+                                   link={(questionId, _) => `/exam-sessions/${router.query.sessionId}/grading/${questionId}?participantId=${router.query.participantId}`}
+                                   isFilled={(questionId) => {
+                                       const question = questions.find((q) => q.id === questionId);
+                                       return question && question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
+                                   }}
+                               />
+                           </Stack>
+                           <GradingQuestionFilter
+                               onFilter={(filter) => {
+                                   setFilter(filter);
+                               }}
+                           />
+                       </Stack>
+                   }
+                   padding={0}
+                   spacing={2}
+               >
+                <LayoutSplitScreen
+                    header={<MainMenu />}
+                    leftPanel={
+                        <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
+                            { question && (
+                                <QuestionView
+                                    question={question}
+                                    totalPages={questions.length}
+                                />
+                            )}
                         </Stack>
-                        <GradingQuestionFilter
-                            onFilter={(filter) => {
-                                setFilter(filter);
-                            }}
-                        />
-                    </Stack>
-                }
-                leftPanel={
-                    <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
-                        { question && (
-                            <QuestionView
-                                question={question}
-                                totalPages={questions.length}
-                            />
-                        )}
-                    </Stack>
-                }
-                rightWidth={75}
-                rightPanel={
-                    <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
-                        { question && participants && participants.length > 0 && (
-                            <>
-                            <ParticipantNav
-                                participants={participants}
-                                active={participants.find((participant) => participant.id === router.query.participantId)}
-                                onParticipantClick={(participant) => {
-                                    router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
-                                }}
-                                isParticipantFilled={(participant) => {
-                                    const grading = question && question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
-                                    return grading && grading.signedBy;
-                                }}
-                            />
-                            <Divider orientation="vertical" light flexItem />
-                            </>
-                        )}
+                    }
+                    rightWidth={75}
+                    rightPanel={
+                        <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
+                            { question && participants && participants.length > 0 && (
+                                <>
+                                <ParticipantNav
+                                    participants={participants}
+                                    active={participants.find((participant) => participant.id === router.query.participantId)}
+                                    onParticipantClick={(participant) => {
+                                        router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participant.id}`);
+                                    }}
+                                    isParticipantFilled={(participant) => {
+                                        const grading = question && question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
+                                        return grading && grading.signedBy;
+                                    }}
+                                />
+                                <Divider orientation="vertical" light flexItem />
+                                </>
+                            )}
 
-                        { question && (
-                            <>
-                            <AnswerCompare
-                                id={`question-grading-${question.id}`}
-                                mode="compare"
-                                questionType={question.type}
-                                solution={question[question.type]}
-                                answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)[question.type]}
-                            />
-                            </>
-                        )}
-                    </Stack>
-                }
-                footer={
-                    question && (
-                        <Stack direction="row" justifyContent="space-between" sx={{ height:'90px' }} >
-                            <GradingNextBack
-                                isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
-                                onPrev={prevParticipantOrQuestion}
-                                onNext={nextParticipantOrQuestion}
-                            />
-                            <GradingSignOff
-                                loading={loading}
-                                grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
-                                maxPoints={question.points}
-                                onSignOff={onSignOff}
-                                clickNextParticipant={(current) => {
-                                    const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
-                                    if (next < participants.length) {
-                                        router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
-                                    }
-
-                                }}
-                            />
-                            <SuccessRate
-                                value={getSignedSuccessRate(questions)}
-                            />
-                            <GradingActions
-                                stats={getGradingStats(questions)}
-                                loading={loading || saving}
-                                signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
-                                endGrading={() => setEndGradingDialogOpen(true)}
-                            />
+                            { question && (
+                                <ResizeObserverProvider>
+                                    <AnswerCompare
+                                        id={`question-grading-${question.id}`}
+                                        mode="compare"
+                                        questionType={question.type}
+                                        solution={question[question.type]}
+                                        answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)[question.type]}
+                                    />
+                                </ResizeObserverProvider>
+                            )}
                         </Stack>
-                    )
-                }
-            />
-            </>
+                    }
+                    footerHeight={100}
+                    footer={
+                        question && (
+                            <Stack direction="row" justifyContent="space-between" sx={{ height:'100%' }} >
+                                <GradingNextBack
+                                    isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
+                                    onPrev={prevParticipantOrQuestion}
+                                    onNext={nextParticipantOrQuestion}
+                                />
+                                <GradingSignOff
+                                    loading={loading}
+                                    grading={question.studentAnswer.find((ans) => ans.user.id === router.query.participantId).studentGrading}
+                                    maxPoints={question.points}
+                                    onSignOff={onSignOff}
+                                    clickNextParticipant={(current) => {
+                                        const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                        if (next < participants.length) {
+                                            router.push(`/exam-sessions/${router.query.sessionId}/grading/${router.query.activeQuestion}?participantId=${participants[next].id}`);
+                                        }
+                                    }}
+                                />
+                                <SuccessRate
+                                    value={getSignedSuccessRate(questions)}
+                                />
+                                <GradingActions
+                                    stats={getGradingStats(questions)}
+                                    loading={loading || saving}
+                                    signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
+                                    endGrading={() => setEndGradingDialogOpen(true)}
+                                />
+                            </Stack>
+                        )
+                    }
+                />
+            </LayoutMain>
            )}
            <DialogFeedback
                 open={autoGradeSignOffDialogOpen}
@@ -398,6 +402,8 @@ import DialogFeedback from '../../feedback/DialogFeedback';
 import PiePercent from '../../feedback/PiePercent';
 import PhaseRedirect from './PhaseRedirect';
 import {getGradingStats, getSignedSuccessRate} from "./stats";
+import LayoutMain from "../../layout/LayoutMain";
+import {ResizeObserverProvider} from "../../../context/ResizeObserverContext";
 
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);

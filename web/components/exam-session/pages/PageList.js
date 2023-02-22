@@ -111,8 +111,8 @@ const ExamSessions = () => {
                     )}
                 </Stack>
             }
+            padding={2}
         >
-        <Box sx={{ minWidth:'100%' }}>
           { examSessions && examSessions.length > 0 && (
             <ListExamSession
                 examSessions={examSessions.filter((exam) => exam.status === (tab === 1 ? ExamSessionStatus.ACTIVE : ExamSessionStatus.ARCHIVED))}
@@ -134,7 +134,6 @@ const ExamSessions = () => {
                 }}
             />
           )}
-        </Box>
         </LayoutMain>
           <DialogFeedback
               open={archiveDialogOpen}

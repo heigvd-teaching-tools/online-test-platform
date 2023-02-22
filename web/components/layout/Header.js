@@ -15,7 +15,7 @@ const Header = ({children, color}) => {
     const handleCloseUserMenu   = () => setAnchorElUser(null);
 
     return (
-        <AppBar position="static" enableColorOnDark color={color} sx={{ position:'absolute', top:0, height: '48px', maxWidth: '100vw', p:0, zIndex:1000  }}>
+        <AppBar position="static" enableColorOnDark color={color} sx={{ height: '48px', maxWidth: '100vw', p:0, position:'relative', zIndex:1000  }}>
             <Stack direction="row" alignItems="center" sx={{ pl:1, pr:1 }}>
                 <Box sx={{ mr:1, mt:0.5 }}>
                     <Logo color="red" />

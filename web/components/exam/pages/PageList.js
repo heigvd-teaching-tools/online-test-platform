@@ -88,7 +88,7 @@ const PageList = () => {
                 </Stack>
             }
         >
-        <Box sx={{ minWidth:'100%' }}>
+        <Box sx={{ minWidth:'100%', pl:2, pr:2 }}>
           {exams && exams.length > 0 && (
             <DataGrid
               header={gridHeader}

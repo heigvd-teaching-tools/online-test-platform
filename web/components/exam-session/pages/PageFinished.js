@@ -147,39 +147,41 @@ const PageFinished = () => {
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             <TabContext value={tab}>
-           { questions && questions.length > 0 && (
-               <LayoutMain
-                    header={ <MainMenu /> }>
-                    subheader={
-                        <TabList onChange={handleTabChange} >
-                            <Tab label="Results" value={1} />
-                            <Tab label="Analytics" value={2} />
-                        </TabList>
-                    }
-                >
-            <TabPanel value={1} >
-                <Stack spacing={4}>
-                    <JoinClipboard sessionId={router.query.sessionId} />
+               { questions && questions.length > 0 && (
+                   <LayoutMain
+                        header={ <MainMenu /> }
+                        subheader={
+                            <TabList onChange={handleTabChange} >
+                                <Tab label="Results" value={1} />
+                                <Tab label="Analytics" value={2} />
+                            </TabList>
+                        }
+                        padding={2}
+                        spacing={2}
+                    >
+                        <TabPanel value={1} >
+                            <Stack spacing={4}>
+                                <JoinClipboard sessionId={router.query.sessionId} />
 
-                    <Stack direction="row" alignItems="center" justifyContent="space-between">
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                            <Typography variant="h6">Overall success rate</Typography>
-                            <PiePercent value={ getSignedSuccessRate(questions) } />
-                        </Stack>
-                        <Button onClick={exportAsCSV}>Export as csv</Button>
-                    </Stack>
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Typography variant="h6">Overall success rate</Typography>
+                                        <PiePercent value={ getSignedSuccessRate(questions) } />
+                                    </Stack>
+                                    <Button onClick={exportAsCSV}>Export as csv</Button>
+                                </Stack>
 
-                    <DataGrid
-                        header={gridHeaders()}
-                        items={gridRows()}
-                    />
-                </Stack>
-            </TabPanel>
-            <TabPanel value={2} sx={{ minWidth:'100%' }}>
-                <ExamSessionAnalytics questions={questions} />
-            </TabPanel>
-            </LayoutMain>
-           )}
+                                <DataGrid
+                                    header={gridHeaders()}
+                                    items={gridRows()}
+                                />
+                            </Stack>
+                        </TabPanel>
+                        <TabPanel value={2}>
+                            <ExamSessionAnalytics questions={questions} />
+                        </TabPanel>
+                </LayoutMain>
+               )}
             </TabContext>
         </PhaseRedirect>
         </Authorisation>

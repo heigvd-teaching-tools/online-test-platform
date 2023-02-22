@@ -7,7 +7,7 @@ export const ResizeObserverProvider = ({ children }) => {
 
     const resizeObserver = useRef(new ResizeObserver(entries => {
         const { height, width } = entries[0].contentRect;
-        console.log("ResizeObserver: ", { height, width })
+        //console.log("ResizeObserver: ", { height, width })
         setDimensions({ height, width });
     }));
 
@@ -21,10 +21,13 @@ export const ResizeObserverProvider = ({ children }) => {
     }, [resizeObserver, container]);
 
     return (
-        <div ref={container} style={{ height:'100%', width:'100%' }}>
-            <ResizeObserverContext.Provider value={{ height: dimensions.height, width: dimensions.width }}>
-                {children}
-            </ResizeObserverContext.Provider>
+        <div ref={container} style={{ position:'relative', height:'100%', width:'100%', overflow:'hidden' }}>
+            { /* make sure that the ResizeObserver can change sizes in all directions -> children should always overflow for height and width to decrease */}
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+                <ResizeObserverContext.Provider value={{ height: dimensions.height, width: dimensions.width }}>
+                    {children}
+                </ResizeObserverContext.Provider>
+            </div>
         </div>
     );
 }
