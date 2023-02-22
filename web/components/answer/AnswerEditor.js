@@ -7,7 +7,6 @@ import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
 import Code from '../question/type_specific/Code';
 import Web from '../question/type_specific/Web';
-import { ResizeObserverProvider } from "../../context/ResizeObserverContext";
 
 const AnswerEditor = ({ question, onAnswer }) => {
     const [ answer, setAnswer ] = useState(undefined);

@@ -1,21 +1,12 @@
-import {useState, useEffect, useCallback, useRef} from 'react';
+import {useState, useEffect } from 'react';
 
 import {Stack, Tabs, Tab, Paper, Box} from "@mui/material"
 import CodeEditor from '../../input/CodeEditor';
 import CodeCheck from './CodeCheck';
-import {ResizeObserverProvider, useResizeObserver} from "../../../context/ResizeObserverContext";
-
-const tabsHeight = 48;
-const codeCheckHeight = 60;
 
 const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, onChange, onTestResult }) => {
-    const tabsRef = useRef();
-    const codeCheckRef = useRef();
-
     const [ code, setCode ] = useState();
     const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
-    const [ editorHeight, setEditorHeight ] = useState(0);
-
 
     useEffect(() => {
         if (initial) {
@@ -23,14 +14,12 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
         }
     }, [initial, id]);
 
-
-
     return (
         code && (
             <Stack id={id} sx={{ p:2, height:'100%' }}>
                {displaySolutionEditor && (
                 <>
-                    <Tabs ref={tabsRef} value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
+                    <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                         <Tab label="Solution Code" value={0} />
                         <Tab label="Partial Code" value={1} />
                     </Tabs>
@@ -58,8 +47,6 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                 >
                     <CodeEditor
                         id={`${id}-partial`}
-                        fitContainer
-                        editorHeight={editorHeight}
                         code={initial.code}
                         onChange={(newCode) => {
                             setCode({
@@ -70,7 +57,7 @@ const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEdi
                         }}
                     />
                 </TabPanel>
-                <Paper ref={codeCheckRef} square elevation={0} sx={{ maxHeight: `100%`, width:'100%', p:0  }}>
+                <Paper square elevation={0} sx={{ maxHeight: `100%`, width:'100%', p:0  }}>
                     <CodeCheck
                         id={`${id}-test-run`}
                         where={where}

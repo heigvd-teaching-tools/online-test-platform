@@ -5,8 +5,6 @@ import Code from "./type_specific/Code";
 import TrueFalse from "./type_specific/TrueFalse";
 import Web from "./type_specific/Web";
 
-import { ResizeObserverProvider } from "../../context/ResizeObserverContext";
-
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
     return (
         <Stack sx={{ height:'100%', overflow:'auto'}}>
