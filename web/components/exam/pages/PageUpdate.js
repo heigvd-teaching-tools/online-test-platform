@@ -30,9 +30,8 @@ const PageUpdate = () => {
         { revalidateOnFocus: false }
     );
 
-    const onQuestionChange = async (questionId, property, newValue) => {
+    const onQuestionChange = useCallback(async (questionId, property, newValue) => {
         let question = questions.find((q) => q.id === questionId);
-        console.log("onQuestionChange", questionId, property, newValue)
         if(typeof newValue === 'object'){
             // we keep eventual existing properties when a property is an object
             question[property] = {
@@ -42,11 +41,8 @@ const PageUpdate = () => {
         }else{
             question[property] = newValue;
         }
-
         await saveQuestion(question);
-    }
-
-
+    }, [questions, saveQuestion]);
 
     const createQuestion = useCallback(async () => {
         await fetch(`/api/exams/${router.query.examId}/questions`, {
@@ -132,34 +128,32 @@ const PageUpdate = () => {
             });
     }
 
-    const handleQuestionUp = useCallback(async (index) => {
-        if(!questions || index === 0) return;
-        await mutate((questions) => {
-            const newQuestions = [...questions];
-            newQuestions[index].order = index - 1;
-            newQuestions[index - 1].order = index;
-            const temp = newQuestions[index];
-            newQuestions[index] = newQuestions[index - 1];
-            newQuestions[index - 1] = temp;
-            return newQuestions;
-        }, false);
-        await savePositions();
-    } , [mutate, savePositions, questions]);
+    const updateQuestionOrder = useCallback(async (order, offset) => {
+        if (order + offset < 0 || order + offset >= questions.length) {
+            return;
+        }
 
-    const handleQuestionDown = useCallback(async (index) => {
-        if(index === questions.length - 1) return;
         await mutate((questions) => {
-            const newQuestions = [...questions];
-            newQuestions[index].order = index + 1;
-            newQuestions[index + 1].order = index;
-            const temp = newQuestions[index];
-            newQuestions[index] = newQuestions[index + 1];
-            newQuestions[index + 1] = temp;
-            return newQuestions;
-        }, false);
-        await savePositions();
-    } , [mutate, savePositions, questions]);
+            const temp = [...questions];
+            const currentQuestion = temp[order];
+            const questionToSwapWith = temp[order + offset];
 
+            currentQuestion.order = order + offset;
+            questionToSwapWith.order = order;
+
+            temp[order] = questionToSwapWith;
+            temp[order + offset] = currentQuestion;
+
+            return temp;
+        }, false);
+
+        await savePositions();
+        await router.push(`/exams/${router.query.examId}/questions/${order + offset + 1}`);
+    }, [mutate, savePositions, questions, router]);
+
+
+    const orderDecrease = useCallback(async (order) => await updateQuestionOrder(order, -1), [updateQuestionOrder]);
+    const orderIncrease = useCallback(async (order) => await updateQuestionOrder(order, 1), [updateQuestionOrder]);
 
     if (error) return <div>failed to load</div>
     if (!questions) return <LoadingAnimation />
@@ -206,8 +200,8 @@ const PageUpdate = () => {
                                 question={q}
                                 onQuestionChange={onQuestionChange}
                                 onQuestionDelete={deleteQuestion}
-                                onClickUp={handleQuestionUp}
-                                onClickDown={handleQuestionDown}
+                                onClickLeft={orderDecrease}
+                                onClickRight={orderIncrease}
                             />
                         </Box>
                     )

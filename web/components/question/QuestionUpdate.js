@@ -1,16 +1,15 @@
 import {useState, useCallback } from 'react';
 import Image from 'next/image';
 import ContentEditor from '../input/ContentEditor';
-import {Stack, Chip, Typography, MenuItem, TextField, IconButton, Button, Box, Paper} from '@mui/material';
+import {Stack, Typography, MenuItem, TextField, IconButton, Button} from '@mui/material';
 import Column from '../layout/utils/Column';
 import Row from "../layout/utils/Row";
 import DropDown from "../input/DropDown";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
-import {ResizeObserverProvider} from "../../context/ResizeObserverContext";
 
 const questionTypes = [
     {
@@ -35,7 +34,7 @@ const questionTypes = [
     }
 ];
 
-const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, onClickUp, onClickDown }) => {
+const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickLeft, onClickRight }) => {
 
     const [ points, setPoints ] = useState(question.points);
 
@@ -71,7 +70,15 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, o
                                 <Image alt="Question Type Icon" src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
                             </Column>
                             <Column flexGrow={1}>
-                                <Typography variant="h6">Q{index}</Typography>
+                                <Stack direction="row" alignItems="center">
+                                    <IconButton size="small" onClick={() => onClickLeft(question.order)}>
+                                        <ArrowLeftIcon fontSize="large" />
+                                    </IconButton>
+                                    <Typography variant="h6">Q{question.order + 1}</Typography>
+                                    <IconButton size="small"  onClick={() => onClickRight(question.order)}>
+                                        <ArrowRightIcon fontSize="large"  />
+                                    </IconButton>
+                                </Stack>
                             </Column>
                             <Column>
                                 <DropDown id="question" name="Type" defaultValue={question.type} minWidth="160px" onChange={onQuestionTypeChange}>
@@ -97,21 +104,11 @@ const QuestionUpdate = ({ index, question, onQuestionDelete, onQuestionChange, o
                                     }}
                                 />
                             </Column>
-                            <Column>
-                                <Stack>
-                                    <IconButton size="small" onClick={() => onClickUp(index)}>
-                                        <ArrowDropUpIcon />
-                                    </IconButton>
-                                    <IconButton size="small" onClick={() => onClickDown(index)}>
-                                        <ArrowDropDownIcon />
-                                    </IconButton>
-                                </Stack>
-                            </Column>
                         </Row>
                         <Row>
                             <Column flexGrow={1}>
                                 <ContentEditor
-                                    id={`question-${index}`}
+                                    id={`question-${question.id}`}
                                     language="markdown"
                                     rawContent={question.content}
                                     onChange={(content) => onChange("content", content)}
