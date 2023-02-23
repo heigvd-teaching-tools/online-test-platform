@@ -106,7 +106,7 @@ const PageUpdate = () => {
             });
     } , [showSnackbar]), 500);
 
-    const savePositions = async () => {
+    const savePositions = useCallback(async () => {
         await fetch('/api/questions/order', {
             method: 'PATCH',
             headers: {
@@ -126,7 +126,7 @@ const PageUpdate = () => {
             }).catch(() => {
                 showSnackbar('Error changing questions order', 'error');
             });
-    }
+    }, [questions, showSnackbar]);
 
     const updateQuestionOrder = useCallback(async (order, offset) => {
         if (order + offset < 0 || order + offset >= questions.length) {
