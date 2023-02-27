@@ -12,7 +12,7 @@ const LayoutSplitScreen = ({subheader, leftPanel, rightPanel, footer, rightWidth
                 rightWidth={rightWidth}
                 leftPanel={leftPanel}
                 rightPanel={
-                    <Paper square elevation={0} sx={{ position:'relative', overflow:'hidden', height:'100%', p:2 }}>
+                    <Paper square elevation={0} sx={{ position:'relative', overflow:'hidden', height:'100%' }}>
                         {rightPanel}
                     </Paper>
                 }

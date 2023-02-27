@@ -42,8 +42,11 @@ export const questionsWithIncludes = ( {
     let include = includeTypeSpecific ? {
         code: ({
             select: {
-                ...(includeOfficialAnswers ? { solution: true } : {}),
-                code: true
+                ...(includeOfficialAnswers ? { solutionFiles: true } : {}),
+                templateFiles: true,
+                sandbox: true,
+                testCases: true,
+                language: true,
             }
         }),
         multipleChoice: {
@@ -115,8 +118,20 @@ export const questionsWithIncludes = ( {
 }
 
 export const questionTypeSpecific = (questionType, question, currentQuestion) => {
+
+    // copy type specific data
     let typeSpecificCopy = { ...question[questionType] };
-    delete typeSpecificCopy.questionId; // remove questionId from type specific data
+    
+    // remove questionId from type specific data
+    delete typeSpecificCopy.questionId; 
+
+    // replace each null or empty array value with undefined, otherwise prisma will throw an error
+    Object.keys(typeSpecificCopy).forEach(key => {
+        if(typeSpecificCopy[key] === null || (Array.isArray(typeSpecificCopy[key]) && typeSpecificCopy[key].length === 0)) {
+            typeSpecificCopy[key] = undefined;
+        }
+    });
+
     switch(questionType) {
         case QuestionType.multipleChoice:
             let clauses = {};
@@ -150,9 +165,32 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
             // type specific does not have any specific fields, might carry the solution in the future
             return {}
         case QuestionType.code:
-            return typeSpecificCopy
+
+            // update or create sandbox
+            let sandbox = { ...typeSpecificCopy.sandbox };
+            delete typeSpecificCopy.sandbox;
+            
+            if(sandbox.id){
+                // update
+                typeSpecificCopy.sandbox = {
+                    update: {
+                        ...sandbox
+                    }
+                }
+            } else {
+                // create
+                typeSpecificCopy.sandbox = {
+                    create: {
+                        ...sandbox
+                    }
+                }
+            }
+
+            console.log("typeSpecificCopy", sandbox, typeSpecificCopy)
+        
+            return typeSpecificCopy;
         case QuestionType.web:
-            return typeSpecificCopy
+            return typeSpecificCopy;
         default:
             return undefined;
     }

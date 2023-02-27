@@ -69,7 +69,7 @@ const post = async (req, res) => {
             }
         },
         include: {
-            code: { select: { solution: true, code: true } },
+            code: { select: { solutionFiles: true, templateFiles: true } },
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,

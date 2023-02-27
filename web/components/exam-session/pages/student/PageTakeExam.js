@@ -165,12 +165,14 @@ const PageTakeExam = () => {
                         )}
                         rightPanel={
                             questions && questions.length > 0 && questions[page - 1] && (
-                                <ResizeObserverProvider>
-                                    <AnswerEditor
-                                        question={questions[page - 1]}
-                                        onAnswer={onAnswer}
-                                    />
-                                </ResizeObserverProvider>
+                                <Box padding={2}>
+                                    <ResizeObserverProvider>
+                                        <AnswerEditor
+                                            question={questions[page - 1]}
+                                            onAnswer={onAnswer}
+                                        />
+                                    </ResizeObserverProvider>
+                                </Box>
                             )
                         }
                     />

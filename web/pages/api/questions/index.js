@@ -24,6 +24,7 @@ const handler = async (req, res) => {
         default:
     }
 }
+
 const patch = async (req, res) => {
     const { question } = req.body;
     // TODO : delete type specific data
@@ -45,8 +46,11 @@ const patch = async (req, res) => {
         }
     });
 
+    // when question type changes, delete the old type specific data
     if(currentQuestion.type !== question.type) {
         if(currentQuestion[currentQuestion.type]) {
+
+
             await prisma.question.update({
                 where: {
                     id: question.id
@@ -64,6 +68,7 @@ const patch = async (req, res) => {
         }
     }
 
+    // update the question
     const updatedQuestion = await prisma.question.update({
         where: {
             id: question.id
@@ -77,7 +82,16 @@ const patch = async (req, res) => {
             }
         },
         include: {
-            code: { select: { solution: true, code: true } },
+            code: {
+                select: {
+                    language: true,
+                    sandbox: true,
+                    testCases: true,
+                    solutionFiles: true,
+                    templateFiles: true
+                }
+
+            },
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,

@@ -73,7 +73,7 @@ const PageConsult = () => {
                                 }
                                 rightWidth={65}
                                 rightPanel={
-                                    <Stack direction="row" sx={{ position:'relative', height:'100%', overflowX:'auto'}}>
+                                    <Stack direction="row" padding={2} sx={{ position:'relative', height:'100%', overflowX:'auto'}}>
                                         { question && (
                                         <ResizeObserverProvider>
                                             <AnswerCompare

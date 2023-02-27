@@ -11,7 +11,7 @@ const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWi
             selectRef.current.blur();
         }
         setValue(event.target.value);
-        onChange(event.target.value);
+        onChange && onChange(event.target.value);
     }
     useEffect(() => {
         setValue(defaultValue);

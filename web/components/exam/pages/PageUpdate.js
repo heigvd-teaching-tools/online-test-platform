@@ -10,14 +10,13 @@ import LoadingAnimation from '../../feedback/LoadingAnimation';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
-import LayoutSplitScreen from "../../layout/LayoutSplitScreen";
 import QuestionPages from "../../exam-session/take/QuestionPages";
 import QuestionUpdate from "../../question/QuestionUpdate";
 
 import Link from "next/link";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Image from "next/image";
-import {useDebouncedCallback} from "use-debounce";
+import { useDebouncedCallback } from "use-debounce";
 
 const PageUpdate = () => {
     const router = useRouter();
@@ -63,7 +62,7 @@ const PageUpdate = () => {
             }).catch(() => {
                 showSnackbar('Error creating questions', 'error');
             });
-    } , [router.query.examId, showSnackbar, questions, mutate]);
+    } , [router, showSnackbar, questions, mutate]);
 
     const deleteQuestion = useCallback(async (questionId) => {
         let question = questions.find((q) => q.id === questionId);
@@ -87,7 +86,7 @@ const PageUpdate = () => {
             }).catch(() => {
                 showSnackbar('Error deleting questions', 'error');
             });
-    } , [questions, showSnackbar]);
+    } , [questions, showSnackbar, mutate]);
 
     const saveQuestion = useDebouncedCallback(useCallback(async (question) => {
         await fetch(`/api/questions`, {

@@ -140,16 +140,67 @@ model Essay {
 model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  solution   String?
-  code       String?
+
+  language String @default("cpp")
+
+  sandbox SandBox @relation(fields: [sandboxId], references: [id], onDelete: Cascade)
+  sandboxId String @unique
+
+  testCases TestCase[]
+
+  solutionFiles File[] @relation("solutionFiles")
+  templateFiles File[] @relation("templateFiles")
+}
+
+model SandBox {
+  id String @id @default(cuid())
+  image      String
+  beforeAll  String?
+
+  code       Code?
+}
+
+model TestCase {
+  index  Int
+  code   Code   @relation(fields: [codeId], references: [questionId], onDelete: Cascade)
+  codeId String
+
+  exec           String
+  input          String
+  expectedOutput String
+
+  @@id([index, codeId])
+}
+
+enum StudentFilePermission {
+  UPDATE
+  VIEW
+  HIDDEN
+}
+
+model File {
+  id String @id @default(cuid())
+
+  path    String
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentPermission StudentFilePermission @default(UPDATE)
+
+  codeSolution Code @relation("solutionFiles", fields: [questionId], map: "solution", references: [questionId])
+  codeTemplate Code @relation("templateFiles", fields: [questionId], map: "template", references: [questionId])
+
+  questionId String
 }
 
 model Web {
-    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    questionId String   @id
-    html       String?
-    css        String?
-    js         String?
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String   @id
+  html       String?
+  css        String?
+  js         String?
 }
 
 // Order is important here
@@ -169,12 +220,12 @@ enum ExamSessionStatus {
 model ExamSession {
   id String @id @default(cuid())
 
-  label      String?          @unique
+  label      String?           @unique
   conditions String?
   status     ExamSessionStatus @default(ACTIVE)
-  phase      ExamSessionPhase @default(DRAFT)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  phase      ExamSessionPhase  @default(DRAFT)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
   durationHours Int? @default(0)
   durationMins  Int? @default(0)
@@ -294,7 +345,7 @@ model StudentAnswerCode {
   expected String?
   result   String?
 
-  success                  Boolean                    @default(false)
+  success Boolean @default(false)
 
   studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
@@ -302,15 +353,15 @@ model StudentAnswerCode {
 }
 
 model StudentAnswerWeb {
-    studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-    userEmail     String
-    questionId    String
+  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
 
-    html String?
-    css  String?
-    js   String?
+  html String?
+  css  String?
+  js   String?
 
-    @@id([userEmail, questionId])
+  @@id([userEmail, questionId])
 }
 
 model StudentAnswerCodeHistory {

@@ -23,11 +23,6 @@ const InlineMonacoEditor = ({ code, language = "javascript", readOnly = false, o
         onChange(newContent);
     }
 
-    const onValidate = (markers) => {
-        console.log("onValidate");
-        editor.setScrollPosition({ scrollTop: 0 });
-    }
-
     return (
         <Editor
             height={contentHeight}

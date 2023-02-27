@@ -14,34 +14,34 @@ const Datagrid = ({ header, items }) => {
                     <Typography variant="button">{label}</Typography>
                 </Column>
             ))}
-            
-            {header.actions && 
+
+            {header.actions &&
                 <Column key="actions" width={header.actions.width} right>
                     <Typography variant="button">{header.actions.label}</Typography>
                 </Column>
             }
-            
+
             </Row>
         </ListItem>
         { items && items.length > 0 && items.map((item) => (
             item.meta && item.meta.linkHref ? (
-                <Link key={item.meta.key} href={item.meta.linkHref}>
+                <Link component="button" key={item.meta.key} href={item.meta.linkHref}>
                     <a>
-                    <ListItemContent item={item} header={header} />         
+                    <ListItemContent item={item} header={header} />
                     </a>
-                </Link>           
+                </Link>
             ) : (
                 <ListItemContent item={item} header={header} />
-            )            
+            )
         ))}
       </List>
     )
 }
 
-const ListItemContent = ({ item, header }) => 
-    <ListItem button divider>
+const ListItemContent = ({ item, header }) =>
+    <ListItem divider>
         <Row>
-            { 
+            {
             Object.keys(item).map((key, index) => {
                 if(index < header.columns.length && key !== 'meta') {
                     return (
@@ -56,7 +56,7 @@ const ListItemContent = ({ item, header }) =>
                 item.meta && item.meta.actions && header.actions &&
                 <Column key="actions" width={header.actions.width} right>{item.meta.actions}</Column>
             }
-            
+
         </Row>
     </ListItem>
 
