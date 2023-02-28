@@ -175,6 +175,7 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
                 let sandboxId = typeSpecificCopy.sandbox.questionId;
                 delete typeSpecificCopy.sandbox.questionId;
 
+                // TODO: better to retrieve the whole question in sort to be able to control the presence of any of the fields
                 // update or create sandbox
                 if(sandboxId) {
                     // updating existing sandbox

@@ -100,6 +100,11 @@ const SandboxFields = ({ sandbox, onChange }) => {
     const [ image, setImage ] = useState(sandbox?.image);
     const [ beforeAll, setBeforeAll ] = useState(sandbox?.beforeAll);
 
+    useEffect(() => {
+        setImage(sandbox?.image);
+        setBeforeAll(sandbox?.beforeAll);
+    }, [sandbox]);
+
     const debouncedOnChange = useDebouncedCallback(onChange, 500);
 
     return (
