@@ -121,9 +121,9 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
 
     // copy type specific data
     let typeSpecificCopy = { ...question[questionType] };
-    
+
     // remove questionId from type specific data
-    delete typeSpecificCopy.questionId; 
+    delete typeSpecificCopy.questionId;
 
     // replace each null or empty array value with undefined, otherwise prisma will throw an error
     Object.keys(typeSpecificCopy).forEach(key => {
@@ -165,29 +165,31 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
             // type specific does not have any specific fields, might carry the solution in the future
             return {}
         case QuestionType.code:
+            console.log("QuestionType.code", typeSpecificCopy)
+            if(typeSpecificCopy.sandbox) {
+                let data = {
+                    image: typeSpecificCopy.sandbox.image,
+                    beforeAll: typeSpecificCopy.sandbox.beforeAll
+                };
 
-            // update or create sandbox
-            let sandbox = { ...typeSpecificCopy.sandbox };
-            delete typeSpecificCopy.sandbox;
-            
-            if(sandbox.id){
-                // update
-                typeSpecificCopy.sandbox = {
-                    update: {
-                        ...sandbox
+                let sandboxId = typeSpecificCopy.sandbox.questionId;
+                delete typeSpecificCopy.sandbox.questionId;
+
+                // update or create sandbox
+                if(sandboxId) {
+                    // updating existing sandbox
+                    typeSpecificCopy.sandbox = {
+                        update: data
                     }
-                }
-            } else {
-                // create
-                typeSpecificCopy.sandbox = {
-                    create: {
-                        ...sandbox
+                }else{
+                    // creating new sandbox
+                    typeSpecificCopy.sandbox = {
+                        create: data
                     }
                 }
             }
 
-            console.log("typeSpecificCopy", sandbox, typeSpecificCopy)
-        
+
             return typeSpecificCopy;
         case QuestionType.web:
             return typeSpecificCopy;

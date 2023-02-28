@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
 import {Stack, Tabs, Tab, Paper, Typography, Box, TextField, MenuItem, IconButton} from "@mui/material"
 import CodeEditor from '../../input/CodeEditor';
@@ -15,15 +15,18 @@ const environments = languages.environments;
 
 const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestResult }) => {
 
-    /**
-     code: {
+     /**
+         code: {
             "language": "cpp",
             "solutionFiles": [],
             "templateFiles": [],
-            "sandbox": null,
+            "sandbox": {
+                "image": "cpp",
+                "beforeAll": "g++ -o solution solution.cpp"
+            },
             "testCases": []
-        } 
-     */  
+        }
+     */
 
     const [ solutionFiles, setSolutionFiles ] = useState(initial.solutionFiles || []);
     const [ templateFiles, setTemplateFiles ] = useState(initial.templateFiles || []);
@@ -31,6 +34,11 @@ const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestRe
     const [ testCases, setTestCases ] = useState(initial.testCases || []);
 
     const [ tab, setTab ] = useState(0);
+
+    const onCodeChange = useCallback((changedProperties) => {
+        // it is important to send the whole object to onChange
+        onChange({ ...initial, ...changedProperties});
+    }, [initial, onChange]);
 
     return (
         initial && (
@@ -43,10 +51,7 @@ const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestRe
                 <TabPanel id="setup" value={tab} index={0}>
                     <SetupTab
                         code={initial}
-                        onChange={(what, value) => {
-                            console.log("SetupTab.onChange", what, value);
-                            onChange(what, value);
-                        }}
+                        onChange={onCodeChange}
                     />
                 </TabPanel>
                 <TabPanel id="solution" value={tab} index={1}>
@@ -54,7 +59,7 @@ const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestRe
                         id={id}
                         files={solutionFiles}
                         onChange={(what, content) => {
-                            
+
                         }}
                     />
                 </TabPanel>
@@ -100,14 +105,13 @@ const FilesManager = ({ id, files, onChange }) => {
                             <MenuItem value="View">View</MenuItem>
                             <MenuItem value="Hidden">Hidden</MenuItem>
                         </DropDown>
-                            
                     }
                     onChange={(newCode) => {
                         setCode({ ...code, solution: newCode});
                     }}
                 />
             })}
-            
+
         </Box>
     )
 }
@@ -125,7 +129,7 @@ const FileEditor = ({ id, path: initialPath, code: initialCode, secondaryActions
 
     const [ path, setPath ] = useState(initialPath);
     const [ code, setCode ] = useState(initialCode);
-    
+
 
     useEffect(() => {
         setLanguage(languageBasedOnPathExtension(path) || "text");
@@ -144,9 +148,9 @@ const FileEditor = ({ id, path: initialPath, code: initialCode, secondaryActions
                         setPath(ev.target.value);
                     }}
                 />
-                {secondaryActions}           
-                
-            
+                {secondaryActions}
+
+
             </Stack>
             <InlineMonacoEditor
                 code={code}

@@ -12,7 +12,7 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                 ( question.type === QuestionType.multipleChoice && question.multipleChoice &&
                     <MultipleChoice
                         options={question.multipleChoice.options}
-                        onChange={(newOptions) => onQuestionChange("multipleChoice", { options: newOptions })}
+                        onChange={(newOptions) => onQuestionChange({ multipleChoice: { options: newOptions }})}
                     />
                 )
                 ||
@@ -26,21 +26,21 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                         }}
                         code={question.code}
                         questionId={question.id}
-                        onChange={(which, newCode) => onQuestionChange("code", { [which]: newCode })}
+                        onChange={(changedProperties) => onQuestionChange({ code: changedProperties })}
                     />
                 )
                 ||
                 ( question.type === QuestionType.trueFalse && question.trueFalse &&
                     <TrueFalse
                         isTrue={question.trueFalse.isTrue}
-                        onChange={(newIsTrue) => onQuestionChange("trueFalse", { isTrue: newIsTrue })}
+                        onChange={(newIsTrue) => onQuestionChange({ trueFalse: { isTrue: newIsTrue }})}
                     />
                 )
                 ||
                 ( question.type === QuestionType.web && question.web &&
                     <Web
                         web={question.web}
-                        onChange={(newWeb) => onQuestionChange("web", newWeb)}
+                        onChange={(newWeb) => onQuestionChange({ web: newWeb })}
                     />
                 )
             )}

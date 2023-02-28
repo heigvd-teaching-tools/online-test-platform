@@ -29,17 +29,10 @@ const PageUpdate = () => {
         { revalidateOnFocus: false }
     );
 
-    const onQuestionChange = useCallback(async (questionId, property, newValue) => {
+    const onQuestionChange = useCallback(async (questionId, changedProperties) => {
         let question = questions.find((q) => q.id === questionId);
-        if(typeof newValue === 'object'){
-            // we keep eventual existing properties when a property is an object
-            question[property] = {
-                ...question[property],
-                ...newValue
-            };
-        }else{
-            question[property] = newValue;
-        }
+        // update the question reference
+        Object.assign(question, changedProperties);
         await saveQuestion(question);
     }, [questions, saveQuestion]);
 
@@ -88,7 +81,7 @@ const PageUpdate = () => {
             });
     } , [questions, showSnackbar, mutate]);
 
-    const saveQuestion = useDebouncedCallback(useCallback(async (question) => {
+    const saveQuestion = useCallback(async (question) => {
         await fetch(`/api/questions`, {
             method: 'PATCH',
             headers: {
@@ -103,7 +96,7 @@ const PageUpdate = () => {
             }).catch(() => {
                 showSnackbar('Error saving questions', 'error');
             });
-    } , [showSnackbar]), 500);
+    } , [showSnackbar]);
 
     const savePositions = useCallback(async () => {
         await fetch('/api/questions/order', {

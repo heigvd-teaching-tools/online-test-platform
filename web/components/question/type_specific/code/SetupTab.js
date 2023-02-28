@@ -7,45 +7,30 @@ import languages from "./languages.json";
 
 const environments = languages.environments;
 
-const getDefaultSandBox = (language) => {
-    let env = environments.find(env => env.language === language);
-    if (env) {
-        return {
-            "image": env.sandbox.image,
-            "beforeAll": env.sandbox.beforeAll,
-        }
-    }
-    return null;
-}
-
-
 const SetupTab = ({ code: initial, onChange }) => {
 
-    const [ sandbox, setSandbox ] = useState(initial.sandbox || getDefaultSandBox(initial.language));
+
+    const [ sandbox, setSandbox ] = useState(initial.sandbox);
 
     const [ tests, setTests ] = useState(initial.testCases || []);
 
-    useEffect(() => {
-        if(!initial.sandbox) {
-            console.log("SetupTab: no sandbox, prefilling with defaults")
-            onChange("sandbox", getDefaultSandBox(initial.language || environments[0].language));
-        }
-    }, [initial, onChange]);
-
     const onChangeLanguage = useCallback((language) => {
         let env = environments.find(env => env.language === language);
+        let toChange = {
+            language: language
+        }
         if (env) {
             // prefill sandbox fields
-            let sandbox = {
-                ...sandbox,
+            let newSandbox = {
+                ...sandbox, // we need the old sandbox to send the primary key (questionId) to backend, backend will update the existing sandbox
                 "image": env.sandbox.image,
                 "beforeAll": env.sandbox.beforeAll,
             }
-            setSandbox(sandbox);
-            onChange("sandbox", sandbox);
+            setSandbox(newSandbox);
+            toChange.sandbox = newSandbox;
         }
-        onChange("language", language);
-    }, [onChange]);
+        onChange(toChange);
+    }, [onChange, sandbox]);
 
     return (
         <Stack direction="column" padding={2} spacing={2} height="100%">
@@ -55,13 +40,14 @@ const SetupTab = ({ code: initial, onChange }) => {
                     onChange={onChangeLanguage}
                 />
             </Box>
-            
+
             <SandboxFields
                 language={initial.language}
                 sandbox={sandbox}
                 onChange={(what, value) => {
-                    setSandbox({...sandbox, [what]: value});
-                    onChange("sandbox", sandbox);
+                    const newSandbox = {...sandbox, [what]: value};
+                    setSandbox(newSandbox);
+                    onChange({ sandbox: newSandbox });
                 }}
             />
 

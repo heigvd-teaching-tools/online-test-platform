@@ -143,21 +143,21 @@ model Code {
 
   language String @default("cpp")
 
-  sandbox SandBox @relation(fields: [sandboxId], references: [id], onDelete: Cascade)
-  sandboxId String @unique
+  sandbox SandBox?
 
   testCases TestCase[]
 
-  solutionFiles File[] @relation("solutionFiles")
-  templateFiles File[] @relation("templateFiles")
+  solutionFiles File[]  @relation("solutionFiles")
+  templateFiles File[]  @relation("templateFiles")
+  sandBoxId     String?
 }
 
 model SandBox {
-  id String @id @default(cuid())
-  image      String
-  beforeAll  String?
+  image     String
+  beforeAll String?
 
-  code       Code?
+  Code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String @unique @id
 }
 
 model TestCase {

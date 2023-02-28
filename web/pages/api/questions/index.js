@@ -27,7 +27,7 @@ const handler = async (req, res) => {
 
 const patch = async (req, res) => {
     const { question } = req.body;
-    // TODO : delete type specific data
+    // TODO : Control the data in the database
 
     let currentQuestion = await prisma.question.findUnique({
         where: {
@@ -46,51 +46,37 @@ const patch = async (req, res) => {
         }
     });
 
-    // when question type changes, delete the old type specific data
+    let data;
+
     if(currentQuestion.type !== question.type) {
         if(currentQuestion[currentQuestion.type]) {
-
-
-            await prisma.question.update({
-                where: {
-                    id: question.id
-                },
-                data: {
-                    type: question.type,
-                    [currentQuestion.type]: {
-                        delete: true
-                    },
-                    [question.type]: {
-                        create: questionTypeSpecific(question.type, question, currentQuestion)
-                    }
-                }
-            });
+            // when question type changes, delete the old type specific data and create the new one
+            data = {
+                type: question.type,
+                    [currentQuestion.type]: { delete: true },
+                    [question.type]: { create: questionTypeSpecific(question.type, question, currentQuestion) }
+            };
+        }
+    }else{
+        // when question type doesn't change, update the type specific data
+        data = {
+            type: question.type,
+                content: question.content,
+                points: parseInt(question.points),
+                [question.type]: {
+                update: questionTypeSpecific(question.type, question, currentQuestion)
+            }
         }
     }
 
-    // update the question
+    console.log("data", data)
+
     const updatedQuestion = await prisma.question.update({
-        where: {
-            id: question.id
-        },
-        data: {
-            type: question.type,
-            content: question.content,
-            points: parseInt(question.points),
-            [question.type]: {
-                update: questionTypeSpecific(question.type, question, currentQuestion)
-            }
-        },
+        where: { id: question.id },
+        data: data,
         include: {
             code: {
-                select: {
-                    language: true,
-                    sandbox: true,
-                    testCases: true,
-                    solutionFiles: true,
-                    templateFiles: true
-                }
-
+                select: { language: true, sandbox: true, testCases: true, solutionFiles: true, templateFiles: true }
             },
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
@@ -98,6 +84,8 @@ const patch = async (req, res) => {
             web: true
         }
     });
+
+
     res.status(200).json(updatedQuestion);
 }
 

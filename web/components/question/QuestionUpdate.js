@@ -8,6 +8,10 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
+import {useDebouncedCallback} from "use-debounce";
+import languages from "./type_specific/code/languages.json";
+
+const environments = languages.environments;
 
 const questionTypes = [{
     value: 'multipleChoice',
@@ -35,17 +39,42 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
         // the change is done by reference
         delete question[question.type];
         if(!question[newQuestionType]){
-            question[newQuestionType] = newQuestionType === 'multipleChoice' ? { options: [
-                    { text: 'Option 1', isCorrect: false },
-                    { text: 'Option 2', isCorrect: true },
-                ]} : {};
+            // when the new type specific is a complex object, we need to generate a default one
+            // the default TypeSpecific will be sent to backend to full-fit the relational requirement
+            switch(newQuestionType) {
+                case 'multipleChoice':
+                    question[newQuestionType] = { options: [
+                        { text: 'Option 1', isCorrect: false },
+                        { text: 'Option 2', isCorrect: true },
+                    ]};
+                    break;
+                case 'code':
+                    question[newQuestionType] = {
+                        language: environments[0].language,
+                        sandbox: {
+                            image: environments[0].sandbox.image,
+                            beforeAll: environments[0].sandbox.beforeAll,
+                        }
+                    }
+                    break;
+                default:
+                    question[newQuestionType] = {};
+            }
         }
-        await onQuestionChange(question.id, "type", newQuestionType); // type change is done by reference, so we just need to trigger a state change
+
+        await onQuestionChange(question.id, {
+            type: newQuestionType,
+            [newQuestionType]: question[newQuestionType]
+        });
     }, [question, onQuestionChange]);
 
-    const onChange = useCallback((which, newData) => {
-        onQuestionChange(question.id, which, newData);
+    const onChange = useCallback((changedProperties) => {
+        onQuestionChange(question.id, changedProperties);
     }, [question, onQuestionChange]);
+
+    const debounceChange = useDebouncedCallback(useCallback((changedProperties) => {
+        onChange(changedProperties);
+    }, [onChange]), 500);
 
     return (
         <LayoutSplitScreen
@@ -85,7 +114,9 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
                                 value={points}
                                 onChange={(e) => {
                                     setPoints(e.target.value);
-                                    onChange("points", e.target.value);
+                                    onChange({
+                                        points: e.target.value
+                                    });
                                 }}
                             />
                         </Stack>
@@ -94,7 +125,9 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
                                 id={`question-${question.id}`}
                                 language="markdown"
                                 rawContent={question.content}
-                                onChange={(content) => onChange("content", content)}
+                                onChange={(content) => debounceChange({
+                                    content: content
+                                })}
                             />
                         </Box>
 
