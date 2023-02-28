@@ -4,6 +4,7 @@ import DropDown from "../../../input/DropDown";
 import Image from "next/image";
 
 import languages from "./languages.json";
+import {useDebouncedCallback} from "use-debounce";
 
 const environments = languages.environments;
 
@@ -95,6 +96,12 @@ const LanguageSelector = ({ language, onChange }) => {
 }
 
 const SandboxFields = ({ sandbox, onChange }) => {
+
+    const [ image, setImage ] = useState(sandbox?.image);
+    const [ beforeAll, setBeforeAll ] = useState(sandbox?.beforeAll);
+
+    const debouncedOnChange = useDebouncedCallback(onChange, 500);
+
     return (
         <>
             <Typography variant="h6">Sandbox</Typography>
@@ -103,16 +110,22 @@ const SandboxFields = ({ sandbox, onChange }) => {
                     id="image"
                     label="Image"
                     variant="standard"
-                    value={sandbox?.image}
-                    onChange={(ev) => onChange("image", ev.target.value)}
+                    value={image}
+                    onChange={(ev) => {
+                        setImage(ev.target.value);
+                        debouncedOnChange("image", ev.target.value)
+                    }}
                 />
                 <TextField
                     id="compile"
                     label="Before All"
                     variant="standard"
-                    value={sandbox?.beforeAll}
+                    value={beforeAll}
                     fullWidth
-                    onChange={(ev) => onChange("beforeAll", ev.target.value)}
+                    onChange={(ev) => {
+                        setBeforeAll(ev.target.value);
+                        debouncedOnChange("beforeAll", ev.target.value)
+                    }}
                 />
             </Stack>
         </>

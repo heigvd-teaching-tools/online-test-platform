@@ -80,7 +80,7 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
         <LayoutSplitScreen
             leftPanel={
                 question && (
-                    <Stack spacing={2} sx={{ p:2, pt:3, height:'100%' }}>
+                    <Stack spacing={2} sx={{ pl:2, pt:3, pb:2, height:'100%' }}>
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Box sx={{ width:32, height:32 }}>
                                 <Image alt="Question Type Icon" src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
