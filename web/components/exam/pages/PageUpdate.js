@@ -34,6 +34,7 @@ const PageUpdate = () => {
         // update the question reference
         Object.assign(question, changedProperties);
         await saveQuestion(question);
+        // after the question is saved, the question will be updated again based oo the response from the backend -> check the saveQuestion function
     }, [questions, saveQuestion]);
 
     const createQuestion = useCallback(async () => {
@@ -91,12 +92,18 @@ const PageUpdate = () => {
             body: JSON.stringify({ question })
         })
             .then((res) => res.json())
-            .then((_) => {
+            .then((updated) => {
+                mutate(questions.map((q) => {
+                    if(q.id === question.id){
+                        return updated;
+                    }
+                    return q;
+                }));
                 showSnackbar('Question saved', "success");
             }).catch(() => {
                 showSnackbar('Error saving questions', 'error');
             });
-    } , [showSnackbar]);
+    } , [showSnackbar, mutate, questions]);
 
     const savePositions = useCallback(async () => {
         await fetch('/api/questions/order', {
