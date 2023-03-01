@@ -11,8 +11,6 @@ import QuestionTypeSpecific from "./QuestionTypeSpecific";
 import {useDebouncedCallback} from "use-debounce";
 import languages from "./type_specific/code/languages.json";
 
-const environments = languages.environments;
-
 const questionTypes = [{
     value: 'multipleChoice',
     label: 'Multiple Choice'
@@ -47,15 +45,6 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
                         { text: 'Option 1', isCorrect: false },
                         { text: 'Option 2', isCorrect: true },
                     ]};
-                    break;
-                case 'code':
-                    question[newQuestionType] = {
-                        language: environments[0].language,
-                        sandbox: {
-                            image: environments[0].sandbox.image,
-                            beforeAll: environments[0].sandbox.beforeAll,
-                        }
-                    }
                     break;
                 default:
                     question[newQuestionType] = {};

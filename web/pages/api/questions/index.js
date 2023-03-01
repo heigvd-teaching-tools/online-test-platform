@@ -75,9 +75,7 @@ const patch = async (req, res) => {
         where: { id: question.id },
         data: data,
         include: {
-            code: {
-                select: { language: true, sandbox: true, testCases: true, solutionFiles: true, templateFiles: true }
-            },
+            code: { select: { language: true } },
             multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
             trueFalse: { select: { isTrue: true } },
             essay: true,

@@ -76,8 +76,13 @@ https://www.npmjs.com/package/@monaco-editor/react
 
 - /api/questions
 - /api/questions/order
+- /api/questions/:questionId/code/tests [POST, GET]
+- /api/questions/:questionId/code/tests/:index [PUT, DELETE]
+
+
+
+
 
 ### users 
 
 - /api/users/:email/exam-sessions/:sessionId 
-  

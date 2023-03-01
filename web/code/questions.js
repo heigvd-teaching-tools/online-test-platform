@@ -44,8 +44,6 @@ export const questionsWithIncludes = ( {
             select: {
                 ...(includeOfficialAnswers ? { solutionFiles: true } : {}),
                 templateFiles: true,
-                sandbox: true,
-                testCases: true,
                 language: true,
             }
         }),
@@ -164,34 +162,6 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
         case QuestionType.essay:
             // type specific does not have any specific fields, might carry the solution in the future
             return {}
-        case QuestionType.code:
-            console.log("QuestionType.code", typeSpecificCopy)
-            if(typeSpecificCopy.sandbox) {
-                let data = {
-                    image: typeSpecificCopy.sandbox.image,
-                    beforeAll: typeSpecificCopy.sandbox.beforeAll
-                };
-
-                let sandboxId = typeSpecificCopy.sandbox.questionId;
-                delete typeSpecificCopy.sandbox.questionId;
-
-                // TODO: better to retrieve the whole question in sort to be able to control the presence of any of the fields
-                // update or create sandbox
-                if(sandboxId) {
-                    // updating existing sandbox
-                    typeSpecificCopy.sandbox = {
-                        update: data
-                    }
-                }else{
-                    // creating new sandbox
-                    typeSpecificCopy.sandbox = {
-                        create: data
-                    }
-                }
-            }
-
-
-            return typeSpecificCopy;
         case QuestionType.web:
             return typeSpecificCopy;
         default:

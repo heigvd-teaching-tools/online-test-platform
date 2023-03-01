@@ -6,6 +6,8 @@ import TrueFalse from "./type_specific/TrueFalse";
 import Web from "./type_specific/Web";
 
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
+
+
     return (
         <Stack height="100%" overflow="auto">
             {(
@@ -16,7 +18,7 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                     />
                 )
                 ||
-                ( question.type === QuestionType.code && question.code &&
+                ( question.type === QuestionType.code &&
                     <Code
                         displaySolutionEditor
                         where="question"
@@ -24,9 +26,7 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                             label: "Partial Code",
                             subheader: "Provided to students"
                         }}
-                        code={question.code}
-                        questionId={question.id}
-                        onChange={(changedProperties) => onQuestionChange({ code: changedProperties })}
+                        question={question}
                     />
                 )
                 ||

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 
+import {QuestionType} from "@prisma/client";
 import {Stack, Tabs, Tab, Paper, Typography, Box, TextField, MenuItem, IconButton} from "@mui/material"
-import CodeEditor from '../../input/CodeEditor';
 import InlineMonacoEditor from '../../input/InlineMonacoEditor';
 import CodeCheck from './CodeCheck';
 
@@ -9,14 +9,21 @@ import SetupTab from "./code/SetupTab";
 import DropDown from "../../input/DropDown";
 
 import languages from "./code/languages.json";
-import Image from 'next/image';
+
+import useSWR from "swr";
 
 const environments = languages.environments;
 
-const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestResult }) => {
+const defaultCode = {
+    language: environments[0].language,
+    sandbox: {
+        image: environments[0].sandbox.image,
+        beforeAll: environments[0].sandbox.beforeAll
+    }
+}
 
-     /**
-         code: {
+/** MODEL
+ code: {
             "language": "cpp",
             "solutionFiles": [],
             "templateFiles": [],
@@ -26,22 +33,61 @@ const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestRe
             },
             "testCases": []
         }
-     */
+ */
 
-    const [ solutionFiles, setSolutionFiles ] = useState(initial.solutionFiles || []);
-    const [ templateFiles, setTemplateFiles ] = useState(initial.templateFiles || []);
+const Code = ({ id = "code", where, question, onTestResult }) => {
 
-    const [ testCases, setTestCases ] = useState(initial.testCases || []);
+    const { data: code, mutate, error } = useSWR(
+        `/api/questions/${question.id}/code`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus: false }
+    );
+
+     const initializeCode = useCallback(async (code) => {
+         // create a code and its sub-entities
+        await fetch(`/api/questions/${question.id}/code`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(defaultCode)
+        }).then(data => data.json())
+        .then(async (data) => {
+            await mutate(data);
+        });
+
+     }, [question.id, mutate]);
+
+     useEffect(() => {
+         if(code === null){ // null means that the useSWR is done and there is no code, don't use undefined
+             initializeCode();
+         }
+     }, [code]);
 
     const [ tab, setTab ] = useState(0);
 
-    const onCodeChange = useCallback((changedProperties) => {
-        // it is important to send the whole object to onChange
-        onChange({ ...initial, ...changedProperties});
-    }, [initial, onChange]);
+    const onChangeLanguage = async (language) => {
+        await fetch(`/api/questions/${question.id}/code`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                language
+            })
+        })
+        .then(async (res) => {
+            if (res.status === 200) {
+                await mutate();
+            }
+        });
+    }
+
 
     return (
-        initial && (
+        code && (
             <Stack id={id} height='100%' >
                 <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                     <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
@@ -50,23 +96,22 @@ const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestRe
                 </Tabs>
                 <TabPanel id="setup" value={tab} index={0}>
                     <SetupTab
-                        code={initial}
-                        onChange={onCodeChange}
+                        question={question}
+                        code={code}
+                        onChangeLanguage={onChangeLanguage}
                     />
                 </TabPanel>
                 <TabPanel id="solution" value={tab} index={1}>
                     <FilesManager
                         id={id}
-                        files={solutionFiles}
-                        onChange={(what, content) => {
+                        files={[]}
 
-                        }}
                     />
                 </TabPanel>
                 <TabPanel id="template" value={tab} index={2}>
                     <FilesManager
                         id={id}
-                        files={templateFiles}
+                        files={[]}
                         onChange={(what, content) => {
                         }}
                     />
@@ -75,7 +120,7 @@ const Code = ({ id = "code", where, questionId, code:initial, onChange, onTestRe
                     <CodeCheck
                         id={`${id}-test-run`}
                         where={where}
-                        questionId={questionId}
+                        questionId={question.id}
                         onTestResult={onTestResult}
                     />
                 </Paper>

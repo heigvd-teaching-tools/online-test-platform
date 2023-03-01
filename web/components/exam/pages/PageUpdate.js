@@ -31,7 +31,7 @@ const PageUpdate = () => {
 
     const onQuestionChange = useCallback(async (questionId, changedProperties) => {
         let question = questions.find((q) => q.id === questionId);
-        // update the question reference
+        // update the question reference in memory
         Object.assign(question, changedProperties);
         await saveQuestion(question);
         // after the question is saved, the question will be updated again based oo the response from the backend -> check the saveQuestion function

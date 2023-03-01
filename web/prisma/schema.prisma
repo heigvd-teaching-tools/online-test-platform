@@ -141,7 +141,7 @@ model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
 
-  language String @default("cpp")
+  language String?
 
   sandbox SandBox?
 
@@ -149,7 +149,6 @@ model Code {
 
   solutionFiles File[]  @relation("solutionFiles")
   templateFiles File[]  @relation("templateFiles")
-  sandBoxId     String?
 }
 
 model SandBox {
@@ -162,14 +161,14 @@ model SandBox {
 
 model TestCase {
   index  Int
-  code   Code   @relation(fields: [codeId], references: [questionId], onDelete: Cascade)
-  codeId String
+  code   Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
 
   exec           String
   input          String
   expectedOutput String
 
-  @@id([index, codeId])
+  @@id([index, questionId])
 }
 
 enum StudentFilePermission {
