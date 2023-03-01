@@ -5,7 +5,7 @@ import useSWR from "swr";
 import languages from "./languages.json";
 
 const environments = languages.environments;
-const Sandbox = ({ question, code }) => {
+const Sandbox = ({ question, language }) => {
 
     const { data: sandbox, mutate, error } = useSWR(
         `/api/questions/${question.id}/code/sandbox`,
@@ -24,7 +24,7 @@ const Sandbox = ({ question, code }) => {
     useEffect(() => {
         // detecting the language change
         if(sandbox){
-            const env = environments.find(env => env.language === code.language);
+            const env = environments.find(env => env.language === language);
             if (env) {
                 setImage(env.sandbox.image);
                 setBeforeAll(env.sandbox.beforeAll);
@@ -34,7 +34,7 @@ const Sandbox = ({ question, code }) => {
                 })
             }
         }
-    }, [code.language, environments]);
+    }, [language, environments]);
 
     const onChange = async (sandbox) => {
         await fetch(`/api/questions/${question.id}/code/sandbox`, {

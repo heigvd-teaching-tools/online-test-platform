@@ -59,13 +59,17 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
 
      }, [question.id, mutate]);
 
-     useEffect(() => {
-         if(code === null){ // null means that the useSWR is done and there is no code, don't use undefined
-             initializeCode();
-         }
-     }, [code]);
-
     const [ tab, setTab ] = useState(0);
+    const [ language, setLanguage ] = useState(code?.language);
+
+    useEffect(() => {
+        if(code === null){ // null means that the useSWR is done and there is no code, don't use undefined
+            initializeCode();
+        }
+        if(code){
+            setLanguage(code.language);
+        }
+    }, [code]);
 
     const onChangeLanguage = async (language) => {
         await fetch(`/api/questions/${question.id}/code`, {
@@ -78,10 +82,11 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                 language
             })
         })
-        .then(async (res) => {
-            if (res.status === 200) {
-                await mutate();
-            }
+        .then(data => data.json())
+        .then(async (data) => {
+            console.log("data", data)
+            setLanguage(data.language);
+            await mutate(data);
         });
     }
 
@@ -97,7 +102,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                 <TabPanel id="setup" value={tab} index={0}>
                     <SetupTab
                         question={question}
-                        code={code}
+                        language={language}
                         onChangeLanguage={onChangeLanguage}
                     />
                 </TabPanel>

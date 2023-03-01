@@ -35,7 +35,7 @@ const TestCases = ({ language, question }) => {
         });
         await mutate();
 
-    }, [question.id, tests, mutate]);
+    }, [question.id, tests, mutate, language]);
 
     const deleteTestCase = useCallback(async (index) => {
         await fetch(`/api/questions/${question.id}/code/tests/${index}`, {
@@ -55,7 +55,6 @@ const TestCases = ({ language, question }) => {
                         }
                         return test;
                     });
-                console.log("deleteTestCase", newTests, index);
                 await mutate(
                     newTests
                 );
