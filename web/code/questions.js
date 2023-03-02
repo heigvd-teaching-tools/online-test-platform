@@ -42,8 +42,12 @@ export const questionsWithIncludes = ( {
     let include = includeTypeSpecific ? {
         code: ({
             select: {
-                ...(includeOfficialAnswers ? { solutionFiles: true } : {}),
-                templateFiles: true,
+                ...(includeOfficialAnswers ? { } : {}),
+
+                codeToFiles: {
+                    select: { nature: true }
+                }
+                ,
                 language: true,
             }
         }),

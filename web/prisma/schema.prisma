@@ -145,23 +145,21 @@ model Code {
 
   sandbox SandBox?
 
-  testCases TestCase[]
-
-  solutionFiles File[]  @relation("solutionFiles")
-  templateFiles File[]  @relation("templateFiles")
+  testCases  TestCase[]
+  codeToFiles CodeToFiles[]
 }
 
 model SandBox {
   image     String
   beforeAll String?
 
-  Code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String @unique @id
+  Code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String @id @unique
 }
 
 model TestCase {
-  index  Int
-  code   Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  index      Int
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
   questionId String
 
   exec           String
@@ -177,6 +175,22 @@ enum StudentFilePermission {
   HIDDEN
 }
 
+enum CodeToFileNature {
+  SOLUTION
+  TEMPLATE
+}
+
+model CodeToFiles {
+  files   File[]
+
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  nature CodeToFileNature @default(SOLUTION)
+
+  @@id([questionId])
+}
+
 model File {
   id String @id @default(cuid())
 
@@ -188,10 +202,7 @@ model File {
 
   studentPermission StudentFilePermission @default(UPDATE)
 
-  codeSolution Code @relation("solutionFiles", fields: [questionId], map: "solution", references: [questionId])
-  codeTemplate Code @relation("templateFiles", fields: [questionId], map: "template", references: [questionId])
-
-  questionId String
+  codes CodeToFiles[]
 }
 
 model Web {

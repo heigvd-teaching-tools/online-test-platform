@@ -2,7 +2,7 @@ import { useState, useEffect }  from "react";
 
 import Editor from "@monaco-editor/react";
 
-const getContentHeight = (editor) => Math.max(100, editor.getModel().getLineCount() * 22);
+const getContentHeight = (editor) => Math.max(100, editor.getModel().getLineCount() * 19.1 + 20); // little magic number dont hurt anyone
 
 const InlineMonacoEditor = ({ code, language = "javascript", readOnly = false, onChange }) => {
     const [ editor, setEditor ] = useState(null);

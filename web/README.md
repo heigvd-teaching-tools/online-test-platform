@@ -76,6 +76,8 @@ https://www.npmjs.com/package/@monaco-editor/react
 
 - /api/questions
 - /api/questions/order
+- /api/questions/:questionId/code [PUT, POST, GET]
+- /api/questions/:questionId/code/sandbox [PUT, POST, GET]
 - /api/questions/:questionId/code/tests [POST, GET]
 - /api/questions/:questionId/code/tests/:index [PUT, DELETE]
 

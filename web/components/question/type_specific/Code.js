@@ -1,16 +1,18 @@
 import React, {useState, useEffect, useCallback} from 'react';
 
-import {QuestionType} from "@prisma/client";
-import {Stack, Tabs, Tab, Paper, Typography, Box, TextField, MenuItem, IconButton} from "@mui/material"
-import InlineMonacoEditor from '../../input/InlineMonacoEditor';
+import useSWR from "swr";
+
+import { Stack, Tabs, Tab, Paper, Typography, Box } from "@mui/material"
+
+import LanguageSelector from "./code/LanguageSelector";
+import Sandbox from "./code/Sandbox";
+import TestCases from "./code/TestCases";
+import TabContent from "./code/TabContent";
+import SolutionFilesManager from "./code/files/SolutionFilesManager";
 import CodeCheck from './CodeCheck';
 
-import SetupTab from "./code/SetupTab";
-import DropDown from "../../input/DropDown";
-
 import languages from "./code/languages.json";
-
-import useSWR from "swr";
+import TemplateFilesManager from "./code/files/TemplateFilesManager";
 
 const environments = languages.environments;
 
@@ -34,6 +36,7 @@ const defaultCode = {
             "testCases": []
         }
  */
+
 
 const Code = ({ id = "code", where, question, onTestResult }) => {
 
@@ -93,33 +96,53 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
 
     return (
         code && (
-            <Stack id={id} height='100%' >
+            <Stack id={id} height='100%'>
                 <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                     <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
                     <Tab label={<Typography variant="caption">Solution</Typography>} value={1} />
                     <Tab label={<Typography variant="caption">Template</Typography>} value={2} />
                 </Tabs>
                 <TabPanel id="setup" value={tab} index={0}>
-                    <SetupTab
-                        question={question}
-                        language={language}
-                        onChangeLanguage={onChangeLanguage}
-                    />
+                    <TabContent padding={2} spacing={2}>
+                        <Box>
+                            { language && (
+                                <LanguageSelector
+                                    language={language}
+                                    onChange={onChangeLanguage}
+                                />
+                            )}
+
+                        </Box>
+
+                        <Sandbox
+                            question={question}
+                            language={language}
+
+                        />
+
+                        <TestCases
+                            question={question}
+                            language={language}
+
+                        />
+                    </TabContent>
+
                 </TabPanel>
                 <TabPanel id="solution" value={tab} index={1}>
-                    <FilesManager
-                        id={id}
-                        files={[]}
-
-                    />
+                    <TabContent>
+                        <SolutionFilesManager
+                            language={language}
+                            question={question}
+                        />
+                    </TabContent>
                 </TabPanel>
                 <TabPanel id="template" value={tab} index={2}>
-                    <FilesManager
-                        id={id}
-                        files={[]}
-                        onChange={(what, content) => {
-                        }}
-                    />
+                    <TabContent>
+                        <TemplateFilesManager
+                            type={"template"}
+                            question={question}
+                        />
+                    </TabContent>
                 </TabPanel>
                 <Paper square elevation={0} maxHeight="100%" width="100%" p={0} >
                     <CodeCheck
@@ -131,83 +154,6 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                 </Paper>
             </Stack>
         )
-    )
-}
-
-const FilesManager = ({ id, files, onChange }) => {
-    console.log("FilesManager", id, files);
-    return (
-        <Box height="100%" overflow="auto">
-            {files.map(({path, content}, index) => {
-                <FileEditor
-                    id={`${id}-${index}-solution`}
-                    path={path}
-                    code={content}
-                    secondaryActions={
-                        <DropDown
-                            id={`${id}-student-permission`}
-                            name="Student Permission"
-                            defaultValue={"Update"}
-                            minWidth="200px"
-                            onChange={(env) => {}}
-                        >
-                            <MenuItem value="Update">Update</MenuItem>
-                            <MenuItem value="View">View</MenuItem>
-                            <MenuItem value="Hidden">Hidden</MenuItem>
-                        </DropDown>
-                    }
-                    onChange={(newCode) => {
-                        setCode({ ...code, solution: newCode});
-                    }}
-                />
-            })}
-
-        </Box>
-    )
-}
-
-
-const languageBasedOnPathExtension = (path) => {
-    const extension = path.split('.').pop();
-    return languages.monacoExtensionToLanguage[extension];
-}
-
-const FileEditor = ({ id, path: initialPath, code: initialCode, secondaryActions }) => {
-
-    // automatically set language based on path extension
-    const [ language, setLanguage ] = useState(languageBasedOnPathExtension(initialPath));
-
-    const [ path, setPath ] = useState(initialPath);
-    const [ code, setCode ] = useState(initialCode);
-
-
-    useEffect(() => {
-        setLanguage(languageBasedOnPathExtension(path) || "text");
-    }, [path]);
-
-    return (
-        <Stack height="100%">
-            <Stack direction="row" padding={2} alignItems="center" justifyContent="flex-start">
-                <TextField
-                    id={`${id}-${path}`}
-                    variant="standard"
-                    label={`Path [syntax: ${language}]`}
-                    value={path}
-                    fullWidth
-                    onChange={(ev) => {
-                        setPath(ev.target.value);
-                    }}
-                />
-                {secondaryActions}
-
-
-            </Stack>
-            <InlineMonacoEditor
-                code={code}
-                language={languageBasedOnPathExtension(path)}
-
-            />
-        </Stack>
     )
 }
 

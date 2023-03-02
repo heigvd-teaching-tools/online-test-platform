@@ -16,13 +16,14 @@ if(!(await hasRole(req, Role.PROFESSOR))) {
         return;
     }
     switch(req.method) {
-        case 'GET':
-            await get(req, res);
         case 'PUT':
             await put(req, res);
             break;
         case 'POST':
             await post(req, res);
+            break;
+        case 'GET':
+            await get(req, res);
             break;
         default:
     }
