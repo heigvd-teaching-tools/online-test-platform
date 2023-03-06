@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import React, {useCallback, useRef} from "react";
-import {addFile, deleteFile, updateFile} from "./crud";
+import { create, del, update } from "./crud";
 import {Box, Button, IconButton, Stack} from "@mui/material";
 import FileEditor from "./FileEditor";
 import Image from "next/image";
@@ -11,7 +11,7 @@ const environments = languages.environments;
 const SolutionFilesManager = ({ language, question }) => {
     const filesRef = useRef();
 
-    const { data:files, mutate, error } = useSWR(
+    const { data:files, mutate } = useSWR(
         `/api/questions/${question.id}/code/files/solution`,
         question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
@@ -21,7 +21,7 @@ const SolutionFilesManager = ({ language, question }) => {
         const extension = environments.find(env => env.language === language).extension;
         const path = `/src/file${files?.length || ""}.${extension}`;
 
-        await addFile("solution", question.id, {
+        await create("solution", question.id, {
             path,
             content: ""
         }).then(async (newFiles) => {
@@ -32,12 +32,12 @@ const SolutionFilesManager = ({ language, question }) => {
     }, [question.id, files, mutate, language]);
 
     const onFileUpdate = useCallback(async (file) => {
-        await updateFile("solution", question.id, file).then(async () => await mutate());
+        await update("solution", question.id, file).then(async () => await mutate());
     }, [question.id, mutate, files]);
 
     const onDeleteFile = useCallback(async (file) => {
         console.log("delete file", file)
-        await deleteFile("solution", question.id, file)
+        await del("solution", question.id, file)
             .then(async (data) => {
                 let newFiles = files;
                 newFiles = newFiles.filter(f => f.id !== data.id);

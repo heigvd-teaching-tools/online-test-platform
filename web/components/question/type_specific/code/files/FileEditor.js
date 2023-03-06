@@ -1,6 +1,6 @@
 import languages from "../languages.json";
 import React, {useEffect, useState} from "react";
-import {Stack, TextField} from "@mui/material";
+import {Box, Stack, TextField, Typography} from "@mui/material";
 import InlineMonacoEditor from "../../../../input/InlineMonacoEditor";
 import {useDebouncedCallback} from "use-debounce";
 
@@ -10,7 +10,7 @@ const languageBasedOnPathExtension = (path) => {
     return languages.monacoExtensionToLanguage[extension];
 }
 
-const FileEditor = ({ file, onChange, secondaryActions }) => {
+const FileEditor = ({ file, readonlyPath= false, readonlyContent = false, onChange, secondaryActions }) => {
 
     // automatically set language based on path extension
     const [ language, setLanguage ] = useState(languageBasedOnPathExtension(file?.path));
@@ -29,27 +29,32 @@ const FileEditor = ({ file, onChange, secondaryActions }) => {
     return (
         file && (
             <Stack position="relative">
-                <Stack position="sticky" zIndex={1} bgcolor="white" top={0} direction="row" p={2} alignItems="center" justifyContent="flex-start">
-                    <TextField
-                        id={`${file.id}-${path}`}
-                        variant="standard"
-                        label={`Path [syntax: ${language}]`}
-                        value={path}
-                        fullWidth
-                        onChange={(ev) => {
-                            if(ev.target.value === file?.content) return;
-                            setPath(ev.target.value);
-                            debouncedOnChange({
-                                ...file,
-                                path: ev.target.value
-                            });
-                        }}
-                    />
+                <Stack direction="row" position="sticky" top={0} spacing={1} p={2} alignItems="center" justifyContent="center" zIndex={1} bgcolor="white" >
+                    { !readonlyPath && (
+                        <TextField
+                            id={`${file.id}-${path}`}
+                            variant="standard"
+                            label={`Path [syntax: ${language}]`}
+                            value={path}
+                            fullWidth
+                            onChange={(ev) => {
+                                if(ev.target.value === file?.content) return;
+                                setPath(ev.target.value);
+                                debouncedOnChange({
+                                    ...file,
+                                    path: ev.target.value
+                                });
+                            }}
+                        />)
+                        ||
+                        <Box width="100%" maxWidth="100%" overflow="hidden"><Typography variant="body1"> {path} </Typography></Box>
+                    }
                     {secondaryActions}
                 </Stack>
                 <InlineMonacoEditor
                     code={content}
                     language={languageBasedOnPathExtension(path)}
+                    readOnly={readonlyContent}
                     onChange={(code) => {
                         if(code === file?.content) return;
                         setContent(code);

@@ -47,9 +47,10 @@ const get = async (req, res) => {
         },
         include: {
             files: {
-                orderBy: {
-                    createdAt: 'asc'
-                }
+                orderBy: [
+                    { createdAt: 'asc' },
+                    { id: 'asc' } // to ensure that the order is deterministic when createdAt is the same
+                ]
             }
         }
     });

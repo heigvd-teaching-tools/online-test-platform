@@ -1,5 +1,5 @@
 
-export const updateFile = (nature, questionId, file) =>
+export const update = (nature, questionId, file) =>
     fetch(`/api/questions/${questionId}/code/files/${nature}`, {
         method: "PUT",
         headers: {
@@ -9,7 +9,7 @@ export const updateFile = (nature, questionId, file) =>
         body: JSON.stringify(file)
     }).then(data => data.json());
 
-export const addFile = (nature, questionId, file) =>
+export const create = (nature, questionId, file) =>
     fetch(`/api/questions/${questionId}/code/files/${nature}`, {
         method: "POST",
         headers: {
@@ -19,7 +19,7 @@ export const addFile = (nature, questionId, file) =>
         body: JSON.stringify(file)
     }).then(data => data.json());
 
-export const deleteFile = (nature, questionId, file) =>
+export const del = (nature, questionId, file) =>
     fetch(`/api/questions/${questionId}/code/files/${nature}`, {
         method: "DELETE",
         headers: {
@@ -28,3 +28,13 @@ export const deleteFile = (nature, questionId, file) =>
         },
         body: JSON.stringify(file)
     }).then(data => data.json());
+
+export const pull = (questionId) =>
+    fetch(`/api/questions/${questionId}/code/files/solution/pull`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }}
+    ).then(data => data.json());
+

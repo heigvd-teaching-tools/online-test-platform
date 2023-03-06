@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import {Box, Button, MenuItem, Stack} from "@mui/material";
 import FileEditor from "./FileEditor";
-import { updateFile } from "./crud";
+import { update, pull } from "./crud";
 import DropDown from "../../../../input/DropDown";
 import {StudentFilePermission} from "@prisma/client";
 import React, {useCallback} from "react";
@@ -15,18 +15,24 @@ const TemplateFilesManager = ({ question }) => {
     );
 
     const onFileUpdate = useCallback(async (file) => {
-        await updateFile("template", question.id, file).then(async () => await mutate());
+        await update("template", question.id, file).then(async () => await mutate());
+    }, [question.id, mutate, files]);
+
+
+    const onPullSolution = useCallback(async () => {
+        await pull(question.id).then(async (data) => await mutate(data));
     }, [question.id, mutate, files]);
 
     return (
         <Stack height="100%">
-            <Button onClick={() => {}}>Pull Solution</Button>
+            <Button onClick={onPullSolution}>Pull Solution</Button>
             {files && (
                 <Box height="100%" overflow="auto">
                     {files.map((file, index) => (
                         <FileEditor
                             key={index}
                             file={file}
+                            readonlyPath
                             onChange={async (file) => await onFileUpdate(file)}
                             secondaryActions={
                                 <Stack direction="row" spacing={1}>
