@@ -145,7 +145,7 @@ model Code {
 
   sandbox SandBox?
 
-  testCases  TestCase[]
+  testCases   TestCase[]
   codeToFiles CodeToFiles[]
 }
 
@@ -181,14 +181,15 @@ enum CodeToFileNature {
 }
 
 model CodeToFiles {
-  files   File[]
 
-  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+
   questionId String
+  nature     CodeToFileNature @default(SOLUTION)
 
-  nature CodeToFileNature @default(SOLUTION)
+  files File[]
 
-  @@id([questionId])
+  @@id([questionId, nature])
 }
 
 model File {
@@ -202,7 +203,10 @@ model File {
 
   studentPermission StudentFilePermission @default(UPDATE)
 
-  codes CodeToFiles[]
+  codeToFiles           CodeToFiles? @relation(fields: [codeToFilesQuestionId, codeToFilesNature], references: [questionId, nature])
+  codeToFilesQuestionId String?
+  codeToFilesNature     CodeToFileNature?
+
 }
 
 model Web {

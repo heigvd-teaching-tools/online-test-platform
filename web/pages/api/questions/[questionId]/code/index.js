@@ -1,4 +1,4 @@
-import {PrismaClient, Role} from "@prisma/client";
+import {PrismaClient, Role, CodeToFileNature} from "@prisma/client";
 
 import {hasRole} from "../../../../../utils/auth";
 
@@ -30,18 +30,20 @@ const handler = async (req, res) => {
 }
 
 const put = async (req, res) => {
-    // update the code of the question
+    // code only carries "language" field. The rest of the fields are in the sub-entities
+    // the change of language will delete the sub-entities and create new ones
 
     const { questionId } = req.query;
-    const { language } = req.body;
-    const codeQuestion = await prisma.code.update({
+    const { language, sandbox, testCases, files } = req.body;
+
+    // delete then create the code
+    await prisma.code.delete({
         where: {
             questionId: questionId
-        },
-        data: {
-            language
         }
     });
+
+    const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
 
     res.status(200).json(codeQuestion);
 }
@@ -50,19 +52,8 @@ const post = async (req, res) => {
     // create a code and its sub-entities
 
     const { questionId } = req.query;
-    const { language, sandbox } = req.body;
-    const codeQuestion = await prisma.code.create({
-        data: {
-            language,
-            questionId: questionId,
-            sandbox: {
-                create: {
-                    image: sandbox.image,
-                    beforeAll: sandbox.beforeAll
-                }
-            }
-        }
-    });
+    const { language, sandbox, testCases, files } = req.body;
+    const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
 
     res.status(200).json(codeQuestion);
 }
@@ -78,6 +69,50 @@ const get = async (req, res) => {
     });
 
     res.status(200).json(codeQuestion);
+}
+
+
+const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
+    return {
+        data: {
+            language,
+            questionId: questionId,
+            sandbox: {
+                create: {
+                    image: sandbox.image,
+                    beforeAll: sandbox.beforeAll
+                }
+            },
+            testCases: {
+                create: testCases.map((testCase, index) => ({
+                    index: index + 1,
+                    exec: testCase.exec,
+                    input: testCase.input,
+                    expectedOutput: testCase.expectedOutput
+                }))
+            },
+            codeToFiles: {
+                create: [{
+                    nature: CodeToFileNature.SOLUTION,
+                    files: {
+                        create: files.solution.map(file => ({
+                            path: file.path,
+                            content: file.content
+                        }))
+                    }
+
+                }, {
+                    nature: CodeToFileNature.TEMPLATE,
+                    files: {
+                        create: files.template.map(file => ({
+                            path: file.path,
+                            content: file.content
+                        }))
+                    }
+                }]
+            }
+        }
+    }
 }
 
 export default handler;

@@ -16,27 +16,22 @@ import TemplateFilesManager from "./code/files/TemplateFilesManager";
 
 const environments = languages.environments;
 
-const defaultCode = {
-    language: environments[0].language,
-    sandbox: {
-        image: environments[0].sandbox.image,
-        beforeAll: environments[0].sandbox.beforeAll
+const codeBasedOnLanguage = (language) => {
+    const index = environments.findIndex(env => env.language === language);
+    return {
+        language: environments[index].language,
+        sandbox: {
+            image: environments[index].sandbox.image,
+            beforeAll: environments[index].sandbox.beforeAll
+
+        },
+        files: {
+            template: environments[index].files.template,
+            solution: environments[index].files.solution
+        },
+        testCases: environments[index].testCases
     }
 }
-
-/** MODEL
- code: {
-            "language": "cpp",
-            "solutionFiles": [],
-            "templateFiles": [],
-            "sandbox": {
-                "image": "cpp",
-                "beforeAll": "g++ -o solution solution.cpp"
-            },
-            "testCases": []
-        }
- */
-
 
 const Code = ({ id = "code", where, question, onTestResult }) => {
 
@@ -54,7 +49,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify(defaultCode)
+            body: JSON.stringify(codeBasedOnLanguage("cpp"))
         }).then(data => data.json())
         .then(async (data) => {
             await mutate(data);
@@ -81,13 +76,10 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({
-                language
-            })
+            body: JSON.stringify(codeBasedOnLanguage(language))
         })
         .then(data => data.json())
         .then(async (data) => {
-            console.log("data", data)
             setLanguage(data.language);
             await mutate(data);
         });

@@ -15,6 +15,11 @@ const TestCases = ({ language, question }) => {
         { revalidateOnFocus: false }
     );
 
+    useEffect(() => {
+        // detecting the language change
+        mutate();
+    }, [language, mutate]);
+
     const addTestCase = useCallback(async () => {
         const exec = tests.length === 0 ?
             environments.find(env => env.language === language).sandbox.exec

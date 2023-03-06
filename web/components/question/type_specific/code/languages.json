@@ -8,9 +8,24 @@
       "icon": "/svg/languages/cpp.svg",
       "sandbox": {
         "image": "gcc:latest",
-        "defaultPath": "/src/filename.cpp",
-        "exec": "/src/filename",
+        "defaultPath": "/src/main.cpp",
+        "exec": "/src/main",
         "beforeAll": "g++  -std=c++17 /src/filename.cpp -o /src/filename"
+      },
+      "testCases": [{
+        "exec": "/src/main",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1"
+      }],
+      "files": {
+        "solution": [{
+          "path": "/src/main.cpp",
+          "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+        }],
+        "template": [{
+            "path": "/src/main.cpp",
+            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+        }]
       }
     },
     {
@@ -20,9 +35,24 @@
       "icon": "/svg/languages/java.svg",
       "sandbox": {
         "image": "openjdk:latest",
-        "defaultPath": "/src/filename.java",
-        "exec": "java -cp /src/filename",
-        "beforeAll": "javac /src/filename.java"
+        "defaultPath": "/src/main.java",
+        "exec": "java -cp /src/main",
+        "beforeAll": "javac /src/main.java"
+      },
+      "testCases": [{
+        "exec": "java -cp /src/main",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1"
+      }],
+      "files": {
+          "solution": [{
+          "path": "/src/main.java",
+          "content": "\nimport java.util.*;\npublic class main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            String line = sc.nextLine();\n            System.out.println(line.toUpperCase());\n        }\n    }\n}"
+          }],
+          "template": [{
+              "path": "/src/main.java",
+              "content": "\npublic class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\");\n    }\n}"
+          }]
       }
     },
     {

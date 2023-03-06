@@ -46,8 +46,6 @@ const FileEditor = ({ file, onChange, secondaryActions }) => {
                         }}
                     />
                     {secondaryActions}
-
-
                 </Stack>
                 <InlineMonacoEditor
                     code={content}
