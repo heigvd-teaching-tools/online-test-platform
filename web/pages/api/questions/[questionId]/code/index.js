@@ -61,10 +61,6 @@ const put = async (req, res) => {
         where: { questionId: questionId }
     });
 
-
-
-    console.log("Files to delete : ", filesToDelete);
-
     const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
 
     res.status(200).json(codeQuestion);

@@ -190,7 +190,6 @@ model CodeToFile {
 
   questionId String
   nature     CodeToFileNature @default(SOLUTION)
-  studentPermission StudentFilePermission?
 
   file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
@@ -203,6 +202,7 @@ model File {
 
   path    String
   content String
+  studentPermission StudentFilePermission @default(UPDATE)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
