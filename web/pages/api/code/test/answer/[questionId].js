@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const { user: { email } } = await getSession({ req });
 
-    // solution code retrieved from the questions
+    // [nature] code retrieved from the questions
     const question = await prisma.question.findUnique({
         where: {
             id: questionId

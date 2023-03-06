@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import React, {useCallback} from "react";
+import React, {useCallback, useRef} from "react";
 import {addFile, deleteFile, updateFile} from "./crud";
 import {Box, Button, IconButton, Stack} from "@mui/material";
 import FileEditor from "./FileEditor";
@@ -9,6 +9,7 @@ import languages from "../languages.json";
 
 const environments = languages.environments;
 const SolutionFilesManager = ({ language, question }) => {
+    const filesRef = useRef();
 
     const { data:files, mutate, error } = useSWR(
         `/api/questions/${question.id}/code/files/solution`,
@@ -23,21 +24,15 @@ const SolutionFilesManager = ({ language, question }) => {
         await addFile("solution", question.id, {
             path,
             content: ""
-        })
-            .then(async (newFiles) => {
-                console.log("new file", newFiles)
-                await mutate(newFiles);
-
-            });
+        }).then(async (newFiles) => {
+            await mutate(newFiles);
+            // scroll to the bottom of the files list
+            filesRef.current.scrollTop = filesRef.current.scrollHeight;
+        });
     }, [question.id, files, mutate, language]);
 
     const onFileUpdate = useCallback(async (file) => {
-        console.log("update file", file)
-        await updateFile("solution", question.id, file)
-            .then(async () => {
-
-                await mutate();
-            });
+        await updateFile("solution", question.id, file).then(async () => await mutate());
     }, [question.id, mutate, files]);
 
     const onDeleteFile = useCallback(async (file) => {
@@ -54,7 +49,7 @@ const SolutionFilesManager = ({ language, question }) => {
         <Stack height="100%">
             <Button onClick={onAddFile}>Add File</Button>
             {files && (
-                <Box height="100%" overflow="auto">
+                <Box ref={filesRef} height="100%" overflow="auto">
                     {files.map((file, index) => (
                         <FileEditor
                             key={index}

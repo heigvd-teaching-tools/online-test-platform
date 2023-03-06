@@ -34,7 +34,7 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    // get the solution files for a code question
+    // get the [nature] files for a code question
 
     const { questionId } = req.query;
 
@@ -108,23 +108,14 @@ const put = async (req, res) => {
     const { questionId } = req.query;
     const { id, path, content, studentPermission } = req.body;
 
-    const codeToFiles = await prisma.codeToFiles.update({
+    const codeToFiles = await prisma.file.update({
         where: {
-            questionId: questionId
+            id: id
         },
         data: {
-            files: {
-                update: {
-                    where: {
-                        id: id
-                    },
-                    data: {
-                        path,
-                        content,
-                        studentPermission
-                    }
-                }
-            }
+            path,
+            content,
+            studentPermission
         }
     });
     res.status(200).json(codeToFiles);

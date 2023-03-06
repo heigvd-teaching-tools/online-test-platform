@@ -15,10 +15,8 @@ const TestCases = ({ language, question }) => {
         { revalidateOnFocus: false }
     );
 
-    useEffect(() => {
-        // detecting the language change
-        mutate();
-    }, [language, mutate]);
+    // react on the language change, re-fetch the tests
+    useEffect(() => { (async () => await mutate())() }, [language, mutate]);
 
     const addTestCase = useCallback(async () => {
         const exec = tests.length === 0 ?

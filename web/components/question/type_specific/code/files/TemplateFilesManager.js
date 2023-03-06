@@ -4,7 +4,7 @@ import FileEditor from "./FileEditor";
 import { updateFile } from "./crud";
 import DropDown from "../../../../input/DropDown";
 import {StudentFilePermission} from "@prisma/client";
-import React from "react";
+import React, {useCallback} from "react";
 
 const TemplateFilesManager = ({ question }) => {
 
@@ -13,6 +13,10 @@ const TemplateFilesManager = ({ question }) => {
         question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
+
+    const onFileUpdate = useCallback(async (file) => {
+        await updateFile("template", question.id, file).then(async () => await mutate());
+    }, [question.id, mutate, files]);
 
     return (
         <Stack height="100%">
@@ -23,7 +27,7 @@ const TemplateFilesManager = ({ question }) => {
                         <FileEditor
                             key={index}
                             file={file}
-                            onChange={async (file) => await updateFile(file)}
+                            onChange={async (file) => await onFileUpdate(file)}
                             secondaryActions={
                                 <Stack direction="row" spacing={1}>
                                     <DropDown
@@ -31,7 +35,10 @@ const TemplateFilesManager = ({ question }) => {
                                         name="Student Permission"
                                         defaultValue={file.studentPermission}
                                         minWidth="200px"
-                                        onChange={() => {}}
+                                        onChange={async (permission) => {
+                                            file.studentPermission = permission;
+                                            await onFileUpdate(file);
+                                        }}
                                     >
                                         <MenuItem value={StudentFilePermission.UPDATE}>Update</MenuItem>
                                         <MenuItem value={StudentFilePermission.VIEW}>View</MenuItem>

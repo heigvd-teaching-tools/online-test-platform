@@ -62,10 +62,25 @@
       "icon": "/svg/languages/javascript.svg",
       "sandbox": {
         "image": "node:latest",
-        "defaultPath": "/src/filename.js",
-        "exec": "node /src/filename.js",
+        "defaultPath": "/src/script.js",
+        "exec": "node /src/script.js",
         "beforeAll": ""
-      }
+      },
+      "testCases": [{
+        "exec": "node /src/script.js",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1"
+      }],
+        "files": {
+            "solution": [{
+            "path": "/src/script.js",
+            "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+            }],
+            "template": [{
+                "path": "/src/script.js",
+                "content": "\nconsole.log(\"Hello World!\");"
+            }]
+        }
     },
     {
       "language": "python",
@@ -74,10 +89,25 @@
       "icon": "/svg/languages/python.svg",
       "sandbox": {
         "image": "python:latest",
-        "defaultPath": "/src/filename.py",
-        "exec": "python /src/filename.py",
+        "defaultPath": "/src/script.py",
+        "exec": "python /src/script.py",
         "beforeAll": ""
-      }
+      },
+      "testCases": [{
+        "exec": "python /src/script.py",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1"
+      }],
+        "files": {
+            "solution": [{
+            "path": "/src/script.py",
+            "content": "\nimport sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+            }],
+            "template": [{
+                "path": "/src/script.py",
+                "content": "\nprint(\"Hello World!\")"
+            }]
+        }
     }
   ],
   "monacoExtensionToLanguage": {

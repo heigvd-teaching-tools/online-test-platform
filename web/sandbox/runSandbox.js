@@ -1,4 +1,4 @@
-import uniqid from "uniqid"; 
+import uniqid from "uniqid";
 import fs from "fs";
 
 import { GenericContainer } from "testcontainers";
@@ -12,7 +12,7 @@ const EXECUTION_TIMEOUT = 5000;
 
 export const runSandbox = (code, solution, mode = "run") => {
     return new Promise(async (resolve, reject) =>  {
-        
+
         // Create the files
         let directory = `sandbox/runs/${uniqid()}`;
         fs.mkdirSync(directory);
@@ -23,7 +23,7 @@ export const runSandbox = (code, solution, mode = "run") => {
         const container = await new GenericContainer("node:current-alpine3.16")
             .withEnv("NODE_NO_WARNINGS", "1")
             .withCopyFileToContainer(`${directory}/code.js`, "/app/code.js")
-            .withCopyFileToContainer(`${directory}/solution.js`, "/app/solution.js")
+            .withCopyFileToContainer(`${directory}/solution.js`, "/app/[nature].js")
             .withCmd(["sleep", "infinity"])
             .start();
 
@@ -52,7 +52,7 @@ export const runSandbox = (code, solution, mode = "run") => {
 
         // Execute the code
         let { output:expected } = await container.exec([
-            "node", "/app/solution.js"
+            "node", "/app/[nature].js"
         ], { tty: false });
 
         let { output:result } = await container.exec([

@@ -164,7 +164,7 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
         case QuestionType.trueFalse:
             return typeSpecificCopy;
         case QuestionType.essay:
-            // type specific does not have any specific fields, might carry the solution in the future
+            // type specific does not have any specific fields, might carry the [nature] in the future
             return {}
         case QuestionType.web:
             return typeSpecificCopy;
