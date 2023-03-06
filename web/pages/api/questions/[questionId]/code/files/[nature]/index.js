@@ -40,27 +40,19 @@ const get = async (req, res) => {
 
     const codeToFileNature = CodeToFileNature[nature.toUpperCase()];
 
-    const codeToFiles = await prisma.codeToFiles.findMany({
+    const codeToFiles = await prisma.codeToFile.findMany({
         where: {
             questionId,
             nature: codeToFileNature
         },
         include: {
-            files: {
-                orderBy: [
-                    { createdAt: 'asc' },
-                    { id: 'asc' } // to ensure that the order is deterministic when createdAt is the same
-                ]
-            }
+            file: true
         }
     });
+
     if(!codeToFiles) res.status(404).json({message: "Not found"});
 
-    let files = [];
-    if(codeToFiles.length > 0) {
-        files = codeToFiles[0].files;
-    }
-    res.status(200).json(files);
+    res.status(200).json(codeToFiles.map(codeToFile => codeToFile.file));
 }
 
 

@@ -10,7 +10,7 @@
         "image": "gcc:latest",
         "defaultPath": "/src/main.cpp",
         "exec": "/src/main",
-        "beforeAll": "g++  -std=c++17 /src/filename.cpp -o /src/filename"
+        "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main"
       },
       "testCases": [{
         "exec": "/src/main",

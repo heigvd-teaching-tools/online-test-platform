@@ -1,4 +1,4 @@
-import {PrismaClient, Role, CodeToFileNature} from "@prisma/client";
+import {PrismaClient, Role, CodeToFileNature, StudentFilePermission} from "@prisma/client";
 
 import {hasRole} from "../../../../../utils/auth";
 
@@ -36,12 +36,34 @@ const put = async (req, res) => {
     const { questionId } = req.query;
     const { language, sandbox, testCases, files } = req.body;
 
-    // delete then create the code
-    await prisma.code.delete({
+    // files must be deleted manually because of the relation between code and file
+    const filesToDelete = await prisma.file.findMany({
         where: {
-            questionId: questionId
+            fileToCode: {
+                is: {
+                    questionId: questionId
+                }
+            }
         }
     });
+
+    // delete the files
+    await prisma.file.deleteMany({
+        where: {
+            id: {
+                in: filesToDelete.map(file => file.id)
+            }
+        }
+    });
+
+    // delete then create the code
+    await prisma.code.delete({
+        where: { questionId: questionId }
+    });
+
+
+
+    console.log("Files to delete : ", filesToDelete);
 
     const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
 
@@ -73,10 +95,30 @@ const get = async (req, res) => {
 
 
 const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
+
+    const filesQuery = [
+        ...files.solution.map(file => ({
+            nature: CodeToFileNature.SOLUTION,
+            file: {
+                create: {
+                    path: file.path,
+                    content: file.content
+                }
+            }
+        })),
+        ...files.template.map(file => ({
+            nature: CodeToFileNature.TEMPLATE,
+            file: {
+                create: {
+                    path: file.path,
+                    content: file.content
+                }
+            }
+        }))
+    ]
     return {
         data: {
             language,
-            questionId: questionId,
             sandbox: {
                 create: {
                     image: sandbox.image,
@@ -92,24 +134,12 @@ const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
                 }))
             },
             codeToFiles: {
-                create: [{
-                    nature: CodeToFileNature.SOLUTION,
-                    files: {
-                        create: files.solution.map(file => ({
-                            path: file.path,
-                            content: file.content
-                        }))
-                    }
-
-                }, {
-                    nature: CodeToFileNature.TEMPLATE,
-                    files: {
-                        create: files.template.map(file => ({
-                            path: file.path,
-                            content: file.content
-                        }))
-                    }
-                }]
+                create: filesQuery
+            },
+            question: {
+                connect: {
+                    id: questionId
+                }
             }
         }
     }

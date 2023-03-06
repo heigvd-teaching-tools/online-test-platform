@@ -10,6 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+enum StudentFilePermission {
+  UPDATE
+  VIEW
+  HIDDEN
+}
+
+enum CodeToFileNature {
+  SOLUTION
+  TEMPLATE
+}
+
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -137,17 +150,6 @@ model Essay {
   questionId String   @id
 }
 
-model Code {
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String   @id
-
-  language String?
-
-  sandbox SandBox?
-
-  testCases   TestCase[]
-  codeToFiles CodeToFiles[]
-}
 
 model SandBox {
   image     String
@@ -169,27 +171,31 @@ model TestCase {
   @@id([index, questionId])
 }
 
-enum StudentFilePermission {
-  UPDATE
-  VIEW
-  HIDDEN
+
+model Code {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String   @id
+
+  language String?
+
+  sandbox SandBox?
+
+  testCases   TestCase[]
+  codeToFiles CodeToFile[]
 }
 
-enum CodeToFileNature {
-  SOLUTION
-  TEMPLATE
-}
 
-model CodeToFiles {
-
+model CodeToFile {
   code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
 
   questionId String
   nature     CodeToFileNature @default(SOLUTION)
+  studentPermission StudentFilePermission?
 
-  files File[]
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
 
-  @@id([questionId, nature])
+  @@id([questionId, nature, fileId])
 }
 
 model File {
@@ -201,12 +207,7 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  studentPermission StudentFilePermission @default(UPDATE)
-
-  codeToFiles           CodeToFiles? @relation(fields: [codeToFilesQuestionId, codeToFilesNature], references: [questionId, nature])
-  codeToFilesQuestionId String?
-  codeToFilesNature     CodeToFileNature?
-
+  fileToCode CodeToFile?
 }
 
 model Web {
