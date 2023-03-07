@@ -39,7 +39,12 @@ const put = async (req, res) => {
     // files must be deleted manually because of the relation between code and file
     const filesToDelete = await prisma.file.findMany({
         where: {
-            fileToCode: {
+            codeToSolutionFile: {
+                is: {
+                    questionId: questionId
+                }
+            },
+            codeToTemplateFile: {
                 is: {
                     questionId: questionId
                 }

@@ -78,7 +78,7 @@
             }],
             "template": [{
                 "path": "/src/script.js",
-                "content": "\nconsole.log(\"Hello World!\");"
+                "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
             }]
         }
     },

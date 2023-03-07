@@ -77,7 +77,7 @@ const put = async (req, res) => {
 }
 
 const del = async (req, res) => {
-    // delete a file for a code question
+    // delete a file for a code question, cascade from codeToFile wont work here
     // as the file is created for a code question we handle it through CodeToFile entity
 
     const { questionId, nature, fileId } = req.query;
