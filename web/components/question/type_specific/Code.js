@@ -16,22 +16,6 @@ import TemplateFilesManager from "./code/files/TemplateFilesManager";
 
 const environments = languages.environments;
 
-const codeBasedOnLanguage = (language) => {
-    const index = environments.findIndex(env => env.language === language);
-    return {
-        language: environments[index].language,
-        sandbox: {
-            image: environments[index].sandbox.image,
-            beforeAll: environments[index].sandbox.beforeAll
-
-        },
-        files: {
-            template: environments[index].files.template,
-            solution: environments[index].files.solution
-        },
-        testCases: environments[index].testCases
-    }
-}
 
 const Code = ({ id = "code", where, question, onTestResult }) => {
 
@@ -40,22 +24,6 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
         question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
-
-     const initializeCode = useCallback(async (code) => {
-         // create a code and its sub-entities
-        await fetch(`/api/questions/${question.id}/code`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(codeBasedOnLanguage("cpp"))
-        }).then(data => data.json())
-        .then(async (data) => {
-            await mutate(data);
-        });
-
-     }, [question.id, mutate]);
 
     const [ tab, setTab ] = useState(0);
     const [ language, setLanguage ] = useState(code?.language);
@@ -69,7 +37,23 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
         }
     }, [code]);
 
-    const onChangeLanguage = async (language) => {
+    const initializeCode = useCallback(async (code) => {
+        // create a code and its sub-entities
+        await fetch(`/api/questions/${question.id}/code`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(codeBasedOnLanguage("cpp"))
+        }).then(data => data.json())
+            .then(async (data) => {
+                await mutate(data);
+            });
+
+    }, [question.id, mutate]);
+
+    const onChangeLanguage = useCallback(async (language) => {
         await fetch(`/api/questions/${question.id}/code`, {
             method: "PUT",
             headers: {
@@ -83,8 +67,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
             setLanguage(data.language);
             await mutate(data);
         });
-    }
-
+    }, [question.id, mutate]);
 
     return (
         code && (
@@ -150,6 +133,23 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
 }
 
 const TabPanel = ({ children, value, index }) => value === index && children;
+
+const codeBasedOnLanguage = (language) => {
+    const index = environments.findIndex(env => env.language === language);
+    return {
+        language: environments[index].language,
+        sandbox: {
+            image: environments[index].sandbox.image,
+            beforeAll: environments[index].sandbox.beforeAll
+
+        },
+        files: {
+            template: environments[index].files.template,
+            solution: environments[index].files.solution
+        },
+        testCases: environments[index].testCases
+    }
+}
 
 
 export default Code;
