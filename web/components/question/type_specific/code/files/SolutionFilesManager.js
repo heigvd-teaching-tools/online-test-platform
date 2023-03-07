@@ -11,7 +11,7 @@ const environments = languages.environments;
 const SolutionFilesManager = ({ language, question }) => {
     const filesRef = useRef();
 
-    const { data:files, mutate } = useSWR(
+    const { data:codeToSolutionFiles, mutate } = useSWR(
         `/api/questions/${question.id}/code/files/solution`,
         question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
@@ -19,45 +19,48 @@ const SolutionFilesManager = ({ language, question }) => {
 
     const onAddFile = useCallback(async () => {
         const extension = environments.find(env => env.language === language).extension;
-        const path = `/src/file${files?.length || ""}.${extension}`;
+        const path = `/src/file${codeToSolutionFiles?.length || ""}.${extension}`;
 
         await create("solution", question.id, {
-            path,
-            content: ""
-        }).then(async (newFiles) => {
-            await mutate(newFiles);
+            file: {
+                path,
+                content: ""
+            }
+        }).then(async (newFile) => {
+            await mutate([...codeToSolutionFiles, newFile]);
             // scroll to the bottom of the files list
             filesRef.current.scrollTop = filesRef.current.scrollHeight;
         });
-    }, [question.id, files, mutate, language]);
+    }, [question.id, codeToSolutionFiles, mutate, language]);
 
     const onFileUpdate = useCallback(async (file) => {
         await update("solution", question.id, file).then(async () => await mutate());
-    }, [question.id, mutate, files]);
+    }, [question.id, mutate]);
 
-    const onDeleteFile = useCallback(async (file) => {
-        console.log("delete file", file)
-        await del("solution", question.id, file)
-            .then(async (data) => {
-                let newFiles = files;
-                newFiles = newFiles.filter(f => f.id !== data.id);
-                await mutate(newFiles);
+    const onDeleteFile = useCallback(async (codeToSolutionFile) => {
+        console.log("delete file", codeToSolutionFiles)
+        await del("solution", question.id, codeToSolutionFile)
+            .then(async (msg) => {
+                await mutate(codeToSolutionFiles.filter(file => file.id !== codeToSolutionFile.id));
             });
-    }, [question.id, mutate, files]);
+    }, [question.id, mutate, codeToSolutionFiles]);
 
     return (
         <Stack height="100%">
             <Button onClick={onAddFile}>Add File</Button>
-            {files && (
+            {codeToSolutionFiles && (
                 <Box ref={filesRef} height="100%" overflow="auto">
-                    {files.map((file, index) => (
+                    {codeToSolutionFiles.map((codeToSolutionFile, index) => (
                         <FileEditor
                             key={index}
-                            file={file}
-                            onChange={async (file) => await onFileUpdate(file)}
+                            file={codeToSolutionFile.file}
+                            onChange={async (file) => await onFileUpdate({
+                                ...codeToSolutionFile,
+                                file
+                            })}
                             secondaryActions={
                                 <Stack direction="row" spacing={1}>
-                                    <IconButton key="delete-file" onClick={async () => await onDeleteFile(file)}>
+                                    <IconButton key="delete-file" onClick={async () => await onDeleteFile(codeToSolutionFile)}>
                                         <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
                                     </IconButton>
                                 </Stack>

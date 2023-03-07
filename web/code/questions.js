@@ -39,38 +39,7 @@ export const questionsWithIncludes = ( {
 
 
     // including type specifics with or without official answers
-    let include = includeTypeSpecific ? {
-        code: ({
-            select: {
-                ...(includeOfficialAnswers ? { } : {}),
-
-                codeToFiles: {
-                    select: { nature: true }
-                }
-                ,
-                language: true,
-            }
-        }),
-        multipleChoice: {
-            select: {
-                options: ({
-                    select: {
-                        id: true,
-                        text: true,
-                        ...(includeOfficialAnswers ? { isCorrect: true } : { })
-                    }
-                })
-            }
-        },
-        trueFalse: {
-            select: {
-                questionId: true,
-                ...(includeOfficialAnswers ? { isTrue: true } : {})
-            }
-        },
-        essay: true,
-        web: true,
-    } : undefined;
+    let include = questionIncludeClause(includeTypeSpecific, includeOfficialAnswers);
 
     /*  including user answers
         studentAnswer is returned as an array of answers -> one to many relationship
@@ -117,6 +86,39 @@ export const questionsWithIncludes = ( {
         where,
         include
     }
+}
+
+export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswers) => {
+    // including type specifics with or without official answers
+    let include = includeTypeSpecific ? {
+        code: ({
+            select: {
+                ...(includeOfficialAnswers ? { solutionFiles: true } : {}),
+                templateFiles: true,
+                language: true,
+            }
+        }),
+        multipleChoice: {
+            select: {
+                options: ({
+                    select: {
+                        id: true,
+                        text: true,
+                        ...(includeOfficialAnswers ? { isCorrect: true } : { })
+                    }
+                })
+            }
+        },
+        trueFalse: {
+            select: {
+                questionId: true,
+                ...(includeOfficialAnswers ? { isTrue: true } : {})
+            }
+        },
+        essay: true,
+        web: true,
+    } : undefined;
+    return include;
 }
 
 export const questionTypeSpecific = (questionType, question, currentQuestion) => {

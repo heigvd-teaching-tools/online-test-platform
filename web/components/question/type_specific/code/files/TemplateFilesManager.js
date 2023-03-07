@@ -8,42 +8,45 @@ import React, {useCallback} from "react";
 
 const TemplateFilesManager = ({ question }) => {
 
-    const { data: files, mutate, error } = useSWR(
+    const { data: codetoTemplateFiles, mutate, error } = useSWR(
         `/api/questions/${question.id}/code/files/template`,
         question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
-    const onFileUpdate = useCallback(async (file) => {
-        await update("template", question.id, file).then(async () => await mutate());
-    }, [question.id, mutate, files]);
+    const onFileUpdate = useCallback(async (codeToTemplateFile) => {
+        await update("template", question.id, codeToTemplateFile).then(async () => await mutate());
+    }, [question.id, mutate]);
 
 
     const onPullSolution = useCallback(async () => {
         await pull(question.id).then(async (data) => await mutate(data));
-    }, [question.id, mutate, files]);
+    }, [question.id, mutate]);
 
     return (
         <Stack height="100%">
             <Button onClick={onPullSolution}>Pull Solution</Button>
-            {files && (
+            {codetoTemplateFiles && (
                 <Box height="100%" overflow="auto">
-                    {files.map((file, index) => (
+                    {codetoTemplateFiles.map((codeToTemplateFile, index) => (
                         <FileEditor
                             key={index}
-                            file={file}
+                            file={codeToTemplateFile.file}
                             readonlyPath
-                            onChange={async (file) => await onFileUpdate(file)}
+                            onChange={async (file) => await onFileUpdate({
+                                ...codeToTemplateFile,
+                                file
+                            })}
                             secondaryActions={
                                 <Stack direction="row" spacing={1}>
                                     <DropDown
-                                        id={`${file.id}-student-permission`}
+                                        id={`${codeToTemplateFile.file.id}-student-permission`}
                                         name="Student Permission"
-                                        defaultValue={file.studentPermission}
+                                        defaultValue={codeToTemplateFile.studentPermission}
                                         minWidth="200px"
                                         onChange={async (permission) => {
-                                            file.studentPermission = permission;
-                                            await onFileUpdate(file);
+                                            codeToTemplateFile.studentPermission = permission;
+                                            await onFileUpdate(codeToTemplateFile);
                                         }}
                                     >
                                         <MenuItem value={StudentFilePermission.UPDATE}>Update</MenuItem>

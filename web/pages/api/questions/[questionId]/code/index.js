@@ -92,26 +92,6 @@ const get = async (req, res) => {
 
 const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
 
-    const filesQuery = [
-        ...files.solution.map(file => ({
-            nature: CodeToFileNature.SOLUTION,
-            file: {
-                create: {
-                    path: file.path,
-                    content: file.content
-                }
-            }
-        })),
-        ...files.template.map(file => ({
-            nature: CodeToFileNature.TEMPLATE,
-            file: {
-                create: {
-                    path: file.path,
-                    content: file.content
-                }
-            }
-        }))
-    ]
     return {
         data: {
             language,
@@ -129,8 +109,26 @@ const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
                     expectedOutput: testCase.expectedOutput
                 }))
             },
-            codeToFiles: {
-                create: filesQuery
+            solutionFiles: {
+                create: files.solution.map((file) => ({
+                    file: {
+                        create: {
+                            path: file.path,
+                            content: file.content
+                        }
+                    }
+                }))
+            },
+            templateFiles: {
+                create: files.template.map((file) => ({
+                    studentPermission: StudentFilePermission.UPDATE,
+                    file: {
+                        create: {
+                            path: file.path,
+                            content: file.content
+                        }
+                    }
+                }))
             },
             question: {
                 connect: {

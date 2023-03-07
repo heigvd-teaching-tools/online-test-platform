@@ -1,32 +1,31 @@
 
-export const update = (nature, questionId, file) =>
-    fetch(`/api/questions/${questionId}/code/files/${nature}`, {
+export const update = (nature, questionId, codeToFile) =>
+    fetch(`/api/questions/${questionId}/code/files/${nature}/${codeToFile.file.id}`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        body: JSON.stringify(file)
+        body: JSON.stringify(codeToFile)
     }).then(data => data.json());
 
-export const create = (nature, questionId, file) =>
+export const create = (nature, questionId, codeToFile) =>
     fetch(`/api/questions/${questionId}/code/files/${nature}`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        body: JSON.stringify(file)
+        body: JSON.stringify(codeToFile)
     }).then(data => data.json());
 
-export const del = (nature, questionId, file) =>
-    fetch(`/api/questions/${questionId}/code/files/${nature}`, {
+export const del = (nature, questionId, codeToFile) =>
+    fetch(`/api/questions/${questionId}/code/files/${nature}/${codeToFile.file.id}`, {
         method: "DELETE",
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-        },
-        body: JSON.stringify(file)
+        }
     }).then(data => data.json());
 
 export const pull = (questionId) =>

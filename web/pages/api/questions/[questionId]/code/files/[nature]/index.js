@@ -1,4 +1,4 @@
-import {PrismaClient, Role, StudentFilePermission, CodeToFileNature} from "@prisma/client";
+import {PrismaClient, Role, StudentFilePermission} from "@prisma/client";
 
 import {hasRole} from "../../../../../../../utils/auth";
 
@@ -23,12 +23,6 @@ const handler = async (req, res) => {
         case 'POST':
             await post(req, res);
             break;
-        case 'PUT':
-            await put(req, res);
-            break;
-        case 'DELETE':
-            await del(req, res);
-            break;
         default:
     }
 }
@@ -38,13 +32,10 @@ const get = async (req, res) => {
 
     const { questionId, nature } = req.query;
 
-    const codeToFileNature = CodeToFileNature[nature.toUpperCase()];
+    const model = nature === "solution" ? prisma.codeToSolutionFile : prisma.codeToTemplateFile;
 
-    const codeToFiles = await prisma.codeToFile.findMany({
-        where: {
-            questionId,
-            nature: codeToFileNature
-        },
+    const codeToFiles = await model.findMany({
+        where: { questionId },
         include: {
             file: true
         }
@@ -52,7 +43,7 @@ const get = async (req, res) => {
 
     if(!codeToFiles) res.status(404).json({message: "Not found"});
 
-    res.status(200).json(codeToFiles.map(codeToFile => codeToFile.file));
+    res.status(200).json(codeToFiles);
 }
 
 
@@ -61,113 +52,30 @@ const post = async (req, res) => {
     // as the file is created for a code question we handle it through CodeToFile entity
 
     const { questionId, nature } = req.query;
-    const { path, content } = req.body;
+    const { file : { path, content } } = req.body;
 
-    const codeToFileNature = CodeToFileNature[nature.toUpperCase()];
+    const model = nature === "solution" ? prisma.codeToSolutionFile : prisma.codeToTemplateFile;
 
-    const codeToFiles = await prisma.codeToFiles.upsert({
-            where: {
-                questionId_nature:{
-                    questionId,
-                    nature: codeToFileNature
-                }
-            },
-            update: {
-                files: {
-                    create: {
-                        path,
-                        content,
-                    }
-                }
-            },
-            create: {
-                nature: codeToFileNature,
-                files: {
-                    create: {
-                        path,
-                        content,
-                    }
+    const codeToFile = await model.create({
+        data: {
+            file: {
+                create: {
+                    path,
+                    content,
                 },
-                code: {
-                    connect: {
-                        questionId: questionId
-                    }
-                }
+
             },
-            include: {
-                files: {
-                    orderBy: {
-                        createdAt: "asc"
-                    }
+            code: {
+                connect : {
+                    questionId: questionId
                 }
-            }
-    });
-
-    if(!codeToFiles) res.status(404).json({message: "Not found"});
-    res.status(200).json(codeToFiles.files);
-}
-
-
-const put = async (req, res) => {
-    // update a file for a code question
-
-    const { questionId, nature } = req.query;
-    const { id, path, content, studentPermission } = req.body;
-
-    const codeToFileNature = CodeToFileNature[nature.toUpperCase()];
-
-    const codeToFiles = await prisma.codeToFiles.update({
-        where: {
-            questionId_nature:{
-                questionId,
-                nature: codeToFileNature
             }
         },
-        data: {
-            files: {
-                update: {
-                    where: {
-                        id: id
-                    },
-                    data: {
-                        path,
-                        content,
-                        studentPermission
-                    }
-                }
-            }
+        include: {
+            file: true
         }
     });
-    res.status(200).json(codeToFiles);
+    if(!codeToFile) res.status(404).json({message: "Not found"});
+    res.status(200).json(codeToFile);
 }
-
-
-const del = async (req, res) => {
-    // delete a file for a code question
-
-    const { questionId, nature } = req.query;
-    const { id } = req.body;
-
-    const codeToFileNature = CodeToFileNature[nature.toUpperCase()];
-
-    const file = await prisma.codeToFiles.update({
-        where: {
-            questionId_nature:{
-                questionId,
-                nature: codeToFileNature
-            }
-        },
-        data: {
-            files: {
-                delete: {
-                    id: id
-                }
-            }
-        }
-    })
-
-    res.status(200).json(file);
-}
-
-
 export default handler;
