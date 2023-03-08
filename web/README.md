@@ -80,6 +80,9 @@ https://www.npmjs.com/package/@monaco-editor/react
 - /api/questions/:questionId/code/sandbox [PUT, POST, GET]
 - /api/questions/:questionId/code/tests [POST, GET]
 - /api/questions/:questionId/code/tests/:index [PUT, DELETE]
+- /api/questions/:questionId/code/files/:nature [POST, GET]
+- /api/questions/:questionId/code/files/:nature/:fileId [PUT, DELETE]
+- /api/questions/:questionId/code/files/:nature/pull [POST]
 
 
 

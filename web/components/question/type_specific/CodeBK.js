@@ -2,7 +2,7 @@ import {useState, useEffect } from 'react';
 
 import {Stack, Tabs, Tab, Paper, Box} from "@mui/material"
 import CodeEditor from '../../input/CodeEditor';
-import CodeCheck from './CodeCheck';
+import CodeCheck from './code/CodeCheck';
 
 const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, onChange, onTestResult }) => {
     const [ code, setCode ] = useState();

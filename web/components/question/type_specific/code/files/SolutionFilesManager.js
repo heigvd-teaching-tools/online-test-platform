@@ -1,11 +1,12 @@
 import useSWR from "swr";
 import React, {useCallback, useRef} from "react";
 import { create, del, update } from "./crud";
-import {Box, Button, IconButton, Stack} from "@mui/material";
+import {Box, Button, IconButton, Paper, Stack} from "@mui/material";
 import FileEditor from "./FileEditor";
 import Image from "next/image";
 
 import languages from "../languages.json";
+import CodeCheck from "../CodeCheck";
 
 const environments = languages.environments;
 const SolutionFilesManager = ({ language, question }) => {
@@ -16,6 +17,8 @@ const SolutionFilesManager = ({ language, question }) => {
         question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
+
+    const getFileList = () => codeToSolutionFiles?.map(file => file.file);
 
     const onAddFile = useCallback(async () => {
         const extension = environments.find(env => env.language === language).extension;
@@ -46,10 +49,11 @@ const SolutionFilesManager = ({ language, question }) => {
     }, [question.id, mutate, codeToSolutionFiles]);
 
     return (
-        <Stack height="100%">
-            <Button onClick={onAddFile}>Add File</Button>
-            {codeToSolutionFiles && (
-                <Box ref={filesRef} height="100%" overflow="auto">
+        codeToSolutionFiles && (
+            <Stack height="100%" position="relative">
+
+                <Button onClick={onAddFile}>Add File</Button>
+                <Box ref={filesRef} height="100%" overflow="auto" pb={16}>
                     {codeToSolutionFiles.map((codeToSolutionFile, index) => (
                         <FileEditor
                             key={index}
@@ -68,8 +72,15 @@ const SolutionFilesManager = ({ language, question }) => {
                         />
                     ))}
                 </Box>
-            )}
-        </Stack>
+
+                <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
+                    <CodeCheck
+                        questionId={question.id}
+                        files={getFileList()}
+                    />
+                </Stack>
+            </Stack>
+        )
     )
 }
 

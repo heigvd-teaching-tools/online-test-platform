@@ -47,12 +47,13 @@ const post = async (req, res) => {
 
     let files = codeToFiles.map(codeToFile => codeToFile.file);
 
-    // delete any existing template files
+    /*
+        delete any existing template files, there is no ownership relation between codeToTemplateFile and file
+        so we have to select the files first and then delete them
+    */
 
     const filesToDelete = await prisma.codeToTemplateFile.findMany({
-        where: {
-            questionId
-        },
+        where: { questionId },
         include: {
             file: true
         }

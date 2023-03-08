@@ -60,7 +60,7 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
 
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
-import CodeCheckResult from '../question/type_specific/CodeCheckResult';
+import CodeCheckResult from '../question/type_specific/code/CodeCheckResult';
 import CodeEditor from '../input/CodeEditor';
 import ResizePanel from '../layout/utils/ResizePanel';
 

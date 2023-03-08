@@ -9,7 +9,7 @@ import Sandbox from "./code/Sandbox";
 import TestCases from "./code/TestCases";
 import TabContent from "./code/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
-import CodeCheck from './CodeCheck';
+import CodeCheck from './code/CodeCheck';
 
 import languages from "./code/languages.json";
 import TemplateFilesManager from "./code/files/TemplateFilesManager";
@@ -119,14 +119,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                         />
                     </TabContent>
                 </TabPanel>
-                <Paper square elevation={0} maxHeight="100%" width="100%" p={0} >
-                    <CodeCheck
-                        id={`${id}-test-run`}
-                        where={where}
-                        questionId={question.id}
-                        onTestResult={onTestResult}
-                    />
-                </Paper>
+
             </Stack>
         )
     )

@@ -15,7 +15,7 @@
       "testCases": [{
         "exec": "/src/main",
         "input": "Hello World1",
-        "expectedOutput": "HELLO WORLD1"
+        "expectedOutput": "HELLO WORLD1\n"
       }],
       "files": {
         "solution": [{
@@ -36,22 +36,22 @@
       "sandbox": {
         "image": "openjdk:latest",
         "defaultPath": "/src/main.java",
-        "exec": "java -cp /src/main",
-        "beforeAll": "javac /src/main.java"
+        "exec": "java -cp /src Main",
+        "beforeAll": "javac /src/Main.java"
       },
       "testCases": [{
-        "exec": "java -cp /src/main",
+        "exec": "java -cp /src Main",
         "input": "Hello World1",
-        "expectedOutput": "HELLO WORLD1"
+        "expectedOutput": "HELLO WORLD1\n"
       }],
       "files": {
           "solution": [{
-          "path": "/src/main.java",
-          "content": "\nimport java.util.*;\npublic class main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            String line = sc.nextLine();\n            System.out.println(line.toUpperCase());\n        }\n    }\n}"
+          "path": "/src/Main.java",
+          "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
           }],
           "template": [{
-              "path": "/src/main.java",
-              "content": "\npublic class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\");\n    }\n}"
+              "path": "/src/Main.java",
+              "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
           }]
       }
     },
@@ -69,7 +69,7 @@
       "testCases": [{
         "exec": "node /src/script.js",
         "input": "Hello World1",
-        "expectedOutput": "HELLO WORLD1"
+        "expectedOutput": "HELLO WORLD1\n"
       }],
         "files": {
             "solution": [{
