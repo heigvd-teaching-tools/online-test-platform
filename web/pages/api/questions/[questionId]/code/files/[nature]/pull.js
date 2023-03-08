@@ -48,11 +48,23 @@ const post = async (req, res) => {
     let files = codeToFiles.map(codeToFile => codeToFile.file);
 
     // delete any existing template files
-    await prisma.codeToTemplateFile.deleteMany({
+
+    const filesToDelete = await prisma.codeToTemplateFile.findMany({
         where: {
             questionId
+        },
+        include: {
+            file: true
         }
     });
+
+    for( const file of filesToDelete) {
+        await prisma.file.delete({
+            where: {
+                id: file.file.id
+            }
+        })
+    }
 
     const newCodeToFiles = [];
     // create new template files

@@ -36,34 +36,6 @@ const put = async (req, res) => {
     const { questionId } = req.query;
     const { language, sandbox, testCases, files } = req.body;
 
-    // files must be deleted manually because of the relation between code and file
-    let filesToDelete = await prisma.file.findMany({
-        where: {
-            OR : [{
-                codeToSolutionFile: {
-                    is: {
-                        questionId: questionId
-                    }
-                }
-            }, {
-                codeToTemplateFile: {
-                    is: {
-                        questionId: questionId
-                    }
-                }
-            }]
-        }
-    });
-
-    // delete the files
-    await prisma.file.deleteMany({
-        where: {
-            id: {
-                in: filesToDelete.map(file => file.id)
-            }
-        }
-    });
-
     // delete then create the code
     await prisma.code.delete({
         where: { questionId: questionId }
