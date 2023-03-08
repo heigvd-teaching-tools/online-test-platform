@@ -69,7 +69,7 @@ const CodeCheck = ({ questionId, files }) => {
 
     return(
         <Paper >
-            <Stack direction="row" alignItems="center" spacing={1} p={1}>
+            <Stack direction="row" alignItems="center" spacing={1} p={1} pb={2}>
                 <LoadingButton size="small" variant="contained" color="info" onClick={runCodeCheck} loading={codeCheckRunning}>Code Check</LoadingButton>
                 <Button
                     size="small"
@@ -81,13 +81,13 @@ const CodeCheck = ({ questionId, files }) => {
             </Stack>
             <Collapse in={expanded}>
                 {results && (
-                    <Stack spacing={1} padding={1}>
-                        <AlertFeedback severity={results.every(result => result.passed) ? "success" : "error"}>
+                    <Stack spacing={2}>
+                        <Alert severity={results.every(result => result.passed) ? "success" : "error"}>
                             <Typography variant="body2">
                                 {results.every(result => result.passed) ? "All test cases passed" : `${results.filter(result => !result.passed).length} of ${results.length} test cases failed`}
                             </Typography>
-                        </AlertFeedback>
-                        <Stack spacing={1} padding={1} direction="row">
+                        </Alert>
+                        <Stack spacing={1} direction="row" pb={2}>
                             <Tabs
                                 orientation="vertical"
                                 variant="scrollable"
@@ -98,7 +98,7 @@ const CodeCheck = ({ questionId, files }) => {
                                     <Tab
                                         key={i}
                                         label={
-                                        <Typography variant="caption" sx={{ color: result.passed ? "success.main" : "error.main" }}>
+                                        <Typography sx={{ color: result.passed ? "success.main" : "error.main" }}>
                                             { "Test Case " + (i+1) }
                                         </Typography>
                                         } value={i}

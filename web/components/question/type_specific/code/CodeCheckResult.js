@@ -27,7 +27,7 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
                     InputProps={{
                         readOnly: true,
                     }}
-                    variant="filled"
+                    variant="standard"
                     multiline
                     fullWidth
                 />
@@ -39,7 +39,7 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
                     InputProps={{
                         readOnly: true,
                     }}
-                    variant="filled"
+                    variant="standard"
                     multiline
                     fullWidth
                 />
@@ -50,7 +50,7 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
                         InputProps={{
                             readOnly: true,
                         }}
-                        variant="filled"
+                        variant="standard"
                         focused
                         color={result.passed ? "success" : "error"}
                         error={!result.passed}
@@ -64,15 +64,14 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
                         InputProps={{
                             readOnly: true,
                         }}
-                        variant="filled"
+                        variant="standard"
+                        focused
+                        color={result.passed ? "success" : "error"}
+                        error={!result.passed}
                         multiline
                         fullWidth
                     />
                 </Stack>
-
-                <AlertFeedback  severity={result.passed ? "success" : "error"}>
-                    {result.passed ? "Passed" : "Failed"}
-                </AlertFeedback>
 
         </Stack>
 
