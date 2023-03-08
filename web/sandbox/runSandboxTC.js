@@ -44,7 +44,7 @@ export const runSandbox = ({
 }
 
 const prepareContent = (files, tests) => new Promise((resolve, _) => {
-    let codeDirectory = `runs/tc/${uniqid()}`;
+    let codeDirectory = `sandbox/runs/tc/${uniqid()}`;
     fs.mkdirSync(codeDirectory, { recursive: true });
     fs.mkdirSync(`${codeDirectory}/tests`);
 
