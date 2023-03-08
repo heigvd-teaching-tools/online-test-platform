@@ -175,6 +175,7 @@ model Code {
 
   solutionFiles CodeToSolutionFile[]
   templateFiles CodeToTemplateFile[]
+  files          File[] // to casdade delete files
 }
 
 model CodeToSolutionFile {
@@ -210,6 +211,10 @@ model File {
 
   codeToSolutionFile CodeToSolutionFile?
   codeToTemplateFile CodeToTemplateFile?
+  studentAnswerCode  StudentAnswerCodeToFile?
+
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
 }
 
 model Web {
@@ -357,7 +362,7 @@ model StudentAnswerCode {
   userEmail     String
   questionId    String
 
-  code String?
+  files StudentAnswerCodeToFile[]
 
   expected String?
   result   String?
@@ -367,6 +372,18 @@ model StudentAnswerCode {
   studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
   @@id([userEmail, questionId])
+}
+
+
+model StudentAnswerCodeToFile {
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
+
+  file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId     String @unique
+
+  @@id([questionId, fileId])
 }
 
 model StudentAnswerWeb {

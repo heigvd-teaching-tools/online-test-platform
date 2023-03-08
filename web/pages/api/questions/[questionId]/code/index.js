@@ -122,7 +122,12 @@ const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
                     file: {
                         create: {
                             path: file.path,
-                            content: file.content
+                            content: file.content,
+                            code: {
+                                connect: {
+                                    questionId: questionId
+                                }
+                            }
                         }
                     }
                 }))
@@ -133,7 +138,12 @@ const codeCreateQuery = (questionId, language, sandbox, testCases, files) => {
                     file: {
                         create: {
                             path: file.path,
-                            content: file.content
+                            content: file.content,
+                            code: {
+                                connect: {
+                                    questionId: questionId
+                                }
+                            }
                         }
                     }
                 }))

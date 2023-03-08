@@ -63,7 +63,10 @@ const post = async (req, res) => {
                 file: {
                     create: {
                         path: file.path,
-                        content: file.content
+                        content: file.content,
+                        code: {
+                            connect: { questionId }
+                        }
                     }
                 },
                 code: {

@@ -62,6 +62,9 @@ const post = async (req, res) => {
                 create: {
                     path,
                     content,
+                    code: {
+                        connect: { questionId }
+                    }
                 },
 
             },
