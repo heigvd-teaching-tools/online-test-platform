@@ -51,7 +51,7 @@ const post = async (req, res) => {
         }
     });
 
-    if(!code){
+    if(!code || !code[filesToInclude]){
         res.status(404).json({ message: 'Code not found' });
         return;
     }
