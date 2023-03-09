@@ -18,7 +18,7 @@ export const runSandbox = ({
     return new Promise(async (resolve, reject) =>  {
         const directory = await prepareContent(files, tests);
 
-        const container = await startContainer(image, directory, beforeAll);
+        const { container, beforeAllOutput } = await startContainer(image, directory, beforeAll);
 
         /* ## TIMEOUT  */
         let containerStarted = true;
@@ -27,7 +27,7 @@ export const runSandbox = ({
             containerStarted = false;
         });
 
-        let result = await execTests(container, tests);
+        let testsResults = await execTests(container, tests);
 
         clearTimeout(timeout);
 
@@ -38,7 +38,10 @@ export const runSandbox = ({
             reject("Execution timed out");
         }
 
-        resolve(result);
+        resolve({
+            beforeAll: beforeAllOutput,
+            tests: testsResults,
+        });
 
     });
 }
@@ -76,15 +79,19 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
     );
 
     await container.exec(["sh", "-c", "tar -xzf code.tar.gz -C /"], { tty: false });
-
+    let beforeAllOutput = undefined;
     if(beforeAll){
-        await container.exec(["sh", "-c", beforeAll], { tty: false });
+        let { output } = await container.exec(["sh", "-c", beforeAll], { tty: false });
+        beforeAllOutput = cleanUpDockerStreamHeaders(output);
     }
 
     /* ## CONTENT DELETE */
     fs.rmSync(filesDirectory, { recursive: true, force: true });
 
-    return container;
+    return {
+        beforeAllOutput,
+        container
+    };
 }
 
 const prepareTimeout = (timeoutCallback) => setTimeout(() => timeoutCallback("Execution timed out"), EXECUTION_TIMEOUT);

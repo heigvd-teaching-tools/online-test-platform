@@ -1,6 +1,6 @@
 import {useState, useEffect, useCallback} from 'react';
 
-import {Collapse, Stack, Button, Tabs, Tab, Typography, Alert, Paper} from "@mui/material"
+import {Collapse, Stack, Button, Tabs, Tab, Typography, Alert, Paper, AlertTitle, TextField, Box} from "@mui/material"
 import { LoadingButton } from '@mui/lab';
 
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -41,14 +41,16 @@ import AlertFeedback from "../../../feedback/AlertFeedback";
 const CodeCheck = ({ questionId, files }) => {
     const { show: showSnackbar } = useSnackbar();
 
-    const [ results, setResults ] = useState([]);
+    const [ beforeAll, setBeforeAll ] = useState(null);
+    const [ tests, setTests ] = useState([]);
     const [ codeCheckRunning, setCodeCheckRunning ] = useState(false);
     const [ expanded, setExpanded ] = useState(false);
     const [ index, setIndex ] = useState(0);
 
     const runCodeCheck = useCallback(async () => {
         setCodeCheckRunning(true);
-        setResults(null);
+        setTests(null);
+        setBeforeAll(null);
         fetch(`/api/sandbox/${questionId}/files`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -57,11 +59,13 @@ const CodeCheck = ({ questionId, files }) => {
         .then(res => res.json())
         .then(data => {
             setCodeCheckRunning(false);
-            setResults(data);
+            setTests(data.tests);
+            setBeforeAll(data.beforeAll);
             setExpanded(true);
         }).catch(_ => {
             showSnackbar("Error running test", "error");
-            setResults(null);
+            setTests(null);
+            setBeforeAll(null);
             setCodeCheckRunning(false);
             setExpanded(true);
         });
@@ -80,13 +84,33 @@ const CodeCheck = ({ questionId, files }) => {
                 </Button>
             </Stack>
             <Collapse in={expanded}>
-                {results && (
-                    <Stack spacing={2}>
-                        <Alert severity={results.every(result => result.passed) ? "success" : "error"}>
+                {tests && (
+                    <Stack>
+                        <Alert severity={tests.every(result => result.passed) ? "success" : "error"}>
                             <Typography variant="body2">
-                                {results.every(result => result.passed) ? "All test cases passed" : `${results.filter(result => !result.passed).length} of ${results.length} test cases failed`}
+                                {tests.every(test => test.passed) ? "All test cases passed" : `${tests.filter(test => !test.passed).length} of ${tests.length} test cases failed`}
                             </Typography>
                         </Alert>
+
+                        {
+                            beforeAll && (
+                                <Stack padding={0}>
+                                    <TextField
+                                        variant="filled"
+                                        fullWidth
+                                        multiline
+                                        focused
+                                        color="info"
+                                        label="Before All"
+                                        value={beforeAll}
+                                        InputProps={{
+                                            readOnly: true,
+                                        }}
+                                    />
+                                </Stack>
+                            )
+                        }
+
                         <Stack spacing={1} direction="row" pb={2}>
                             <Tabs
                                 orientation="vertical"
@@ -94,18 +118,17 @@ const CodeCheck = ({ questionId, files }) => {
                                 value={index}
                                 onChange={(e, i) => setIndex(i)}
                                 >
-                                {results.map((result, i) => (
+                                {tests?.map((t, i) =>
                                     <Tab
                                         key={i}
-                                        label={
-                                        <Typography sx={{ color: result.passed ? "success.main" : "error.main" }}>
+                                        label={<Typography sx={{ color: (t.passed ? "success.main" : "error.main") }}>
                                             { "Test Case " + (i+1) }
                                         </Typography>
                                         } value={i}
                                     />
-                                ))}
+                                )}
                             </Tabs>
-                            <CodeCheckResult result={results[index]} />
+                            <CodeCheckResult result={tests[index]} />
                         </Stack>
                     </Stack>
                 )}
