@@ -49,7 +49,6 @@ const SolutionFilesManager = ({ language, question }) => {
     return (
         codeToSolutionFiles && (
             <Stack height="100%" position="relative">
-
                 <Button onClick={onAddFile}>Add File</Button>
                 <Box ref={filesRef} height="100%" overflow="auto" pb={16}>
                     {codeToSolutionFiles.map((codeToSolutionFile, index) => (

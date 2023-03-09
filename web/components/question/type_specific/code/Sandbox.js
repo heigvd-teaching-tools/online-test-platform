@@ -58,7 +58,7 @@ const Sandbox = ({ question, language }) => {
 
     return (
             image && (
-            <>
+            <Stack spacing={2}>
                 <Typography variant="h6">Sandbox</Typography>
                 <Stack direction="row" spacing={2}>
                     <TextField
@@ -89,7 +89,7 @@ const Sandbox = ({ question, language }) => {
                         }}
                     />
                 </Stack>
-            </>)
+            </Stack>)
     )
 }
 

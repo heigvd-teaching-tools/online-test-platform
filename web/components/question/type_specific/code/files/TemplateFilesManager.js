@@ -26,7 +26,7 @@ const TemplateFilesManager = ({ question }) => {
 
     return (
         codeToTemplateFiles && (
-        <Stack height="100%">
+        <Stack height="100%" position="relative">
             <Button onClick={onPullSolution}>Pull Solution</Button>
                 <Box height="100%" overflow="auto">
                     {codeToTemplateFiles.map((codeToTemplateFile, index) => (

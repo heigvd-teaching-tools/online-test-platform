@@ -49,7 +49,7 @@ const CodeCheck = ({ questionId, files }) => {
     const runCodeCheck = useCallback(async () => {
         setCodeCheckRunning(true);
         setResults(null);
-        fetch(`/api/sandbox/${questionId}`, {
+        fetch(`/api/sandbox/${questionId}/files`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ files })

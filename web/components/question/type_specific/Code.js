@@ -78,7 +78,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                     <Tab label={<Typography variant="caption">Template</Typography>} value={2} />
                 </Tabs>
                 <TabPanel id="setup" value={tab} index={0}>
-                    <TabContent padding={2} spacing={2}>
+                    <TabContent padding={2} spacing={4}>
                         <Box>
                             { language && (
                                 <LanguageSelector

@@ -1,6 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { hasRole } from '../../../utils/auth';
-import { runSandbox } from "../../../sandbox/runSandboxTC";
+import { hasRole } from '../../../../utils/auth';
+import { runSandbox } from "../../../../sandbox/runSandboxTC";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -27,11 +27,14 @@ export default async function handler(req, res) {
 
 }
 
-
+/*
+ endpoint to run the sandbox for a question with files (nature = template or solution) from the database
+ */
 const post = async (req, res) => {
-    const { questionId } = req.query;
 
-    const { files } = req.body;
+    const { questionId, nature } = req.query;
+
+    const filesToInclude = nature === 'solution' ? 'solutionFiles' : 'templateFiles';
 
     const code = await prisma.code.findUnique({
         where: {
@@ -39,7 +42,12 @@ const post = async (req, res) => {
         },
         include: {
             sandbox: true,
-            testCases: true
+            testCases: true,
+            [filesToInclude]: {
+                include: {
+                    file: true
+                }
+            }
         }
     });
 
@@ -48,10 +56,7 @@ const post = async (req, res) => {
         return;
     }
 
-    console.log("code.sandbox.image", code.sandbox.image)
-    console.log("files", files)
-    console.log("code.sandbox.beforeAll", code.sandbox.beforeAll)
-    console.log("code.testCases", code.testCases)
+    const files = code[filesToInclude].map((codeToFile) => codeToFile.file);
 
     const result = await runSandbox({
         image: code.sandbox.image,
