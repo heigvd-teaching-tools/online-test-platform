@@ -95,7 +95,7 @@ const TestCases = ({ language, question }) => {
     }, [question.id, tests, mutate]);
 
     const pullOutputs = useCallback(async (source) => {
-        const outputs = await fetch(`/api/sandbox/${question.id}/${source}`, {
+        const result = await fetch(`/api/sandbox/${question.id}/${source}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         }).then(res => res.json());
@@ -103,7 +103,7 @@ const TestCases = ({ language, question }) => {
         for(const test of tests) {
             await updateTestCase({
                 ...test,
-                expectedOutput: outputs[test.index - 1].output
+                expectedOutput: result.tests[test.index - 1].output
             });
         }
     }, [question.id, tests, updateTestCase]);
