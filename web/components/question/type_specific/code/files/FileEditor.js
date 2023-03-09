@@ -30,29 +30,25 @@ const FileEditor = ({ file, readonlyPath= false, readonlyContent = false, onChan
         file && (
             <Stack position="relative">
                 <Stack direction="row" position="sticky" top={0} spacing={1} p={2} alignItems="center" justifyContent="center" zIndex={1} bgcolor="white" >
-                    <TextField
-                        id={`${file.id}-${path}`}
-                        variant="standard"
-                        label={`Path [syntax: ${language}]`}
-                        value={path}
-                        fullWidth
-
-                        {...(readonlyPath ? {
-                            focused: true,
-                            color:"info",
-                            InputProps: {
-                                readOnly: true,
-                            }
-                        } : {})}
-                        onChange={(ev) => {
-                            if(ev.target.value === file?.content) return;
-                            setPath(ev.target.value);
-                            debouncedOnChange({
-                                ...file,
-                                path: ev.target.value
-                            });
-                        }}
-                    />
+                    { !readonlyPath && (
+                        <TextField
+                            id={`${file.id}-${path}`}
+                            variant="standard"
+                            label={`Path [syntax: ${language}]`}
+                            value={path}
+                            fullWidth
+                            onChange={(ev) => {
+                                if(ev.target.value === file?.content) return;
+                                setPath(ev.target.value);
+                                debouncedOnChange({
+                                    ...file,
+                                    path: ev.target.value
+                                });
+                            }}
+                        />)
+                        ||
+                        <Box width="100%" maxWidth="100%" overflow="hidden"><Typography variant="body1"> {path} </Typography></Box>
+                    }
                     {secondaryActions}
                 </Stack>
                 <InlineMonacoEditor
