@@ -35,8 +35,10 @@ const SolutionFilesManager = ({ language, question }) => {
     }, [question.id, codeToSolutionFiles, mutate, language]);
 
     const onFileUpdate = useCallback(async (file) => {
-        await update("solution", question.id, file).then(async () => await mutate());
-    }, [question.id, mutate]);
+        await update("solution", question.id, file).then(async (updatedFile) => {
+            await mutate(codeToSolutionFiles.map(codeToFile => codeToFile.file.id === updatedFile.id ? { ...codeToFile, file: updatedFile } : codeToFile));
+        });
+    }, [question.id, codeToSolutionFiles, mutate]);
 
     const onDeleteFile = useCallback(async (codeToSolutionFile) => {
         console.log("delete file", codeToSolutionFiles)

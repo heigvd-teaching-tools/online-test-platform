@@ -19,7 +19,7 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
 */
     return (
         result &&
-        <Stack spacing={2} p={1} flex={1}>
+        <Stack spacing={4} p={2} flex={1}>
 
                 <TextField
                     label="Exec"
@@ -28,6 +28,8 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
                         readOnly: true,
                     }}
                     variant="standard"
+                    focused
+                    color="info"
                     multiline
                     fullWidth
                 />
@@ -40,6 +42,8 @@ const CodeCheckResult = ({ result, collapsible = false }) => {
                         readOnly: true,
                     }}
                     variant="standard"
+                    focused
+                    color="info"
                     multiline
                     fullWidth
                 />

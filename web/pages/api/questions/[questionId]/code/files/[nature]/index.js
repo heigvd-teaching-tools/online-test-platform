@@ -36,6 +36,11 @@ const get = async (req, res) => {
 
     const codeToFiles = await model.findMany({
         where: { questionId },
+        orderBy: [{
+            file: { createdAt: "asc" }
+        },{
+            file: { questionId: "asc" }
+        }],
         include: {
             file: true
         }

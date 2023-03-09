@@ -16,8 +16,10 @@ const TemplateFilesManager = ({ question }) => {
     );
 
     const onFileUpdate = useCallback(async (codeToTemplateFile) => {
-        await update("template", question.id, codeToTemplateFile).then(async () => await mutate());
-    }, [question.id, mutate]);
+        await update("template", question.id, codeToTemplateFile).then(async (updatedFile) => {
+            await mutate(codeToTemplateFiles.map(codeToFile => codeToFile.file.id === updatedFile.id ? { ...codeToFile, file: updatedFile } : codeToFile));
+        });
+    }, [question.id, codeToTemplateFiles, mutate]);
 
 
     const onPullSolution = useCallback(async () => {
