@@ -42,7 +42,11 @@ const post = async (req, res) => {
         },
         include: {
             sandbox: true,
-            testCases: true,
+            testCases: {
+                orderBy: {
+                    index: 'asc'
+                }
+            },
             [filesToInclude]: {
                 include: {
                     file: true
