@@ -91,26 +91,23 @@ const CodeCheck = ({ questionId, files }) => {
                                 {tests.every(test => test.passed) ? "All test cases passed" : `${tests.filter(test => !test.passed).length} of ${tests.length} test cases failed`}
                             </Typography>
                         </Alert>
-
-                        {
-                            beforeAll && (
-                                <Stack padding={0}>
-                                    <TextField
-                                        variant="filled"
-                                        fullWidth
-                                        multiline
-                                        focused
-                                        color="info"
-                                        label="Before All"
-                                        value={beforeAll}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                    />
-                                </Stack>
-                            )
-                        }
-
+                        { beforeAll && (
+                            <Stack padding={0}>
+                                <TextField
+                                    variant="filled"
+                                    fullWidth
+                                    multiline
+                                    maxRows={12}
+                                    focused
+                                    color="info"
+                                    label="Before All"
+                                    value={beforeAll}
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                />
+                            </Stack>
+                        )}
                         <Stack spacing={1} direction="row" pb={2}>
                             <Tabs
                                 orientation="vertical"

@@ -22,21 +22,12 @@ const Sandbox = ({ question, language }) => {
     }, [sandbox]);
 
     useEffect(() => {
-        // detecting the language change
-        if(sandbox){
-            const env = environments.find(env => env.language === language);
-            if (env) {
-                setImage(env.sandbox.image);
-                setBeforeAll(env.sandbox.beforeAll);
-                debouncedOnChange({
-                    image: env.sandbox.image,
-                    beforeAll: env.sandbox.beforeAll
-                })
-            }
-        }
-    }, [language, environments]);
+        (async () => await mutate())();
+    }, [language]);
+
 
     const onChange = async (sandbox) => {
+        console.log("sandbox changed", sandbox)
         await fetch(`/api/questions/${question.id}/code/sandbox`, {
             method: "PUT",
             headers: {

@@ -33,6 +33,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
             initializeCode();
         }
         if(code){
+            console.log("Code setLanguage", code.language)
             setLanguage(code.language);
         }
     }, [code]);
@@ -54,6 +55,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
     }, [question.id, mutate]);
 
     const onChangeLanguage = useCallback(async (language) => {
+        console.log("onChangeLanguage", language)
         await fetch(`/api/questions/${question.id}/code`, {
             method: "PUT",
             headers: {
@@ -79,27 +81,32 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
                 </Tabs>
                 <TabPanel id="setup" value={tab} index={0}>
                     <TabContent padding={2} spacing={4}>
-                        <Box>
-                            { language && (
+                        { language && (
+                            <>
+                            <Box>
+
                                 <LanguageSelector
                                     language={language}
                                     onChange={onChangeLanguage}
                                 />
-                            )}
 
-                        </Box>
 
-                        <Sandbox
-                            question={question}
-                            language={language}
+                            </Box>
 
-                        />
+                            <Sandbox
+                                question={question}
+                                language={language}
 
-                        <TestCases
-                            question={question}
-                            language={language}
+                            />
 
-                        />
+                            <TestCases
+                                question={question}
+                                language={language}
+
+                            />
+                            </>
+                            )
+                        }
                     </TabContent>
 
                 </TabPanel>
