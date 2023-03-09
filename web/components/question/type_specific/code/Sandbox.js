@@ -2,9 +2,6 @@ import React, {useEffect, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import {Stack, TextField, Typography} from "@mui/material";
 import useSWR from "swr";
-import languages from "./languages.json";
-
-const environments = languages.environments;
 const Sandbox = ({ question, language }) => {
 
     const { data: sandbox, mutate, error } = useSWR(
@@ -27,7 +24,6 @@ const Sandbox = ({ question, language }) => {
 
 
     const onChange = async (sandbox) => {
-        console.log("sandbox changed", sandbox)
         await fetch(`/api/questions/${question.id}/code/sandbox`, {
             method: "PUT",
             headers: {

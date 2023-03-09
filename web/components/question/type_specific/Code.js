@@ -2,22 +2,20 @@ import React, {useState, useEffect, useCallback} from 'react';
 
 import useSWR from "swr";
 
-import { Stack, Tabs, Tab, Paper, Typography, Box } from "@mui/material"
+import { Stack, Tabs, Tab, Typography, Box } from "@mui/material"
 
 import LanguageSelector from "./code/LanguageSelector";
 import Sandbox from "./code/Sandbox";
 import TestCases from "./code/TestCases";
 import TabContent from "./code/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
-import CodeCheck from './code/CodeCheck';
 
 import languages from "./code/languages.json";
 import TemplateFilesManager from "./code/files/TemplateFilesManager";
 
 const environments = languages.environments;
 
-
-const Code = ({ id = "code", where, question, onTestResult }) => {
+const Code = ({ question }) => {
 
     const { data: code, mutate, error } = useSWR(
         `/api/questions/${question.id}/code`,
@@ -30,15 +28,14 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
 
     useEffect(() => {
         if(code === null){ // null means that the useSWR is done and there is no code, don't use undefined
-            initializeCode();
+            (async () => await initializeCode())();
         }
         if(code){
-            console.log("Code setLanguage", code.language)
             setLanguage(code.language);
         }
     }, [code]);
 
-    const initializeCode = useCallback(async (code) => {
+    const initializeCode = useCallback(async () => {
         // create a code and its sub-entities
         await fetch(`/api/questions/${question.id}/code`, {
             method: "POST",
@@ -55,7 +52,6 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
     }, [question.id, mutate]);
 
     const onChangeLanguage = useCallback(async (language) => {
-        console.log("onChangeLanguage", language)
         await fetch(`/api/questions/${question.id}/code`, {
             method: "PUT",
             headers: {
@@ -73,7 +69,7 @@ const Code = ({ id = "code", where, question, onTestResult }) => {
 
     return (
         code && (
-            <Stack id={id} height='100%'>
+            <Stack height='100%'>
                 <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                     <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
                     <Tab label={<Typography variant="caption">Solution</Typography>} value={1} />

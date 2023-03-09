@@ -20,12 +20,6 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                 ||
                 ( question.type === QuestionType.code &&
                     <Code
-                        displaySolutionEditor
-                        where="question"
-                        rightEditorLabel={{
-                            label: "Partial Code",
-                            subheader: "Provided to students"
-                        }}
                         question={question}
                     />
                 )
