@@ -65,7 +65,7 @@ const CodeCheck = ({ questionId, files }) => {
             setCodeCheckRunning(false);
             setExpanded(true);
         });
-    }, [questionId, showSnackbar]);
+    }, [questionId, files, showSnackbar]);
 
     return(
         <Paper >

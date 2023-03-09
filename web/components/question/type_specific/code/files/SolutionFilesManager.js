@@ -18,8 +18,6 @@ const SolutionFilesManager = ({ language, question }) => {
         { revalidateOnFocus: false }
     );
 
-    const getFileList = () => codeToSolutionFiles?.map(file => file.file);
-
     const onAddFile = useCallback(async () => {
         const extension = environments.find(env => env.language === language).extension;
         const path = `/src/file${codeToSolutionFiles?.length || ""}.${extension}`;
@@ -76,7 +74,7 @@ const SolutionFilesManager = ({ language, question }) => {
                 <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                     <CodeCheck
                         questionId={question.id}
-                        files={getFileList()}
+                        files={codeToSolutionFiles.map(file => file.file)}
                     />
                 </Stack>
             </Stack>

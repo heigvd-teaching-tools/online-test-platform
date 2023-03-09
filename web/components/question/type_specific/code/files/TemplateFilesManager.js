@@ -5,10 +5,11 @@ import { update, pull } from "./crud";
 import DropDown from "../../../../input/DropDown";
 import {StudentFilePermission} from "@prisma/client";
 import React, {useCallback} from "react";
+import CodeCheck from "../CodeCheck";
 
 const TemplateFilesManager = ({ question }) => {
 
-    const { data: codetoTemplateFiles, mutate, error } = useSWR(
+    const { data: codeToTemplateFiles, mutate, error } = useSWR(
         `/api/questions/${question.id}/code/files/template`,
         question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
@@ -24,11 +25,11 @@ const TemplateFilesManager = ({ question }) => {
     }, [question.id, mutate]);
 
     return (
+        codeToTemplateFiles && (
         <Stack height="100%">
             <Button onClick={onPullSolution}>Pull Solution</Button>
-            {codetoTemplateFiles && (
                 <Box height="100%" overflow="auto">
-                    {codetoTemplateFiles.map((codeToTemplateFile, index) => (
+                    {codeToTemplateFiles.map((codeToTemplateFile, index) => (
                         <FileEditor
                             key={index}
                             file={codeToTemplateFile.file}
@@ -59,7 +60,14 @@ const TemplateFilesManager = ({ question }) => {
                     ))}
                 </Box>
             )}
+            <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
+                <CodeCheck
+                    questionId={question.id}
+                    files={codeToTemplateFiles.map(file => file.file)}
+                />
+            </Stack>
         </Stack>
+        )
     )
 }
 
