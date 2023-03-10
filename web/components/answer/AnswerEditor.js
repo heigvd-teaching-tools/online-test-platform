@@ -68,11 +68,10 @@ const AnswerCode  = ({ question }) => {
                'Content-Type': 'application/json'
            },
            body: JSON.stringify({file})
-       }).then(async () => {
-           await mutate();
-           //showSnackbar('Answer submitted successfully', 'success');
        });
     }, [question, mutate]);
+
+    const debouncedOnChange = useDebouncedCallback(onFileChange, 500);
 
     return (
         answer?.code && (
@@ -83,7 +82,7 @@ const AnswerCode  = ({ question }) => {
                             key={index}
                             file={answerToFile.file}
                             readonlyPath
-                            onChange={onFileChange}
+                            onChange={debouncedOnChange}
 
                         />
                     ))}
@@ -136,9 +135,6 @@ const AnswerMultipleChoice = ({ question }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ option: changedOption })
-        }).then(async () => {
-            await mutate();
-            //showSnackbar('Answer submitted successfully', 'success');
         });
     }, [question, mutate]);
 
@@ -169,9 +165,6 @@ const AnswerTrueFalse = ({ question }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ isTrue })
-        }).then(async () => {
-            await mutate();
-            //showSnackbar('Answer submitted successfully', 'success');
         });
     }, [question, mutate]);
 
@@ -202,9 +195,6 @@ const AnswerEssay = ({ question }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ content })
-        }).then(async () => {
-            await mutate();
-            //showSnackbar('Answer submitted successfully', 'success');
         });
     }, [question, mutate]);
 
@@ -236,18 +226,17 @@ const AnswerWeb = ({ question }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ web })
-        }).then(async () => {
-            await mutate();
-            //showSnackbar('Answer submitted successfully', 'success');
         });
     }, [question, mutate]);
+
+    const debouncedOnChange = useDebouncedCallback(onWebChange, 500);
 
     return (
         answer?.web && (
             <Web
                 id={`answer-editor-${question.id}`}
                 web={answer.web}
-                onChange={onWebChange}
+                onChange={debouncedOnChange}
             />
         )
     )

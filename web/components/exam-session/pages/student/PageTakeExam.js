@@ -34,6 +34,7 @@ const PageTakeExam = () => {
     );
 
     useEffect(() => {
+        // Redirect to wait page if exam session is not in progress
         if(examSessionPhase && examSessionPhase.phase !== ExamSessionPhase.IN_PROGRESS){
             router.push(`/exam-sessions/${router.query.sessionId}/wait`);
         }
