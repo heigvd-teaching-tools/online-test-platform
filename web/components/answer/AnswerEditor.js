@@ -13,165 +13,46 @@ import Image from "next/image";
 import CodeCheck from "../question/type_specific/code/CodeCheck";
 import useSWR from "swr";
 import {useSnackbar} from "../../context/SnackbarContext";
+import {useDebouncedCallback} from "use-debounce";
 
 const AnswerEditor = ({ question, onAnswer }) => {
-    const [ answer, setAnswer ] = useState(undefined);
-
-    const onAnswerByType = useCallback((newAnswer) => {
-        /*
-            When calling the onAnswer callback, we pass the question and the answer.
-            If the answer is undefined, it means that the user wants to remove the answer.
-            Otherwise, we pass the answer object to update the answer.
-        */
-        switch(answer.type) {
-            // notify with undefined to remove answer
-            case QuestionType.trueFalse:
-                onAnswer(question, newAnswer !== undefined ? {
-                    isTrue: newAnswer
-                } : undefined);
-                break;
-            case QuestionType.multipleChoice:
-                let selectedOptions = newAnswer.filter(o => o.isCorrect);
-                onAnswer(question, selectedOptions.length > 0 ? {
-                    options: selectedOptions
-                } : undefined);
-                break;
-            case QuestionType.essay:
-                onAnswer(question, newAnswer ? {
-                    content: newAnswer
-                } : undefined);
-                break;
-            case QuestionType.code:
-                onAnswer(question, newAnswer);
-                break;
-            case QuestionType.web:
-                onAnswer(question, newAnswer);
-                break;
-            default:
-                break;
-        }
-    }, [answer, onAnswer]);
-
-    useEffect(() => {
-        if(question){
-            // prepare the answer data for the AnswerEditor
-            let answerData = {
-                type: question.type,
-            };
-
-            switch(question.type){
-                case QuestionType.trueFalse:
-                    let isTrue = undefined;
-                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
-                        isTrue = question.studentAnswer[0].trueFalse.isTrue;
-                    }
-                    answerData.isTrue = isTrue;
-                    break;
-                case QuestionType.multipleChoice:
-
-                    let allOptions = question.multipleChoice.options;
-                    let studentOptions = [];
-                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
-                        studentOptions = question.studentAnswer[0].multipleChoice.options;
-                    }
-
-                    answerData.options = allOptions.map(option => {
-                        return {
-                            ...option,
-                            isCorrect: studentOptions && studentOptions.some(studentOption => studentOption.id === option.id)
-                        }
-                    });
-                    break;
-                case QuestionType.essay:
-                    let content = "";
-                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
-                        content = question.studentAnswer[0].essay.content;
-                    }
-                    answerData.content = content;
-                    break;
-                case QuestionType.code:
-                    let files = question.code.templateFiles;
-                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
-                        files = question.studentAnswer[0].code.files;
-                    }
-                    answerData = {
-                        ...answerData,
-                        question: question.code, // for language, sandbox, testCases
-                        files   // files to be edited by student
-                    };
-
-                    break;
-                case QuestionType.web:
-                    let web = question.web;
-                    if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
-                        web = question.studentAnswer[0].web;
-                    }
-                    answerData.web = web;
-                    break;
-
-            }
-            setAnswer(answerData);
-        }
-    }, [question]);
-
     return (
-        answer && (
-            answer.type === QuestionType.trueFalse && (
-                <TrueFalse
-                    id={`answer-editor-${question.id}`}
-                    allowUndefined={true}
-                    isTrue={answer.isTrue}
-                    onChange={onAnswerByType}
+        question && (
+            question.type === QuestionType.trueFalse && (
+                <AnswerTrueFalse
+                    question={question}
                 />
             )
             ||
-            answer.type === QuestionType.multipleChoice && answer.options && (
-                <MultipleChoice
-                    id={`answer-editor-${question.id}`}
-                    selectOnly
-                    options={answer.options}
-                    onChange={onAnswerByType}
+            question.type === QuestionType.multipleChoice && (
+                <AnswerMultipleChoice
+                    question={question}
                 />
             )
             ||
-            answer.type === QuestionType.essay && (
-                <Essay
-                    id={`answer-editor-${question.id}`}
-                    content={answer.content}
-                    onChange={onAnswerByType}
+            question.type === QuestionType.essay && (
+                <AnswerEssay
+                    question={question}
                 />
             )
             ||
-            answer.type === QuestionType.code && (
+            question.type === QuestionType.code && (
                 <AnswerCode
                     question={question}
                 />
             )
             ||
-            answer.type === QuestionType.web && (
-                <Web
-                    id={`answer-editor-${question.id}`}
-                    web={answer.web}
-                    onChange={onAnswerByType}
+            question.type === QuestionType.web && (
+                <AnswerWeb
+                    question={question}
                 />
             )
         )
     )
 }
 
-const update = async (question, file) =>
-    await fetch(`/api/answer/${question.id}/code/${file.id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({file})
-    }).then((res) => res.json());
-
 
 const AnswerCode  = ({ question }) => {
-
-    console.log("question", question)
 
     const { showTopRight: showSnackbar } = useSnackbar();
 
@@ -181,14 +62,20 @@ const AnswerCode  = ({ question }) => {
     );
 
    const onFileChange = useCallback(async (file) => {
-       await update(question, file).then(async () => {
+       await fetch(`/api/answer/${question.id}/code/${file.id}`, {
+           method: 'PUT',
+           headers: {
+               'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({file})
+       }).then(async () => {
            await mutate();
            //showSnackbar('Answer submitted successfully', 'success');
        });
     }, [question, mutate]);
 
     return (
-        answer && answer.code && (
+        answer?.code && (
             <Stack position="relative" height="100%">
                 <Box height="100%" overflow="auto" pb={16}>
                     { answer.code.files?.map((answerToFile, index) => (
@@ -209,6 +96,159 @@ const AnswerCode  = ({ question }) => {
                     />
                 </Stack>
             </Stack>
+        )
+    )
+}
+
+const AnswerMultipleChoice = ({ question }) => {
+    const { showTopRight: showSnackbar } = useSnackbar();
+
+    const { data:answer, mutate } = useSWR(
+        `/api/answer/${question?.id}`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
+
+    const [ options, setOptions ] = useState(undefined);
+
+    useEffect(() => {
+        if(question && answer){
+            // merge the options with the student answer
+
+            let allOptions = question.multipleChoice?.options;
+            let studentOptions = answer.multipleChoice?.options;
+
+            setOptions(allOptions.map(option => {
+                return {
+                    ...option,
+                    isCorrect: studentOptions && studentOptions.some(studentOption => studentOption.id === option.id)
+                }
+            }));
+
+        }
+    }, [question, answer]);
+
+    const onOptionChange = useCallback(async (options, index) => {
+        const changedOption = options[index];
+        const method = changedOption.isCorrect ? 'POST' : 'DELETE';
+        await fetch(`/api/answer/${question.id}/multi-choice/options`, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ option: changedOption })
+        }).then(async () => {
+            await mutate();
+            //showSnackbar('Answer submitted successfully', 'success');
+        });
+    }, [question, mutate]);
+
+    return(
+        answer?.multipleChoice && options && (
+        <MultipleChoice
+            id={`answer-editor-${question.id}`}
+            selectOnly
+            options={options}
+            onChange={onOptionChange}
+        />
+        )
+    )
+}
+
+const AnswerTrueFalse = ({ question }) => {
+    const { showTopRight: showSnackbar } = useSnackbar();
+
+    const { data:answer, mutate } = useSWR(
+        `/api/answer/${question?.id}`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
+
+    const onTrueFalseChange = useCallback(async (isTrue) => {
+        await fetch(`/api/answer/${question.id}/true-false`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ isTrue })
+        }).then(async () => {
+            await mutate();
+            //showSnackbar('Answer submitted successfully', 'success');
+        });
+    }, [question, mutate]);
+
+    return (
+        answer?.trueFalse && (
+            <TrueFalse
+                id={`answer-editor-${question.id}`}
+                allowUndefined={true}
+                isTrue={answer.trueFalse.isTrue}
+                onChange={onTrueFalseChange}
+            />
+        )
+    )
+}
+
+const AnswerEssay = ({ question }) => {
+    const { showTopRight: showSnackbar } = useSnackbar();
+
+    const { data:answer, mutate } = useSWR(
+        `/api/answer/${question?.id}`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
+
+    const onEssayChange = useCallback(async (content) => {
+        await fetch(`/api/answer/${question.id}/essay`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content })
+        }).then(async () => {
+            await mutate();
+            //showSnackbar('Answer submitted successfully', 'success');
+        });
+    }, [question, mutate]);
+
+    const debouncedOnChange = useDebouncedCallback(onEssayChange, 500);
+
+    return (
+        answer?.essay && (
+            <Essay
+                id={`answer-editor-${question.id}`}
+                content={answer.essay.content}
+                onChange={debouncedOnChange}
+            />
+        )
+    )
+}
+
+const AnswerWeb = ({ question }) => {
+    const { showTopRight: showSnackbar } = useSnackbar();
+
+    const { data:answer, mutate } = useSWR(
+        `/api/answer/${question?.id}`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
+
+    const onWebChange = useCallback(async (web) => {
+        await fetch(`/api/answer/${question.id}/web`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ web })
+        }).then(async () => {
+            await mutate();
+            //showSnackbar('Answer submitted successfully', 'success');
+        });
+    }, [question, mutate]);
+
+    return (
+        answer?.web && (
+            <Web
+                id={`answer-editor-${question.id}`}
+                web={answer.web}
+                onChange={onWebChange}
+            />
         )
     )
 }

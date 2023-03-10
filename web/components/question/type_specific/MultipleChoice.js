@@ -28,7 +28,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
             return;
         }
         setOptions(newOptions);
-        onChange(newOptions);
+        onChange(newOptions, index);
     }
     return(
         <Stack id={id} direction="column" spacing={2} padding={2}>

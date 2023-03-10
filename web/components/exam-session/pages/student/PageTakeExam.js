@@ -30,7 +30,7 @@ const PageTakeExam = () => {
     const { data:examSessionPhase } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/phase`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        { refreshInterval  : 1000 }
+        { refreshInterval  : 10000 }
     );
 
     useEffect(() => {
@@ -38,7 +38,6 @@ const PageTakeExam = () => {
             router.push(`/exam-sessions/${router.query.sessionId}/wait`);
         }
     }, [examSessionPhase, router]);
-
 
     const { data: userOnExamSession, error } = useSWR(
         `/api/users/exam-sessions/${router.query.sessionId}/take`,
@@ -74,43 +73,6 @@ const PageTakeExam = () => {
         setPage(parseInt(router.query.pageId));
     }, [router.query.pageId]);
 
-    const onAnswer = useDebouncedCallback(useCallback((question, answer) => {
-        let previousAnswer = { ...question.studentAnswer }; // clone the previous answer to restore it if the api call fails
-        question.studentAnswer = [{
-            status: answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING,
-            [question.type]: {
-                ...answer
-            }
-        }];
-        (async () => {
-            await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${question.id}/answer`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ answer: answer })
-            })
-            .then(data => {
-                if(!data.ok){
-                    // force re-render to restore the previous answer -> must change the reference of the questions object
-                    let index = questions.findIndex(q => q.id === question.id);
-                    questions[index] = { ...question, studentAnswer: previousAnswer };
-                    if(data.status === 400){
-                        showSnackbar('The answer is not submited, this exam session is not in the in-progress phase', 'error');
-                    }else {
-                        showSnackbar('The answer is not submited, an error occurred', 'error');
-                    }
-                    return;
-                }
-
-                if(answer === undefined){
-                    showSnackbar('Your answer has been removed', 'success');
-                }else{
-                    showSnackbar('Answer submitted successfully', 'success');
-                }
-            }).catch(_ => {
-                showSnackbar('Error submitting answer', 'error');
-            });
-        })();
-    }, [questions, router.query.sessionId, showSnackbar]), 300);
 
     const hasAnswered = useCallback((questionId) => {
         let question = questions.find(q => q.id === questionId);
@@ -169,7 +131,6 @@ const PageTakeExam = () => {
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}
-                                            onAnswer={onAnswer}
                                         />
                                     </ResizeObserverProvider>
                                 </Box>

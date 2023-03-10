@@ -70,9 +70,11 @@ const put = async (req, res) => {
             id: questionId
         },
         select: {
-            type: true
+            type: true,
+            examSessionId: true
         }
     });
+
 
     if(!await isInProgress(question.examSessionId)) {
         res.status(400).json({ message: 'Exam session is not in progress' });
