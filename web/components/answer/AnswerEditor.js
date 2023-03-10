@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { QuestionType, StudentAnswerStatus } from '@prisma/client';
 
@@ -7,14 +7,21 @@ import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
 import Code from '../question/type_specific/Code';
 import Web from '../question/type_specific/Web';
+import {Box, IconButton, Stack} from "@mui/material";
+import FileEditor from "../question/type_specific/code/files/FileEditor";
+import Image from "next/image";
+import CodeCheck from "../question/type_specific/code/CodeCheck";
+import useSWR from "swr";
+import {useSnackbar} from "../../context/SnackbarContext";
 
 const AnswerEditor = ({ question, onAnswer }) => {
     const [ answer, setAnswer ] = useState(undefined);
 
     const onAnswerByType = useCallback((newAnswer) => {
         /*
-            decide the answer submit or delete condition on per type basis
-            answer "undefined" means delete
+            When calling the onAnswer callback, we pass the question and the answer.
+            If the answer is undefined, it means that the user wants to remove the answer.
+            Otherwise, we pass the answer object to update the answer.
         */
         switch(answer.type) {
             // notify with undefined to remove answer
@@ -47,8 +54,8 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
     useEffect(() => {
         if(question){
-
-            var answerData = {
+            // prepare the answer data for the AnswerEditor
+            let answerData = {
                 type: question.type,
             };
 
@@ -83,11 +90,16 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     answerData.content = content;
                     break;
                 case QuestionType.code:
-                    let code = question.code;
+                    let files = question.code.templateFiles;
                     if(question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED){
-                        code = question.studentAnswer[0].code;
+                        files = question.studentAnswer[0].code.files;
                     }
-                    answerData.code = code;
+                    answerData = {
+                        ...answerData,
+                        question: question.code, // for language, sandbox, testCases
+                        files   // files to be edited by student
+                    };
+
                     break;
                 case QuestionType.web:
                     let web = question.web;
@@ -131,18 +143,8 @@ const AnswerEditor = ({ question, onAnswer }) => {
             )
             ||
             answer.type === QuestionType.code && (
-                <Code
-                    id={`answer-editor-${question.id}`}
-                    where="answer"
-                    mode="partial"
-                    code={answer.code}
-                    questionId={question.id}
-                    onChange={(which, newCode) => {
-                        onAnswerByType({
-                            [which]: newCode
-                        })
-                    }}
-
+                <AnswerCode
+                    question={question}
                 />
             )
             ||
@@ -153,6 +155,60 @@ const AnswerEditor = ({ question, onAnswer }) => {
                     onChange={onAnswerByType}
                 />
             )
+        )
+    )
+}
+
+const update = async (question, file) =>
+    await fetch(`/api/answer/${question.id}/code/${file.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({file})
+    }).then((res) => res.json());
+
+
+const AnswerCode  = ({ question }) => {
+
+    console.log("question", question)
+
+    const { showTopRight: showSnackbar } = useSnackbar();
+
+    const { data:answer, mutate } = useSWR(
+        `/api/answer/${question?.id}`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
+
+   const onFileChange = useCallback(async (file) => {
+       await update(question, file).then(async () => {
+           await mutate();
+           //showSnackbar('Answer submitted successfully', 'success');
+       });
+    }, [question, mutate]);
+
+    return (
+        answer && answer.code && (
+            <Stack position="relative" height="100%">
+                <Box height="100%" overflow="auto" pb={16}>
+                    { answer.code.files?.map((answerToFile, index) => (
+                        <FileEditor
+                            key={index}
+                            file={answerToFile.file}
+                            readonlyPath
+                            onChange={onFileChange}
+
+                        />
+                    ))}
+                </Box>
+
+                <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
+                    <CodeCheck
+                        questionId={question.id}
+                        files={answer.code.files?.map(file => file.file)}
+                    />
+                </Stack>
+            </Stack>
         )
     )
 }

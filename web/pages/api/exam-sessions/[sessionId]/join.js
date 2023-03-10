@@ -101,9 +101,24 @@ const post = async (req, res) => {
                 userEmail: studentEmail,
                 questionId: question.id,
                 [question.type]: {
-                    // only code questions have type specific data, "partial code", in empty answer
+                    // only code questions have type specific data -> template files
                     create: question.type === QuestionType.code ? {
-                        code: question.code.code
+                        files: {
+                            create: question.code.templateFiles.map(codeToFile => ({
+                                studentPermission: codeToFile.studentPermission,
+                                file: {
+                                    create: {
+                                        path: codeToFile.file.path,
+                                        content: codeToFile.file.content,
+                                        code: {
+                                            connect: {
+                                                questionId: question.id
+                                            }
+                                        }
+                                    }
+                                }
+                            }))
+                        }
                     } : {}
                 },
                 studentGrading: {

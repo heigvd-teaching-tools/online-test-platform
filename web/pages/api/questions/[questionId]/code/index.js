@@ -19,9 +19,6 @@ const handler = async (req, res) => {
         case 'PUT':
             await put(req, res);
             break;
-        case 'POST':
-            await post(req, res);
-            break;
         case 'GET':
             await get(req, res);
             break;
@@ -41,16 +38,6 @@ const put = async (req, res) => {
         where: { questionId: questionId }
     });
 
-    const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
-
-    res.status(200).json(codeQuestion);
-}
-
-const post = async (req, res) => {
-    // create a code and its sub-entities
-
-    const { questionId } = req.query;
-    const { language, sandbox, testCases, files } = req.body;
     const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
 
     res.status(200).json(codeQuestion);

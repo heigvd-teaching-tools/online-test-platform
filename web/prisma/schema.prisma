@@ -383,7 +383,9 @@ model StudentAnswerCodeToFile {
   file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId     String @unique
 
-  @@id([questionId, fileId])
+  studentPermission StudentFilePermission @default(UPDATE)
+
+  @@id([userEmail, questionId, fileId])
 }
 
 model StudentAnswerWeb {

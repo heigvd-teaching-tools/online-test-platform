@@ -33,7 +33,7 @@ const gradeMultipleChoice = (question, answer) => {
             status: StudentQuestionGradingStatus.AUTOGRADED,
             pointsObtained: isCorrect ? question.points : 0
         };
-    }   
+    }
     return grading
 }
 
@@ -45,11 +45,11 @@ const gradeTrueFalse = (question, answer) => {
             ...grading,
             pointsObtained: isCorrect ? question.points : 0
         }
-    }    
+    }
     return grading;
 }
 
-/* 
+/*
     code grading call is done during answer submission and code test run
     code test run : /api/code/test/answer/[questionPage].js
 */
@@ -59,7 +59,7 @@ const gradeCode = (question, response) => {
         status: StudentQuestionGradingStatus.UNGRADED
     };
     if(response && response.success !== undefined) {
-        // answer is the response from the code test run
+        //  response is from the code sandbox run
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
             pointsObtained: response.success ? question.points : 0

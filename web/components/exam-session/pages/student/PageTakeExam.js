@@ -84,7 +84,7 @@ const PageTakeExam = () => {
         }];
         (async () => {
             await fetch(`/api/exam-sessions/${router.query.sessionId}/questions/${question.id}/answer`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ answer: answer })
             })
@@ -165,7 +165,7 @@ const PageTakeExam = () => {
                         )}
                         rightPanel={
                             questions && questions.length > 0 && questions[page - 1] && (
-                                <Box padding={2}>
+                                <Box padding={2} height="100%">
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}

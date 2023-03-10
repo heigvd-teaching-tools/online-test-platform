@@ -55,12 +55,27 @@ https://www.npmjs.com/package/@monaco-editor/react
 - /api/code/test/question/:questionId [ANY]
 
 ### Exam Sessions
-- /api/exam-sessions/
+- /api/exam-sessions/ [GET, POST]
+
+###### POST 
+
+Will create a new exam session and return the new exam session data. 
+It takes examId as a parameter. It will be used to recover all the questions of the exam. 
+The COPY of each question for the exam will be created for the exam session. 
+  
 - /api/exam-sessions/:examSessionId
 - /api/exam-sessions/:examSessionId/register
 - /api/exam-sessions/:examSessionId/questions/with-grading/official
 - /api/exam-sessions/:examSessionId/questions/with-answer/official
-- /api/exam-sessions/:examSessionId/questions/:questionId/answer
+- /api/exam-sessions/:examSessionId/questions/:questionId/answer [PUT]
+
+- /api/answer/:questionId [GET, PUT]
+- /api/exam-sessions/:examSessionId/questions/:questionId/answer/code/:fileId [PUT]
+
+###### PUT
+Receives the student answer of the question and saves it in the database.
+
+
 - 
 ### Exams 
 

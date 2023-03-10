@@ -1,7 +1,8 @@
 import { PrismaClient, Role, ExamSessionPhase, StudentAnswerStatus, QuestionType } from '@prisma/client';
 import { getSession } from 'next-auth/react';
-import { hasRole } from '../../../../../../../utils/auth';
-import { grading } from '../../../../../../../code/grading';
+import { hasRole } from '../../../../utils/auth';
+import { grading } from '../../../../code/grading';
+import {isInProgress} from "../utils";
 if (!global.prisma) {
     global.prisma = new PrismaClient()
 }
@@ -18,15 +19,48 @@ const handler = async (req, res) => {
     }
 
     switch(req.method) {
-        case 'POST':
-            await post(req, res);
+        case "GET":
+            await get(req, res);
+            break;
+        case 'PUT':
+            await put(req, res);
             break;
         default:
             break;
     }
 }
 
-const post = async (req, res) => {
+const get = async (req, res) => {
+    const session = await getSession({ req });
+    const studentEmail = session.user.email;
+    const { questionId } = req.query;
+
+    // get the student answer for a question including related nested data
+    const studentAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        include: {
+            code: { select: { files: { select: { file: true }, orderBy: [{ file: { createdAt: "asc" } }, { file: { questionId: "asc" } }] } } },
+            multipleChoice: { select: { options: true } },
+            trueFalse: true,
+            essay: true,
+            web: true,
+        }
+    });
+
+    if(!studentAnswer) {
+        res.status(404).json({ message: 'Student answer not found' });
+        return;
+    }
+
+    res.status(200).json(studentAnswer);
+}
+
+const put = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
     const { questionId } = req.query;
@@ -35,38 +69,25 @@ const post = async (req, res) => {
         where: {
             id: questionId
         },
-        include: {
-            studentAnswer: true,
-            code: { select: { code: true, solution: true } },
-            multipleChoice: { select: { options: true } },
-            trueFalse: { select: { isTrue: true } },
-            essay: true,
-            web: true,
-        }
-    });
-
-     // get the questions exam session phase
-     const examSession = await prisma.examSession.findUnique({
-        where: {
-            id: question.examSessionId
-        },
         select: {
-            phase: true
+            type: true
         }
     });
 
-
-    if(examSession.phase !== ExamSessionPhase.IN_PROGRESS) {
-        res.status(400).json({ message: 'The exam session is not in the in-progress phase' });
+    if(!await isInProgress(question.examSessionId)) {
+        res.status(400).json({ message: 'Exam session is not in progress' });
         return;
     }
 
     const { type } = question;
+
     const { answer } = req.body;
 
     let status = answer ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING;
 
-    let a = await prisma.studentAnswer.update({
+    const answerQuery = prepareAnswerByType(type, answer)
+
+    await prisma.studentAnswer.update({
         where: {
             userEmail_questionId: {
                 userEmail: studentEmail,
@@ -74,41 +95,26 @@ const post = async (req, res) => {
             }
         },
         data: {
-            status,
+            status: status,
             [type]: {
-                update: prepareAnswer(type, answer, 'update')
+                update: answerQuery
             }
         }
     });
 
-    // grade questions
-    await prisma.studentQuestionGrading.upsert({
-        where: {
-            userEmail_questionId: {
-                userEmail: studentEmail,
-                questionId: questionId
-            }
-        },
-        update: grading(question, answer),
-        create: {
-            userEmail: studentEmail,
-            questionId: questionId,
-            ...grading(question, answer)
-        }
-    });
-
-    res.status(200).json(a);
+    res.status(200).json({ message: 'Student answer updated' });
 }
 
-const prepareAnswer = (questionType, answer, mode) => {
+const prepareAnswerByType = (questionType, answer, mode) => {
     switch(questionType) {
         case QuestionType.multipleChoice:
+            // TODO : create separate endpoint, see /code
             let options = {};
             // the order of the properties is important, first set than connect
-            if(mode === 'update') {
-                // remove eventual existing options
-                options.set = [];
-            }
+
+            // remove eventual existing options
+            options.set = [];
+
             options.connect = answer ? answer.options.map((opt) => ({ id: opt.id })) : [];
             return {
                 options
@@ -121,10 +127,7 @@ const prepareAnswer = (questionType, answer, mode) => {
             return {
                 content: answer ? String(answer.content) : null
             }
-        case QuestionType.code:
-            return {
-                code: answer ? String(answer.code) : null
-            }
+
         case QuestionType.web:
             return {
                 css: answer ? answer.css : null,

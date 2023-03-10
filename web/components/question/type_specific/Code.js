@@ -27,18 +27,18 @@ const Code = ({ question }) => {
     const [ language, setLanguage ] = useState(code?.language);
 
     useEffect(() => {
-        if(code === null){ // null means that the useSWR is done and there is no code, don't use undefined
-            (async () => await initializeCode())();
-        }
         if(code){
+            if(!code.language){
+                initializeCode();
+            }
             setLanguage(code.language);
         }
     }, [code]);
 
     const initializeCode = useCallback(async () => {
-        // create a code and its sub-entities
+        // update a empty code with its sub-entities
         await fetch(`/api/questions/${question.id}/code`, {
-            method: "POST",
+            method: "PUT",
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',

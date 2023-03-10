@@ -1,4 +1,10 @@
-import { QuestionType } from '@prisma/client';
+import {PrismaClient, QuestionType} from '@prisma/client';
+
+if (!global.prisma) {
+    global.prisma = new PrismaClient()
+}
+
+const prisma = global.prisma;
 
 export const IncludeStrategy = {
     ALL: 'all',
@@ -93,9 +99,20 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
     let include = includeTypeSpecific ? {
         code: ({
             select: {
-                ...(includeOfficialAnswers ? { solutionFiles: true } : {}),
-                templateFiles: true,
+                ...(includeOfficialAnswers ? {
+                solutionFiles: {
+                    include: {
+                        file: true
+                    }
+                }} : {}),
+                templateFiles: {
+                    include: {
+                        file: true
+                    }
+                },
                 language: true,
+                sandbox: true,
+                testCases: true,
             }
         }),
         multipleChoice: {
@@ -121,6 +138,12 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
     return include;
 }
 
+
+/*
+    questionTypeSpecific is considered to be replaced as part of abandoning the single query approach for update and create of question.
+    It is hard to manage the creates and updates with the single query depending on relationships.
+    It is easier to manage the type specific data separately and then connect it with the question.
+ */
 export const questionTypeSpecific = (questionType, question, currentQuestion) => {
 
     // copy type specific data
@@ -128,7 +151,6 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
 
     // remove questionId from type specific data
     delete typeSpecificCopy.questionId;
-
     // replace each null or empty array value with undefined, otherwise prisma will throw an error
     Object.keys(typeSpecificCopy).forEach(key => {
         if(typeSpecificCopy[key] === null || (Array.isArray(typeSpecificCopy[key]) && typeSpecificCopy[key].length === 0)) {
@@ -166,10 +188,30 @@ export const questionTypeSpecific = (questionType, question, currentQuestion) =>
         case QuestionType.trueFalse:
             return typeSpecificCopy;
         case QuestionType.essay:
-            // type specific does not have any specific fields, might carry the [nature] in the future
+            // type specific does not have any specific fields
             return {}
         case QuestionType.web:
             return typeSpecificCopy;
+        case QuestionType.code:
+            // update managed separately, create does not manage related files (we dont have questionId yet)
+            const isCreate = !currentQuestion;
+            return isCreate ? {
+                language: question.code.language,
+                sandbox: {
+                    create: {
+                        image: question.code.sandbox.image,
+                        beforeAll: question.code.sandbox.beforeAll
+                    }
+                },
+                testCases: {
+                    create: question.code.testCases.map(testCase => ({
+                        index: testCase.index,
+                        exec: testCase.exec,
+                        input: testCase.input,
+                        expectedOutput: testCase.expectedOutput
+                    }))
+                }
+            } : {};
         default:
             return undefined;
     }

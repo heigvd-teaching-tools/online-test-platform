@@ -36,11 +36,11 @@ const PageDraft = () => {
 
     const [ saving, setSaving ] = useState(false);
 
-    const [ questions, setQuestions ] = useState();
+    const [ selectedExam, setSelectedExam ] = useState(undefined);
 
-    const onChangeRefenceExam = useCallback((_, questions) => {
-        setQuestions(questions);
-    }, [setQuestions]);
+    const onChangeRefenceExam = useCallback((exam) => {
+        setSelectedExam(exam);
+    }, [setSelectedExam]);
 
     const [ duration, setDuration ] = useState(undefined);
     const onDurationChange = useCallback((duration) => {
@@ -53,11 +53,11 @@ const PageDraft = () => {
             phase: ExamSessionPhase.DRAFT,
             label: examSession.label,
             conditions: examSession.conditions,
-            questions,
+            examId: selectedExam.id,
             duration
         };
 
-        if(!data.questions || data.questions && data.questions.length === 0){
+        if(!selectedExam.questions || selectedExam.questions && selectedExam.questions.length === 0){
             showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');
             setSaving(false);
             return false;
@@ -100,7 +100,7 @@ const PageDraft = () => {
         }
         setSaving(false);
         return true;
-    }, [examSession, duration, questions, showSnackbar, router]);
+    }, [examSession, selectedExam, duration, showSnackbar, router]);
 
     const handleFinalize = useCallback(async () => {
         if(await handleSave()){
