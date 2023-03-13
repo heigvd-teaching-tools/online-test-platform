@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { QuestionType, StudentAnswerStatus } from '@prisma/client';
+import { QuestionType, StudentFilePermission } from '@prisma/client';
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
@@ -89,6 +89,7 @@ const AnswerCode  = ({ question, onAnswerChange }) => {
                             key={index}
                             file={answerToFile.file}
                             readonlyPath
+                            readonlyContent={answerToFile.studentPermission === StudentFilePermission.VIEW}
                             onChange={debouncedOnChange}
 
                         />

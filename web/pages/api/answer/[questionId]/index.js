@@ -44,7 +44,7 @@ const get = async (req, res) => {
             }
         },
         include: {
-            code: { select: { files: { select: { file: true }, orderBy: [{ file: { createdAt: "asc" } }, { file: { questionId: "asc" } }] } } },
+            code: { select: { files: { select: { studentPermission: true, file: true }, orderBy: [{ file: { createdAt: "asc" } }, { file: { questionId: "asc" } }] } } },
             multipleChoice: { select: { options: true } },
             trueFalse: true,
             essay: true,

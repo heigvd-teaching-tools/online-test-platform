@@ -1,4 +1,4 @@
-import {PrismaClient, QuestionType} from '@prisma/client';
+import {PrismaClient, QuestionType, StudentFilePermission} from '@prisma/client';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -107,6 +107,12 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
                     }
                 }} : {}),
                 templateFiles: {
+                    ...(includeOfficialAnswers ? {
+                        where: {
+                          studentPermission: {
+                              not: StudentFilePermission.HIDDEN
+                          }
+                        }} : {}),
                     include: {
                         file: true
                     }
