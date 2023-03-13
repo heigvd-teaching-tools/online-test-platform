@@ -52,7 +52,8 @@ export const questionsWithIncludes = ( {
         For IncludeStrategy.USER_SPECIFIC we will have an array with one answer only
         For IncludeStrategy.ALL we will have an array with all the answers related to that questions
     */
-    if(includeTypeSpecific && includeUserAnswers) {
+
+    if(includeUserAnswers) {
 
         // no "where" for IncludeStrategy.ALL
         let saWhere = includeUserAnswers.strategy === IncludeStrategy.USER_SPECIFIC ? {
@@ -134,7 +135,7 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
         },
         essay: true,
         web: true,
-    } : undefined;
+    } : {};
     return include;
 }
 

@@ -22,30 +22,35 @@ const AnswerEditor = ({ question, onAnswer }) => {
             question.type === QuestionType.trueFalse && (
                 <AnswerTrueFalse
                     question={question}
+                    onAnswerChange={onAnswer}
                 />
             )
             ||
             question.type === QuestionType.multipleChoice && (
                 <AnswerMultipleChoice
                     question={question}
+                    onAnswerChange={onAnswer}
                 />
             )
             ||
             question.type === QuestionType.essay && (
                 <AnswerEssay
                     question={question}
+                    onAnswerChange={onAnswer}
                 />
             )
             ||
             question.type === QuestionType.code && (
                 <AnswerCode
                     question={question}
+                    onAnswerChange={onAnswer}
                 />
             )
             ||
             question.type === QuestionType.web && (
                 <AnswerWeb
                     question={question}
+                    onAnswerChange={onAnswer}
                 />
             )
         )
@@ -53,7 +58,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
 }
 
 
-const AnswerCode  = ({ question }) => {
+const AnswerCode  = ({ question, onAnswerChange }) => {
 
     const { showTopRight: showSnackbar } = useSnackbar();
 
@@ -70,7 +75,8 @@ const AnswerCode  = ({ question }) => {
            },
            body: JSON.stringify({file})
        });
-    }, [question, mutate]);
+       onAnswerChange && onAnswerChange();
+    }, [question, mutate, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500);
 
@@ -100,7 +106,7 @@ const AnswerCode  = ({ question }) => {
     )
 }
 
-const AnswerMultipleChoice = ({ question }) => {
+const AnswerMultipleChoice = ({ question, onAnswerChange }) => {
     const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data:answer, mutate } = useSWR(
@@ -111,10 +117,10 @@ const AnswerMultipleChoice = ({ question }) => {
     const [ options, setOptions ] = useState(undefined);
 
     useEffect(() => {
-        if(question && answer){
+        if(question.multipleChoice?.options && answer){
             // merge the options with the student answer
 
-            let allOptions = question.multipleChoice?.options;
+            let allOptions = question.multipleChoice.options;
             let studentOptions = answer.multipleChoice?.options;
 
             setOptions(allOptions.map(option => {
@@ -125,7 +131,7 @@ const AnswerMultipleChoice = ({ question }) => {
             }));
 
         }
-    }, [question, answer]);
+    }, [answer]);
 
     const onOptionChange = useCallback(async (options, index) => {
         const changedOption = options[index];
@@ -137,7 +143,8 @@ const AnswerMultipleChoice = ({ question }) => {
             },
             body: JSON.stringify({ option: changedOption })
         });
-    }, [question, mutate]);
+        onAnswerChange && onAnswerChange();
+    }, [question, mutate, onAnswerChange]);
 
     return(
         answer?.multipleChoice && options && (
@@ -151,7 +158,7 @@ const AnswerMultipleChoice = ({ question }) => {
     )
 }
 
-const AnswerTrueFalse = ({ question }) => {
+const AnswerTrueFalse = ({ question, onAnswerChange }) => {
     const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data:answer, mutate } = useSWR(
@@ -167,7 +174,8 @@ const AnswerTrueFalse = ({ question }) => {
             },
             body: JSON.stringify({ isTrue })
         });
-    }, [question, mutate]);
+        onAnswerChange && onAnswerChange();
+    }, [question, mutate, onAnswerChange]);
 
     return (
         answer?.trueFalse && (
@@ -181,7 +189,7 @@ const AnswerTrueFalse = ({ question }) => {
     )
 }
 
-const AnswerEssay = ({ question }) => {
+const AnswerEssay = ({ question, onAnswerChange }) => {
     const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data:answer, mutate } = useSWR(
@@ -197,7 +205,8 @@ const AnswerEssay = ({ question }) => {
             },
             body: JSON.stringify({ content })
         });
-    }, [question, mutate]);
+        onAnswerChange && onAnswerChange();
+    }, [question, mutate, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onEssayChange, 500);
 
@@ -212,7 +221,7 @@ const AnswerEssay = ({ question }) => {
     )
 }
 
-const AnswerWeb = ({ question }) => {
+const AnswerWeb = ({ question, onAnswerChange }) => {
     const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data:answer, mutate } = useSWR(
@@ -228,7 +237,8 @@ const AnswerWeb = ({ question }) => {
             },
             body: JSON.stringify({ web })
         });
-    }, [question, mutate]);
+        onAnswerChange && onAnswerChange();
+    }, [question, mutate, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onWebChange, 500);
 

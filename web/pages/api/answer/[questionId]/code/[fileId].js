@@ -56,8 +56,6 @@ const put = async (req, res) => {
         }
     });
 
-    console.log("studentAnswerFiles", studentAnswerFiles)
-
     // get original code question templateFiles
     const originalFiles = await prisma.codeToTemplateFile.findMany({
         where: {
@@ -67,8 +65,6 @@ const put = async (req, res) => {
             file: true
         }
     });
-
-    console.log("originalFiles", originalFiles)
 
     // find any difference between the original files and the student answer files
     // to find the corresponding file use the "path" property and then compare the "content" property

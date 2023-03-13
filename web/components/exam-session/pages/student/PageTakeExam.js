@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import useSWR from "swr";
+import useSWR, {mutate} from "swr";
 import { useRouter } from "next/router";
 import {ExamSessionPhase, Role, StudentAnswerStatus} from '@prisma/client';
 import { useSession } from "next-auth/react";
@@ -40,7 +40,7 @@ const PageTakeExam = () => {
         }
     }, [examSessionPhase, router]);
 
-    const { data: userOnExamSession, error } = useSWR(
+    const { data: userOnExamSession, error, mutate } = useSWR(
         `/api/users/exam-sessions/${router.query.sessionId}/take`,
         data && router.query.sessionId ?
             (...args) =>
@@ -132,6 +132,9 @@ const PageTakeExam = () => {
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}
+                                            onAnswer={async () => {
+                                                await mutate();
+                                            }}
                                         />
                                     </ResizeObserverProvider>
                                 </Box>
