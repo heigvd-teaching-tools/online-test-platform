@@ -36,8 +36,6 @@ const put = async (req, res) => {
 
     const { content } = req.body;
 
-    console.log("content: " + content)
-
     const question = await prisma.question.findUnique({
         where: {
             id: questionId
@@ -53,6 +51,8 @@ const put = async (req, res) => {
         return;
     }
 
+    const status = content === undefined || content === "" ? StudentAnswerStatus.MISSING : StudentAnswerStatus.SUBMITTED;
+
     const transaction = []; // to do in single transaction, queries are done in order
 
     // update the status of the student answer
@@ -65,7 +65,7 @@ const put = async (req, res) => {
                 }
             },
             data: {
-                status: content === undefined ? StudentAnswerStatus.MISSING : StudentAnswerStatus.SUBMITTED
+                status
             }
         })
     );

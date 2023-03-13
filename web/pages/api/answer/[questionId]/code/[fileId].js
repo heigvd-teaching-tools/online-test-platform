@@ -45,6 +45,44 @@ const put = async (req, res) => {
         return;
     }
 
+    // get all the files of the student answer
+    const studentAnswerFiles = await prisma.studentAnswerCodeToFile.findMany({
+        where: {
+            userEmail: studentEmail,
+            questionId: questionId
+        },
+        select: {
+            file: true
+        }
+    });
+
+    console.log("studentAnswerFiles", studentAnswerFiles)
+
+    // get original code question templateFiles
+    const originalFiles = await prisma.codeToTemplateFile.findMany({
+        where: {
+            questionId: questionId
+        },
+        select: {
+            file: true
+        }
+    });
+
+    console.log("originalFiles", originalFiles)
+
+    // find any difference between the original files and the student answer files
+    // to find the corresponding file use the "path" property and then compare the "content" property
+    const diffFiles = studentAnswerFiles.filter(studentAnswerFile => {
+        const originalFile = originalFiles.find(originalFile => originalFile.file.path === studentAnswerFile.file.path);
+        if(originalFile.file.path === file.path){
+            return originalFile.file.content !== file.content;
+        }
+        return originalFile.file.content !== studentAnswerFile.file.content;
+
+    });
+
+    const status = diffFiles.length === 0 ? StudentAnswerStatus.MISSING : StudentAnswerStatus.SUBMITTED;
+
     const transaction = []; // to do in single transaction, queries are done in order
 
     // update the status of the student answer
@@ -57,7 +95,7 @@ const put = async (req, res) => {
                 }
             },
             data: {
-                status: StudentAnswerStatus.SUBMITTED, // TODO : compare with original file to see if it's the same
+                status
             }
         })
     );

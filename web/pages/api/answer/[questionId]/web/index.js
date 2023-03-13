@@ -53,6 +53,8 @@ const put = async (req, res) => {
 
     const transaction = []; // to do in single transaction, queries are done in order
 
+    const status = web.html || web.css || web.js ? StudentAnswerStatus.SUBMITTED : StudentAnswerStatus.MISSING;
+
     // update the status of the student answer
     transaction.push(
         prisma.studentAnswer.update({
@@ -63,7 +65,7 @@ const put = async (req, res) => {
                 }
             },
             data: {
-                status: StudentAnswerStatus.SUBMITTED
+                status
             }
         })
     );

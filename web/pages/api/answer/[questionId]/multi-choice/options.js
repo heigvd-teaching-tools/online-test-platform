@@ -49,6 +49,27 @@ const addOrRemoveOption = async (req, res) => {
         return;
     }
 
+    let status = StudentAnswerStatus.SUBMITTED;
+
+    if(!toAdd){ // toRemove
+        // check if the option to remove is the only one selected, if so, set status to missing
+        const studentAnswer = await prisma.studentAnswerMultipleChoice.findUnique({
+            where: {
+                userEmail_questionId: {
+                    userEmail: studentEmail,
+                    questionId: questionId
+                }
+            },
+            select: {
+                options: true
+            }
+        });
+
+        if(studentAnswer.options.length === 1) {
+            status = StudentAnswerStatus.MISSING;
+        }
+    }
+
     const transaction = []; // to do in single transaction, queries are done in order
 
     // update the status of the student answer
@@ -61,7 +82,7 @@ const addOrRemoveOption = async (req, res) => {
                 }
             },
             data: {
-                status: StudentAnswerStatus.SUBMITTED,
+                status,
             }
         })
     );
