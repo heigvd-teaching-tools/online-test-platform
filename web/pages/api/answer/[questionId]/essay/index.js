@@ -80,7 +80,7 @@ const put = async (req, res) => {
                 }
             },
             data: {
-                content: content
+                content: content ? content : "" // you can use NULL as well, but you cant use undefined
             }
         })
     );
