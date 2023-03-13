@@ -92,13 +92,13 @@ const AnswerCode  = ({ question, onAnswerChange }) => {
                             readonlyContent={answerToFile.studentPermission === StudentFilePermission.VIEW}
                             secondaryActions={
                                 answerToFile.studentPermission === StudentFilePermission.VIEW && (
-                                    <Stack direction="row" spacing={1}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
                                         <Image src="/svg/icons/viewable.svg" width={24} height={24} minWidth={24} />
                                         <Typography variant="caption">view</Typography>
                                     </Stack>
                                 ) ||
                                 answerToFile.studentPermission === StudentFilePermission.UPDATE && (
-                                    <Stack direction="row" spacing={1}>
+                                    <Stack direction="row" spacing={1}  alignItems="center">
                                         <Image src="/svg/icons/editable.svg" width={24} height={24} minWidth={24} />
                                         <Typography variant="caption">edit</Typography>
                                     </Stack>
