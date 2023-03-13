@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react';
+import { useCallback} from 'react';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
 
@@ -16,7 +16,6 @@ import QuestionUpdate from "../../question/QuestionUpdate";
 import Link from "next/link";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Image from "next/image";
-import { useDebouncedCallback } from "use-debounce";
 
 const PageUpdate = () => {
     const router = useRouter();
@@ -184,10 +183,7 @@ const PageUpdate = () => {
             >
                 {
                     questions && questions.length > 0 && questions.map((q, index) =>
-                        <Box key={index} sx={{
-                            width:'100%', height:'100%',
-                            display: (index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none'
-                        }}>
+                        <Box key={index} width="100%" height="100%" display={(index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none'}>
                             { /*
                                 Not a traditional conditional rendering approach.
                                 Used to mount all the components at once, so that each component state can be updated independently.

@@ -127,8 +127,8 @@ const PageTakeExam = () => {
                             </>
                         )}
                         rightPanel={
-                            questions && questions.length > 0 && questions[page - 1] && (
-                                <Box padding={2} height="100%">
+                            questions && questions.length > 0 && questions.map((q, index) => (
+                                <Box padding={2} height="100%" display={(index + 1 === page) ? 'block' : 'none'}>
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}
@@ -136,7 +136,7 @@ const PageTakeExam = () => {
                                     </ResizeObserverProvider>
                                 </Box>
                             )
-                        }
+                        )}
                     />
                 </LayoutMain>
             </StudentPhaseRedirect>

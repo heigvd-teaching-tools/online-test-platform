@@ -16,6 +16,7 @@ import {useSnackbar} from "../../context/SnackbarContext";
 import {useDebouncedCallback} from "use-debounce";
 
 const AnswerEditor = ({ question, onAnswer }) => {
+
     return (
         question && (
             question.type === QuestionType.trueFalse && (
