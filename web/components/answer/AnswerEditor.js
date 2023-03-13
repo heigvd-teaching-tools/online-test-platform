@@ -7,7 +7,7 @@ import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
 import Code from '../question/type_specific/Code';
 import Web from '../question/type_specific/Web';
-import {Box, IconButton, Stack} from "@mui/material";
+import {Box, IconButton, Stack, Typography} from "@mui/material";
 import FileEditor from "../question/type_specific/code/files/FileEditor";
 import Image from "next/image";
 import CodeCheck from "../question/type_specific/code/CodeCheck";
@@ -90,6 +90,21 @@ const AnswerCode  = ({ question, onAnswerChange }) => {
                             file={answerToFile.file}
                             readonlyPath
                             readonlyContent={answerToFile.studentPermission === StudentFilePermission.VIEW}
+                            secondaryActions={
+                                answerToFile.studentPermission === StudentFilePermission.VIEW && (
+                                    <Stack direction="row" spacing={1}>
+                                        <Image src="/svg/icons/viewable.svg" width={24} height={24} minWidth={24} />
+                                        <Typography variant="caption">view</Typography>
+                                    </Stack>
+                                ) ||
+                                answerToFile.studentPermission === StudentFilePermission.UPDATE && (
+                                    <Stack direction="row" spacing={1}>
+                                        <Image src="/svg/icons/editable.svg" width={24} height={24} minWidth={24} />
+                                        <Typography variant="caption">edit</Typography>
+                                    </Stack>
+                                )
+                            }
+
                             onChange={debouncedOnChange}
 
                         />
