@@ -7,7 +7,7 @@ import { Stack, Tabs, Tab, Typography, Box } from "@mui/material"
 import LanguageSelector from "./code/LanguageSelector";
 import Sandbox from "./code/Sandbox";
 import TestCases from "./code/TestCases";
-import TabContent from "./code/TabContent";
+import TabContent from "../../layout/utils/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
 
 import languages from "./code/languages.json";

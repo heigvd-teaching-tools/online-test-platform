@@ -41,7 +41,6 @@ const SolutionFilesManager = ({ language, question }) => {
     }, [question.id, codeToSolutionFiles, mutate]);
 
     const onDeleteFile = useCallback(async (codeToSolutionFile) => {
-        console.log("delete file", codeToSolutionFiles)
         await del("solution", question.id, codeToSolutionFile)
             .then(async (msg) => {
                 await mutate(codeToSolutionFiles.filter(file => file.id !== codeToSolutionFile.id));

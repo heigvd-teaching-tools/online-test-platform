@@ -9,34 +9,6 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import { useSnackbar } from '../../../../context/SnackbarContext';
 import TestCaseResults from "./TestCaseResults";
 
-/*
-    code check result example per test:
-    [
-        {
-            "exec": "node /src/main.js",
-            "input": "test world\ntest world2\ntest world3",
-            "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3",
-            "expectedOutput": "TEST WORLD\nTEST WORLD2\nTEST WORLD3",
-            "passed": true
-        },
-        {
-            "exec": "node /src/main.js",
-            "input": "Hello World1",
-            "output": "HELLO WORLD1",
-            "expectedOutput": "HELLO WORLD1",
-            "passed": true
-        },
-        {
-            "exec": "node /src/main.js",
-            "input": "Hello World2",
-            "output": "HELLO WORLD2",
-            "expectedOutput": "HELLO WORLD2",
-            "passed": true
-        }
-    ]
-* */
-
-
 const CodeCheck = ({ codeCheckAction }) => {
     const { show: showSnackbar } = useSnackbar();
 
@@ -103,9 +75,7 @@ const CodeCheck = ({ codeCheckAction }) => {
                             </Stack>
                         )}
                         <Stack spacing={1} direction="row" pb={2}>
-                            <TestCaseResults
-                                tests={tests}
-                            />
+                            <TestCaseResults tests={tests} />
                         </Stack>
                     </Stack>
                 )}

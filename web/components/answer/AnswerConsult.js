@@ -1,5 +1,5 @@
 import { QuestionType } from '@prisma/client';
-import { Paper } from "@mui/material";
+import {Paper, Stack} from "@mui/material";
 import CompareMultipleChoice from "./CompareMultipleChoice";
 import ConsultEssay from "./ConsultEssay";
 import ConsultWeb from "./ConsultWeb";
@@ -8,7 +8,7 @@ import CompareTrueFalse from "./CompareTrueFalse";
 
 const AnswerConsult = ({ id, questionType, solution, answer }) => {
     return (
-        <Paper square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
+        <Stack height="100%" overflow="auto">
         {
             answer && (
                 questionType === QuestionType.trueFalse && (
@@ -48,7 +48,7 @@ const AnswerConsult = ({ id, questionType, solution, answer }) => {
                 )
             )
         }
-        </Paper>
+        </Stack>
     )
 }
 

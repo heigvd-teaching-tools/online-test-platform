@@ -13,6 +13,7 @@ import GradingPointsComment from "../../grading/GradingPointsComment";
 import LayoutMain from "../../../layout/LayoutMain";
 import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext";
 import AnswerConsult from "../../../answer/AnswerConsult";
+import AlertFeedback from "../../../feedback/AlertFeedback";
 
 const PageConsult = () => {
     const router = useRouter();
@@ -68,22 +69,17 @@ const PageConsult = () => {
                                 }
                                 rightWidth={65}
                                 rightPanel={
-                                    <Stack direction="row" position="relative" height="100%" overflowX="auto" >
-                                        { question && (
-                                        <ResizeObserverProvider>
-                                            <AnswerConsult
-                                                id={`answer-viewer-${question.id}`}
-                                                questionType={question.type}
-                                                solution={question[question.type]}
-                                                answer={question.studentAnswer[0][question.type]}
-                                            />
-                                        </ResizeObserverProvider>
-                                        )}
-                                    </Stack>
+                                     question && (
+                                        <AnswerConsult
+                                            id={`answer-viewer-${question.id}`}
+                                            questionType={question.type}
+                                            solution={question[question.type]}
+                                            answer={question.studentAnswer[0][question.type]}
+                                        />
+                                    )
                                 }
-                                footerHeight={100}
                                 footer={
-                                    <Stack direction="row" sx={{ height:'100%' }}>
+                                    <Stack direction="row" height="100px">
                                         {question && (
                                             <Paper sx={{ flex:1 }} square>
                                                 <Stack spacing={2} direction="row" justifyContent="flex-start" alignItems="center" sx={{ height:'100%' }}>
@@ -100,9 +96,7 @@ const PageConsult = () => {
                                                             />
                                                         </>
                                                     ) : (
-                                                        <Typography variant="body1" color="textSecondary">
-                                                            No grading yet
-                                                        </Typography>
+                                                        <AlertFeedback severity="warning" >This question has not been graded yet.</AlertFeedback>
                                                     )}
                                                 </Stack>
                                             </Paper>

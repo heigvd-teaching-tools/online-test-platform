@@ -8,7 +8,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import TestCaseResults from "../question/type_specific/code/TestCaseResults";
 import TabPanel from "../layout/utils/TabPanel";
-import TabContent from "../question/type_specific/code/TabContent";
+import TabContent from "../layout/utils/TabContent";
 
 const accordionSummaryHeight = 64;
 

@@ -260,10 +260,9 @@ const PageGrading = () => {
                             )}
                         </Stack>
                     }
-                    footerHeight={100}
                     footer={
                         question && (
-                            <Stack direction="row" justifyContent="space-between" sx={{ height:'100%' }} >
+                            <Stack direction="row" justifyContent="space-between" height="100px" >
                                 <GradingNextBack
                                     isFirst={participants.findIndex((p) => p.id === router.query.participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
                                     onPrev={prevParticipantOrQuestion}
