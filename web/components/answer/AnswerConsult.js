@@ -1,19 +1,19 @@
 import { QuestionType } from '@prisma/client';
-import {  Paper } from "@mui/material";
-import CompareCode from "./CompareCode";
-import ConsultWeb from "./ConsultWeb";
-import ConsultEssay from "./ConsultEssay";
+import { Paper } from "@mui/material";
 import CompareMultipleChoice from "./CompareMultipleChoice";
+import ConsultEssay from "./ConsultEssay";
+import ConsultWeb from "./ConsultWeb";
+import ConsultCode from "./ConsultCode";
 import CompareTrueFalse from "./CompareTrueFalse";
 
-const AnswerCompare = ({  questionType, solution, answer }) => {
+const AnswerConsult = ({ id, questionType, solution, answer }) => {
     return (
         <Paper square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
         {
             answer && (
                 questionType === QuestionType.trueFalse && (
                     <CompareTrueFalse
-                        mode="compare"
+                        mode="consult"
                         solution={solution.isTrue}
                         answer={answer.isTrue}
                     />
@@ -21,7 +21,8 @@ const AnswerCompare = ({  questionType, solution, answer }) => {
                 ||
                 questionType === QuestionType.multipleChoice && answer.options && (
                     <CompareMultipleChoice
-                        mode="compare"
+                        id={id}
+                        mode="consult"
                         solution={solution.options}
                         answer={answer.options}
                     />
@@ -34,9 +35,9 @@ const AnswerCompare = ({  questionType, solution, answer }) => {
                 )
                 ||
                 questionType === QuestionType.code && (
-                    <CompareCode
-                        solution={solution}
-                        answer={answer}
+                    <ConsultCode
+                        files={answer.files}
+                        tests={answer.testCaseResults}
                     />
                 )
                 ||
@@ -51,5 +52,4 @@ const AnswerCompare = ({  questionType, solution, answer }) => {
     )
 }
 
-
-export default AnswerCompare;
+export default AnswerConsult;

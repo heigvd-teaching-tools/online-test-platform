@@ -8,12 +8,11 @@ import QuestionPages from "../../take/QuestionPages";
 import {useEffect, useState} from "react";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
 import QuestionView from "../../../question/QuestionView";
-import AnswerCompare from "../../../answer/AnswerCompare";
 import GradingSigned from "../../grading/GradingSigned";
 import GradingPointsComment from "../../grading/GradingPointsComment";
-import MainMenu from "../../../layout/MainMenu";
 import LayoutMain from "../../../layout/LayoutMain";
 import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext";
+import AnswerConsult from "../../../answer/AnswerConsult";
 
 const PageConsult = () => {
     const router = useRouter();
@@ -52,10 +51,6 @@ const PageConsult = () => {
                                             questions={questions}
                                             activeQuestion={question}
                                             link={(questionId, questionIndex) => `/exam-sessions/${router.query.sessionId}/consult/${questionIndex + 1}`}
-                                            isFilled={(questionId) => {
-                                                const question = questions.find((q) => q.id === questionId);
-                                                return question && question.studentAnswer[0].studentGrading.signedBy;
-                                            }}
                                         />
                                     </Stack>
                                 </Stack>
@@ -73,12 +68,11 @@ const PageConsult = () => {
                                 }
                                 rightWidth={65}
                                 rightPanel={
-                                    <Stack direction="row" padding={2} sx={{ position:'relative', height:'100%', overflowX:'auto'}}>
+                                    <Stack direction="row" position="relative" height="100%" overflowX="auto" >
                                         { question && (
                                         <ResizeObserverProvider>
-                                            <AnswerCompare
+                                            <AnswerConsult
                                                 id={`answer-viewer-${question.id}`}
-                                                mode="consult"
                                                 questionType={question.type}
                                                 solution={question[question.type]}
                                                 answer={question.studentAnswer[0][question.type]}

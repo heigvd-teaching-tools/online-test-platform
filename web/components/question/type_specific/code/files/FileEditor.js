@@ -10,7 +10,7 @@ const languageBasedOnPathExtension = (path) => {
     return languages.monacoExtensionToLanguage[extension];
 }
 
-const FileEditor = ({ file, readonlyPath= false, readonlyContent = false, onChange, secondaryActions }) => {
+const FileEditor = ({ file, readonlyPath= false, readonlyContent = false, onChange = () => {}, secondaryActions }) => {
 
     // automatically set language based on path extension
     const [ language, setLanguage ] = useState(languageBasedOnPathExtension(file?.path));

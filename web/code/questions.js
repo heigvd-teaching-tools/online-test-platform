@@ -64,7 +64,17 @@ export const questionsWithIncludes = ( {
             where: saWhere,
             select: {
                 status: true,
-                code: true,
+                code: {
+                    select: {
+                        files: {
+                            include: {
+                                file: true
+                            }
+                        },
+                        testCaseResults: true,
+                        allTestCasesPassed: true,
+                    }
+                },
                 multipleChoice: { select: { options: { select: { id: true, text: true } } } },
                 essay: { select: { content: true } },
                 trueFalse: true,
@@ -75,17 +85,7 @@ export const questionsWithIncludes = ( {
 
         // include gradings
         if(includeGradings) {
-            include.studentAnswer.select.studentGrading = {
-                select: {
-                    questionId: true,
-                    userEmail: true,
-                    createdAt: true,
-                    status: true,
-                    pointsObtained: true,
-                    signedBy: true,
-                    comment: true,
-                }
-            };
+            include.studentAnswer.select.studentGrading = true;
         }
     }
 

@@ -1,14 +1,13 @@
-import {useState, useEffect, useCallback} from 'react';
+import {useState, useCallback} from 'react';
 
-import {Collapse, Stack, Button, Tabs, Tab, Typography, Alert, Paper, AlertTitle, TextField, Box} from "@mui/material"
+import {Collapse, Stack, Button, Typography, Alert, Paper, TextField } from "@mui/material"
 import { LoadingButton } from '@mui/lab';
 
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 
 import { useSnackbar } from '../../../../context/SnackbarContext';
-import CodeCheckResult from './CodeCheckResult';
-import AlertFeedback from "../../../feedback/AlertFeedback";
+import TestCaseResults from "./TestCaseResults";
 
 /*
     code check result example per test:
@@ -45,7 +44,6 @@ const CodeCheck = ({ codeCheckAction }) => {
     const [ tests, setTests ] = useState([]);
     const [ codeCheckRunning, setCodeCheckRunning ] = useState(false);
     const [ expanded, setExpanded ] = useState(false);
-    const [ index, setIndex ] = useState(0);
 
     const runCodeCheck = useCallback(async () => {
         setCodeCheckRunning(true);
@@ -105,23 +103,9 @@ const CodeCheck = ({ codeCheckAction }) => {
                             </Stack>
                         )}
                         <Stack spacing={1} direction="row" pb={2}>
-                            <Tabs
-                                orientation="vertical"
-                                variant="scrollable"
-                                value={index}
-                                onChange={(e, i) => setIndex(i)}
-                                >
-                                {tests?.map((t, i) =>
-                                    <Tab
-                                        key={i}
-                                        label={<Typography sx={{ color: (t.passed ? "success.main" : "error.main") }}>
-                                            { "Test Case " + (i+1) }
-                                        </Typography>
-                                        } value={i}
-                                    />
-                                )}
-                            </Tabs>
-                            <CodeCheckResult result={tests[index]} />
+                            <TestCaseResults
+                                tests={tests}
+                            />
                         </Stack>
                     </Stack>
                 )}
@@ -129,6 +113,7 @@ const CodeCheck = ({ codeCheckAction }) => {
         </Paper>
     )
 }
+
 
 
 

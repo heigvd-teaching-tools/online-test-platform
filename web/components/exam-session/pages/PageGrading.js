@@ -231,7 +231,7 @@ const PageGrading = () => {
                     }
                     rightWidth={75}
                     rightPanel={
-                        <Stack direction="row" padding={2} sx={{ position:'relative', height:'100%', overflowX:'auto' }}>
+                        <Stack direction="row" padding={1} position="relative" height="100%" overflowX="auto">
                             { question && participants && participants.length > 0 && (
                                 <>
                                 <ParticipantNav
@@ -252,8 +252,6 @@ const PageGrading = () => {
                             { question && (
                                 <ResizeObserverProvider>
                                     <AnswerCompare
-                                        id={`question-grading-${question.id}`}
-                                        mode="compare"
                                         questionType={question.type}
                                         solution={question[question.type]}
                                         answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)[question.type]}
