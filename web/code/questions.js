@@ -104,7 +104,12 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
                 solutionFiles: {
                     include: {
                         file: true
-                    }
+                    },
+                    orderBy: [{
+                        file: { createdAt: "asc" }
+                    },{
+                        file: { questionId: "asc" }
+                    }]
                 }} : {}),
                 templateFiles: {
                     ...(includeOfficialAnswers ? {
@@ -115,7 +120,12 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
                         }} : {}),
                     include: {
                         file: true
-                    }
+                    },
+                    orderBy: [{
+                        file: { createdAt: "asc" }
+                    },{
+                        file: { questionId: "asc" }
+                    }]
                 },
                 language: true,
                 sandbox: true,

@@ -175,7 +175,7 @@ model Code {
 
   solutionFiles CodeToSolutionFile[]
   templateFiles CodeToTemplateFile[]
-  files          File[] // to casdade delete files
+  files         File[] // to casdade delete files
 }
 
 model CodeToSolutionFile {
@@ -364,24 +364,39 @@ model StudentAnswerCode {
 
   files StudentAnswerCodeToFile[]
 
-  expected String?
-  result   String?
-
-  success Boolean @default(false)
-
   studentAnswerCodeHistory StudentAnswerCodeHistory[]
+
+  testCaseResults           TestCaseResult[]
+
+  allTestCasesPassed Boolean @default(false)
 
   @@id([userEmail, questionId])
 }
 
+model TestCaseResult {
+  userEmail  String
+  questionId String
+  index      Int
+
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+
+  exec           String
+  input          String
+  output         String
+  expectedOutput String
+
+  passed Boolean
+
+  @@id([index, userEmail, questionId])
+}
 
 model StudentAnswerCodeToFile {
   studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-  userEmail     String
-  questionId    String
+  userEmail         String
+  questionId        String
 
-  file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId     String @unique
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
 
   studentPermission StudentFilePermission @default(UPDATE)
 

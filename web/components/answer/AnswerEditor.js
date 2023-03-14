@@ -113,8 +113,10 @@ const AnswerCode  = ({ question, onAnswerChange }) => {
 
                 <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                     <CodeCheck
-                        questionId={question.id}
-                        files={answer.code.files?.map(file => file.file)}
+                        fetchSandbox={() => fetch(`/api/sandbox/${question.id}/student`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        })}
                     />
                 </Stack>
             </Stack>

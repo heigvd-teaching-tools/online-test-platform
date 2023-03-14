@@ -51,18 +51,19 @@ const gradeTrueFalse = (question, answer) => {
 
 /*
     code grading call is done during answer submission and code test run
-    code test run : /api/code/test/answer/[questionPage].js
+    code test run : /api/sandbox/[questionId]/student
 */
 const gradeCode = (question, response) => {
+    const success = response.tests.every((test) => test.passed);
     let grading = {
         ...defaultGrading,
         status: StudentQuestionGradingStatus.UNGRADED
     };
-    if(response && response.success !== undefined) {
+    if(response && success !== undefined) {
         //  response is from the code sandbox run
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: response.success ? question.points : 0
+            pointsObtained: success ? question.points : 0
         }
     }
     return grading

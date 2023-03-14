@@ -38,7 +38,7 @@ import AlertFeedback from "../../../feedback/AlertFeedback";
 * */
 
 
-const CodeCheck = ({ questionId, files }) => {
+const CodeCheck = ({ fetchSandbox }) => {
     const { show: showSnackbar } = useSnackbar();
 
     const [ beforeAll, setBeforeAll ] = useState(null);
@@ -51,25 +51,21 @@ const CodeCheck = ({ questionId, files }) => {
         setCodeCheckRunning(true);
         setTests(null);
         setBeforeAll(null);
-        fetch(`/api/sandbox/${questionId}/files`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ files })
-        })
-        .then(res => res.json())
-        .then(data => {
-            setCodeCheckRunning(false);
-            setTests(data.tests);
-            setBeforeAll(data.beforeAll);
-            setExpanded(true);
-        }).catch(_ => {
-            showSnackbar("Error running test", "error");
-            setTests(null);
-            setBeforeAll(null);
-            setCodeCheckRunning(false);
-            setExpanded(true);
-        });
-    }, [questionId, files, showSnackbar]);
+        fetchSandbox().then(res => res.json())
+            .then(data => {
+                setCodeCheckRunning(false);
+                setTests(data.tests);
+                setBeforeAll(data.beforeAll);
+                setExpanded(true);
+            }).catch(_ => {
+                showSnackbar("Error running test", "error");
+                setTests(null);
+                setBeforeAll(null);
+                setCodeCheckRunning(false);
+                setExpanded(true);
+            });
+
+    }, [fetchSandbox, showSnackbar]);
 
     return(
         <Paper >

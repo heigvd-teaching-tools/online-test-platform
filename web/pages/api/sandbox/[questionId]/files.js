@@ -54,18 +54,13 @@ const post = async (req, res) => {
         return;
     }
 
-    console.log("code.sandbox.image", code.sandbox.image)
-    console.log("files", files)
-    console.log("code.sandbox.beforeAll", code.sandbox.beforeAll)
-    console.log("code.testCases", code.testCases)
-
     const result = await runSandbox({
         image: code.sandbox.image,
         files: files,
         beforeAll: code.sandbox.beforeAll,
         tests: code.testCases
     }).then((result) => {
-        console.log("JAVA RESULT : ", result);
+        console.log("RESULT : ", result);
         res.status(200).send(result);
     });
 
