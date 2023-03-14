@@ -113,7 +113,7 @@ const AnswerCode  = ({ question, onAnswerChange }) => {
 
                 <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                     <CodeCheck
-                        fetchSandbox={() => fetch(`/api/sandbox/${question.id}/student`, {
+                        codeCheckAction={() => fetch(`/api/sandbox/${question.id}/student`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' }
                         })}

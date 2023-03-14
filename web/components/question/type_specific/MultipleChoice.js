@@ -32,20 +32,21 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
     }
     return(
         <Stack id={id} direction="column" spacing={2} padding={2}>
-            <Box>
             { !selectOnly && (
-               <Button color="primary" startIcon={<AddIcon />} onClick={() => {
-                    let newOptions = [...options, {
-                        text: 'Option',
-                        isCorrect: false
-                    }];
-                    setOptions(newOptions);
-                    onChange(newOptions);
-                }}>
-                    Add Option
-                </Button>
+               <Box>
+                   <Button color="primary" startIcon={<AddIcon />} onClick={() => {
+                        let newOptions = [...options, {
+                            text: 'Option',
+                            isCorrect: false
+                        }];
+                        setOptions(newOptions);
+                        onChange(newOptions);
+                    }}>
+                        Add Option
+                    </Button>
+                </Box>
             )}
-            </Box>
+
 
             { options?.map((option, index) =>
                 <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>

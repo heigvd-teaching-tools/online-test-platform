@@ -31,7 +31,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
     }, [web, onChange]);
 
     return(
-        <Stack spacing={1} sx={{ width:'100%', height:'100%', position:'relative' }}>
+        <Stack spacing={1} width="100%" height="100%" position="relative">
             <TabContext value={tab.toString()}>
             <ResizePanel
                 leftPanel={
@@ -162,7 +162,7 @@ const PreviewPanel = ({ id, web }) => {
             }
         }, [id, web]);
 
-        return <Box sx={{ height:'100%' }}><iframe ref={frame} /></Box>
+        return <Box height="100%" padding={2} ><iframe ref={frame} /></Box>
 }
 
 export default Web;

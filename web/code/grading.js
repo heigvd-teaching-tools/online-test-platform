@@ -54,7 +54,7 @@ const gradeTrueFalse = (question, answer) => {
     code test run : /api/sandbox/[questionId]/student
 */
 const gradeCode = (question, response) => {
-    const success = response.tests.every((test) => test.passed);
+    const success = response && response.tests.every((test) => test.passed);
     let grading = {
         ...defaultGrading,
         status: StudentQuestionGradingStatus.UNGRADED

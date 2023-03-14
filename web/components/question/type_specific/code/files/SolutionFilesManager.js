@@ -75,12 +75,11 @@ const SolutionFilesManager = ({ language, question }) => {
                 <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                     {codeToSolutionFiles?.length > 0 && (
                         <CodeCheck
-                            fetchSandbox={() => fetch(`/api/sandbox/${question.id}/files`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ files: codeToSolutionFiles.map(file => file.file) })
-                                })
-                            }
+                            codeCheckAction={() => fetch(`/api/sandbox/${question.id}/files`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ files: codeToSolutionFiles.map(file => file.file) })
+                            })}
                         />
                     )}
                 </Stack>

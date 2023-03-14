@@ -38,7 +38,7 @@ import AlertFeedback from "../../../feedback/AlertFeedback";
 * */
 
 
-const CodeCheck = ({ fetchSandbox }) => {
+const CodeCheck = ({ codeCheckAction }) => {
     const { show: showSnackbar } = useSnackbar();
 
     const [ beforeAll, setBeforeAll ] = useState(null);
@@ -51,7 +51,7 @@ const CodeCheck = ({ fetchSandbox }) => {
         setCodeCheckRunning(true);
         setTests(null);
         setBeforeAll(null);
-        fetchSandbox().then(res => res.json())
+        codeCheckAction().then(res => res.json())
             .then(data => {
                 setCodeCheckRunning(false);
                 setTests(data.tests);
@@ -65,7 +65,7 @@ const CodeCheck = ({ fetchSandbox }) => {
                 setExpanded(true);
             });
 
-    }, [fetchSandbox, showSnackbar]);
+    }, [codeCheckAction, showSnackbar]);
 
     return(
         <Paper >

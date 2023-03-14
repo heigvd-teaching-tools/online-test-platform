@@ -364,7 +364,7 @@ model StudentAnswerCode {
 
   files StudentAnswerCodeToFile[]
 
-  studentAnswerCodeHistory StudentAnswerCodeHistory[]
+  // studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
   testCaseResults           TestCaseResult[]
 
