@@ -29,7 +29,7 @@ const PageTakeExam = () => {
     const { data:examSessionPhase } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/phase`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        { refreshInterval  : 2000 }
+        { refreshInterval  : 200000 }
     );
 
     useEffect(() => {

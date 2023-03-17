@@ -8,14 +8,14 @@ const ContentEditor = ({ readOnly = false, language = "markdown", rawContent, on
     return (
         readOnly ? (
                 <ReactMarkdown>
-                        {rawContent?.toString()}
+                    {rawContent?.toString()}
                 </ReactMarkdown>
         ) : (
                 <InlineMonacoEditor
-                        code={rawContent}
-                        language={language}
-                        readOnly={readOnly}
-                        onChange={onChange}
+                    code={rawContent}
+                    language={language}
+                    readOnly={readOnly}
+                    onChange={onChange}
                 />
         )
     )

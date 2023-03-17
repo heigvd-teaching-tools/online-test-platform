@@ -24,10 +24,58 @@ const handler = async (req, res) => {
         case 'PUT':
             await put(req, res);
             break;
+        case 'GET':
+            await get(req, res);
         default:
             break;
     }
 }
+
+
+const get = async (req, res) => {
+    const session = await getSession({ req });
+    const studentEmail = session.user.email;
+    const { questionId } = req.query;
+
+    // get the student answer for a question including related nested data
+    const studentAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        include: {
+            question: {
+                select: { // we only need multiple choice because we need all the options (not only those selected by the student)
+                    multipleChoice: {
+                        select: {
+                            options: {
+                                select: {
+                                    id: true,
+                                    text: true
+                                }
+                            }
+                        }
+                    }
+                }},
+            code: { select: { files: { select: { studentPermission: true, file: true }, orderBy: [{ file: { createdAt: "asc" } }, { file: { questionId: "asc" } }] } } },
+            multipleChoice: { select: { options: true } },
+            trueFalse: true,
+            essay: true,
+            web: true,
+        }
+    });
+
+    if(!studentAnswer) {
+        res.status(404).json({ message: 'Student answer not found' });
+        return;
+    }
+
+    res.status(200).json(studentAnswer);
+}
+
+
 /*
  endpoint to handle student answer related to all single level question types (without complex nesting) [true false, essay, web]
 */

@@ -1,4 +1,4 @@
-import { useState, useEffect }  from "react";
+import {useState, useEffect, useCallback} from "react";
 
 import Editor from "@monaco-editor/react";
 
@@ -18,10 +18,10 @@ const InlineMonacoEditor = ({ code, language = "javascript", readOnly = false, o
         }
     }, [contentHeight]);
 
-    const onContentChange = (newContent) => {
+    const onContentChange = useCallback((newContent) => {
         setContentHeight(getContentHeight(editor));
         onChange(newContent);
-    }
+    }, [editor, onChange]);
 
     return (
         <Editor
