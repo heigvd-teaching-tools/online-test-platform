@@ -116,7 +116,7 @@ const put = async (req, res) => {
             }
         })
     );
-    console.log("Code question grading: ", grading(question, undefined));
+
     // grade question
     transaction.push(
         prisma.studentQuestionGrading.upsert({
@@ -139,7 +139,28 @@ const put = async (req, res) => {
     // prisma transaction
     await prisma.$transaction(transaction);
 
-    res.status(200).json({ message: 'File updated', status });
+    const updatedAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        select:{
+            status: true,
+            code: {
+                select: {
+                    files: {
+                        select: {
+                            file: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    res.status(200).json(updatedAnswer);
 }
 
 export default handler;

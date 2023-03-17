@@ -115,7 +115,20 @@ const put = async (req, res) => {
 
     await prisma.$transaction(transaction);
 
-    res.status(200).json({ message: 'Answer updated', status });
+    const updatedStudentAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        select: {
+            status: true,
+            [question.type]: true
+        }
+    });
+
+    res.status(200).json(updatedStudentAnswer);
 }
 
 /*

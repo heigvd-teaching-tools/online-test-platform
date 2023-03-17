@@ -16,11 +16,11 @@ import {useSnackbar} from "../../context/SnackbarContext";
 import {useDebouncedCallback} from "use-debounce";
 
 const AnswerEditor = ({ question, onAnswer }) => {
-    const onAnswerChange = useCallback(async (_, status) => {
+    const onAnswerChange = useCallback(async (updatedStudentAnswer) => {
         if(onAnswer){
-            onAnswer(question, status);
+            onAnswer(question, updatedStudentAnswer);
         }
-    }, [question, onAnswer]);
+    }, [question]);
     return (
         question && (
             question.type === QuestionType.trueFalse && (
@@ -72,14 +72,14 @@ const AnswerCode  = ({ question, answer, onAnswerChange }) => {
     const { showTopRight: showSnackbar } = useSnackbar();
 
     const onFileChange = useCallback(async (file) => {
-       const response = await fetch(`/api/answer/${question.id}/code/${file.id}`, {
+        const updatedStudentAnswer = await fetch(`/api/answer/${question.id}/code/${file.id}`, {
            method: 'PUT',
            headers: {
                'Content-Type': 'application/json'
            },
            body: JSON.stringify({file})
        }).then(res => res.json());
-       onAnswerChange && onAnswerChange(answer, response.status);
+       onAnswerChange && onAnswerChange(updatedStudentAnswer);
     }, [question, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500);
@@ -153,11 +153,11 @@ const AnswerMultipleChoice = ({ question, answer, onAnswerChange }) => {
     const onOptionChange = useCallback(async (options, index) => {
         const changedOption = options[index];
         const method = changedOption.isCorrect ? 'POST' : 'DELETE';
-        const response = await fetch(`/api/answer/${question.id}/multi-choice/options`, {
+        const updatedStudentAnswer = await fetch(`/api/answer/${question.id}/multi-choice/options`, {
             method: method, headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ option: changedOption })
         }).then(res => res.json());
-        onAnswerChange && onAnswerChange(answer, response.status);
+        onAnswerChange && onAnswerChange(updatedStudentAnswer);
     }, [question, onAnswerChange]);
 
     return(
@@ -180,11 +180,11 @@ const AnswerTrueFalse = ({ question, answer, onAnswerChange }) => {
             isTrue: isTrue
         } : undefined};
 
-        const response = await fetch(`/api/answer/${question.id}`, {
+        const updatedStudentAnswer = await fetch(`/api/answer/${question.id}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(answer)
         }).then(res => res.json());
-        onAnswerChange && onAnswerChange(answer, response.status);
+        onAnswerChange && onAnswerChange(updatedStudentAnswer);
     }, [question, onAnswerChange]);
 
     return (
@@ -203,22 +203,20 @@ const AnswerEssay = ({ question, answer, onAnswerChange }) => {
     const { showTopRight: showSnackbar } = useSnackbar();
 
     const onEssayChange = useCallback(async (content) => {
-        console.log("essay change")
-        const answer = { answer: content ? {
-            content: content
-        } : undefined};
-
-        const response = await fetch(`/api/answer/${question.id}`, {
+        if(answer.essay.content === content) return;
+        const updatedStudentAnswer = await fetch(`/api/answer/${question.id}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(answer)
+            body: JSON.stringify({ answer: content ? {
+                    content: content
+                } : undefined})
         }).then(res => res.json());
-        onAnswerChange && onAnswerChange(answer, response.status);
-    }, [question, onAnswerChange]);
+        onAnswerChange && onAnswerChange(updatedStudentAnswer);
+    }, [question, answer, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onEssayChange, 500);
 
     return (
-        answer?.essay && (
+        answer.essay && (
             <Essay
                 id={`answer-editor-${question.id}`}
                 content={answer.essay.content}
@@ -239,11 +237,11 @@ const AnswerWeb = ({ question, answer, onAnswerChange }) => {
             } : undefined
         };
 
-        const response = await fetch(`/api/answer/${question.id}`, {
+        const updatedStudentAnswer = await fetch(`/api/answer/${question.id}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(answer)
         }).then(res => res.json());
-        onAnswerChange && onAnswerChange(answer, response.status);
+        onAnswerChange && onAnswerChange(updatedStudentAnswer);
     }, [question, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onWebChange, 500);

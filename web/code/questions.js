@@ -1,32 +1,9 @@
-import {PrismaClient, QuestionType, StudentFilePermission} from '@prisma/client';
-
-if (!global.prisma) {
-    global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma;
+import {QuestionType, StudentFilePermission} from '@prisma/client';
 
 export const IncludeStrategy = {
     ALL: 'all',
     USER_SPECIFIC: 'user_specific',
 }
-
-/*
-
-console.log(questionsWithIncludes({
-    parentResource: 'exam',
-    parentResourceId: examId,
-    includeOfficialAnswers: true,
-    includeGradings: true,
-    includeUserAnswers: {
-        strategy: IncludeStrategy.ALL,
-        userEmail: req.query.email
-    }
-}));
-
-*/
-
-const trueFalse = (withAnswer) => withAnswer;
 
 export const questionsWithIncludes = ( {
     parentResource,

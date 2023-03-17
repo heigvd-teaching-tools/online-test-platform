@@ -134,8 +134,6 @@ const addOrRemoveOption = async (req, res) => {
         }
     });
 
-    console.log("GRADING", grading(question, studentAnswer));
-
     // grade the student answer
     await prisma.studentQuestionGrading.upsert({
         where: {
@@ -153,7 +151,24 @@ const addOrRemoveOption = async (req, res) => {
         update: grading(question, studentAnswer)
     });
 
-    res.status(200).json({ message: `Option ${toAdd ? 'added' : 'removed'}`, status: status });
+    const updatedStudentAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        select: {
+            status: true,
+            multipleChoice: {
+                include: {
+                    options: true
+                }
+            }
+        }
+    });
+
+    res.status(200).json(updatedStudentAnswer);
 }
 
 export default handler;

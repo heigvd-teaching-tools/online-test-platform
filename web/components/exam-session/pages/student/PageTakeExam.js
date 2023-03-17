@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import useSWR, {mutate} from "swr";
+import useSWR from "swr";
 import { useRouter } from "next/router";
 import {ExamSessionPhase, Role, StudentAnswerStatus} from '@prisma/client';
 import { useSession } from "next-auth/react";
 
-import {Stack, Box, Paper} from "@mui/material";
+import { Stack, Box } from "@mui/material";
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen';
 import LoadingAnimation from "../../../feedback/LoadingAnimation";
@@ -16,7 +16,6 @@ import QuestionView from '../../../question/QuestionView';
 import QuestionNav from '../../take/QuestionNav';
 import AnswerEditor from '../../../answer/AnswerEditor';
 
-import { useDebouncedCallback } from 'use-debounce';
 import Authorisation from "../../../security/Authorisation";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
 import LayoutMain from "../../../layout/LayoutMain";
@@ -25,7 +24,7 @@ import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext"
 const PageTakeExam = () => {
     const router = useRouter();
     const { showTopRight: showSnackbar } = useSnackbar();
-    const { data } = useSession();
+    const { data: session } = useSession();
 
     const { data:examSessionPhase } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/phase`,
@@ -42,7 +41,7 @@ const PageTakeExam = () => {
 
     const { data: userOnExamSession, error, mutate } = useSWR(
         `/api/users/exam-sessions/${router.query.sessionId}/take`,
-        data && router.query.sessionId ?
+        session && router.query.sessionId ?
             (...args) =>
                 fetch(...args)
                 .then((res) => {
@@ -132,12 +131,16 @@ const PageTakeExam = () => {
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}
-                                            onAnswer={async (question, status) => {
-                                                console.log("Answer submitted", question.id, status)
-                                                // change the status of the answer
-                                                let newQuestions = [...questions];
-                                                newQuestions[page - 1].studentAnswer[0].status = status;
-                                                setQuestions(newQuestions);
+                                            onAnswer={async (question, updatedStudentAnswer) => {
+                                                console.log("onAnswer", updatedStudentAnswer);
+                                                /* update the student answer in memory */
+                                                question.studentAnswer[0] = {
+                                                    ...question.studentAnswer[0],
+                                                    status: updatedStudentAnswer.status,
+                                                    [question.type]: updatedStudentAnswer[question.type]
+                                                };
+                                                /* change the state to trigger a re-render */
+                                                setQuestions([...questions]);
                                             }}
                                         />
                                     </ResizeObserverProvider>
