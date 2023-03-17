@@ -74,10 +74,7 @@ const PageTakeExam = () => {
     }, [router.query.pageId]);
 
 
-    const hasAnswered = useCallback((questionId) => {
-        let question = questions.find(q => q.id === questionId);
-        return question && question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED && question.studentAnswer[0][question.type] !== undefined;
-    }, [questions]);
+    const hasAnswered = useCallback((questionId) => questions.find(q => q.id === questionId)?.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED, [questions]);
 
     if(error) return <LoadingAnimation content={error.message} />
     if (!userOnExamSession) return <LoadingAnimation />
@@ -131,14 +128,9 @@ const PageTakeExam = () => {
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}
-                                            onAnswer={async (question, updatedStudentAnswer) => {
-                                                console.log("onAnswer", updatedStudentAnswer);
-                                                /* update the student answer in memory */
-                                                question.studentAnswer[0] = {
-                                                    ...question.studentAnswer[0],
-                                                    status: updatedStudentAnswer.status,
-                                                    [question.type]: updatedStudentAnswer[question.type]
-                                                };
+                                            onAnswer={(question, updatedStudentAnswer) => {
+                                                /* update the student answer status in memory */
+                                                question.studentAnswer[0].status = updatedStudentAnswer.status;
                                                 /* change the state to trigger a re-render */
                                                 setQuestions([...questions]);
                                             }}
