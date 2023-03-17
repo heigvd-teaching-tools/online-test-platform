@@ -30,7 +30,7 @@ const PageTakeExam = () => {
     const { data:examSessionPhase } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}/phase`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        { refreshInterval  : 10000 }
+        { refreshInterval  : 2000 }
     );
 
     useEffect(() => {
@@ -132,8 +132,12 @@ const PageTakeExam = () => {
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={questions[page - 1]}
-                                            onAnswer={async () => {
-                                                await mutate();
+                                            onAnswer={async (question, status) => {
+                                                console.log("Answer submitted", question.id, status)
+                                                // change the status of the answer
+                                                let newQuestions = [...questions];
+                                                newQuestions[page - 1].studentAnswer[0].status = status;
+                                                setQuestions(newQuestions);
                                             }}
                                         />
                                     </ResizeObserverProvider>

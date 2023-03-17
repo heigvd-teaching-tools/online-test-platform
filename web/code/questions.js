@@ -86,7 +86,7 @@ export const questionsWithIncludes = ( {
         // include gradings
         if(includeGradings) {
             include.studentAnswer.select.studentGrading = {
-                include:{
+                include: {
                     signedBy: true
                 }
             };

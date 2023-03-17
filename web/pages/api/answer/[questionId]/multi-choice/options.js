@@ -3,6 +3,7 @@ import { PrismaClient, Role, StudentAnswerStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../utils/auth';
 import {isInProgress} from "../../utils";
+import { grading } from '../../../../../code/grading';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -41,6 +42,16 @@ const addOrRemoveOption = async (req, res) => {
     const question = await prisma.question.findUnique({
         where: {
             id: questionId
+        },
+        select: {
+            examSessionId: true,
+            type: true,
+            points: true,
+            multipleChoice:{
+                select: {
+                    options: true
+                }
+            }
         }
     });
 
@@ -106,10 +117,43 @@ const addOrRemoveOption = async (req, res) => {
         })
     );
 
+
     // prisma transaction
     await prisma.$transaction(transaction);
 
-    res.status(200).json({ message: `Option ${toAdd ? 'added' : 'removed'}` });
+    // get the updated student answer
+    const studentAnswer = await prisma.studentAnswerMultipleChoice.findUnique({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        select: {
+            options: true
+        }
+    });
+
+    console.log("GRADING", grading(question, studentAnswer));
+
+    // grade the student answer
+    await prisma.studentQuestionGrading.upsert({
+        where: {
+            userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId
+            }
+        },
+        create: {
+            userEmail: studentEmail,
+            questionId: questionId,
+            ...grading(question, studentAnswer)
+
+        },
+        update: grading(question, studentAnswer)
+    });
+
+    res.status(200).json({ message: `Option ${toAdd ? 'added' : 'removed'}`, status: status });
 }
 
 export default handler;

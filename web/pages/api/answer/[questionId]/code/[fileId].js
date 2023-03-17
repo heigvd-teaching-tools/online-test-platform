@@ -2,6 +2,7 @@ import { PrismaClient, Role, StudentAnswerStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { hasRole } from '../../../../../utils/auth';
 import {isInProgress} from "../../utils";
+import { grading } from '../../../../../code/grading';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -115,11 +116,30 @@ const put = async (req, res) => {
             }
         })
     );
+    console.log("Code question grading: ", grading(question, undefined));
+    // grade question
+    transaction.push(
+        prisma.studentQuestionGrading.upsert({
+            where: {
+                userEmail_questionId: {
+                    userEmail: studentEmail,
+                    questionId: questionId
+                }
+            },
+            create: {
+                userEmail: studentEmail,
+                questionId: questionId,
+                ...grading(question, undefined)
+
+            },
+            update: grading(question, undefined)
+        })
+    );
 
     // prisma transaction
     await prisma.$transaction(transaction);
 
-    res.status(200).json({ message: 'File updated' });
+    res.status(200).json({ message: 'File updated', status });
 }
 
 export default handler;

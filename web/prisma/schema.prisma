@@ -416,7 +416,7 @@ model StudentAnswerWeb {
 }
 
 model StudentAnswerCodeHistory {
-  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  //studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail         String
   questionId        String
 

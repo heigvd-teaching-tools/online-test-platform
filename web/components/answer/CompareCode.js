@@ -12,6 +12,16 @@ import TabContent from "../layout/utils/TabContent";
 
 const accordionSummaryHeight = 64;
 
+const PassIndicator = ({passed}) => {
+    return (
+        passed ? (
+            <CheckIcon sx={{ color: 'success.main', width:16, height:16 }} />
+        ) : (
+            <ClearIcon sx={{ color: 'error.main', width:16, height:16 }} />
+        )
+    )
+}
+
 const CompareCode = ({ solution, answer }) => {
 
     const [ tab, setTab ] = React.useState(0);
@@ -24,17 +34,18 @@ const CompareCode = ({ solution, answer }) => {
                     <Tab label={
                         <Stack spacing={1} direction="row">
                             {
-                                (answer.testCaseResults.every((test) => test.passed) && (
-                                    <CheckIcon sx={{ color: 'success.main', width:16, height:16 }} />
-                                ))
-                                ||
-                                (answer.testCaseResults.some((test) => !test.passed) && (
-                                    <ClearIcon sx={{ color: 'error.main', width:16, height:16 }} />
-                                ))
+                                answer.testCaseResults.length > 0 ? (
+                                    <>
+                                    <PassIndicator passed={answer.testCaseResults.every((test) => test.passed)} />
+                                    <Typography variant="caption">
+                                        {`${answer.testCaseResults.filter((test) => test.passed).length} / ${answer.testCaseResults.length} tests passed`}
+                                    </Typography>
+                                    </>
+                                ) : (
+                                    <Typography variant="caption">No code-check runs</Typography>
+                                )
                             }
-                            <Typography variant="caption">
-                                {`${answer.testCaseResults.filter((test) => test.passed).length} / ${answer.testCaseResults.length} tests passed`}
-                            </Typography>
+
                         </Stack>
                     } value={1} />
                 </Tabs>
@@ -42,20 +53,17 @@ const CompareCode = ({ solution, answer }) => {
                     <TabContent>
                             <ResizePanel
                                 leftPanel={
-                                <Box border="1px solid red" borderRadius={1} padding={1}>
-                                    { answer.files.map((answerToFile, index) => (
-                                        <FileEditor
-                                            key={index}
-                                            file={answerToFile.file}
-                                            readonlyPath
-                                            readonlyContent
-                                        />
-                                    ))
-                                    }
-                                </Box>
+                                answer.files?.map((answerToFile, index) => (
+                                    <FileEditor
+                                        key={index}
+                                        file={answerToFile.file}
+                                        readonlyPath
+                                        readonlyContent
+                                    />
+                                ))
                                 }
                                 rightPanel={
-                                    solution.solutionFiles.map((solutionToFile, index) => (
+                                    solution.solutionFiles?.map((solutionToFile, index) => (
                                         <FileEditor
                                             key={index}
                                             file={solutionToFile.file}
@@ -64,7 +72,7 @@ const CompareCode = ({ solution, answer }) => {
                                         />
                                     ))
                                 }
-                                rightWidth={solution.solution ? 20 : 0}
+                                rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
                             />
                     </TabContent>
                 </TabPanel>

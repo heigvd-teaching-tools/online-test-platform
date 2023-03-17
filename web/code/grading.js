@@ -1,5 +1,17 @@
 import { StudentQuestionGradingStatus, QuestionType } from '@prisma/client';
 
+/*
+    This function is used to grade a student answer to a question.
+    argument "answer" is the student answer to the question.
+    argument "question" is the question to which the student answer is submitted.
+
+    If called with answer = undefined, the function will return the default grading.
+    Default grading is generally (pointsObtained = 0, status = AUTOGRADED),
+
+    Grading differs for code questions (pointsObtained = 0, status = UNGRADED) because the grading cannot be determined
+    during answer editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/student.js).
+
+ */
 export const grading = (question, answer) => {
     switch(question.type) {
         case QuestionType.multipleChoice:
