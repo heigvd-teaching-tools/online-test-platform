@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import {ExamSessionPhase, Role} from '@prisma/client';
 import useSWR from 'swr';
 
-import { Stack  } from "@mui/material";
+import {Stack} from "@mui/material";
 import LayoutMain from '../../layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
@@ -16,11 +16,12 @@ import { LoadingButton } from '@mui/lab';
 import { update, create } from './crud';
 import PhaseRedirect from './PhaseRedirect';
 import Authorisation from "../../security/Authorisation";
+import MainMenu from "../../layout/MainMenu";
 
 const PageDraft = () => {
     const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
-    
+
     const { data:examSession, errorSession, mutate } = useSWR(
         `/api/exam-sessions/${router.query.sessionId}`,
         router.query.sessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
@@ -34,12 +35,12 @@ const PageDraft = () => {
     );
 
     const [ saving, setSaving ] = useState(false);
-    
-    const [ questions, setQuestions ] = useState();
 
-    const onChangeRefenceExam = useCallback((_, questions) => {
-        setQuestions(questions);
-    }, [setQuestions]);
+    const [ selectedExam, setSelectedExam ] = useState(undefined);
+
+    const onChangeRefenceExam = useCallback((exam) => {
+        setSelectedExam(exam);
+    }, [setSelectedExam]);
 
     const [ duration, setDuration ] = useState(undefined);
     const onDurationChange = useCallback((duration) => {
@@ -47,16 +48,23 @@ const PageDraft = () => {
     } , [setDuration]);
 
     const handleSave = useCallback(async () => {
+
         setSaving(true);
         let data = {
             phase: ExamSessionPhase.DRAFT,
-            label: examSession.label,
-            conditions: examSession.conditions,
-            questions,
+            label: examSession?.label,
+            conditions: examSession?.conditions,
+            examId: selectedExam?.id,
             duration
         };
 
-        if(!data.questions || data.questions && data.questions.length === 0){
+        if(!selectedExam){
+            showSnackbar('Please select the reference exam.', 'error');
+            setSaving(false);
+            return false;
+        }
+
+        if(!selectedExam.questions || selectedExam.questions && selectedExam.questions.length === 0){
             showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');
             setSaving(false);
             return false;
@@ -67,7 +75,7 @@ const PageDraft = () => {
             setSaving(false);
             return false;
         }
-        
+
         if(router.query.sessionId){
             await update(router.query.sessionId, data)
             .then((response) => {
@@ -99,7 +107,7 @@ const PageDraft = () => {
         }
         setSaving(false);
         return true;
-    }, [examSession, duration, questions, showSnackbar, router]);
+    }, [examSession, selectedExam, duration, showSnackbar, router]);
 
     const handleFinalize = useCallback(async () => {
         if(await handleSave()){
@@ -110,7 +118,7 @@ const PageDraft = () => {
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
-            <LayoutMain>
+            <LayoutMain header={ <MainMenu /> } padding={2}>
                 { examSession && (
                     <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
                     { examSession.id && (

@@ -1,162 +1,209 @@
-import { useState, useEffect } from 'react';
+import { useCallback} from 'react';
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
 
-import { Stepper, Step, StepLabel, StepContent, Stack, Button, TextField } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
-
-import { useInput } from '../../../utils/useInput';
+import {Stack, Button, IconButton, Box} from "@mui/material";
 
 import LayoutMain from '../../layout/LayoutMain';
 import LoadingAnimation from '../../feedback/LoadingAnimation';
-import QuestionManager from '../../question/QuestionManager';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
-import {Role} from "@prisma/client";
+import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
+import QuestionPages from "../../exam-session/take/QuestionPages";
+import QuestionUpdate from "../../question/QuestionUpdate";
+
+import Link from "next/link";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import Image from "next/image";
 
 const PageUpdate = () => {
-    const { query: { id }} = useRouter();
+    const router = useRouter();
 
     const { show: showSnackbar } = useSnackbar();
 
-    const [ activeStep, setActiveStep ] = useState(1);
-    const [ saveRunning, setSaveRunning ] = useState(false);
-
-    const { data: exam, error } = useSWR(
-        `/api/exams/${id}`,
-        (...args) => fetch(...args).then((res) => res.json()),
+    const { data: questions, mutate, error } = useSWR(
+        `/api/exams/${router.query.examId}/questions`,
+        router.query.examId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
-    const { value:label, bind:bindLabel, setValue:setLabel, setError:setErrorLabel } = useInput('');
-    const { value:description, bind:bindDescription, setValue:setDescription } = useInput('');
+    const onQuestionChange = useCallback(async (questionId, changedProperties) => {
+        let question = questions.find((q) => q.id === questionId);
+        // update the question reference in memory
+        Object.assign(question, changedProperties);
+        await saveQuestion(question);
+        // after the question is saved, the question will be updated again based oo the response from the backend -> check the saveQuestion function
+    }, [questions, saveQuestion]);
 
-    useEffect(() => {
-        if(exam) {
-            setLabel(exam.label);
-            setDescription(exam.description);
-        }
-    }, [exam, setLabel, setDescription]);
+    const createQuestion = useCallback(async () => {
+        await fetch(`/api/exams/${router.query.examId}/questions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                order: questions.length
+            })
+        })
+            .then((res) => res.json())
+            .then(async (createdQuestion) => {
+                showSnackbar('Question created', "success");
+                await mutate([...questions, createdQuestion]);
+                await router.push(`/exams/${router.query.examId}/questions/${questions.length + 1}`);
+            }).catch(() => {
+                showSnackbar('Error creating questions', 'error');
+            });
+    } , [router, showSnackbar, questions, mutate]);
 
-    const inputControl = (step) => {
-        switch(step){
-            case 0:
-                if(label.length === 0){
-                    setErrorLabel({ error: true, helperText: 'Label is required' });
-                }
-                return label.length > 0;
-            case 1:
-                if(questions.length === 0){
-                    showSnackbar({ message: 'Exam must have at least one question', severity: 'error' });
-                }
-                return questions.length > 0;
-            default:
-                return true;
-        }
-    }
+    const deleteQuestion = useCallback(async (questionId) => {
+        let question = questions.find((q) => q.id === questionId);
+        await fetch(`/api/questions`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then(() => {
+                mutate(questions.filter((q) => q.id !== question.id).map((q) => {
+                    if(q.order > question.order){
+                        q.order--;
+                    }
+                    return q;
+                }));
+                showSnackbar('Question delete successful');
+            }).catch(() => {
+                showSnackbar('Error deleting questions', 'error');
+            });
+    } , [questions, showSnackbar, mutate]);
 
-    const handleBack = () => {
-        setActiveStep(activeStep - 1);
-    }
+    const saveQuestion = useCallback(async (question) => {
+        await fetch(`/api/questions`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then((updated) => {
+                mutate(questions.map((q) => {
+                    if(q.id === question.id){
+                        return updated;
+                    }
+                    return q;
+                }));
+                showSnackbar('Question saved', "success");
+            }).catch(() => {
+                showSnackbar('Error saving questions', 'error');
+            });
+    } , [showSnackbar, mutate, questions]);
 
-    const handleNext = () => {
-        if(inputControl(activeStep)){
-            if(activeStep === 0){
-                saveExamGeneralInformation();
-            }
-            setActiveStep(activeStep + 1);
-            
-        }
-    }
-
-    const saveExamGeneralInformation = async (changePhase) => {
-        setSaveRunning(true);
-        
-        await fetch(`/api/exams/${id}`, {
+    const savePositions = useCallback(async () => {
+        await fetch('/api/questions/order', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                label,
-                description,
+                questions: questions.map((q) => ({
+                    id: q.id,
+                    order: q.order
+                }))
             })
         })
-        .then((res) => res.json())
-        .then((_) => {
-            showSnackbar('Exam updated successfully');
-        }).catch(() => {
-            showSnackbar('Error updating exam', 'error');
-        });
-        setSaveRunning(false);
-    };
+            .then((res) => res.json())
+            .then(() => {
+                showSnackbar('Question order changed');
+            }).catch(() => {
+                showSnackbar('Error changing questions order', 'error');
+            });
+    }, [questions, showSnackbar]);
 
-           
+    const updateQuestionOrder = useCallback(async (order, offset) => {
+        if (order + offset < 0 || order + offset >= questions.length) {
+            return;
+        }
+
+        await mutate((questions) => {
+            const temp = [...questions];
+            const currentQuestion = temp[order];
+            const questionToSwapWith = temp[order + offset];
+
+            currentQuestion.order = order + offset;
+            questionToSwapWith.order = order;
+
+            temp[order] = questionToSwapWith;
+            temp[order + offset] = currentQuestion;
+
+            return temp;
+        }, false);
+
+        await savePositions();
+        await router.push(`/exams/${router.query.examId}/questions/${order + offset + 1}`);
+    }, [mutate, savePositions, questions, router]);
+
+
+    const orderDecrease = useCallback(async (order) => await updateQuestionOrder(order, -1), [updateQuestionOrder]);
+    const orderIncrease = useCallback(async (order) => await updateQuestionOrder(order, 1), [updateQuestionOrder]);
+
     if (error) return <div>failed to load</div>
-    if (!exam) return <LoadingAnimation /> 
+    if (!questions) return <LoadingAnimation />
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <LayoutMain>
-        <Stack sx={{ width:'100%' }} spacing={4} pb={40}>
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
-            
-            <Stepper activeStep={activeStep} orientation="vertical">
-                <Step key="general">
-                    <StepLabel>General informations</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>
-                            <TextField
-                                label="Label"
-                                id="exam-label"
-                                fullWidth
-                                value={label}
-                                {...bindLabel}
+            <LayoutMain
+                header={
+                    <Stack direction="row" alignItems="center">
+                        <Link href={`/exams`}>
+                            <Button startIcon={<ArrowBackIosIcon />}>
+                                Back
+                            </Button>
+                        </Link>
+                        { questions &&
+                            <QuestionPages
+                                questions={questions}
+                                activeQuestion={questions[parseInt(router.query.questionIndex) - 1]}
+                                link={(_, index) => {
+                                    return `/exams/${router.query.examId}/questions/${index + 1}`;
+                                }}
                             />
-                            <TextField
-                                label="Description"
-                                id="exam-desctiption"
-                                fullWidth
-                                multiline
-                                rows={4}
-                                value={description}
-                                {...bindDescription}
+                        }
+                        <IconButton color="primary" onClick={createQuestion}>
+                            <Image alt="Add" src="/svg/icons/add.svg" layout="fixed" width="18" height="18" />
+                        </IconButton>
+                    </Stack>
+                }
+            >
+                {
+                    questions && questions.length > 0 && questions.map((q, index) =>
+                        <Box key={index} width="100%" height="100%" display={(index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none'}>
+                            { /*
+                                Not a traditional conditional rendering approach.
+                                Used to mount all the components at once, so that each component state can be updated independently.
+                                Instead of conditionally rendering the component, we just hide it with CSS.
+                            */ }
+                            <QuestionUpdate
+                                key={q.id}
+                                index={index + 1}
+                                question={q}
+                                onQuestionChange={onQuestionChange}
+                                onQuestionDelete={deleteQuestion}
+                                onClickLeft={orderDecrease}
+                                onClickRight={orderIncrease}
                             />
-                        </Stack>
-                    </StepContent>
-                </Step>
-                
-                <Step key="write-questions">
-                    <StepLabel>Write questions</StepLabel>
-                    <StepContent>
-                        <Stack spacing={2} pt={2}>
-                            <QuestionManager 
-                                partOf="exams"
-                                partOfId={id}
-                            />
-                        </Stack>
-                    </StepContent>
-                </Step>
-            </Stepper>      
+                        </Box>
+                    )
+                }
 
-            <StepNav activeStep={activeStep} saveRunning={saveRunning} onBack={handleBack} onNext={handleNext}  />
-
-        </Stack>
-        </LayoutMain>
+            </LayoutMain>
         </Authorisation>
-    )
-}
-
-const StepNav = ({ activeStep, onBack, onNext, saveRunning }) => {
-    return (
-        <Stack direction="row" justifyContent="space-between">
-            <Button onClick={onBack} disabled={activeStep === 0}>Back</Button>
-            { activeStep ===  0 && <LoadingButton loading={saveRunning} onClick={onNext}>Next</LoadingButton> }
-
-            { activeStep ===  1 && <Button onClick={onNext}>Finish</Button> }
-        </Stack>
     )
 }
 

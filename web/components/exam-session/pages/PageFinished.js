@@ -17,6 +17,7 @@ import ExamSessionAnalytics from "../analytics/ExamSessionAnalytics";
 import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
 import JoinClipboard from "../JoinClipboard";
+import MainMenu from "../../layout/MainMenu";
 
 const PageFinished = () => {
     const router = useRouter();
@@ -35,7 +36,7 @@ const PageFinished = () => {
     const [ tab, setTab ] = useState(1);
     const [ questions, setQuestions ] = useState([]);
     const [ participants, setParticipants ] = useState([]);
-    
+
     useEffect(() => {
         if(data){
             setQuestions(data)
@@ -74,7 +75,7 @@ const PageFinished = () => {
         let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
 
         const questionColumnValues = {};
-    
+
         questions.forEach((question) => {
             const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
             let pointsObtained = grading ? grading.pointsObtained : 0;
@@ -82,7 +83,7 @@ const PageFinished = () => {
             let successRate = totalPoints > 0 ? Math.round(pointsObtained / totalPoints * 100) : 0;
 
             let color = successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error';
-            questionColumnValues[`Q${question.order + 1}`] = 
+            questionColumnValues[`Q${question.order + 1}`] =
                 <Typography variant="button" sx={{ color: `${color}.main` }}>
                     <b>{`${pointsObtained}/${totalPoints}`}</b>
                 </Typography>
@@ -115,9 +116,9 @@ const PageFinished = () => {
 
             let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
             let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
-            
+
             csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${participantSuccessRate}${COLUMN_SEPARATOR}${totalPoints}${COLUMN_SEPARATOR}${obtainedPoints}${COLUMN_SEPARATOR}`;
-            
+
             questions.forEach((question) => {
                 const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
                 let pointsObtained = grading ? grading.pointsObtained : 0;
@@ -146,38 +147,41 @@ const PageFinished = () => {
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             <TabContext value={tab}>
-           { questions && questions.length > 0 && (
-            <LayoutMain
-                subheader={
-                    <TabList onChange={handleTabChange} >
-                        <Tab label="Results" value={1} />
-                        <Tab label="Analytics" value={2} />
-                    </TabList>
-                }
-            >
-            <TabPanel value={1} >
-                <Stack spacing={4}>
-                    <JoinClipboard sessionId={router.query.sessionId} />
+               { questions && questions.length > 0 && (
+                   <LayoutMain
+                        header={ <MainMenu /> }
+                        subheader={
+                            <TabList onChange={handleTabChange} >
+                                <Tab label="Results" value={1} />
+                                <Tab label="Analytics" value={2} />
+                            </TabList>
+                        }
+                        padding={2}
+                        spacing={2}
+                    >
+                        <TabPanel value={1} >
+                            <Stack spacing={4}>
+                                <JoinClipboard sessionId={router.query.sessionId} />
 
-                    <Stack direction="row" alignItems="center" justifyContent="space-between">
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                            <Typography variant="h6">Overall success rate</Typography>
-                            <PiePercent value={ getSignedSuccessRate(questions) } />
-                        </Stack>
-                        <Button onClick={exportAsCSV}>Export as csv</Button>
-                    </Stack>
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Typography variant="h6">Overall success rate</Typography>
+                                        <PiePercent value={ getSignedSuccessRate(questions) } />
+                                    </Stack>
+                                    <Button onClick={exportAsCSV}>Export as csv</Button>
+                                </Stack>
 
-                    <DataGrid
-                        header={gridHeaders()}
-                        items={gridRows()}
-                    />
-                </Stack>
-            </TabPanel>
-            <TabPanel value={2} sx={{ minWidth:'100%' }}>
-                <ExamSessionAnalytics questions={questions} />
-            </TabPanel>
-            </LayoutMain>
-           )}
+                                <DataGrid
+                                    header={gridHeaders()}
+                                    items={gridRows()}
+                                />
+                            </Stack>
+                        </TabPanel>
+                        <TabPanel value={2}>
+                            <ExamSessionAnalytics questions={questions} />
+                        </TabPanel>
+                </LayoutMain>
+               )}
             </TabContext>
         </PhaseRedirect>
         </Authorisation>

@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { ThemeProvider, createTheme, ThemeOptions } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { SessionProvider } from "next-auth/react"
@@ -10,8 +10,6 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-
-import "../components/input/content/ContentEditor.css";
 
 import Authentication from '../components/security/Authentication';
 

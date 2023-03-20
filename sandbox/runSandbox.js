@@ -1,53 +1,161 @@
-import axios from "axios";
-import tar from "tar";
 import uniqid from "uniqid"; 
 import fs from "fs";
+import tar from "tar";
+
+import { GenericContainer } from "testcontainers";
+//import { GenericContainer } from "../../testcontainers-node";
 
 // mode = run / test
+// https://www.npmjs.com/package/testcontainers
+// https://github.com/apocas/dockerode
 
-export const runSandbox = (code, solution = "", mode = "run") => {
-    return new Promise((resolve, reject) => {
-        let runUniqId = uniqid();
-        // prepare the file to execute
-        fs.mkdirSync(`sandbox/runs/node/${runUniqId}`);
-        fs.mkdirSync(`sandbox/runs/node/${runUniqId}/image`);
+const EXECUTION_TIMEOUT = 30000;
 
-        fs.writeFileSync(`sandbox/runs/node/${runUniqId}/image/code.js`, code);
-        fs.writeFileSync(`sandbox/runs/node/${runUniqId}/image/solution.js`, solution);
-        
-        fs.copyFile(`sandbox/environements/node/Dockerfile`, `sandbox/runs/node/${runUniqId}/image/Dockerfile`, async function(err) {
-            fs.copyFile(`sandbox/environements/node/entrypoint.sh`, `sandbox/runs/node/${runUniqId}/image/entrypoint.sh`, async function(err) {
-                tar.c({ gzip: true, cwd: `sandbox/runs/node/${runUniqId}/image` }, ["./"])
-                .pipe(fs.createWriteStream(`sandbox/runs/node/${runUniqId}/image.tar.gz`))
-                .on("finish", async () => {
-                    let contentFromFile = fs.readFileSync(`sandbox/runs/node/${runUniqId}/image.tar.gz`);
-                    await axios({
-                        method: 'post',
-                        url: `http://localhost:2375/build?q=true&t=sandbox:img-${runUniqId}&buildargs={"mode":"${mode}"}`,
-                        data: contentFromFile,
-                        maxContentLength: Infinity,
-                        maxBodyLength: Infinity
-                    })
-                    .then(async () => {
-                        
-                        let { data: { Id: containerId }} = await axios.post(`http://localhost:2375/containers/create?name=run-${runUniqId}`, { Image: `sandbox:img-${runUniqId}` });
+export const runSandbox = ({
+    image = 'node:latest',
+    files = [], // { name, content }
+    beforeAll = undefined,
+    tests = [], // { exec, input, output }
+}) => {
+    return new Promise(async (resolve, reject) =>  {
 
-                        await axios.post(`http://localhost:2375/containers/${containerId}/start`);
+        console.log("RUNNING SANDBOX", image, files, tests);
 
-                        let { data: logData } = await axios.get(`http://localhost:2375/containers/${containerId}/logs?stderr=1&stdout=1&follow=1&tail=0`);
-                        
-                        await axios.delete(`http://localhost:2375/containers/${containerId}?force=true`);
-                        await axios.delete(`http://localhost:2375/images/sandbox:img-${runUniqId}?force=true`);
-                        resolve(logData.substring(8, logData.length - 1).replaceAll(/\n.{8}/g, "\n"));
-                    })
-                    .catch(({message}) => {
-                        reject(message);
-                        return;
-                    });
 
-                    fs.rmSync(`sandbox/runs/node/${runUniqId}`, { recursive: true, force: true });
-                });
-            });
+        const directory = await prepareContent(files, tests);
+
+        const container = await startContainer(image, directory, beforeAll);
+
+        /* ## TIMEOUT  */
+        let containerStarted = true;
+        let response = undefined;
+        let timeout = prepareTimeout(() => {
+            container.stop();
+            containerStarted = false;
         });
+
+        let result = await execCode(container, tests);
+
+        clearTimeout(timeout);
+
+        if(containerStarted) { // If no timeout
+            // Stop the container
+            await container.stop();
+        }else{
+            reject("Execution timed out");
+        }
+
+        let output = prepareOutput(response, result, tests);
+
+        resolve(output);
+    
     });
+}
+
+const prepareContent = (files, tests) => new Promise((resolve, _) => {
+    let codeDirectory = `runs/tc/${uniqid()}`;
+    fs.mkdirSync(codeDirectory, { recursive: true });
+    fs.mkdirSync(`${codeDirectory}/tests`);
+
+    tests.map(({ input }, index) => {
+        fs.writeFileSync(`${codeDirectory}/tests/test${index}.txt`, input || "");
+    });
+
+    files.map(({ path, content }) => {
+        let filesDirectory = `${codeDirectory}/${path.split("/").slice(0, -1).join("/")}`;
+        let fileName = path.split("/").slice(-1)[0];
+
+        fs.mkdirSync(filesDirectory, { recursive: true });
+
+        fs.writeFileSync(`${filesDirectory}/${fileName}`, content || "");
+    });
+
+    tar.c({ gzip: true, cwd: codeDirectory }, ["."]).pipe(fs.createWriteStream(`${codeDirectory}/code.tar.gz`)).on("close", () => resolve(codeDirectory));    
+});
+
+
+const startContainer = async (image, filesDirectory, beforeAll) => {
+
+    let container = await (
+        new GenericContainer(image)
+            .withEnvironment("NODE_NO_WARNINGS", "1")
+            .withCopyFilesToContainer([{ source: `${filesDirectory}/code.tar.gz`, target: "/code.tar.gz" }])
+            .withCommand(["sleep", "infinity"])
+            .start()
+    );
+
+    await container.exec(["sh", "-c", "tar -xzf code.tar.gz -C /"], { tty: false });
+
+    if(beforeAll){
+        await container.exec(["sh", "-c", beforeAll], { tty: false });
+    }
+
+    /* ## CONTENT DELETE */
+    fs.rmSync(filesDirectory, { recursive: true, force: true });
+
+    return container;
+}
+
+const prepareTimeout = (timeoutCallback) => setTimeout(() => timeoutCallback("Execution timed out"), EXECUTION_TIMEOUT);
+
+
+const execCode = async (container, tests) => {
+    let results = [];
+
+    for (let index = 0; index < tests.length; index++) {
+        let { exec, input } = tests[index];
+        let { output:result } = await container.exec(
+            ["sh", "-c", `${exec} < /tests/test${index}.txt`],
+            { tty: false });
+        results.push(result);
+    };
+
+    return cleanUpDockerStreamHeaders(results.join(""));
+
+}
+
+const prepareOutput = (response, result, tests) => {
+
+    if(!response){ // If no timeout
+        const expectedString = tests.map(({ output }) => {
+            return output + "\n";
+        }).join("");
+
+        return {
+            success: result === expectedString,
+            expected: expectedString,
+            result: result,
+        };
+    }
+
+    return response;
+}
+
+
+            
+
+const cleanUpDockerStreamHeaders = (input) => {
+    /*
+        The response contains some headers that we need to remove
+        \x01 -> response comes from stdout 
+        \x02 -> response comes from stderr
+        and the first 8 bytes are the length of the message
+    */
+    // find \x01 or \x02 and remove the next 8 bytes
+    /*
+        tried with regexp : input.replaceAll(/(\x01|\x02).{8}/gm, '')
+        but it didnt not work
+    */
+
+    let output = '';
+
+    for (let i = 0; i < input.length; i++) {
+        if (input[i] !== '\x01' && input[i] !== '\x02') {
+            output += input[i];
+        } else {
+            i += 7;
+        }
+    }
+
+    return output;
 }

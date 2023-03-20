@@ -1,35 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
 import { QuestionType } from '@prisma/client';
-import { Box, Accordion, AccordionDetails, AccordionSummary, Paper, Stack, Typography } from "@mui/material";
+import {  Paper } from "@mui/material";
+import CompareCode from "./CompareCode";
+import ConsultWeb from "./ConsultWeb";
+import ConsultEssay from "./ConsultEssay";
+import CompareMultipleChoice from "./CompareMultipleChoice";
+import CompareTrueFalse from "./CompareTrueFalse";
 
-
-const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer }) => {
-
-    const container = useRef();
-    const [ height, setHeight ] = useState(0);
-
-    const resizeObserver = useRef(new ResizeObserver(entries => {
-        const { height } = entries[0].contentRect;
-        setHeight(height);
-    }));
-   
-    useEffect(() => {
-        const element = container.current;
-        const observer = resizeObserver.current;
-        observer.observe(element);
-
-        // Remove event listener on cleanup
-        return () => observer.unobserve(element);
-      }, [resizeObserver, container]);
-
+const AnswerCompare = ({  questionType, solution, answer }) => {
     return (
-        <Paper ref={container} square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
+        <Paper square elevation={0} sx={{ flex:1, height:'100%', overflowX:'auto', p:0 }}>
         {
             answer && (
                 questionType === QuestionType.trueFalse && (
-                    <CompareTrueFalse 
-                        id={id}
-                        mode={mode}
+                    <CompareTrueFalse
+                        mode="compare"
                         solution={solution.isTrue}
                         answer={answer.isTrue}
                     />
@@ -37,37 +21,27 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
                 ||
                 questionType === QuestionType.multipleChoice && answer.options && (
                     <CompareMultipleChoice
-                        id={id}
-                        mode={mode}
+                        mode="compare"
                         solution={solution.options}
                         answer={answer.options}
                     />
                 )
                 ||
                 questionType === QuestionType.essay && (
-                    <CompareEssay
-                        id={id}
-                        mode={mode}
-                        answer={answer}
+                    <ConsultEssay
+                        content={answer.content}
                     />
                 )
                 ||
                 questionType === QuestionType.code && (
                     <CompareCode
-                        id={id}
-                        mode={mode}
-                        height={height-60}
                         solution={solution}
                         answer={answer}
-                    />      
+                    />
                 )
                 ||
                 questionType === QuestionType.web && (
-                    <CompareWeb
-                        id={id}
-                        mode={mode}
-                        height={height-60}
-                        solution={solution}
+                    <ConsultWeb
                         answer={answer}
                     />
                 )
@@ -77,176 +51,5 @@ const AnswerCompare = ({ id, mode = "compare", questionType, solution, answer })
     )
 }
 
-
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
-import CodeCheckResult from '../question/type_specific/CodeCheckResult';
-import CodeEditor from '../input/CodeEditor';
-import ResizePanel from '../layout/utils/ResizePanel';
-
-const RadioViewer = ({ mode, selected, filled }) => {
-
-    const getIndicator = (mode, filled, selected ) => {
-        if (mode === "compare") {
-            if(filled && selected) return <CheckIcon sx={{ color: `success.main`, width:24, height:24 }} />;
-            if(filled && !selected) return <ClearIcon sx={{ color: `error.main`, width:24, height:24 }} />;
-        } else {
-            return <ClearIcon sx={{ color: `info.main`, width:24, height:24 }} />;
-        }
-    }
-
-    return (
-        <Stack alignItems="center" justifyContent="center" sx={{ border: '1px solid', borderColor: selected ? 'success.main' : 'grey.400', borderRadius: 2, p:1}}>
-            <Box sx={{ width:24, height:24 }}>
-                { filled && getIndicator(mode, filled, selected) }
-            </Box>
-        </Stack>
-    )
-}
-
-const CompareTrueFalse = ({ mode, solution, answer }) => {
-    return (
-        <Stack direction="row" spacing={2} sx={{ p:2 }} alignItems="center">
-            <RadioViewer mode={mode} selected={solution && solution === true} filled={answer} />
-            <Box>
-                <Typography variant="body1">True</Typography>
-            </Box>
-            <RadioViewer mode={mode} selected={solution && solution === false} filled={!answer} />
-            <Box>
-                <Typography variant="body1">False</Typography>
-            </Box>
-        </Stack>
-    )
-}
-
-const CompareMultipleChoice = ({ mode, solution, answer }) => {
-    return (
-        <Stack spacing={2} sx={{p:2}}>
-            { solution.map((option, index) => (
-                <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
-                    <RadioViewer mode={mode} key={index} selected={option.isCorrect} filled={answer.some((opt) => opt.id === option.id)} />
-                    <Box>
-                        <Typography variant="body1">{option.text}</Typography>
-                    </Box>
-                </Stack>
-            ))}
-        </Stack>
-    )
-}
-
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ContentEditor from '../input/content/ContentEditor';
-import Web from "../question/type_specific/Web";
-
-const CompareCode = ({ mode, solution, answer, height }) => {
-
-    const [expanded, setExpanded] = useState(true);
-
-    const handleChange = () => {
-        setExpanded(!expanded);      
-    };
-
-    return (
-        <>
-        <Accordion  
-            sx={{
-                border: 'none',
-                '&.MuiPaper-root': {
-                    boxShadow: 'none',
-                }
-            }}
-            disableGutters square expanded={expanded} onChange={handleChange}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="body1">Student Answer / Solution</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <>
-                { mode === "compare" && (
-                    <ResizePanel
-                        leftPanel={
-                            <CodeEditor
-                                id={`answer-compare-student`}
-                                readOnly
-                                code={answer.code}
-                            />
-                        }
-                        rightPanel={
-                            <CodeEditor
-                                id={`answer-compare-solution`}
-                                readOnly
-                                code={solution.solution}
-                            />
-                        }
-                        rightWidth={solution.solution ? 20 : 0}
-                        height={height-66}
-                    />
-                )}
-                { mode === "consult" && (
-                    <CodeEditor
-                        id={`answer-compare-student`}
-                        readOnly
-                        code={answer.code}
-                        editorHeight={height-66}
-                    />
-                )}
-                </>
-            </AccordionDetails>
-        </Accordion>
-        <Accordion 
-            sx={{
-                border: 'none',
-                '&.MuiPaper-root': {
-                    boxShadow: 'none',
-                }
-            }}
-            disableGutters square expanded={!expanded} onChange={handleChange}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="body1">Check result</Typography>
-                {
-                    (answer.success && (
-                        <Box sx={{ ml:2 }}>
-                            <CheckIcon sx={{ color: 'success.main', width:24, height:24 }} />
-                        </Box>
-                    ))
-                    ||
-                    (answer.success === false && (
-                        <Box sx={{ ml:2 }}>
-                            <ClearIcon sx={{ color: 'error.main', width:24, height:24 }} />
-                        </Box>
-                    ))
-                }
-            </AccordionSummary>
-            <AccordionDetails>
-                <CodeCheckResult result={answer} />
-            </AccordionDetails>
-        </Accordion>
-        </>
-    )
-}
-
-const CompareEssay = ({ answer }) => {
-    return (
-        <Box sx={{ p:2 }}>
-            <ContentEditor
-                id={`answer-compare-essay`}
-                readOnly
-                rawContent={answer.content}
-            />
-        </Box>
-    )
-}
-
-const CompareWeb = ({ mode, answer, height }) => {
-    return (
-        <Box sx={{ p:2 }}>
-            <Web
-                readOnly={true}
-                web={answer}
-                containerHeight={height}
-
-            />
-        </Box>
-    )
-}
 
 export default AnswerCompare;

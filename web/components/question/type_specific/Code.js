@@ -1,101 +1,151 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
-import { Stack, Tabs, Tab, Paper } from "@mui/material"
-import CodeEditor from '../../input/CodeEditor';
-import CodeCheck from './CodeCheck';
+import useSWR from "swr";
 
-const Code = ({ id = "code", where, questionId, code:initial, displaySolutionEditor, containerHeight, onChange, onTestResult }) => {
+import { Stack, Tabs, Tab, Typography, Box } from "@mui/material"
 
-    const [ code, setCode ] = useState();
-    const [ tab, setTab ] = useState(displaySolutionEditor ? 0 : 1);
-    const [ editorHeight, setEditorHeight ] = useState(containerHeight);
+import LanguageSelector from "./code/LanguageSelector";
+import Sandbox from "./code/Sandbox";
+import TestCases from "./code/TestCases";
+import TabContent from "../../layout/utils/TabContent";
+import SolutionFilesManager from "./code/files/SolutionFilesManager";
+
+import languages from "./code/languages.json";
+import TemplateFilesManager from "./code/files/TemplateFilesManager";
+
+const environments = languages.environments;
+
+const Code = ({ question }) => {
+
+    const { data: code, mutate, error } = useSWR(
+        `/api/questions/${question.id}/code`,
+        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus: false }
+    );
+
+    const [ tab, setTab ] = useState(0);
+    const [ language, setLanguage ] = useState(code?.language);
 
     useEffect(() => {
-        if (initial) {
-            setCode(initial);
+        if(code){
+            if(!code.language){
+                initializeCode();
+            }
+            setLanguage(code.language);
         }
-    }, [initial, id]);
+    }, [code]);
 
-    const runTestRef = useCallback(node => {
-        if (node !== null) {
-            setEditorHeight(containerHeight - node.clientHeight);
-        }
-    }, [containerHeight]);
+    const initializeCode = useCallback(async () => {
+        // update a empty code with its sub-entities
+        await fetch(`/api/questions/${question.id}/code`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(codeBasedOnLanguage("cpp"))
+        }).then(data => data.json())
+            .then(async (data) => {
+                await mutate(data);
+            });
+
+    }, [question.id, mutate]);
+
+    const onChangeLanguage = useCallback(async (language) => {
+        await fetch(`/api/questions/${question.id}/code`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(codeBasedOnLanguage(language))
+        })
+        .then(data => data.json())
+        .then(async (data) => {
+            setLanguage(data.language);
+            await mutate(data);
+        });
+    }, [question.id, mutate]);
 
     return (
-        <>
-            {code && (
-                <>
-                <Stack id={id} direction="column" spacing={2} sx={{ width: '100%', position: 'relative', overflow: 'auto', pb: '44px' }}>
-                   {displaySolutionEditor && (
-                    <>
-                        <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
-                            <Tab label="Solution Code" value={0} />
-                            <Tab label="Partial Code" value={1} />
-                        </Tabs>
-                        
-                        <TabPanel 
-                            id="solution"
-                            value={tab}
-                            index={0}
-                            >
-                            <CodeEditor 
-                                editorHeight={editorHeight}
-                                code={initial.solution}
-                                onChange={(newCode) => {
-                                    setCode({
-                                        ...code,
-                                        solution: newCode
-                                    });
-                                    if(onChange) onChange("solution", newCode);
-                                }}
-                            />  
-                        </TabPanel>
-                    </>
-                    )}
-                    <TabPanel 
-                        value={tab}
-                        index={1}
-                    >
-                        <CodeEditor
-                            id={`${id}-partial`}
-                            editorHeight={editorHeight}
-                            code={initial.code}
-                            onChange={(newCode) => {
-                                setCode({
-                                    ...code,
-                                    code: newCode
-                                });
-                                if(onChange) onChange("code", newCode);
-                            }}
-                        /> 
-                    </TabPanel>
-                    <Paper ref={runTestRef} square elevation={0} sx={{ position:'absolute', bottom:0, left:0, maxHeight: `${containerHeight}px`, width:'100%', p:0  }}>
-                        <CodeCheck
-                            id={`${id}-test-run`}
-                            where={where} 
-                            questionId={questionId} 
-                            onTestResult={onTestResult}
+        code && (
+            <Stack height='100%'>
+                <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
+                    <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
+                    <Tab label={<Typography variant="caption">Solution</Typography>} value={1} />
+                    <Tab label={<Typography variant="caption">Template</Typography>} value={2} />
+                </Tabs>
+                <TabPanel id="setup" value={tab} index={0}>
+                    <TabContent padding={2} spacing={4}>
+                        { language && (
+                            <>
+                            <Box>
+
+                                <LanguageSelector
+                                    language={language}
+                                    onChange={onChangeLanguage}
+                                />
+
+
+                            </Box>
+
+                            <Sandbox
+                                question={question}
+                                language={language}
+
+                            />
+
+                            <TestCases
+                                question={question}
+                                language={language}
+
+                            />
+                            </>
+                            )
+                        }
+                    </TabContent>
+
+                </TabPanel>
+                <TabPanel id="solution" value={tab} index={1}>
+                    <TabContent>
+                        <SolutionFilesManager
+                            language={language}
+                            question={question}
                         />
-                    </Paper>
-                </Stack>
-                </>
-            )}
-        </>
+                    </TabContent>
+                </TabPanel>
+                <TabPanel id="template" value={tab} index={2}>
+                    <TabContent>
+                        <TemplateFilesManager
+                            type={"template"}
+                            question={question}
+                        />
+                    </TabContent>
+                </TabPanel>
+
+            </Stack>
+        )
     )
 }
 
-const TabPanel = ({ children, value, index, ...other }) => (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`tabpanel-${index}`}
-      aria-labelledby={`tab-${index}`}
-      {...other}
-    >
-      {value === index && children}
-    </div>
-)
+const TabPanel = ({ children, value, index }) => value === index && children;
+
+const codeBasedOnLanguage = (language) => {
+    const index = environments.findIndex(env => env.language === language);
+    return {
+        language: environments[index].language,
+        sandbox: {
+            image: environments[index].sandbox.image,
+            beforeAll: environments[index].sandbox.beforeAll
+
+        },
+        files: {
+            template: environments[index].files.template,
+            solution: environments[index].files.solution
+        },
+        testCases: environments[index].testCases
+    }
+}
 
 
 export default Code;

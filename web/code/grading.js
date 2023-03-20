@@ -1,5 +1,17 @@
 import { StudentQuestionGradingStatus, QuestionType } from '@prisma/client';
 
+/*
+    This function is used to grade a student answer to a question.
+    argument "answer" is the student answer to the question.
+    argument "question" is the question to which the student answer is submitted.
+
+    If called with answer = undefined, the function will return the default grading.
+    Default grading is generally (pointsObtained = 0, status = AUTOGRADED),
+
+    Grading differs for code questions (pointsObtained = 0, status = UNGRADED) because the grading cannot be determined
+    during answer editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/student.js).
+
+ */
 export const grading = (question, answer) => {
     switch(question.type) {
         case QuestionType.multipleChoice:
@@ -33,7 +45,7 @@ const gradeMultipleChoice = (question, answer) => {
             status: StudentQuestionGradingStatus.AUTOGRADED,
             pointsObtained: isCorrect ? question.points : 0
         };
-    }   
+    }
     return grading
 }
 
@@ -45,24 +57,25 @@ const gradeTrueFalse = (question, answer) => {
             ...grading,
             pointsObtained: isCorrect ? question.points : 0
         }
-    }    
+    }
     return grading;
 }
 
-/* 
+/*
     code grading call is done during answer submission and code test run
-    code test run : /api/code/test/answer/[questionPage].js
+    code test run : /api/sandbox/[questionId]/student
 */
 const gradeCode = (question, response) => {
+    const success = response && response.tests.every((test) => test.passed);
     let grading = {
         ...defaultGrading,
         status: StudentQuestionGradingStatus.UNGRADED
     };
-    if(response && response.success !== undefined) {
-        // answer is the response from the code test run
+    if(response && success !== undefined) {
+        //  response is from the code sandbox run
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: response.success ? question.points : 0
+            pointsObtained: success ? question.points : 0
         }
     }
     return grading

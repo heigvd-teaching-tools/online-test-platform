@@ -46,18 +46,27 @@ const get = async (req, res) => {
 
     if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
         let queryQuestions = questionsWithIncludes({
-            includeTypeSpecific: true,
+            includeTypeSpecific: false,
             includeUserAnswers: {
                 strategy: IncludeStrategy.USER_SPECIFIC,
                 userEmail: email
             }
         });
 
+        console.log("queryQuestions: ", queryQuestions.include.studentAnswer)
+
         include = {
             examSession: {
                 include: {
                     questions: {
-                        ...queryQuestions,
+                        include: {
+                            studentAnswer: {
+                                where: { userEmail: email },
+                                select: {
+                                    status: true,
+                                }
+                            }
+                         },
                         orderBy: {
                             order: 'asc'
                         }

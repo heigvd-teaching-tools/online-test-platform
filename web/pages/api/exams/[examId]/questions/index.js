@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { questionsWithIncludes } from '../../../../../code/questions';
+import {questionIncludeClause, questionsWithIncludes} from '../../../../../code/questions';
 import { hasRole } from '../../../../../utils/auth';
 
 if (!global.prisma) {
@@ -68,12 +68,7 @@ const post = async (req, res) => {
                 }
             }
         },
-        include: {
-            code: { select: { solution: true, code: true } },
-            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-            trueFalse: { select: { isTrue: true } },
-            essay: true,
-        }
+        include: questionIncludeClause(true, true)
     });
     res.status(200).json(createdQuestion);
 }

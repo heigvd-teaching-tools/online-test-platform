@@ -18,6 +18,7 @@ import DisplayPhase from '../DisplayPhase';
 import DialogFeedback from '../../feedback/DialogFeedback';
 import PhaseRedirect from './PhaseRedirect';
 import Authorisation from "../../security/Authorisation";
+import MainMenu from "../../layout/MainMenu";
 
 const PageInProgress = () => {
     const router = useRouter();
@@ -69,56 +70,58 @@ const PageInProgress = () => {
         });
         setSaving(false);
     }, [examSession, showSnackbar, mutate]);
-    
+
     return(
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={examSession?.phase}>
             {examSession && (
-                <LayoutMain>
-                <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
-                <JoinClipboard sessionId={router.query.sessionId} />
-                <Stepper activeStep={0} orientation="vertical">
-                    <Step key="in-progress">
-                        <StepInProgress 
-                            examSession={examSession}
-                            onDurationChange={handleDurationChange}
-                            onSessionEnd={() => {}}
-                        />
-                    </Step>
-                    <Step key="grading">
-                        <StepLabel>Grading</StepLabel>
-                    </Step>
-                </Stepper>
-    
-                <Stack direction="row" justifyContent="center" spacing={1}>
-                    <DisplayPhase phase={ExamSessionPhase.IN_PROGRESS} />
-    
-                    <LoadingButton
-                        key="promote-to-grading"
-                        onClick={handleEndInProgress}
-                        loading={saving}
-                        color="info"
-                        startIcon={<Image alt="Promote" src="/svg/exam/finish-flag.svg" layout="fixed" width="18" height="18" />}
-                    >
-                        End session
-                    </LoadingButton>
-    
-                </Stack>
-                </Stack>
-                <DialogFeedback 
-                    open={endSessionDialogOpen}
-                    title="End of In-Progress phase"
-                    content={
-                    <>
-                        <Typography variant="body1">You are about to promote this session to the grading phase.</Typography>
-                        <Typography variant="body1">Students will not be able to submit their answers anymore.</Typography>
-                        <Typography variant="button" gutterBottom>Are you sure you want to continue?</Typography>
-                    </>
-                    }
-                    onClose={() => setEndSessionDialogOpen(false)}
-                    onConfirm={moveToGradingPhase}
-                />
-            </LayoutMain>
+                <LayoutMain
+                    header={ <MainMenu /> }
+                    padding={2}
+                    spacing={2}
+                >
+                    <JoinClipboard sessionId={router.query.sessionId} />
+                    <Stepper activeStep={0} orientation="vertical">
+                        <Step key="in-progress">
+                            <StepInProgress
+                                examSession={examSession}
+                                onDurationChange={handleDurationChange}
+                                onSessionEnd={() => {}}
+                            />
+                        </Step>
+                        <Step key="grading">
+                            <StepLabel>Grading</StepLabel>
+                        </Step>
+                    </Stepper>
+
+                    <Stack direction="row" justifyContent="center" spacing={1}>
+                        <DisplayPhase phase={ExamSessionPhase.IN_PROGRESS} />
+
+                        <LoadingButton
+                            key="promote-to-grading"
+                            onClick={handleEndInProgress}
+                            loading={saving}
+                            color="info"
+                            startIcon={<Image alt="Promote" src="/svg/icons/finish.svg" layout="fixed" width="18" height="18" />}
+                        >
+                            End session
+                        </LoadingButton>
+
+                    </Stack>
+                    <DialogFeedback
+                        open={endSessionDialogOpen}
+                        title="End of In-Progress phase"
+                        content={
+                        <>
+                            <Typography variant="body1">You are about to promote this session to the grading phase.</Typography>
+                            <Typography variant="body1">Students will not be able to submit their answers anymore.</Typography>
+                            <Typography variant="button" gutterBottom>Are you sure you want to continue?</Typography>
+                        </>
+                        }
+                        onClose={() => setEndSessionDialogOpen(false)}
+                        onConfirm={moveToGradingPhase}
+                    />
+                </LayoutMain>
         )}
         </PhaseRedirect>
         </Authorisation>

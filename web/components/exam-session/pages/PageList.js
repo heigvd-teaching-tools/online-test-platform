@@ -14,6 +14,7 @@ import TabList from "@mui/lab/TabList";
 import DialogFeedback from "../../feedback/DialogFeedback";
 import {useRouter} from "next/router";
 import Authorisation from "../../security/Authorisation";
+import MainMenu from "../../layout/MainMenu";
 
 const ExamSessions = () => {
 
@@ -90,12 +91,13 @@ const ExamSessions = () => {
 
 
   if (error) return <div>failed to load</div>
-  if (!examSessions) return <LoadingAnimation /> 
+  if (!examSessions) return <LoadingAnimation />
 
   return (
       <Authorisation allowRoles={[ Role.PROFESSOR ]}>
       <TabContext value={tab}>
         <LayoutMain
+            header={ <MainMenu /> }
             subheader={
                 <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ pr: 2}}>
                     <TabList onChange={(e, v) => setTab(v)} aria-label="simple tabs example">
@@ -109,8 +111,8 @@ const ExamSessions = () => {
                     )}
                 </Stack>
             }
+            padding={2}
         >
-        <Box sx={{ minWidth:'100%' }}>
           { examSessions && examSessions.length > 0 && (
             <ListExamSession
                 examSessions={examSessions.filter((exam) => exam.status === (tab === 1 ? ExamSessionStatus.ACTIVE : ExamSessionStatus.ARCHIVED))}
@@ -132,7 +134,6 @@ const ExamSessions = () => {
                 }}
             />
           )}
-        </Box>
         </LayoutMain>
           <DialogFeedback
               open={archiveDialogOpen}

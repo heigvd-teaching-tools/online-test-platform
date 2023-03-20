@@ -31,8 +31,6 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
     const { examId } = req.query;
 
-
-
     const exam = await prisma.exam.findUnique({
         where: {
             id: examId
@@ -50,14 +48,14 @@ const patch = async (req, res) => {
         description,
     }
 
-    
+
     const exam = await prisma.exam.update({
         where: {
             id: examId
         },
         data: data
     });
-                    
+
     res.status(200).json(exam);
 }
 

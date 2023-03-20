@@ -14,14 +14,14 @@ const prisma = global.prisma
 
 
 const handler = async (req, res) => {
-    
+
     let isProfOrStudent = await hasRole(req, Role.PROFESSOR) || await hasRole(req, Role.STUDENT);
-    
+
     if(!isProfOrStudent) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
     }
-    
+
     switch(req.method) {
         case 'POST':
             await post(req, res);
@@ -85,34 +85,55 @@ const post = async (req, res) => {
         includeTypeSpecific: true
     });
 
-    // add empty answers and gradings for each question
+    // add empty answers and gradings for each questions
     const questions = await prisma.question.findMany(query);
 
-    for (const question of questions) {   
-        await prisma.studentAnswer.upsert({
-            where: {
-                userEmail_questionId: {
-                    userEmail: studentEmail,
-                    questionId: question.id
-                }
-            },
-            update: {},
-            create: {
-                userEmail: studentEmail,
-                questionId: question.id,
-                [question.type]: {
-                    // only code questions have type specific data, "partial code", in empty answer
-                    create: question.type === QuestionType.code ? { 
-                        code: question.code.code
-                    } : {}
+    const transaction = [];
+    for (const question of questions) {
+        transaction.push(
+            prisma.studentAnswer.upsert({
+                where: {
+                    userEmail_questionId: {
+                        userEmail: studentEmail,
+                        questionId: question.id
+                    }
                 },
-                studentGrading: {
-                    create: grading(question, undefined)
+                update: {},
+                create: {
+                    userEmail: studentEmail,
+                    questionId: question.id,
+                    [question.type]: {
+                        // only code questions have type specific data -> template files
+                        create: question.type === QuestionType.code ? {
+                            files: {
+                                create: question.code.templateFiles.map(codeToFile => ({
+                                    studentPermission: codeToFile.studentPermission,
+                                    file: {
+                                        create: {
+                                            path: codeToFile.file.path,
+                                            content: codeToFile.file.content,
+                                            code: {
+                                                connect: {
+                                                    questionId: question.id
+                                                }
+                                            }
+                                        }
+                                    }
+                                }))
+                            }
+                        } : {}
+                    },
+                    studentGrading: {
+                        create: grading(question, undefined)
+                    }
                 }
-            }
-        });
+            })
+        );
+
+        // run the transaction
+        await prisma.$transaction(transaction);
     }
-         
+
     res.status(200).json(userOnExamSession);
 }
 

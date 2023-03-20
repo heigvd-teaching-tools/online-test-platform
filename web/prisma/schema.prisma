@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum StudentFilePermission {
+  UPDATE
+  VIEW
+  HIDDEN
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -137,19 +143,86 @@ model Essay {
   questionId String   @id
 }
 
+model SandBox {
+  image     String
+  beforeAll String?
+
+  Code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String @id @unique
+}
+
+model TestCase {
+  index      Int
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  exec           String
+  input          String
+  expectedOutput String
+
+  @@id([index, questionId])
+}
+
 model Code {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  solution   String?
-  code       String?
+
+  language String?
+
+  sandbox SandBox?
+
+  testCases TestCase[]
+
+  solutionFiles CodeToSolutionFile[]
+  templateFiles CodeToTemplateFile[]
+  files         File[] // to casdade delete files
+}
+
+model CodeToSolutionFile {
+  code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+
+  questionId String
+  file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId     String @unique
+
+  @@id([questionId, fileId])
+}
+
+model CodeToTemplateFile {
+  code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+
+  questionId String
+  file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId     String @unique
+
+  studentPermission StudentFilePermission @default(UPDATE)
+
+  @@id([questionId, fileId])
+}
+
+model File {
+  id String @id @default(cuid())
+
+  path    String
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  codeToSolutionFile CodeToSolutionFile?
+  codeToTemplateFile CodeToTemplateFile?
+  studentAnswerCode  StudentAnswerCodeToFile?
+
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
 }
 
 model Web {
-    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    questionId String   @id
-    html       String?
-    css        String?
-    js         String?
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String   @id
+  html       String?
+  css        String?
+  js         String?
 }
 
 // Order is important here
@@ -169,12 +242,12 @@ enum ExamSessionStatus {
 model ExamSession {
   id String @id @default(cuid())
 
-  label      String?          @unique
+  label      String?           @unique
   conditions String?
   status     ExamSessionStatus @default(ACTIVE)
-  phase      ExamSessionPhase @default(DRAFT)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  phase      ExamSessionPhase  @default(DRAFT)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
   durationHours Int? @default(0)
   durationMins  Int? @default(0)
@@ -289,32 +362,61 @@ model StudentAnswerCode {
   userEmail     String
   questionId    String
 
-  code String?
+  files StudentAnswerCodeToFile[]
 
-  expected String?
-  result   String?
+  // studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
-  success                  Boolean                    @default(false)
+  testCaseResults           TestCaseResult[]
 
-  studentAnswerCodeHistory StudentAnswerCodeHistory[]
+  allTestCasesPassed Boolean @default(false)
 
   @@id([userEmail, questionId])
 }
 
+model TestCaseResult {
+  userEmail  String
+  questionId String
+  index      Int
+
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+
+  exec           String
+  input          String
+  output         String
+  expectedOutput String
+
+  passed Boolean
+
+  @@id([index, userEmail, questionId])
+}
+
+model StudentAnswerCodeToFile {
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail         String
+  questionId        String
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
+
+  studentPermission StudentFilePermission @default(UPDATE)
+
+  @@id([userEmail, questionId, fileId])
+}
+
 model StudentAnswerWeb {
-    studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-    userEmail     String
-    questionId    String
+  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
 
-    html String?
-    css  String?
-    js   String?
+  html String?
+  css  String?
+  js   String?
 
-    @@id([userEmail, questionId])
+  @@id([userEmail, questionId])
 }
 
 model StudentAnswerCodeHistory {
-  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  //studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail         String
   questionId        String
 

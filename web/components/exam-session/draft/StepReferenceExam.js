@@ -6,32 +6,32 @@ import { Stack, TextField, Autocomplete, Button, Typography } from '@mui/materia
 import AlertFeedback from '../../feedback/AlertFeedback';
 
 const StepReferenceExam = ({ examSession, onChange }) => {
-    
+
     const [ selectedExam, setSelectedExam ] = useState(null);
     const [ input, setInput ] = useState('');
-    
+
     const { data: exams, errorExams } = useSWR(
-        `/api/exams`, 
+        `/api/exams`,
         (...args) => fetch(...args).then((res) => res.json())
     );
 
     const { data: sessionQuestions, errorSessionQuestions } = useSWR(
-        `/api/exam-sessions/${examSession && examSession.id}/questions/with-answers/official`, 
+        `/api/exam-sessions/${examSession && examSession.id}/questions/with-answers/official`,
         examSession && examSession.id ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
-  
+
     const { data: examQuestions, errorExamQuestions } = useSWR(
-        `/api/exams/${selectedExam && selectedExam.id}/questions`, 
+        `/api/exams/${selectedExam && selectedExam.id}/questions`,
         selectedExam ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     useEffect(() => onChange(selectedExam, examQuestions), [selectedExam, examQuestions, onChange]);
-    
+
     useEffect(() => {
-        if(sessionQuestions && sessionQuestions.length > 0){
-            onChange(undefined, sessionQuestions);
+        if(selectedExam){
+            onChange(selectedExam);
         }
-    }, [sessionQuestions, onChange]);
+    }, [selectedExam, onChange]);
 
     const hasQuestions = () => (sessionQuestions && sessionQuestions.length > 0) || (examQuestions && examQuestions.length > 0);
 
@@ -42,47 +42,47 @@ const StepReferenceExam = ({ examSession, onChange }) => {
                     id="exam-id"
                     inputValue={input}
                     options={exams || []}
-                    renderInput={(params) => 
-                        <TextField 
-                            {...params} 
-                            label="Find the reference exam" 
+                    renderInput={(params) =>
+                        <TextField
+                            {...params}
+                            label="Find the reference exam"
                             error={!hasQuestions()}
                             helperText={!hasQuestions() && 'Please select the reference exam'}
                         />
-                
+
                     }
                     noOptionsText="No exams found"
-                    
+
                     onInputChange={(event, newInputValue) => {
                         setInput(newInputValue);
                     }}
-                    onChange={(_, exam) => { 
+                    onChange={(_, exam) => {
                         setSelectedExam(exam);
                     }}
                 />
 
-                    { exams && exams.length === 0 && 
+                    { exams && exams.length === 0 &&
                     <Link href="/exams/new"><Button variant="contained">Create a new exam</Button></Link>
                     }
 
-                { selectedExam && 
+                { selectedExam &&
                     <AlertFeedback severity="info">
                         The reference exam contains {selectedExam.questions.length} questions. Their copy will be assigned for this session.
                     </AlertFeedback>
                 }
 
-                { sessionQuestions && selectedExam && sessionQuestions.length > 0 && 
+                { sessionQuestions && selectedExam && sessionQuestions.length > 0 &&
                     <AlertFeedback severity="warning">
                         This session already has {sessionQuestions.length} questions. They will be replaced by the questions of the reference exam.
                     </AlertFeedback>
                 }
 
-                { sessionQuestions && sessionQuestions.length > 0 && 
+                { sessionQuestions && sessionQuestions.length > 0 &&
                     <AlertFeedback severity="success">
-                        This session has {sessionQuestions.length} questions. 
+                        This session has {sessionQuestions.length} questions.
                     </AlertFeedback>
                 }
-    
+
             </Stack>
     )
 }
