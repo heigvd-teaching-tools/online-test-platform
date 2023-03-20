@@ -6,7 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 
-const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, selectOnly = false}) => {
+const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, onAdd, onDelete, selectOnly = false}) => {
     const [options, setOptions] = useState([]);
 
     useEffect(() => {
@@ -15,7 +15,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                 setOptions(initial);
             }else{
                 setOptions(defaultOptions);
-                onChange(defaultOptions);
+                onChange(undefined, defaultOptions);
             }
         }
     }, [initial, id]);
@@ -28,20 +28,13 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
             return;
         }
         setOptions(newOptions);
-        onChange(newOptions, index);
+        onChange(index, newOptions);
     }
     return(
         <Stack id={id} direction="column" spacing={2} padding={2}>
             { !selectOnly && (
                <Box>
-                   <Button color="primary" startIcon={<AddIcon />} onClick={() => {
-                        let newOptions = [...options, {
-                            text: 'Option',
-                            isCorrect: false
-                        }];
-                        setOptions(newOptions);
-                        onChange(newOptions);
-                    }}>
+                   <Button color="primary" startIcon={<AddIcon />} onClick={onAdd}>
                         Add Option
                     </Button>
                 </Box>
@@ -69,14 +62,15 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, select
                                 const newOptions = [...options];
                                 newOptions[index].text = e.target.value;
                                 setOptions(newOptions);
-                                onChange(newOptions);
+                                onChange(index, newOptions);
                             } }
                         />
                         <IconButton variant="small" color="error" onClick={() => {
                             let newOptions = [...options];
+                            const deleted = options[index];
                             newOptions.splice(index, 1);
                             setOptions(newOptions);
-                            onChange(newOptions);
+                            onDelete(index, deleted);
                         } }>
                             <DeleteIcon />
                         </IconButton></>

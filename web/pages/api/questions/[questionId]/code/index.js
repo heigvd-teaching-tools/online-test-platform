@@ -1,4 +1,4 @@
-import {PrismaClient, Role, CodeToFileNature, StudentFilePermission} from "@prisma/client";
+import {PrismaClient, Role, StudentFilePermission} from "@prisma/client";
 
 import {hasRole} from "../../../../../utils/auth";
 

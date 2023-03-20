@@ -9,17 +9,18 @@ import Sandbox from "./code/Sandbox";
 import TestCases from "./code/TestCases";
 import TabContent from "../../layout/utils/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
+import TemplateFilesManager from "./code/files/TemplateFilesManager";
 
 import languages from "./code/languages.json";
-import TemplateFilesManager from "./code/files/TemplateFilesManager";
+
 
 const environments = languages.environments;
 
-const Code = ({ question }) => {
+const UpdateCode = ({ questionId }) => {
 
     const { data: code, mutate, error } = useSWR(
-        `/api/questions/${question.id}/code`,
-        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions/${questionId}/code`,
+        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
@@ -37,7 +38,7 @@ const Code = ({ question }) => {
 
     const initializeCode = useCallback(async () => {
         // update a empty code with its sub-entities
-        await fetch(`/api/questions/${question.id}/code`, {
+        await fetch(`/api/questions/${questionId}/code`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json',
@@ -49,10 +50,10 @@ const Code = ({ question }) => {
                 await mutate(data);
             });
 
-    }, [question.id, mutate]);
+    }, [questionId, mutate]);
 
     const onChangeLanguage = useCallback(async (language) => {
-        await fetch(`/api/questions/${question.id}/code`, {
+        await fetch(`/api/questions/${questionId}/code`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ const Code = ({ question }) => {
             setLanguage(data.language);
             await mutate(data);
         });
-    }, [question.id, mutate]);
+    }, [questionId, mutate]);
 
     return (
         code && (
@@ -80,25 +81,20 @@ const Code = ({ question }) => {
                         { language && (
                             <>
                             <Box>
-
                                 <LanguageSelector
                                     language={language}
                                     onChange={onChangeLanguage}
                                 />
-
-
                             </Box>
 
                             <Sandbox
-                                question={question}
+                                questionId={questionId}
                                 language={language}
-
                             />
 
                             <TestCases
-                                question={question}
+                                questionId={questionId}
                                 language={language}
-
                             />
                             </>
                             )
@@ -109,16 +105,15 @@ const Code = ({ question }) => {
                 <TabPanel id="solution" value={tab} index={1}>
                     <TabContent>
                         <SolutionFilesManager
+                            questionId={questionId}
                             language={language}
-                            question={question}
                         />
                     </TabContent>
                 </TabPanel>
                 <TabPanel id="template" value={tab} index={2}>
                     <TabContent>
                         <TemplateFilesManager
-                            type={"template"}
-                            question={question}
+                            questionId={questionId}
                         />
                     </TabContent>
                 </TabPanel>
@@ -148,4 +143,4 @@ const codeBasedOnLanguage = (language) => {
 }
 
 
-export default Code;
+export default UpdateCode;

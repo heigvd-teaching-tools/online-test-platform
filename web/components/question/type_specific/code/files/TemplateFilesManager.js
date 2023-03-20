@@ -7,24 +7,24 @@ import {StudentFilePermission} from "@prisma/client";
 import React, {useCallback} from "react";
 import CodeCheck from "../CodeCheck";
 
-const TemplateFilesManager = ({ question }) => {
+const TemplateFilesManager = ({ questionId }) => {
 
     const { data: codeToTemplateFiles, mutate, error } = useSWR(
-        `/api/questions/${question.id}/code/files/template`,
-        question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions/${questionId}/code/files/template`,
+        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
     const onFileUpdate = useCallback(async (codeToTemplateFile) => {
-        await update("template", question.id, codeToTemplateFile).then(async (updatedFile) => {
+        await update("template", questionId, codeToTemplateFile).then(async (updatedFile) => {
             await mutate(codeToTemplateFiles.map(codeToFile => codeToFile.file.id === updatedFile.id ? { ...codeToFile, file: updatedFile } : codeToFile));
         });
-    }, [question.id, codeToTemplateFiles, mutate]);
+    }, [questionId, codeToTemplateFiles, mutate]);
 
 
     const onPullSolution = useCallback(async () => {
-        await pull(question.id).then(async (data) => await mutate(data));
-    }, [question.id, mutate]);
+        await pull(questionId).then(async (data) => await mutate(data));
+    }, [questionId, mutate]);
 
     return (
         codeToTemplateFiles && (
@@ -65,7 +65,7 @@ const TemplateFilesManager = ({ question }) => {
             <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                 {codeToTemplateFiles?.length > 0 && (
                     <CodeCheck
-                        codeCheckAction={() => fetch(`/api/sandbox/${question.id}/files`, {
+                        codeCheckAction={() => fetch(`/api/sandbox/${questionId}/files`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ files: codeToTemplateFiles.map(file => file.file) })

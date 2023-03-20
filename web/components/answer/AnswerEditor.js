@@ -1,13 +1,12 @@
-import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react';
+import React, {useState, useEffect, useCallback } from 'react';
 
 import { QuestionType, StudentFilePermission } from '@prisma/client';
 
 import TrueFalse from '../question/type_specific/TrueFalse';
 import MultipleChoice from '../question/type_specific/MultipleChoice';
 import Essay from '../question/type_specific/Essay';
-import Code from '../question/type_specific/Code';
 import Web from '../question/type_specific/Web';
-import {Box, IconButton, Stack, Typography} from "@mui/material";
+import {Box, Stack, Typography} from "@mui/material";
 import FileEditor from "../question/type_specific/code/files/FileEditor";
 import Image from "next/image";
 import CodeCheck from "../question/type_specific/code/CodeCheck";
@@ -157,7 +156,7 @@ const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
         }
     }, [answer]);
 
-    const onOptionChange = useCallback(async (options, index) => {
+    const onOptionChange = useCallback(async (index, options) => {
         const changedOption = options[index];
         const method = changedOption.isCorrect ? 'POST' : 'DELETE';
         const updatedStudentAnswer = await fetch(`/api/answer/${questionId}/multi-choice/options`, {

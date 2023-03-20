@@ -2,11 +2,11 @@ import React, {useEffect, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import {Stack, TextField, Typography} from "@mui/material";
 import useSWR from "swr";
-const Sandbox = ({ question, language }) => {
+const Sandbox = ({ questionId, language }) => {
 
     const { data: sandbox, mutate, error } = useSWR(
-        `/api/questions/${question.id}/code/sandbox`,
-        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions/${questionId}/code/sandbox`,
+        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
@@ -24,7 +24,7 @@ const Sandbox = ({ question, language }) => {
 
 
     const onChange = async (sandbox) => {
-        await fetch(`/api/questions/${question.id}/code/sandbox`, {
+        await fetch(`/api/questions/${questionId}/code/sandbox`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json',
