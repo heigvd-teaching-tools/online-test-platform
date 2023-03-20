@@ -1,4 +1,4 @@
-import {PrismaClient, Role, StudentFilePermission} from "@prisma/client";
+import {PrismaClient, Role} from "@prisma/client";
 
 import {hasRole} from "../../../../../utils/auth";
 
@@ -40,9 +40,7 @@ const put = async (req, res) => {
 
     // check if options belongs to the question
     const optionQuestion = await prisma.multipleChoice.findUnique({
-        where: {
-            questionId: questionId
-        },
+        where: { questionId: questionId },
         include: {
             options: true
         }
@@ -55,9 +53,7 @@ const put = async (req, res) => {
 
     // update the option
     const updatedOption = await prisma.option.update({
-        where: {
-            id: option.id
-        },
+        where: { id: option.id },
         data: {
             text: option.text,
             isCorrect: option.isCorrect
