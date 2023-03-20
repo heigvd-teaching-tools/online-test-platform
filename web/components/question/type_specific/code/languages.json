@@ -101,11 +101,11 @@
         "files": {
             "solution": [{
             "path": "/src/script.py",
-            "content": "\nimport sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+            "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
             }],
             "template": [{
                 "path": "/src/script.py",
-                "content": "\nprint(\"Hello World!\")"
+                "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
             }]
         }
     }

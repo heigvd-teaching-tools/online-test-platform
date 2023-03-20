@@ -5,15 +5,13 @@ const LayoutSplitScreen = ({subheader, leftPanel, rightPanel, footer, rightWidth
     return (
         <Stack height="100%" maxHeight="100%">
             { subheader && subheader}
-            <Stack flex={1} alignItems="center">
+            <Stack flex={1} alignItems="center" overflow="hidden">
                 <ResizePanel
                     rightWidth={rightWidth}
                     leftPanel={leftPanel}
                     rightPanel={
-                        <Paper square elevation={0} sx={{ position:'relative', overflow:'hidden', height:'100%' }}>
-                            <Stack position="absolute" top={0} left={0} right={0} bottom={0} overflow="hidden">
-                                {rightPanel}
-                            </Stack>
+                        <Paper square elevation={0} sx={{ height:'100%' }}>
+                            {rightPanel}
                         </Paper>
                     }
                 />

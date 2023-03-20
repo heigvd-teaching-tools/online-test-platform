@@ -77,17 +77,18 @@ export const typeSpecificStats = (question) => {
             }
         case QuestionType.code:
             let success  = question.studentAnswer.reduce((acc, sa) => {
-                if(sa.status === StudentAnswerStatus.SUBMITTED && sa[question.type].success) {
+                if(sa.status === StudentAnswerStatus.SUBMITTED && sa[question.type].allTestCasesPassed) {
                     return acc + 1;
                 }
                 return acc;
             }, 0);
             let failure = question.studentAnswer.reduce((acc, sa) => {
-                if(sa.status === StudentAnswerStatus.SUBMITTED && !sa[question.type].success) {
+                if(sa.status === StudentAnswerStatus.SUBMITTED && !sa[question.type].allTestCasesPassed) {
                     return acc + 1;
                 }
                 return acc;
             }, 0);
+
             return {
                 success: {
                     count: success

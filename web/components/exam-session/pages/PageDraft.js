@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import {ExamSessionPhase, Role} from '@prisma/client';
 import useSWR from 'swr';
 
-import {Box, Stack} from "@mui/material";
+import {Stack} from "@mui/material";
 import LayoutMain from '../../layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
@@ -48,14 +48,21 @@ const PageDraft = () => {
     } , [setDuration]);
 
     const handleSave = useCallback(async () => {
+
         setSaving(true);
         let data = {
             phase: ExamSessionPhase.DRAFT,
-            label: examSession.label,
-            conditions: examSession.conditions,
-            examId: selectedExam.id,
+            label: examSession?.label,
+            conditions: examSession?.conditions,
+            examId: selectedExam?.id,
             duration
         };
+
+        if(!selectedExam){
+            showSnackbar('Please select the reference exam.', 'error');
+            setSaving(false);
+            return false;
+        }
 
         if(!selectedExam.questions || selectedExam.questions && selectedExam.questions.length === 0){
             showSnackbar('You exam session has no questions. Please select the reference exam.', 'error');

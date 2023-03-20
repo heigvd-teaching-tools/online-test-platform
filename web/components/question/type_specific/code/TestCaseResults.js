@@ -4,7 +4,7 @@ import {Stack, Tab, Tabs, TextField, Typography} from "@mui/material";
 const TestCaseResults = ({ tests }) => {
     const [index, setIndex] = useState(0);
     return(
-        <Stack spacing={1} direction="row" pb={2}>
+        <Stack spacing={1} direction="row" pb={2} flex={1}>
             {tests?.length > 0 && (
                 <>
                     <Tabs

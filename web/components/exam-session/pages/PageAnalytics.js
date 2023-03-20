@@ -63,6 +63,7 @@ const PageAnalytics = () => {
                         onInputChange={(event, newInputValue) => {
                             setInputValue(newInputValue);
                         }}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
 
                     />
                     <ExamSessionAnalytics questions={questions} />

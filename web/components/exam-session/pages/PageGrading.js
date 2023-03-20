@@ -250,13 +250,11 @@ const PageGrading = () => {
                             )}
 
                             { question && (
-                                <ResizeObserverProvider>
-                                    <AnswerCompare
-                                        questionType={question.type}
-                                        solution={question[question.type]}
-                                        answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)[question.type]}
-                                    />
-                                </ResizeObserverProvider>
+                                <AnswerCompare
+                                    questionType={question.type}
+                                    solution={question[question.type]}
+                                    answer={question.studentAnswer.find((answer) => answer.user.id === router.query.participantId)[question.type]}
+                                />
                             )}
                         </Stack>
                     }
