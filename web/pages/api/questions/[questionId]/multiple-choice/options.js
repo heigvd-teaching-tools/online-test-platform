@@ -21,8 +21,10 @@ const handler = async (req, res) => {
             break;
         case 'POST':
             await post(req, res);
+            break;
         case 'DELETE':
             await del(req, res);
+            break;
         case 'GET':
             await get(req, res);
             break;

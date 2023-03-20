@@ -40,7 +40,6 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, onAdd,
                 </Box>
             )}
 
-
             { options?.map((option, index) =>
                 <Stack key={index} direction="row" alignItems="center" spacing={2} sx={{ flex:1 }}>
                     <ToggleButton
@@ -58,6 +57,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, onAdd,
                             variant="outlined"
                             value={option.text}
                             fullWidth
+                            error={option.text.length === 0}
                             onChange={(e) => {
                                 const newOptions = [...options];
                                 newOptions[index].text = e.target.value;
