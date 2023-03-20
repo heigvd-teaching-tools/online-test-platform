@@ -54,7 +54,7 @@ const patch = async (req, res) => {
             data = {
                 type: question.type,
                     [currentQuestion.type]: { delete: true },
-                    [question.type]: { create: questionTypeSpecific(question.type, question, currentQuestion) }
+                    [question.type]: { create: questionTypeSpecific(question) }
             };
         }
     }else{
@@ -64,12 +64,10 @@ const patch = async (req, res) => {
                 content: question.content,
                 points: parseInt(question.points),
                 [question.type]: {
-                update: questionTypeSpecific(question.type, question, currentQuestion)
+                update: questionTypeSpecific(question)
             }
         }
     }
-
-    console.log("data", data)
 
     const updatedQuestion = await prisma.question.update({
         where: { id: question.id },
@@ -82,7 +80,6 @@ const patch = async (req, res) => {
             web: true
         }
     });
-
 
     res.status(200).json(updatedQuestion);
 }

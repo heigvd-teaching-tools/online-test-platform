@@ -9,12 +9,12 @@ import languages from "../languages.json";
 import CodeCheck from "../CodeCheck";
 
 const environments = languages.environments;
-const SolutionFilesManager = ({ language, question }) => {
+const SolutionFilesManager = ({ questionId, language }) => {
     const filesRef = useRef();
 
     const { data:codeToSolutionFiles, mutate } = useSWR(
-        `/api/questions/${question.id}/code/files/solution`,
-        question?.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions/${questionId}/code/files/solution`,
+        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
@@ -22,7 +22,7 @@ const SolutionFilesManager = ({ language, question }) => {
         const extension = environments.find(env => env.language === language).extension;
         const path = `/src/file${codeToSolutionFiles?.length || ""}.${extension}`;
 
-        await create("solution", question.id, {
+        await create("solution", questionId, {
             file: {
                 path,
                 content: ""
@@ -32,20 +32,20 @@ const SolutionFilesManager = ({ language, question }) => {
             // scroll to the bottom of the files list
             filesRef.current.scrollTop = filesRef.current.scrollHeight;
         });
-    }, [question.id, codeToSolutionFiles, mutate, language]);
+    }, [questionId, codeToSolutionFiles, mutate, language]);
 
     const onFileUpdate = useCallback(async (file) => {
-        await update("solution", question.id, file).then(async (updatedFile) => {
+        await update("solution", questionId, file).then(async (updatedFile) => {
             await mutate(codeToSolutionFiles.map(codeToFile => codeToFile.file.id === updatedFile.id ? { ...codeToFile, file: updatedFile } : codeToFile));
         });
-    }, [question.id, codeToSolutionFiles, mutate]);
+    }, [questionId, codeToSolutionFiles, mutate]);
 
     const onDeleteFile = useCallback(async (codeToSolutionFile) => {
-        await del("solution", question.id, codeToSolutionFile)
+        await del("solution", questionId, codeToSolutionFile)
             .then(async (msg) => {
                 await mutate(codeToSolutionFiles.filter(file => file.id !== codeToSolutionFile.id));
             });
-    }, [question.id, mutate, codeToSolutionFiles]);
+    }, [questionId, mutate, codeToSolutionFiles]);
 
     return (
         codeToSolutionFiles && (
@@ -74,7 +74,7 @@ const SolutionFilesManager = ({ language, question }) => {
                 <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                     {codeToSolutionFiles?.length > 0 && (
                         <CodeCheck
-                            codeCheckAction={() => fetch(`/api/sandbox/${question.id}/files`, {
+                            codeCheckAction={() => fetch(`/api/sandbox/${questionId}/files`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ files: codeToSolutionFiles.map(file => file.file) })

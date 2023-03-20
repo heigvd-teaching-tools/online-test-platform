@@ -138,80 +138,28 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
 
 
 /*
-    questionTypeSpecific is considered to be replaced as part of abandoning the single query approach for update and create of question.
-    It is hard to manage the creates and updates with the single query depending on relationships.
-    It is easier to manage the type specific data separately and then connect it with the question.
+    question is the question object from the request body
+    using this function we can extract the type specific data (and only that) from the question object
+    also used to avoid injections
  */
-export const questionTypeSpecific = (questionType, question, currentQuestion) => {
-
-    // copy type specific data
-    let typeSpecificCopy = { ...question[questionType] };
-
-    // remove questionId from type specific data
-    delete typeSpecificCopy.questionId;
-    // replace each null or empty array value with undefined, otherwise prisma will throw an error
-    Object.keys(typeSpecificCopy).forEach(key => {
-        if(typeSpecificCopy[key] === null || (Array.isArray(typeSpecificCopy[key]) && typeSpecificCopy[key].length === 0)) {
-            typeSpecificCopy[key] = undefined;
-        }
-    });
-
-    switch(questionType) {
-        case QuestionType.multipleChoice:
-            let clauses = {};
-            if(currentQuestion) {
-                // updating existing questions -> delete all existing options before create
-                let toDeleteMany = currentQuestion.multipleChoice && currentQuestion.multipleChoice.options.length > 0;
-                if(toDeleteMany) {
-                    clauses.deleteMany = {};
-                }
-            }
-
-            let options = question.multipleChoice.options.map(option => ({
-                text: option.text,
-                isCorrect: option.isCorrect
-            }));
-
-            if(options.length > 0){
-                clauses.createMany = {
-                    data: options
-                }
-            }
-
-            return {
-                options: {
-                    ...clauses
-                }
-            };
+export const questionTypeSpecific = (question) => {
+    switch(question.type) {
         case QuestionType.trueFalse:
-            return typeSpecificCopy;
+            return {
+                isTrue: question.trueFalse.isTrue
+            }
         case QuestionType.essay:
-            // type specific does not have any specific fields
-            return {}
+            return {
+                content: question.essay.content
+            }
         case QuestionType.web:
-            return typeSpecificCopy;
-        case QuestionType.code:
-            // update managed separately, create does not manage related files (we dont have questionId yet)
-            const isCreate = !currentQuestion;
-            return isCreate ? {
-                language: question.code.language,
-                sandbox: {
-                    create: {
-                        image: question.code.sandbox.image,
-                        beforeAll: question.code.sandbox.beforeAll
-                    }
-                },
-                testCases: {
-                    create: question.code.testCases.map(testCase => ({
-                        index: testCase.index,
-                        exec: testCase.exec,
-                        input: testCase.input,
-                        expectedOutput: testCase.expectedOutput
-                    }))
-                }
-            } : {};
+            return {
+                html: question.web.html,
+                css: question.web.css,
+                js: question.web.js
+            }
         default:
-            return undefined;
+            return {}
     }
 }
 

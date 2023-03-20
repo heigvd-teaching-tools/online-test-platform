@@ -20,11 +20,11 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const environments = languages.environments;
 
-const TestCases = ({ language, question }) => {
+const TestCases = ({ questionId, language }) => {
 
     const { data: tests, mutate, error } = useSWR(
-        `/api/questions/${question.id}/code/tests`,
-        question.id ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions/${questionId}/code/tests`,
+        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus: false }
     );
 
@@ -36,7 +36,7 @@ const TestCases = ({ language, question }) => {
             environments.find(env => env.language === language).sandbox.exec
             :
             tests[tests.length - 1].exec;
-        await fetch(`/api/questions/${question.id}/code/tests`, {
+        await fetch(`/api/questions/${questionId}/code/tests`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -51,10 +51,10 @@ const TestCases = ({ language, question }) => {
         });
         await mutate();
 
-    }, [question.id, tests, mutate, language]);
+    }, [questionId, tests, mutate, language]);
 
     const deleteTestCase = useCallback(async (index) => {
-        await fetch(`/api/questions/${question.id}/code/tests/${index}`, {
+        await fetch(`/api/questions/${questionId}/code/tests/${index}`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
@@ -76,10 +76,10 @@ const TestCases = ({ language, question }) => {
                 );
             }
         });
-    }, [question.id, tests, mutate]);
+    }, [questionId, tests, mutate]);
 
     const updateTestCase = useCallback(async (test) => {
-        await fetch(`/api/questions/${question.id}/code/tests/${test.index}`, {
+        await fetch(`/api/questions/${questionId}/code/tests/${test.index}`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json',
@@ -92,10 +92,10 @@ const TestCases = ({ language, question }) => {
             })
         });
         await mutate();
-    }, [question.id, tests, mutate]);
+    }, [questionId, tests, mutate]);
 
     const pullOutputs = useCallback(async (source) => {
-        const result = await fetch(`/api/sandbox/${question.id}/${source}`, {
+        const result = await fetch(`/api/sandbox/${questionId}/${source}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         }).then(res => res.json());
@@ -106,7 +106,7 @@ const TestCases = ({ language, question }) => {
                 expectedOutput: result.tests[test.index - 1].output
             });
         }
-    }, [question.id, tests, updateTestCase]);
+    }, [questionId, tests, updateTestCase]);
 
     return(
         <Stack spacing={2} height="100%">
