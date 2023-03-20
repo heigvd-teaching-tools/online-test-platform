@@ -16,7 +16,7 @@ import languages from "./code/languages.json";
 
 const environments = languages.environments;
 
-const UpdateCode = ({ questionId }) => {
+const Code = ({ questionId }) => {
 
     const { data: code, mutate, error } = useSWR(
         `/api/questions/${questionId}/code`,
@@ -143,4 +143,4 @@ const codeBasedOnLanguage = (language) => {
 }
 
 
-export default UpdateCode;
+export default Code;

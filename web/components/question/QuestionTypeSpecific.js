@@ -1,10 +1,10 @@
 import {QuestionType} from "@prisma/client";
 import { Stack } from "@mui/material";
-import UpdateCode from "./type_specific/UpdateCode";
+import Code from "./type_specific/Code";
 import TrueFalse from "./type_specific/TrueFalse";
 import Web from "./type_specific/Web";
 
-import UpdateMultipleChoice from "./type_specific/UpdateMultipleChoice";
+import ManageMultipleChoice from "./type_specific/ManageMultipleChoice";
 
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
 
@@ -13,13 +13,13 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
         <Stack height="100%" overflow="auto">
             {(
                 ( question.type === QuestionType.multipleChoice &&
-                    <UpdateMultipleChoice
+                    <ManageMultipleChoice
                         questionId={question.id}
                     />
                 )
                 ||
                 ( question.type === QuestionType.code &&
-                    <UpdateCode
+                    <Code
                         questionId={question.id}
                     />
                 )

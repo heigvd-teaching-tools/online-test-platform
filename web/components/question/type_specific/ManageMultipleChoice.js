@@ -2,7 +2,7 @@ import useSWR from "swr";
 import {useCallback} from "react";
 import MultipleChoice from "./MultipleChoice";
 
-const UpdateMultipleChoice = ({ questionId }) => {
+const ManageMultipleChoice = ({ questionId }) => {
 
     const { data: options, mutate, error } = useSWR(
         `/api/questions/${questionId}/multiple-choice/options`,
@@ -76,4 +76,4 @@ const UpdateMultipleChoice = ({ questionId }) => {
     )
 }
 
-export default UpdateMultipleChoice;
+export default ManageMultipleChoice;
