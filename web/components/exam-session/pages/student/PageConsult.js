@@ -58,14 +58,12 @@ const PageConsult = () => {
                             }>
                             <LayoutSplitScreen
                                 leftPanel={
-                                    <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
-                                        { question && (
-                                            <QuestionView
-                                                question={question}
-                                                totalPages={questions.length}
-                                            />
-                                        )}
-                                    </Stack>
+                                    question && (
+                                        <QuestionView
+                                            question={question}
+                                            totalPages={questions.length}
+                                        />
+                                    )
                                 }
                                 rightWidth={65}
                                 rightPanel={
@@ -80,7 +78,7 @@ const PageConsult = () => {
                                 }
                                 footer={
                                     question && (
-                                        <Paper sx={{ height:"100px" }} square>
+                                        <Paper sx={{ height:"80px" }} square>
                                             <Stack spacing={2} direction="row" justifyContent="center" alignItems="center" height='100%'>                                                    { question.studentAnswer[0].studentGrading.signedBy ? (
                                                     <>
                                                         <GradingSigned

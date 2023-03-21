@@ -1,6 +1,6 @@
 import { PrismaClient, Role, ExamSessionPhase, QuestionType } from '@prisma/client';
 import { hasRole } from '../../../utils/auth';
-import {questionsWithIncludes, questionTypeSpecific} from '../../../code/questions';
+import { questionsWithIncludes } from '../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -70,7 +70,7 @@ const post = async (req, res) => {
                 points: parseInt(question.points),
                 order: parseInt(question.order),
                 [question.type]: {
-                    create: questionTypeSpecific(question.type, question)
+                    create: questionTypeSpecific(question)
                 }
             }))
         }
@@ -164,8 +164,6 @@ const post = async (req, res) => {
                 });
             }
         }
-
-
         res.status(200).json(examSession);
     } catch (e) {
         switch(e.code){
@@ -178,7 +176,36 @@ const post = async (req, res) => {
                 break;
         }
     }
+}
 
+const questionTypeSpecific = (question) => {
+    switch(question.type) {
+        case QuestionType.trueFalse:
+            return {
+                isTrue: question.trueFalse.isTrue
+            }
+        case QuestionType.essay:
+            return {
+                content: question.essay.content
+            }
+        case QuestionType.web:
+            return {
+                html: question.web.html,
+                css: question.web.css,
+                js: question.web.js
+            }
+        case QuestionType.multipleChoice:
+            return {
+                options: {
+                    create: question.multipleChoice.options.map(option => ({
+                        text: option.text,
+                        isCorrect: option.isCorrect
+                    }))
+                }
+            }
+        default:
+            return {}
+    }
 }
 
 

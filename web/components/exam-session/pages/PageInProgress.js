@@ -42,8 +42,8 @@ const PageInProgress = () => {
         setSaving(true);
         await update(examSession.id, {
             phase: ExamSessionPhase.GRADING
-        }).then(() => {
-            router.push(`/exam-sessions/${examSession.id}/grading/1`);
+        }).then(async () => {
+            await router.push(`/exam-sessions/${examSession.id}/grading/1`);
         }).catch(() => {
             showSnackbar('Error', 'error');
         });

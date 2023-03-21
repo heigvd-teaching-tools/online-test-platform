@@ -1,5 +1,4 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
-import { questionTypeSpecific } from '../../../code/questions';
 import { hasRole } from '../../../utils/auth';
 
 if (!global.prisma) {
@@ -82,6 +81,32 @@ const patch = async (req, res) => {
     });
 
     res.status(200).json(updatedQuestion);
+}
+
+/*
+    question is the question object from the request body
+    using this function we can extract the type specific data (and only that) from the question object
+    also used to avoid injections
+ */
+const questionTypeSpecific = (question) => {
+    switch(question.type) {
+        case QuestionType.trueFalse:
+            return {
+                isTrue: question.trueFalse.isTrue
+            }
+        case QuestionType.essay:
+            return {
+                content: question.essay.content
+            }
+        case QuestionType.web:
+            return {
+                html: question.web.html,
+                css: question.web.css,
+                js: question.web.js
+            }
+        default:
+            return {}
+    }
 }
 
 const del = async (req, res) => {

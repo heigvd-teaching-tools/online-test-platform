@@ -39,7 +39,7 @@ const CodeCheck = ({ codeCheckAction }) => {
 
     return(
         <Paper >
-            <Stack direction="row" alignItems="center" spacing={1} p={1} pb={2}>
+            <Stack direction="row" alignItems="center" spacing={1} p={1} pb={2} pt={2}>
                 <LoadingButton size="small" variant="contained" color="info" onClick={runCodeCheck} loading={codeCheckRunning}>Code Check</LoadingButton>
                 <Button
                     size="small"
