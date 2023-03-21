@@ -66,11 +66,11 @@ const gradeTrueFalse = (question, answer) => {
     code test run : /api/sandbox/[questionId]/student
 */
 const gradeCode = (question, response) => {
-    const success = response && response.tests.every((test) => test.passed);
     let grading = {
         ...defaultGrading,
         status: StudentQuestionGradingStatus.UNGRADED
     };
+    const success = response && response.tests.every((test) => test.passed);
     if(success !== undefined) {
         // response is from the code sandbox run
         grading = {
@@ -78,7 +78,6 @@ const gradeCode = (question, response) => {
             pointsObtained: success ? question.points : 0
         }
     }
-    console.log("grading", question, success, response, grading)
     return grading
 };
 

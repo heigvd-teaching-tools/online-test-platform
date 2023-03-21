@@ -7,7 +7,6 @@ export const ResizeObserverProvider = ({ children }) => {
 
     const resizeObserver = useRef(new ResizeObserver(entries => {
         const { height, width } = entries[0].contentRect;
-        //console.log("ResizeObserver: ", { height, width })
         setDimensions({ height, width });
     }));
 

@@ -60,7 +60,6 @@ const post = async (req, res) => {
         beforeAll: code.sandbox.beforeAll,
         tests: code.testCases
     }).then((result) => {
-        console.log("RESULT : ", result);
         res.status(200).send(result);
     });
 

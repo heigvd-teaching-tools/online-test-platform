@@ -102,8 +102,6 @@ const post = async (req, res) => {
 
         * */
 
-        console.log("RESULT : ", response);
-
         await prisma.StudentAnswerCode.update({
             where: {
                 userEmail_questionId: {

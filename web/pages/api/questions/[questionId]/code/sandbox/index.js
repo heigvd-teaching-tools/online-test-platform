@@ -47,8 +47,6 @@ const put = async (req, res) => {
 
     const { image, beforeAll } = req.body;
 
-    console.log("Save sandbox : ", image, beforeAll);
-
     const sandbox = await prisma.sandBox.update({
         where: {
             questionId: questionId

@@ -129,8 +129,6 @@ const put = async (req, res) => {
 
     const { answer: data, grading, model } = prepareAnswer(question, answer);
 
-    console.log("data", data, "grading", grading)
-
     transaction.push(
         model.update({
             where: {

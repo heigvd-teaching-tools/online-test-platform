@@ -173,7 +173,6 @@ const post = async (req, res) => {
                 res.status(409).json({ message: 'Exam session label already exists' });
                 break;
             default:
-                console.log("error", e);
                 res.status(500).json({ message: 'Error while updating exam session' });
                 break;
         }
