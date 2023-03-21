@@ -122,12 +122,13 @@ const post = async (req, res) => {
             });
 
             // create the copy of template and solution files and link them to the new code questions
-
             for(const codeToFile of question.code.templateFiles){
+
                 const newFile = await prisma.file.create({
                     data: {
                         path: codeToFile.file.path,
                         content: codeToFile.file.content,
+                        createdAt: codeToFile.file.createdAt, // for deterministic ordering
                         code: {
                             connect: {
                                 questionId: newCodeQuestion.id
@@ -145,10 +146,11 @@ const post = async (req, res) => {
             }
 
             for(const codeToFile of question.code.solutionFiles){
-               const newFile = await prisma.file.create({
+                const newFile = await prisma.file.create({
                     data: {
                         path: codeToFile.file.path,
                         content: codeToFile.file.content,
+                        createdAt: codeToFile.file.createdAt, // for deterministic ordering
                         code: {
                             connect: {
                                 questionId: newCodeQuestion.id
@@ -162,7 +164,7 @@ const post = async (req, res) => {
                         fileId: newFile.id,
                     }
                 });
-            }
+        }
         }
         res.status(200).json(examSession);
     } catch (e) {

@@ -1,7 +1,6 @@
 import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
 
 import { hasRole, getUser } from '../../../../../utils/auth';
-import { questionsWithIncludes, IncludeStrategy } from '../../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -45,16 +44,6 @@ const get = async (req, res) => {
     }
 
     if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
-        let queryQuestions = questionsWithIncludes({
-            includeTypeSpecific: false,
-            includeUserAnswers: {
-                strategy: IncludeStrategy.USER_SPECIFIC,
-                userEmail: email
-            }
-        });
-
-        console.log("queryQuestions: ", queryQuestions.include.studentAnswer)
-
         include = {
             examSession: {
                 include: {

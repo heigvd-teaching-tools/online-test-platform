@@ -13,6 +13,7 @@ const DialogFeedback = ({ open, title, content, onClose, onConfirm }) => {
 
     const handleConfirm = () => {
         onConfirm && onConfirm();
+        onClose && onClose();
     };
 
     return (
