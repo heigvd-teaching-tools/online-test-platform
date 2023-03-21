@@ -91,7 +91,6 @@ const post = async (req, res) => {
     const transaction = [];
 
     for (const question of questions) {
-        let timeDelta = 0;
         transaction.push(
             prisma.studentAnswer.upsert({
                 where: {
@@ -109,18 +108,13 @@ const post = async (req, res) => {
                         create: question.type === QuestionType.code ? {
                             files: {
                                 create: question.code.templateFiles.map(codeToFile => {
-                                    /*
-                                        add 1 second to each file creation time
-                                        used for deterministic ordering of files, to get them in the same order as the template files in question editor
-                                    */
-                                    timeDelta += 1000;
                                     return ({
                                         studentPermission: codeToFile.studentPermission,
                                         file: {
                                             create: {
                                                 path: codeToFile.file.path,
                                                 content: codeToFile.file.content,
-                                                createdAt: new Date(new Date().getTime() + timeDelta),
+                                                createdAt: codeToFile.file.createdAt,
                                                 code: {
                                                     connect: {
                                                         questionId: question.id
