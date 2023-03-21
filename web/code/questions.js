@@ -46,7 +46,12 @@ export const questionsWithIncludes = ( {
                         files: {
                             include: {
                                 file: true
-                            }
+                            },
+                            orderBy: [{
+                                file: { createdAt: "asc" }
+                            },{
+                                file: { questionId: "asc" }
+                            }]
                         },
                         testCaseResults: true,
                         allTestCasesPassed: true,
