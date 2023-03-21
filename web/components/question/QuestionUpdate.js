@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import Image from 'next/image';
-import {Stack, Typography, MenuItem, TextField, IconButton, Button, Box} from '@mui/material';
+import { Stack, Typography, MenuItem, TextField, IconButton, Button, Box } from '@mui/material';
 import ContentEditor from '../input/ContentEditor';
 import DropDown from "../input/DropDown";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
@@ -8,7 +8,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
-import {useDebouncedCallback} from "use-debounce";
+import { useDebouncedCallback } from "use-debounce";
 
 import types from "./types.json";
 
@@ -29,6 +29,11 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
     }, [question, onQuestionChange]);
 
     const onChange = useCallback((changedProperties) => {
+        /*
+            this event is only used for simple question types with single level models (trueFalse, Essay, Web)
+            the more complex question models with nesting (multipleChoice, code) are managed in their own components and does not
+            call this callback.
+        */
         onQuestionChange(question.id, changedProperties);
     }, [question, onQuestionChange]);
 
