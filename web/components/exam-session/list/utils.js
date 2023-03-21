@@ -1,10 +1,8 @@
 import {ExamSessionPhase} from "@prisma/client";
-
 export const displayDateTime = (date) => {
     const d = new Date(date);
     return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
 }
-
 export const linkPerPhase = (phase, examSessionId) => {
     switch(phase){
         case ExamSessionPhase.DRAFT:

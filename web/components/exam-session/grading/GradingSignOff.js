@@ -1,25 +1,22 @@
 import { useState, useEffect } from 'react';
 import { StudentQuestionGradingStatus } from '@prisma/client';
 import Image from 'next/image';
-import { Button, Collapse, Box, Paper, Stack, TextField, Typography, Chip, IconButton, InputAdornment } from '@mui/material';
+import { Box, Paper, Stack, TextField, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import GradingStatus from './GradingStatus';
-
-import ClearIcon from '@mui/icons-material/Clear';
-import UserAvatar from '../../layout/UserAvatar';
 
 import { useSession } from "next-auth/react";
 import GradingSigned from "./GradingSigned";
 import GradingPointsComment from "./GradingPointsComment";
 
 const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
-    
+
     const [ grading, setGrading ] = useState(initial);
     const { data } = useSession();
 
     useEffect(() => {
-        setGrading(initial);        
+        setGrading(initial);
     }, [initial]);
 
     const signOffGrading = () => {
@@ -49,7 +46,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
     }
 
     const unsignGrading = () => {
-        let newGrading = { 
+        let newGrading = {
             ...grading,
             status: grading.status === StudentQuestionGradingStatus.GRADED ? StudentQuestionGradingStatus.UNGRADED : grading.status,
             signedBy: undefined,
@@ -59,7 +56,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
     }
 
     return (
-        <Paper 
+        <Paper
             sx={{
                 flex:1
             }}
@@ -68,22 +65,22 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
             { grading && (
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ height:'100%', p:2 }} spacing={2} >
                 <Stack direction="row">
-                    
+
                 {
                     grading.signedBy ? (
                         <GradingSigned
-                            signedBy={grading.signedBy} 
-                            grading={grading} 
+                            signedBy={grading.signedBy}
+                            grading={grading}
                             onUnsign={unsignGrading}
                         />
-                    ) : 
+                    ) :
                         <LoadingButton
                             color='success'
                             variant="contained"
                             loading={loading}
                             loadingPosition="start"
                             startIcon={
-                                <Image 
+                                <Image
                                     src="/svg/grading/sign-off.svg"
                                     alt="Sign Off"
                                     layout="fixed" width={16} height={16}
@@ -93,13 +90,13 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
                         >
                             Sign Off
                         </LoadingButton>
-                    
+
                 }
                 </Stack>
-                               
+
                 {
                     !grading.signedBy && (
-                    <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>   
+                    <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>
                         <Box>
                             <TextField
                                 label="Pts"
@@ -115,7 +112,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
                                         sx:{ minWidth: 30 }
                                     },
                                     endAdornment: <InputAdornment position="end" sx={{ mt:2.2 }}>/ {maxPoints}</InputAdornment>,
-                                }}                            
+                                }}
                                 onChange={(event) => {
                                     let points = parseInt(event.target.value);
                                     if (points > maxPoints) {
@@ -145,7 +142,7 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
                                 }
                                 setGrading(newGrading);
                             }}
-                            
+
                         />
                     </Stack>
                 )}
@@ -154,9 +151,9 @@ const GradingSignOff = ({ loading, grading:initial, maxPoints, onSignOff }) => {
                         <GradingPointsComment points={grading.pointsObtained} maxPoints={maxPoints} comment={grading.comment} />
                     )
                 }
-                
-                <GradingStatus grading={grading} maxPoints={maxPoints} />  
-                
+
+                <GradingStatus grading={grading} maxPoints={maxPoints} />
+
             </Stack>
             )}
         </Paper>

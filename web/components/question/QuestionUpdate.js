@@ -9,24 +9,8 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
 import {useDebouncedCallback} from "use-debounce";
-import languages from "./type_specific/code/languages.json";
 
-const questionTypes = [{
-    value: 'multipleChoice',
-    label: 'Multiple Choice'
-},{
-    value: 'trueFalse',
-    label: 'True False'
-},{
-    value: 'essay',
-    label: 'Essay'
-},{
-    value: 'code',
-    label: 'Code'
-},{
-    value: 'web',
-    label: 'Web'
-}];
+import types from "./types.json";
 
 const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickLeft, onClickRight }) => {
 
@@ -36,20 +20,7 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
         // changing the question type means we need to delete the old type and add the new type
         // the change is done by reference
         delete question[question.type];
-        if(!question[newQuestionType]){
-            // when the new type specific is a complex object, we need to generate a default one
-            // the default TypeSpecific will be sent to backend to full-fit the relational requirement
-            switch(newQuestionType) {
-                case 'multipleChoice':
-                    question[newQuestionType] = { options: [
-                        { text: 'Option 1', isCorrect: false },
-                        { text: 'Option 2', isCorrect: true },
-                    ]};
-                    break;
-                default:
-                    question[newQuestionType] = {};
-            }
-        }
+        question[newQuestionType] = {};
 
         await onQuestionChange(question.id, {
             type: newQuestionType,
@@ -86,7 +57,7 @@ const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickL
                             </Stack>
                             <Box>
                                 <DropDown id="question" name="Type" defaultValue={question.type} minWidth="160px" onChange={onQuestionTypeChange}>
-                                    {questionTypes.map(({value, label}) =>
+                                    {types?.map(({value, label}) =>
                                         <MenuItem key={value} value={value}>
                                             <Typography variant="caption">{label}</Typography>
                                         </MenuItem>

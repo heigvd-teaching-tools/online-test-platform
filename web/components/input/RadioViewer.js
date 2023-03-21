@@ -1,7 +1,6 @@
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import {Box, Stack} from "@mui/material";
-
 const RadioViewer = ({ mode, selected, filled }) => {
 
     const getIndicator = (mode, filled, selected ) => {

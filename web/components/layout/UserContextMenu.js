@@ -1,8 +1,7 @@
 import { Menu, Button } from '@mui/material';
 import LockClosedIcon from '@mui/icons-material/Lock';
 import { signOut } from 'next-auth/react';
-
-const UserContextMenu = ({anchorElUser, handleCloseUserMenu }) =>  
+const UserContextMenu = ({anchorElUser, handleCloseUserMenu }) =>
 <Menu
     sx={{ mt: '45px' }}
     id="menu-appbar"

@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { Tabs, Tab } from "@mui/material";
 import FilledBullet from '../../feedback/FilledBullet';
-
 const QuestionPages = ({ questions, activeQuestion, link, isFilled }) => {
     const router = useRouter();
     return (

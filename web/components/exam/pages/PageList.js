@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
-import Link from 'next/link';
 import Image from 'next/image';
 
 import LayoutMain from '../../layout/LayoutMain';

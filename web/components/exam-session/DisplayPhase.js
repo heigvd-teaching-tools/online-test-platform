@@ -1,6 +1,5 @@
 import { Chip } from '@mui/material';
 import { ExamSessionPhase } from '@prisma/client';
-
 const DisplayPhase = ({phase}) => {
     switch (phase) {
       case ExamSessionPhase.DRAFT:

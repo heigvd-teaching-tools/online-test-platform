@@ -1,0 +1,16 @@
+[{
+  "value": "multipleChoice",
+  "label": "Multiple Choice"
+},{
+  "value": "trueFalse",
+  "label": "True False"
+},{
+  "value": "essay",
+  "label": "Essay"
+},{
+  "value": "code",
+  "label": "Code"
+},{
+  "value": "web",
+  "label": "Web"
+}]

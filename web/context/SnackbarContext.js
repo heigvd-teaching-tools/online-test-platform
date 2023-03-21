@@ -7,7 +7,6 @@ const defaultPosition = {
     vertical: 'bottom',
     horizontal: 'left',
 }
-
 export const SnackbarProvider = ({ children }) => {
     const [snackbar, setSnackbar] = useState({
         open: false,

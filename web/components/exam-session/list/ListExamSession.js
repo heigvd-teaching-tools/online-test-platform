@@ -5,7 +5,6 @@ import DisplayPhase from "../DisplayPhase";
 import {ExamSessionPhase } from "@prisma/client";
 import Image from "next/image";
 import { displayDateTime, linkPerPhase } from "./utils";
-
 const ListExamSession = ({ examSessions, onStart, onDelete }) =>
     <DataGrid
         header={gridHeader}

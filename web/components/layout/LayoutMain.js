@@ -2,7 +2,6 @@ import { Box, Stack } from '@mui/material';
 
 import SnackbarFeedback from '../feedback/SnackbarFeedback';
 import Header from './Header';
-
 const LayoutMain = ({children, header, subheader, padding = 0, spacing = 0}) => {
     return (
         <>

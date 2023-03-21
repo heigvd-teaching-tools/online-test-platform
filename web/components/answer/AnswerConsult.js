@@ -1,5 +1,5 @@
 import { QuestionType } from '@prisma/client';
-import {Paper, Stack} from "@mui/material";
+import {Stack} from "@mui/material";
 import CompareMultipleChoice from "./CompareMultipleChoice";
 import ConsultEssay from "./ConsultEssay";
 import ConsultWeb from "./ConsultWeb";

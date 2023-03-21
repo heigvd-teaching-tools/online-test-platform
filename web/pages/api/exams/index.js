@@ -52,11 +52,11 @@ const post = async (req, res) => {
             default:
                 res.status(500).json({ message: 'Internal server error' });
         }
-        return;
+
     }
 
-                    
-    
+
+
 }
 
 export default handler;

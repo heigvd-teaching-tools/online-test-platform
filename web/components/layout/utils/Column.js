@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-
 const Column = ({ children, width, flexGrow, flex, alignItems, right }) => {
     let sx = {};
 

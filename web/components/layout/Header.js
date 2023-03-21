@@ -1,12 +1,11 @@
 import { useState } from 'react';
 
-import { AppBar, Box, Toolbar } from '@mui/material';
+import { AppBar, Box, Stack } from '@mui/material';
 import { useSession } from 'next-auth/react';
 
 import UserAvatar from './UserAvatar';
 import UserContextMenu from './UserContextMenu';
 import Logo from './Logo';
-import { Stack } from '@mui/system';
 
 const Header = ({children, color}) => {
     const { data: session } = useSession();

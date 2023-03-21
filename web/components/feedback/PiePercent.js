@@ -1,13 +1,12 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
-
 const PiePercent = ({ value, max = 100, size = 45, label, thickness = 3.6, colors = { 0: '#d32f2f', 40: '#0288d1', 70: '#2e7d32' } }) => {
-    
+
     const percent = Math.round((value / max) * 100);
 
     const keys = Object.keys(colors).reverse();
     const index = keys.findIndex((key) => percent >= key);
     const color = colors[keys[index]];
-    
+
     return (
         <Box sx={{ position:'relative', display:'inline-flex' }}>
             <CircularProgress

@@ -1,5 +1,4 @@
 import {useState, useEffect, useCallback} from "react";
-
 import Editor from "@monaco-editor/react";
 
 const getContentHeight = (editor) => Math.max(100, editor.getModel().getLineCount() * 19 + 21); // little magic number dont hurt anyone

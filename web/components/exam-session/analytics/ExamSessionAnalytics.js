@@ -1,4 +1,4 @@
-import {Box, Grow, Paper, Slide, Stack, Typography} from "@mui/material";
+import {Box, Grow, Paper, Stack, Typography} from "@mui/material";
 import {useEffect, useState} from "react";
 import {getQuestionSuccessRate, typeSpecificStats} from "../pages/stats";
 import {QuestionType, StudentAnswerStatus} from "@prisma/client";

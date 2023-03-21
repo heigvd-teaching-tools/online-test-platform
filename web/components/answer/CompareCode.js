@@ -1,7 +1,5 @@
-import React, {useState} from "react";
-import {useResizeObserver} from "../../context/ResizeObserverContext";
-import {Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tab, Tabs, Typography} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import React from "react";
+import {Box, Stack, Tab, Tabs, Typography} from "@mui/material";
 import ResizePanel from "../layout/utils/ResizePanel";
 import FileEditor from "../question/type_specific/code/files/FileEditor";
 import CheckIcon from "@mui/icons-material/Check";
@@ -9,8 +7,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import TestCaseResults from "../question/type_specific/code/TestCaseResults";
 import TabPanel from "../layout/utils/TabPanel";
 import TabContent from "../layout/utils/TabContent";
-
-const accordionSummaryHeight = 64;
 
 const PassIndicator = ({passed}) => {
     return (

@@ -1,7 +1,5 @@
 import { useRouter } from 'next/router';
 import { Stack, Button, Typography } from '@mui/material';
-
-
 const QuestionNav = ({ page, totalPages }) => {
     const router = useRouter();
     const nextPage = () => {

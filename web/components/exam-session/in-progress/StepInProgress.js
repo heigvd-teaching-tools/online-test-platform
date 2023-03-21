@@ -1,24 +1,19 @@
-import { ExamSessionPhase } from '@prisma/client';
-import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
-import { StepLabel, StepContent, Typography,  Chip, Stack, Box } from '@mui/material';
-import DateCountdown from '../../../components/ui/DateCountdown';
+import { StepLabel, StepContent, Typography,  Stack, Box } from '@mui/material';
 import MinutesSelector from '../../../components/exam-session/in-progress/MinutesSelector';
-import { useRouter } from 'next/router';
 import ExamSessionCountDown from './ExamSessionCountDown';
-
 const StepInProgress = ({ examSession, onDurationChange, onSessionEnd }) => {
     return (
         <>
         <StepLabel>In progress</StepLabel>
             <StepContent>
-                { examSession.startAt && examSession.endAt ? 
-                    ( 
-                        <DurationManager 
-                            examSession={examSession} 
+                { examSession.startAt && examSession.endAt ?
+                    (
+                        <DurationManager
+                            examSession={examSession}
                             onChange={onDurationChange}
                             onSessionEnd={onSessionEnd}
                         />
-                    ) : 
+                    ) :
                     <Stack spacing={4} direction="row" alignItems="center" justifyContent="center">
                         <Box>
                         <Typography variant="h6">The exam session is in progress.</Typography>
@@ -53,7 +48,7 @@ const DurationManager = ({ examSession, onChange, onSessionEnd }) => {
                     startDate={examSession.startAt}
                     endDate={examSession.endAt}
                     onFinish={onSessionEnd}
-                />   
+                />
                 <Typography variant="body1">
                     {`Ends at ${new Date(examSession.endAt).toLocaleTimeString()}`}
                 </Typography>

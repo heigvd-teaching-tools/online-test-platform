@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { useSession, signOut } from "next-auth/react";
 import {ExamSessionPhase, Role} from '@prisma/client';
 
-import AlertFeedback from "../../../feedback/AlertFeedback";
 import LoadingAnimation from "../../../feedback/LoadingAnimation";
 import { Button, Typography } from "@mui/material";
 import Authorisation from "../../../security/Authorisation";
@@ -29,11 +28,11 @@ const phaseToPhrase = (phase) => {
 const PageWaiting = () => {
     const router = useRouter();
     const { data } = useSession();
-    
+
     const { data: examSession, errorSession, error  } = useSWR(
         `/api/users/exam-sessions/${router.query.sessionId}/take`,
-        data && router.query.sessionId ? 
-            (...args) => 
+        data && router.query.sessionId ?
+            (...args) =>
                 fetch(...args)
                 .then((res) => {
                     if(!res.ok){
@@ -45,21 +44,21 @@ const PageWaiting = () => {
                         }
                     }
                     return res.json();
-                }) 
+                })
             : null,
         { refreshInterval  : 1000 }
     );
-    
+
     useEffect(() => {
         if(examSession && examSession.phase === ExamSessionPhase.IN_PROGRESS){
             router.push(`/exam-sessions/${router.query.sessionId}/take/1`);
         }
     }, [examSession, router]);
-    
+
     if(error) return <LoadingAnimation failed={true}  content={error.message} />
     if (errorSession) return <LoadingAnimation failed={true} message={errorSession.message} />;
-    if (!examSession) return <LoadingAnimation /> 
-    
+    if (!examSession) return <LoadingAnimation />
+
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>{
         examSession && examSession.phase !== ExamSessionPhase.IN_PROGRESS && (

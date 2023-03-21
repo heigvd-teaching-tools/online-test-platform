@@ -1,6 +1,5 @@
-import {Box, Paper, Stack} from '@mui/material';
+import { Paper, Stack} from '@mui/material';
 import ResizePanel from './utils/ResizePanel';
-
 const LayoutSplitScreen = ({subheader, leftPanel, rightPanel, footer, rightWidth = 60}) => {
     return (
         <Stack height="100%" maxHeight="100%">

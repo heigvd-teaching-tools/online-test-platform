@@ -1,7 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 import { Select, InputLabel, FormControl, Typography } from "@mui/material";
-
-
 const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWidth = '120px', onChange}) => {
     const selectRef = useRef();
 

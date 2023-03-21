@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Tabs, Tab } from '@mui/material';
-
 const MainMenu = () => {
     const { asPath } = useRouter();
     return (
@@ -23,5 +22,5 @@ const mainPaths = [{
     path: "exam-sessions",
     label: "Exam Sessions"
 }];
-    
+
 export default MainMenu;
