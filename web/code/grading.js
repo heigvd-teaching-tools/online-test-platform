@@ -71,13 +71,14 @@ const gradeCode = (question, response) => {
         ...defaultGrading,
         status: StudentQuestionGradingStatus.UNGRADED
     };
-    if(response && success !== undefined) {
-        //  response is from the code sandbox run
+    if(success !== undefined) {
+        // response is from the code sandbox run
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
             pointsObtained: success ? question.points : 0
         }
     }
+    console.log("grading", question, success, response, grading)
     return grading
 };
 
