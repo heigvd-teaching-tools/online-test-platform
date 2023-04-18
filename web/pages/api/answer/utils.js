@@ -7,7 +7,7 @@ if (!global.prisma) {
 const prisma = global.prisma
 
 export const isInProgress = async (examSessionId) => {
-    // get the questions exam session phase
+    // get the questions collections session phase
     if(!examSessionId) return false;
 
     const examSession = await prisma.examSession.findUnique({

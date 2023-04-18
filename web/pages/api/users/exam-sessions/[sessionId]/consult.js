@@ -33,7 +33,7 @@ const get = async (req, res) => {
     const { email } = await getUser(req);
     let include = { examSession: true };
 
-    // control the phase of the exam session
+    // control the phase of the collections session
     const examSession = await prisma.examSession.findUnique({
         where: { id: sessionId },
         select: { phase: true }
@@ -79,7 +79,7 @@ const get = async (req, res) => {
     });
 
     if(!userOnExamSession){
-        res.status(403).json({ message: 'You are not allowed to access this exam session' });
+        res.status(403).json({ message: 'You are not allowed to access this collections session' });
         return;
     }
     res.status(200).json(userOnExamSession.examSession);

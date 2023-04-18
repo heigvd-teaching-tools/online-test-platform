@@ -4,7 +4,7 @@ import { Tabs, Tab } from '@mui/material';
 const MainMenu = () => {
     const { asPath } = useRouter();
     return (
-        <Tabs value={asPath.split("/")[1] || "exams"} aria-label="main-menu" textColor="inherit" indicatorColor="secondary">{
+        <Tabs value={asPath.split("/")[1] || "questions"} aria-label="main-menu" textColor="inherit" indicatorColor="secondary">{
                 mainPaths.map(path => (
                     <Link key={path.path} value={path.path} href={`/${path.path}`} passHref>
                         <Tab value={path.path} label={path.label} sx={{ opacity:1 }} />
@@ -16,11 +16,14 @@ const MainMenu = () => {
 }
 
 const mainPaths = [{
-    path: "exams",
-    label: "Exams"
+    path: "questions",
+    label: "Questions"
 },{
-    path: "exam-sessions",
-    label: "Exam Sessions"
+    path: "collections",
+    label: "Collections"
+},{
+    path: "sessions",
+    label: "Sessions"
 }];
 
 export default MainMenu;
