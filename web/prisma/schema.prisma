@@ -56,6 +56,7 @@ model User {
   userOnExamSession UserOnExamSession[]
   studentAnswer     StudentAnswer[]
   gradingSignedBy   StudentQuestionGrading[]
+  groups            UserOnGroup[]
 }
 
 enum Role {
@@ -77,6 +78,27 @@ enum QuestionType {
   essay
   code
   web
+}
+
+model Group {
+  id    String @id @default(cuid())
+  label String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  admins   UserOnGroup[]
+  Question Question[]
+}
+
+model UserOnGroup {
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  group    Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId  String
+  selected Boolean @default(false)
+
+  @@id([userId, groupId])
 }
 
 model Collection {
@@ -102,14 +124,13 @@ model CollectionToQuestion {
 }
 
 model Question {
-  id        String       @id @default(cuid())
-  type      QuestionType
-  content   String
-  points    Int          @default(4)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id      String       @id @default(cuid())
+  type    QuestionType
+  title   String
+  content String
 
-  order Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   multipleChoice MultipleChoice?
   trueFalse      TrueFalse?
@@ -122,8 +143,10 @@ model Question {
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 
-  studentAnswer        StudentAnswer[]
+  group   Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String?
 
+  studentAnswer StudentAnswer[]
 }
 
 model MultipleChoice {

@@ -26,6 +26,7 @@ const handler = async (req, res) => {
 }
 
 const get = async (res) => {
+
     const collections = await prisma.collection.findMany({
         include: {
             questions: true

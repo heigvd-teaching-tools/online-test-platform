@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { Select, InputLabel, FormControl, Typography } from "@mui/material";
-const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWidth = '120px', onChange}) => {
+import {Select, InputLabel, FormControl, Typography, Box} from "@mui/material";
+const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWidth = '120px', variant = "filled", size = "medium", icon, onChange}) => {
     const selectRef = useRef();
 
     const [value, setValue] = useState(defaultValue || '');
@@ -16,20 +16,19 @@ const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWi
         selectRef.current.value = defaultValue;
     } , [defaultValue]);
     return (
-        <FormControl sx={{ flexGrow:1, minWidth }} variant="filled" margin="none">
-            <InputLabel id={`label-${id}`}>
-                <Typography variant="body1">{name}</Typography>
-            </InputLabel>
+        <FormControl sx={{ flexGrow:1, minWidth }} variant={variant} margin="none">
+            <InputLabel id={`label-${id}`}>{name}</InputLabel>
             <Select
                 ref={selectRef}
                 labelId={`label-${id}`}
                 id={id}
-                size="small"
+                size={size}
                 autoWidth
                 onChange={handleChange}
                 value={value}
                 MenuProps={{ variant: 'selectedMenu'}}
                 sx={{padding:0}}
+                IconComponent={icon ? () => <Box sx={{mr:1, mt:1}}>{icon}</Box> : undefined}
             >
                 {children}
             </Select>

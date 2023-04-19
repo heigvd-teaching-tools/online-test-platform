@@ -28,6 +28,10 @@ npx prisma generate
 ```bash
 npx prisma db push
 ```
+A custom script to create a default group
+```bash
+npx prisma db seed 
+```
 
 #### Prisma Studio
 

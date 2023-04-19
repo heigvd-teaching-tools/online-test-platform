@@ -32,9 +32,24 @@ export default NextAuth({
     },
     callbacks: {
         async session({ session, user }) {
+            if(user){
+                const userWithGroups = await prisma.user.findUnique({
+                    where: { email: user.email },
+                    include: {
+                        groups: {
+                            include: {
+                                group: true
+                            }
+                        }
+                    }
+                });
+                if(userWithGroups){
+                    session.user.groups = userWithGroups.groups;
+                    session.user.selected_group = userWithGroups.groups.find(g => g.selected)?.group;
+                }
+            }
             session.user.role = user.role;
             return session;
         }
     }
-
 });

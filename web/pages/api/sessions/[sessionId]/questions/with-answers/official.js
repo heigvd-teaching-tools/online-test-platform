@@ -1,4 +1,4 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 import { questionsWithIncludes } from '../../../../../../code/questions';
 import { hasRole } from '../../../../../../utils/auth';
