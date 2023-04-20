@@ -140,6 +140,8 @@ model Question {
 
   questionToCollection CollectionToQuestion[]
 
+  // still a one to one relation
+  // we create a copy of a question for a particular session
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 

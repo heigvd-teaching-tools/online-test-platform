@@ -1,90 +1,71 @@
 import { useState, useCallback } from 'react';
 import Image from 'next/image';
-import { Stack, Typography, MenuItem, TextField, IconButton, Button, Box } from '@mui/material';
+import { Stack, Typography, TextField, IconButton, Button, Box } from '@mui/material';
 import ContentEditor from '../input/ContentEditor';
-import DropDown from "../input/DropDown";
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
 import { useDebouncedCallback } from "use-debounce";
+import useSWR from "swr";
+import LoadingAnimation from "../feedback/LoadingAnimation";
+import {useSnackbar} from "../../context/SnackbarContext";
 
-import types from "./types.json";
+const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) => {
+    const { show: showSnackbar } = useSnackbar();
 
-const QuestionUpdate = ({ question, onQuestionDelete, onQuestionChange, onClickLeft, onClickRight }) => {
+    const { data: question, mutate, error } = useSWR(
+        `/api/questions/${questionId}`,
+        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        { revalidateOnFocus: false }
+    );
 
-    const [ points, setPoints ] = useState(question.points);
+    const saveQuestion = useCallback(async (question) => {
+        await fetch(`/api/questions/${question.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then((updated) => {
+                onQuestionChanged && onQuestionChanged(updated);
+                showSnackbar('Question saved', "success");
+            }).catch(() => {
+                showSnackbar('Error saving questions', 'error');
+            });
+    } , [showSnackbar, mutate, question]);
 
-    const onQuestionTypeChange = useCallback(async (newQuestionType) => {
-        // changing the question type means we need to delete the old type and add the new type
-        // the change is done by reference
-        delete question[question.type];
-        question[newQuestionType] = {};
+    const onChange = useCallback(async (changedProperties) => {
+        // update the question in the cache
+        const newQuestion = { ...question, ...changedProperties };
+        await saveQuestion(newQuestion);
+    }, [question, onQuestionChanged]);
 
-        await onQuestionChange(question.id, {
-            type: newQuestionType,
-            [newQuestionType]: question[newQuestionType]
-        });
-    }, [question, onQuestionChange]);
-
-    const onChange = useCallback((changedProperties) => {
-        /*
-            this event is only used for simple question types with single level models (trueFalse, Essay, Web)
-            the more complex question models with nesting (multipleChoice, code) are managed in their own components and does not
-            call this callback.
-        */
-        onQuestionChange(question.id, changedProperties);
-    }, [question, onQuestionChange]);
-
-    const debounceChange = useDebouncedCallback(useCallback((changedProperties) => {
-        onChange(changedProperties);
+    const debounceChange = useDebouncedCallback(useCallback(async (changedProperties) => {
+        await onChange(changedProperties);
     }, [onChange]), 500);
+
+    if (error) return <div>failed to load</div>
+    if (!question) return <LoadingAnimation />
 
     return (
         <LayoutSplitScreen
             leftPanel={
                 question && (
                     <Stack spacing={2} sx={{ pl:2, pt:3, pb:2, height:'100%' }}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Box sx={{ width:32, height:32 }}>
-                                <Image alt="Question Type Icon" src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
-                            </Box>
-
-                            <Stack direction="row" alignItems="center" sx={{ flex:1 }}>
-                                <IconButton size="small" onClick={() => onClickLeft(question.order)}>
-                                    <ArrowLeftIcon fontSize="large" />
-                                </IconButton>
-                                <Typography variant="h6">Q{question.order + 1}</Typography>
-                                <IconButton size="small"  onClick={() => onClickRight(question.order)}>
-                                    <ArrowRightIcon fontSize="large"  />
-                                </IconButton>
-                            </Stack>
-                            <Box>
-                                <DropDown id="question" name="Type" defaultValue={question.type} minWidth="160px" onChange={onQuestionTypeChange}>
-                                    {types?.map(({value, label}) =>
-                                        <MenuItem key={value} value={value}>
-                                            <Typography variant="caption">{label}</Typography>
-                                        </MenuItem>
-                                    )}
-                                </DropDown>
-                            </Box>
-                            <TextField
-                                sx={{width:60}}
-                                id="outlined-points"
-                                size="small"
-                                label="Points"
-                                type="number"
-                                variant="filled"
-                                value={points}
-                                onChange={(e) => {
-                                    setPoints(e.target.value);
-                                    onChange({
-                                        points: e.target.value
-                                    });
-                                }}
-                            />
-                        </Stack>
+                        <TextField
+                            id={`question-${question.id}-title`}
+                            label="Title"
+                            variant="outlined"
+                            fullWidth
+                            focused
+                            defaultValue={question.title}
+                            onChange={(e) => debounceChange({
+                                title: e.target.value
+                            })}
+                        />
                         <Box sx={{ overflow:'auto', width:'100%', height:'100%' }}>
                             <ContentEditor
                                 id={`question-${question.id}`}

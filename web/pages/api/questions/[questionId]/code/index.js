@@ -28,15 +28,9 @@ const handler = async (req, res) => {
 
 const put = async (req, res) => {
     // code only carries "language" field. The rest of the fields are in the sub-entities
-    // the change of language will delete the sub-entities and create new ones
 
     const { questionId } = req.query;
     const { language, sandbox, testCases, files } = req.body;
-
-    // delete then create the code
-    await prisma.code.delete({
-        where: { questionId: questionId }
-    });
 
     const codeQuestion = await prisma.code.create(codeCreateQuery(questionId, language, sandbox, testCases, files));
 

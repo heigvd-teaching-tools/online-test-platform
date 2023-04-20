@@ -11,4 +11,9 @@ const getUser = async (req) => {
     return session && session.user;
 }
 
-export { hasRole, getUser };
+const getUserSelectedGroup = async (req) => {
+    const session = await getSession({ req });
+    return session && session.user && session.user.selected_group;
+}
+
+export { hasRole, getUser, getUserSelectedGroup };

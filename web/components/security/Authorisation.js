@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Unauthorized from "./Unauthorized";
 const Authorisation = ({ children, allowRoles = [] }) => {
     const { data: { user } } = useSession();

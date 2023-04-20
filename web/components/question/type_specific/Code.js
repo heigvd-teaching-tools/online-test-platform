@@ -28,65 +28,30 @@ const Code = ({ questionId }) => {
     const [ language, setLanguage ] = useState(code?.language);
 
     useEffect(() => {
-        if(code){
-            if(!code.language){
-                initializeCode();
-            }
-            setLanguage(code.language);
-        }
-    }, [code]);
+        setLanguage(code?.language);
+    }, [code?.language]);
 
-    const initializeCode = useCallback(async () => {
-        // update a empty code with its sub-entities
-        await fetch(`/api/questions/${questionId}/code`, {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(codeBasedOnLanguage("cpp"))
-        }).then(data => data.json())
-            .then(async (data) => {
-                await mutate(data);
-            });
-
-    }, [questionId, mutate]);
-
-    const onChangeLanguage = useCallback(async (language) => {
-        await fetch(`/api/questions/${questionId}/code`, {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(codeBasedOnLanguage(language))
-        })
-        .then(data => data.json())
-        .then(async (data) => {
-            setLanguage(data.language);
-            await mutate(data);
-        });
-    }, [questionId, mutate]);
+    const onSelectLanguage = useCallback(async (language) => {
+        setLanguage(language);
+    }, [setLanguage, mutate]);
 
     return (
-        code && (
-            <Stack height='100%'>
-                <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
-                    <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
-                    <Tab label={<Typography variant="caption">Solution</Typography>} value={1} />
-                    <Tab label={<Typography variant="caption">Template</Typography>} value={2} />
-                </Tabs>
-                <TabPanel id="setup" value={tab} index={0}>
-                    <TabContent padding={2} spacing={4}>
-                        { language && (
-                            <>
-                            <Box>
-                                <LanguageSelector
-                                    language={language}
-                                    onChange={onChangeLanguage}
-                                />
-                            </Box>
-
+        <>
+            { !language && (
+                <LanguageSelector
+                    questionId={questionId}
+                    onChange={onSelectLanguage}
+                />
+            )}
+            { language && (
+                <Stack height='100%'>
+                    <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
+                        <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
+                        <Tab label={<Typography variant="caption">Solution</Typography>} value={1} />
+                        <Tab label={<Typography variant="caption">Template</Typography>} value={2} />
+                    </Tabs>
+                    <TabPanel id="setup" value={tab} index={0}>
+                        <TabContent padding={2} spacing={4}>
                             <Sandbox
                                 questionId={questionId}
                                 language={language}
@@ -96,51 +61,31 @@ const Code = ({ questionId }) => {
                                 questionId={questionId}
                                 language={language}
                             />
-                            </>
-                            )
-                        }
-                    </TabContent>
+                        </TabContent>
+                    </TabPanel>
+                    <TabPanel id="solution" value={tab} index={1}>
+                        <TabContent>
+                            <SolutionFilesManager
+                                questionId={questionId}
+                                language={language}
+                            />
+                        </TabContent>
+                    </TabPanel>
+                    <TabPanel id="template" value={tab} index={2}>
+                        <TabContent>
+                            <TemplateFilesManager
+                                questionId={questionId}
+                            />
+                        </TabContent>
+                    </TabPanel>
 
-                </TabPanel>
-                <TabPanel id="solution" value={tab} index={1}>
-                    <TabContent>
-                        <SolutionFilesManager
-                            questionId={questionId}
-                            language={language}
-                        />
-                    </TabContent>
-                </TabPanel>
-                <TabPanel id="template" value={tab} index={2}>
-                    <TabContent>
-                        <TemplateFilesManager
-                            questionId={questionId}
-                        />
-                    </TabContent>
-                </TabPanel>
-
-            </Stack>
-        )
+                </Stack>
+            )}
+        </>
     )
 }
 
 const TabPanel = ({ children, value, index }) => value === index && children;
-
-const codeBasedOnLanguage = (language) => {
-    const index = environments.findIndex(env => env.language === language);
-    return {
-        language: environments[index].language,
-        sandbox: {
-            image: environments[index].sandbox.image,
-            beforeAll: environments[index].sandbox.beforeAll
-
-        },
-        files: {
-            template: environments[index].files.template,
-            solution: environments[index].files.solution
-        },
-        testCases: environments[index].testCases
-    }
-}
 
 
 export default Code;

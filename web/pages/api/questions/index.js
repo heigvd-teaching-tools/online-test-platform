@@ -1,5 +1,6 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
-import { hasRole } from '../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
+import {questionIncludeClause} from "../../../code/questions";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -14,8 +15,8 @@ const handler = async (req, res) => {
         return;
     }
     switch(req.method) {
-        case 'PATCH':
-            await patch(req, res);
+        case 'POST':
+            await post(req, res);
             break;
         case 'DELETE':
             await del(req, res);
@@ -24,90 +25,47 @@ const handler = async (req, res) => {
     }
 }
 
-const patch = async (req, res) => {
-    const { question } = req.body;
-    // TODO : Control the data in the database
+const defaultMultipleChoiceOptions = {
+    create: {
+        options: { create: [
+            { text: 'Option 1', isCorrect: false },
+            { text: 'Option 2', isCorrect: true },
+        ]}
+    }
+}
 
-    let currentQuestion = await prisma.question.findUnique({
-        where: {
-            id: question.id
-        },
-        include: {
-            code: true,
-            multipleChoice: {
-                include: {
-                    options: true
+const post = async (req, res) => {
+
+    // create a new question -> at this point we only know the question type
+
+    const { type } = req.body;
+    const questionType = QuestionType[type];
+
+    if(!questionType) {
+        res.status(400).json({ message: 'Invalid question type' });
+        return;
+    }
+
+    const group = await getUserSelectedGroup(req);
+
+    const createdQuestion = await prisma.question.create({
+        data: {
+            type: questionType,
+            title: '',
+            content: '',
+            [questionType]: questionType === QuestionType.multipleChoice ? defaultMultipleChoiceOptions : {},
+            group: {
+                connect: {
+                    id: group.id
                 }
-            },
-            trueFalse: true,
-            essay: true,
-            web: true
-        }
-    });
-
-    let data;
-
-    if(currentQuestion.type !== question.type) {
-        if(currentQuestion[currentQuestion.type]) {
-            // when question type changes, delete the old type specific data and create the new one
-            data = {
-                type: question.type,
-                    [currentQuestion.type]: { delete: true },
-                    [question.type]: { create: questionTypeSpecific(question) }
-            };
-        }
-    }else{
-        // when question type doesn't change, update the type specific data
-        data = {
-            type: question.type,
-                content: question.content,
-                points: parseInt(question.points),
-                [question.type]: {
-                update: questionTypeSpecific(question)
             }
-        }
-    }
-
-    const updatedQuestion = await prisma.question.update({
-        where: { id: question.id },
-        data: data,
-        include: {
-            code: { select: { language: true } },
-            multipleChoice: { select: { options: { select: { text: true, isCorrect:true } } } },
-            trueFalse: { select: { isTrue: true } },
-            essay: true,
-            web: true
-        }
+        },
+        include: questionIncludeClause(true, true)
     });
-
-    res.status(200).json(updatedQuestion);
+    res.status(200).json(createdQuestion);
 }
 
-/*
-    question is the question object from the request body
-    using this function we can extract the type specific data (and only that) from the question object
-    also used to avoid injections
- */
-const questionTypeSpecific = (question) => {
-    switch(question.type) {
-        case QuestionType.trueFalse:
-            return {
-                isTrue: question.trueFalse.isTrue
-            }
-        case QuestionType.essay:
-            return {
-                content: question.essay.content
-            }
-        case QuestionType.web:
-            return {
-                html: question.web.html,
-                css: question.web.css,
-                js: question.web.js
-            }
-        default:
-            return {}
-    }
-}
+
 
 const del = async (req, res) => {
     const { question } = req.body;

@@ -9,6 +9,9 @@ import MainMenu from "../../layout/MainMenu";
 import {Button, Card, Stack, Typography} from "@mui/material";
 import {useSnackbar} from "../../../context/SnackbarContext";
 import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import AddCollectionDialog from "../../collections/AddCollectionDialog";
+import AddQuestionDialog from "../../question/AddQuestionDialog";
 
 const QuestionListItem = ({ question: { id, title, content, type } }) => {
     return (
@@ -37,22 +40,22 @@ const PageList = () => {
     );
     const [ addDialogOpen, setAddDialogOpen ] = useState(false);
 
-    const createQuestion = useCallback(async () => {
-        await fetch(`/api/groups/${router.query.examId}/questions`, {
+    const createQuestion = useCallback(async (type) => {
+        await fetch(`/api/questions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                order: questions.length
+                type
             })
         })
             .then((res) => res.json())
             .then(async (createdQuestion) => {
                 showSnackbar('Question created', "success");
                 await mutate([...questions, createdQuestion]);
-                await router.push(`/exams/${router.query.examId}/questions/${questions.length + 1}`);
+                await router.push(`/questions/${createdQuestion.id}`);
             }).catch(() => {
                 showSnackbar('Error creating questions', 'error');
             });
@@ -73,7 +76,7 @@ const PageList = () => {
                     rightPanel={
                     <Stack spacing={2}>
                         <Stack alignItems="flex-end" p={1}>
-                            <Button onClick={createQuestion}>Create a new question</Button>
+                            <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
                         </Stack>
                         {questions && questions.map((question) => (
                             <QuestionListItem
@@ -83,6 +86,14 @@ const PageList = () => {
                         ))}
                     </Stack>
                     }
+                />
+                <AddQuestionDialog
+                    open={addDialogOpen}
+                    onClose={() => setAddDialogOpen(false)}
+                    handleAddQuestion={async (type) => {
+                        await createQuestion(type);
+                        setAddDialogOpen(false);
+                    }}
                 />
             </LayoutMain>
         </Authorisation>

@@ -1,4 +1,4 @@
-import PageUpdate from "../../../../components/collections/pages/PageUpdate";
+import PageUpdate from "../../../../components/questions/pages/PageUpdate";
 
 const UpdateExam = () => <PageUpdate />;
 

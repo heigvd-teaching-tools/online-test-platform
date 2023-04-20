@@ -5,8 +5,6 @@ import {useInput} from "../../utils/useInput";
 const AddCollectionDialog = ({ open, onClose, handleAddCollection }) => {
     const { show: showSnackbar } = useSnackbar();
     const { value:label, bind:bindLabel, setError:setErrorLabel } = useInput('');
-    const { value:description, bind:bindDescription } = useInput('');
-
     const handleAdd = async () => {
         if(label.length === 0){
           setErrorLabel({ error: true, helperText: 'Label is required' });
