@@ -9,34 +9,67 @@ import MainMenu from "../../layout/MainMenu";
 import {Button, Card, Stack, Typography} from "@mui/material";
 import {useSnackbar} from "../../../context/SnackbarContext";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import AddCollectionDialog from "../../collections/AddCollectionDialog";
 import AddQuestionDialog from "../../question/AddQuestionDialog";
+import QuestionTypeIcon from "../../question/QuestionTypeIcon";
+import Link from "next/link";
+import ContentEditor from "../../input/ContentEditor";
+import {useSession} from "next-auth/react";
+
+const markdownToText = (markdown) => {
+    // Replace markdown headings with an empty string
+    markdown = markdown.replace(/^#+\s/gm, '');
+
+    // Replace markdown links with the link text
+    markdown = markdown.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+    // Replace other markdown formatting with an empty string
+    markdown = markdown.replace(/([*_~`])/g, '');
+
+    // Remove leading and trailing whitespace
+    markdown = markdown.trim();
+
+    return markdown;
+}
+
+const truncateString = (str, n) => {
+    if (str.length <= n) {
+        return str
+    }
+    return str.slice(0, n) + '\n\n...'
+}
 
 const QuestionListItem = ({ question: { id, title, content, type } }) => {
     return (
-        <Card>
-            <Stack spacing={2} p={2}>
-                <Stack direction="row" justifyContent="space-between">
-                    <Typography variant="h6">{title}</Typography>
-                    <Typography variant="h6">{type}</Typography>
+        <Link href={`/questions/${id}`}>
+            <Card sx={{ cursor: 'pointer' }}>
+                <Stack spacing={2} p={2}>
+                    <Stack direction="row" justifyContent="space-between">
+                        <Typography variant="h6">{title}</Typography>
+                        <QuestionTypeIcon type={type} size={32} />
+                    </Stack>
+                    <ContentEditor
+                        id={'questions-content-' + id}
+                        readOnly
+                        rawContent={truncateString(markdownToText(content), 100)}
+                    />
                 </Stack>
-                <Typography variant="body1">{content}</Typography>
-            </Stack>
-        </Card>
+            </Card>
+        </Link>
     );
 }
 
 const PageList = () => {
     const router = useRouter();
 
+    const { data: session } = useSession();
+
     const { show: showSnackbar } = useSnackbar();
 
-    const [ queryString, setQueryString ] = useState({});
+    const [ queryString, setQueryString ] = useState(undefined);
 
     const { data:questions, error, mutate } = useSWR(
-        `/api/questions/search?${(new URLSearchParams(queryString)).toString()}`,
-        queryString ? (...args) => fetch(...args).then((res) => res.json()) : null
+        queryString ? `/api/questions/search?${(new URLSearchParams(queryString)).toString()}` : 'api/questions',
+        (...args) => fetch(...args).then((res) => res.json())
     );
     const [ addDialogOpen, setAddDialogOpen ] = useState(false);
 
@@ -74,8 +107,9 @@ const PageList = () => {
                     }
                     rightWidth={70}
                     rightPanel={
-                    <Stack spacing={2}>
-                        <Stack alignItems="flex-end" p={1}>
+                    <Stack spacing={2} padding={2}>
+                        <Stack alignItems="center" p={1} direction={"row"} justifyContent={"space-between"}>
+                            <Typography variant="h6">{session.user.selected_group.label} questions</Typography>
                             <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
                         </Stack>
                         {questions && questions.map((question) => (

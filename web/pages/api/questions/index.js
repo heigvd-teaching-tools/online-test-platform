@@ -15,6 +15,8 @@ const handler = async (req, res) => {
         return;
     }
     switch(req.method) {
+        case 'GET':
+            await get(req, res);
         case 'POST':
             await post(req, res);
             break;
@@ -22,6 +24,7 @@ const handler = async (req, res) => {
             await del(req, res);
             break;
         default:
+            res.status(405).json({ message: 'Method not allowed' });
     }
 }
 
@@ -32,6 +35,21 @@ const defaultMultipleChoiceOptions = {
             { text: 'Option 2', isCorrect: true },
         ]}
     }
+}
+
+const get = async (req, res) => {
+    const group = await getUserSelectedGroup(req);
+    const questions = await prisma.question.findMany({
+        where: {
+            groupId: group.id
+        },
+        include: questionIncludeClause(true, true),
+        orderBy: {
+            updatedAt: 'desc'
+        }
+
+    });
+    res.status(200).json(questions);
 }
 
 const post = async (req, res) => {

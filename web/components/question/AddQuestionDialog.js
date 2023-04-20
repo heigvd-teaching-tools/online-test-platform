@@ -8,6 +8,7 @@ import DropDown from "../input/DropDown";
 import Image from "next/image";
 import {useSession} from "next-auth/react";
 import AlertFeedback from "../feedback/AlertFeedback";
+import QuestionTypeIcon from "./QuestionTypeIcon";
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
     const { data: session } = useSession();
@@ -23,9 +24,7 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
           <Stack spacing={2}>
                 <Typography variant="body1">Select the type of question you want to create</Typography>
                 <Stack spacing={1} sx={{ width: '500px' }} direction={"row"} alignItems={"center"}>
-                    <Box sx={{ width:52, height:52 }}>
-                        <Image alt="Question Type Icon" src={`/svg/questions/${type}.svg`} layout="responsive" width="52px" height="52px" priority="1" />
-                    </Box>
+                    <QuestionTypeIcon type={type} size={52} />
                     <DropDown id="question" name="Type" defaultValue={type} minWidth="160px" onChange={setType}>
                         {types?.map(({value, label}) =>
                             <MenuItem key={value} value={value}>
