@@ -30,7 +30,6 @@ const truncateString = (str, n) => {
 
 const QuestionListItem = ({ question }) => {
     const router = useRouter();
-    const theme = useTheme();
     return (
         <Paper elevation={1}>
             <Stack spacing={2} p={2}>
@@ -54,7 +53,7 @@ const QuestionListItem = ({ question }) => {
                         <ContentEditor
                             id={'questions-content-' + question.id}
                             readOnly
-                            rawContent={truncateString(markdownToText(question.content), 100)}
+                            rawContent={truncateString(markdownToText(question.content), 500)}
                         />
                     )}
                     { !question.content || question.content.length === 0 && (

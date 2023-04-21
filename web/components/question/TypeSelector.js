@@ -1,6 +1,6 @@
-import types from "../types.json";
+import types from "./types.json";
 import {MenuItem, Stack, Typography} from "@mui/material";
-import DropDown from "../../input/DropDown";
+import DropDown from "../input/DropDown";
 import React from "react";
 
 const TypeSelector = ({ type, onChange }) => {

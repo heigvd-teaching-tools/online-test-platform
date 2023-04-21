@@ -55,7 +55,7 @@ export const themeOptions = {
     },
     h6:{
         fontSize: '1rem',
-        letterSpacing: 1.5,
+        letterSpacing: 1.25,
     },
     body1: {
         fontSize: '0.9rem',

@@ -10,7 +10,7 @@ import QuestionTypeIcon from "../../question/QuestionTypeIcon";
 import LanguageSelector from "../../question/type_specific/code/LanguageSelector";
 
 import languages from "../../../code/languages.json";
-import TypeSelector from "../../question/type_specific/TypeSelector";
+import TypeSelector from "../../question/TypeSelector";
 const defaultLanguage = languages.environments[0].language;
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
