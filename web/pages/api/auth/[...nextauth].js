@@ -48,6 +48,7 @@ export default NextAuth({
                     session.user.selected_group = userWithGroups.groups.find(g => g.selected)?.group;
                 }
             }
+            session.user.id = user.id;
             session.user.role = user.role;
             return session;
         }

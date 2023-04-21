@@ -3,22 +3,18 @@ import useSWR from 'swr';
 import Image from 'next/image';
 
 import LayoutMain from '../../layout/LayoutMain';
-import {Box, Button, IconButton, Stack} from '@mui/material';
+import {Box, Button, IconButton, Stack, Typography} from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import DataGrid from '../../ui/DataGrid';
 import DialogFeedback from '../../feedback/DialogFeedback';
 
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
-import AddCollectionDialog from "../AddCollectionDialog";
+import AddCollectionDialog from "../list/AddCollectionDialog";
 import MainMenu from "../../layout/MainMenu";
-import ReactTimeAgo from "react-time-ago";
-
-import TimeAgo from 'javascript-time-ago';
-
-import en from 'javascript-time-ago/locale/en.json';
-
-TimeAgo.addLocale(en);
+import DateTimeAgo from "../../feedback/DateTimeAgo";
+import {useGroup} from "../../../context/GroupContext";
+import AlertFeedback from "../../feedback/AlertFeedback";
 
 const gridHeader = {
 
@@ -47,15 +43,17 @@ const gridHeader = {
 };
 
 const PageList = () => {
+    const { group } = useGroup();
+
   const { show: showSnackbar } = useSnackbar();
 
   const [ addDialogOpen, setAddDialogOpen ] = useState(false);
   const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
   const [ collectionToDelete, setCollectionToDelete ] = useState(null);
 
-  const { data, error } = useSWR(
+  const { data, error, mutate } = useSWR(
     `/api/collections`,
-    (...args) => fetch(...args).then((res) => res.json())
+      group ? (...args) => fetch(...args).then((res) => res.json()) : null,
   );
 
   const [ collections, setCollections ] = useState(data);
@@ -63,6 +61,13 @@ const PageList = () => {
   useEffect(() => {
     setCollections(data);
   }, [data]);
+
+    useEffect(() => {
+        // if group changes, re-fetch questions
+        if(group){
+            (async () => await mutate())();
+        }
+    }, [group, mutate]);
 
   const deleteCollection = async () => {
     await fetch(`/api/collections/${collectionToDelete}`, {
@@ -95,8 +100,8 @@ const PageList = () => {
               header={gridHeader}
               items={collections.map(collection => ({
                 label: collection.label,
-                createdAt: <ReactTimeAgo date={new Date(collection.createdAt)} locale="en-US" timeStyle="round-minute" />,
-                updatedAt: <ReactTimeAgo date={new Date(collection.updatedAt)} locale="en-US" timeStyle="round-minute" />,
+                createdAt: <DateTimeAgo date={new Date(collection.createdAt)} />,
+                updatedAt: <DateTimeAgo date={new Date(collection.updatedAt)} />,
                 questions: collection.questions?.length || "0",
                 points: collection.questions?.reduce((acc, question) => acc + question.points, 0) || "0",
                 meta: {
@@ -117,6 +122,11 @@ const PageList = () => {
               }
               />
           )}
+            {collections && collections.length === 0 && (
+                <AlertFeedback severity="info">
+                    <Typography variant="body1">No collections found for this group</Typography>
+                </AlertFeedback>
+            )}
           <DialogFeedback
                 open={deleteDialogOpen}
                 title="Delete collection"

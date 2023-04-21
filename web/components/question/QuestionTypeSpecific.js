@@ -6,6 +6,7 @@ import TrueFalse from "./type_specific/TrueFalse";
 import Web from "./type_specific/Web";
 
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
+    console.log("QuestionTypeSpecific", question)
     return (
         <Stack height="100%" overflow="auto">
             {(

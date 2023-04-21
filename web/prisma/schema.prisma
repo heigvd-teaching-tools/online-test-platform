@@ -87,8 +87,9 @@ model Group {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  admins   UserOnGroup[]
-  Question Question[]
+  admins      UserOnGroup[]
+  questions   Question[]
+  collections Collection[]
 }
 
 model UserOnGroup {
@@ -109,6 +110,9 @@ model Collection {
   updatedAt DateTime @updatedAt
 
   questions CollectionToQuestion[]
+
+  group     Group                 @relation(fields: [groupId], references: [id])
+  groupId   String
 }
 
 model CollectionToQuestion {

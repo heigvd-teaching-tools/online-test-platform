@@ -1,5 +1,5 @@
 {
-  "comment": "language property of an environment must match the monaco editor language property : https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages",
+  "comment": "Used both in frontend and backend. language property of an environment must match the monaco editor language property : https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages",
   "environments": [
     {
       "language": "cpp",

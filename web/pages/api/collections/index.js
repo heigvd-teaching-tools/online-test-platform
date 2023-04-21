@@ -1,5 +1,5 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
-import { hasRole } from '../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -16,7 +16,7 @@ const handler = async (req, res) => {
 
     switch(req.method) {
         case 'GET':
-            await get(res);
+            await get(req, res);
             break;
         case 'POST':
             await post(req, res);
@@ -25,24 +25,33 @@ const handler = async (req, res) => {
     }
 }
 
-const get = async (res) => {
+const get = async (req, res) => {
+
+    const group = await getUserSelectedGroup(req);
 
     const collections = await prisma.collection.findMany({
         include: {
             questions: true
         },
+        where: {
+            groupId: group.id
+        }
     });
     res.status(200).json(collections);
 }
 
 const post = async (req, res) => {
     const { label, description } = req.body;
+
+    const group = await getUserSelectedGroup(req);
+
     try {
         const collection = await prisma.collection.create({
             data: {
                 label,
-                description
-            }
+                description,
+                groupId: group.id
+            },
         });
         res.status(200).json(collection);
     } catch (e) {

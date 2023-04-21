@@ -1,9 +1,8 @@
-import {Menu, Button, MenuItem, Box, Stack, Typography} from '@mui/material';
+import { Menu, Button, MenuItem, Stack } from '@mui/material';
 import LockClosedIcon from '@mui/icons-material/Lock';
 import GroupIcon from '@mui/icons-material/Group';
 import {signOut, useSession} from 'next-auth/react';
-import DropDown from "../input/DropDown";
-const UserContextMenu = ({anchorElUser, handleCloseUserMenu }) => {
+const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
 const { data: session } = useSession();
 return(
     <Menu
@@ -16,29 +15,10 @@ return(
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
     >
-        <Stack
-            padding={2}
-            spacing={2}
-            alignItems={"flex-start"}
-        >
-            { session.user.groups.length > 0 && (
-                <DropDown
-                    name="group"
-                    defaultValue={session.user.selected_group?.label}
-                    minWidth={'200px'}
-                    icon={<GroupIcon />}
-                    variant={"standard"}
-                >
-                    {session.user.groups.map(({group}) => (
-                        <MenuItem key={group.id} value={group.label}>{group.label}</MenuItem>
-                    ))}
-                </DropDown>
-            )}
-
+        <Stack padding={2} spacing={2} alignItems={"flex-start"}>
             <Button onClick={() => signOut()} startIcon={<GroupIcon />}>Manage Groups</Button>
             <Button onClick={() => signOut()} startIcon={<LockClosedIcon />}>Sign Out</Button>
         </Stack>
-
     </Menu>
 )
 }

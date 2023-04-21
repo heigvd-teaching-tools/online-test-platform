@@ -142,3 +142,33 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
 }
 
 
+/*
+    question is the question object from the request body
+    question can be null if we are creating a new question
+    using this function we can extract the type specific data (and only that) from the question object
+    also used to avoid injections
+ */
+export const questionTypeSpecific = (questionType, question) => {
+    switch(questionType) {
+        case QuestionType.trueFalse:
+            return {
+                isTrue: question?.trueFalse.isTrue ?? true
+            }
+        case QuestionType.web:
+            return {
+                html: question?.web.html ?? '',
+                css: question?.web.css ?? '',
+                js: question?.web.js ?? ''
+            }
+        case QuestionType.multipleChoice: // only for create
+            return !question ? {
+                options: { create: [
+                    { text: 'Option 1', isCorrect: false },
+                    { text: 'Option 2', isCorrect: true },
+                ]}
+            } : {}
+        default:
+            return {}
+    }
+}
+

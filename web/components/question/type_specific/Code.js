@@ -1,21 +1,12 @@
-import React, {useState, useEffect, useCallback} from 'react';
-
+import React, { useState } from 'react';
 import useSWR from "swr";
-
 import { Stack, Tabs, Tab, Typography, Box } from "@mui/material"
 
-import LanguageSelector from "./code/LanguageSelector";
 import Sandbox from "./code/Sandbox";
 import TestCases from "./code/TestCases";
 import TabContent from "../../layout/utils/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
 import TemplateFilesManager from "./code/files/TemplateFilesManager";
-
-import languages from "./code/languages.json";
-
-
-const environments = languages.environments;
-
 const Code = ({ questionId }) => {
 
     const { data: code, mutate, error } = useSWR(
@@ -25,25 +16,10 @@ const Code = ({ questionId }) => {
     );
 
     const [ tab, setTab ] = useState(0);
-    const [ language, setLanguage ] = useState(code?.language);
-
-    useEffect(() => {
-        setLanguage(code?.language);
-    }, [code?.language]);
-
-    const onSelectLanguage = useCallback(async (language) => {
-        setLanguage(language);
-    }, [setLanguage, mutate]);
 
     return (
         <>
-            { !language && (
-                <LanguageSelector
-                    questionId={questionId}
-                    onChange={onSelectLanguage}
-                />
-            )}
-            { language && (
+            { code && (
                 <Stack height='100%'>
                     <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                         <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
@@ -54,12 +30,12 @@ const Code = ({ questionId }) => {
                         <TabContent padding={2} spacing={4}>
                             <Sandbox
                                 questionId={questionId}
-                                language={language}
+                                language={code.language}
                             />
 
                             <TestCases
                                 questionId={questionId}
-                                language={language}
+                                language={code.language}
                             />
                         </TabContent>
                     </TabPanel>
@@ -67,7 +43,7 @@ const Code = ({ questionId }) => {
                         <TabContent>
                             <SolutionFilesManager
                                 questionId={questionId}
-                                language={language}
+                                language={code.language}
                             />
                         </TabContent>
                     </TabPanel>

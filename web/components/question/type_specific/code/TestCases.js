@@ -15,7 +15,7 @@ import {
     useTheme
 } from "@mui/material";
 import {useDebouncedCallback} from "use-debounce";
-import languages from "./languages.json";
+import languages from "../../../../code/languages.json";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const environments = languages.environments;

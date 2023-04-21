@@ -28,7 +28,7 @@ const DropDown = ({children, id, name, defaultValue, blurOnChange = false, minWi
                 value={value}
                 MenuProps={{ variant: 'selectedMenu'}}
                 sx={{padding:0}}
-                IconComponent={icon ? () => <Box sx={{mr:1, mt:1}}>{icon}</Box> : undefined}
+                IconComponent={icon ? () => <Box sx={{mr:1, mt:2.5}}>{icon}</Box> : undefined}
             >
                 {children}
             </Select>

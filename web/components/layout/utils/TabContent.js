@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from "react";
 import {Box, Stack } from "@mui/material";
 
-import languages from "../../question/type_specific/code/languages.json";
+import languages from "../../../code/languages.json";
 
 import TestCases from "../../question/type_specific/code/TestCases";
 import LanguageSelector from "../../question/type_specific/code/LanguageSelector";

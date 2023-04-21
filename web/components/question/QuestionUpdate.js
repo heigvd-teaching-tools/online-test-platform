@@ -1,12 +1,13 @@
-import { useState, useCallback } from 'react';
+import useSWR from "swr";
+import { useCallback } from 'react';
 import Image from 'next/image';
-import { Stack, Typography, TextField, IconButton, Button, Box } from '@mui/material';
+import { Stack, TextField, Button, Box } from '@mui/material';
 import ContentEditor from '../input/ContentEditor';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
 import { useDebouncedCallback } from "use-debounce";
-import useSWR from "swr";
+
 import LoadingAnimation from "../feedback/LoadingAnimation";
 import {useSnackbar} from "../../context/SnackbarContext";
 

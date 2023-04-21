@@ -3,7 +3,7 @@ import {Box} from "@mui/material";
 
 const QuestionTypeIcon = ({ type, size = 32 }) => {
     return(
-        <Box sx={{ width:size, height:size }}>
+        <Box minWidth={size} minHeight={size}>
             <Image alt="Question Type Icon" src={`/svg/questions/${type}.svg`} layout="responsive" width="52px" height="52px" priority="1" />
         </Box>
     )

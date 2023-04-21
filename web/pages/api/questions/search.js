@@ -38,23 +38,22 @@ const get = async (req, res) => {
 
     let where = {
         where: {
-            OR: [
-                {
-                    title: {
-                        contains: title
-                    }
-                },{
-                    content: {
-                        contains: content
-                    }
-                },{
-                    type:  {
-                        in: questionTypes
-                    }
+            OR: [{
+                title: {
+                    contains: title
                 }
-            ]
+            },{
+                content: {
+                    contains: content
+                }
+            },{
+                type:  {
+                    in: questionTypes
+                }
+            }]
         }
     }
+
     if(questionTypes.includes(QuestionType.code)) {
         where.where.OR.push({
             code: {
@@ -71,9 +70,7 @@ const get = async (req, res) => {
     });
 
     res.status(200).json(questions);
-
-
-
+    
 }
 
 export default handler;

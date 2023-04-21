@@ -5,7 +5,7 @@ import {Box, Button, IconButton, Paper, Stack} from "@mui/material";
 import FileEditor from "./FileEditor";
 import Image from "next/image";
 
-import languages from "../languages.json";
+import languages from "../../../../../code/languages.json";
 import CodeCheck from "../CodeCheck";
 
 const environments = languages.environments;
