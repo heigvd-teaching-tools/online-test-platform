@@ -27,7 +27,7 @@ const Datagrid = ({ header, items }) => {
             item.meta && item.meta.linkHref ? (
                 <Link component="button" key={item.meta.key} href={item.meta.linkHref}>
                     <a>
-                    <ListItemContent item={item} header={header} />
+                        <ListItemContent item={item} header={header} />
                     </a>
                 </Link>
             ) : (
@@ -46,7 +46,7 @@ const ListItemContent = ({ item, header }) =>
                 if(index < header.columns.length && key !== 'meta') {
                     return (
                         <Column key={key} {...header.columns[index].column}>
-                            <Typography variant="body2">{item[key] || ""}</Typography>
+                            <Typography variant="body1">{item[key] || ""}</Typography>
                         </Column>
                     )
                 }

@@ -131,9 +131,9 @@ const QuestionSearch = ({ onSearch }) => {
 const CheckboxLabel = ({label, checked, onChange}) => {
     const setToggleCheckBox = useCallback(() => onChange && onChange(!checked), [onChange]);
     return (
-        <Stack direction="row" spacing={1} alignItems="center" onClick={ setToggleCheckBox } sx={{ cursor: "pointer" }}>
+        <Stack direction="row" alignItems="center" onClick={ setToggleCheckBox } sx={{ cursor: "pointer" }}>
             <Checkbox size={"small"} checked={checked} color={"info"} onChange={(e) => onChange(e.target.checked)} />
-            <Typography variant="body2" color="info"> {label} </Typography>
+            <Typography variant="body1" color="info"> {label} </Typography>
         </Stack>
     )
 }

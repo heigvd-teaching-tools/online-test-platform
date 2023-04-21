@@ -32,12 +32,41 @@ export const themeOptions = {
     },
   },
   typography: {
-    fontFamily: ['Roboto'],
     fontSize: 12,
     fontWeightLight: 400,
     fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 700,
+
     h1: {
-      fontSize: '4rem',
+      fontSize: '2rem',
+    },
+    h2: {
+        fontSize: '1.75rem',
+    },
+    h3: {
+        fontSize: '1.5rem',
+    },
+    h4: {
+        fontSize: '1.25rem',
+    },
+    h5:{
+        fontSize: '1rem',
+    },
+    h6:{
+        fontSize: '1rem',
+        letterSpacing: 1.5,
+    },
+    body1: {
+        fontSize: '0.9rem',
+        color: '#333333',
+    },
+    body2: {
+        fontSize: '0.85rem',
+        color: '#7e7e7e',
+    },
+    button: {
+        fontSize: '0.8rem',
     },
     caption: {
       fontSize: '0.7rem',
