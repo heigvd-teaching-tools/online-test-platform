@@ -19,9 +19,6 @@ const Header = ({children, color}) => {
                 <Box sx={{ mt:1, ml:1, mr:0.5 }}>
                     <Logo color="red" />
                 </Box>
-                <Box>
-                    <GroupSelector />
-                </Box>
                 <Stack flex={1} sx={{ overflow:'hidden' }}>
                     {children}
                 </Stack>

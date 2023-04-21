@@ -1,17 +1,23 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Tabs, Tab } from '@mui/material';
+import {Tabs, Tab, Box, Stack} from '@mui/material';
+import GroupSelector from "./GroupSelector";
 const MainMenu = () => {
     const { asPath } = useRouter();
     return (
-        <Tabs value={asPath.split("/")[1] || "questions"} aria-label="main-menu" textColor="inherit" indicatorColor="secondary">{
-                mainPaths.map(path => (
-                    <Link key={path.path} value={path.path} href={`/${path.path}`} passHref>
-                        <Tab value={path.path} label={path.label} sx={{ opacity:1 }} />
-                    </Link>
-                ))
-            }
-        </Tabs>
+        <Stack direction={"row"}>
+            <Box>
+                <GroupSelector />
+            </Box>
+            <Tabs value={asPath.split("/")[1] || "questions"} aria-label="main-menu" textColor="inherit" indicatorColor="secondary">{
+                    mainPaths.map(path => (
+                        <Link key={path.path} value={path.path} href={`/${path.path}`} passHref>
+                            <Tab value={path.path} label={path.label} sx={{ opacity:1 }} />
+                        </Link>
+                    ))
+                }
+            </Tabs>
+        </Stack>
     )
 }
 
