@@ -6,7 +6,7 @@ import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
 import QuestionSearch from "../../question/QuestionSearch";
 import MainMenu from "../../layout/MainMenu";
-import {Box, Button, Stack, Typography} from "@mui/material";
+import { Button, Stack, Typography} from "@mui/material";
 import {useSnackbar} from "../../../context/SnackbarContext";
 import {useRouter} from "next/router";
 import AddQuestionDialog from "../list/AddQuestionDialog";

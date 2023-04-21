@@ -290,7 +290,7 @@ summary {
   display: list-item;
 }
 
-ul, 
+ul,
 menu,
 ol{
   padding: 0;
@@ -327,4 +327,18 @@ h1, h2, h3, h4, h5, h6{
 
 foreignObject {
   pointer-events: none;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('/fonts/open-sans/OpenSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/montserrat/Montserrat-Regular.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
 }
