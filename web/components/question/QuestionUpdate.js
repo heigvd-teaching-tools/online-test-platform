@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { useCallback } from 'react';
 import Image from 'next/image';
-import { Stack, TextField, Button, Box } from '@mui/material';
+import {Stack, TextField, Button, Box, Autocomplete} from '@mui/material';
 import ContentEditor from '../input/ContentEditor';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
@@ -10,6 +10,56 @@ import { useDebouncedCallback } from "use-debounce";
 
 import LoadingAnimation from "../feedback/LoadingAnimation";
 import {useSnackbar} from "../../context/SnackbarContext";
+
+import { createFilterOptions } from '@mui/material/Autocomplete';
+
+const filterOptions = createFilterOptions({
+    matchFrom: 'start',
+    ignoreCase: true,
+    ignoreAccents: true,
+    limit: 20, // suggestions limit
+    stringify: (option) => option.title,
+});
+
+const tags = [
+    { title: 'JavaScript', id: 1 },
+    { title: 'React', id: 2 },
+    { title: 'Node', id: 3 },
+    { title: 'Next', id: 4 },
+    { title: 'GraphQL', id: 5 },
+    { title: 'TypeScript', id: 6 },
+    { title: 'CSS', id: 7 },
+    { title: 'HTML', id: 8 },
+    { title: 'SQL', id: 9 },
+    { title: 'MongoDB', id: 10 },
+    { title: 'MySQL', id: 11 },
+    { title: 'PostgreSQL', id: 12 },
+    { title: 'Java', id: 13 },
+    { title: 'Python', id: 14 },
+    { title: 'C#', id: 15 },
+    { title: 'C++', id: 16 },
+    { title: 'C', id: 17 },
+    { title: 'PHP', id: 18 },
+    { title: 'Ruby', id: 19 },
+    { title: 'Go', id: 20 },
+    { title: 'Rust', id: 21 },
+    { title: 'Swift', id: 22 },
+    { title: 'Kotlin', id: 23 },
+    { title: 'Scala', id: 24 },
+    { title: 'Dart', id: 25 },
+    { title: 'Elixir', id: 26 },
+    { title: 'Clojure', id: 27 },
+    { title: 'Haskell', id: 28 },
+    { title: 'Perl', id: 29 },
+    { title: 'R', id: 30 },
+    { title: 'Lua', id: 31 },
+    { title: 'Erlang', id: 32 },
+    { title: 'F#', id: 33 },
+    { title: 'Groovy', id: 34 },
+
+
+
+];
 
 const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) => {
     const { show: showSnackbar } = useSnackbar();
@@ -48,6 +98,8 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
         await onChange(changedProperties);
     }, [onChange]), 500);
 
+
+
     if (error) return <div>failed to load</div>
     if (!question) return <LoadingAnimation />
 
@@ -67,7 +119,8 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                                 title: e.target.value
                             })}
                         />
-                        <Box sx={{ overflow:'auto', width:'100%', height:'100%' }}>
+
+                        <Stack spacing={2} width={"100%"} height={"100%"} overflow={"auto"}>
                             <ContentEditor
                                 id={`question-${question.id}`}
                                 language="markdown"
@@ -76,7 +129,22 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                                     content: content
                                 })}
                             />
-                        </Box>
+                            <Autocomplete
+                                multiple
+                                id="tags-outlined"
+                                options={tags}
+                                getOptionLabel={(option) => option.title}
+                                defaultValue={[tags[3]]}
+                                filterSelectedOptions
+                                filterOptions={filterOptions}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="tags"
+                                    />
+                                )}
+                            />
+                        </Stack>
 
                         <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
                             <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => onQuestionDelete(question.id)}>Delete this question</Button>
