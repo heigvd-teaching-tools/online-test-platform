@@ -5,7 +5,7 @@ import GroupSelector from "./GroupSelector";
 const MainMenu = () => {
     const { asPath } = useRouter();
     return (
-        <Stack direction={"row"}>
+        <Stack direction={"row"} spacing={1}>
             <Box>
                 <GroupSelector />
             </Box>
