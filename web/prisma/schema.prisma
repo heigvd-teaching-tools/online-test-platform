@@ -90,6 +90,7 @@ model Group {
   admins      UserOnGroup[]
   questions   Question[]
   collections Collection[]
+  tags        Tag[]
 }
 
 model UserOnGroup {
@@ -111,8 +112,8 @@ model Collection {
 
   questions CollectionToQuestion[]
 
-  group     Group                 @relation(fields: [groupId], references: [id])
-  groupId   String
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
 }
 
 model CollectionToQuestion {
@@ -149,10 +150,11 @@ model Question {
   examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
   examSessionId String?
 
-  group   Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId String?
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   studentAnswer StudentAnswer[]
+  questionToTag QuestionToTag[]
 }
 
 model MultipleChoice {
@@ -263,6 +265,28 @@ model Web {
   html       String?
   css        String?
   js         String?
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  label String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questionToTag QuestionToTag[]
+
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
+}
+
+model QuestionToTag {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId      String
+
+  @@id([questionId, tagId])
 }
 
 // Order is important here

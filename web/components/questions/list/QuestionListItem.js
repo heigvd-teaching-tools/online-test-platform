@@ -1,5 +1,5 @@
 import {useRouter} from "next/router";
-import {Box, Button, Paper, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Paper, Stack, Typography } from "@mui/material";
 import QuestionTypeIcon from "../../question/QuestionTypeIcon";
 import LanguageIcon from "../../question/type_specific/code/LanguageIcon";
 import ContentEditor from "../../input/ContentEditor";
@@ -28,8 +28,7 @@ const truncateString = (str, n) => {
     return str.slice(0, n) + '\n\n...'
 }
 
-const QuestionListItem = ({ question }) => {
-    const router = useRouter();
+const QuestionListItem = ({ question, actions = [] }) => {
     return (
         <Paper elevation={1}>
             <Stack spacing={2} p={2}>
@@ -48,7 +47,7 @@ const QuestionListItem = ({ question }) => {
                         <LanguageIcon language={question.code?.language} size={22} />
                     )}
                 </Stack>
-                <Typography variant="body2">
+
                     { question.content && question.content.length > 0 && (
                         <ContentEditor
                             id={'questions-content-' + question.id}
@@ -57,15 +56,13 @@ const QuestionListItem = ({ question }) => {
                         />
                     )}
                     { !question.content || question.content.length === 0 && (
-                        <Typography variant="caption">No content</Typography>
+                        <Typography variant="caption" component="span">No content</Typography>
                     )}
 
-                </Typography>
+
 
                 <Stack justifyContent={"space-between"} alignItems={"center"} direction={"row"} width="100%">
-                    <Button onClick={async () => {
-                        await router.push(`/questions/${question.id}`);
-                    }} variant={"text"}>Update</Button>
+                    {actions}
                     <Box>
                         <Stack direction={"row"} alignItems={"center"} sx={{ color: 'info.main' }}>
                             <Typography variant={"caption"}>Updated:</Typography>

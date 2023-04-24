@@ -83,7 +83,8 @@ export const questionsWithIncludes = ( {
 
 export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswers) => {
     // including type specifics with or without official answers
-    let include = includeTypeSpecific ? {
+
+    const typeSpecific = includeTypeSpecific ? {
         code: ({
             select: {
                 ...(includeOfficialAnswers ? {
@@ -138,6 +139,17 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
         essay: true,
         web: true,
     } : {};
+
+    const include = {
+        questionToTag: {
+            include: {
+                tag: true
+            }
+        },
+        ...typeSpecific
+    }
+
+
     return include;
 }
 

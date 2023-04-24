@@ -21,46 +21,6 @@ const filterOptions = createFilterOptions({
     stringify: (option) => option.title,
 });
 
-const tags = [
-    { title: 'JavaScript', id: 1 },
-    { title: 'React', id: 2 },
-    { title: 'Node', id: 3 },
-    { title: 'Next', id: 4 },
-    { title: 'GraphQL', id: 5 },
-    { title: 'TypeScript', id: 6 },
-    { title: 'CSS', id: 7 },
-    { title: 'HTML', id: 8 },
-    { title: 'SQL', id: 9 },
-    { title: 'MongoDB', id: 10 },
-    { title: 'MySQL', id: 11 },
-    { title: 'PostgreSQL', id: 12 },
-    { title: 'Java', id: 13 },
-    { title: 'Python', id: 14 },
-    { title: 'C#', id: 15 },
-    { title: 'C++', id: 16 },
-    { title: 'C', id: 17 },
-    { title: 'PHP', id: 18 },
-    { title: 'Ruby', id: 19 },
-    { title: 'Go', id: 20 },
-    { title: 'Rust', id: 21 },
-    { title: 'Swift', id: 22 },
-    { title: 'Kotlin', id: 23 },
-    { title: 'Scala', id: 24 },
-    { title: 'Dart', id: 25 },
-    { title: 'Elixir', id: 26 },
-    { title: 'Clojure', id: 27 },
-    { title: 'Haskell', id: 28 },
-    { title: 'Perl', id: 29 },
-    { title: 'R', id: 30 },
-    { title: 'Lua', id: 31 },
-    { title: 'Erlang', id: 32 },
-    { title: 'F#', id: 33 },
-    { title: 'Groovy', id: 34 },
-
-
-
-];
-
 const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) => {
     const { show: showSnackbar } = useSnackbar();
 
@@ -80,8 +40,11 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
             body: JSON.stringify({ question })
         })
             .then((res) => res.json())
-            .then((updated) => {
-                onQuestionChanged && onQuestionChanged(updated);
+            .then(async (updated) => {
+                await mutate(updated);
+                if(onQuestionChanged) {
+                    onQuestionChanged(updated);
+                }
                 showSnackbar('Question saved', "success");
             }).catch(() => {
                 showSnackbar('Error saving questions', 'error');
@@ -97,8 +60,6 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
     const debounceChange = useDebouncedCallback(useCallback(async (changedProperties) => {
         await onChange(changedProperties);
     }, [onChange]), 500);
-
-
 
     if (error) return <div>failed to load</div>
     if (!question) return <LoadingAnimation />
@@ -132,9 +93,9 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                             <Autocomplete
                                 multiple
                                 id="tags-outlined"
-                                options={tags}
-                                getOptionLabel={(option) => option.title}
-                                defaultValue={[tags[3]]}
+                                options={question.questionToTag.map(questionToTag => questionToTag.tag)}
+                                getOptionLabel={(option) => option.label}
+                                defaultValue={question.questionToTag.map(questionToTag => questionToTag.tag)}
                                 filterSelectedOptions
                                 filterOptions={filterOptions}
                                 renderInput={(params) => (

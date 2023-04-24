@@ -10,6 +10,19 @@ async function main() {
         label: "TWEB SEM2 2023 (BTL)",
     }];
 
+    const seedUsers = [{
+        email: "stefanteofanovic@hotmail.com",
+        name: "Stefan Teofanovic",
+        role: "PROFESSOR"
+    },{
+        email: "bertil.chapuis@heig-vd.ch",
+        name: "Bertil Chapuis",
+        role: "PROFESSOR"
+    }];
+
+
+
+
     for(const group of seedGroups) {
         // Check if the default group already exists
         const existingGroup = await prisma.group.findFirst({
@@ -18,12 +31,16 @@ async function main() {
 
         // If the default group doesn't exist, create it
         if (!existingGroup) {
-            await prisma.group.create({data: group});
+            const created = await prisma.group.create({data: group});
+
             console.log(`Group ${group.label} created.`);
         } else {
             console.log(`Group ${group.label} already exists.`);
         }
     }
+
+
+
 }
 
 main()

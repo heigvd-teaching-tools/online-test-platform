@@ -1,0 +1,36 @@
+import {useCallback, useState} from "react";
+
+const ReorderableList = ({ children, onChangeOrder }) => {
+    const [ sourceIndex, setSourceIndex ] = useState(null);
+    const handleDragStart = useCallback((e, index) => {
+        setSourceIndex(index);
+    }, [setSourceIndex]);
+
+    const handleDragOver = useCallback((e, targetIndex) => {
+        e.preventDefault();
+        if (targetIndex !== sourceIndex) {
+            onChangeOrder(sourceIndex, targetIndex);
+            setSourceIndex(targetIndex);
+        }
+    }, [sourceIndex]);
+
+    const handleDragEnd = useCallback((e, index) => {
+        setSourceIndex(null);
+    }, [setSourceIndex]);
+
+    return (
+        children && children.map((child, index) => (
+            <div
+                key={index}
+                draggable={true}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={(e) => handleDragEnd(e, index)}
+            >
+                {child}
+            </div>
+        ))
+    )
+}
+
+export default ReorderableList;

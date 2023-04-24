@@ -13,6 +13,7 @@ import AddQuestionDialog from "../list/AddQuestionDialog";
 import QuestionListItem from "../list/QuestionListItem";
 import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
+import QuestionList from "../list/QuestionList";
 const PageList = () => {
     const router = useRouter();
 
@@ -75,12 +76,19 @@ const PageList = () => {
                                 <Typography variant="h6">Questions</Typography>
                                 <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
                             </Stack>
-                            {questions && questions.map((question) => (
-                                <QuestionListItem
-                                    key={question.id}
-                                    question={question}
-                                />
-                            ))}
+                            <Stack spacing={4}>
+                                {questions && questions.map((question) => (
+                                    <QuestionListItem
+                                        key={question.id}
+                                        question={question}
+                                        actions={[
+                                            <Button onClick={async () => {
+                                                await router.push(`/questions/${question.id}`);
+                                            }} variant={"text"}>Update</Button>
+                                        ]}
+                                    />
+                                ))}
+                            </Stack>
                             {questions && questions.length === 0 && (
                                 <AlertFeedback severity="info">
                                     <Typography variant="body1">No questions found in this group. Try changing your search criteria</Typography>

@@ -43,7 +43,7 @@ const gridHeader = {
 };
 
 const PageList = () => {
-    const { group } = useGroup();
+  const { group } = useGroup();
 
   const { show: showSnackbar } = useSnackbar();
 
