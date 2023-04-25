@@ -16,46 +16,24 @@ const handler = async (req, res) => {
     }
 
     switch(req.method) {
-        case 'GET':
-            await get(req, res);
-            break;
         case 'POST':
             await post(req, res);
             break;
         case 'PUT':
             await put(req, res);
             break;
+        case 'DELETE':
+            await del(req, res);
+            break;
         default:
+            res.status(405).json({ message: 'Method not allowed' });
     }
 }
 
-const get = async (req, res) => {
-    const { collectionId } = req.query
-
-    const questions = await prisma.collection.findUnique({
-        where: {
-            id: collectionId
-        },
-        select: {
-            collectionToQuestions: {
-                include: {
-                    question: {
-                        include: questionIncludeClause(true, true)
-                    }
-                },
-                orderBy: {
-                    order: 'asc'
-                }
-            }
-        }
-    });
-    res.status(200).json(questions);
-}
-
-
 const post = async (req, res) => {
     // add a new question to a collection
-    const { collectionId, questionId } = req.body;
+    const { collectionId } = req.query;
+    const { questionId } = req.body;
 
     // find the latest order
     const latestOrder = await prisma.collectionToQuestion.findFirst({
@@ -102,5 +80,21 @@ const put = async (req, res) => {
     res.status(200).json({ message: 'OK' });
 }
 
+const del = async (req, res) => {
+    // delete a question from a collection
+    const { collectionId } = req.query;
+    const { questionId } = req.body;
+
+    await prisma.collectionToQuestion.delete({
+        where: {
+            collectionId_questionId: {
+                collectionId: collectionId,
+                questionId: questionId
+            }
+        }
+    });
+
+    res.status(200).json({ message: 'OK' });
+}
 
 export default handler;

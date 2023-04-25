@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
 import { hasRole } from '../../../../utils/auth';
+import {questionIncludeClause} from "../../../../code/questions";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -15,22 +16,68 @@ const handler = async (req, res) => {
     }
 
     switch(req.method) {
-
+        case 'GET':
+            await get(req, res);
+            break;
+        case 'PUT':
+            await put(req, res);
+            break;
         case 'DELETE':
             await del(req, res);
             break;
         default:
+            res.status(405).json({ message: 'Method not allowed' });
     }
 }
 
-const del = async (req, res) => {
-    const { examId } = req.query
-    const exam = await prisma.exam.delete({
+
+const get = async (req, res) => {
+    const { collectionId } = req.query
+
+    const collectionWithQuestions = await prisma.collection.findUnique({
         where: {
-            id: examId
+            id: collectionId
+        },
+        include: {
+            collectionToQuestions: {
+                include: {
+                    question: {
+                        include: questionIncludeClause(true, true)
+                    }
+                },
+                orderBy: {
+                    order: 'asc'
+                }
+            }
         }
     });
-    res.status(200).json(exam);
+    res.status(200).json(collectionWithQuestions);
+}
+
+const put = async (req, res) => {
+    const { collectionId } = req.query
+    const { collection } = req.body;
+
+    const updated = await prisma.collection.update({
+        where: {
+            id: collectionId
+        },
+        data: {
+            label: collection.label
+        }
+    });
+
+    res.status(200).json(updated);
+}
+
+const del = async (req, res) => {
+    const { collectionId } = req.query
+    const collection = await prisma.collection.delete({
+        where: {
+            id: collectionId
+        }
+    });
+    res.status(200).json(collection);
 }
 
 export default handler;

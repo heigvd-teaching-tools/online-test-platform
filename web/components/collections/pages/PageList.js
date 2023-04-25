@@ -102,8 +102,8 @@ const PageList = () => {
                 label: collection.label,
                 createdAt: <DateTimeAgo date={new Date(collection.createdAt)} />,
                 updatedAt: <DateTimeAgo date={new Date(collection.updatedAt)} />,
-                questions: collection.questions?.length || "0",
-                points: collection.questions?.reduce((acc, question) => acc + question.points, 0) || "0",
+                questions: collection.collectionToQuestions?.length || "0",
+                points: `${collection.collectionToQuestions?.reduce((acc, question) => acc + question.points, 0)} pts` || "0",
                 meta: {
                   key: collection.id,
                   linkHref: `/collections/${collection.id}`,
