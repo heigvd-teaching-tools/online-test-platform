@@ -15,8 +15,10 @@ import QuestionTypeIcon from "../../question/QuestionTypeIcon";
 import Image from "next/image";
 import DragHandleSVG from "../../layout/utils/DragHandleSVG";
 import ReorderableList from "../../layout/utils/ReorderableList";
+import {useRouter} from "next/router";
+import {useDebouncedCallback} from "use-debounce";
 
-const CollectionListItem = ({ question, index }) => {
+const CollectionListItem = ({ collectionToQuestion, index, onChange }) => {
     // display question icon, title, assign points and remove buttons
     return (
         <Paper variant={"outlined"}>
@@ -24,10 +26,10 @@ const CollectionListItem = ({ question, index }) => {
                 <Stack justifyContent={"center"} sx={{ cursor: "move" }} pt={3} pb={3} pl={2} pr={1}>
                     <DragHandleSVG />
                 </Stack>
-                <QuestionTypeIcon type={question.type} />
+                <QuestionTypeIcon type={collectionToQuestion.question.type} />
                 <Stack direction={"row"} alignItems={"center"} spacing={1} flexGrow={1} overflow={"hidden"} whiteSpace={"nowrap"}>
                     <Typography variant="body1"><b>Q{index + 1}</b></Typography>
-                    <Typography variant="body2">{question.title}</Typography>
+                    <Typography variant="body2">{collectionToQuestion.question.title}</Typography>
                 </Stack>
 
                 <Box minWidth={60} width={60}>
@@ -36,10 +38,16 @@ const CollectionListItem = ({ question, index }) => {
                         type="number"
                         width={50}
                         size={"small"}
-                        defaultValue={4}
+                        defaultValue={collectionToQuestion.points}
                         variant="standard"
                         InputLabelProps={{
                             shrink: true,
+                        }}
+                        onChange={(ev) => {
+                            onChange({
+                                ...collectionToQuestion,
+                                points: ev.target.value,
+                            });
                         }}
                     />
                 </Box>
@@ -58,38 +66,117 @@ const CollectionListItem = ({ question, index }) => {
 
 
 const PageCompose = () => {
+    const router = useRouter();
 
     const { group } = useGroup();
 
     const [ queryString, setQueryString ] = useState(undefined);
 
-    const { data:searchQuestions, error, mutate } = useSWR(
+    const { data:searchQuestions, mutate:mutateSearch } = useSWR(
         `/api/questions?${queryString ? (new URLSearchParams(queryString)).toString() : ''}`,
         group ? (...args) => fetch(...args).then((res) => res.json()) : null,
     );
 
-    const [ collection, setCollection ] = useState(searchQuestions);
+    const { data:collection, mutate:mutateCollection } = useSWR(
+        `/api/collections/${router.query.collectionId}/questions`,
+        group && router.query.collectionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    );
+
+    const [ collectionToQuestions, setCollectionToQuestions ] = useState([]);
 
     useEffect(() => {
         // if group changes, re-fetch questions
         if(group){
-            (async () => await mutate())();
+            (async () => await mutateCollection())();
+            (async () => await mutateSearch())();
         }
-    }, [group, mutate]);
+    }, [group, mutateSearch, mutateCollection]);
 
     useEffect(() => {
-        if(searchQuestions){
-            setCollection(searchQuestions);
+        if(collection){
+            setCollectionToQuestions(collection.collectionToQuestions);
         }
-    }, [searchQuestions]);
+    }, [collection]);
 
-    const onChangeCollectionOrder = useCallback((sourceIndex, targetIndex) => {
-        const reordered = [...collection];
+
+    const saveQuestionOrder = useCallback(async () => {
+        // save question order
+        // mutate collection
+        console.log("saveQuestionOrder", "collectionToQuestions", collectionToQuestions);
+        const response = await fetch(`/api/collections/${router.query.collectionId}/order`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                collectionToQuestions: collectionToQuestions
+            })
+        });
+
+    }, [collectionToQuestions, router.query.collectionId]);
+
+    const debounceSaveOrdering = useDebouncedCallback(saveQuestionOrder, 300);
+
+    const onChangeCollectionOrder = useCallback(async (sourceIndex, targetIndex) => {
+        const reordered = [...collectionToQuestions];
         const moved = reordered[sourceIndex];
+        moved.order = targetIndex;
+        reordered[targetIndex].order = sourceIndex;
         reordered[sourceIndex] = reordered[targetIndex];
         reordered[targetIndex] = moved;
-        setCollection(reordered);
-    }, [collection]);
+        setCollectionToQuestions(reordered);
+        await debounceSaveOrdering();
+    }, [collectionToQuestions, setCollectionToQuestions, debounceSaveOrdering]);
+
+    const saveCollectionToQuestion = useCallback(async (index, collectionToQuestion) => {
+        // save collectionToQuestion
+        // mutate collection
+        const response = await fetch(`/api/collections/${router.query.collectionId}/questions`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                collectionToQuestion,
+            })
+        })
+
+        if(response.ok){
+            await mutateCollection();
+        }
+
+    }, [router.query.collectionId, mutateCollection]);
+
+    const debouncheSaveCollectionToQuestion = useDebouncedCallback(saveCollectionToQuestion, 300);
+
+    const onCollectionToQuestionChange = useCallback(async (index, collectionToQuestion) => {
+        // update collectionToQuestion
+           // mutate collection
+        const newCollectionToQuestions = [...collectionToQuestions];
+        newCollectionToQuestions[index] = collectionToQuestion;
+        setCollectionToQuestions(newCollectionToQuestions);
+        await debouncheSaveCollectionToQuestion(index, collectionToQuestion);
+    }, [collectionToQuestions, setCollectionToQuestions, debouncheSaveCollectionToQuestion]);
+
+    const addQuestionToCollection = useCallback(async (question) => {
+        // add question to collection
+        // mutate collection
+        const response = await fetch(`/api/collections/${router.query.collectionId}/questions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                questionId: question.id,
+                collectionId: router.query.collectionId,
+            })
+        })
+
+        if(response.ok){
+            await mutateCollection();
+        }
+
+    }, [router.query.collectionId, mutateCollection]);
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
@@ -104,24 +191,21 @@ const PageCompose = () => {
             }>
                 <LayoutSplitScreen
                     leftPanel={
-                        <Stack
-                            spacing={2}
-                            padding={2}
-                            pr={0}
-                        >
+                        <Stack spacing={2} padding={2} pr={0}>
                             <ReorderableList onChangeOrder={onChangeCollectionOrder}>
-                                { collection && collection.map((question, index) =>
+                                { collectionToQuestions && collectionToQuestions.map((collectionToQuestion, index) =>
                                     <CollectionListItem
-                                        key={question.id}
+                                        key={collectionToQuestion.question.id}
                                         index={index}
-                                        question={question}
+                                        collectionToQuestion={collectionToQuestion}
+                                        onChange={(changedProperties) => onCollectionToQuestionChange(index, changedProperties)}
                                     />
                                 )}
                             </ReorderableList>
                         </Stack>
                     }
                     rightPanel={
-                        <Stack direction={"row"}>
+                        <Stack direction={"row"} height="100%">
                             <Box minWidth={"250px"}>
                                 <QuestionSearch onSearch={setQueryString} />
                             </Box>
@@ -129,18 +213,13 @@ const PageCompose = () => {
                                 <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
                                     <Typography variant="h6">Questions</Typography>
                                 </Stack>
-                                <Stack spacing={4}>
+                                <Stack spacing={4} overflow={"auto"} pl={1} pr={1}>
                                     {searchQuestions && searchQuestions.map((question) => (
-
                                         <QuestionListItem
                                             key={question.id}
                                             question={question}
                                             actions={[
-                                                <Button
-                                                    key={"add"}
-                                                    startIcon={<AddIcon />}
-                                                >Add to collection
-                                                </Button>
+                                                <Button key={"add"} startIcon={<AddIcon />} onClick={async () => await addQuestionToCollection(question)} >Add to collection</Button>
                                             ]}
                                         />
                                     ))}

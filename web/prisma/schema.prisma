@@ -110,7 +110,7 @@ model Collection {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  questions CollectionToQuestion[]
+  collectionToQuestions CollectionToQuestion[]
 
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String

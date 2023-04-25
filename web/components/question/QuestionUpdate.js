@@ -93,9 +93,9 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                             <Autocomplete
                                 multiple
                                 id="tags-outlined"
-                                options={question.questionToTag.map(questionToTag => questionToTag.tag)}
+                                options={question.questionToTag?.map(questionToTag => questionToTag.tag) || []}
                                 getOptionLabel={(option) => option.label}
-                                defaultValue={question.questionToTag.map(questionToTag => questionToTag.tag)}
+                                defaultValue={question.questionToTag?.map(questionToTag => questionToTag.tag) || []}
                                 filterSelectedOptions
                                 filterOptions={filterOptions}
                                 renderInput={(params) => (

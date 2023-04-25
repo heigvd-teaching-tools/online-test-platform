@@ -1,6 +1,6 @@
 import {useCallback, useState} from "react";
 
-const ReorderableList = ({ children, onChangeOrder }) => {
+const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
     const [ sourceIndex, setSourceIndex ] = useState(null);
     const handleDragStart = useCallback((e, index) => {
         setSourceIndex(index);
@@ -16,6 +16,9 @@ const ReorderableList = ({ children, onChangeOrder }) => {
 
     const handleDragEnd = useCallback((e, index) => {
         setSourceIndex(null);
+        if(onOrderEnd){
+            onOrderEnd(sourceIndex, index);
+        }
     }, [setSourceIndex]);
 
     return (

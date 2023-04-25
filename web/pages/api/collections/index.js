@@ -1,5 +1,6 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
 import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
+import {questionIncludeClause} from "../../../code/questions";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -31,7 +32,12 @@ const get = async (req, res) => {
 
     const collections = await prisma.collection.findMany({
         include: {
-            questions: true
+            collectionToQuestions: {
+
+                orderBy: {
+                    order: 'asc'
+                }
+            }
         },
         where: {
             groupId: group.id
