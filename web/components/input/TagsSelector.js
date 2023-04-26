@@ -39,7 +39,7 @@ const TagsSelector = ({ options, value, label = "Tags", color = "primary", size 
                     {...params}
                     label={label}
                     color={color}
-                    placeholder="Add tags"
+                    placeholder="+"
                 />
             )}
             onChange={onChangeValue}
