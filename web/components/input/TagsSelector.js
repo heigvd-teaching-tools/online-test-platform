@@ -28,7 +28,6 @@ const TagsSelector = ({ options, value, label = "Tags", color = "primary", size 
             filterOptions={filterOptions}
             freeSolo
             size={size}
-
             renderTags={(value, getTagProps) =>
                 value.map((option, index) => (
                     <Chip size={size} key={index} variant="outlined" label={option} {...getTagProps({ index })} />
