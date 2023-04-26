@@ -4,6 +4,7 @@ import QuestionTypeIcon from "../../question/QuestionTypeIcon";
 import LanguageIcon from "../../question/type_specific/code/LanguageIcon";
 import ContentEditor from "../../input/ContentEditor";
 import DateTimeAgo from "../../feedback/DateTimeAgo";
+import QuestionTagsViewer from "../../question/tags/QuestionTagsViewer";
 
 const markdownToText = (markdown) => {
     // Replace markdown headings with an empty string
@@ -60,7 +61,7 @@ const QuestionListItem = ({ question, actions = [] }) => {
                     )}
 
 
-
+                <QuestionTagsViewer size={"small"} tags={question.questionToTag} />
                 <Stack justifyContent={"space-between"} alignItems={"center"} direction={"row"} width="100%">
                     {actions}
                     <Box>

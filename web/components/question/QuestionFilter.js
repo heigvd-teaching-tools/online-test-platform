@@ -3,21 +3,26 @@ import {Box, Button, Checkbox, Stack, TextField, Typography} from "@mui/material
 
 import types from "./types.json";
 import languages from "../../code/languages.json";
+import {useTags} from "../../context/TagContext";
+import TagsSelector from "../input/TagsSelector";
 const environments = languages.environments;
 
 const initialFilters = {
     title: "",
     content: "",
+    tags: [],
     questionTypes: types.map((type) => type.value).reduce((obj, type) => ({ ...obj, [type]: true }), {}),
     codeLanguages: environments.map((language) => language.language).reduce((obj, language) => ({ ...obj, [language]: true }), {}),
 };
 
 const QuestionFilter = ({ onFilter }) => {
 
+    const { tags:allTags } = useTags();
+
     const [ filter, setFilter ] = useState(initialFilters);
 
-    const applyFilter = useCallback(async (toAppy) => {
-        const query = {...toAppy};
+    const applyFilter = useCallback(async (toApply) => {
+        const query = {...toApply};
         query.questionTypes = Object.keys(query.questionTypes).filter((key) => query.questionTypes[key]);
         if(!query.questionTypes.code) {
             delete query.codeLanguages;
@@ -53,6 +58,14 @@ const QuestionFilter = ({ onFilter }) => {
                 size="small"
                 value={filter.content}
                 onChange={(e) => setFilter({ ...filter, content: e.target.value })}
+            />
+
+            <TagsSelector
+                label={"Filter by tags"}
+                size={"small"}
+                options={allTags.map((tag) => tag.label)}
+                value={filter.tags}
+                onChange={(newTags) => setFilter({ ...filter, tags: newTags })}
             />
 
             <Typography variant="body2" color="info"> Question types </Typography>

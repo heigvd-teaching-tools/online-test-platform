@@ -35,10 +35,11 @@ const handler = async (req, res) => {
 
 const get = async (req, res) => {
     const group = await getUserSelectedGroup(req);
-    let { title, content, questionTypes, codeLanguages } = req.query;
-    questionTypes = questionTypes ? questionTypes.split(',').map(type => QuestionType[type]) : [];
+    let { title, content, tags, questionTypes, codeLanguages } = req.query;
 
+    questionTypes = questionTypes ? questionTypes.split(',').map(type => QuestionType[type]) : [];
     codeLanguages = codeLanguages ? codeLanguages.split(',') : [];
+    tags = tags ? tags.split(',') : [];
 
     const query = questionsWithIncludes({
         includeTypeSpecific: true,
@@ -61,6 +62,16 @@ const get = async (req, res) => {
     if(content) {
         where.where.content = {
             contains: content
+        }
+    }
+
+    if(tags.length > 0) {
+        where.where.questionToTag = {
+            some: {
+                label: {
+                    in: tags
+                }
+            }
         }
     }
 

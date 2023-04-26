@@ -12,7 +12,8 @@ import LoadingAnimation from "../feedback/LoadingAnimation";
 import {useSnackbar} from "../../context/SnackbarContext";
 
 import { createFilterOptions } from '@mui/material/Autocomplete';
-import QuestionTagSelector from "./QuestionTagSelector";
+import QuestionTagsSelector from "./tags/QuestionTagsSelector";
+import QuestionTagsViewer from "./tags/QuestionTagsViewer";
 
 const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) => {
     const { show: showSnackbar } = useSnackbar();
@@ -83,11 +84,8 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                                     content: content
                                 })}
                             />
-
                         </Stack>
-                        <QuestionTagSelector
-                            questionId={question.id}
-                        />
+                        <QuestionTagsSelector questionId={question.id} />
                         <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
                             <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => onQuestionDelete(question.id)}>Delete this question</Button>
                         </Stack>
