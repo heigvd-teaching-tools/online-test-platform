@@ -76,7 +76,7 @@ const PageList = () => {
                                 <Typography variant="h6">Questions</Typography>
                                 <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
                             </Stack>
-                            <Stack spacing={4}>
+                            <Stack spacing={4} pb={1}>
                                 {questions && questions.map((question) => (
                                     <QuestionListItem
                                         key={question.id}
