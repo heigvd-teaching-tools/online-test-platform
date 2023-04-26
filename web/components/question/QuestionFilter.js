@@ -1,4 +1,4 @@
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Box, Button, Checkbox, Stack, TextField, Typography} from "@mui/material";
 
 import types from "./types.json";

@@ -165,29 +165,30 @@ const PageCompose = () => {
                             </Stack>
                     }
                     rightPanel={
-                        collectionToQuestions && searchQuestions &&
                         <Stack direction={"row"} height="100%">
                             <Box minWidth={"250px"}>
                                 <QuestionFilter onFilter={setQueryString} />
                             </Box>
-                            <Stack spacing={2} padding={2} width={"100%"}>
-                                <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
-                                    <Typography variant="h6">Questions</Typography>
+                            { collectionToQuestions && searchQuestions &&
+                                <Stack spacing={2} padding={2} width={"100%"}>
+                                    <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
+                                        <Typography variant="h6">Questions</Typography>
+                                    </Stack>
+                                    <Stack spacing={4} overflow={"auto"} pl={1} pr={1} pb={1}>
+                                        { searchQuestions
+                                            .filter((question) => !collectionToQuestions.find((collectionToQuestion) => collectionToQuestion.question.id === question.id))
+                                            .map((question) => (
+                                                <QuestionListItem
+                                                    key={question.id}
+                                                    question={question}
+                                                    actions={[
+                                                        <Button key={"add"} startIcon={<AddIcon />} onClick={async () => await addCollectionToQuestion(question)} >Add to collection</Button>
+                                                    ]}
+                                                />
+                                        ))}
+                                    </Stack>
                                 </Stack>
-                                <Stack spacing={4} overflow={"auto"} pl={1} pr={1} pb={1}>
-                                    { searchQuestions
-                                        .filter((question) => !collectionToQuestions.find((collectionToQuestion) => collectionToQuestion.question.id === question.id))
-                                        .map((question) => (
-                                            <QuestionListItem
-                                                key={question.id}
-                                                question={question}
-                                                actions={[
-                                                    <Button key={"add"} startIcon={<AddIcon />} onClick={async () => await addCollectionToQuestion(question)} >Add to collection</Button>
-                                                ]}
-                                            />
-                                    ))}
-                                </Stack>
-                            </Stack>
+                            }
                         </Stack>
                     }
                 />
