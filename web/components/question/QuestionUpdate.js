@@ -12,14 +12,7 @@ import LoadingAnimation from "../feedback/LoadingAnimation";
 import {useSnackbar} from "../../context/SnackbarContext";
 
 import { createFilterOptions } from '@mui/material/Autocomplete';
-
-const filterOptions = createFilterOptions({
-    matchFrom: 'start',
-    ignoreCase: true,
-    ignoreAccents: true,
-    limit: 20, // suggestions limit
-    stringify: (option) => option.title,
-});
+import QuestionTagSelector from "./QuestionTagSelector";
 
 const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) => {
     const { show: showSnackbar } = useSnackbar();
@@ -90,23 +83,11 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                                     content: content
                                 })}
                             />
-                            <Autocomplete
-                                multiple
-                                id="tags-outlined"
-                                options={question.questionToTag?.map(questionToTag => questionToTag.tag) || []}
-                                getOptionLabel={(option) => option.label}
-                                defaultValue={question.questionToTag?.map(questionToTag => questionToTag.tag) || []}
-                                filterSelectedOptions
-                                filterOptions={filterOptions}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="tags"
-                                    />
-                                )}
-                            />
-                        </Stack>
 
+                        </Stack>
+                        <QuestionTagSelector
+                            questionId={question.id}
+                        />
                         <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
                             <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => onQuestionDelete(question.id)}>Delete this question</Button>
                         </Stack>

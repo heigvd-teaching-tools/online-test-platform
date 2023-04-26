@@ -102,7 +102,7 @@ const get = async (req, res) => {
         ...query,
         ...where
     });
-    console.log("where", where);
+
     res.status(200).json(questions);
 }
 

@@ -268,8 +268,7 @@ model Web {
 }
 
 model Tag {
-  id    String @id @default(cuid())
-  label String @unique
+  label String @unique @id
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -283,10 +282,10 @@ model Tag {
 model QuestionToTag {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId      String
+  tag        Tag      @relation(fields: [label], references: [label], onDelete: Cascade)
+  label      String
 
-  @@id([questionId, tagId])
+  @@id([questionId, label])
 }
 
 // Order is important here

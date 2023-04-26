@@ -13,6 +13,7 @@ import '@fontsource/roboto/700.css';
 
 import Authentication from '../components/security/Authentication';
 import {GroupProvider} from "../context/GroupContext";
+import {TagsProvider} from "../context/TagContext";
 
 export const themeOptions = {
   palette: {
@@ -80,17 +81,19 @@ const theme = createTheme(themeOptions);
 function MyApp({ Component, pageProps: { session, ...pageProps} }) {
   return (
     <ThemeProvider theme={theme}>
-      <SnackbarProvider >
-        <CssBaseline />
-        <Meta />
-        <SessionProvider session={session}>
-          <GroupProvider session={session}>
-            <Authentication>
-              <Component {...pageProps} />
-            </Authentication>
-          </GroupProvider>
-        </SessionProvider>
-      </SnackbarProvider>
+      <TagsProvider>
+        <SnackbarProvider >
+          <CssBaseline />
+          <Meta />
+          <SessionProvider session={session}>
+            <GroupProvider session={session}>
+              <Authentication>
+                <Component {...pageProps} />
+              </Authentication>
+            </GroupProvider>
+          </SessionProvider>
+        </SnackbarProvider>
+      </TagsProvider>
     </ThemeProvider>
   );
 }
