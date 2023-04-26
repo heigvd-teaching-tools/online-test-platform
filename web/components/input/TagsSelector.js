@@ -10,7 +10,7 @@ const filterOptions = createFilterOptions({
     stringify: (option) => option,
 });
 
-const TagsSelector = ({ label = "Tags", options, value, size = "medium", onChange }) => {
+const TagsSelector = ({ options, value, label = "Tags", color = "primary", size = "medium", onChange }) => {
     const onChangeValue = useCallback((event, newValue) => {
         if(onChange) {
             onChange(newValue);
@@ -28,6 +28,7 @@ const TagsSelector = ({ label = "Tags", options, value, size = "medium", onChang
             filterOptions={filterOptions}
             freeSolo
             size={size}
+
             renderTags={(value, getTagProps) =>
                 value.map((option, index) => (
                     <Chip size={size} key={index} variant="outlined" label={option} {...getTagProps({ index })} />
@@ -37,6 +38,7 @@ const TagsSelector = ({ label = "Tags", options, value, size = "medium", onChang
                 <TextField
                     {...params}
                     label={label}
+                    color={color}
                     placeholder="Add tags"
                 />
             )}

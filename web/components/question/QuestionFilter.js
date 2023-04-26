@@ -63,6 +63,7 @@ const QuestionFilter = ({ onFilter }) => {
             <TagsSelector
                 label={"Filter by tags"}
                 size={"small"}
+                color={"info"}
                 options={allTags.map((tag) => tag.label)}
                 value={filter.tags}
                 onChange={(newTags) => setFilter({ ...filter, tags: newTags })}
