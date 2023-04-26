@@ -103,7 +103,7 @@ const PageList = () => {
                 createdAt: <DateTimeAgo date={new Date(collection.createdAt)} />,
                 updatedAt: <DateTimeAgo date={new Date(collection.updatedAt)} />,
                 questions: collection.collectionToQuestions?.length || "0",
-                points: `${collection.collectionToQuestions?.reduce((acc, question) => acc + question.points, 0)} pts` || "0",
+                points: `${collection.collectionToQuestions?.reduce((acc, question) => acc + question.points, 0) || 0} pts` || "0",
                 meta: {
                   key: collection.id,
                   linkHref: `/collections/${collection.id}`,
@@ -118,9 +118,8 @@ const PageList = () => {
                     </IconButton>
                   )]
                 }
-              }))
-              }
-              />
+              }))}
+            />
           )}
             {collections && collections.length === 0 && (
                 <AlertFeedback severity="info">

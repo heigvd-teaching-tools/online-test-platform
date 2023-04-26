@@ -1,6 +1,6 @@
 import {PrismaClient, Role, QuestionType, StudentFilePermission} from '@prisma/client';
 import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
-import {questionIncludeClause, questionTypeSpecific} from "../../../code/questions";
+import {questionIncludeClause, questionsWithIncludes, questionTypeSpecific} from "../../../code/questions";
 
 import languages from '../../../code/languages.json';
 const environments = languages.environments;
@@ -35,16 +35,74 @@ const handler = async (req, res) => {
 
 const get = async (req, res) => {
     const group = await getUserSelectedGroup(req);
-    const questions = await prisma.question.findMany({
+    let { title, content, questionTypes, codeLanguages } = req.query;
+    questionTypes = questionTypes ? questionTypes.split(',').map(type => QuestionType[type]) : [];
+
+    codeLanguages = codeLanguages ? codeLanguages.split(',') : [];
+
+    const query = questionsWithIncludes({
+        includeTypeSpecific: true,
+        includeOfficialAnswers: true
+    });
+
+    let where = {
         where: {
             groupId: group.id
-        },
-        include: questionIncludeClause(true, true),
-        orderBy: {
-            updatedAt: 'desc'
         }
+    }
 
+    // use AND for title and content
+    if(title) {
+        where.where.title = {
+            contains: title
+        }
+    }
+
+    if(content) {
+        where.where.content = {
+            contains: content
+        }
+    }
+
+    // use OR for question types and code languages
+    if(questionTypes.length > 0) {
+        /*
+            in case the question type is code, we need to filter by the language of the code
+            why we need to do a separate OR entry to filter by language,
+            thus we must remove the code type from the questionTypes array in this OR entry
+        */
+        where.where.OR ? where.where.OR.push({
+            type:  {
+                in: questionTypes.filter(type => type !== QuestionType.code)
+            }
+        }) : where.where.OR = [{
+            type:  {
+                in: questionTypes.filter(type => type !== QuestionType.code)
+            }
+        }];
+    }
+
+    if(questionTypes.includes(QuestionType.code)) {
+        where.where.OR ? where.where.OR.push({
+            code: {
+                language: {
+                    in: codeLanguages
+                }
+            }
+        }) : where.where.OR = [{
+            code: {
+                language: {
+                    in: codeLanguages
+                }
+            }
+        }];
+    }
+
+    const questions = await prisma.question.findMany({
+        ...query,
+        ...where
     });
+    console.log("where", where);
     res.status(200).json(questions);
 }
 

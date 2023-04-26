@@ -4,7 +4,7 @@ import LayoutMain from '../../layout/LayoutMain';
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
 import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
-import QuestionSearch from "../../question/QuestionSearch";
+import QuestionFilter from "../../question/QuestionFilter";
 import MainMenu from "../../layout/MainMenu";
 import { Button, Stack, Typography} from "@mui/material";
 import {useSnackbar} from "../../../context/SnackbarContext";
@@ -13,7 +13,7 @@ import AddQuestionDialog from "../list/AddQuestionDialog";
 import QuestionListItem from "../list/QuestionListItem";
 import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
-import QuestionList from "../list/QuestionList";
+
 const PageList = () => {
     const router = useRouter();
 
@@ -67,7 +67,7 @@ const PageList = () => {
             }>
                 <LayoutSplitScreen
                     leftPanel={
-                        <QuestionSearch onSearch={setQueryString} />
+                        <QuestionFilter onFilter={setQueryString} />
                     }
                     rightWidth={70}
                     rightPanel={

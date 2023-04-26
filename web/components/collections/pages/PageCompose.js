@@ -5,7 +5,7 @@ import Authorisation from "../../security/Authorisation";
 import {Box, Button, IconButton, ListItem, Paper, Stack, TextField, Typography} from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Link from "next/link";
-import QuestionSearch from "../../question/QuestionSearch";
+import QuestionFilter from "../../question/QuestionFilter";
 import {useCallback, useEffect, useState} from "react";
 import useSWR from "swr";
 import {useGroup} from "../../../context/GroupContext";
@@ -71,7 +71,7 @@ const PageCompose = () => {
 
     }, [router.query.collectionId, mutateCollection]);
 
-    const saveQuestionOrder = useCallback(async () => {
+    const saveReOrder = useCallback(async () => {
         // save question order
         const response = await fetch(`/api/collections/${router.query.collectionId}/order`, {
             method: 'PUT',
@@ -89,7 +89,7 @@ const PageCompose = () => {
 
     const saveCollection = useCallback(async (updated) => {
         // save collection
-        const response = await fetch(`/api/collections/${router.query.collectionId}`, {
+        await fetch(`/api/collections/${router.query.collectionId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -98,12 +98,9 @@ const PageCompose = () => {
                 collection: updated
             })
         });
-        if(response.ok){
-            await mutateCollection(updated);
-        }
-    }, [router.query.collectionId, mutateCollection]);
+    }, [router.query.collectionId]);
 
-    const debounceSaveOrdering = useDebouncedCallback(saveQuestionOrder, 300);
+    const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300);
     const debounceSaveCollection = useDebouncedCallback(saveCollection, 300);
 
     const onChangeCollectionOrder = useCallback(async (sourceIndex, targetIndex) => {
@@ -118,9 +115,7 @@ const PageCompose = () => {
     }, [collectionToQuestions, setCollectionToQuestions, debounceSaveOrdering]);
 
     const onCollectionToQuestionChange = useCallback(async (index, collectionToQuestion) => {
-        const updated = [...collectionToQuestions];
-        updated[index] = collectionToQuestion;
-        await mutateCollection(updated);
+        collectionToQuestions[index] = collectionToQuestion;
     }, [collectionToQuestions, setCollectionToQuestions]);
 
     const onDeleteCollectionToQuestion = useCallback(async (index) => {
@@ -173,7 +168,7 @@ const PageCompose = () => {
                         collectionToQuestions && searchQuestions &&
                         <Stack direction={"row"} height="100%">
                             <Box minWidth={"250px"}>
-                                <QuestionSearch onSearch={setQueryString} />
+                                <QuestionFilter onFilter={setQueryString} />
                             </Box>
                             <Stack spacing={2} padding={2} width={"100%"}>
                                 <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
