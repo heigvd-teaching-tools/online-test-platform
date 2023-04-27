@@ -57,6 +57,7 @@ model User {
   studentAnswer     StudentAnswer[]
   gradingSignedBy   StudentQuestionGrading[]
   groups            UserOnGroup[]
+  groupsCreated     Group[]
 }
 
 enum Role {
@@ -87,7 +88,10 @@ model Group {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  admins      UserOnGroup[]
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+  createdById String?
+
+  members     UserOnGroup[]
   questions   Question[]
   collections Collection[]
   tags        Tag[]
@@ -268,7 +272,7 @@ model Web {
 }
 
 model Tag {
-  label String @unique @id
+  label String @id @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

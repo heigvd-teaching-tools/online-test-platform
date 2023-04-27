@@ -24,12 +24,25 @@ const Datagrid = ({ header, items }) => {
             </Row>
         </ListItem>
         { items && items.length > 0 && items.map((item) => (
-            item.meta && item.meta.linkHref ? (
-                <Link component="button" key={item.meta.key} href={item.meta.linkHref}>
-                    <a>
+            item.meta ? (
+                    (
+                        // list item is a link
+                        item.meta.linkHref &&
+                            <Link component="button" key={item.meta.key} href={item.meta.linkHref}>
+                                <a>
+                                    <ListItemContent item={item} header={header} />
+                                </a>
+                            </Link>
+                    ) || (
+                        // list item is a clickable
+                        item.meta.onClick &&
+                            <ListItem key={item.meta.key} onClick={item.meta.onClick}>
+                                <ListItemContent item={item} header={header} />
+                            </ListItem>
+                    ) || (
                         <ListItemContent item={item} header={header} />
-                    </a>
-                </Link>
+                    )
+
             ) : (
                 <ListItemContent item={item} header={header} />
             )

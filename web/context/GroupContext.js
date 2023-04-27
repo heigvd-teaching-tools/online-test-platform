@@ -19,7 +19,7 @@ export const GroupProvider = ({ children }) => {
         }
     }, [session]);
 
-    const changeGroup = useCallback(async (group) => {
+    const switchGroup = useCallback(async (group) => {
         // the session will change by the NextAuth callbacks once the data is updated in the database
         const response = await fetch('/api/users/groups/select', {
             method: 'PUT',
@@ -53,7 +53,7 @@ export const GroupProvider = ({ children }) => {
         <GroupContext.Provider value={{
             group,
             groups,
-            changeGroup
+            switchGroup
         }}>
             {children}
         </GroupContext.Provider>

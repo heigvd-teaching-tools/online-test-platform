@@ -41,7 +41,7 @@ const get = async (req, res) => {
     codeLanguages = codeLanguages ? codeLanguages.split(',') : [];
     tags = tags ? tags.split(',') : [];
 
-    const query = questionsWithIncludes({
+    const select = questionsWithIncludes({
         includeTypeSpecific: true,
         includeOfficialAnswers: true
     });
@@ -110,8 +110,11 @@ const get = async (req, res) => {
     }
 
     const questions = await prisma.question.findMany({
-        ...query,
-        ...where
+        ...select,
+        ...where,
+        orderBy: {
+            updatedAt: 'desc'
+        }
     });
 
     res.status(200).json(questions);
