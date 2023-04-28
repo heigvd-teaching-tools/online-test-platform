@@ -9,7 +9,14 @@ export const useTags = () => useContext(TagsContext);
 export const TagsProvider = ({ children }) => {
 
     const { data: tags, mutate, error } = useSWR(`/api/questions/tags`,
-        (...args) => fetch(...args).then((res) => res.json()),
+        async (url) => {
+            const response = await fetch(url);
+            if (!response.ok) {
+                return [];
+            }
+            const data = await response.json();
+            return data;
+        },
         { fallbackData: [] }
     );
 

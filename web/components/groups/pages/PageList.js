@@ -23,7 +23,7 @@ import AddMemberDialog from "../list/AddMemberDialog";
 
 const PageList = () => {
 
-  const { groups } = useGroup();
+  const { groups, mutate:mutateGroups } = useGroup();
 
   const { show: showSnackbar } = useSnackbar();
 
@@ -95,13 +95,13 @@ const PageList = () => {
           <AddGroupDialog
             open={addGroupDialogOpen}
             onClose={() => setAddGroupDialogOpen(false)}
-            onSuccess={() => {}}
+            onSuccess={async () => await mutateGroups()}
           />
         <AddMemberDialog
             group={group}
             open={addMemberDialogOpen}
             onClose={() => setAddMemberDialogOpen(false)}
-            onSuccess={() => {}}
+            onSuccess={async () => await mutate()} // force refresh
         />
 
 

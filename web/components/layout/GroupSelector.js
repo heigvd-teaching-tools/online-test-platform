@@ -18,13 +18,13 @@ const GroupSelector = () => {
                 variant={"filled"}
                 onChange={(label) => switchGroup(findGroup(label))}
             >
-                <Stack p={1}>
+                <Stack p={1} key={"groups-title"}>
                     <Typography variant={"h6"}>Your groups</Typography>
                 </Stack>
                 {groups.map((group) => (
                     <MenuItem key={group.id} value={group.label}>{group.label}</MenuItem>
                 ))}
-                <Stack p={1}>
+                <Stack p={1} key={"manage-groups"}>
                     <Link href={`/groups`}>
                         <Button startIcon={<GroupIcon />}>Manage Groups</Button>
                     </Link>

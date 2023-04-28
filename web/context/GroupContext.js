@@ -14,10 +14,38 @@ export const GroupProvider = ({ children }) => {
 
     useEffect(() => {
         if(session) {
-            setGroup(session.user.selected_group);
-            setGroups(session.user.groups.map(userToGroup => userToGroup.group));
+            if(!session.user.selected_group) {
+                // if the user has no selected group, select the first one
+                (async () => {
+                    const group = session.user.groups[0].group;
+                    await switchGroup(group);
+                    showSnackbar(`You have been assigned to the group ${group.label}`, 'info');
+                })();
+            }else{
+                setGroup(session.user.selected_group);
+                setGroups(session.user.groups.map(userToGroup => userToGroup.group));
+            }
         }
     }, [session]);
+
+    const mutate = async () => {
+        // refetch the groups
+        const response = await fetch('/api/users/groups', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if(!response.ok) {
+            const data = await response.json();
+            showSnackbar(data.message, 'error');
+            return;
+        }
+
+        const data = await response.json();
+        setGroups(data.map(userToGroup => userToGroup.group));
+    }
 
     const switchGroup = useCallback(async (group) => {
         // the session will change by the NextAuth callbacks once the data is updated in the database
@@ -53,7 +81,8 @@ export const GroupProvider = ({ children }) => {
         <GroupContext.Provider value={{
             group,
             groups,
-            switchGroup
+            switchGroup,
+            mutate
         }}>
             {children}
         </GroupContext.Provider>

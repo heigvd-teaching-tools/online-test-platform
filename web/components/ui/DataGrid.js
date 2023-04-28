@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { List, ListItem, Typography } from '@mui/material';
+import {Box, List, ListItem, Typography} from '@mui/material';
 
 import Row from '../layout/utils/Row';
 import Column from '../layout/utils/Column';
@@ -23,12 +23,12 @@ const Datagrid = ({ header, items }) => {
 
             </Row>
         </ListItem>
-        { items && items.length > 0 && items.map((item) => (
+        { items && items.length > 0 && items.map((item, index) => (
             item.meta ? (
                     (
                         // list item is a link
                         item.meta.linkHref &&
-                            <Link component="button" key={item.meta.key} href={item.meta.linkHref}>
+                            <Link key={index} component="button" key={item.meta.key} href={item.meta.linkHref}>
                                 <a>
                                     <ListItemContent item={item} header={header} />
                                 </a>
@@ -36,15 +36,15 @@ const Datagrid = ({ header, items }) => {
                     ) || (
                         // list item is a clickable
                         item.meta.onClick &&
-                            <ListItem key={item.meta.key} onClick={item.meta.onClick}>
+                            <Box key={index} onClick={item.meta.onClick}>
                                 <ListItemContent item={item} header={header} />
-                            </ListItem>
+                            </Box>
                     ) || (
-                        <ListItemContent item={item} header={header} />
+                        <ListItemContent key={index} item={item} header={header} />
                     )
 
             ) : (
-                <ListItemContent item={item} header={header} />
+                <ListItemContent key={index} item={item} header={header} />
             )
         ))}
       </List>
@@ -59,7 +59,7 @@ const ListItemContent = ({ item, header }) =>
                 if(index < header.columns.length && key !== 'meta') {
                     return (
                         <Column key={key} {...header.columns[index].column}>
-                            <Typography variant="body1">{item[key] || ""}</Typography>
+                            {item[key] || ""}
                         </Column>
                     )
                 }

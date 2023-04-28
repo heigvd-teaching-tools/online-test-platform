@@ -82,7 +82,7 @@ const PageList = () => {
                                         key={question.id}
                                         question={question}
                                         actions={[
-                                            <Button onClick={async () => {
+                                            <Button key={`action-update-${question.id}`} onClick={async () => {
                                                 await router.push(`/questions/${question.id}`);
                                             }} variant={"text"}>Update</Button>
                                         ]}

@@ -39,18 +39,20 @@ const put = async (req, res) => {
         return;
     }
 
-    // unselect the current group
-    await prisma.userOnGroup.update({
-        where: {
-            userId_groupId: {
-                userId: user.id,
-                groupId: currentUserToGroup.group.id
+    if(currentUserToGroup){
+        // unselect the current group
+        await prisma.userOnGroup.update({
+            where: {
+                userId_groupId: {
+                    userId: user.id,
+                    groupId: currentUserToGroup.group.id
+                }
+            },
+            data: {
+                selected: false
             }
-        },
-        data: {
-            selected: false
-        }
-    });
+        });
+    }
 
     // select the new group
     await prisma.userOnGroup.update({

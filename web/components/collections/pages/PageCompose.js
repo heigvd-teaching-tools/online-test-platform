@@ -137,32 +137,35 @@ const PageCompose = () => {
             }>
                 <LayoutSplitScreen
                     leftPanel={
-                        collection &&
-                            <Stack spacing={2} padding={2} pt={3} pr={0}>
-                                <TextField
-                                    label="Collection Label"
-                                    variant="outlined"
-                                    fullWidth
-                                    value={label}
-                                    onChange={async (ev) => {
-                                        setLabel(ev.target.value);
-                                        const updated = { ...collection };
-                                        updated.label = ev.target.value;
-                                        await debounceSaveCollection(updated);
-                                    }}
-                                />
-                                <ReorderableList onChangeOrder={onChangeCollectionOrder}>
-                                    { collectionToQuestions && collectionToQuestions.map((collectionToQuestion, index) =>
-                                        <CollectionToQuestion
-                                            key={collectionToQuestion.question.id}
-                                            index={index}
-                                            collectionToQuestion={collectionToQuestion}
-                                            onChange={(index, updates) => onCollectionToQuestionChange(index, updates)}
-                                            onDelete={(index) => onDeleteCollectionToQuestion(index)}
-                                        />
-                                    )}
-                                </ReorderableList>
-                            </Stack>
+                        <>{
+                            collection &&
+                                <Stack spacing={2} padding={2} pt={3} pr={0}>
+                                    <TextField
+                                        label="Collection Label"
+                                        variant="outlined"
+                                        fullWidth
+                                        value={label}
+                                        onChange={async (ev) => {
+                                            setLabel(ev.target.value);
+                                            const updated = { ...collection };
+                                            updated.label = ev.target.value;
+                                            await debounceSaveCollection(updated);
+                                        }}
+                                    />
+                                    <ReorderableList onChangeOrder={onChangeCollectionOrder}>
+                                        { collectionToQuestions && collectionToQuestions.map((collectionToQuestion, index) =>
+                                            <CollectionToQuestion
+                                                key={collectionToQuestion.question.id}
+                                                index={index}
+                                                collectionToQuestion={collectionToQuestion}
+                                                onChange={(index, updates) => onCollectionToQuestionChange(index, updates)}
+                                                onDelete={(index) => onDeleteCollectionToQuestion(index)}
+                                            />
+                                        )}
+                                    </ReorderableList>
+                                </Stack>
+                        }
+                        </>
                     }
                     rightPanel={
                         <Stack direction={"row"} height="100%">

@@ -68,11 +68,11 @@ const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
                   <Stack spacing={1} width={"400px"} maxHeight={"600px"} overflow={"auto"}>
                   {
                         members?.map(member => (
-                            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
-                            <UserAvatar
-                                key={member.id}
-                                user={member}
-                            />
+                            <Stack key={member.id} direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                                <UserAvatar
+                                    key={member.id}
+                                    user={member}
+                                />
                                 <IconButton onClick={async () => await handleAddMember(member)}>
                                     <PersonAddIcon />
                                 </IconButton>
