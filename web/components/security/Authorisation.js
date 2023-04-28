@@ -1,4 +1,5 @@
 import {signOut, useSession  } from "next-auth/react";
+import {Role} from "@prisma/client";
 import Unauthorized from "./Unauthorized";
 import {Button, Typography} from "@mui/material";
 import AddGroupDialog from "../groups/list/AddGroupDialog";
@@ -28,7 +29,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
         return <Unauthorized />
     }
 
-    if(!authorization.hasGroups){
+    if(authorization.hasRole && session.user.role === Role.PROFESSOR && !authorization.hasGroups){
         return <UnauthorizedMissingGroups
             onCreateGroup={() => {
                 /*
