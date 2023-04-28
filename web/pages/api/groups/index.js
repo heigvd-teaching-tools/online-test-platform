@@ -48,16 +48,13 @@ const post = async (req, res) => {
     } catch (e) {
         switch(e.code) {
             case 'P2002':
-                res.status(409).json({ message: 'Group already exists' });
+                res.status(409).json({ message: 'Unable to create group' });
                 break;
             default:
                 res.status(500).json({ message: 'Internal server error' });
         }
 
     }
-
-
-
 }
 
 export default handler;

@@ -20,9 +20,11 @@ const AddGroupDialog = ({ open, onClose, onSuccess }) => {
 
         if(response.status === 200){
             const group = await response.json();
-            onSuccess(group);
+            onSuccess && onSuccess(group);
         }else{
+
             const data = await response.json();
+            console.log(data.message);
             showSnackbar(data.message, 'error');
         }
     }, [onSuccess]);
