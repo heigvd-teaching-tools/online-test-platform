@@ -1,6 +1,6 @@
 import {PrismaClient, Role, QuestionType, StudentFilePermission} from '@prisma/client';
 import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
-import {questionIncludeClause, questionsWithIncludes, questionTypeSpecific} from "../../../code/questions";
+import {questionIncludeClause, questionTypeSpecific} from "../../../code/questions";
 
 import languages from '../../../code/languages.json';
 const environments = languages.environments;
@@ -41,14 +41,10 @@ const get = async (req, res) => {
     codeLanguages = codeLanguages ? codeLanguages.split(',') : [];
     tags = tags ? tags.split(',') : [];
 
-    const select = questionsWithIncludes({
-        includeTypeSpecific: true,
-        includeOfficialAnswers: true
-    });
-
     let where = {
         where: {
-            groupId: group.id
+            groupId: group.id,
+            jamSession: null,
         }
     }
 
@@ -110,8 +106,11 @@ const get = async (req, res) => {
     }
 
     const questions = await prisma.question.findMany({
-        ...select,
         ...where,
+        include: {
+            ...questionIncludeClause(true, true),
+            jamSession: true
+        },
         orderBy: {
             updatedAt: 'desc'
         }

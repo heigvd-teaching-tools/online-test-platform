@@ -1,7 +1,7 @@
 import { PrismaClient, Role } from '@prisma/client';
 
 import { questionIncludeClause } from '../../../../../../code/questions';
-import { hasRole } from '../../../../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../../../../utils/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -26,10 +26,14 @@ const handler = async (req, res) => {
 
 const get = async (req, res) => {
     const { jamSessionId } = req.query;
+    const group = await getUserSelectedGroup(req);
 
     const questions = await prisma.jamSessionToQuestion.findMany({
         where:{
-            jamSessionId: jamSessionId
+            jamSessionId: jamSessionId,
+            question: {
+                groupId: group.id
+            }
         },
         include: {
             question: {

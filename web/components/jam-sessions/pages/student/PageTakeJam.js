@@ -62,11 +62,11 @@ const PageTakeJam = () => {
 
     const [ page, setPage ] = useState(parseInt(pageId));
 
-    const [ questions, setQuestions ] = useState([]);
+    const [ jamToQuestions, setJamToQuestions ] = useState([]);
 
     useEffect(() => {
         if(userOnJamSession){
-            setQuestions(userOnJamSession.questions);
+            setJamToQuestions(userOnJamSession.jamSessionToQuestions);
         }
     }, [userOnJamSession]);
 
@@ -75,7 +75,7 @@ const PageTakeJam = () => {
     }, [pageId]);
 
 
-    const hasAnswered = useCallback((questionId) => questions.find(q => q.id === questionId)?.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED, [questions]);
+    const hasAnswered = useCallback((questionId) => jamToQuestions.find(jtq => jtq.question.id === questionId)?.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED, [jamToQuestions]);
 
     if(error) return <LoadingAnimation content={error.message} />
     if (!userOnJamSession) return <LoadingAnimation />
@@ -95,11 +95,11 @@ const PageTakeJam = () => {
                                     <JamSessionCountDown startDate={userOnJamSession.startAt} endDate={userOnJamSession.endAt} />
                                 </Box>
                             )}
-                            {questions && questions.length > 0 && (
+                            {jamToQuestions && jamToQuestions.length > 0 && (
                                 <QuestionPages
-                                    questions={questions}
-                                    activeQuestion={questions[page - 1]}
-                                    link={(_, index) => `/jam-sessions/${router.query.sessionId}/take/${index + 1}`}
+                                    questions={jamToQuestions.sort(jtq => jtq.order).map(jtq => jtq.question)}
+                                    activeQuestion={jamToQuestions[page - 1].question}
+                                    link={(_, index) => `/jam-sessions/${jamSessionId}/take/${index + 1}`}
                                     isFilled={hasAnswered}
                                 />
                             )}
@@ -108,32 +108,32 @@ const PageTakeJam = () => {
                     >
                     <LayoutSplitScreen
                         leftPanel={
-                            questions && questions.length > 0 && questions[page - 1] && (
+                            jamToQuestions && jamToQuestions.length > 0 && jamToQuestions[page - 1]?.question && (
                             <>
                                 <Box sx={{ height: 'calc(100% - 50px)' }}>
                                     <QuestionView
-                                        question={questions[page - 1]}
+                                        question={jamToQuestions[page - 1].question}
                                         page={page}
-                                        totalPages={questions.length}
+                                        totalPages={jamToQuestions.length}
                                     />
                                 </Box>
                                 <QuestionNav
                                     page={page}
-                                    totalPages={questions.length}
+                                    totalPages={jamToQuestions.length}
                                 />
                             </>
                         )}
                         rightPanel={
-                            questions && questions.length > 0 && questions.map((q, index) => (
+                            jamToQuestions && jamToQuestions.length > 0 && jamToQuestions.map((q, index) => (
                                 <Box height="100%" display={(index + 1 === page) ? 'block' : 'none'}>
                                     <ResizeObserverProvider>
                                         <AnswerEditor
-                                            question={questions[page - 1]}
+                                            question={q.question}
                                             onAnswer={(question, updatedStudentAnswer) => {
                                                 /* update the student answer status in memory */
                                                 question.studentAnswer[0].status = updatedStudentAnswer.status;
                                                 /* change the state to trigger a re-render */
-                                                setQuestions([...questions]);
+                                                setJamToQuestions([...jamToQuestions]);
                                             }}
                                         />
                                     </ResizeObserverProvider>

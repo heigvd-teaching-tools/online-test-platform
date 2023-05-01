@@ -142,7 +142,7 @@ const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
 
             let allOptions = answer.question.multipleChoice.options;
             let studentOptions = answer.multipleChoice?.options;
-
+            console.log("studentOptions", allOptions, studentOptions);
             setOptions(allOptions.map(option => {
                 return {
                     ...option,
@@ -154,6 +154,7 @@ const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
     }, [answer]);
 
     const onOptionChange = useCallback(async (index, options) => {
+        if(!index) return;
         const changedOption = options[index];
         const method = changedOption.isCorrect ? 'POST' : 'DELETE';
         const updatedStudentAnswer = await fetch(`/api/answer/${questionId}/multi-choice/options`, {
@@ -178,7 +179,7 @@ const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
 const AnswerTrueFalse = ({ questionId, onAnswerChange }) => {
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId }`,
+        `/api/answer/${questionId}`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 

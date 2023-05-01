@@ -1,5 +1,5 @@
 import { PrismaClient, Role, JamSessionPhase, QuestionType } from '@prisma/client';
-import { hasRole } from '../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
 import {questionIncludeClause, questionTypeSpecific} from '../../../code/questions';
 
 if (!global.prisma) {
@@ -17,7 +17,7 @@ const handler = async (req, res) => {
 
     switch(req.method) {
         case 'GET':
-            await get(res);
+            await get(res, req);
             break;
         case 'POST':
             await post(req, res);
@@ -26,9 +26,14 @@ const handler = async (req, res) => {
     }
 }
 
-const get = async (res) => {
+const get = async (res, req) => {
     // shallow session to question get -> we just need to count the number of questions
+    const group = await getUserSelectedGroup(req);
+
     const jams = await prisma.jamSession.findMany({
+        where: {
+            groupId: group.id
+        },
         include: {
             jamSessionToQuestions: true,
             students: true
@@ -39,6 +44,13 @@ const get = async (res) => {
 
 const post = async (req, res) => {
     const { label, conditions, duration, collectionId } = req.body;
+
+    const group = await getUserSelectedGroup(req);
+
+    if(!group){
+        res.status(400).json({ message: 'No group selected.' });
+        return;
+    }
 
     // select all questions from a collection
     const collectionToQuestions = await prisma.collectionToQuestion.findMany({
@@ -65,7 +77,12 @@ const post = async (req, res) => {
     let data = {
         phase: JamSessionPhase.DRAFT,
         label,
-        conditions
+        conditions,
+        group:{
+            connect: {
+                id: group.id
+            }
+        }
     }
 
     if(duration){

@@ -47,7 +47,7 @@ const get = async (req, res) => {
         },
         include: {
             question: {
-                select: { // we only need multiple choice because we need all the options (not only those selected by the student)
+                select: { // we only select multiple choice because we need the list of all options (not only those selected by the student)
                     multipleChoice: {
                         select: {
                             options: {

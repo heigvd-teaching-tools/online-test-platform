@@ -1,6 +1,5 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
-import {questionIncludeClause} from "../../../code/questions";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -29,6 +28,11 @@ const handler = async (req, res) => {
 const get = async (req, res) => {
 
     const group = await getUserSelectedGroup(req);
+
+    if(!group){
+        res.status(400).json({ message: 'No group selected.' });
+        return;
+    }
 
     const collections = await prisma.collection.findMany({
         include: {

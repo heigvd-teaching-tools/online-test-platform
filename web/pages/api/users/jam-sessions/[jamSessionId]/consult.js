@@ -1,6 +1,7 @@
-import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
+import { PrismaClient, Role, JamSessionPhase } from '@prisma/client';
 
 import { hasRole, getUser } from '../../../../../utils/auth';
+import { questionIncludeClause, IncludeStrategy } from '../../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -28,34 +29,36 @@ const get = async (req, res) => {
         return;
     }
 
-    const { sessionId } = req.query;
+    const { jamSessionId } = req.query;
     const { email } = await getUser(req);
     let include = { examSession: true };
 
     // control the phase of the collections session
-    const examSession = await prisma.examSession.findUnique({
-        where: { id: sessionId },
+    const jamSession = await prisma.jamSession.findUnique({
+        where: { id: jamSessionId },
         select: { phase: true }
     });
 
-    if(!examSession){
-        res.status(404).json({ message: 'Exam session not found' });
+    if(!jamSession){
+        res.status(404).json({ message: 'Jam session not found' });
         return;
     }
 
-    if(examSession.phase === ExamSessionPhase.IN_PROGRESS){
+    if(jamSession.phase === JamSessionPhase.FINISHED){
+        let includeClause = questionIncludeClause(true, false, {
+            strategy: IncludeStrategy.USER_SPECIFIC,
+            userEmail: email
+        }, true, false );
+
         include = {
-            examSession: {
+            jamSession: {
                 include: {
-                    questions: {
+                    jamSessionToQuestions: {
                         include: {
-                            studentAnswer: {
-                                where: { userEmail: email },
-                                select: {
-                                    status: true,
-                                }
+                            question: {
+                                include: includeClause
                             }
-                         },
+                        },
                         orderBy: {
                             order: 'asc'
                         }
@@ -65,21 +68,21 @@ const get = async (req, res) => {
         }
     }
 
-    const userOnExamSession = await prisma.userOnExamSession.findUnique({
+    const userOnJamSession = await prisma.userOnJamSession.findUnique({
         where: {
-            userEmail_examSessionId: {
+            userEmail_jamSessionId: {
                 userEmail: email,
-                examSessionId: sessionId
+                jamSessionId: jamSessionId
             }
         },
         include
     });
 
-    if(!userOnExamSession){
+    if(!userOnJamSession){
         res.status(403).json({ message: 'You are not allowed to access this collections session' });
         return;
     }
-    res.status(200).json(userOnExamSession.examSession);
+    res.status(200).json(userOnJamSession.jamSession);
 }
 
 export default handler;

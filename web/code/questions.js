@@ -22,7 +22,7 @@ export const questionsWithIncludes = ( {
 
 
     // including type specifics with or without official answers
-    let include = questionIncludeClause(includeTypeSpecific, includeOfficialAnswers);
+    let include = questionIncludeClause(includeTypeSpecific, includeOfficialAnswers, includeUserAnswers, includeGradings);
 
     /*  including user answers
         studentAnswer is returned as an array of answers -> one to many relationship
@@ -30,59 +30,24 @@ export const questionsWithIncludes = ( {
         For IncludeStrategy.ALL we will have an array with all the answers related to that questions
     */
 
-    if(includeUserAnswers) {
-
-        // no "where" for IncludeStrategy.ALL
-        let saWhere = includeUserAnswers.strategy === IncludeStrategy.USER_SPECIFIC ? {
-            userEmail: includeUserAnswers.userEmail
-        } : undefined;
-
-        include.studentAnswer = {
-            where: saWhere,
-            select: {
-                status: true,
-                code: {
-                    select: {
-                        files: {
-                            include: {
-                                file: true
-                            },
-                            orderBy: [{
-                                file: { createdAt: "asc" }
-                            },{
-                                file: { questionId: "asc" }
-                            }]
-                        },
-                        testCaseResults: true,
-                        allTestCasesPassed: true,
-                    }
-                },
-                multipleChoice: { select: { options: { select: { id: true, text: true } } } },
-                essay: { select: { content: true } },
-                trueFalse: true,
-                web: true,
-                user: true
-            }
-        };
-
-        // include gradings
-        if(includeGradings) {
-            include.studentAnswer.select.studentGrading = {
-                include: {
-                    signedBy: true
-                }
-            };
-        }
-    }
-
     return {
         where,
         include
     }
 }
 
-export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswers) => {
-    // including type specifics with or without official answers
+/* TODO: passe single JSON argument object instead of multiple parameters,
+create a json object containing default values and merge with the argument object
+
+ */
+export const questionIncludeClause = (
+    includeTypeSpecific = true,
+    includeOfficialAnswers = false,
+    includeUserAnswers = undefined,
+    includeGradings = false,
+    includeTags = true
+) => {
+    // include question related entities based on the specified context
 
     const typeSpecific = includeTypeSpecific ? {
         code: ({
@@ -140,15 +105,60 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
         web: true,
     } : {};
 
-    const include = {
-        questionToTag: {
+    let include = typeSpecific;
+
+    if(includeTags) {
+        include.questionToTag = {
             include: {
                 tag: true
             }
-        },
-        ...typeSpecific
+        }
     }
 
+    if(includeUserAnswers) {
+
+        // no "where" for IncludeStrategy.ALL
+        let saWhere = includeUserAnswers.strategy === IncludeStrategy.USER_SPECIFIC ? {
+            userEmail: includeUserAnswers.userEmail
+        } : undefined;
+
+        include.studentAnswer = {
+            where: saWhere,
+            select: {
+                status: true,
+                code: {
+                    select: {
+                        files: {
+                            include: {
+                                file: true
+                            },
+                            orderBy: [{
+                                file: { createdAt: "asc" }
+                            },{
+                                file: { questionId: "asc" }
+                            }]
+                        },
+                        testCaseResults: true,
+                        allTestCasesPassed: true,
+                    }
+                },
+                multipleChoice: { select: { options: { select: { id: true, text: true } } } },
+                essay: { select: { content: true } },
+                trueFalse: true,
+                web: true,
+                user: true
+            }
+        };
+
+        // include gradings
+        if(includeGradings) {
+            include.studentAnswer.select.studentGrading = {
+                include: {
+                    signedBy: true
+                }
+            };
+        }
+    }
 
     return include;
 }
@@ -161,6 +171,7 @@ export const questionIncludeClause = (includeTypeSpecific, includeOfficialAnswer
     also used to avoid injections
  */
 export const questionTypeSpecific = (questionType, question) => {
+    console.log(questionType, question);
     switch(questionType) {
         case QuestionType.trueFalse:
             return {
@@ -178,7 +189,14 @@ export const questionTypeSpecific = (questionType, question) => {
                     { text: 'Option 1', isCorrect: false },
                     { text: 'Option 2', isCorrect: true },
                 ]}
-            } : {}
+            } : {
+                options: {
+                    create: question.multipleChoice.options.map(option => ({
+                        text: option.text,
+                        isCorrect: option.isCorrect
+                    }))
+                }
+            }
         default:
             return {}
     }

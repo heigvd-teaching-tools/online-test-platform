@@ -1,6 +1,6 @@
 import { PrismaClient, Role, JamSessionPhase } from '@prisma/client';
 
-import { hasRole } from '../../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../../utils/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -136,17 +136,38 @@ const patch = async (req, res) => {
 }
 
 const del = async (req, res) => {
-    const isProf = await hasRole(req, Role.PROFESSOR);
-    if(!isProf){
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
-    }
-    const { jamSessionId } = req.query
-    await prisma.jamSession.delete({
+
+    const { jamSessionId } = req.query;
+
+    const group = await getUserSelectedGroup(req);
+
+    // get all the questions related to this jam session
+    const jstqs = await prisma.jamSessionToQuestion.findMany({
         where: {
-            id: jamSessionId
+            jamSessionId: jamSessionId
         }
     });
+
+    const questionIds = jstqs.map(jstq => jstq.questionId);
+
+    await prisma.$transaction(async (prisma) => {
+        // delete all the questions related to this jam session
+        await prisma.question.deleteMany({
+            where: {
+                id: {
+                    in: questionIds
+                },
+                groupId: group.id
+            }
+        });
+        await prisma.jamSession.delete({
+            where: {
+                id: jamSessionId
+            }
+        });
+    });
+
+
     res.status(200).json({ message: 'Jam session deleted' });
 }
 

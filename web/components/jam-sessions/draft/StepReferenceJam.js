@@ -9,7 +9,7 @@ const StepReferenceJam = ({ jamSession, onChange }) => {
     const [ selectedCollection, setSelectedCollection ] = useState(null);
     const [ input, setInput ] = useState('');
 
-    const { data: collections  } = useSWR(
+    const { data: collections } = useSWR(
         `/api/collections`,
         (...args) => fetch(...args).then((res) => res.json())
     );

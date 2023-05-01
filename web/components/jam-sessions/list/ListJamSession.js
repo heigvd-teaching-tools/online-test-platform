@@ -13,7 +13,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) =>
             createdAt: displayDateTime(jamSession.createdAt),
             updatedAt: displayDateTime(jamSession.updatedAt),
             questions: jamSession.jamSessionToQuestions.length,
-            students: jamSession.jamSessionToQuestions.length,
+            students: jamSession.students.length,
             phase:
                 <Stack direction="row" spacing={1} sx={{ width:'100%' }}>
                     <DisplayPhase phase={jamSession.phase} />
@@ -38,7 +38,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) =>
                             <Image alt="Analytics" src="/svg/icons/analytics.svg" layout="fixed" width="18" height="18" />
                         </IconButton>
                         </Link>
-                        <IconButton key="delete-exam" onClick={(ev) => onDelete(ev, jamSession)}>
+                        <IconButton key="delete-jam-session" onClick={(ev) => onDelete(ev, jamSession)}>
                             <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
                         </IconButton>
                     </>

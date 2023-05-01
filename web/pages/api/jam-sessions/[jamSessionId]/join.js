@@ -4,7 +4,7 @@ import { hasRole } from '../../../../utils/auth';
 import { grading } from '../../../../code/grading';
 import { phaseGT } from "../../../../code/phase";
 
-import { questionsWithIncludes } from '../../../../code/questions';
+import {questionIncludeClause, questionsWithIncludes} from '../../../../code/questions';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -79,15 +79,23 @@ const post = async (req, res) => {
         }
     });
 
-    let query = questionsWithIncludes({
-        parentResource: 'jamSession',
-        parentResourceId: jamSessionId,
-        includeTypeSpecific: true
+    const jamSessionToQuestions = await prisma.jamSessionToQuestion.findMany({
+        where:{
+            jamSessionId: jamSessionId
+        },
+        include: {
+            question: {
+                include: questionIncludeClause(true, false)
+            }
+        },
+        orderBy: {
+            order: 'asc'
+        }
     });
 
-    // add empty answers and gradings for each questions
-    const questions = await prisma.question.findMany(query);
+    const questions = jamSessionToQuestions.map(jamSessionToQuestion => jamSessionToQuestion.question);
 
+    // add empty answers and gradings for each questions
     const transaction = [];
 
     for (const question of questions) {

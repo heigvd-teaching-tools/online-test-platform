@@ -10,10 +10,10 @@ const QuestionPages = ({ questions, activeQuestion, link, isFilled }) => {
             scrollButtons="auto"
             onChange={(e, index) => router.push(link(questions[index].id, index))}
         >
-            {questions.map(({id, order}, index) => (
+            {questions.map(({id}, index) => (
                 <Tab
                     key={id}
-                    label={`Q${order + 1}`}
+                    label={`Q${index + 1}`}
                     iconPosition="start"
                     sx={{ minHeight: '50px', minWidth: 0 }}
                     value={index}

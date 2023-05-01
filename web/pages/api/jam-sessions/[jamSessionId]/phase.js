@@ -1,4 +1,4 @@
-import { PrismaClient, Role, ExamSessionPhase } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 import { hasRole } from '../../../../utils/auth';
 
@@ -26,7 +26,7 @@ const handler = async (req, res) => {
 
 const get = async (req, res) => {
     const { jamSessionId } = req.query;
-    const exam = await prisma.examSession.findUnique({
+    const exam = await prisma.jamSession.findUnique({
         where: {
             id: jamSessionId
         },

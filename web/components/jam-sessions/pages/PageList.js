@@ -54,7 +54,7 @@ const JamSessions = () => {
         await router.push(`/jam-sessions/${selected.id}/in-progress`);
     }
 
-    const archiveExamSession = async () => {
+    const archiveJamSession = async () => {
         await fetch(`/api/jam-sessions/${selected.id}`, {
             method: 'PATCH',
             body: JSON.stringify({ status: JamSessionStatus.ARCHIVED }),
@@ -75,7 +75,7 @@ const JamSessions = () => {
         setSelected(null);
     }
 
-    const deleteExamSession = async () => {
+    const deleteJamSession = async () => {
         await fetch(`/api/jam-sessions/${selected.id}`, {
             method: 'DELETE',
         })
@@ -140,14 +140,14 @@ const JamSessions = () => {
               title="Archive this jam session"
               content="Are you sure you want to archive this jam session?"
               onClose={() => setArchiveDialogOpen(false)}
-              onConfirm={archiveExamSession}
+              onConfirm={archiveJamSession}
           />
           <DialogFeedback
               open={deleteDialogOpen}
               title="Delete this jam session"
               content="Are you sure you want to delete this jam session?"
               onClose={() => setDeleteDialogOpen(false)}
-              onConfirm={deleteExamSession}
+              onConfirm={deleteJamSession}
           />
           <DialogFeedback
               open={endOfDraftDialogOpen}

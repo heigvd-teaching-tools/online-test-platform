@@ -1,5 +1,4 @@
 import { PrismaClient, Role } from '@prisma/client';
-import {questionIncludeClause, questionsWithIncludes} from '../../../../../code/questions';
 import { hasRole, getUserSelectedGroup } from '../../../../../utils/auth';
 
 if (!global.prisma) {
@@ -16,7 +15,9 @@ const handler = async (req, res) => {
     }
 
     switch(req.method) {
-
+        case 'GET':
+            await get(req, res);
+            break;
         case 'POST':
             await post(req, res);
             break;
@@ -31,6 +32,29 @@ const handler = async (req, res) => {
     }
 }
 
+const get = async (req, res) => {
+    // get all questions in a collection, only shallow question data for counting purposes
+    const { collectionId } = req.query;
+
+    const group = await getUserSelectedGroup(req);
+
+    const questions = await prisma.collectionToQuestion.findMany({
+        where: {
+            collectionId: collectionId,
+            collection: {
+                groupId: group.id
+            }
+        },
+        include: {
+            question: true
+        },
+        orderBy: {
+            order: 'asc'
+        }
+    });
+
+    res.status(200).json(questions);
+}
 
 const post = async (req, res) => {
     // add a new question to a collection
