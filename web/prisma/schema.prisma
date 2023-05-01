@@ -53,11 +53,11 @@ model User {
   sessions      Session[]
   role          Role      @default(STUDENT)
 
-  userOnExamSession UserOnExamSession[]
-  studentAnswer     StudentAnswer[]
-  gradingSignedBy   StudentQuestionGrading[]
-  groups            UserOnGroup[]
-  groupsCreated     Group[]
+  userOnJamSession UserOnJamSession[]
+  studentAnswer    StudentAnswer[]
+  gradingSignedBy  StudentQuestionGrading[]
+  groups           UserOnGroup[]
+  groupsCreated    Group[]
 }
 
 enum Role {
@@ -91,7 +91,8 @@ model Group {
   createdBy   User?   @relation(fields: [createdById], references: [id])
   createdById String?
 
-  members     UserOnGroup[]
+  members UserOnGroup[]
+
   questions   Question[]
   collections Collection[]
   tags        Tag[]
@@ -147,18 +148,14 @@ model Question {
   code           Code?
   web            Web?
 
-  questionToCollection CollectionToQuestion[]
-
-  // still a one to one relation
-  // we create a copy of a question for a particular session
-  examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
-  examSessionId String?
+  collection CollectionToQuestion[]
 
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
 
-  studentAnswer StudentAnswer[]
-  questionToTag QuestionToTag[]
+  studentAnswer        StudentAnswer[]
+  questionToTag        QuestionToTag[]
+  jamSession           JamSessionToQuestion[]
 }
 
 model MultipleChoice {
@@ -293,7 +290,7 @@ model QuestionToTag {
 }
 
 // Order is important here
-enum ExamSessionPhase {
+enum JamSessionPhase {
   NEW
   DRAFT
   IN_PROGRESS
@@ -301,20 +298,20 @@ enum ExamSessionPhase {
   FINISHED
 }
 
-enum ExamSessionStatus {
+enum JamSessionStatus {
   ACTIVE
   ARCHIVED
 }
 
-model ExamSession {
+model JamSession {
   id String @id @default(cuid())
 
-  label      String?           @unique
+  label      String?          @unique
   conditions String?
-  status     ExamSessionStatus @default(ACTIVE)
-  phase      ExamSessionPhase  @default(DRAFT)
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
+  status     JamSessionStatus @default(ACTIVE)
+  phase      JamSessionPhase  @default(DRAFT)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   durationHours Int? @default(0)
   durationMins  Int? @default(0)
@@ -322,22 +319,35 @@ model ExamSession {
   startAt DateTime?
   endAt   DateTime?
 
-  students  UserOnExamSession[]
-  questions Question[]
+  students              UserOnJamSession[]
+  jamSessionToQuestions JamSessionToQuestion[]
 }
 
-model UserOnExamSession {
+model JamSessionToQuestion {
+  jamSession   JamSession @relation(fields: [jamSessionId], references: [id], onDelete: Cascade)
+  jamSessionId String
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+
+  points Int @default(0)
+  order  Int @default(0)
+
+  @@id([jamSessionId, questionId])
+}
+
+model UserOnJamSession {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
 
-  examSession   ExamSession @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
-  examSessionId String
+  session   JamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
 
   registeredAt DateTime @default(now())
 
   score Int @default(0)
 
-  @@id([userEmail, examSessionId])
+  @@id([userEmail, sessionId])
 }
 
 enum StudentAnswerStatus {

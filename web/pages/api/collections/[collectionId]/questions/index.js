@@ -16,6 +16,7 @@ const handler = async (req, res) => {
     }
 
     switch(req.method) {
+
         case 'POST':
             await post(req, res);
             break;
@@ -29,6 +30,7 @@ const handler = async (req, res) => {
             res.status(405).json({ message: 'Method not allowed' });
     }
 }
+
 
 const post = async (req, res) => {
     // add a new question to a collection

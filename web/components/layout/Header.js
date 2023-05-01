@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import UserAvatar from './UserAvatar';
 import UserContextMenu from './UserContextMenu';
 import Logo from './Logo';
-import GroupSelector from "./GroupSelector";
 
 const Header = ({children, color}) => {
     const { data: session } = useSession();

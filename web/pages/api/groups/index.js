@@ -19,10 +19,12 @@ const handler = async (req, res) => {
             await post(req, res);
             break;
         default:
+            res.status(405).json({ message: 'Method not allowed' });
     }
 }
 
 const post = async (req, res) => {
+    // create a new group
     const { label } = req.body;
 
     const user = await getUser(req);
@@ -47,7 +49,7 @@ const post = async (req, res) => {
     } catch (e) {
         switch(e.code) {
             case 'P2002':
-                res.status(409).json({ message: 'Unable to create group' });
+                res.status(409).json({ message: 'A group with that label already exists' });
                 break;
             default:
                 res.status(500).json({ message: 'Internal server error' });

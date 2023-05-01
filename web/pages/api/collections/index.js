@@ -33,7 +33,6 @@ const get = async (req, res) => {
     const collections = await prisma.collection.findMany({
         include: {
             collectionToQuestions: {
-
                 orderBy: {
                     order: 'asc'
                 }

@@ -63,8 +63,6 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
 const AnswerCode  = ({ questionId, onAnswerChange }) => {
 
-    const { showTopRight: showSnackbar } = useSnackbar();
-
     const { data: answer } = useSWR(
         `/api/answer/${questionId }`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
@@ -130,10 +128,9 @@ const AnswerCode  = ({ questionId, onAnswerChange }) => {
 }
 
 const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
-    const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId }`,
+        `/api/answer/${questionId}`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
@@ -179,7 +176,6 @@ const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
 }
 
 const AnswerTrueFalse = ({ questionId, onAnswerChange }) => {
-    const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data: answer } = useSWR(
         `/api/answer/${questionId }`,
@@ -211,7 +207,6 @@ const AnswerTrueFalse = ({ questionId, onAnswerChange }) => {
 }
 
 const AnswerEssay = ({ questionId, onAnswerChange }) => {
-    const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data: answer } = useSWR(
         `/api/answer/${questionId }`,
@@ -243,7 +238,6 @@ const AnswerEssay = ({ questionId, onAnswerChange }) => {
 }
 
 const AnswerWeb = ({ questionId, onAnswerChange }) => {
-    const { showTopRight: showSnackbar } = useSnackbar();
 
     const { data: answer } = useSWR(
         `/api/answer/${questionId }`,

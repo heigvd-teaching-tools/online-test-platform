@@ -10,7 +10,7 @@ import LoadingAnimation from '../../feedback/LoadingAnimation';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
-import QuestionPages from "../../sessions/take/QuestionPages";
+import QuestionPages from "../../jam-sessions/take/QuestionPages";
 import QuestionUpdate from "../../question/QuestionUpdate";
 
 import Link from "next/link";

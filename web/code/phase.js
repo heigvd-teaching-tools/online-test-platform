@@ -1,5 +1,5 @@
-import { ExamSessionPhase } from '@prisma/client';
+import { JamSessionPhase } from '@prisma/client';
 
 export const phaseGT = (a, b) => {
-    return Object.keys(ExamSessionPhase).indexOf(a) > Object.keys(ExamSessionPhase).indexOf(b);
+    return Object.keys(JamSessionPhase).indexOf(a) > Object.keys(JamSessionPhase).indexOf(b);
 }

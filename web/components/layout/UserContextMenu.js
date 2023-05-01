@@ -1,10 +1,9 @@
 import { Menu, Button, Stack } from '@mui/material';
 import LockClosedIcon from '@mui/icons-material/Lock';
 import GroupIcon from '@mui/icons-material/Group';
-import {signOut, useSession} from 'next-auth/react';
+import {signOut} from 'next-auth/react';
 import Link from "next/link";
 const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
-    const { data: session } = useSession();
     return(
         <Menu
             sx={{ mt: '40px' }}

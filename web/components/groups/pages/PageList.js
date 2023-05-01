@@ -1,39 +1,30 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import useSWR from 'swr';
-import Image from 'next/image';
-
 import LayoutMain from '../../layout/LayoutMain';
-import {Box, Button, IconButton, Stack, Typography} from '@mui/material';
-import { useSnackbar } from '../../../context/SnackbarContext';
-import DataGrid from '../../ui/DataGrid';
-import DialogFeedback from '../../feedback/DialogFeedback';
+import {Box, Button, Chip, IconButton, Stack, Typography} from '@mui/material';
 
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
-import MainMenu from "../../layout/MainMenu";
-import DateTimeAgo from "../../feedback/DateTimeAgo";
 import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
 import Link from "next/link";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen";
-import UserAvatar from "../../layout/UserAvatar";
+
 import AddGroupDialog from "../list/AddGroupDialog";
 import AddMemberDialog from "../list/AddMemberDialog";
+import MyGroupsGrid from "../list/MyGroupsGrid";
+import GroupMembersGrid from "../list/GroupMembersGrid";
 
 const PageList = () => {
 
   const { groups, mutate:mutateGroups } = useGroup();
 
-  const { show: showSnackbar } = useSnackbar();
-
   const [ selectedGroup, setSelectedGroup ] = useState();
 
   const [ addGroupDialogOpen, setAddGroupDialogOpen ] = useState(false);
+
   const [ addMemberDialogOpen, setAddMemberDialogOpen ] = useState(false);
-
-
-  const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false);
 
   const { data:group, error, mutate } = useSWR(
     `/api/groups/${selectedGroup && selectedGroup.id}/members`,
@@ -45,6 +36,13 @@ const PageList = () => {
         setSelectedGroup(groups[0]);
     }
   }, [groups]);
+
+  const onGroupsLeaveOrDelete = useCallback(async (groupId) => {
+      if(selectedGroup && selectedGroup.id === groupId){
+          setSelectedGroup(null);
+      }
+      await mutateGroups();
+  }, [selectedGroup, setSelectedGroup, mutateGroups]);
 
   return (
       <Authorisation allowRoles={[ Role.PROFESSOR ]}>
@@ -69,6 +67,8 @@ const PageList = () => {
                     <MyGroupsGrid
                         groups={groups}
                         onSelected={(group) => setSelectedGroup(group)}
+                        onLeave={async (groupId) => await onGroupsLeaveOrDelete(groupId)}
+                        onDelete={async (groupId) => await onGroupsLeaveOrDelete(groupId)}
                     />
                 </>
                 }
@@ -92,17 +92,17 @@ const PageList = () => {
                 }
             />
 
-          <AddGroupDialog
-            open={addGroupDialogOpen}
-            onClose={() => setAddGroupDialogOpen(false)}
-            onSuccess={async () => await mutateGroups()}
-          />
-        <AddMemberDialog
-            group={group}
-            open={addMemberDialogOpen}
-            onClose={() => setAddMemberDialogOpen(false)}
-            onSuccess={async () => await mutate()} // force refresh
-        />
+            <AddGroupDialog
+                open={addGroupDialogOpen}
+                onClose={() => setAddGroupDialogOpen(false)}
+                onSuccess={async () => await mutateGroups()}
+            />
+            <AddMemberDialog
+                group={group}
+                open={addMemberDialogOpen}
+                onClose={() => setAddMemberDialogOpen(false)}
+                onSuccess={async () => await mutate()} // force refresh
+            />
 
 
         </LayoutMain>
@@ -111,93 +111,5 @@ const PageList = () => {
 }
 
 
-const myGroupsGridHeader = {
-
-    actions: {
-        label: '',
-        width: '80px',
-    },
-    columns: [
-        {
-            label: 'Group',
-            column: { flexGrow: 1, }
-        }
-    ]
-};
-const MyGroupsGrid = ({ groups, onSelected }) => {
-    return (
-        <Box sx={{ minWidth:'100%', pl:2, pr:2 }}>
-            {groups && groups.length > 0 && (
-                <DataGrid
-                    header={myGroupsGridHeader}
-                    items={groups.map(group => ({
-                        label: group.label,
-                        meta: {
-                            key: group.id,
-                            onClick: () => onSelected(group),
-                            actions:  [(
-                                <IconButton key="delete-group" onClick={(ev) => {
-                                    ev.preventDefault();
-                                    ev.stopPropagation();
-
-                                }}>
-                                    <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
-                                </IconButton>
-                            )]
-                        }
-                    }))}
-                />
-            )}
-            {groups && groups.length === 0 && (
-                <AlertFeedback severity="info">
-                    <Typography variant="body1">You are not a member of any groups.</Typography>
-                </AlertFeedback>
-            )}
-        </Box>
-    )
-}
-
-const groupMembersGridHeader = {
-    actions: {
-        label: '',
-        width: '80px',
-    },
-    columns: [
-        {
-            label: 'Member',
-            column: { flexGrow: 1, }
-        }]
-}
-
-const GroupMembersGrid = ({ group }) => {
-    return (
-        <Box sx={{ minWidth:'100%', pl:2, pr:2 }}>
-            {group && group.members && group.members.length > 0 && (
-                <DataGrid
-                    header={groupMembersGridHeader}
-                    items={group.members.map(member => ({
-                        member: <UserAvatar user={member.user} />,
-                        meta: {
-                            key: member.userId,
-                            actions:  [(
-                                <IconButton key="delete-group" onClick={(ev) => {
-                                    ev.preventDefault();
-                                    ev.stopPropagation();
-                                }}>
-                                    <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
-                                </IconButton>
-                            )]
-                        }
-                    }))}
-                />
-            )}
-            {group && group.members && group.members.length === 0 && (
-                <AlertFeedback severity="info">
-                    <Typography variant="body1">There are no members in this group.</Typography>
-                </AlertFeedback>
-            )}
-        </Box>
-    )
-}
 
 export default PageList;

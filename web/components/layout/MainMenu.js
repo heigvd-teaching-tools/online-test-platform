@@ -28,8 +28,8 @@ const mainPaths = [{
     path: "collections",
     label: "Collections"
 },{
-    path: "sessions",
-    label: "Sessions"
+    path: "jam-sessions",
+    label: "Jam Sessions"
 }];
 
 export default MainMenu;
