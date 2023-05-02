@@ -45,6 +45,13 @@ export const GroupProvider = ({ children }) => {
 
         const data = await response.json();
         setGroups(data.map(userToGroup => userToGroup.group));
+        const selected_group = data.find(userToGroup => userToGroup.selected)?.group;
+        if(selected_group) {
+            setGroup(selected_group);
+        }else{
+            // this might happen when the user creates a new group
+            await switchGroup(data[0].group);
+        }
     }
 
     const switchGroup = useCallback(async (group) => {

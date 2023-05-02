@@ -1,9 +1,9 @@
 import { PrismaClient, Role, StudentAnswerStatus, QuestionType } from '@prisma/client';
 
 import { getSession } from 'next-auth/react';
-import { hasRole } from '../../../../utils/auth';
-import {isInProgress} from "../utils";
-import {grading} from "../../../../code/grading";
+import { hasRole } from '../../../../../../../utils/auth';
+import {isInProgress} from "./utils";
+import {grading} from "../../../../../../../code/grading";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -37,7 +37,7 @@ const get = async (req, res) => {
     const studentEmail = session.user.email;
     const { questionId } = req.query;
 
-    // get the student answer for a question including related nested data
+    // get the student answers for a question including related nested data
     const studentAnswer = await prisma.studentAnswer.findUnique({
         where: {
             userEmail_questionId: {
@@ -68,7 +68,7 @@ const get = async (req, res) => {
     });
 
     if(!studentAnswer) {
-        res.status(404).json({ message: 'Student answer not found' });
+        res.status(404).json({ message: 'Student answers not found' });
         return;
     }
 
@@ -77,10 +77,10 @@ const get = async (req, res) => {
 
 
 /*
- endpoint to handle student answer related to all single level question types (without complex nesting) [true false, essay, web]
+ endpoint to handle student answers related to all single level question types (without complex nesting) [true false, essay, web]
 */
 const put = async (req, res) => {
-    // update student answer
+    // update student answers
     const session = await getSession({ req });
     const studentEmail = session.user.email;
     const { questionId } = req.query;
@@ -110,7 +110,7 @@ const put = async (req, res) => {
 
     const transaction = []; // to do in single transaction, queries are done in order
 
-    // update the status of the student answer
+    // update the status of the student answers
     transaction.push(
         prisma.studentAnswer.update({
             where: {
@@ -125,7 +125,7 @@ const put = async (req, res) => {
         })
     );
 
-    // update the typeSpecific student answer
+    // update the typeSpecific student answers
 
     const { answer: data, grading, model } = prepareAnswer(question, answer);
 
@@ -178,7 +178,7 @@ const put = async (req, res) => {
 }
 
 /*
-    prepare the answer and grading for the student answer and select the correct model to update
+    prepare the answers and grading for the student answers and select the correct model to update
     this function also insures that no other fields or related entities are changed by the client
 */
 const prepareAnswer = (question, answer) => {

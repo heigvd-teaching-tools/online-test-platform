@@ -1,9 +1,9 @@
 import { PrismaClient, Role, StudentAnswerStatus } from '@prisma/client';
 
 import { getSession } from 'next-auth/react';
-import { hasRole } from '../../../../../utils/auth';
-import {isInProgress} from "../../utils";
-import { grading } from '../../../../../code/grading';
+import { hasRole } from '../../../../../../../../utils/auth';
+import {isInProgress} from "../utils";
+import { grading } from '../../../../../../../../code/grading';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -33,29 +33,38 @@ const handler = async (req, res) => {
 const addOrRemoveOption = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
-    const { questionId } = req.query;
+    const { jamSessionId, questionId } = req.query;
 
     const toAdd = req.method === 'POST';
 
     const { option } = req.body;
 
-    const question = await prisma.question.findUnique({
-        where: {
-            id: questionId
+    const questionToJamSession = await prisma.jamSessionToQuestion.findUnique({
+        where:{
+            jamSessionId_questionId:{
+                jamSessionId:jamSessionId,
+                questionId:questionId
+            }
         },
-        select: {
-            examSessionId: true,
-            type: true,
-            points: true,
-            multipleChoice:{
-                select: {
-                    options: true
+        include:{
+            question:{
+                include:{
+                    multipleChoice:{
+                        select: {
+                            options: true
+                        }
+                    }
                 }
             }
         }
     });
 
-    if(!await isInProgress(question.examSessionId)) {
+    if(!questionToJamSession){
+        res.status(400).json({message: "Internal Server Error"});
+        return;
+    }
+
+    if(!await isInProgress(jamSessionId)) {
         res.status(400).json({ message: 'Exam session is not in progress' });
         return;
     }
@@ -83,7 +92,7 @@ const addOrRemoveOption = async (req, res) => {
 
     const transaction = []; // to do in single transaction, queries are done in order
 
-    // update the status of the student answer
+    // update the status of the student answers
     transaction.push(
         prisma.studentAnswer.update({
             where: {
@@ -98,7 +107,7 @@ const addOrRemoveOption = async (req, res) => {
         })
     );
 
-    // add option to student multi-choice answer
+    // add option to student multi-choice answers
     transaction.push(
         prisma.studentAnswerMultipleChoice.update({
             where: {
@@ -121,7 +130,7 @@ const addOrRemoveOption = async (req, res) => {
     // prisma transaction
     await prisma.$transaction(transaction);
 
-    // get the updated student answer
+    // get the updated student answers
     const studentAnswer = await prisma.studentAnswerMultipleChoice.findUnique({
         where: {
             userEmail_questionId: {
@@ -134,7 +143,7 @@ const addOrRemoveOption = async (req, res) => {
         }
     });
 
-    // grade the student answer
+    // grade the student answers
     await prisma.studentQuestionGrading.upsert({
         where: {
             userEmail_questionId: {
@@ -145,10 +154,10 @@ const addOrRemoveOption = async (req, res) => {
         create: {
             userEmail: studentEmail,
             questionId: questionId,
-            ...grading(question, studentAnswer)
+            ...grading(questionToJamSession, studentAnswer)
 
         },
-        update: grading(question, studentAnswer)
+        update: grading(questionToJamSession, studentAnswer)
     });
 
     const updatedStudentAnswer = await prisma.studentAnswer.findUnique({

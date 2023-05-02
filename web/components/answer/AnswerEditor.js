@@ -13,8 +13,12 @@ import CodeCheck from "../question/type_specific/code/CodeCheck";
 import useSWR from "swr";
 import {useSnackbar} from "../../context/SnackbarContext";
 import {useDebouncedCallback} from "use-debounce";
+import {useRouter} from "next/router";
 
 const AnswerEditor = ({ question, onAnswer }) => {
+    const router = useRouter();
+    const { jamSessionId } = router.query;
+
     const onAnswerChange = useCallback((updatedStudentAnswer) => {
         if(onAnswer){
             onAnswer(question, updatedStudentAnswer);
@@ -24,6 +28,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
         question && (
             question.type === QuestionType.trueFalse && (
                 <AnswerTrueFalse
+                    jamSessionId={jamSessionId}
                     questionId={question.id}
                     onAnswerChange={onAnswerChange}
                 />
@@ -31,6 +36,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
             ||
             question.type === QuestionType.multipleChoice && (
                 <AnswerMultipleChoice
+                    jamSessionId={jamSessionId}
                     questionId={question.id}
                     onAnswerChange={onAnswerChange}
                 />
@@ -38,6 +44,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
             ||
             question.type === QuestionType.essay && (
                 <AnswerEssay
+                    jamSessionId={jamSessionId}
                     questionId={question.id}
                     onAnswerChange={onAnswerChange}
                 />
@@ -45,6 +52,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
             ||
             question.type === QuestionType.code && (
                 <AnswerCode
+                    jamSessionId={jamSessionId}
                     questionId={question.id}
                     onAnswerChange={onAnswerChange}
                 />
@@ -52,6 +60,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
             ||
             question.type === QuestionType.web && (
                 <AnswerWeb
+                    jamSessionId={jamSessionId}
                     questionId={question.id}
                     onAnswerChange={onAnswerChange}
                 />
@@ -127,22 +136,23 @@ const AnswerCode  = ({ questionId, onAnswerChange }) => {
     )
 }
 
-const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
+const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
+
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId}`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        jamSessionId && questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     const [ options, setOptions ] = useState(undefined);
 
     useEffect(() => {
         if(answer?.question.multipleChoice.options && answer){
-            // merge the options with the student answer
+            // merge the options with the student answers
 
             let allOptions = answer.question.multipleChoice.options;
             let studentOptions = answer.multipleChoice?.options;
-            console.log("studentOptions", allOptions, studentOptions);
+
             setOptions(allOptions.map(option => {
                 return {
                     ...option,
@@ -154,10 +164,9 @@ const AnswerMultipleChoice = ({ questionId, onAnswerChange }) => {
     }, [answer]);
 
     const onOptionChange = useCallback(async (index, options) => {
-        if(!index) return;
         const changedOption = options[index];
         const method = changedOption.isCorrect ? 'POST' : 'DELETE';
-        const updatedStudentAnswer = await fetch(`/api/answer/${questionId}/multi-choice/options`, {
+        const updatedStudentAnswer = await fetch(`/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/multi-choice/options`, {
             method: method, headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ option: changedOption })
         }).then(res => res.json());

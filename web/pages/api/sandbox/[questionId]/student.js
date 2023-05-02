@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 }
 
 /*
- endpoint to run the sandbox for a student answer to a code question with files from the database
+ endpoint to run the sandbox for a student answers to a code question with files from the database
  */
 const post = async (req, res) => {
     const session = await getSession({ req });

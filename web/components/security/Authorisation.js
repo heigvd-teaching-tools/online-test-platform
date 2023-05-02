@@ -4,10 +4,12 @@ import Unauthorized from "./Unauthorized";
 import {Button, Typography} from "@mui/material";
 import AddGroupDialog from "../groups/list/AddGroupDialog";
 import {useEffect, useState} from "react";
+import {useGroup} from "../../context/GroupContext";
 
 const Authorisation = ({ children, allowRoles = [] }) => {
 
     const { data: session } = useSession()
+    const { mutate } = useGroup();
 
     const [ authorization, setAuthorization ] = useState({
         hasRole: false,
@@ -30,7 +32,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
 
     if(authorization.hasRole && session.user.role === Role.PROFESSOR && !authorization.hasGroups){
         return <UnauthorizedMissingGroups
-            onCreateGroup={() => {
+            onCreateGroup={async () => {
                 /*
                     Strange bug patch:
                     Normally we would use "update" function of the useSession hook available in Next Auth 4
@@ -38,6 +40,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
                     It is not working because "update" is undefined for some reason
                     So we dispatch the event manually:
                  */
+                await mutate();
                 const event = new Event("visibilitychange");
                 document.dispatchEvent(event);
             }}

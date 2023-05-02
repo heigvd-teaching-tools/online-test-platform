@@ -1,8 +1,8 @@
 import { PrismaClient, Role, StudentAnswerStatus } from '@prisma/client';
 import { getSession } from 'next-auth/react';
-import { hasRole } from '../../../../../utils/auth';
-import {isInProgress} from "../../utils";
-import { grading } from '../../../../../code/grading';
+import { hasRole } from '../../../../../../../../utils/auth';
+import {isInProgress} from "../utils";
+import { grading } from '../../../../../../../../code/grading';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -46,7 +46,7 @@ const put = async (req, res) => {
         return;
     }
 
-    // get all the files of the student answer
+    // get all the files of the student answers
     const studentAnswerFiles = await prisma.studentAnswerCodeToFile.findMany({
         where: {
             userEmail: studentEmail,
@@ -67,7 +67,7 @@ const put = async (req, res) => {
         }
     });
 
-    // find any difference between the original files and the student answer files
+    // find any difference between the original files and the student answers files
     // to find the corresponding file use the "path" property and then compare the "content" property
     const diffFiles = studentAnswerFiles.filter(studentAnswerFile => {
         const originalFile = originalFiles.find(originalFile => originalFile.file.path === studentAnswerFile.file.path);
@@ -82,7 +82,7 @@ const put = async (req, res) => {
 
     const transaction = []; // to do in single transaction, queries are done in order
 
-    // update the status of the student answer
+    // update the status of the student answers
     transaction.push(
         prisma.studentAnswer.update({
             where: {
@@ -97,7 +97,7 @@ const put = async (req, res) => {
         })
     );
 
-    // update the student answer file for code question
+    // update the student answers file for code question
     transaction.push(
         prisma.studentAnswerCodeToFile.update({
             where: {

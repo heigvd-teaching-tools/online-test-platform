@@ -26,7 +26,7 @@ export const questionsWithIncludes = ( {
 
     /*  including user answers
         studentAnswer is returned as an array of answers -> one to many relationship
-        For IncludeStrategy.USER_SPECIFIC we will have an array with one answer only
+        For IncludeStrategy.USER_SPECIFIC we will have an array with one answers only
         For IncludeStrategy.ALL we will have an array with all the answers related to that questions
     */
 

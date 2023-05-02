@@ -30,7 +30,7 @@ const PageTakeJam = () => {
     const { data:jamSessionPhase } = useSWR(
         `/api/jam-sessions/${jamSessionId}/phase`,
         jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        { refreshInterval  : 2000 }
+        { refreshInterval  : 10000 }
     );
 
     useEffect(() => {
@@ -112,6 +112,8 @@ const PageTakeJam = () => {
                             <>
                                 <Box sx={{ height: 'calc(100% - 50px)' }}>
                                     <QuestionView
+                                        order={jamToQuestions[page - 1].order}
+                                        points={jamToQuestions[page - 1].points}
                                         question={jamToQuestions[page - 1].question}
                                         page={page}
                                         totalPages={jamToQuestions.length}
@@ -130,7 +132,7 @@ const PageTakeJam = () => {
                                         <AnswerEditor
                                             question={q.question}
                                             onAnswer={(question, updatedStudentAnswer) => {
-                                                /* update the student answer status in memory */
+                                                /* update the student answers status in memory */
                                                 question.studentAnswer[0].status = updatedStudentAnswer.status;
                                                 /* change the state to trigger a re-render */
                                                 setJamToQuestions([...jamToQuestions]);
