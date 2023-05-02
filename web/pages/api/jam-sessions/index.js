@@ -109,7 +109,7 @@ const post = async (req, res) => {
                             }
                         },
                         [collectionToQuestion.question.type]: {
-                            create: questionTypeSpecific(collectionToQuestion.question)
+                            create: questionTypeSpecific(collectionToQuestion.question.type, collectionToQuestion.question, "create")
                         }
                     }
                 });

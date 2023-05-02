@@ -13,11 +13,9 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, onAdd,
         if (initial) {
             if (initial && initial.length > 0) {
                 setOptions(initial);
-            }else{
-                setOptions(defaultOptions);
-                onChange(undefined, defaultOptions);
             }
         }
+
     }, [initial, id]);
 
     const selectOption = (index) => {
@@ -34,7 +32,7 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, onAdd,
         <Stack id={id} direction="column" spacing={2} padding={2}>
             { !selectOnly && (
                <Box>
-                   <Button color="primary" startIcon={<AddIcon />} onClick={onAdd}>
+                   <Button color="primary" startIcon={<AddIcon />} onClick={() => onAdd()}>
                         Add Option
                     </Button>
                 </Box>
@@ -84,16 +82,5 @@ const MultipleChoice = ({ id = "multi_choice", options:initial, onChange, onAdd,
         </Stack>
     )
 }
-
-const defaultOptions = [
-    {
-        text: 'Option 1',
-        isCorrect: true
-    },
-    {
-        text: 'Option 2',
-        isCorrect: false
-    }
-];
 
 export default MultipleChoice;

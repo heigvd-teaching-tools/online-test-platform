@@ -11,11 +11,11 @@ import { useDebouncedCallback } from "use-debounce";
 import LoadingAnimation from "../feedback/LoadingAnimation";
 import {useSnackbar} from "../../context/SnackbarContext";
 
-import { createFilterOptions } from '@mui/material/Autocomplete';
 import QuestionTagsSelector from "./tags/QuestionTagsSelector";
-import QuestionTagsViewer from "./tags/QuestionTagsViewer";
+import {useRouter} from "next/router";
 
-const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) => {
+const QuestionUpdate = ({ questionId }) => {
+    const router = useRouter();
     const { show: showSnackbar } = useSnackbar();
 
     const { data: question, mutate, error } = useSWR(
@@ -36,20 +36,37 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
             .then((res) => res.json())
             .then(async (updated) => {
                 await mutate(updated);
-                if(onQuestionChanged) {
-                    onQuestionChanged(updated);
-                }
                 showSnackbar('Question saved', "success");
             }).catch(() => {
                 showSnackbar('Error saving questions', 'error');
             });
     } , [showSnackbar, mutate, question]);
 
+    const deleteQuestion = useCallback(async () => {
+        await fetch(`/api/questions`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ question })
+        })
+            .then((res) => res.json())
+            .then(async () => {
+                await mutate();
+                showSnackbar('Question deleted', "success");
+                await router.push('/questions');
+            }).catch(() => {
+                showSnackbar('Error deleting question', 'error');
+            });
+    }, [question, showSnackbar, mutate]);
+
     const onChange = useCallback(async (changedProperties) => {
         // update the question in the cache
+        console.log("change question cache", question, changedProperties)
         const newQuestion = { ...question, ...changedProperties };
         await saveQuestion(newQuestion);
-    }, [question, onQuestionChanged]);
+    }, [question]);
 
     const debounceChange = useDebouncedCallback(useCallback(async (changedProperties) => {
         await onChange(changedProperties);
@@ -87,7 +104,7 @@ const QuestionUpdate = ({ questionId, onQuestionDeleted, onQuestionChanged }) =>
                         </Stack>
                         <QuestionTagsSelector questionId={question.id} />
                         <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
-                            <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => onQuestionDelete(question.id)}>Delete this question</Button>
+                            <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => deleteQuestion(question.id)}>Delete this question</Button>
                         </Stack>
                     </Stack>
                 )

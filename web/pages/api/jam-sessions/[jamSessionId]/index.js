@@ -141,7 +141,10 @@ const del = async (req, res) => {
 
     const group = await getUserSelectedGroup(req);
 
-    // get all the questions related to this jam session
+    /*
+        get all the questions related to this jam session
+        It is not possible to cascade delete the questions because we passed bv and an intermediate relation
+     */
     const jstqs = await prisma.jamSessionToQuestion.findMany({
         where: {
             jamSessionId: jamSessionId

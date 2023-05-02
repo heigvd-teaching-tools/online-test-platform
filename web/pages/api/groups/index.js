@@ -25,7 +25,7 @@ const handler = async (req, res) => {
 
 const post = async (req, res) => {
     // create a new group
-    const { label } = req.body;
+    const { label, select } = req.body;
 
     const user = await getUser(req);
 
@@ -45,6 +45,24 @@ const post = async (req, res) => {
                 }
             },
         });
+
+        if(select) {
+            await prisma.userOnGroup.upsert({
+                where: {
+                    userId_groupId: {
+                        userId: user.id,
+                        groupId: group.id
+                    }
+                },
+                update: {
+                    selected: true
+                },
+                create: {
+                    selected: true,
+                }
+            });
+        }
+
         res.status(200).json(group);
     } catch (e) {
         switch(e.code) {

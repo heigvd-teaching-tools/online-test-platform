@@ -4,7 +4,6 @@ import Unauthorized from "./Unauthorized";
 import {Button, Typography} from "@mui/material";
 import AddGroupDialog from "../groups/list/AddGroupDialog";
 import {useEffect, useState} from "react";
-import SnackbarFeedback from "../feedback/SnackbarFeedback";
 
 const Authorisation = ({ children, allowRoles = [] }) => {
 
@@ -68,7 +67,6 @@ const UnauthorizedMissingGroups = ( { onCreateGroup } ) => {
                     onCreateGroup && await onCreateGroup();
                 }}
             />
-            <SnackbarFeedback />
         </Unauthorized>
     )
 }

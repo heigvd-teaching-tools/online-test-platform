@@ -3,8 +3,8 @@ import DialogFeedback   from "../../feedback/DialogFeedback";
 import { Stack, TextField} from "@mui/material";
 import {useSnackbar} from "../../../context/SnackbarContext";
 
-const AddGroupDialog = ({ open, onClose, onSuccess }) => {
-    const { show: showSnackbar } = useSnackbar();
+const AddGroupDialog = ({ open, selectOnCreate, onClose, onSuccess }) => {
+    const { showAt: showSnackbarAt } = useSnackbar();
     const [ label, setLabel ] = useState('');
 
     const handleAddGroup = useCallback(async (label) => {
@@ -14,7 +14,8 @@ const AddGroupDialog = ({ open, onClose, onSuccess }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                label
+                label,
+                select: selectOnCreate
             })
         });
 
@@ -22,10 +23,8 @@ const AddGroupDialog = ({ open, onClose, onSuccess }) => {
             const group = await response.json();
             onSuccess && onSuccess(group);
         }else{
-
             const data = await response.json();
-            console.log(data.message);
-            showSnackbar(data.message, 'error');
+            showSnackbarAt({ vertical: 'bottom', horizontal: 'center' }, data.message, 'error');
         }
     }, [onSuccess]);
 

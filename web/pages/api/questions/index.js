@@ -35,6 +35,12 @@ const handler = async (req, res) => {
 
 const get = async (req, res) => {
     const group = await getUserSelectedGroup(req);
+
+    if(!group) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
     let { title, content, tags, questionTypes, codeLanguages } = req.query;
 
     questionTypes = questionTypes ? questionTypes.split(',').map(type => QuestionType[type]) : [];
@@ -170,38 +176,56 @@ const post = async (req, res) => {
 
 const del = async (req, res) => {
     const { question } = req.body;
-    if(!question.id){
+
+    if(!question?.id){
         res.status(400).json({ message: 'Bad Request' });
         return;
     }
 
-    const deletedQuestion = await prisma.question.delete({
+    // find all the collections that contain this question
+    const collections = await prisma.collection.findMany({
         where: {
-            id: question.id
+            collectionToQuestions: {
+                some: {
+                    questionId: question.id
+                }
+            }
+        },
+        include: {
+            collectionToQuestions: true
         }
     });
 
-    // decrease the order of all questions after the deleted one
-    const questions = await prisma.question.findMany({
-        where: {
-            examId: question.examId,
-            examSessionId: question.examSessionId,
-            order: {
-                gt: question.order
+    let deletedQuestion = undefined;
+    await prisma.$transaction(async (prisma) => {
+        // decrease the order of CollectionToQuestion for all orders greater than the order of the question in the collection
+        for(const collection of collections) {
+            // filter the collectionToQuestions that have a greater order than the question
+            const collectionToQuestions = collection.collectionToQuestions.filter(
+                ctq => ctq.order > collection.collectionToQuestions.find(ctq => ctq.questionId === question.id).order
+            );
+            for(const ctq of collectionToQuestions) {
+
+                await prisma.collectionToQuestion.update({
+                    where: {
+                        collectionId_questionId: {
+                            collectionId: ctq.collectionId,
+                            questionId: ctq.questionId
+                        }
+                    },
+                    data: {
+                        order: ctq.order - 1
+                    }
+                });
             }
         }
-    });
-
-    for(const q of questions) {
-        await prisma.question.update({
+        // delete the question
+        deletedQuestion = await prisma.question.delete({
             where: {
-                id: q.id
-            },
-            data: {
-                order: q.order - 1
+                id: question.id
             }
         });
-    }
+    });
 
     res.status(200).json(deletedQuestion);
 }

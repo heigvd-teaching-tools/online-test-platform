@@ -11,6 +11,7 @@ const ManageMultipleChoice = ({ questionId }) => {
     );
 
     const onChangeOptions = useCallback(async (index, options) => {
+        console.log("change options")
         const updatedOption = options[index];
         await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
             method: "PUT",
@@ -29,6 +30,7 @@ const ManageMultipleChoice = ({ questionId }) => {
     }, [questionId, mutate]);
 
     const onDeleteOption = useCallback(async (_, deletedOption) => {
+        console.log("delete option")
         await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
             method: "DELETE",
             headers: {
@@ -46,6 +48,7 @@ const ManageMultipleChoice = ({ questionId }) => {
     }, [questionId, mutate]);
 
     const onAddOption = useCallback(async () => {
+        console.log("add option")
         await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
             method: "POST",
             headers: {

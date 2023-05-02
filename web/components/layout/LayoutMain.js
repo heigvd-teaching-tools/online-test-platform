@@ -1,6 +1,5 @@
 import { Box, Stack } from '@mui/material';
 
-import SnackbarFeedback from '../feedback/SnackbarFeedback';
 import Header from './Header';
 const LayoutMain = ({children, header, subheader, padding = 0, spacing = 0}) => {
     return (
@@ -12,7 +11,7 @@ const LayoutMain = ({children, header, subheader, padding = 0, spacing = 0}) => 
                     <Stack spacing={spacing} sx={{ height:'100%', width:'100%', p:padding }}>{children}</Stack>
                 </Stack>
             </Stack>
-            <SnackbarFeedback />
+
        </>
     );
 }

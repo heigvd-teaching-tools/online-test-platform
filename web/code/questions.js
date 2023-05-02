@@ -170,8 +170,7 @@ export const questionIncludeClause = (
     using this function we can extract the type specific data (and only that) from the question object
     also used to avoid injections
  */
-export const questionTypeSpecific = (questionType, question) => {
-    console.log(questionType, question);
+export const questionTypeSpecific = (questionType, question, mode = "update") => {
     switch(questionType) {
         case QuestionType.trueFalse:
             return {
@@ -183,20 +182,25 @@ export const questionTypeSpecific = (questionType, question) => {
                 css: question?.web.css ?? '',
                 js: question?.web.js ?? ''
             }
-        case QuestionType.multipleChoice: // only for create
+        case QuestionType.multipleChoice:
             return !question ? {
+                // default options when creating a new question
                 options: { create: [
                     { text: 'Option 1', isCorrect: false },
                     { text: 'Option 2', isCorrect: true },
                 ]}
             } : {
-                options: {
-                    create: question.multipleChoice.options.map(option => ({
-                        text: option.text,
-                        isCorrect: option.isCorrect
-                    }))
+                options:
+                    mode === "update" ?
+                        // multi choice options are no longer managed on the question level, they are managed by individual endpoints : api/questions/:id/multiple-choice/options
+                        { }
+                    :
+                        // the only use case for mode === "create" is when we are copying questions for a jam session, see api/jam-sessions [POST]
+                        {
+                            create: question.multipleChoice.options.map(o => ({ text: o.text, isCorrect: o.isCorrect }))
+                        }
+
                 }
-            }
         default:
             return {}
     }

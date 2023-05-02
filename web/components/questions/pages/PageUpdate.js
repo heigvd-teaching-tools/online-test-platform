@@ -1,11 +1,9 @@
-import { useCallback} from 'react';
 import { useRouter } from 'next/router';
 
 import {Stack, Button, IconButton, Box} from "@mui/material";
 
 import LayoutMain from '../../layout/LayoutMain';
 
-import { useSnackbar } from '../../../context/SnackbarContext';
 import { Role } from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
 import QuestionUpdate from "../../question/QuestionUpdate";
