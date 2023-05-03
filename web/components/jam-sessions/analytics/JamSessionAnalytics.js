@@ -5,10 +5,10 @@ import {QuestionType, StudentAnswerStatus} from "@prisma/client";
 import Image from "next/image";
 import PiePercent from "../../feedback/PiePercent";
 
-const JamSessionAnalytics = ({questions}) => {
+const JamSessionAnalytics = ({JamSessionToQuestions}) => {
     return(
         <Stack spacing={8} alignItems="center" sx={{ width:'100%' }}>
-            { questions.map((question, index) => <QuestionAnalytics key={index} question={question} />) }
+            { JamSessionToQuestions.map(({question}, index) => <QuestionAnalytics key={index} question={question} />) }
         </Stack>
     )
 }

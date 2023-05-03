@@ -1,4 +1,4 @@
-import {useRouter} from "next/router";
+import { QuestionType} from "@prisma/client";
 import {Box, Paper, Stack, Typography } from "@mui/material";
 import QuestionTypeIcon from "../../question/QuestionTypeIcon";
 import LanguageIcon from "../../question/type_specific/code/LanguageIcon";
@@ -35,7 +35,7 @@ const QuestionListItem = ({ question, actions = [] }) => {
             <Stack spacing={2} p={2}>
                 <Stack direction="row" justifyContent="space-between">
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                        <QuestionTypeIcon type={question.type} size={32} />
+                        <QuestionTypeIcon type={question.type} size={32} withLabel />
                         {
                             question.title && question.title.length > 0 ? (
                                 <Typography variant="body1">{question.title}</Typography>

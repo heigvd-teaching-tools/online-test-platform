@@ -29,31 +29,31 @@ const PageFinished = () => {
     );
 
     const { data } = useSWR(
-        `/api/jam-sessions/${jamSessionId}/questions/with-grading/official`,
+        `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
         jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 
     const [ tab, setTab ] = useState(1);
-    const [ questions, setQuestions ] = useState([]);
+    const [ JamSessionToQuestions, setJamSessionToJamSessionToQuestions ] = useState([]);
     const [ participants, setParticipants ] = useState([]);
 
     useEffect(() => {
         if(data){
-            setQuestions(data)
+            setJamSessionToJamSessionToQuestions(data)
         }
     }, [data]);
 
     useEffect(() => {
-        if (questions && questions.length > 0) {
-            setParticipants(questions[0].studentAnswer.map((sa) => sa.user).sort((a, b) => a.name.localeCompare(b.name)));
+        if (JamSessionToQuestions && JamSessionToQuestions.length > 0) {
+            setParticipants(JamSessionToQuestions[0].question.studentAnswer.map((sa) => sa.user).sort((a, b) => a.name.localeCompare(b.name)));
         }
-    }, [questions]);
+    }, [JamSessionToQuestions]);
 
     const gridHeaders = () => {
 
-        let q = questions.map((question) => ({
-            label: <b>{`Q${question.order}`}</b>,
+        let q = JamSessionToQuestions.map((jstq) => ({
+            label: <b>{`Q${jstq.order}`}</b>,
             column: { width: '50px' }
         }));
 
@@ -71,26 +71,27 @@ const PageFinished = () => {
     }
 
     const gridRows = () => participants.map((participant) => {
-        let obtainedPoints = getObtainedPoints(questions, participant);
-        let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
+        let obtainedPoints = getObtainedPoints(JamSessionToQuestions, participant);
+        let totalPoints = JamSessionToQuestions.reduce((acc, jstq) => acc + jstq.points, 0);
         let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
 
         const questionColumnValues = {};
 
-        questions.forEach((question) => {
-            const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
+        JamSessionToQuestions.forEach((jstq) => {
+            const grading = jstq.question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
             let pointsObtained = grading ? grading.pointsObtained : 0;
-            let totalPoints = question.points;
+            let totalPoints = jstq.points;
             let successRate = totalPoints > 0 ? Math.round(pointsObtained / totalPoints * 100) : 0;
 
             let color = successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error';
-            questionColumnValues[`Q${question.order + 1}`] =
+            questionColumnValues[`Q${jstq.order + 1}`] =
                 <Typography variant="button" sx={{ color: `${color}.main` }}>
                     <b>{`${pointsObtained}/${totalPoints}`}</b>
                 </Typography>
         });
 
         return {
+
             participant: <UserAvatar user={participant} />,
             successRate: <PiePercent size={60} value={participantSuccessRate} label={
                 <Stack alignItems="center" justifyContent="center" spacing={0}>
@@ -100,6 +101,7 @@ const PageFinished = () => {
                 </Stack>
             } />,
             ...questionColumnValues,
+            meta:{ key: participant.email },
         }
     });
 
@@ -109,18 +111,18 @@ const PageFinished = () => {
         let LINE_SEPARATOR = '\r';
 
         let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`;
-        questions.forEach((question) => csv += `Q${question.order}${COLUMN_SEPARATOR}`);
+        JamSessionToQuestions.forEach((jstq) => csv += `Q${jstq.order}${COLUMN_SEPARATOR}`);
         csv += LINE_SEPARATOR;
 
         participants.forEach((participant) => {
-            let obtainedPoints = getObtainedPoints(questions, participant);
+            let obtainedPoints = getObtainedPoints(JamSessionToQuestions, participant);
 
-            let totalPoints = questions.reduce((acc, question) => acc + question.points, 0);
+            let totalPoints = JamSessionToQuestions.reduce((acc, {question}) => acc + question.points, 0);
             let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
 
             csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${participantSuccessRate}${COLUMN_SEPARATOR}${totalPoints}${COLUMN_SEPARATOR}${obtainedPoints}${COLUMN_SEPARATOR}`;
 
-            questions.forEach((question) => {
+            JamSessionToQuestions.forEach((question) => {
                 const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
                 let pointsObtained = grading ? grading.pointsObtained : 0;
                 csv += `${pointsObtained}${COLUMN_SEPARATOR}`;
@@ -148,7 +150,7 @@ const PageFinished = () => {
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={jamSession?.phase}>
             <TabContext value={tab}>
-               { questions && questions.length > 0 && (
+               { JamSessionToQuestions && JamSessionToQuestions.length > 0 && (
                    <LayoutMain
                         header={ <MainMenu /> }
                         subheader={
@@ -167,7 +169,7 @@ const PageFinished = () => {
                                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                                     <Stack direction="row" alignItems="center" spacing={2}>
                                         <Typography variant="h6">Overall success rate</Typography>
-                                        <PiePercent value={ getSignedSuccessRate(questions) } />
+                                        <PiePercent value={ getSignedSuccessRate(JamSessionToQuestions) } />
                                     </Stack>
                                     <Button onClick={exportAsCSV}>Export as csv</Button>
                                 </Stack>
@@ -179,7 +181,7 @@ const PageFinished = () => {
                             </Stack>
                         </TabPanel>
                         <TabPanel value={2}>
-                            <JamSessionAnalytics questions={questions} />
+                            <JamSessionAnalytics JamSessionToQuestions={JamSessionToQuestions} />
                         </TabPanel>
                 </LayoutMain>
                )}
