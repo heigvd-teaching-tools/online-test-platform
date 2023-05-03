@@ -177,7 +177,7 @@ const PageCompose = () => {
                                     <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
                                         <Typography variant="h6">Questions</Typography>
                                     </Stack>
-                                    <Stack spacing={4} overflow={"auto"} pl={1} pr={1} pb={1}>
+                                    <Stack spacing={4} overflow={"auto"} p={1}>
                                         { searchQuestions
                                             .filter((question) => !collectionToQuestions.find((collectionToQuestion) => collectionToQuestion.question.id === question.id))
                                             .map((question) => (
