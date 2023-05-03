@@ -6,6 +6,7 @@ const GroupContext = createContext();
 export const useGroup = () => useContext(GroupContext);
 
 export const GroupProvider = ({ children }) => {
+
     const { show: showSnackbar } = useSnackbar();
     const { data: session } = useSession();
 

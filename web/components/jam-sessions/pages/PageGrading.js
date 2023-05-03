@@ -30,7 +30,6 @@ const PageGrading = () => {
     const router = useRouter();
     const { jamSessionId, participantId, activeQuestion } = router.query;
 
-
     const { data:session } = useSession();
     const { show: showSnackbar } = useSnackbar();
 
@@ -40,16 +39,16 @@ const PageGrading = () => {
     );
 
     const { data, mutate } = useSWR(
-        `/api/jam-sessions/${jamSessionId}/questions/with-grading/official`,
+        `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
         jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
 
-    const [ questions, setQuestions ] = useState([]);
+    const [ jamSessionToQuestions, setJamSessionToQuestions ] = useState([]);
     const [ participants, setParticipants ] = useState([]);
 
     const [ filter, setFilter ] = useState();
-    const [ question, setQuestion ] = useState();
+    const [ jamSessionToQuestion, setJamSessionJamSessionToQuestion ] = useState();
 
     const [ saving, setSaving ] = useState(false);
     const [ loading, setLoading ] = useState(false);
@@ -60,39 +59,41 @@ const PageGrading = () => {
 
     useEffect(() => {
         if(data){
-            setQuestions(data)
+            setJamSessionToQuestions(data)
         }
     }, [data]);
 
-    const applyFilter = useCallback((questions) => {
+    const applyFilter = useCallback((jamSessionToQuestions) => {
         switch(filter){
             case 'unsigned':
-                let questionToDisplay = questions.filter(q => q.studentAnswer.some(sg => !sg.studentGrading.signedBy));
-                if(questionToDisplay.length > 0 && questionToDisplay.findIndex(q => q.id === question?.id) === -1){
+                let questionToDisplay = jamSessionToQuestions.filter(jstq => jstq.question.studentAnswer.some(sg => !sg.studentGrading.signedBy));
+                const indexToDisplay = questionToDisplay.findIndex(q => q.id === jamSessionToQuestion?.question.id);
+                if(questionToDisplay.length > 0 && indexToDisplay === -1){
                     // active questions is not in the filtered list -> jump to first
-                    router.push(`/jam-sessions/${jamSessionId}/grading/${questionToDisplay[0].id}?participantId=${questionToDisplay[0].studentGrading[0].user.id}`);
+                    router.push(`/jam-sessions/${jamSessionId}/grading/1?participantId=${questionToDisplay[0].studentGrading[0].user.id}`);
                 }
                 return questionToDisplay;
             default:
-                return questions;
+                return jamSessionToQuestions;
         }
-    }, [jamSessionId, filter, question, router]);
+    }, [jamSessionId, filter, jamSessionToQuestion, router]);
 
     useEffect(() => {
-        if (questions && questions.length > 0) {
-            let activeQuestionId = activeQuestion;
-            let activeQuestion = applyFilter(questions).find(q => q.id === activeQuestionId);
-            if (parseInt(activeQuestionId) === 1 || !activeQuestion) {
-                // redirect to first questions and first participant
-                let firstQuestion = questions[0];
-                router.push(`/jam-sessions/${jamSessionId}/grading/${firstQuestion.id}?participantId=${firstQuestion.studentAnswer[0].user.id}`);
+        if (jamSessionToQuestions && jamSessionToQuestions.length > 0) {
+            let jstq = applyFilter(jamSessionToQuestions)[activeQuestion - 1];
+            if(!jstq){
+                // goto first question and first participant
+                router.push(`/jam-sessions/${jamSessionId}/grading/1?participantId=${jamSessionToQuestions[0].question.studentAnswer[0].user.id}`);
                 return;
             }
-
-            setQuestion(activeQuestion);
-            setParticipants(activeQuestion.studentAnswer.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
+            setJamSessionJamSessionToQuestion(jstq);
+            setParticipants(jstq.question.studentAnswer.map((sg) => sg.user).sort((a, b) => a.name.localeCompare(b.name)));
+            // goto first participant
+            if(participantId === undefined){
+                router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`);
+            }
         }
-    }, [jamSessionId, questions, router, applyFilter]);
+    }, [jamSessionId, participantId, jamSessionToQuestions, router, applyFilter]);
 
     const saveGrading = async (grading) => {
         setLoading(true);
@@ -110,9 +111,9 @@ const PageGrading = () => {
     };
 
     const onSignOff = useCallback(async (grading) => {
-        const newQuestions = [...questions];
+        const newJamSessionToQuestions = [...jamSessionToQuestions];
         let newGrading = grading;
-        question.studentAnswer = question.studentAnswer.map((sa) => {
+        jamSessionToQuestion.question.studentAnswer = jamSessionToQuestion.question.studentAnswer.map((sa) => {
             if (sa.user.email === grading.userEmail) {
                 return {
                     ...sa,
@@ -125,15 +126,15 @@ const PageGrading = () => {
             return sa;
         });
         await saveGrading(newGrading);
-        setQuestions(newQuestions);
-        await mutate(newQuestions, false);
-    }, [questions, question, mutate]);
+        setJamSessionToQuestions(newJamSessionToQuestions);
+        await mutate(newJamSessionToQuestions, false);
+    }, [jamSessionToQuestions, jamSessionToQuestion, mutate]);
 
     const signOffAllAutograded = useCallback(async () => {
         let updated = [];
-        const newQuestions = [...questions];
-        for(const question of newQuestions){
-            for(const { studentGrading } of question.studentAnswer){
+        const newJamSessionToQuestions = [...jamSessionToQuestions];
+        for(const jstq of newJamSessionToQuestions){
+            for(const { studentGrading } of jstq.question.studentAnswer){
                 if(!studentGrading.signedBy && studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED){
                     studentGrading.signedBy = session.user;
                     updated.push(studentGrading);
@@ -141,9 +142,9 @@ const PageGrading = () => {
             }
         }
         await Promise.all(updated.map(grading => saveGrading(grading)));
-        setQuestions(newQuestions);
-        await mutate(newQuestions, false);
-    }, [questions, mutate, session]);
+        setJamSessionToQuestions(newJamSessionToQuestions);
+        await mutate(newJamSessionToQuestions, false);
+    }, [jamSessionToQuestions, mutate, session]);
 
     const endGrading = useCallback(async () => {
         setSaving(true);
@@ -160,14 +161,13 @@ const PageGrading = () => {
     const nextParticipantOrQuestion = useCallback(async () => {
         let nextParticipantIndex = participants.findIndex((p) => p.id === participantId) + 1;
         if (nextParticipantIndex < participants.length) {
-            await router.push(`/jam-sessions/${jamSessionId}/grading/${question.id}?participantId=${participants[nextParticipantIndex].id}`);
+            await router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`);
         } else {
-            let nextQuestionIndex = applyFilter(questions).findIndex((q) => q.id === question.id) + 1;
-            if (nextQuestionIndex < questions.length) {
-                await router.push(`/jam-sessions/${jamSessionId}/grading/${questions[nextQuestionIndex].id}?participantId=${participants[0].id}`);
+            if (activeQuestion < jamSessionToQuestions.length) {
+                await router.push(`/jam-sessions/${jamSessionId}/grading/${parseInt(activeQuestion) + 1}?participantId=${participants[0].id}`);
             } else {
                 // count signed gradings vs total gradings
-                let stats = getGradingStats(questions);
+                let stats = getGradingStats(jamSessionToQuestions);
                 if(stats.totalSigned === stats.totalGradings){
                     setEndGradingDialogOpen(true);
                 } else {
@@ -176,37 +176,36 @@ const PageGrading = () => {
 
             }
         }
-    }, [participantId, jamSessionId, participants, router, question, questions, applyFilter]);
+    }, [participantId, jamSessionId, participants, router, jamSessionToQuestions, applyFilter]);
 
     const prevParticipantOrQuestion = useCallback(() => {
         let prevParticipantIndex = participants.findIndex((p) => p.id === participantId) - 1;
         if (prevParticipantIndex >= 0) {
-            router.push(`/jam-sessions/${jamSessionId}/grading/${question.id}?participantId=${participants[prevParticipantIndex].id}`);
+            router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`);
         } else {
-            let prevQuestionIndex = applyFilter(questions).findIndex((q) => q.id === question.id) - 1;
-            if (prevQuestionIndex >= 0) {
-                router.push(`/jam-sessions/${jamSessionId}/grading/${questions[prevQuestionIndex].id}?participantId=${participants[participants.length - 1].id}`);
+            if (activeQuestion - 1 >= 1) {
+                router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion - 1}?participantId=${participants[participants.length - 1].id}`);
             }
         }
-    }, [participantId, participants, router, question, questions, applyFilter]);
+    }, [activeQuestion, participantId, participants, router, jamSessionToQuestions, applyFilter]);
 
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={jamSession?.phase}>
-           { questions && (
+           { jamSessionToQuestions && jamSessionToQuestion && participantId && (
                <LayoutMain
                    header={ <MainMenu /> }
                    subheader={
                        <Stack direction="row" alignItems="center">
                            <Stack flex={1} sx={{ overflow:'hidden' }}>
                                <QuestionPages
-                                   questions={applyFilter(questions)}
-                                   activeQuestion={question}
-                                   link={(questionId, _) => `/jam-sessions/${jamSessionId}/grading/${questionId}?participantId=${participantId}`}
+                                   questions={applyFilter(jamSessionToQuestions).map((jstq) => jstq.question)}
+                                   activeQuestion={jamSessionToQuestion.question}
+                                   link={(questionId, index) => `/jam-sessions/${jamSessionId}/grading/${index+1}?participantId=${participantId}`}
                                    isFilled={(questionId) => {
-                                       const question = questions.find((q) => q.id === questionId);
-                                       return question && question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
+                                       const jstq = jamSessionToQuestions.find((jstq) => jstq.question.id === questionId);
+                                       return jstq && jstq.question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
                                    }}
                                />
                            </Stack>
@@ -224,10 +223,12 @@ const PageGrading = () => {
                     header={<MainMenu />}
                     leftPanel={
                         <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
-                            { question && (
+                            { jamSessionToQuestion && (
                                 <QuestionView
-                                    question={question}
-                                    totalPages={questions.length}
+                                    order={jamSessionToQuestion.order}
+                                    points={jamSessionToQuestion.points}
+                                    question={jamSessionToQuestion.question}
+                                    totalPages={jamSessionToQuestions.length}
                                 />
                             )}
                         </Stack>
@@ -235,7 +236,7 @@ const PageGrading = () => {
                     rightWidth={75}
                     rightPanel={
                         <Stack direction="row" padding={1} position="relative" height="100%" overflowX="auto">
-                            { question && participants && participants.length > 0 && (
+                            { jamSessionToQuestion && participants && participants.length > 0 && (
                                 <>
                                 <ParticipantNav
                                     participants={participants}
@@ -244,7 +245,7 @@ const PageGrading = () => {
                                         router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participant.id}`);
                                     }}
                                     isParticipantFilled={(participant) => {
-                                        const grading = question && question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
+                                        const grading = jamSessionToQuestion && jamSessionToQuestion.question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
                                         return grading && grading.signedBy;
                                     }}
                                 />
@@ -252,27 +253,27 @@ const PageGrading = () => {
                                 </>
                             )}
 
-                            { question && (
+                            { jamSessionToQuestion && (
                                 <AnswerCompare
-                                    questionType={question.type}
-                                    solution={question[question.type]}
-                                    answer={question.studentAnswer.find((answer) => answer.user.id === participantId)[question.type]}
+                                    questionType={jamSessionToQuestion.question.type}
+                                    solution={jamSessionToQuestion.question[jamSessionToQuestion.question.type]}
+                                    answer={jamSessionToQuestion.question.studentAnswer.find((answer) => answer.user.id === participantId)[jamSessionToQuestion.question.type]}
                                 />
                             )}
                         </Stack>
                     }
                     footer={
-                        question && (
+                        jamSessionToQuestion && (
                             <Stack direction="row" justifyContent="space-between" height="100px" >
                                 <GradingNextBack
-                                    isFirst={participants.findIndex((p) => p.id === participantId) === 0 && applyFilter(questions).findIndex((q) => q.id === question.id) === 0}
+                                    isFirst={participants.findIndex((p) => p.id === participantId) === 0 && parseInt(activeQuestion) === 0}
                                     onPrev={prevParticipantOrQuestion}
                                     onNext={nextParticipantOrQuestion}
                                 />
                                 <GradingSignOff
                                     loading={loading}
-                                    grading={question.studentAnswer.find((ans) => ans.user.id === participantId).studentGrading}
-                                    maxPoints={question.points}
+                                    grading={jamSessionToQuestion.question.studentAnswer.find((ans) => ans.user.id === participantId).studentGrading}
+                                    maxPoints={jamSessionToQuestion.points}
                                     onSignOff={onSignOff}
                                     clickNextParticipant={(current) => {
                                         const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
@@ -282,10 +283,10 @@ const PageGrading = () => {
                                     }}
                                 />
                                 <SuccessRate
-                                    value={getSignedSuccessRate(questions)}
+                                    value={getSignedSuccessRate(jamSessionToQuestions)}
                                 />
                                 <GradingActions
-                                    stats={getGradingStats(questions)}
+                                    stats={getGradingStats(jamSessionToQuestions)}
                                     loading={loading || saving}
                                     signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
                                     endGrading={() => setEndGradingDialogOpen(true)}
@@ -343,7 +344,6 @@ const PageGrading = () => {
         </Authorisation>
     )
 }
-
 const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
     return(
         <Paper>
@@ -401,7 +401,6 @@ import PiePercent from '../../feedback/PiePercent';
 import PhaseRedirect from './PhaseRedirect';
 import {getGradingStats, getSignedSuccessRate} from "./stats";
 import LayoutMain from "../../layout/LayoutMain";
-import {ResizeObserverProvider} from "../../../context/ResizeObserverContext";
 
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);

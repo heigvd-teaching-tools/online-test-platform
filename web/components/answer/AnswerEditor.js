@@ -70,17 +70,17 @@ const AnswerEditor = ({ question, onAnswer }) => {
 }
 
 
-const AnswerCode  = ({ questionId, onAnswerChange }) => {
+const AnswerCode  = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId }`,
+        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     const onFileChange = useCallback(async (file) => {
         const currentFile = answer.code.files.find(f => f.file.id === file.id);
         if(currentFile.file.content === file.content) return;
-        const updatedStudentAnswer = await fetch(`/api/answer/${questionId}/code/${file.id}`, {
+        const updatedStudentAnswer = await fetch(`/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/code/${file.id}`, {
            method: 'PUT',
            headers: {
                'Content-Type': 'application/json'
@@ -105,13 +105,13 @@ const AnswerCode  = ({ questionId, onAnswerChange }) => {
                             secondaryActions={
                                 answerToFile.studentPermission === StudentFilePermission.VIEW && (
                                     <Stack direction="row" spacing={1} alignItems="center">
-                                        <Image src="/svg/icons/viewable.svg" width={24} height={24} minWidth={24} />
+                                        <Image src="/svg/icons/viewable.svg" width={24} height={24} />
                                         <Typography variant="caption">view</Typography>
                                     </Stack>
                                 ) ||
                                 answerToFile.studentPermission === StudentFilePermission.UPDATE && (
                                     <Stack direction="row" spacing={1}  alignItems="center">
-                                        <Image src="/svg/icons/editable.svg" width={24} height={24} minWidth={24} />
+                                        <Image src="/svg/icons/editable.svg" width={24} height={24} />
                                         <Typography variant="caption">edit</Typography>
                                     </Stack>
                                 )
@@ -125,7 +125,7 @@ const AnswerCode  = ({ questionId, onAnswerChange }) => {
 
                 <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
                     <CodeCheck
-                        codeCheckAction={() => fetch(`/api/sandbox/${questionId}/student`, {
+                        codeCheckAction={() => fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' }
                         })}
@@ -137,7 +137,6 @@ const AnswerCode  = ({ questionId, onAnswerChange }) => {
 }
 
 const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
-
 
     const { data: answer } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
@@ -185,10 +184,10 @@ const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
     )
 }
 
-const AnswerTrueFalse = ({ questionId, onAnswerChange }) => {
+const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId}`,
+        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
@@ -197,7 +196,7 @@ const AnswerTrueFalse = ({ questionId, onAnswerChange }) => {
             isTrue: isTrue
         } : undefined};
 
-        const updatedStudentAnswer = await fetch(`/api/answer/${questionId}`, {
+        const updatedStudentAnswer = await fetch(`/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(answer)
         }).then(res => res.json());
@@ -216,16 +215,16 @@ const AnswerTrueFalse = ({ questionId, onAnswerChange }) => {
     )
 }
 
-const AnswerEssay = ({ questionId, onAnswerChange }) => {
+const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId }`,
+        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
     const onEssayChange = useCallback(async (content) => {
         if(answer.essay.content === content) return;
-        const updatedStudentAnswer = await fetch(`/api/answer/${questionId}`, {
+        const updatedStudentAnswer = await fetch(`/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ answer: content ? {
                     content: content
@@ -247,10 +246,10 @@ const AnswerEssay = ({ questionId, onAnswerChange }) => {
     )
 }
 
-const AnswerWeb = ({ questionId, onAnswerChange }) => {
+const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer } = useSWR(
-        `/api/answer/${questionId }`,
+        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 
@@ -262,7 +261,7 @@ const AnswerWeb = ({ questionId, onAnswerChange }) => {
             } : undefined
         };
 
-        const updatedStudentAnswer = await fetch(`/api/answer/${questionId}`, {
+        const updatedStudentAnswer = await fetch(`/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(answer)
         }).then(res => res.json());

@@ -114,7 +114,10 @@ const get = async (req, res) => {
     const questions = await prisma.question.findMany({
         ...where,
         include: {
-            ...questionIncludeClause(true, true),
+            ...questionIncludeClause({
+                includeTypeSpecific: true,
+                includeOfficialAnswers: true,
+            }),
             jamSession: true
         },
         orderBy: {

@@ -85,7 +85,9 @@ const post = async (req, res) => {
         },
         include: {
             question: {
-                include: questionIncludeClause(true, false)
+                include: questionIncludeClause({
+                    includeTypeSpecific: true
+                })
             }
         },
         orderBy: {
@@ -93,12 +95,12 @@ const post = async (req, res) => {
         }
     });
 
-    const questions = jamSessionToQuestions.map(jamSessionToQuestion => jamSessionToQuestion.question);
 
     // add empty answers and gradings for each questions
     const transaction = [];
 
-    for (const question of questions) {
+    for (const jstq of jamSessionToQuestions) {
+        const { question } = jstq;
         transaction.push(
             prisma.studentAnswer.upsert({
                 where: {
@@ -136,7 +138,7 @@ const post = async (req, res) => {
                         } : {}
                     },
                     studentGrading: {
-                        create: grading(question, undefined)
+                        create: grading(jstq, undefined)
                     }
                 }
             })

@@ -1,6 +1,4 @@
-import React, {createContext, useState, useContext, useCallback, useEffect} from 'react';
-import {useSession} from "next-auth/react";
-import {useSnackbar} from "./SnackbarContext";
+import React, {createContext, useContext, useCallback } from 'react';
 import useSWR from "swr";
 
 const TagsContext = createContext();
@@ -36,6 +34,8 @@ export const TagsProvider = ({ children }) => {
             await mutate(updated);
         });
     } , [mutate]);
+
+    if(error) return children // they wont have access to tags
 
     return (
         <TagsContext.Provider value={{

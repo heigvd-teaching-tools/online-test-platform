@@ -34,6 +34,12 @@ const post = async (req, res) => {
 
     const { questionId, nature } = req.query;
 
+    // nature must be either 'template' or 'solution'
+    if(['template', 'solution'].indexOf(nature) === -1){
+        res.status(400).json({ message: 'Invalid nature' });
+        return;
+    }
+
     const filesToInclude = nature === 'solution' ? 'solutionFiles' : 'templateFiles';
 
     const code = await prisma.code.findUnique({

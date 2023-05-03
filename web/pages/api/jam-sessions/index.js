@@ -56,7 +56,10 @@ const post = async (req, res) => {
     const collectionToQuestions = await prisma.collectionToQuestion.findMany({
         include: {
             question: {
-                include: questionIncludeClause(true, true)
+                include: questionIncludeClause({
+                    includeTypeSpecific: true,
+                    includeOfficialAnswers: true,
+                })
             }
         },
         where: {

@@ -1,7 +1,7 @@
 import { PrismaClient, Role } from '@prisma/client';
 
-import { questionIncludeClause } from '../../../../../../code/questions';
-import {getUserSelectedGroup, hasRole} from '../../../../../../utils/auth';
+import {IncludeStrategy, questionIncludeClause} from '../../../../../code/questions';
+import {getUserSelectedGroup, hasRole} from '../../../../../utils/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -25,8 +25,21 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    const { jamSessionId } = req.query;
+    const { jamSessionId, withGradings = "false" } = req.query;
     const group = await getUserSelectedGroup(req);
+
+    let questionIncludeOptions = {
+        includeTypeSpecific: true,
+        includeOfficialAnswers: true,
+    }
+
+    if(withGradings === "true") {
+        questionIncludeOptions.includeUserAnswers = {
+            strategy: IncludeStrategy.ALL
+        };
+        questionIncludeOptions.includeGradings = true;
+
+    }
 
     const questions = await prisma.jamSessionToQuestion.findMany({
         where:{
@@ -37,7 +50,7 @@ const get = async (req, res) => {
         },
         include: {
             question: {
-                include: questionIncludeClause(true, true)
+                include: questionIncludeClause(questionIncludeOptions)
             }
         },
         orderBy: {

@@ -45,10 +45,13 @@ const get = async (req, res) => {
     }
 
     if(jamSession.phase === JamSessionPhase.FINISHED){
-        let includeClause = questionIncludeClause(true, false, {
-            strategy: IncludeStrategy.USER_SPECIFIC,
-            userEmail: email
-        }, true, false );
+        let includeClause = questionIncludeClause({
+            includeTypeSpecific: true,
+            includeUserAnswers: {
+                strategy: IncludeStrategy.USER_SPECIFIC,
+                userEmail: email
+            }}
+        );
 
         include = {
             jamSession: {

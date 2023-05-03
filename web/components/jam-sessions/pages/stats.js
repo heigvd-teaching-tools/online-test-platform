@@ -1,25 +1,25 @@
 import {QuestionType, StudentAnswerStatus, StudentQuestionGradingStatus} from "@prisma/client";
 
-export const getSignedSuccessRate = (questions) => {
+export const getSignedSuccessRate = (jamSessionToQuestions) => {
     // total signed points
-    let totalSignedPoints = questions.reduce((acc, question) => {
-        let signedGradings = question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
-        return acc + signedGradings * question.points;
+    let totalSignedPoints = jamSessionToQuestions.reduce((acc, jstq) => {
+        let signedGradings = jstq.question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length;
+        return acc + signedGradings * jstq.points;
     }, 0);
     // total signed obtained points
-    let totalSignedObtainedPoints = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
+    let totalSignedObtainedPoints = jamSessionToQuestions.reduce((acc, jstq) => acc + jstq.question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0), 0);
     return totalSignedPoints > 0 ? Math.round(totalSignedObtainedPoints / totalSignedPoints * 100) : 0;
 }
 
-export const getObtainedPoints = (questions, participant) => questions.reduce((acc, question) => {
+export const getObtainedPoints = (jamSessionToQuestions, participant) => jamSessionToQuestions.reduce((acc, {question}) => {
     let studentGrading = question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
     return acc + (studentGrading ? studentGrading.pointsObtained : 0);
     }, 0);
 
-export const getGradingStats = (questions) => {
-    let totalGradings = questions.reduce((acc, question) => acc + question.studentAnswer.length, 0);
-    let totalSigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length, 0);
-    let totalAutogradedUnsigned = questions.reduce((acc, question) => acc + question.studentAnswer.filter((sa) => sa.studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !sa.studentGrading.signedBy).length, 0);
+export const getGradingStats = (jamSessionToQuestions) => {
+    let totalGradings = jamSessionToQuestions.reduce((acc, jstq) => acc + jstq.question.studentAnswer.length, 0);
+    let totalSigned = jamSessionToQuestions.reduce((acc, jstq) => acc + jstq.question.studentAnswer.filter((sa) => sa.studentGrading.signedBy).length, 0);
+    let totalAutogradedUnsigned = jamSessionToQuestions.reduce((acc, jstq) => acc + jstq.question.studentAnswer.filter((sa) => sa.studentGrading.status === StudentQuestionGradingStatus.AUTOGRADED && !sa.studentGrading.signedBy).length, 0);
 
     return {
         totalGradings,

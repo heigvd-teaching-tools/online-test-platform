@@ -127,7 +127,7 @@ const PageTakeJam = () => {
                         )}
                         rightPanel={
                             jamToQuestions && jamToQuestions.length > 0 && jamToQuestions.map((q, index) => (
-                                <Box height="100%" display={(index + 1 === page) ? 'block' : 'none'}>
+                                <Box key={q.question.id} height="100%" display={(index + 1 === page) ? 'block' : 'none'}>
                                     <ResizeObserverProvider>
                                         <AnswerEditor
                                             question={q.question}

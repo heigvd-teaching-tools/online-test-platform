@@ -31,18 +31,29 @@ const handler = async (req, res) => {
 const put = async (req, res) => {
     const session = await getSession({ req });
     const studentEmail = session.user.email;
-    const { questionId, fileId } = req.query;
+    const { jamSessionId, questionId, fileId } = req.query;
 
     const { file } = req.body;
 
-    const question = await prisma.question.findUnique({
+    if(!await isInProgress(jamSessionId)) {
+        res.status(400).json({ message: 'Exam session is not in progress' });
+        return;
+    }
+
+    const jamSessionToQuestion = await prisma.jamSessionToQuestion.findUnique({
         where: {
-            id: questionId
+            jamSessionId_questionId: {
+                jamSessionId: jamSessionId,
+                questionId: questionId
+            }
+        },
+        include: {
+            question: true
         }
     });
 
-    if(!await isInProgress(question.examSessionId)) {
-        res.status(400).json({ message: 'Exam session is not in progress' });
+    if(!jamSessionToQuestion) {
+        res.status(400).json({ message: 'Question not found' });
         return;
     }
 
@@ -67,6 +78,7 @@ const put = async (req, res) => {
         }
     });
 
+    // deciding whatever the answer if submitted or missing
     // find any difference between the original files and the student answers files
     // to find the corresponding file use the "path" property and then compare the "content" property
     const diffFiles = studentAnswerFiles.filter(studentAnswerFile => {
@@ -75,7 +87,6 @@ const put = async (req, res) => {
             return originalFile.file.content !== file.content;
         }
         return originalFile.file.content !== studentAnswerFile.file.content;
-
     });
 
     const status = diffFiles.length === 0 ? StudentAnswerStatus.MISSING : StudentAnswerStatus.SUBMITTED;
@@ -129,10 +140,10 @@ const put = async (req, res) => {
             create: {
                 userEmail: studentEmail,
                 questionId: questionId,
-                ...grading(question, undefined)
+                ...grading(jamSessionToQuestion, undefined)
 
             },
-            update: grading(question, undefined)
+            update: grading(jamSessionToQuestion, undefined)
         })
     );
 

@@ -41,7 +41,6 @@ const gradeMultipleChoice = (jamSessionToQuestion, answer) => {
     if(answer !== undefined) {
         let correctOptions = jamSessionToQuestion.question.multipleChoice.options.filter((opt) => opt.isCorrect);
         let answerOptions = answer.options;
-
         let isCorrect = correctOptions.length === answerOptions.length && correctOptions.every((opt) => answerOptions.some((aOpt) => aOpt.id === opt.id));
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,

@@ -22,7 +22,12 @@ export const questionsWithIncludes = ( {
 
 
     // including type specifics with or without official answers
-    let include = questionIncludeClause(includeTypeSpecific, includeOfficialAnswers, includeUserAnswers, includeGradings);
+    let include = questionIncludeClause({
+        includeTypeSpecific,
+        includeOfficialAnswers,
+        includeUserAnswers,
+        includeGradings
+    });
 
     /*  including user answers
         studentAnswer is returned as an array of answers -> one to many relationship
@@ -39,15 +44,24 @@ export const questionsWithIncludes = ( {
 /* TODO: passe single JSON argument object instead of multiple parameters,
 create a json object containing default values and merge with the argument object
 
+
+
  */
-export const questionIncludeClause = (
-    includeTypeSpecific = true,
-    includeOfficialAnswers = false,
-    includeUserAnswers = undefined,
-    includeGradings = false,
-    includeTags = true
-) => {
+
+const defaultQuestionIncludeClause = {
+    includeTypeSpecific: true,
+    includeOfficialAnswers: false,
+    includeUserAnswers: undefined, // { strategy: IncludeStrategy.USER_SPECIFIC, userEmail: <email> } or { strategy: IncludeStrategy.ALL }
+    includeGradings: false,
+    includeTags: true
+}
+
+export const questionIncludeClause = (questionIncludeOptions) => {
     // include question related entities based on the specified context
+
+    const options = {...defaultQuestionIncludeClause, ...questionIncludeOptions};
+
+    const { includeTypeSpecific, includeOfficialAnswers, includeUserAnswers, includeGradings, includeTags } = options;
 
     const typeSpecific = includeTypeSpecific ? {
         code: ({

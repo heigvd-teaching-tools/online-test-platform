@@ -42,7 +42,10 @@ const get = async (req, res) => {
             collectionToQuestions: {
                 include: {
                     question: {
-                        include: questionIncludeClause(true, true)
+                        include: questionIncludeClause({
+                            includeTypeSpecific: true,
+                            includeOfficialAnswers: true,
+                        })
                     }
                 },
                 orderBy: {

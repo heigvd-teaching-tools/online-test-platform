@@ -44,10 +44,13 @@ const get = async (req, res) => {
         return;
     }
 
-    let includeClause = questionIncludeClause(false, false, {
-        strategy: IncludeStrategy.USER_SPECIFIC,
-        userEmail: email
-    }, false, false );
+    let includeClause = questionIncludeClause({
+        includeTypeSpecific: false,
+        includeUserAnswers: {
+            strategy: IncludeStrategy.USER_SPECIFIC,
+            userEmail: email
+        }}
+    );
 
     if(jamSession.phase === JamSessionPhase.IN_PROGRESS){
         include = {

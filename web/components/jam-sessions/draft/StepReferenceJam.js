@@ -15,7 +15,7 @@ const StepReferenceJam = ({ jamSession, onChange }) => {
     );
 
     const { data: jamSessionQuestions } = useSWR(
-        `/api/jam-sessions/${jamSession && jamSession.id}/questions/with-answers/official`,
+        `/api/jam-sessions/${jamSession && jamSession.id}/questions`,
         jamSession && jamSession.id ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
 

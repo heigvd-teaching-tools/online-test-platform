@@ -1,8 +1,9 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { hasRole } from '../../../../utils/auth';
-import { runSandbox } from "../../../../sandbox/runSandboxTC";
+import { hasRole } from '../../../../../../../utils/auth';
+import { runSandbox } from "../../../../../../../sandbox/runSandboxTC";
 import {getSession} from "next-auth/react";
-import {grading} from "../../../../code/grading";
+import {grading} from "../../../../../../../code/grading";
+import {isInProgress} from "../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -37,8 +38,13 @@ export default async function handler(req, res) {
 const post = async (req, res) => {
     const session = await getSession({ req });
 
-    const { questionId } = req.query;
+    const { jamSessionId, questionId } = req.query;
     const studentEmail = session.user.email;
+
+    if(!await isInProgress(jamSessionId)) {
+        res.status(400).json({ message: 'Jam session is not in progress' });
+        return;
+    }
 
     const code = await prisma.code.findUnique({
         where: {
@@ -125,12 +131,19 @@ const post = async (req, res) => {
                 }
         });
 
-        const question = await prisma.question.findUnique({
+        const jamSessionToQuestion = await prisma.jamSessionToQuestion.findUnique({
             where: {
-                id: questionId
+                jamSessionId_questionId: {
+                    jamSessionId: jamSessionId,
+                    questionId: questionId
+                }
             },
             include: {
-                code: true
+                question: {
+                    include: {
+                        code: true
+                    }
+                }
             }
         });
 
@@ -142,11 +155,11 @@ const post = async (req, res) => {
                     questionId: questionId
                 }
             },
-            update: grading(question, response),
+            update: grading(jamSessionToQuestion, response),
             create: {
                 userEmail: studentEmail,
                 questionId: questionId,
-                ...grading(question, response)
+                ...grading(jamSessionToQuestion, response)
             }
         });
 

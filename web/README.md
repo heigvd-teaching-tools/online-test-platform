@@ -45,6 +45,7 @@ npx prisma studio
 docker pull postgres
 docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5432:5432 -v /data:/var/lib/postgresql/data --name postgresql postgres
 ```
+or use docker-compose in /postgres folder
 
 Database URL in .env
 

@@ -13,7 +13,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
 
     const [ web, setWeb ] = useState(initial);
 
-    const [ tab, setTab ] = useState("0");
+    const [ tab, setTab ] = useState("html");
     useEffect(() => {
         setWeb(initial);
     }, [initial, id]);
@@ -44,7 +44,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
                                     <Typography variant="caption">HTML</Typography>
                                 </Stack>
                         }
-                            value={"0"}
+                            value={"html"}
                         />
                         <Tab
                             label={
@@ -53,7 +53,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
                                     <Typography variant="caption">CSS</Typography>
                                 </Stack>
                             }
-                            value={"1"}
+                            value={"css"}
                         />
                         <Tab
                             label={
@@ -62,11 +62,11 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
                                     <Typography variant="caption">JS</Typography>
                                 </Stack>
                             }
-                            value={"2"}
+                            value={"js"}
                         />
                     </Tabs>
                     <ResizeObserverProvider>
-                    <TabPanel id="html" value={"0"}>
+                    <TabPanel id="html" value={"html"}>
                         <EditorSwitchWrapper
                             id={`${id}-html`}
                             readOnly={readOnly}
@@ -77,7 +77,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
                             }}
                         />
                     </TabPanel>
-                    <TabPanel id="css" value={"1"}>
+                    <TabPanel id="css" value={"css"}>
                         <EditorSwitchWrapper
                             id={`${id}-css`}
                             readOnly={readOnly}
@@ -86,7 +86,7 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
                             onChange={(css) => onProjectChange("css", css)}
                         />
                     </TabPanel>
-                    <TabPanel id="js" value={"2"}>
+                    <TabPanel id="js" value={"js"}>
                         <EditorSwitchWrapper
                             id={`${id}-js`}
                             readOnly={readOnly}
@@ -105,19 +105,14 @@ const Web = ({ id = "web", readOnly = false, web:initial, onChange }) => {
     )
 }
 
-const EditorSwitchWrapper = ({ id, value:initial, language, readOnly, onChange }) => {
+const EditorSwitchWrapper = ({ value, language, readOnly, onChange }) => {
     const { height: containerHeight } = useResizeObserver();
-    const [ value, setValue ] = useState("");
-    useEffect(() => {
-        setValue(initial);
-    }, [id, initial]);
-
     return <Editor
         width="100%"
         height={`${containerHeight}px`}
         options={{ readOnly }}
         language={language}
-        value={value}
+        value={value || ""}
         onChange={onChange}
     />
 }

@@ -83,25 +83,29 @@ const put = async (req, res) => {
     // update student answers
     const session = await getSession({ req });
     const studentEmail = session.user.email;
-    const { questionId } = req.query;
+    const { jamSessionId, questionId } = req.query;
 
     const { answer } = req.body;
-
-    const question = await prisma.question.findUnique({
-        where: {
-            id: questionId
+    const questionToJamSession = await prisma.jamSessionToQuestion.findUnique({
+        where:{
+            jamSessionId_questionId:{
+                jamSessionId:jamSessionId,
+                questionId:questionId
+            }
         },
-        select: {
-            type: true,
-            examSessionId: true,
-            trueFalse: true,
-            essay: true,
-            web: true,
-            points: true
+        include:{
+            question:{
+                select:{
+                    type: true,
+                    trueFalse: true,
+                    essay: true,
+                    web: true,
+                }
+            }
         }
     });
 
-    if(!await isInProgress(question.examSessionId)) {
+    if(!await isInProgress(jamSessionId)) {
         res.status(400).json({ message: 'Exam session is not in progress' });
         return;
     }
@@ -127,7 +131,7 @@ const put = async (req, res) => {
 
     // update the typeSpecific student answers
 
-    const { answer: data, grading, model } = prepareAnswer(question, answer);
+    const { answer: data, grading, model } = prepareAnswer(questionToJamSession, answer);
 
     transaction.push(
         model.update({
@@ -170,7 +174,7 @@ const put = async (req, res) => {
         },
         select: {
             status: true,
-            [question.type]: true
+            [questionToJamSession.question.type]: true
         }
     });
 
@@ -181,7 +185,8 @@ const put = async (req, res) => {
     prepare the answers and grading for the student answers and select the correct model to update
     this function also insures that no other fields or related entities are changed by the client
 */
-const prepareAnswer = (question, answer) => {
+const prepareAnswer = (questionToJamSession, answer) => {
+    const { question } = questionToJamSession;
     switch(question.type) {
         case QuestionType.trueFalse:
             return {
@@ -189,7 +194,7 @@ const prepareAnswer = (question, answer) => {
                 answer: {
                     isTrue: answer ? answer.isTrue : null
                 },
-                grading: grading(question, answer)
+                grading: grading(questionToJamSession, answer)
 
             }
         case QuestionType.essay:
@@ -198,7 +203,7 @@ const prepareAnswer = (question, answer) => {
                 answer: {
                     content: answer ? String(answer.content) : null
                 },
-                grading: grading(question, answer)
+                grading: grading(questionToJamSession, answer)
             }
         case QuestionType.web:
             return {
@@ -208,7 +213,7 @@ const prepareAnswer = (question, answer) => {
                     html: answer ? answer.html : null,
                     js: answer ? answer.js : null
                 },
-                grading: grading(question, answer)
+                grading: grading(questionToJamSession, answer)
             }
         default:
             return undefined;

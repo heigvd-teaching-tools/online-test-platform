@@ -35,7 +35,10 @@ const get = async (req, res) => {
         where: {
             id: questionId
         },
-        include: questionIncludeClause(true, true)
+        include: questionIncludeClause({
+            includeTypeSpecific: true,
+            includeOfficialAnswers: true,
+        })
     });
     res.status(200).json(question);
 }

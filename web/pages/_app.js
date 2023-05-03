@@ -80,19 +80,20 @@ const theme = createTheme(themeOptions);
 function MyApp({ Component, pageProps: { session, ...pageProps} }) {
   return (
     <ThemeProvider theme={theme}>
-      <TagsProvider>
-        <SnackbarProvider >
-          <CssBaseline />
-          <Meta />
-          <SessionProvider session={session}>
-            <GroupProvider session={session}>
-              <Authentication>
-                <Component {...pageProps} />
-              </Authentication>
-            </GroupProvider>
-          </SessionProvider>
-        </SnackbarProvider>
-      </TagsProvider>
+        <SessionProvider session={session}>
+          <SnackbarProvider >
+            <CssBaseline />
+            <Meta />
+              <TagsProvider>
+                <GroupProvider session={session}>
+                  <Authentication>
+                    <Component {...pageProps} />
+                  </Authentication>
+                </GroupProvider>
+              </TagsProvider>
+          </SnackbarProvider>
+        </SessionProvider>
+
     </ThemeProvider>
   );
 }
