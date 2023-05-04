@@ -23,19 +23,20 @@ const PageConsult = () => {
         jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
         { revalidateOnFocus : false }
     );
-    const [ questions, setQuestions ] = useState([]);
-    const [ question, setQuestion ] = useState();
+    const [ jamSessionToQuestions, setJamSessionToQuestions ] = useState([]);
+    const [ selected, setSelected ] = useState();
+
 
     useEffect(() => {
-        if(jamSession && jamSession.questions && jamSession.questions.length > 0) {
-            setQuestions(jamSession.questions)
-            setQuestion(jamSession.questions[questionPage - 1]);
+        if(jamSession && jamSession.jamSessionToQuestions && jamSession.jamSessionToQuestions.length > 0) {
+            setJamSessionToQuestions(jamSession.jamSessionToQuestions)
+            setSelected(jamSession.jamSessionToQuestions[questionPage - 1]);
         }
     }, [jamSession]);
 
     useEffect(() => {
-        if (questions && questions.length > 0) {
-            setQuestion(questions[questionPage - 1]);
+        if (jamSessionToQuestions && jamSessionToQuestions.length > 0) {
+            setSelected(jamSessionToQuestions[questionPage - 1]);
         }
     }, [questionPage]);
 
@@ -43,14 +44,14 @@ const PageConsult = () => {
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
             { jamSession && (
                 <StudentPhaseRedirect phase={jamSession.phase}>
-                    { questions && (
+                    { jamSessionToQuestions && selected && (
                         <LayoutMain
                             header={
                                 <Stack direction="row" alignItems="center">
                                     <Stack flex={1} sx={{ overflow:'hidden' }}>
                                         <QuestionPages
-                                            questions={questions}
-                                            activeQuestion={question}
+                                            questions={jamSessionToQuestions.map((jstq) => jstq.question)}
+                                            activeQuestion={selected.question}
                                             link={(questionId, questionIndex) => `/jam-sessions/${jamSessionId}/consult/${questionIndex + 1}`}
                                         />
                                     </Stack>
@@ -58,37 +59,41 @@ const PageConsult = () => {
                             }>
                             <LayoutSplitScreen
                                 leftPanel={
-                                    question && (
+                                    selected && (
                                         <QuestionView
-                                            question={question}
-                                            totalPages={questions.length}
+                                            order={selected.order}
+                                            points={selected.points}
+                                            question={selected.question}
+                                            totalPages={jamSessionToQuestions.length}
                                         />
                                     )
                                 }
                                 rightWidth={65}
                                 rightPanel={
-                                     question && (
+                                     selected && (
                                         <AnswerConsult
-                                            id={`answer-viewer-${question.id}`}
-                                            questionType={question.type}
-                                            solution={question[question.type]}
-                                            answer={question.studentAnswer[0][question.type]}
+                                            id={`answer-viewer-${selected.question.id}`}
+                                            questionType={selected.question.type}
+                                            question={selected.question}
+                                            answer={selected.question.studentAnswer[0][selected.question.type]}
                                         />
                                     )
                                 }
                                 footer={
-                                    question && (
+                                <>  {
+                                    selected && (
                                         <Paper sx={{ height:"80px" }} square>
-                                            <Stack spacing={2} direction="row" justifyContent="center" alignItems="center" height='100%'>                                                    { question.studentAnswer[0].studentGrading.signedBy ? (
+                                            <Stack spacing={2} direction="row" justifyContent="center" alignItems="center" height='100%'>
+                                                { selected.question.studentAnswer[0].studentGrading.signedBy ? (
                                                     <>
                                                         <GradingSigned
-                                                            signedBy={question.studentAnswer[0].studentGrading.signedBy}
+                                                            signedBy={selected.question.studentAnswer[0].studentGrading.signedBy}
                                                             readOnly={true}
                                                         />
                                                         <GradingPointsComment
-                                                            points={question.studentAnswer[0].studentGrading.pointsObtained}
-                                                            maxPoints={question.points}
-                                                            comment={question.studentAnswer[0].studentGrading.comment}
+                                                            points={selected.question.studentAnswer[0].studentGrading.pointsObtained}
+                                                            maxPoints={selected.points}
+                                                            comment={selected.question.studentAnswer[0].studentGrading.comment}
                                                         />
                                                     </>
                                                 ) : (
@@ -97,7 +102,9 @@ const PageConsult = () => {
                                             </Stack>
                                         </Paper>
                                     )
+                                    }</>
                                 }
+
                             />
                         </LayoutMain>
                     )}
@@ -105,6 +112,6 @@ const PageConsult = () => {
             )}
         </Authorisation>
     );
-}
+};
 
 export default PageConsult;

@@ -53,7 +53,7 @@ const PageFinished = () => {
     const gridHeaders = () => {
 
         let q = JamSessionToQuestions.map((jstq) => ({
-            label: <b>{`Q${jstq.order}`}</b>,
+            label: <b>{`Q${jstq.order + 1}`}</b>,
             column: { width: '50px' }
         }));
 
@@ -111,19 +111,19 @@ const PageFinished = () => {
         let LINE_SEPARATOR = '\r';
 
         let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`;
-        JamSessionToQuestions.forEach((jstq) => csv += `Q${jstq.order}${COLUMN_SEPARATOR}`);
+        JamSessionToQuestions.forEach((jstq) => csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`);
         csv += LINE_SEPARATOR;
 
         participants.forEach((participant) => {
             let obtainedPoints = getObtainedPoints(JamSessionToQuestions, participant);
 
-            let totalPoints = JamSessionToQuestions.reduce((acc, {question}) => acc + question.points, 0);
+            let totalPoints = JamSessionToQuestions.reduce((acc, jstq) => acc + jstq.points, 0);
             let participantSuccessRate = totalPoints > 0 ? Math.round(obtainedPoints / totalPoints * 100) : 0;
 
             csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${participantSuccessRate}${COLUMN_SEPARATOR}${totalPoints}${COLUMN_SEPARATOR}${obtainedPoints}${COLUMN_SEPARATOR}`;
 
-            JamSessionToQuestions.forEach((question) => {
-                const grading = question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
+            JamSessionToQuestions.forEach((jstq) => {
+                const grading = jstq.question.studentAnswer.find((sa) => sa.user.email === participant.email).studentGrading;
                 let pointsObtained = grading ? grading.pointsObtained : 0;
                 csv += `${pointsObtained}${COLUMN_SEPARATOR}`;
             });

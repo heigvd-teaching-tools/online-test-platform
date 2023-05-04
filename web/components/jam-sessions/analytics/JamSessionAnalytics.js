@@ -5,20 +5,21 @@ import {QuestionType, StudentAnswerStatus} from "@prisma/client";
 import Image from "next/image";
 import PiePercent from "../../feedback/PiePercent";
 
-const JamSessionAnalytics = ({JamSessionToQuestions}) => {
+const JamSessionAnalytics = ({ JamSessionToQuestions }) => {
     return(
         <Stack spacing={8} alignItems="center" sx={{ width:'100%' }}>
-            { JamSessionToQuestions.map(({question}, index) => <QuestionAnalytics key={index} question={question} />) }
+            { JamSessionToQuestions.map((jstq, index) => <QuestionAnalytics key={index} JamSessionToQuestion={jstq} />) }
         </Stack>
     )
 }
 
-const QuestionAnalytics = ({ question }) => {
+const QuestionAnalytics = ({ JamSessionToQuestion }) => {
+    const { question } = JamSessionToQuestion;
     const [ questionData, setQuestionData ] = useState(null);
     useEffect(() => {
-        if(question){
+        if(JamSessionToQuestion){
             let data = {
-                label: `Q${question.order + 1}`,
+                label: `Q${JamSessionToQuestion.order + 1}`,
                 type: question.type,
                 [question.type]: typeSpecificStats(question)
             };
@@ -61,7 +62,7 @@ const QuestionAnalytics = ({ question }) => {
                     <Box sx={{ width:'32px', height:'32px' }}>
                         <Image src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
                     </Box>
-                    <Typography variant="h6"><b>{`Q${question.order + 1}`}</b></Typography>
+                    <Typography variant="h6"><b>{`Q${JamSessionToQuestion.order + 1}`}</b></Typography>
 
                     <Typography variant="body2">
                         Submitted Answers :
@@ -74,6 +75,7 @@ const QuestionAnalytics = ({ question }) => {
                     (
                         (questionData.type === QuestionType.multipleChoice && (
                             <Stack direction="column" alignItems="flex-start" spacing={2} >
+                                <ConsoleLog data={questionData} />
                                 {
                                     questionData[questionData.type].map((option, index) => (
                                         <AnalyticsRow
@@ -144,6 +146,11 @@ const QuestionAnalytics = ({ question }) => {
             </Stack>
         </Paper>
     )
+}
+
+const ConsoleLog = ({ data }) => {
+    console.log(data);
+    return null;
 }
 
 const AnalyticsRow = ({ label, percent, amount, color = 'info' }) =>

@@ -6,11 +6,9 @@ if (!global.prisma) {
 
 const prisma = global.prisma
 
-export const isInProgress = async (jamSessionId) => {
-    // get the questions collections session phase
-    if(!jamSessionId) return false;
-
-    const jamSession = await prisma.jamSession.findUnique({
+const selectJamSession = async (jamSessionId) => {
+    if(!jamSessionId) return null;
+    return await prisma.jamSession.findUnique({
         where: {
             id: jamSessionId
         },
@@ -18,7 +16,20 @@ export const isInProgress = async (jamSessionId) => {
             phase: true
         }
     });
+}
 
-    return jamSession.phase === JamSessionPhase.IN_PROGRESS;
+export const isInProgress = async (jamSessionId) => {
+    // get the questions collections session phase
+    if(!jamSessionId) return false;
+
+    const jamSession = await selectJamSession(jamSessionId);
+    return jamSession?.phase === JamSessionPhase.IN_PROGRESS;
+}
+
+export const isFinished = async (jamSessionId) => {
+    // get the questions collections session phase
+    if(!jamSessionId) return false;
+    const jamSession = await selectJamSession(jamSessionId);
+    return jamSession?.phase === JamSessionPhase.FINISHED;
 }
 

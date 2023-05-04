@@ -11,17 +11,18 @@ const phasePageRelationship = {
 
 const redirectToPhasePage = (phase, router) => {
     if(router.pathname === phasePageRelationship[phase]) return;
+    const jamSessionId = router.query.jamSessionId;
     switch(phase){
         case JamSessionPhase.NEW:
         case JamSessionPhase.DRAFT:
         case JamSessionPhase.GRADING:
-            router.push(`/jam-sessions/${router.query.sessionId}/wait`);
+            router.push(`/jam-sessions/${jamSessionId}/wait`);
             return;
         case JamSessionPhase.IN_PROGRESS:
-            router.push(`/jam-sessions/${router.query.sessionId}/take/1`);
+            router.push(`/jam-sessions/${jamSessionId}/take/1`);
             return;
         case JamSessionPhase.FINISHED:
-            router.push(`/jam-sessions/${router.query.sessionId}/consult/1`);
+            router.push(`/jam-sessions/${jamSessionId}/consult/1`);
             return;
     }
 }

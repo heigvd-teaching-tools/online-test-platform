@@ -2,6 +2,7 @@ import { PrismaClient, Role, JamSessionPhase } from '@prisma/client';
 
 import { hasRole, getUser } from '../../../../../utils/auth';
 import {IncludeStrategy, questionIncludeClause} from "../../../../../code/questions";
+import {isInProgress} from "../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -31,20 +32,13 @@ const get = async (req, res) => {
 
     const { jamSessionId } = req.query;
     const { email } = await getUser(req);
-    let include = { jamSession: true };
 
-    // control the phase of the collections session
-    const jamSession = await prisma.jamSession.findUnique({
-        where: { id: jamSessionId },
-        select: { phase: true }
-    });
-
-    if(!jamSession){
-        res.status(404).json({ message: 'Exam session not found' });
+    if(!await isInProgress(jamSessionId)) {
+        res.status(400).json({ message: 'Exam session is not in progress' });
         return;
     }
 
-    let includeClause = questionIncludeClause({
+    let includeQuestions = questionIncludeClause({
         includeTypeSpecific: false,
         includeUserAnswers: {
             strategy: IncludeStrategy.USER_SPECIFIC,
@@ -52,14 +46,20 @@ const get = async (req, res) => {
         }}
     );
 
-    if(jamSession.phase === JamSessionPhase.IN_PROGRESS){
-        include = {
+    const userOnJamSession = await prisma.userOnJamSession.findUnique({
+        where: {
+            userEmail_jamSessionId: {
+                userEmail: email,
+                jamSessionId: jamSessionId
+            }
+        },
+        include: {
             jamSession: {
                 include: {
                     jamSessionToQuestions: {
                         include: {
                             question: {
-                                include: includeClause
+                                include: includeQuestions
                             }
                         },
                         orderBy: {
@@ -69,16 +69,6 @@ const get = async (req, res) => {
                 }
             }
         }
-    }
-
-    const userOnJamSession = await prisma.userOnJamSession.findUnique({
-        where: {
-            userEmail_jamSessionId: {
-                userEmail: email,
-                jamSessionId: jamSessionId
-            }
-        },
-        include
     });
 
     if(!userOnJamSession){
