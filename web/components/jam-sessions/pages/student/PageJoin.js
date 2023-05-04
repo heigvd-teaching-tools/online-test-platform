@@ -27,7 +27,12 @@ const PageJoin = () => {
                     })
                 })
                     .then(async (res) => {
-                        let data = await res.json();
+                        let data;
+                        try {
+                            data = await res.json();
+                        } catch (e) {
+                            data.message = "Server error";
+                        }
                         if(!res.ok) {
                             throw new Error(data.message);
                         }

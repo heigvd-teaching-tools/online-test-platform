@@ -34,7 +34,7 @@ const get = async (req, res) => {
     const { email } = await getUser(req);
 
     if(!await isInProgress(jamSessionId)) {
-        res.status(400).json({ message: 'Exam session is not in progress' });
+        res.status(400).json({ message: 'Jam Session is not in progress' });
         return;
     }
 

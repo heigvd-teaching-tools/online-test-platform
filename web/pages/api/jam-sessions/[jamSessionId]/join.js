@@ -15,7 +15,7 @@ const prisma = global.prisma
 
 const handler = async (req, res) => {
 
-    let isProfOrStudent = await hasRole(req, Role.PROFESSOR) || await hasRole(req, Role.STUDENT);
+    const isProfOrStudent = await hasRole(req, Role.PROFESSOR) || await hasRole(req, Role.STUDENT);
 
     if(!isProfOrStudent) {
         res.status(401).json({ message: 'Unauthorized' });
@@ -47,37 +47,11 @@ const post = async (req, res) => {
     }
 
     if(phaseGT(jamSession.phase, JamSessionPhase.IN_PROGRESS)) {
-
-        // cant join anymore, check if user is already in the session
-        // in case they are already in, they can still access the session (consulting their answers)
-        const alreadyIn = await prisma.userOnJamSession.findUnique({
-            where: {
-                userEmail_jamSessionId: {
-                    userEmail: studentEmail,
-                    jamSessionId: jamSessionId
-                }
-            }
-        });
-
-        if(!alreadyIn) {
-            res.status(400).json({ message: 'Too late' });
-            return;
-        }
+        res.status(400).json({ message: 'Too late' });
+        return;
     }
 
-    const userOnJamSession = await prisma.userOnJamSession.upsert({
-        where: {
-            userEmail_jamSessionId: {
-                userEmail: studentEmail,
-                jamSessionId: jamSessionId
-            }
-        },
-        update: {},
-        create: {
-            userEmail: studentEmail,
-            jamSessionId: jamSessionId
-        }
-    });
+    // get all the questions for the jam session
 
     const jamSessionToQuestions = await prisma.jamSessionToQuestion.findMany({
         where:{
@@ -95,9 +69,22 @@ const post = async (req, res) => {
         }
     });
 
-
-    // add empty answers and gradings for each questions
+    // connect the user to an existing jam session add create empty answers and gradings for each questions
     const transaction = [];
+
+    transaction.push(prisma.userOnJamSession.upsert({
+        where: {
+            userEmail_jamSessionId: {
+                userEmail: studentEmail,
+                jamSessionId: jamSessionId
+            }
+        },
+        update: {},
+        create: {
+            userEmail: studentEmail,
+            jamSessionId: jamSessionId
+        }
+    }))
 
     for (const jstq of jamSessionToQuestions) {
         const { question } = jstq;
@@ -143,10 +130,10 @@ const post = async (req, res) => {
                 }
             })
         );
-
-        // run the transaction
-        await prisma.$transaction(transaction);
     }
+
+    // run the transaction
+    const [ userOnJamSession ] = await prisma.$transaction(transaction);
 
     res.status(200).json(userOnJamSession);
 }

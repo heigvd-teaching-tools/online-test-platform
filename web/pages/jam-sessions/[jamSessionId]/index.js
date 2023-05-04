@@ -1,5 +1,5 @@
-import PageJoin from "../../../components/jam-sessions/pages/student/PageJoin";
+import PageDispatch from "../../../components/jam-sessions/pages/student/PageDispatch";
 
-const JoinJamSession = () => <PageJoin />;
+const StudentDispatch = () => <PageDispatch />;
 
-export default JoinJamSession;
+export default StudentDispatch;

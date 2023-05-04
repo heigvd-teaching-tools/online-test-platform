@@ -50,7 +50,7 @@ const get = async (req, res) => {
     let where = {
         where: {
             groupId: group.id,
-            jamSession: null,
+            jamSession: null, // only get questions that are not part of a jam session
         }
     }
 

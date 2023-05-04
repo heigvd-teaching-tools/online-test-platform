@@ -1,8 +1,10 @@
 import NextAuth from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
+import KeycloakProvider from "next-auth/providers/keycloak";
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient, Role } from '@prisma/client';
+
 
 const professors = [ 'bchapuis@gmail.com', 'stefanteofanovic@hotmail.com'];
 
@@ -19,6 +21,11 @@ export default NextAuth({
             clientId: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
         }),
+        KeycloakProvider({
+            clientId: process.env.KEYCLOAK_CLIENT_ID,
+            clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
+
+        })
     ],
     events: {
         async createUser({ user }) {
