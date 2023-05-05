@@ -10,7 +10,9 @@ const StudentPhaseRedirect = ({ phase, children }) => {
     if(router.pathname !== phasePageRelationship[phase]) {
         // the pathname is not the expected one, we redirect
         const jamSessionId = router.query.jamSessionId;
-        redirectToPhasePage(jamSessionId, phase, router);
+        (async () => {
+            await redirectToPhasePage(jamSessionId, phase, router);
+        })();
         return null;
     }
     return children;

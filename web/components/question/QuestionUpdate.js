@@ -8,11 +8,12 @@ import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
 import { useDebouncedCallback } from "use-debounce";
 
-import LoadingAnimation from "../feedback/LoadingAnimation";
+import LoadingAnimation from "../feedback/Loading";
 import {useSnackbar} from "../../context/SnackbarContext";
 
 import QuestionTagsSelector from "./tags/QuestionTagsSelector";
 import {useRouter} from "next/router";
+import Loading from "../feedback/Loading";
 
 const QuestionUpdate = ({ questionId }) => {
     const router = useRouter();
@@ -63,7 +64,6 @@ const QuestionUpdate = ({ questionId }) => {
 
     const onChange = useCallback(async (changedProperties) => {
         // update the question in the cache
-        console.log("change question cache", question, changedProperties)
         const newQuestion = { ...question, ...changedProperties };
         await saveQuestion(newQuestion);
     }, [question]);
@@ -72,52 +72,54 @@ const QuestionUpdate = ({ questionId }) => {
         await onChange(changedProperties);
     }, [onChange]), 500);
 
-    if (error) return <div>failed to load</div>
-    if (!question) return <LoadingAnimation />
-
-    return (
-        <LayoutSplitScreen
-            leftPanel={
-                question && (
-                    <Stack spacing={2} sx={{ pl:2, pt:3, pb:2, height:'100%' }}>
-                        <TextField
-                            id={`question-${question.id}-title`}
-                            label="Title"
-                            variant="outlined"
-                            fullWidth
-                            focused
-                            defaultValue={question.title}
-                            onChange={(e) => debounceChange({
-                                title: e.target.value
-                            })}
-                        />
-
-                        <Stack spacing={2} width={"100%"} height={"100%"} overflow={"auto"}>
-                            <ContentEditor
-                                id={`question-${question.id}`}
-                                language="markdown"
-                                rawContent={question.content}
-                                onChange={(content) => debounceChange({
-                                    content: content
+   return (
+       <Loading
+           loading={!question}
+           errors={[error]}
+       >
+            <LayoutSplitScreen
+                leftPanel={
+                    question && (
+                        <Stack spacing={2} sx={{ pl:2, pt:3, pb:2, height:'100%' }}>
+                            <TextField
+                                id={`question-${question.id}-title`}
+                                label="Title"
+                                variant="outlined"
+                                fullWidth
+                                focused
+                                defaultValue={question.title}
+                                onChange={(e) => debounceChange({
+                                    title: e.target.value
                                 })}
                             />
+
+                            <Stack spacing={2} width={"100%"} height={"100%"} overflow={"auto"}>
+                                <ContentEditor
+                                    id={`question-${question.id}`}
+                                    language="markdown"
+                                    rawContent={question.content}
+                                    onChange={(content) => debounceChange({
+                                        content: content
+                                    })}
+                                />
+                            </Stack>
+                            <QuestionTagsSelector questionId={question.id} />
+                            <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
+                                <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => deleteQuestion(question.id)}>Delete this question</Button>
+                            </Stack>
                         </Stack>
-                        <QuestionTagsSelector questionId={question.id} />
-                        <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
-                            <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => deleteQuestion(question.id)}>Delete this question</Button>
-                        </Stack>
-                    </Stack>
-                )
-            }
-            rightPanel={
-                question && (
-                    <QuestionTypeSpecific
-                        question={question}
-                        onQuestionChange={onChange}
-                    />
-                )
-            }
-        />
+                    )
+                }
+                rightPanel={
+                    question && (
+                        <QuestionTypeSpecific
+                            question={question}
+                            onQuestionChange={onChange}
+                        />
+                    )
+                }
+            />
+       </Loading>
     )
 }
 

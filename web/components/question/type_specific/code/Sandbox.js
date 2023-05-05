@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import {Stack, TextField, Typography} from "@mui/material";
 import useSWR from "swr";
+import Loading from "../../../feedback/Loading";
 const Sandbox = ({ questionId, language }) => {
 
     const { data: sandbox, mutate, error } = useSWR(
@@ -44,6 +45,10 @@ const Sandbox = ({ questionId, language }) => {
     const debouncedOnChange = useDebouncedCallback(onChange, 500);
 
     return (
+        <Loading
+            loading={!sandbox}
+            errors={[error]}
+        >{
             image && (
             <Stack spacing={2}>
                 <Typography variant="h6">Sandbox</Typography>
@@ -77,6 +82,8 @@ const Sandbox = ({ questionId, language }) => {
                     />
                 </Stack>
             </Stack>)
+        }
+        </Loading>
     )
 }
 

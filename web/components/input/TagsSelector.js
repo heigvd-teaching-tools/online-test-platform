@@ -9,7 +9,6 @@ const filterOptions = createFilterOptions({
     limit: 20, // suggestions limit
     stringify: (option) => option,
 });
-
 const TagsSelector = ({ options, value, label = "Tags", color = "primary", size = "medium", onChange }) => {
     const onChangeValue = useCallback((event, newValue) => {
         if(onChange) {

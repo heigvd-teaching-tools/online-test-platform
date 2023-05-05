@@ -1,6 +1,6 @@
 import { PrismaClient, Role, JamSessionPhase } from '@prisma/client';
 
-import { hasRole, getUser } from '../../../../../utils/auth';
+import { hasRole, getUser } from '../../../../../code/auth';
 import { questionIncludeClause, IncludeStrategy } from '../../../../../code/questions';
 import {isFinished, isInProgress} from "../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 

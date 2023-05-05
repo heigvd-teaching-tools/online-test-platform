@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback } from 'react';
-
+import useSWR from "swr";
 import { QuestionType, StudentFilePermission } from '@prisma/client';
 
 import TrueFalse from '../question/type_specific/TrueFalse';
@@ -10,10 +10,10 @@ import {Box, Stack, Typography} from "@mui/material";
 import FileEditor from "../question/type_specific/code/files/FileEditor";
 import Image from "next/image";
 import CodeCheck from "../question/type_specific/code/CodeCheck";
-import useSWR from "swr";
-import {useSnackbar} from "../../context/SnackbarContext";
+
 import {useDebouncedCallback} from "use-debounce";
 import {useRouter} from "next/router";
+import Loading from "../feedback/Loading";
 
 const AnswerEditor = ({ question, onAnswer }) => {
     const router = useRouter();
@@ -72,7 +72,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
 const AnswerCode  = ({ jamSessionId, questionId, onAnswerChange }) => {
 
-    const { data: answer } = useSWR(
+    const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
@@ -93,7 +93,11 @@ const AnswerCode  = ({ jamSessionId, questionId, onAnswerChange }) => {
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500);
 
     return (
-        answer?.code && (
+        <Loading
+            errors={[error]}
+            loading={!answer}
+        >{
+            answer?.code && (
             <Stack position="relative" height="100%">
                 <Box height="100%" overflow="auto" pb={16}>
                     { answer.code.files?.map((answerToFile, index) => (
@@ -132,13 +136,14 @@ const AnswerCode  = ({ jamSessionId, questionId, onAnswerChange }) => {
                     />
                 </Stack>
             </Stack>
-        )
+        )}
+        </Loading>
     )
 }
 
 const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
 
-    const { data: answer } = useSWR(
+    const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         jamSessionId && questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
@@ -173,20 +178,26 @@ const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
     }, [questionId, onAnswerChange]);
 
     return(
-        answer?.multipleChoice && options && (
-            <MultipleChoice
-                id={`answer-editor-${questionId}`}
-                selectOnly
-                options={options}
-                onChange={onOptionChange}
-            />
-        )
+        <Loading
+            errors={[error]}
+            loading={!answer}
+        >{
+            answer?.multipleChoice && options && (
+                <MultipleChoice
+                    id={`answer-editor-${questionId}`}
+                    selectOnly
+                    options={options}
+                    onChange={onOptionChange}
+                />
+            )
+        }
+        </Loading>
     )
 }
 
 const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
 
-    const { data: answer } = useSWR(
+    const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
@@ -204,20 +215,24 @@ const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
     }, [questionId, onAnswerChange]);
 
     return (
-        answer?.trueFalse && (
-            <TrueFalse
-                id={`answer-editor-${questionId}`}
-                allowUndefined={true}
-                isTrue={answer.trueFalse.isTrue}
-                onChange={onTrueFalseChange}
-            />
-        )
+        <Loading errors={[error]} loading={!answer}>
+            {
+                answer?.trueFalse && (
+                    <TrueFalse
+                        id={`answer-editor-${questionId}`}
+                        allowUndefined={true}
+                        isTrue={answer.trueFalse.isTrue}
+                        onChange={onTrueFalseChange}
+                    />
+                )
+            }
+        </Loading>
     )
 }
 
 const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
 
-    const { data: answer } = useSWR(
+    const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
@@ -236,19 +251,21 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
     const debouncedOnChange = useDebouncedCallback(onEssayChange, 500);
 
     return (
+        <Loading errors={[error]} loading={!answer}>{
         answer?.essay && (
             <Essay
                 id={`answer-editor-${questionId}`}
                 content={answer.essay.content}
                 onChange={debouncedOnChange}
             />
-        )
+        )}
+        </Loading>
     )
 }
 
 const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
 
-    const { data: answer } = useSWR(
+    const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
     );
@@ -271,13 +288,15 @@ const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
     const debouncedOnChange = useDebouncedCallback(onWebChange, 500);
 
     return (
+        <Loading errors={[error]} loading={!answer}>{
         answer?.web && (
             <Web
                 id={`answer-editor-${questionId}`}
                 web={answer.web}
                 onChange={debouncedOnChange}
             />
-        )
+        )}
+        </Loading>
     )
 }
 

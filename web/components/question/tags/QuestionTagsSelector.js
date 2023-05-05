@@ -2,6 +2,7 @@ import { useTags } from "../../../context/TagContext";
 import { useCallback } from "react";
 import useSWR from "swr";
 import TagsSelector from "../../input/TagsSelector";
+import Loading from "../../feedback/Loading";
 
 const QuestionTagsSelector = ({ questionId } ) => {
 
@@ -18,11 +19,16 @@ const QuestionTagsSelector = ({ questionId } ) => {
     }, [questionId, mutate, upsert]);
 
     return(
-        <TagsSelector
-            options={allTags.map((tag) => tag.label)}
-            value={tags.map((tag) => tag.label)}
-            onChange={onChange}
-        />
+        <Loading
+            loading={!tags}
+            errors={[error]}
+        >
+            <TagsSelector
+                options={allTags.map((tag) => tag.label)}
+                value={tags.map((tag) => tag.label)}
+                onChange={onChange}
+            />
+        </Loading>
     )
 }
 

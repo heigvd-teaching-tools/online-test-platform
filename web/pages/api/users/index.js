@@ -1,5 +1,5 @@
 import { PrismaClient, Role, QuestionType } from '@prisma/client';
-import {getUser, getUserSelectedGroup, hasRole} from '../../../utils/auth';
+import {getUser, getUserSelectedGroup, hasRole} from '../../../code/auth';
 import {questionIncludeClause} from "../../../code/questions";
 
 if (!global.prisma) {

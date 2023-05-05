@@ -7,24 +7,26 @@ import {useEffect, useState} from "react";
 import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
 import MainMenu from "../../layout/MainMenu";
+import {fetcher} from "../../../code/utils";
+import Loading from "../../feedback/Loading";
 
 const PageAnalytics = () => {
     const router = useRouter();
     const { jamSessionId } = router.query;
 
-    const { data:jamSessions } = useSWR(
+    const { data:jamSessions, error: errorJamSessions } = useSWR(
         `/api/jam-sessions`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        jamSessionId ? fetcher : null
     );
 
-    const { data:jamSession } = useSWR(
+    const { data:jamSession, error: errorJamSession } = useSWR(
         `/api/jam-sessions/${jamSessionId}`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        jamSessionId ? fetcher : null
     );
 
-    const { data: questions } = useSWR(
-        `/api/jam-sessions/${jamSessionId}/questions/with-grading/official`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+    const { data: JamSessionToQuestions, error: errorQuestions } = useSWR(
+        `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
+        jamSessionId ? fetcher : null,
         { refreshInterval  : 1000 }
     );
 
@@ -40,36 +42,41 @@ const PageAnalytics = () => {
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <LayoutMain
-            header={ <MainMenu /> }
-            padding={2}
-            spacing={2}
-        >
-            { jamSession && jamSessions && questions && (
-                <Stack alignItems="center" spacing={2} padding={2}>
-                    <Autocomplete
-                        id="chose-jam-session"
-                        options={jamSessions}
-                        getOptionLabel={(option) => option.label}
-                        sx={{ width: '70%' }}
-                        renderInput={(params) => <TextField {...params} label="Jam session" variant="outlined" />}
-                        value={value}
-                        onChange={async (event, newValue) => {
-                            if(newValue && newValue.id){
-                                await router.push(`/jam-sessions/${newValue.id}/analytics`);
-                            }
-                        }}
-                        inputValue={inputValue}
-                        onInputChange={(event, newInputValue) => {
-                            setInputValue(newInputValue);
-                        }}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
+            <Loading
+                error={[errorJamSessions, errorJamSession, errorQuestions]}
+                loading={!jamSession || !jamSessions || !JamSessionToQuestions}
+            >
+                <LayoutMain
+                    header={ <MainMenu /> }
+                    padding={2}
+                    spacing={2}
+                >
+                    { jamSession && jamSessions && JamSessionToQuestions && (
+                        <Stack alignItems="center" spacing={2} padding={2}>
+                            <Autocomplete
+                                id="chose-jam-session"
+                                options={jamSessions}
+                                getOptionLabel={(option) => option.label}
+                                sx={{ width: '70%' }}
+                                renderInput={(params) => <TextField {...params} label="Jam session" variant="outlined" />}
+                                value={value}
+                                onChange={async (event, newValue) => {
+                                    if(newValue && newValue.id){
+                                        await router.push(`/jam-sessions/${newValue.id}/analytics`);
+                                    }
+                                }}
+                                inputValue={inputValue}
+                                onInputChange={(event, newInputValue) => {
+                                    setInputValue(newInputValue);
+                                }}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
 
-                    />
-                    <JamSessionAnalytics questions={questions} />
-                </Stack>
-            )}
-        </LayoutMain>
+                            />
+                            <JamSessionAnalytics JamSessionToQuestions={JamSessionToQuestions} />
+                        </Stack>
+                    )}
+                </LayoutMain>
+            </Loading>
         </Authorisation>
     )
 }

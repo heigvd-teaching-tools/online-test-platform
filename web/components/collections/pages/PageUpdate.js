@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import {Stack, Button, IconButton, Box} from "@mui/material";
 
 import LayoutMain from '../../layout/LayoutMain';
-import LoadingAnimation from '../../feedback/LoadingAnimation';
+import LoadingAnimation from '../../feedback/Loading';
 
 import { useSnackbar } from '../../../context/SnackbarContext';
 import { Role } from "@prisma/client";
@@ -16,6 +16,7 @@ import QuestionUpdate from "../../question/QuestionUpdate";
 import Link from "next/link";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Image from "next/image";
+import Loading from "../../feedback/Loading";
 
 const PageUpdate = () => {
     const router = useRouter();
@@ -153,56 +154,58 @@ const PageUpdate = () => {
     const orderDecrease = useCallback(async (order) => await updateQuestionOrder(order, -1), [updateQuestionOrder]);
     const orderIncrease = useCallback(async (order) => await updateQuestionOrder(order, 1), [updateQuestionOrder]);
 
-    if (error) return <div>failed to load</div>
-    if (!questions) return <LoadingAnimation />
-
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-            <LayoutMain
-                header={
-                    <Stack direction="row" alignItems="center">
-                        <Link href={`/exams`}>
-                            <Button startIcon={<ArrowBackIosIcon />}>
-                                Back
-                            </Button>
-                        </Link>
-                        { questions &&
-                            <QuestionPages
-                                questions={questions}
-                                activeQuestion={questions[parseInt(router.query.questionIndex) - 1]}
-                                link={(_, index) => {
-                                    return `/exams/${router.query.examId}/questions/${index + 1}`;
-                                }}
-                            />
-                        }
-                        <IconButton color="primary" onClick={createQuestion}>
-                            <Image alt="Add" src="/svg/icons/add.svg" layout="fixed" width="18" height="18" />
-                        </IconButton>
-                    </Stack>
-                }
-            >
-                {
-                    questions && questions.length > 0 && questions.map((q, index) =>
-                        <Box key={index} width="100%" height="100%" display={(index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none'}>
-                            { /*
-                                Not a traditional conditional rendering approach.
-                                Used to mount all the components at once, so that each component state can be updated independently.
-                                Instead of conditionally rendering the component, we just hide it with CSS.
-                            */ }
-                            <QuestionUpdate
-                                key={q.id}
-                                index={index + 1}
-                                question={q}
-                                onQuestionChange={onQuestionChange}
-                                onQuestionDelete={deleteQuestion}
-                                onClickLeft={orderDecrease}
-                                onClickRight={orderIncrease}
-                            />
-                        </Box>
-                    )
-                }
+            <Loading
+                loading={!questions}
+                errors={[error]}
+                >
+                <LayoutMain
+                    header={
+                        <Stack direction="row" alignItems="center">
+                            <Link href={`/exams`}>
+                                <Button startIcon={<ArrowBackIosIcon />}>
+                                    Back
+                                </Button>
+                            </Link>
+                            { questions &&
+                                <QuestionPages
+                                    questions={questions}
+                                    activeQuestion={questions[parseInt(router.query.questionIndex) - 1]}
+                                    link={(_, index) => {
+                                        return `/exams/${router.query.examId}/questions/${index + 1}`;
+                                    }}
+                                />
+                            }
+                            <IconButton color="primary" onClick={createQuestion}>
+                                <Image alt="Add" src="/svg/icons/add.svg" layout="fixed" width="18" height="18" />
+                            </IconButton>
+                        </Stack>
+                    }
+                >
+                    {
+                        questions && questions.length > 0 && questions.map((q, index) =>
+                            <Box key={index} width="100%" height="100%" display={(index + 1 === parseInt(router.query.questionIndex)) ? 'block' : 'none'}>
+                                { /*
+                                    Not a traditional conditional rendering approach.
+                                    Used to mount all the components at once, so that each component state can be updated independently.
+                                    Instead of conditionally rendering the component, we just hide it with CSS.
+                                */ }
+                                <QuestionUpdate
+                                    key={q.id}
+                                    index={index + 1}
+                                    question={q}
+                                    onQuestionChange={onQuestionChange}
+                                    onQuestionDelete={deleteQuestion}
+                                    onClickLeft={orderDecrease}
+                                    onClickRight={orderIncrease}
+                                />
+                            </Box>
+                        )
+                    }
 
-            </LayoutMain>
+                </LayoutMain>
+            </Loading>
         </Authorisation>
     )
 }

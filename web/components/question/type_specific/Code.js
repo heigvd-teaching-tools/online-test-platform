@@ -7,6 +7,8 @@ import TestCases from "./code/TestCases";
 import TabContent from "../../layout/utils/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
 import TemplateFilesManager from "./code/files/TemplateFilesManager";
+import Loading from "../../feedback/Loading";
+import LoadingAnimation from "../../feedback/LoadingAnimation";
 const Code = ({ questionId }) => {
 
     const { data: code, mutate, error } = useSWR(
@@ -18,7 +20,10 @@ const Code = ({ questionId }) => {
     const [ tab, setTab ] = useState(0);
 
     return (
-        <>
+        <Loading
+            loading={!code}
+            errors={[error]}
+        >
             { code && (
                 <Stack height='100%'>
                     <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
@@ -57,7 +62,7 @@ const Code = ({ questionId }) => {
 
                 </Stack>
             )}
-        </>
+        </Loading>
     )
 }
 

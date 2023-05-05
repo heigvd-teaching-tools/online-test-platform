@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import LoadingAnimation from "../feedback/LoadingAnimation";
+import LoadingAnimation from "../feedback/Loading";
 import LoginGitHub from "./LoginGitHub";
 
 const Authentication = ({ children }) => {

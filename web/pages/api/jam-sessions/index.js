@@ -1,5 +1,5 @@
 import { PrismaClient, Role, JamSessionPhase, QuestionType } from '@prisma/client';
-import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../code/auth';
 import {questionIncludeClause, questionTypeSpecific} from '../../../code/questions';
 
 if (!global.prisma) {
@@ -52,6 +52,11 @@ const post = async (req, res) => {
         return;
     }
 
+    if(!collectionId){
+        res.status(400).json({ message: 'No collection selected.' });
+        return;
+    }
+
     // select all questions from a collection
     const collectionToQuestions = await prisma.collectionToQuestion.findMany({
         include: {
@@ -94,12 +99,13 @@ const post = async (req, res) => {
     }
 
     try {
-        const jamSession = await prisma.jamSession.create({ data });
+        let jamSession = undefined;
+        await prisma.$transaction(async (prisma) => {
 
-        // create the copy of all questions, except code, for the jam session
+            jamSession = await prisma.jamSession.create({ data });
 
-        for(const collectionToQuestion of collectionToQuestions.filter(ctq => ctq.question.type !== QuestionType.code)){
-            await prisma.$transaction(async (prisma) => {
+            // create the copy of all questions, except code, for the jam session
+            for(const collectionToQuestion of collectionToQuestions.filter(ctq => ctq.question.type !== QuestionType.code)){
                 // create question
                 const question = await prisma.question.create({
                     data: {
@@ -133,12 +139,10 @@ const post = async (req, res) => {
                         }
                     }
                 });
-            });
-        }
+            }
 
-        // create the copy of code questions for the jam session
-        for(const collectionToQuestion of collectionToQuestions.filter(ctq => ctq.question.type === QuestionType.code)){
-            await prisma.$transaction(async (prisma) => {
+            // create the copy of code questions for the jam session
+            for(const collectionToQuestion of collectionToQuestions.filter(ctq => ctq.question.type === QuestionType.code)) {
                 // create code question, without files
                 const newCodeQuestion = await prisma.question.create({
                     data: {
@@ -171,6 +175,7 @@ const post = async (req, res) => {
                         }
                     }
                 });
+
                 // create relation between jam session and question
                 await prisma.jamSessionToQuestion.create({
                     data: {
@@ -189,8 +194,9 @@ const post = async (req, res) => {
                     }
                 });
 
+
                 // create the copy of template and solution files and link them to the new code questions
-                for(const codeToFile of collectionToQuestion.question.code.templateFiles){
+                for (const codeToFile of collectionToQuestion.question.code.templateFiles) {
                     const newFile = await prisma.file.create({
                         data: {
                             path: codeToFile.file.path,
@@ -212,7 +218,7 @@ const post = async (req, res) => {
                     });
                 }
 
-                for(const codeToFile of collectionToQuestion.question.code.solutionFiles){
+                for (const codeToFile of collectionToQuestion.question.code.solutionFiles) {
                     const newFile = await prisma.file.create({
                         data: {
                             path: codeToFile.file.path,
@@ -233,9 +239,9 @@ const post = async (req, res) => {
                         }
                     });
                 }
-            });
+            }
+        });
 
-        }
         res.status(200).json(jamSession);
     } catch (e) {
         console.log(e);

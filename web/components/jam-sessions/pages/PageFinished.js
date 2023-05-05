@@ -18,19 +18,20 @@ import {Role} from "@prisma/client";
 import Authorisation from "../../security/Authorisation";
 import JoinClipboard from "../JoinClipboard";
 import MainMenu from "../../layout/MainMenu";
+import Loading from "../../feedback/Loading";
 
 const PageFinished = () => {
     const router = useRouter();
     const { jamSessionId } = router.query;
 
-    const { data:jamSession } = useSWR(
+    const { data:jamSession, error: errorJamSession } = useSWR(
         `/api/jam-sessions/${jamSessionId}`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        jamSessionId ? fetcher : null,
     );
 
-    const { data } = useSWR(
+    const { data, error: errorQuestions } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        jamSessionId ? fetcher : null,
         { revalidateOnFocus : false }
     );
 
@@ -148,45 +149,50 @@ const PageFinished = () => {
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <PhaseRedirect phase={jamSession?.phase}>
-            <TabContext value={tab}>
-               { JamSessionToQuestions && JamSessionToQuestions.length > 0 && (
-                   <LayoutMain
-                        header={ <MainMenu /> }
-                        subheader={
-                            <TabList onChange={handleTabChange} >
-                                <Tab label="Results" value={1} />
-                                <Tab label="Analytics" value={2} />
-                            </TabList>
-                        }
-                        padding={2}
-                        spacing={2}
-                    >
-                        <TabPanel value={1} >
-                            <Stack spacing={4}>
-                                <JoinClipboard jamSessionId={jamSessionId} />
+            <PhaseRedirect phase={jamSession?.phase}>
+                <Loading
+                    errors={[errorJamSession, errorQuestions]}
+                    loading={!jamSession || !JamSessionToQuestions}
+                >
+                    <TabContext value={tab}>
+                       { JamSessionToQuestions && JamSessionToQuestions.length > 0 && (
+                           <LayoutMain
+                                header={ <MainMenu /> }
+                                subheader={
+                                    <TabList onChange={handleTabChange} >
+                                        <Tab label="Results" value={1} />
+                                        <Tab label="Analytics" value={2} />
+                                    </TabList>
+                                }
+                                padding={2}
+                                spacing={2}
+                            >
+                                <TabPanel value={1} >
+                                    <Stack spacing={4}>
+                                        <JoinClipboard jamSessionId={jamSessionId} />
 
-                                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                                    <Stack direction="row" alignItems="center" spacing={2}>
-                                        <Typography variant="h6">Overall success rate</Typography>
-                                        <PiePercent value={ getSignedSuccessRate(JamSessionToQuestions) } />
+                                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                                <Typography variant="h6">Overall success rate</Typography>
+                                                <PiePercent value={ getSignedSuccessRate(JamSessionToQuestions) } />
+                                            </Stack>
+                                            <Button onClick={exportAsCSV}>Export as csv</Button>
+                                        </Stack>
+
+                                        <DataGrid
+                                            header={gridHeaders()}
+                                            items={gridRows()}
+                                        />
                                     </Stack>
-                                    <Button onClick={exportAsCSV}>Export as csv</Button>
-                                </Stack>
-
-                                <DataGrid
-                                    header={gridHeaders()}
-                                    items={gridRows()}
-                                />
-                            </Stack>
-                        </TabPanel>
-                        <TabPanel value={2}>
-                            <JamSessionAnalytics JamSessionToQuestions={JamSessionToQuestions} />
-                        </TabPanel>
-                </LayoutMain>
-               )}
-            </TabContext>
-        </PhaseRedirect>
+                                </TabPanel>
+                                <TabPanel value={2}>
+                                    <JamSessionAnalytics JamSessionToQuestions={JamSessionToQuestions} />
+                                </TabPanel>
+                        </LayoutMain>
+                       )}
+                    </TabContext>
+                </Loading>
+            </PhaseRedirect>
         </Authorisation>
     )
 }

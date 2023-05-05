@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { hasRole } from '../../../../utils/auth';
+import { hasRole } from '../../../../code/auth';
 import {questionIncludeClause} from "../../../../code/questions";
 
 if (!global.prisma) {

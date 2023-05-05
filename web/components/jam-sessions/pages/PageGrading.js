@@ -4,28 +4,33 @@ import { useRouter } from "next/router";
 import {StudentQuestionGradingStatus, JamSessionPhase, Role} from '@prisma/client';
 import Image from 'next/image';
 
-import { update } from './crud';
-
 import { Stack, Divider, Paper, Button, Menu, MenuList, MenuItem, Typography, IconButton } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DialogFeedback from '../../feedback/DialogFeedback';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+
+import PiePercent from '../../feedback/PiePercent';
+import PhaseRedirect from './PhaseRedirect';
+
+import LayoutMain from "../../layout/LayoutMain";
+import Loading from "../../feedback/Loading";
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen';
-
 import QuestionPages from '../take/QuestionPages';
 import MainMenu from '../../layout/MainMenu';
 import QuestionView from '../../question/QuestionView';
-
 import AnswerCompare from '../../answer/AnswerCompare';
 import GradingSignOff from '../grading/GradingSignOff';
 import ParticipantNav from '../grading/ParticipantNav';
 import { useSession } from "next-auth/react";
-
 import { useSnackbar } from "../../../context/SnackbarContext";
 
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import Authorisation from "../../security/Authorisation";
-
+import { update } from './crud';
+import {getGradingStats, getSignedSuccessRate} from "./stats";
+import { fetcher } from '../../../code/utils';
 const PageGrading = () => {
     const router = useRouter();
     const { jamSessionId, participantId, activeQuestion } = router.query;
@@ -33,14 +38,14 @@ const PageGrading = () => {
     const { data:session } = useSession();
     const { show: showSnackbar } = useSnackbar();
 
-    const { data:jamSession } = useSWR(
+    const { data:jamSession, error: errorJamSession } = useSWR(
         `/api/jam-sessions/${jamSessionId}`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        jamSessionId ? fetcher : null,
     );
 
-    const { data, mutate } = useSWR(
+    const { data, mutate, error: errorQuestions } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        jamSessionId ? fetcher : null,
         { revalidateOnFocus : false }
     );
 
@@ -84,6 +89,10 @@ const PageGrading = () => {
             if(!jstq){
                 // goto first question and first participant
                 router.push(`/jam-sessions/${jamSessionId}/grading/1?participantId=${jamSessionToQuestions[0].question.studentAnswer[0].user.id}`);
+                return;
+            }
+            if(jstq.question.studentAnswer.length === 0){
+                // no participants
                 return;
             }
             setJamSessionJamSessionToQuestion(jstq);
@@ -189,157 +198,159 @@ const PageGrading = () => {
         }
     }, [activeQuestion, participantId, participants, router, jamSessionToQuestions, applyFilter]);
 
+    const ready = jamSessionToQuestions && jamSessionToQuestion && participants && participantId;
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
         <PhaseRedirect phase={jamSession?.phase}>
-           { jamSessionToQuestions && jamSessionToQuestion && participantId && (
-               <LayoutMain
-                   header={ <MainMenu /> }
-                   subheader={
-                       <Stack direction="row" alignItems="center">
-                           <Stack flex={1} sx={{ overflow:'hidden' }}>
-                               <QuestionPages
-                                   questions={applyFilter(jamSessionToQuestions).map((jstq) => jstq.question)}
-                                   activeQuestion={jamSessionToQuestion.question}
-                                   link={(questionId, index) => `/jam-sessions/${jamSessionId}/grading/${index+1}?participantId=${participantId}`}
-                                   isFilled={(questionId) => {
-                                       const jstq = jamSessionToQuestions.find((jstq) => jstq.question.id === questionId);
-                                       return jstq && jstq.question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
+            <Loading
+                errors={[errorJamSession, errorQuestions]}
+                loading={!jamSession || !data}
+            >
+                   <LayoutMain
+                       header={ <MainMenu /> }
+                       subheader={
+                           <Stack direction="row" alignItems="center">
+                               <Stack flex={1} sx={{ overflow:'hidden' }}>
+                                   {ready && (
+                                       <QuestionPages
+                                           questions={applyFilter(jamSessionToQuestions).map((jstq) => jstq.question)}
+                                           activeQuestion={jamSessionToQuestion.question}
+                                           link={(questionId, index) => `/jam-sessions/${jamSessionId}/grading/${index+1}?participantId=${participantId}`}
+                                           isFilled={(questionId) => {
+                                               const jstq = jamSessionToQuestions.find((jstq) => jstq.question.id === questionId);
+                                               return jstq && jstq.question.studentAnswer.every((sa) => sa.studentGrading.signedBy);
+                                           }}
+                                       />
+                                   )}
+                               </Stack>
+                               <GradingQuestionFilter
+                                   onFilter={(filter) => {
+                                       setFilter(filter);
                                    }}
                                />
                            </Stack>
-                           <GradingQuestionFilter
-                               onFilter={(filter) => {
-                                   setFilter(filter);
-                               }}
-                           />
-                       </Stack>
-                   }
-                   padding={0}
-                   spacing={2}
-               >
-                <LayoutSplitScreen
-                    header={<MainMenu />}
-                    leftPanel={
-                        <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
-                            { jamSessionToQuestion && (
-                                <QuestionView
-                                    order={jamSessionToQuestion.order}
-                                    points={jamSessionToQuestion.points}
-                                    question={jamSessionToQuestion.question}
-                                    totalPages={jamSessionToQuestions.length}
-                                />
-                            )}
-                        </Stack>
-                    }
-                    rightWidth={75}
-                    rightPanel={
-                        <Stack direction="row" padding={1} position="relative" height="100%" overflowX="auto">
-                            { jamSessionToQuestion && participants && participants.length > 0 && (
-                                <>
-                                <ParticipantNav
-                                    participants={participants}
-                                    active={participants.find((participant) => participant.id === participantId)}
-                                    onParticipantClick={(participant) => {
-                                        router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participant.id}`);
-                                    }}
-                                    isParticipantFilled={(participant) => {
-                                        const grading = jamSessionToQuestion && jamSessionToQuestion.question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
-                                        return grading && grading.signedBy;
-                                    }}
-                                />
-                                <Divider orientation="vertical" light flexItem />
-                                </>
-                            )}
-
-                            { jamSessionToQuestion && (
-                                <AnswerCompare
-                                    questionType={jamSessionToQuestion.question.type}
-                                    solution={jamSessionToQuestion.question[jamSessionToQuestion.question.type]}
-                                    answer={jamSessionToQuestion.question.studentAnswer.find((answer) => answer.user.id === participantId)[jamSessionToQuestion.question.type]}
-                                />
-                            )}
-                        </Stack>
-                    }
-                    footer={
-                        jamSessionToQuestion && (
-                            <Stack direction="row" justifyContent="space-between" height="100px" >
-                                <GradingNextBack
-                                    isFirst={participants.findIndex((p) => p.id === participantId) === 0 && parseInt(activeQuestion) === 0}
-                                    onPrev={prevParticipantOrQuestion}
-                                    onNext={nextParticipantOrQuestion}
-                                />
-                                <GradingSignOff
-                                    loading={loading}
-                                    grading={jamSessionToQuestion.question.studentAnswer.find((ans) => ans.user.id === participantId).studentGrading}
-                                    maxPoints={jamSessionToQuestion.points}
-                                    onSignOff={onSignOff}
-                                    clickNextParticipant={(current) => {
-                                        const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
-                                        if (next < participants.length) {
-                                            router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[next].id}`);
-                                        }
-                                    }}
-                                />
-                                <SuccessRate
-                                    value={getSignedSuccessRate(jamSessionToQuestions)}
-                                />
-                                <GradingActions
-                                    stats={getGradingStats(jamSessionToQuestions)}
-                                    loading={loading || saving}
-                                    signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
-                                    endGrading={() => setEndGradingDialogOpen(true)}
-                                />
+                       }
+                       padding={0}
+                       spacing={2}
+                   >
+                    <LayoutSplitScreen
+                        header={<MainMenu />}
+                        leftPanel={
+                            <Stack direction="row" sx={{ position:'relative', height:'100%' }}>
+                                { jamSessionToQuestion && (
+                                    <QuestionView
+                                        order={jamSessionToQuestion.order}
+                                        points={jamSessionToQuestion.points}
+                                        question={jamSessionToQuestion.question}
+                                        totalPages={jamSessionToQuestions.length}
+                                    />
+                                )}
                             </Stack>
-                        )
+                        }
+                        rightWidth={75}
+                        rightPanel={
+                            <Stack direction="row" padding={1} position="relative" height="100%" overflowX="auto">
+                                { ready && (
+                                    <>
+                                    <ParticipantNav
+                                        participants={participants}
+                                        active={participants.find((participant) => participant.id === participantId)}
+                                        onParticipantClick={(participant) => {
+                                            router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participant.id}`);
+                                        }}
+                                        isParticipantFilled={(participant) => {
+                                            const grading = jamSessionToQuestion && jamSessionToQuestion.question.studentAnswer.find((sa) => sa.user.id === participant.id).studentGrading;
+                                            return grading && grading.signedBy;
+                                        }}
+                                    />
+                                    <Divider orientation="vertical" light flexItem />
+                                    <AnswerCompare
+                                        questionType={jamSessionToQuestion.question.type}
+                                        solution={jamSessionToQuestion.question[jamSessionToQuestion.question.type]}
+                                        answer={jamSessionToQuestion.question.studentAnswer.find((answer) => answer.user.id === participantId)[jamSessionToQuestion.question.type]}
+                                    />
+                                    </>
+                                )}
+                            </Stack>
+                        }
+                        footer={
+                            ready && (
+                                <Stack direction="row" justifyContent="space-between" height="100px" >
+                                    <GradingNextBack
+                                        isFirst={participants.findIndex((p) => p.id === participantId) === 0 && parseInt(activeQuestion) === 0}
+                                        onPrev={prevParticipantOrQuestion}
+                                        onNext={nextParticipantOrQuestion}
+                                    />
+                                    <GradingSignOff
+                                        loading={loading}
+                                        grading={jamSessionToQuestion.question.studentAnswer.find((ans) => ans.user.id === participantId).studentGrading}
+                                        maxPoints={jamSessionToQuestion.points}
+                                        onSignOff={onSignOff}
+                                        clickNextParticipant={(current) => {
+                                            const next = participants.findIndex((studentGrading) => studentGrading.id === current.id) + 1;
+                                            if (next < participants.length) {
+                                                router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[next].id}`);
+                                            }
+                                        }}
+                                    />
+                                    <SuccessRate
+                                        value={getSignedSuccessRate(jamSessionToQuestions)}
+                                    />
+                                    <GradingActions
+                                        stats={getGradingStats(jamSessionToQuestions)}
+                                        loading={loading || saving}
+                                        signOffAllAutograded={() => setAutoGradeSignOffDialogOpen(true)}
+                                        endGrading={() => setEndGradingDialogOpen(true)}
+                                    />
+                                </Stack>
+                            )
+                        }
+                    />
+               </LayoutMain>
+               <DialogFeedback
+                    open={autoGradeSignOffDialogOpen}
+                    onClose={() => setAutoGradeSignOffDialogOpen(false)}
+                    title="Sign off all autograded"
+                    content={
+                        <>
+                            <Typography variant="body1" sx={{ mb:2 }}>
+                                Its is recommended to control the autograded answers before signing them off.
+                            </Typography>
+                            <Typography variant="button" gutterBottom>
+                                Are you sure you want to sign off all autograded answers?
+                            </Typography>
+                        </>
+                    }
+                    onConfirm={signOffAllAutograded}
+                />
+                <DialogFeedback
+                    open={endGradingDialogOpen}
+                    onClose={() => setEndGradingDialogOpen(false)}
+                    title="End grading"
+                    content={
+                        <>
+                            <Typography variant="body1" sx={{ mb:2 }}>
+                                You wont be able to get back to the grading phase.
+                            </Typography>
+                            <Typography variant="button" gutterBottom>
+                                Are you sure you want to end grading?
+                            </Typography>
+                        </>
+                    }
+                    onConfirm={endGrading}
+                />
+                <DialogFeedback
+                    open={someUnsignedDialogOpen}
+                    onClose={() => setSomeUnsignedDialogOpen(false)}
+                    title="End grading"
+                    content={
+                        <Typography variant="body1" sx={{ mb:2 }}>
+                            The signoff process is not complete.
+                        </Typography>
                     }
                 />
-            </LayoutMain>
-           )}
-           <DialogFeedback
-                open={autoGradeSignOffDialogOpen}
-                onClose={() => setAutoGradeSignOffDialogOpen(false)}
-                title="Sign off all autograded"
-                content={
-                    <>
-                        <Typography variant="body1" sx={{ mb:2 }}>
-                            Its is recommended to control the autograded answers before signing them off.
-                        </Typography>
-                        <Typography variant="button" gutterBottom>
-                            Are you sure you want to sign off all autograded answers?
-                        </Typography>
-                    </>
-                }
-                onConfirm={signOffAllAutograded}
-            />
-            <DialogFeedback
-                open={endGradingDialogOpen}
-                onClose={() => setEndGradingDialogOpen(false)}
-                title="End grading"
-                content={
-                    <>
-                        <Typography variant="body1" sx={{ mb:2 }}>
-                            You wont be able to get back to the grading phase.
-                        </Typography>
-                        <Typography variant="button" gutterBottom>
-                            Are you sure you want to end grading?
-                        </Typography>
-                    </>
-                }
-                onConfirm={endGrading}
-            />
-            <DialogFeedback
-                open={someUnsignedDialogOpen}
-                onClose={() => setSomeUnsignedDialogOpen(false)}
-                title="End grading"
-                content={
-                    <Typography variant="body1" sx={{ mb:2 }}>
-                        The signoff process is not complete.
-                    </Typography>
-                }
-            />
-
+            </Loading>
         </PhaseRedirect>
         </Authorisation>
     )
@@ -395,12 +406,6 @@ const GradingActions = ({ stats: { totalSigned, totalGradings, totalAutogradedUn
     </Stack>
 </Paper>
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DialogFeedback from '../../feedback/DialogFeedback';
-import PiePercent from '../../feedback/PiePercent';
-import PhaseRedirect from './PhaseRedirect';
-import {getGradingStats, getSignedSuccessRate} from "./stats";
-import LayoutMain from "../../layout/LayoutMain";
 
 const GradingQuestionFilter = ({ onFilter }) => {
     const [open, setOpen] = useState(false);

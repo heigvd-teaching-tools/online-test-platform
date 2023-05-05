@@ -2,6 +2,7 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import LoadingAnimation from "../../../feedback/LoadingAnimation";
+import {redirectToPhasePage} from "../../../../code/phase";
 /*
 *    Used as entry point for students
 *    Sends a join request to the server and redirects to the waiting page
@@ -13,6 +14,9 @@ const PageJoin = () => {
     const { data: session, status } = useSession();
     const [ error, setError ] = useState(null);
     useEffect(() => {
+        /*
+        * student is joining the jam session (it must be in draft or in-progress phase)
+        * */
         setError(null);
         if(jamSessionId && session && status === 'authenticated') {
             (async () => {
@@ -38,10 +42,16 @@ const PageJoin = () => {
                         }
                         return data;
                     })
-                    .then(async () => {
+                    .then(async (data) => {
                         setError(null);
-                        await router.push(`/jam-sessions/${jamSessionId}/wait`);
-                    }).catch(err => setError(err.message));
+                        const phase = data?.jamSession.phase;
+                        (async () => {
+                            redirectToPhasePage(jamSessionId, phase, router);
+                        })();
+                    }).catch(err => {
+                        console.log("catch: ", err)
+                        setError(err.message)
+                    });
             })();
         }
     }, [jamSessionId, router, session, status]);

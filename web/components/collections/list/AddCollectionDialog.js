@@ -1,7 +1,7 @@
 import DialogFeedback   from "../../feedback/DialogFeedback";
 import {Stack, TextField} from "@mui/material";
 import {useSnackbar} from "../../../context/SnackbarContext";
-import {useInput} from "../../../utils/useInput";
+import {useInput} from "../../../code/useInput";
 const AddCollectionDialog = ({ open, onClose, handleAddCollection }) => {
     const { show: showSnackbar } = useSnackbar();
     const { value:label, bind:bindLabel, setError:setErrorLabel } = useInput('');

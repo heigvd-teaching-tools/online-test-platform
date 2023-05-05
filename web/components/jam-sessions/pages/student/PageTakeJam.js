@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { Stack, Box } from "@mui/material";
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen';
-import LoadingAnimation from "../../../feedback/LoadingAnimation";
+import LoadingAnimation from "../../../feedback/Loading";
 import QuestionPages from '../../take/QuestionPages';
 
 import JamSessionCountDown from '../../in-progress/JamSessionCountDown';
@@ -21,16 +21,19 @@ import StudentPhaseRedirect from "./StudentPhaseRedirect";
 import LayoutMain from "../../../layout/LayoutMain";
 import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext";
 
+import { fetcher } from "../../../../code/utils";
+import Loading from "../../../feedback/Loading";
+
 const PageTakeJam = () => {
     const router = useRouter();
     const { jamSessionId, pageId } = router.query;
 
     const { data: session } = useSession();
 
-    const { data:jamSessionPhase } = useSWR(
+    const { data:jamSessionPhase, error: errorJamSessionPhase } = useSWR(
         `/api/jam-sessions/${jamSessionId}/phase`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
-        { refreshInterval  : 10000 }
+        jamSessionId ? fetcher : null,
+        { refreshInterval  : 1000 }
     );
 
     useEffect(() => {
@@ -40,24 +43,10 @@ const PageTakeJam = () => {
         }
     }, [jamSessionPhase, router]);
 
-    const { data: userOnJamSession, error, mutate } = useSWR(
+    const { data: userOnJamSession, error: errorUserOnExamSession } = useSWR(
         `/api/users/jam-sessions/${jamSessionId}/take`,
-        session && jamSessionId ?
-            (...args) =>
-                fetch(...args)
-                .then((res) => {
-                    if(!res.ok){
-                        switch(res.status){
-                            case 403:
-                                throw new Error('You are not allowed to access this collections session');
-                            default:
-                                throw new Error('An error occurred while fetching the data.');
-                        }
-                    }
-                    return res.json();
-                })
-            : null,
-            { revalidateOnFocus: false }
+        session && jamSessionId ? fetcher : null,
+        { revalidateOnFocus: false }
     );
 
     const [ page, setPage ] = useState(parseInt(pageId));
@@ -77,15 +66,12 @@ const PageTakeJam = () => {
 
     const hasAnswered = useCallback((questionId) => jamToQuestions.find(jtq => jtq.question.id === questionId)?.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED, [jamToQuestions]);
 
-    if(error) return <LoadingAnimation content={error.message} />
-    if (!userOnJamSession) return <LoadingAnimation />
-    if(userOnJamSession && userOnJamSession.phase !== JamSessionPhase.IN_PROGRESS) {
-        let text = userOnJamSession.label ? `${userOnJamSession.label} is not in progress.` : 'This session is not in progress.';
-        return <LoadingAnimation text={text} />;
-    }
-
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
+            <Loading
+                loading={!jamSessionPhase || !userOnJamSession}
+                errors={[errorJamSessionPhase, errorUserOnExamSession]}
+            >
             <StudentPhaseRedirect phase={userOnJamSession.phase}>
                 <LayoutMain
                     header={
@@ -145,6 +131,7 @@ const PageTakeJam = () => {
                     />
                 </LayoutMain>
             </StudentPhaseRedirect>
+            </Loading>
         </Authorisation>
     )
 }

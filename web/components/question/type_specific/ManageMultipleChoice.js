@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import {useCallback} from "react";
 import MultipleChoice from "./MultipleChoice";
+import Loading from "../../feedback/Loading";
 
 const ManageMultipleChoice = ({ questionId }) => {
 
@@ -66,6 +67,10 @@ const ManageMultipleChoice = ({ questionId }) => {
     }, [questionId, mutate]);
 
     return (
+        <Loading
+            loading={!options}
+            errors={[error]}
+        >
         <MultipleChoice
             options={options}
             onAdd={onAddOption}
@@ -76,6 +81,7 @@ const ManageMultipleChoice = ({ questionId }) => {
                 await onDeleteOption(deletedIndex, deletedOption);
             }}
         />
+        </Loading>
     )
 }
 

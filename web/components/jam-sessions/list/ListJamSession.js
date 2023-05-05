@@ -5,6 +5,7 @@ import DisplayPhase from "../DisplayPhase";
 import {JamSessionPhase } from "@prisma/client";
 import Image from "next/image";
 import { displayDateTime, linkPerPhase } from "./utils";
+import {getStudentEntryLink} from "../../../code/utils";
 const ListJamSession = ({ jamSessions, onStart, onDelete }) =>
     <DataGrid
         header={gridHeader}
@@ -33,10 +34,19 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) =>
                 linkHref: linkPerPhase(jamSession.phase, jamSession.id),
                 actions:  [(
                     <>
-                        <Link href={`/jam-sessions/${jamSession.id}/analytics`} passHref>
-                        <IconButton key="analytics">
-                            <Image alt="Analytics" src="/svg/icons/analytics.svg" layout="fixed" width="18" height="18" />
+                        <IconButton key="add-link-to-clipboard" title={"Copy and share a link with a student"} onClick={(ev) => {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            (async () => {
+                                await navigator.clipboard.writeText(getStudentEntryLink(jamSession.id));
+                            })();
+                        }}>
+                            <Image alt="Copy link" src="/svg/icons/link.svg" layout="fixed" width="18" height="18" />
                         </IconButton>
+                        <Link href={`/jam-sessions/${jamSession.id}/analytics`} passHref>
+                            <IconButton key="analytics">
+                                <Image alt="Analytics" src="/svg/icons/analytics.svg" layout="fixed" width="18" height="18" />
+                            </IconButton>
                         </Link>
                         <IconButton key="delete-jam-session" onClick={(ev) => onDelete(ev, jamSession)}>
                             <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
@@ -51,7 +61,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) =>
 const gridHeader = {
     actions: {
         label: 'Actions',
-        width: '80px',
+        width: '110px',
     },
     columns: [
         {

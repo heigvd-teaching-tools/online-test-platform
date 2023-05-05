@@ -17,6 +17,7 @@ import {
 import {useDebouncedCallback} from "use-debounce";
 import languages from "../../../../code/languages.json";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Loading from "../../../feedback/Loading";
 
 const environments = languages.environments;
 
@@ -109,28 +110,33 @@ const TestCases = ({ questionId, language }) => {
     }, [questionId, tests, updateTestCase]);
 
     return(
-        <Stack spacing={2} height="100%">
-            <Stack direction="row" spacing={2} justifyContent="space-between">
-                <Typography variant="h6">Test Cases</Typography>
-                <Box>
-                    <Button onClick={() => pullOutputs("solution")}>Pull outputs from solution</Button>
-                    <Button color="primary" onClick={addTestCase}>Add new test case</Button>
-                </Box>
-            </Stack>
+        <Loading
+            loading={!tests}
+            errors={[error]}
+        >
+            <Stack spacing={2} height="100%">
+                <Stack direction="row" spacing={2} justifyContent="space-between">
+                    <Typography variant="h6">Test Cases</Typography>
+                    <Box>
+                        <Button onClick={() => pullOutputs("solution")}>Pull outputs from solution</Button>
+                        <Button color="primary" onClick={addTestCase}>Add new test case</Button>
+                    </Box>
+                </Stack>
 
-            <Stack direction="column" flexGrow={1} position="relative" >
-                <Stack spacing={2} position="absolute" left={0} right={0} top={0} bottom={0} overflow="auto">
-                    {tests?.map((test, i) => (
-                        <TestCaseUpdate
-                            test={test}
-                            key={i}
-                            onChange={(updatedTest) => updateTestCase(updatedTest)}
-                            onDelete={() => deleteTestCase(test.index)}
-                        />
-                    ))}
+                <Stack direction="column" flexGrow={1} position="relative" >
+                    <Stack spacing={2} position="absolute" left={0} right={0} top={0} bottom={0} overflow="auto">
+                        {tests?.map((test, i) => (
+                            <TestCaseUpdate
+                                test={test}
+                                key={i}
+                                onChange={(updatedTest) => updateTestCase(updatedTest)}
+                                onDelete={() => deleteTestCase(test.index)}
+                            />
+                        ))}
+                    </Stack>
                 </Stack>
             </Stack>
-        </Stack>
+        </Loading>
     )
 }
 

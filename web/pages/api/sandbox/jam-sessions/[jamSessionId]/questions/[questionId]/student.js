@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { hasRole } from '../../../../../../../utils/auth';
+import { hasRole } from '../../../../../../../code/auth';
 import { runSandbox } from "../../../../../../../sandbox/runSandboxTC";
 import {getSession} from "next-auth/react";
 import {grading} from "../../../../../../../code/grading";

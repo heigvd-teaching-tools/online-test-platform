@@ -1,7 +1,7 @@
 import { PrismaClient, Role, StudentAnswerStatus, QuestionType } from '@prisma/client';
 
 import { getSession } from 'next-auth/react';
-import { hasRole } from '../../../../../../../utils/auth';
+import { hasRole } from '../../../../../../../code/auth';
 import {isInProgress} from "./utils";
 import {grading} from "../../../../../../../code/grading";
 

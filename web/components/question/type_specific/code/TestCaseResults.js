@@ -33,20 +33,7 @@ const TestCaseResults = ({ tests }) => {
 
 
 const TestCaseResult = ({ result }) => {
-    /*
 
-        result example:
-         {
-                "exec": "node /src/main.js",
-                "input": "test world\ntest world2\ntest world3",
-                "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3",
-                "expectedOutput": "TEST WORLD\nTEST WORLD2\nTEST WORLD3",
-                "passed": true
-            }
-
-
-
-    */
     return (
         result &&
         <Stack spacing={4} p={2} flex={1}>

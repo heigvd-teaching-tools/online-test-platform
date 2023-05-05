@@ -1,5 +1,5 @@
 import {PrismaClient, Role, QuestionType, StudentFilePermission} from '@prisma/client';
-import {getUserSelectedGroup, hasRole} from '../../../utils/auth';
+import {getUserSelectedGroup, hasRole} from '../../../code/auth';
 import {questionIncludeClause, questionTypeSpecific} from "../../../code/questions";
 
 import languages from '../../../code/languages.json';

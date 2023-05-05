@@ -7,7 +7,7 @@ import LayoutMain from '../../layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { useSnackbar } from '../../../context/SnackbarContext';
 
-import StepReferenceJam from '../draft/StepReferenceJam';
+import StepReferenceCollection from '../draft/StepReferenceCollection';
 import StepGeneralInformation from '../draft/StepGeneralInformation';
 import StepSchedule from '../draft/StepSchedule';
 
@@ -17,6 +17,8 @@ import { update, create } from './crud';
 import PhaseRedirect from './PhaseRedirect';
 import Authorisation from "../../security/Authorisation";
 import MainMenu from "../../layout/MainMenu";
+import {fetcher} from "../../../code/utils";
+import Loading from "../../feedback/Loading";
 
 const PageDraft = () => {
     const router = useRouter();
@@ -24,9 +26,9 @@ const PageDraft = () => {
 
     const { show: showSnackbar } = useSnackbar();
 
-    const { data:jamSession } = useSWR(
+    const { data:jamSession, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}`,
-        jamSessionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        jamSessionId ? fetcher : null,
         {
             fallbackData: {
                 id: undefined,
@@ -39,10 +41,15 @@ const PageDraft = () => {
     const [ saving, setSaving ] = useState(false);
 
     const [ selectedCollection, setSelectedCollection ] = useState(undefined);
+    const [ jamSessionQuestions, setJamSessionQuestions ] = useState([]);
 
     const onChangeReferenceCollection = useCallback((collection) => {
         setSelectedCollection(collection);
     }, [setSelectedCollection]);
+
+    const onLoadQuestions = useCallback((questions) => {
+        setJamSessionQuestions(questions);
+    }, [setJamSessionQuestions]);
 
     const [ duration, setDuration ] = useState(undefined);
     const onDurationChange = useCallback((duration) => {
@@ -60,13 +67,13 @@ const PageDraft = () => {
             duration
         };
 
-        if(!selectedCollection){
+        const hasQuestions = selectedCollection?.collectionToQuestions && selectedCollection.collectionToQuestions.length > 0 || jamSessionQuestions.length > 0 ;
+
+        if(!selectedCollection && !hasQuestions){
             showSnackbar('Please select the reference collections.', 'error');
             setSaving(false);
             return false;
         }
-
-        const hasQuestions = selectedCollection.collectionToQuestions && selectedCollection.collectionToQuestions.length > 0;
 
         if(!hasQuestions){
             showSnackbar('Your jam session has no questions. Please select the reference collection.', 'error');
@@ -111,7 +118,7 @@ const PageDraft = () => {
         }
         setSaving(false);
         return true;
-    }, [jamSession, selectedCollection, duration, showSnackbar, router]);
+    }, [jamSession, jamSessionQuestions, selectedCollection, duration, showSnackbar, router]);
 
     const handleFinalize = useCallback(async () => {
         if(await handleSave()){
@@ -121,55 +128,59 @@ const PageDraft = () => {
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>
-        <PhaseRedirect phase={jamSession?.phase}>
-            <LayoutMain header={ <MainMenu /> } padding={2}>
-                { jamSession && (
-                    <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
-                    { jamSession.id && (
-                        <JoinClipboard jamSessionId={jamSession.id} />
-                    )}
+            <Loading error={[error]} loading={!jamSession}>
+                <PhaseRedirect phase={jamSession?.phase}>
+                    <LayoutMain header={ <MainMenu /> } padding={2}>
+                        { jamSession && (
+                            <Stack sx={{ width:'100%' }}  spacing={4} pb={40}>
+                            { jamSession.id && (
+                                <JoinClipboard jamSessionId={jamSession.id} />
+                            )}
 
-                    <StepReferenceJam
-                        jamSession={jamSession}
-                        onChange={onChangeReferenceCollection}
-                    />
+                            <StepReferenceCollection
+                                disabled={jamSessionQuestions.length > 0}
+                                jamSession={jamSession}
+                                onChangeCollection={onChangeReferenceCollection}
+                                onLoadQuestions={onLoadQuestions}
+                            />
 
-                    <StepGeneralInformation
-                        jamSession={jamSession}
-                        onChange={(data)=>{
-                            jamSession.label = data.label;
-                            jamSession.conditions = data.conditions;
-                        }}
-                    />
+                            <StepGeneralInformation
+                                jamSession={jamSession}
+                                onChange={(data)=>{
+                                    jamSession.label = data.label;
+                                    jamSession.conditions = data.conditions;
+                                }}
+                            />
 
-                    <StepSchedule
-                        jamSession={jamSession}
-                        onChange={onDurationChange}
-                    />
+                            <StepSchedule
+                                jamSession={jamSession}
+                                onChange={onDurationChange}
+                            />
 
-                    <Stack direction="row" justifyContent="space-between">
-                        <LoadingButton
-                            onClick={handleSave}
-                            loading={saving}
-                            variant="outlined"
-                            color="info"
-                        >
-                            { jamSession.id ? 'Save' : 'Create' }
-                        </LoadingButton>
-                        { jamSession.id && (
-                            <LoadingButton
-                                onClick={handleFinalize}
-                                loading={saving}
-                                variant="contained"
-                            >
-                                Finalize
-                            </LoadingButton>
+                            <Stack direction="row" justifyContent="space-between">
+                                <LoadingButton
+                                    onClick={handleSave}
+                                    loading={saving}
+                                    variant="outlined"
+                                    color="info"
+                                >
+                                    { jamSession.id ? 'Save' : 'Create' }
+                                </LoadingButton>
+                                { jamSession.id && (
+                                    <LoadingButton
+                                        onClick={handleFinalize}
+                                        loading={saving}
+                                        variant="contained"
+                                    >
+                                        Finalize
+                                    </LoadingButton>
+                                )}
+                            </Stack>
+                        </Stack>
                         )}
-                    </Stack>
-                </Stack>
-                )}
-            </LayoutMain>
-        </PhaseRedirect>
+                    </LayoutMain>
+                </PhaseRedirect>
+            </Loading>
         </Authorisation>
     )
 }

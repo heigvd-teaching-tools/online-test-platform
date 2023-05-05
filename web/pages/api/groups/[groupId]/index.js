@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import {getUser, hasRole} from '../../../../utils/auth';
+import {getUser, hasRole} from '../../../../code/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()

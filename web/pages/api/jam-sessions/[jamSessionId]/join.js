@@ -1,6 +1,6 @@
 import { PrismaClient, Role, QuestionType, JamSessionPhase } from '@prisma/client';
 import { getSession } from 'next-auth/react';
-import { hasRole } from '../../../../utils/auth';
+import { hasRole } from '../../../../code/auth';
 import { grading } from '../../../../code/grading';
 import { phaseGT } from "../../../../code/phase";
 
@@ -51,7 +51,7 @@ const post = async (req, res) => {
         return;
     }
 
-    // get all the questions for the jam session
+    // get all the questions for the jam session,
 
     const jamSessionToQuestions = await prisma.jamSessionToQuestion.findMany({
         where:{
@@ -83,9 +83,17 @@ const post = async (req, res) => {
         create: {
             userEmail: studentEmail,
             jamSessionId: jamSessionId
+        },
+        include: {
+            jamSession: {
+                select: {
+                    phase: true // will be used by JoinPage to redirect to the right page (wait or take jam session)
+                }
+            }
         }
     }))
 
+    // create empty answers and gradings for each questions
     for (const jstq of jamSessionToQuestions) {
         const { question } = jstq;
         transaction.push(
@@ -101,7 +109,7 @@ const post = async (req, res) => {
                     userEmail: studentEmail,
                     questionId: question.id,
                     [question.type]: {
-                        // only code questions have type specific data -> template files
+                        // only code questions have question answer type-specific data -> template files
                         create: question.type === QuestionType.code ? {
                             files: {
                                 create: question.code.templateFiles.map(codeToFile => {
@@ -134,7 +142,7 @@ const post = async (req, res) => {
 
     // run the transaction
     const [ userOnJamSession ] = await prisma.$transaction(transaction);
-
+    console.log("userOnJamSession", userOnJamSession)
     res.status(200).json(userOnJamSession);
 }
 
