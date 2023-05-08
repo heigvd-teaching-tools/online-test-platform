@@ -2,12 +2,13 @@ import useSWR from "swr";
 import {useCallback} from "react";
 import MultipleChoice from "./MultipleChoice";
 import Loading from "../../feedback/Loading";
+import { fetcher } from "../../../code/utils";
 
 const ManageMultipleChoice = ({ questionId }) => {
 
     const { data: options, mutate, error } = useSWR(
         `/api/questions/${questionId}/multiple-choice/options`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 

@@ -1,4 +1,5 @@
 import React, {createContext, useState, useContext, useCallback, useEffect} from 'react';
+import { Role } from '@prisma/client';
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "./SnackbarContext";
 
@@ -15,6 +16,9 @@ export const GroupProvider = ({ children }) => {
 
     useEffect(() => {
         if(session) {
+            if(session.user.role !== Role.PROFESSOR) {
+                return;
+            }
             if(!session.user.selected_group && session.user.groups.length > 0) {
                 // if the user has no selected group, select the first one
                 (async () => {

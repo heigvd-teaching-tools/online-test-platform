@@ -7,12 +7,13 @@ import {StudentFilePermission} from "@prisma/client";
 import React, {useCallback} from "react";
 import CodeCheck from "../CodeCheck";
 import Loading from "../../../../feedback/Loading";
+import { fetcher } from "../../../../../code/utils";
 
 const TemplateFilesManager = ({ questionId }) => {
 
     const { data: codeToTemplateFiles, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/files/template`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 

@@ -1,10 +1,9 @@
 import {Role, JamSessionPhase} from "@prisma/client";
 import {useRouter} from "next/router";
-import LoadingAnimation from "../../../feedback/Loading";
 import Authentication from "../../../security/Authentication";
 import Authorisation from "../../../security/Authorisation";
 import useSWR from "swr";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {phaseGT, redirectToPhasePage} from "../../../../code/phase";
 import {fetcher} from "../../../../code/utils";
 import Loading from "../../../feedback/Loading";
@@ -34,7 +33,7 @@ const PageDispatch = () => {
                 })();
             }
         }
-    }, [data, dispatchError]);
+    }, [jamSessionId, router, data, dispatchError]);
 
     return(
         <Authentication >

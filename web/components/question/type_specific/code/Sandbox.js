@@ -3,11 +3,12 @@ import {useDebouncedCallback} from "use-debounce";
 import {Stack, TextField, Typography} from "@mui/material";
 import useSWR from "swr";
 import Loading from "../../../feedback/Loading";
+import { fetcher } from "../../../../code/utils";
 const Sandbox = ({ questionId, language }) => {
 
     const { data: sandbox, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/sandbox`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
@@ -21,7 +22,7 @@ const Sandbox = ({ questionId, language }) => {
 
     useEffect(() => {
         (async () => await mutate())();
-    }, [language]);
+    }, [language, mutate]);
 
 
     const onChange = async (sandbox) => {

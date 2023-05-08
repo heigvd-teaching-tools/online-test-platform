@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import useSWR from "swr";
-import { Stack, Tabs, Tab, Typography, Box } from "@mui/material"
+import { Stack, Tabs, Tab, Typography } from "@mui/material"
 
 import Sandbox from "./code/Sandbox";
 import TestCases from "./code/TestCases";
@@ -8,12 +8,13 @@ import TabContent from "../../layout/utils/TabContent";
 import SolutionFilesManager from "./code/files/SolutionFilesManager";
 import TemplateFilesManager from "./code/files/TemplateFilesManager";
 import Loading from "../../feedback/Loading";
-import LoadingAnimation from "../../feedback/LoadingAnimation";
+
+import { fetcher } from '../../../code/utils';
 const Code = ({ questionId }) => {
 
-    const { data: code, mutate, error } = useSWR(
+    const { data: code, error } = useSWR(
         `/api/questions/${questionId}/code`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 

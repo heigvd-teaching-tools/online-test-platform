@@ -14,6 +14,7 @@ import CodeCheck from "../question/type_specific/code/CodeCheck";
 import {useDebouncedCallback} from "use-debounce";
 import {useRouter} from "next/router";
 import Loading from "../feedback/Loading";
+import { fetcher } from '../../code/utils';
 
 const AnswerEditor = ({ question, onAnswer }) => {
     const router = useRouter();
@@ -74,7 +75,7 @@ const AnswerCode  = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        questionId ? fetcher : null
     );
 
     const onFileChange = useCallback(async (file) => {
@@ -88,7 +89,7 @@ const AnswerCode  = ({ jamSessionId, questionId, onAnswerChange }) => {
            body: JSON.stringify({file})
        }).then(res => res.json());
        onAnswerChange && onAnswerChange(updatedStudentAnswer);
-    }, [questionId, answer, onAnswerChange]);
+    }, [jamSessionId, questionId, answer, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500);
 
@@ -145,7 +146,7 @@ const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        jamSessionId && questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        jamSessionId && questionId ? fetcher : null
     );
 
     const [ options, setOptions ] = useState(undefined);
@@ -175,7 +176,7 @@ const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
             body: JSON.stringify({ option: changedOption })
         }).then(res => res.json());
         onAnswerChange && onAnswerChange(updatedStudentAnswer);
-    }, [questionId, onAnswerChange]);
+    }, [jamSessionId, questionId, onAnswerChange]);
 
     return(
         <Loading
@@ -199,7 +200,7 @@ const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        questionId ? fetcher : null
     );
 
     const onTrueFalseChange = useCallback(async (isTrue) => {
@@ -212,7 +213,7 @@ const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
             body: JSON.stringify(answer)
         }).then(res => res.json());
         onAnswerChange && onAnswerChange(updatedStudentAnswer);
-    }, [questionId, onAnswerChange]);
+    }, [jamSessionId, questionId, onAnswerChange]);
 
     return (
         <Loading errors={[error]} loading={!answer}>
@@ -234,7 +235,7 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        questionId ? fetcher : null
     );
 
     const onEssayChange = useCallback(async (content) => {
@@ -246,7 +247,7 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
                 } : undefined})
         }).then(res => res.json());
         onAnswerChange && onAnswerChange(updatedStudentAnswer);
-    }, [questionId, answer, onAnswerChange]);
+    }, [jamSessionId, questionId, answer, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onEssayChange, 500);
 
@@ -267,7 +268,7 @@ const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null
+        questionId ? fetcher : null
     );
 
     const onWebChange = useCallback(async (web) => {
@@ -283,7 +284,7 @@ const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
             body: JSON.stringify(answer)
         }).then(res => res.json());
         onAnswerChange && onAnswerChange(updatedStudentAnswer);
-    }, [questionId, onAnswerChange]);
+    }, [jamSessionId, questionId, onAnswerChange]);
 
     const debouncedOnChange = useDebouncedCallback(onWebChange, 500);
 

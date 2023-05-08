@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react";
 import { Stack, Box } from "@mui/material";
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen';
-import LoadingAnimation from "../../../feedback/Loading";
 import QuestionPages from '../../take/QuestionPages';
 
 import JamSessionCountDown from '../../in-progress/JamSessionCountDown';
@@ -41,7 +40,7 @@ const PageTakeJam = () => {
         if(jamSessionPhase && jamSessionPhase.phase !== JamSessionPhase.IN_PROGRESS){
             router.push(`/jam-sessions/${jamSessionId}/wait`);
         }
-    }, [jamSessionPhase, router]);
+    }, [jamSessionId, jamSessionPhase, router]);
 
     const { data: userOnJamSession, error: errorUserOnExamSession } = useSWR(
         `/api/users/jam-sessions/${jamSessionId}/take`,

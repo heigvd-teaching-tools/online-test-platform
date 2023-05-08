@@ -1,19 +1,19 @@
 import useSWR from "swr";
 import { useCallback } from 'react';
 import Image from 'next/image';
-import {Stack, TextField, Button, Box, Autocomplete} from '@mui/material';
+import {Stack, TextField, Button } from '@mui/material';
 import ContentEditor from '../input/ContentEditor';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QuestionTypeSpecific from "./QuestionTypeSpecific";
 import { useDebouncedCallback } from "use-debounce";
 
-import LoadingAnimation from "../feedback/Loading";
 import {useSnackbar} from "../../context/SnackbarContext";
 
 import QuestionTagsSelector from "./tags/QuestionTagsSelector";
 import {useRouter} from "next/router";
 import Loading from "../feedback/Loading";
+import { fetcher } from "../../code/utils";
 
 const QuestionUpdate = ({ questionId }) => {
     const router = useRouter();
@@ -21,7 +21,7 @@ const QuestionUpdate = ({ questionId }) => {
 
     const { data: question, mutate, error } = useSWR(
         `/api/questions/${questionId}`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
@@ -41,7 +41,7 @@ const QuestionUpdate = ({ questionId }) => {
             }).catch(() => {
                 showSnackbar('Error saving questions', 'error');
             });
-    } , [showSnackbar, mutate, question]);
+    } , [showSnackbar, mutate]);
 
     const deleteQuestion = useCallback(async () => {
         await fetch(`/api/questions`, {
@@ -60,13 +60,13 @@ const QuestionUpdate = ({ questionId }) => {
             }).catch(() => {
                 showSnackbar('Error deleting question', 'error');
             });
-    }, [question, showSnackbar, mutate]);
+    }, [question, showSnackbar, router, mutate]);
 
     const onChange = useCallback(async (changedProperties) => {
         // update the question in the cache
         const newQuestion = { ...question, ...changedProperties };
         await saveQuestion(newQuestion);
-    }, [question]);
+    }, [saveQuestion, question]);
 
     const debounceChange = useDebouncedCallback(useCallback(async (changedProperties) => {
         await onChange(changedProperties);

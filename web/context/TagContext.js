@@ -1,22 +1,31 @@
-import React, {createContext, useContext, useCallback } from 'react';
+import React, {createContext, useContext, useCallback, useEffect} from 'react';
 import useSWR from "swr";
+import { Role } from '@prisma/client';
+import {useSession} from "next-auth/react";
+import { fetcher } from "../code/utils"
 
 const TagsContext = createContext();
 export const useTags = () => useContext(TagsContext);
 
+const isProfessor = (user) => user?.role === Role.PROFESSOR;
+
 export const TagsProvider = ({ children }) => {
 
+    const { data: session } = useSession();
+
     const { data: tags, mutate, error } = useSWR(`/api/questions/tags`,
-        async (url) => {
-            const response = await fetch(url);
-            if (!response.ok) {
-                return [];
-            }
-            const data = await response.json();
-            return data;
-        },
+        isProfessor(session?.user) ?
+        fetcher : null,
         { fallbackData: [] }
     );
+
+    useEffect(() => {
+        if(session) {
+            (async () => {
+                await mutate();
+            })();
+        }
+    }, [session, mutate]);
 
     const upsert = useCallback(async (questionId, tags) => {
         return await fetch(`/api/questions/${questionId}/tags`, {
@@ -39,7 +48,7 @@ export const TagsProvider = ({ children }) => {
 
     return (
         <TagsContext.Provider value={{
-            tags,
+            tags: tags || [],
             upsert
         }}>
             {children}

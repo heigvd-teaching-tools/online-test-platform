@@ -16,6 +16,7 @@ import AddMemberDialog from "../list/AddMemberDialog";
 import MyGroupsGrid from "../list/MyGroupsGrid";
 import GroupMembersGrid from "../list/GroupMembersGrid";
 import Loading from "../../feedback/Loading";
+import {fetcher} from "../../../code/utils";
 
 const PageList = () => {
 
@@ -29,7 +30,7 @@ const PageList = () => {
 
   const { data:group, error, mutate } = useSWR(
     `/api/groups/${selectedGroup && selectedGroup.id}/members`,
-      selectedGroup ? (...args) => fetch(...args).then((res) => res.json()) : null,
+      selectedGroup ? fetcher : null,
   );
 
   useEffect(() => {

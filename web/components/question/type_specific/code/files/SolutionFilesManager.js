@@ -1,13 +1,14 @@
 import useSWR from "swr";
 import React, {useCallback, useRef} from "react";
 import { create, del, update } from "./crud";
-import {Box, Button, IconButton, Paper, Stack} from "@mui/material";
+import {Box, Button, IconButton, Stack } from "@mui/material";
 import FileEditor from "./FileEditor";
 import Image from "next/image";
 
 import languages from "../../../../../code/languages.json";
 import CodeCheck from "../CodeCheck";
 import Loading from "../../../../feedback/Loading";
+import { fetcher } from "../../../../../code/utils";
 
 const environments = languages.environments;
 const SolutionFilesManager = ({ questionId, language }) => {
@@ -15,7 +16,7 @@ const SolutionFilesManager = ({ questionId, language }) => {
 
     const { data:codeToSolutionFiles, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/files/solution`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 

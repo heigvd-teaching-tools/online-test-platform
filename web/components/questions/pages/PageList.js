@@ -15,6 +15,7 @@ import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
 import Loading from "../../feedback/Loading";
 import LoadingAnimation from "../../feedback/LoadingAnimation";
+import {fetcher} from "../../../code/utils";
 
 const PageList = () => {
     const router = useRouter();
@@ -26,8 +27,8 @@ const PageList = () => {
     const [ queryString, setQueryString ] = useState(undefined);
 
     const { data:questions, error, mutate } = useSWR(
-        `/api/questions?${queryString ? (new URLSearchParams(queryString)).toString() : ''}`,
-        group ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions${queryString ? `?${(new URLSearchParams(queryString)).toString()}` : ''}`,
+        group ? fetcher : null,
     );
 
     const [ addDialogOpen, setAddDialogOpen ] = useState(false);

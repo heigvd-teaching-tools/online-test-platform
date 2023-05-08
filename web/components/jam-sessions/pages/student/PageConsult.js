@@ -33,13 +33,13 @@ const PageConsult = () => {
             setJamSessionToQuestions(jamSession.jamSessionToQuestions)
             setSelected(jamSession.jamSessionToQuestions[questionPage - 1]);
         }
-    }, [jamSession]);
+    }, [jamSession, questionPage]);
 
     useEffect(() => {
         if (jamSessionToQuestions && jamSessionToQuestions.length > 0) {
             setSelected(jamSessionToQuestions[questionPage - 1]);
         }
-    }, [questionPage]);
+    }, [questionPage, jamSessionToQuestions]);
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>

@@ -18,6 +18,7 @@ import {useDebouncedCallback} from "use-debounce";
 import languages from "../../../../code/languages.json";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Loading from "../../../feedback/Loading";
+import { fetcher } from "../../../../code/utils";
 
 const environments = languages.environments;
 
@@ -25,7 +26,7 @@ const TestCases = ({ questionId, language }) => {
 
     const { data: tests, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/tests`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
@@ -93,7 +94,7 @@ const TestCases = ({ questionId, language }) => {
             })
         });
         await mutate();
-    }, [questionId, tests, mutate]);
+    }, [questionId, mutate]);
 
     const pullOutputs = useCallback(async (source) => {
         const result = await fetch(`/api/sandbox/${questionId}/${source}`, {
@@ -138,95 +139,6 @@ const TestCases = ({ questionId, language }) => {
             </Stack>
         </Loading>
     )
-}
-
-
-const PullOutputs = ({ onClick }) => {
-
-    const [open, setOpen] = useState(false);
-    const anchorRef = useRef(null);
-    const [source, setSource] = useState("solution");
-
-    const handleClick = () => {
-        onClick(source);
-    };
-
-    const handleMenuItemClick = (from) => {
-        setSource(from);
-        setOpen(false);
-    };
-
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
-    };
-
-    const handleClose = (event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target)) {
-            return;
-        }
-        setOpen(false);
-    };
-
-    return (
-        <>
-            <ButtonGroup size="small" variant="contained" ref={anchorRef} aria-label="split button">
-                <Button onClick={handleClick}>Pull outputs from {source}</Button>
-                <Button
-                    size="small"
-                    aria-controls={open ? 'split-button-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                >
-                    <ArrowDropDownIcon />
-                </Button>
-            </ButtonGroup>
-            <Popper
-                sx={{
-                    zIndex: 1,
-                }}
-                open={open}
-                anchorEl={anchorRef.current}
-                role={undefined}
-                transition
-                disablePortal
-            >
-                {({ TransitionProps, placement }) => (
-                    <Grow
-                        {...TransitionProps}
-                        style={{
-                            transformOrigin:
-                                placement === 'bottom' ? 'center top' : 'center bottom',
-                        }}
-                    >
-                        <Paper>
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList id="split-button-menu" autoFocusItem>
-                                    <MenuItem
-                                        key={1}
-                                        value={"solution"}
-                                        selected={source === "solution"}
-                                        onClick={(event) => handleMenuItemClick("solution")}
-                                    >
-                                        from solution files
-                                    </MenuItem>
-                                    <MenuItem
-                                        key={2}
-                                        value={"template"}
-                                        selected={source === "template"}
-                                        onClick={(event) => handleMenuItemClick( "template")}
-                                    >
-                                        from template files
-                                    </MenuItem>
-                                </MenuList>
-                            </ClickAwayListener>
-                        </Paper>
-                    </Grow>
-                )}
-            </Popper>
-        </>
-    );
 }
 
 const TestCaseUpdate = ({ test, onChange, onDelete }) => {

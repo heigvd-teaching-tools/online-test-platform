@@ -3,13 +3,14 @@ import { useCallback } from "react";
 import useSWR from "swr";
 import TagsSelector from "../../input/TagsSelector";
 import Loading from "../../feedback/Loading";
+import { fetcher } from "../../../code/utils";
 
 const QuestionTagsSelector = ({ questionId } ) => {
 
     const { tags:allTags, upsert } = useTags();
 
     const { data: tags, mutate, error } = useSWR(`/api/questions/${questionId}/tags`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { fallbackData: [] }
     );
 

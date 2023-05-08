@@ -16,6 +16,7 @@ import DateTimeAgo from "../../feedback/DateTimeAgo";
 import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
 import Loading from "../../feedback/Loading";
+import {fetcher} from "../../../code/utils";
 
 const gridHeader = {
 
@@ -54,7 +55,7 @@ const PageList = () => {
 
   const { data, error, mutate } = useSWR(
     `/api/collections`,
-      group ? (...args) => fetch(...args).then((res) => res.json()) : null,
+      group ? fetcher : null,
   );
 
   const [ collections, setCollections ] = useState(data);

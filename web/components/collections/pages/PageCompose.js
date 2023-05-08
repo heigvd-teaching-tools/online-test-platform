@@ -16,6 +16,7 @@ import {useRouter} from "next/router";
 import {useDebouncedCallback} from "use-debounce";
 import CollectionToQuestion from "../compose/CollectionToQuestion";
 import Loading from "../../feedback/Loading";
+import { fetcher } from '../../../code/utils';
 
 
 const PageCompose = () => {
@@ -26,13 +27,13 @@ const PageCompose = () => {
     const [ queryString, setQueryString ] = useState(undefined);
 
     const { data:searchQuestions, error:errorSearch, mutate:mutateSearch } = useSWR(
-        `/api/questions?${queryString ? (new URLSearchParams(queryString)).toString() : ''}`,
-        group ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        `/api/questions${queryString ? `?${(new URLSearchParams(queryString)).toString()}` : ''}`,
+        group ? fetcher : null,
     );
 
     const { data:collection, error: errorCollection, mutate:mutateCollection } = useSWR(
         `/api/collections/${router.query.collectionId}`,
-        group && router.query.collectionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        group && router.query.collectionId ? fetcher : null,
     );
 
     const [ label, setLabel ] = useState('');
@@ -117,13 +118,13 @@ const PageCompose = () => {
 
     const onCollectionToQuestionChange = useCallback(async (index, collectionToQuestion) => {
         collectionToQuestions[index] = collectionToQuestion;
-    }, [collectionToQuestions, setCollectionToQuestions]);
+    }, [collectionToQuestions]);
 
     const onDeleteCollectionToQuestion = useCallback(async (index) => {
         const updated = [...collectionToQuestions];
         updated.splice(index, 1);
         await mutateCollection(updated);
-    }, [collectionToQuestions, setCollectionToQuestions]);
+    }, [collectionToQuestions, mutateCollection]);
 
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR ]}>

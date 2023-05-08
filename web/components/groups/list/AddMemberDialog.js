@@ -57,7 +57,7 @@ const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
             content={
               <Stack spacing={2} mt={1}>
                     <TextField
-                        label="Search for a user"
+                        label="Search for a professor"
                         value={search}
                         onChange={async (e) => {
                             setSearch(e.target.value);

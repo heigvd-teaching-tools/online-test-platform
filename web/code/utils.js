@@ -6,7 +6,9 @@
  - in case of error 500, the isGeneric property will be true.
 * */
 export const fetcher = async url => {
+    console.log("fetcher", url)
     const res = await fetch(url)
+
     if (!res.ok) {
         const error = new Error('An error occurred while fetching the data.')
         // Attach extra info to the error object.

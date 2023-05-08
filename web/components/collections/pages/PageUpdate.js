@@ -17,6 +17,7 @@ import Link from "next/link";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Image from "next/image";
 import Loading from "../../feedback/Loading";
+import { fetcher } from '../../../code/utils';
 
 const PageUpdate = () => {
     const router = useRouter();
@@ -25,7 +26,7 @@ const PageUpdate = () => {
 
     const { data: questions, mutate, error } = useSWR(
         `/api/exams/${router.query.examId}/questions`,
-        router.query.examId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        router.query.examId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
