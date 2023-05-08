@@ -14,6 +14,7 @@ import LayoutMain from "../../../layout/LayoutMain";
 import AnswerConsult from "../../../answer/AnswerConsult";
 import AlertFeedback from "../../../feedback/AlertFeedback";
 import Loading from "../../../feedback/Loading";
+import { fetcher } from "../../../../code/utils";
 
 const PageConsult = () => {
     const router = useRouter();
