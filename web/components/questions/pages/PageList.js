@@ -77,30 +77,31 @@ const PageList = () => {
                         }
                         rightWidth={70}
                         rightPanel={
-                            <Stack spacing={2} padding={2} maxHeight={"100%"}>
-                                <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
-                                    <Typography variant="h6">Questions</Typography>
-                                    <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
+                            questions && 
+                                <Stack spacing={2} padding={2} maxHeight={"100%"}>
+                                    <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
+                                        <Typography variant="h6">{questions.length} questions</Typography>
+                                        <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
+                                    </Stack>
+                                    <Stack spacing={4} p={1} flex={1} maxHeight={"100%"} overflow={"auto"}>
+                                        {questions && questions.map((question) => (
+                                            <QuestionListItem
+                                                key={question.id}
+                                                question={question}
+                                                actions={[
+                                                    <Button key={`action-update-${question.id}`} onClick={async () => {
+                                                        await router.push(`/questions/${question.id}`);
+                                                    }} variant={"text"}>Update</Button>
+                                                ]}
+                                            />
+                                        ))}
+                                    </Stack>
+                                    {questions && questions.length === 0 && (
+                                        <AlertFeedback severity="info">
+                                            <Typography variant="body1">No questions found in this group. Try changing your search criteria</Typography>
+                                        </AlertFeedback>
+                                    )}
                                 </Stack>
-                                <Stack spacing={4} p={1} flex={1} maxHeight={"100%"} overflow={"auto"}>
-                                    {questions && questions.map((question) => (
-                                        <QuestionListItem
-                                            key={question.id}
-                                            question={question}
-                                            actions={[
-                                                <Button key={`action-update-${question.id}`} onClick={async () => {
-                                                    await router.push(`/questions/${question.id}`);
-                                                }} variant={"text"}>Update</Button>
-                                            ]}
-                                        />
-                                    ))}
-                                </Stack>
-                                {questions && questions.length === 0 && (
-                                    <AlertFeedback severity="info">
-                                        <Typography variant="body1">No questions found in this group. Try changing your search criteria</Typography>
-                                    </AlertFeedback>
-                                )}
-                            </Stack>
                         }
                     />
                     <AddQuestionDialog
