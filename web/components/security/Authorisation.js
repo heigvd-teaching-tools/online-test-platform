@@ -27,7 +27,9 @@ const Authorisation = ({ children, allowRoles = [] }) => {
 
 
     if(!authorization.hasAllowedRole){
-        return <Unauthorized />
+        return <Unauthorized>
+            <Typography variant="h6">You are not authorized to view this page.</Typography>
+        </Unauthorized>
     }
 
     if(authorization.hasAllowedRole && session.user.role === Role.PROFESSOR && !authorization.hasGroups){
