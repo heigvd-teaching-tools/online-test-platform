@@ -12,25 +12,25 @@ const Authorisation = ({ children, allowRoles = [] }) => {
     const { mutate } = useGroup();
 
     const [ authorization, setAuthorization ] = useState({
-        hasRole: false,
+        hasAllowedRole: false,
         hasGroups: false
     });
 
     useEffect(() => {
         if(session?.user){
             setAuthorization({
-                hasRole: allowRoles.includes(session.user.role),
+                hasAllowedRole: allowRoles.includes(session.user.role),
                 hasGroups: hasGroups(session.user)
             })
         }
-    }, [session]);
+    }, [session, allowRoles]);
 
 
-    if(!authorization.hasRole){
+    if(!authorization.hasAllowedRole){
         return <Unauthorized />
     }
 
-    if(authorization.hasRole && session.user.role === Role.PROFESSOR && !authorization.hasGroups){
+    if(authorization.hasAllowedRole && session.user.role === Role.PROFESSOR && !authorization.hasGroups){
         return <UnauthorizedMissingGroups
             onCreateGroup={async () => {
                 /*

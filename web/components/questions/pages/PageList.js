@@ -14,7 +14,6 @@ import QuestionListItem from "../list/QuestionListItem";
 import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
 import Loading from "../../feedback/Loading";
-import LoadingAnimation from "../../feedback/LoadingAnimation";
 import {fetcher} from "../../../code/utils";
 
 const PageList = () => {

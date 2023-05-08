@@ -20,10 +20,7 @@ const QuestionTagsSelector = ({ questionId } ) => {
     }, [questionId, mutate, upsert]);
 
     return(
-        <Loading
-            loading={!tags}
-            errors={[error]}
-        >
+        <Loading loading={!tags} errors={[error]}>
             <TagsSelector
                 options={allTags.map((tag) => tag.label)}
                 value={tags.map((tag) => tag.label)}
