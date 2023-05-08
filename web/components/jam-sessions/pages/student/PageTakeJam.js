@@ -42,7 +42,7 @@ const PageTakeJam = () => {
         }
     }, [jamSessionId, jamSessionPhase, router]);
 
-    const { data: userOnJamSession, error: errorUserOnExamSession } = useSWR(
+    const { data: userOnJamSession, error: errorUserOnJamSession } = useSWR(
         `/api/users/jam-sessions/${jamSessionId}/take`,
         session && jamSessionId ? fetcher : null,
         { revalidateOnFocus: false }
@@ -65,71 +65,75 @@ const PageTakeJam = () => {
 
     const hasAnswered = useCallback((questionId) => jamToQuestions.find(jtq => jtq.question.id === questionId)?.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED, [jamToQuestions]);
 
+    console.log("userOnJamSession", userOnJamSession, errorUserOnJamSession)
+
     return (
         <Authorisation allowRoles={[ Role.PROFESSOR, Role.STUDENT ]}>
             <Loading
                 loading={!jamSessionPhase || !userOnJamSession}
-                errors={[errorJamSessionPhase, errorUserOnExamSession]}
+                errors={[errorJamSessionPhase, errorUserOnJamSession]}
             >
-            <StudentPhaseRedirect phase={userOnJamSession.phase}>
-                <LayoutMain
-                    header={
-                        <Stack direction="row" alignItems="center">
-                            { userOnJamSession.startAt && userOnJamSession.endAt && (
-                                <Box sx={{ ml:2 }}>
-                                    <JamSessionCountDown startDate={userOnJamSession.startAt} endDate={userOnJamSession.endAt} />
-                                </Box>
-                            )}
-                            {jamToQuestions && jamToQuestions.length > 0 && (
-                                <QuestionPages
-                                    questions={jamToQuestions.sort(jtq => jtq.order).map(jtq => jtq.question)}
-                                    activeQuestion={jamToQuestions[page - 1].question}
-                                    link={(_, index) => `/jam-sessions/${jamSessionId}/take/${index + 1}`}
-                                    isFilled={hasAnswered}
-                                />
-                            )}
-                        </Stack>
-                    }
-                    >
-                    <LayoutSplitScreen
-                        leftPanel={
-                            jamToQuestions && jamToQuestions.length > 0 && jamToQuestions[page - 1]?.question && (
-                            <>
-                                <Box sx={{ height: 'calc(100% - 50px)' }}>
-                                    <QuestionView
-                                        order={jamToQuestions[page - 1].order}
-                                        points={jamToQuestions[page - 1].points}
-                                        question={jamToQuestions[page - 1].question}
+               { userOnJamSession && (
+                    <StudentPhaseRedirect phase={userOnJamSession.phase}>
+                    <LayoutMain
+                        header={
+                            <Stack direction="row" alignItems="center">
+                                { userOnJamSession.startAt && userOnJamSession.endAt && (
+                                    <Box sx={{ ml:2 }}>
+                                        <JamSessionCountDown startDate={userOnJamSession.startAt} endDate={userOnJamSession.endAt} />
+                                    </Box>
+                                )}
+                                {jamToQuestions && jamToQuestions.length > 0 && (
+                                    <QuestionPages
+                                        questions={jamToQuestions.sort(jtq => jtq.order).map(jtq => jtq.question)}
+                                        activeQuestion={jamToQuestions[page - 1].question}
+                                        link={(_, index) => `/jam-sessions/${jamSessionId}/take/${index + 1}`}
+                                        isFilled={hasAnswered}
+                                    />
+                                )}
+                            </Stack>
+                        }
+                        >
+                        <LayoutSplitScreen
+                            leftPanel={
+                                jamToQuestions && jamToQuestions.length > 0 && jamToQuestions[page - 1]?.question && (
+                                <>
+                                    <Box sx={{ height: 'calc(100% - 50px)' }}>
+                                        <QuestionView
+                                            order={jamToQuestions[page - 1].order}
+                                            points={jamToQuestions[page - 1].points}
+                                            question={jamToQuestions[page - 1].question}
+                                            page={page}
+                                            totalPages={jamToQuestions.length}
+                                        />
+                                    </Box>
+                                    <QuestionNav
                                         page={page}
                                         totalPages={jamToQuestions.length}
                                     />
-                                </Box>
-                                <QuestionNav
-                                    page={page}
-                                    totalPages={jamToQuestions.length}
-                                />
-                            </>
-                        )}
-                        rightPanel={
-                            jamToQuestions && jamToQuestions.length > 0 && jamToQuestions.map((q, index) => (
-                                <Box key={q.question.id} height="100%" display={(index + 1 === page) ? 'block' : 'none'}>
-                                    <ResizeObserverProvider>
-                                        <AnswerEditor
-                                            question={q.question}
-                                            onAnswer={(question, updatedStudentAnswer) => {
-                                                /* update the student answers status in memory */
-                                                question.studentAnswer[0].status = updatedStudentAnswer.status;
-                                                /* change the state to trigger a re-render */
-                                                setJamToQuestions([...jamToQuestions]);
-                                            }}
-                                        />
-                                    </ResizeObserverProvider>
-                                </Box>
-                            )
-                        )}
-                    />
-                </LayoutMain>
-            </StudentPhaseRedirect>
+                                </>
+                            )}
+                            rightPanel={
+                                jamToQuestions && jamToQuestions.length > 0 && jamToQuestions.map((q, index) => (
+                                    <Box key={q.question.id} height="100%" display={(index + 1 === page) ? 'block' : 'none'}>
+                                        <ResizeObserverProvider>
+                                            <AnswerEditor
+                                                question={q.question}
+                                                onAnswer={(question, updatedStudentAnswer) => {
+                                                    /* update the student answers status in memory */
+                                                    question.studentAnswer[0].status = updatedStudentAnswer.status;
+                                                    /* change the state to trigger a re-render */
+                                                    setJamToQuestions([...jamToQuestions]);
+                                                }}
+                                            />
+                                        </ResizeObserverProvider>
+                                    </Box>
+                                )
+                            )}
+                        />
+                    </LayoutMain>
+                </StudentPhaseRedirect>
+               )}  
             </Loading>
         </Authorisation>
     )

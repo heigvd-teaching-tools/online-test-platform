@@ -31,6 +31,7 @@ import Authorisation from "../../security/Authorisation";
 import { update } from './crud';
 import {getGradingStats, getSignedSuccessRate} from "./stats";
 import { fetcher } from '../../../code/utils';
+
 const PageGrading = () => {
     const router = useRouter();
     const { jamSessionId, participantId, activeQuestion } = router.query;
@@ -102,7 +103,7 @@ const PageGrading = () => {
                 router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`);
             }
         }
-    }, [jamSessionId, participantId, jamSessionToQuestions, router, applyFilter]);
+    }, [activeQuestion, jamSessionId, participantId, jamSessionToQuestions, router, applyFilter]);
 
     const saveGrading = async (grading) => {
         setLoading(true);
@@ -165,7 +166,7 @@ const PageGrading = () => {
             showSnackbar('Error', 'error');
         });
         setSaving(false);
-    }, [jamSessionId, router]);
+    }, [jamSessionId, router, showSnackbar]);
 
     const nextParticipantOrQuestion = useCallback(async () => {
         let nextParticipantIndex = participants.findIndex((p) => p.id === participantId) + 1;
@@ -185,7 +186,7 @@ const PageGrading = () => {
 
             }
         }
-    }, [participantId, jamSessionId, participants, router, jamSessionToQuestions, applyFilter]);
+    }, [activeQuestion, participantId, jamSessionId, participants, router, jamSessionToQuestions]);
 
     const prevParticipantOrQuestion = useCallback(() => {
         let prevParticipantIndex = participants.findIndex((p) => p.id === participantId) - 1;
@@ -196,7 +197,7 @@ const PageGrading = () => {
                 router.push(`/jam-sessions/${jamSessionId}/grading/${activeQuestion - 1}?participantId=${participants[participants.length - 1].id}`);
             }
         }
-    }, [activeQuestion, participantId, participants, router, jamSessionToQuestions, applyFilter]);
+    }, [activeQuestion, jamSessionId, participantId, participants, router]);
 
     const ready = jamSessionToQuestions && jamSessionToQuestion && participants && participantId;
 

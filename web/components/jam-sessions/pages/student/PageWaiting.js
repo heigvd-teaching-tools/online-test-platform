@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 import {JamSessionPhase, Role} from '@prisma/client';
 
-import LoadingAnimation from "../../../feedback/Loading";
+import LoadingAnimation from "../../../feedback/LoadingAnimation";
 import { Button, Typography } from "@mui/material";
 import Authorisation from "../../../security/Authorisation";
 import StudentPhaseRedirect from "./StudentPhaseRedirect";
@@ -15,7 +15,7 @@ const phaseToPhrase = (phase) => {
     switch(phase){
         case JamSessionPhase.NEW:
         case JamSessionPhase.DRAFT:
-            return 'not is progress';
+            return 'not in progress';
         case JamSessionPhase.IN_PROGRESS:
             return 'in progress';
         case JamSessionPhase.GRADING:
@@ -58,6 +58,9 @@ const PageWaiting = () => {
                             <>
                             <Typography variant="body1" gutterBottom>
                                 {data.jamSession.label ? `${data.jamSession.label} is ${phaseToPhrase(data.jamSession.phase)}.` : 'This session is not in progress.'}
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                Please wait until the professor starts the jam.
                             </Typography>
                             <Button onClick={() => signOut()}>Sign out</Button>
                             </>

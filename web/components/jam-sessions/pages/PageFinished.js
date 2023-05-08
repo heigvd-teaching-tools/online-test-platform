@@ -19,6 +19,7 @@ import Authorisation from "../../security/Authorisation";
 import JoinClipboard from "../JoinClipboard";
 import MainMenu from "../../layout/MainMenu";
 import Loading from "../../feedback/Loading";
+import { fetcher } from '../../../code/utils';
 
 const PageFinished = () => {
     const router = useRouter();

@@ -7,6 +7,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import TestCaseResults from "../question/type_specific/code/TestCaseResults";
 import TabPanel from "../layout/utils/TabPanel";
 import TabContent from "../layout/utils/TabContent";
+import { useResizeObserver } from "../../context/ResizeObserverContext";
 
 const PassIndicator = ({passed}) => {
     return (
@@ -22,9 +23,16 @@ const CompareCode = ({ solution, answer }) => {
 
     const [ tab, setTab ] = React.useState(0);
 
+    /*  unknown issues when using 100% for the height of the Stack container -> the parent height overflows the container
+        it only works well whe using px values thus the use for the ResizeObserver
+
+    */
+    const { height: containerHeight } = useResizeObserver();
+
     return (
         answer && solution && (
-            <Box>
+            <Stack maxHeight={containerHeight} width={"100%"} overflow={"auto"}>
+                <Box flexGrow={1}>
                 <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                     <Tab label={<Typography variant="caption">Code</Typography>} value={0} />
                     <Tab label={
@@ -47,28 +55,28 @@ const CompareCode = ({ solution, answer }) => {
                 </Tabs>
                 <TabPanel value={tab} index={0}>
                     <TabContent>
-                            <ResizePanel
-                                leftPanel={
-                                answer.files?.map((answerToFile, index) => (
+                        <ResizePanel
+                            leftPanel={
+                            answer.files?.map((answerToFile, index) => (
+                                <FileEditor
+                                    key={index}
+                                    file={answerToFile.file}
+                                    readonlyPath
+                                    readonlyContent
+                                />
+                            ))
+                            }
+                            rightPanel={
+                                solution.solutionFiles?.map((solutionToFile, index) => (
                                     <FileEditor
                                         key={index}
-                                        file={answerToFile.file}
+                                        file={solutionToFile.file}
                                         readonlyPath
                                         readonlyContent
                                     />
                                 ))
-                                }
-                                rightPanel={
-                                    solution.solutionFiles?.map((solutionToFile, index) => (
-                                        <FileEditor
-                                            key={index}
-                                            file={solutionToFile.file}
-                                            readonlyPath
-                                            readonlyContent
-                                        />
-                                    ))
-                                }
-                                rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
+                            }
+                            rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
                             />
                     </TabContent>
                 </TabPanel>
@@ -77,7 +85,8 @@ const CompareCode = ({ solution, answer }) => {
                         <TestCaseResults tests={answer.testCaseResults} />
                     </TabContent>
                 </TabPanel>
-            </Box>
+                </Box>
+            </Stack>
         )
     )
 }

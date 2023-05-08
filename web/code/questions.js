@@ -41,13 +41,6 @@ export const questionsWithIncludes = ( {
     }
 }
 
-/* TODO: passe single JSON argument object instead of multiple parameters,
-create a json object containing default values and merge with the argument object
-
-
-
- */
-
 const defaultQuestionIncludeClause = {
     includeTypeSpecific: true,
     includeOfficialAnswers: false,

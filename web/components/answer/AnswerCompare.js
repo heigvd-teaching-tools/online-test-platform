@@ -5,6 +5,7 @@ import ConsultWeb from "./ConsultWeb";
 import ConsultEssay from "./ConsultEssay";
 import CompareMultipleChoice from "./CompareMultipleChoice";
 import CompareTrueFalse from "./CompareTrueFalse";
+import { ResizeObserverProvider } from '../../context/ResizeObserverContext';
 
 const AnswerCompare = ({  questionType, solution, answer }) => {
     return (
@@ -34,10 +35,12 @@ const AnswerCompare = ({  questionType, solution, answer }) => {
                 )
                 ||
                 questionType === QuestionType.code && (
-                    <CompareCode
-                        solution={solution}
-                        answer={answer}
-                    />
+                    <ResizeObserverProvider>
+                        <CompareCode
+                            solution={solution}
+                            answer={answer}
+                        />
+                    </ResizeObserverProvider>
                 )
                 ||
                 questionType === QuestionType.web && (

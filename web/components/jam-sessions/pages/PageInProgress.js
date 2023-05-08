@@ -19,8 +19,8 @@ import DialogFeedback from '../../feedback/DialogFeedback';
 import PhaseRedirect from './PhaseRedirect';
 import Authorisation from "../../security/Authorisation";
 import MainMenu from "../../layout/MainMenu";
-import LoadingAnimation from "../../feedback/Loading";
 import Loading from "../../feedback/Loading";
+import { fetcher } from '../../../code/utils';
 
 const PageInProgress = () => {
     const router = useRouter();
