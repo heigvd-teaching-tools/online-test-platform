@@ -14,7 +14,7 @@ export const TagsProvider = ({ children }) => {
     const { data: session } = useSession();
 
     const { data: tags, mutate, error } = useSWR(`/api/questions/tags`,
-        isProfessor(session?.user) ?
+        isProfessor(session?.user) && session.user.selected_group ?
         fetcher : null,
         { fallbackData: [] }
     );
