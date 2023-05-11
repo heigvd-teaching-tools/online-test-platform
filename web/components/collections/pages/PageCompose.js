@@ -17,6 +17,7 @@ import {useDebouncedCallback} from "use-debounce";
 import CollectionToQuestion from "../compose/CollectionToQuestion";
 import Loading from "../../feedback/Loading";
 import { fetcher } from '../../../code/utils';
+import ScrollContainer from "../../layout/ScrollContainer";
 
 
 const PageCompose = () => {
@@ -183,7 +184,7 @@ const PageCompose = () => {
                                         <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
                                             <Typography variant="h6">Questions</Typography>
                                         </Stack>
-                                        <Stack spacing={4} overflow={"auto"} p={1}>
+                                        <ScrollContainer spacing={4} padding={1}>
                                             { searchQuestions
                                                 .filter((question) => !collectionToQuestions.find((collectionToQuestion) => collectionToQuestion.question.id === question.id))
                                                 .map((question) => (
@@ -195,7 +196,7 @@ const PageCompose = () => {
                                                         ]}
                                                     />
                                             ))}
-                                        </Stack>
+                                        </ScrollContainer>
                                     </Stack>
                                 }
                             </Stack>

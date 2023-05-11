@@ -19,6 +19,7 @@ import languages from "../../../../code/languages.json";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Loading from "../../../feedback/Loading";
 import { fetcher } from "../../../../code/utils";
+import ScrollContainer from "../../../layout/ScrollContainer";
 
 const environments = languages.environments;
 
@@ -109,13 +110,13 @@ const TestCases = ({ questionId, language }) => {
             });
         }
     }, [questionId, tests, updateTestCase]);
-
+    console.log("tests", tests)
     return(
         <Loading
             loading={!tests}
             errors={[error]}
         >
-            <Stack spacing={2} height="100%">
+            <Stack spacing={2} height={"100%"} flex={1} overflow={"hidden"} >
                 <Stack direction="row" spacing={2} justifyContent="space-between">
                     <Typography variant="h6">Test Cases</Typography>
                     <Box>
@@ -124,24 +125,24 @@ const TestCases = ({ questionId, language }) => {
                     </Box>
                 </Stack>
 
-                <Stack direction="column" flexGrow={1} position="relative" >
-                    <Stack spacing={2} position="absolute" left={0} right={0} top={0} bottom={0} overflow="auto">
-                        {tests?.map((test, i) => (
-                            <TestCaseUpdate
-                                test={test}
-                                key={i}
-                                onChange={(updatedTest) => updateTestCase(updatedTest)}
-                                onDelete={() => deleteTestCase(test.index)}
-                            />
-                        ))}
-                    </Stack>
-                </Stack>
+                <ScrollContainer spacing={2}>
+                    {tests?.map((test, i) => (
+                        <TestCaseUpdate
+                            test={test}
+                            key={i}
+                            onChange={(updatedTest) => updateTestCase(updatedTest)}
+                            onDelete={() => deleteTestCase(test.index)}
+                        />
+                    ))}
+                </ScrollContainer>
+
             </Stack>
         </Loading>
     )
 }
 
 const TestCaseUpdate = ({ test, onChange, onDelete }) => {
+    console.log("test", test)
     const theme = useTheme();
     const [ input, setInput ] = useState(test.input);
     const [ expectedOutput, setExpectedOutput ] = useState(test.expectedOutput);

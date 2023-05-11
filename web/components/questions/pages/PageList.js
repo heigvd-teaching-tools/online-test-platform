@@ -15,6 +15,7 @@ import {useGroup} from "../../../context/GroupContext";
 import AlertFeedback from "../../feedback/AlertFeedback";
 import Loading from "../../feedback/Loading";
 import {fetcher} from "../../../code/utils";
+import ScrollContainer from "../../layout/ScrollContainer";
 
 const PageList = () => {
     const router = useRouter();
@@ -77,13 +78,13 @@ const PageList = () => {
                         }
                         rightWidth={70}
                         rightPanel={
-                            questions && 
-                                <Stack spacing={2} padding={2} maxHeight={"100%"}>
+                            questions &&
+                                <Stack spacing={2} padding={2} height={"100%"}>
                                     <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
                                         <Typography variant="h6">{questions.length} questions</Typography>
                                         <Button onClick={() => setAddDialogOpen(true)}>Create a new question</Button>
                                     </Stack>
-                                    <Stack spacing={4} p={1} flex={1} maxHeight={"100%"} overflow={"auto"}>
+                                    <ScrollContainer spacing={4} padding={1}>
                                         {questions && questions.map((question) => (
                                             <QuestionListItem
                                                 key={question.id}
@@ -95,7 +96,7 @@ const PageList = () => {
                                                 ]}
                                             />
                                         ))}
-                                    </Stack>
+                                    </ScrollContainer>
                                     {questions && questions.length === 0 && (
                                         <AlertFeedback severity="info">
                                             <Typography variant="body1">No questions found in this group. Try changing your search criteria</Typography>

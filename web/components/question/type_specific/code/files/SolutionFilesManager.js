@@ -9,6 +9,7 @@ import languages from "../../../../../code/languages.json";
 import CodeCheck from "../CodeCheck";
 import Loading from "../../../../feedback/Loading";
 import { fetcher } from "../../../../../code/utils";
+import ScrollContainer from "../../../../layout/ScrollContainer";
 
 const environments = languages.environments;
 const SolutionFilesManager = ({ questionId, language }) => {
@@ -55,9 +56,9 @@ const SolutionFilesManager = ({ questionId, language }) => {
             errors={[error]}
         >{
             codeToSolutionFiles && (
-                <Stack height="100%" position="relative">
+                <Stack position={"relative"} height={"100%"} overflow={"hidden"} pb={"60px"}>
                     <Button onClick={onAddFile}>Add File</Button>
-                    <Box ref={filesRef} height="100%" overflow="auto" pb={16}>
+                    <ScrollContainer ref={filesRef}>
                         {codeToSolutionFiles.map((codeToSolutionFile, index) => (
                             <FileEditor
                                 key={index}
@@ -75,18 +76,15 @@ const SolutionFilesManager = ({ questionId, language }) => {
                                 }
                             />
                         ))}
-                    </Box>
-
-                    <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
-                        {codeToSolutionFiles?.length > 0 && (
-                            <CodeCheck
-                                codeCheckAction={() => fetch(`/api/sandbox/${questionId}/files`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ files: codeToSolutionFiles.map(file => file.file) })
-                                })}
-                            />
-                        )}
+                    </ScrollContainer>
+                    <Stack zIndex={2} position={"absolute"} bottom={0} left={0} maxHeight="100%" width="100%" overflow="auto">
+                        <CodeCheck
+                            codeCheckAction={() => fetch(`/api/sandbox/${questionId}/files`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ files: codeToSolutionFiles.map(file => file.file) })
+                            })}
+                        />
                     </Stack>
                 </Stack>
             )}

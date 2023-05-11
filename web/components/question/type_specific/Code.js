@@ -26,7 +26,7 @@ const Code = ({ questionId }) => {
             errors={[error]}
         >
             { code && (
-                <Stack height='100%'>
+                <Stack overflow={"hidden"} flex={1}>
                     <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                         <Tab label={<Typography variant="caption">Setup</Typography>} value={0} />
                         <Tab label={<Typography variant="caption">Solution</Typography>} value={1} />

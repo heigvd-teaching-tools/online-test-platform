@@ -8,6 +8,7 @@ import TestCaseResults from "../question/type_specific/code/TestCaseResults";
 import TabPanel from "../layout/utils/TabPanel";
 import TabContent from "../layout/utils/TabContent";
 import { useResizeObserver } from "../../context/ResizeObserverContext";
+import ScrollContainer from "../layout/ScrollContainer";
 
 const PassIndicator = ({passed}) => {
     return (
@@ -31,7 +32,7 @@ const CompareCode = ({ solution, answer }) => {
 
     return (
         answer && solution && (
-            <Stack maxHeight={containerHeight} width={"100%"} overflow={"auto"}>
+            <Stack maxHeight={containerHeight} height={"100%"} width={"100%"} overflow={"auto"} pb={"50px"}>
                 <Box flexGrow={1}>
                 <Tabs value={tab} onChange={(ev, val) => setTab(val)} aria-label="code tabs">
                     <Tab label={<Typography variant="caption">Code</Typography>} value={0} />
@@ -55,6 +56,7 @@ const CompareCode = ({ solution, answer }) => {
                 </Tabs>
                 <TabPanel value={tab} index={0}>
                     <TabContent>
+                        <ScrollContainer>
                         <ResizePanel
                             leftPanel={
                             answer.files?.map((answerToFile, index) => (
@@ -78,6 +80,7 @@ const CompareCode = ({ solution, answer }) => {
                             }
                             rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
                             />
+                        </ScrollContainer>
                     </TabContent>
                 </TabPanel>
                 <TabPanel value={tab} index={1}>
