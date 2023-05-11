@@ -19,8 +19,8 @@ const handler = async (req, res) => {
         case 'GET':
             await get(req, res);
             break;
-        case 'PATCH':
-            await patch(req, res);
+        case 'PUT':
+            await put(req, res);
             break;
         default:
     }
@@ -43,7 +43,7 @@ const get = async (req, res) => {
     res.status(200).json(question);
 }
 
-const patch = async (req, res) => {
+const put = async (req, res) => {
     const { question } = req.body;
 
     const updatedQuestion = await prisma.question.update({

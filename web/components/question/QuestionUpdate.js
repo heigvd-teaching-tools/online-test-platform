@@ -27,7 +27,7 @@ const QuestionUpdate = ({ questionId }) => {
 
     const saveQuestion = useCallback(async (question) => {
         await fetch(`/api/questions/${question.id}`, {
-            method: 'PATCH',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
