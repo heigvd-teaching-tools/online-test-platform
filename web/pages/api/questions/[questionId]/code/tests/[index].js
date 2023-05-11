@@ -48,15 +48,6 @@ const put = async (req, res) => {
 const del = async (req, res) => {
     const { questionId, index } = req.query;
 
-    await prisma.testCase.delete({
-        where: {
-            index_questionId: {
-                index: parseInt(index),
-                questionId: questionId
-            }
-        }
-    });
-
     // update the index of the test cases after the deleted one
     const testCases = await prisma.testCase.findMany({
         where: {
@@ -67,19 +58,30 @@ const del = async (req, res) => {
         }
     });
 
-    for(let i = 0; i < testCases.length; i++) {
-        await prisma.testCase.update({
+    await prisma.$transaction(async (prisma) => {
+        await prisma.testCase.delete({
             where: {
                 index_questionId: {
-                    index: testCases[i].index,
+                    index: parseInt(index),
                     questionId: questionId
                 }
-            },
-            data: {
-                index: testCases[i].index - 1
             }
         });
-    }
+
+        for(let i = 0; i < testCases.length; i++) {
+            await prisma.testCase.update({
+                where: {
+                    index_questionId: {
+                        index: testCases[i].index,
+                        questionId: questionId
+                    }
+                },
+                data: {
+                    index: testCases[i].index - 1
+                }
+            });
+        }
+    });
 
     res.status(200).json("Test case deleted");
 

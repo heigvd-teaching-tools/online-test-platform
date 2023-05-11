@@ -20,11 +20,12 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Loading from "../../../feedback/Loading";
 import { fetcher } from "../../../../code/utils";
 import ScrollContainer from "../../../layout/ScrollContainer";
+import {useSnackbar} from "../../../../context/SnackbarContext";
 
 const environments = languages.environments;
 
 const TestCases = ({ questionId, language }) => {
-
+    const { show: showSnackbar } = useSnackbar();
     const { data: tests, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/tests`,
         questionId ? fetcher : null,
@@ -46,7 +47,6 @@ const TestCases = ({ questionId, language }) => {
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                index: tests.length + 1,
                 input: "",
                 expectedOutput: "",
                 exec: exec
@@ -77,6 +77,8 @@ const TestCases = ({ questionId, language }) => {
                 await mutate(
                     newTests
                 );
+            }else{
+                showSnackbar("error", "Failed to delete test case");
             }
         });
     }, [questionId, tests, mutate]);
@@ -110,7 +112,6 @@ const TestCases = ({ questionId, language }) => {
             });
         }
     }, [questionId, tests, updateTestCase]);
-    console.log("tests", tests)
     return(
         <Loading
             loading={!tests}
@@ -142,7 +143,7 @@ const TestCases = ({ questionId, language }) => {
 }
 
 const TestCaseUpdate = ({ test, onChange, onDelete }) => {
-    console.log("test", test)
+
     const theme = useTheme();
     const [ input, setInput ] = useState(test.input);
     const [ expectedOutput, setExpectedOutput ] = useState(test.expectedOutput);
