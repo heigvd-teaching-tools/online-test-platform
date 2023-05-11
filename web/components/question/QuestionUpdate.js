@@ -62,15 +62,20 @@ const QuestionUpdate = ({ questionId }) => {
             });
     }, [question, showSnackbar, router, mutate]);
 
-    const onChange = useCallback(async (changedProperties) => {
-        // update the question in the cache
-        const newQuestion = { ...question, ...changedProperties };
-        await saveQuestion(newQuestion);
-    }, [saveQuestion, question]);
+    const onChange = useCallback(async (question) => {
+        await saveQuestion(question);
+    }, [saveQuestion]);
 
-    const debounceChange = useDebouncedCallback(useCallback(async (changedProperties) => {
-        await onChange(changedProperties);
-    }, [onChange]), 500);
+    const debounceChange = useDebouncedCallback(useCallback(async () => {
+        await onChange(question);
+    }, [question, onChange]), 500);
+
+    const onPropertyChange = useCallback(async (property, value) => {
+        // instantly update the question object in memory
+        question[property] = value;
+        // debounce the change to the api
+        await debounceChange();
+    }, [question]);
 
    return (
        <Loading
@@ -88,9 +93,7 @@ const QuestionUpdate = ({ questionId }) => {
                                 fullWidth
                                 focused
                                 defaultValue={question.title}
-                                onChange={(e) => debounceChange({
-                                    title: e.target.value
-                                })}
+                                onChange={(e) => onPropertyChange('title', e.target.value)}
                             />
 
                             <Stack spacing={2} width={"100%"} height={"100%"} overflow={"auto"}>
@@ -98,9 +101,7 @@ const QuestionUpdate = ({ questionId }) => {
                                     id={`question-${question.id}`}
                                     language="markdown"
                                     rawContent={question.content}
-                                    onChange={(content) => debounceChange({
-                                        content: content
-                                    })}
+                                    onChange={(content) => onPropertyChange('content', content)}
                                 />
                             </Stack>
                             <QuestionTagsSelector questionId={question.id} />
