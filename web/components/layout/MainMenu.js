@@ -9,7 +9,7 @@ const MainMenu = () => {
             <Box>
                 <GroupSelector />
             </Box>
-            <Tabs value={asPath.split("/")[1] || "questions"} aria-label="main-menu" textColor="inherit" indicatorColor="secondary">{
+            <Tabs variant="scrollable" value={asPath.split("/")[1] || "questions"} aria-label="main-menu" textColor="inherit" indicatorColor="secondary">{
                 mainPaths.map(path => (
                     <Link key={path.path} value={path.path} href={`/${path.path}`} passHref>
                         <Tab value={path.path} label={path.label} sx={{ opacity:1, m:1 }} />

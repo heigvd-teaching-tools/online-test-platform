@@ -28,9 +28,11 @@ export const getGradingStats = (jamSessionToQuestions) => {
     }
 }
 
-export const getQuestionSuccessRate = (question) => {
-    let totalPoints = question.points * question.studentAnswer.length;
+export const getQuestionSuccessRate = (jamSessionToQuestions) => {
+    const { question } = jamSessionToQuestions;
+    let totalPoints = jamSessionToQuestions.points * question.studentAnswer.length;
     let totalObtainedPoints = question.studentAnswer.reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0);
+    console.log("totalPoints", totalPoints, "totalObtainedPoints", totalObtainedPoints)
     return totalPoints > 0 ? Math.round(totalObtainedPoints / totalPoints * 100) : 0;
 }
 

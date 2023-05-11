@@ -4,6 +4,7 @@ import {getQuestionSuccessRate, typeSpecificStats} from "../pages/stats";
 import {QuestionType, StudentAnswerStatus} from "@prisma/client";
 import Image from "next/image";
 import PiePercent from "../../feedback/PiePercent";
+import QuestionTypeIcon from "../../question/QuestionTypeIcon";
 
 const JamSessionAnalytics = ({ JamSessionToQuestions }) => {
     return(
@@ -14,6 +15,7 @@ const JamSessionAnalytics = ({ JamSessionToQuestions }) => {
 }
 
 const QuestionAnalytics = ({ JamSessionToQuestion }) => {
+
     const { question } = JamSessionToQuestion;
     const [ questionData, setQuestionData ] = useState(null);
     useEffect(() => {
@@ -58,12 +60,15 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
     return (
         <Paper sx={{ p:2, width:'100%' }}>
             <Stack spacing={2}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                    <Box sx={{ width:'32px', height:'32px' }}>
-                        <Image src={`/svg/questions/${question.type}.svg`} layout="responsive" width="32px" height="32px" priority="1" />
-                    </Box>
-                    <Typography variant="h6"><b>{`Q${JamSessionToQuestion.order + 1}`}</b></Typography>
-
+                <Stack direction="row" alignItems="center" justifyContent={"space-between"} spacing={1}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <QuestionTypeIcon
+                            type={question.type}
+                            withLabel
+                        />
+                        <Typography variant="h6"><b>{`Q${JamSessionToQuestion.order + 1}`}</b></Typography>
+                        <Typography variant="body1">{question.title}</Typography>
+                    </Stack>
                     <Typography variant="body2">
                         Submitted Answers :
                         { question.studentAnswer.filter((sa) => sa.status === StudentAnswerStatus.SUBMITTED).length}
@@ -140,8 +145,11 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
                     )
                 }
                 <Stack direction="row" spacing={1} alignItems="center">
-                    <PiePercent value={ getQuestionSuccessRate(question) } />
-                    <Typography variant="body1">Success Rate</Typography>
+                    <PiePercent value={ getQuestionSuccessRate(JamSessionToQuestion) } />
+                    <Box>
+                    <Typography variant="body1"><b>Success Rate</b></Typography>
+                    <Typography variant="caption">Based on obtained points after grading</Typography>
+                    </Box>
                 </Stack>
             </Stack>
         </Paper>
