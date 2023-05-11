@@ -15,25 +15,41 @@ const initialFilters = {
     codeLanguages: environments.map((language) => language.language).reduce((obj, language) => ({ ...obj, [language]: true }), {}),
 };
 
-const QuestionFilter = ({ onFilter }) => {
+const applyFilter = async (toApply) => {
+    const query = {...toApply};
+    query.questionTypes = Object.keys(query.questionTypes).filter((key) => query.questionTypes[key]);
+    if(!query.questionTypes.code) {
+        delete query.codeLanguages;
+    }
+    if(query.codeLanguages){
+        query.codeLanguages = Object.keys(query.codeLanguages).filter((key) => query.codeLanguages[key]);
+    }
+    return query;
+}
+
+const QuestionFilter = ({ onApplyFilter }) => {
 
     const { tags:allTags } = useTags();
 
-    const [ filter, setFilter ] = useState(initialFilters);
+    const [ filter, setFilter ] = useState(() => {
+        // Load saved filter from local storage
+        let saved = localStorage.getItem("question-filter");
+        if(saved){
+            saved = JSON.parse(saved);
+            (async () => {
+                onApplyFilter && onApplyFilter(await applyFilter(saved));
+            })();
+            return saved;
 
-    const applyFilter = useCallback(async (toApply) => {
-        const query = {...toApply};
-        query.questionTypes = Object.keys(query.questionTypes).filter((key) => query.questionTypes[key]);
-        if(!query.questionTypes.code) {
-            delete query.codeLanguages;
         }
-        if(query.codeLanguages){
-            query.codeLanguages = Object.keys(query.codeLanguages).filter((key) => query.codeLanguages[key]);
-        }
-        if(onFilter){
-            onFilter(query);
-        }
-    }, [onFilter]);
+        return initialFilters;
+    });
+
+    const updateFilter = useCallback((key, value) => {
+        const newFilter = { ...filter, [key]: value };
+        localStorage.setItem("question-filter", JSON.stringify(newFilter));
+        setFilter(newFilter);
+    }, [filter]);
 
     return (
         filter &&
@@ -47,7 +63,7 @@ const QuestionFilter = ({ onFilter }) => {
                 color="info"
                 size="small"
                 value={filter.title}
-                onChange={(e) => setFilter({ ...filter, title: e.target.value })}
+                onChange={(e) => updateFilter("title", e.target.value)}
             />
 
             <TextField
@@ -57,7 +73,7 @@ const QuestionFilter = ({ onFilter }) => {
                 color="info"
                 size="small"
                 value={filter.content}
-                onChange={(e) => setFilter({ ...filter, content: e.target.value })}
+                onChange={(e) => updateFilter("content", e.target.value)}
             />
 
             <TagsSelector
@@ -66,7 +82,7 @@ const QuestionFilter = ({ onFilter }) => {
                 color={"info"}
                 options={allTags.map((tag) => tag.label)}
                 value={filter.tags}
-                onChange={(newTags) => setFilter({ ...filter, tags: newTags })}
+                onChange={(tags) => updateFilter("tags", tags)}
             />
 
             <Typography variant="body2" color="info"> Question types </Typography>
@@ -76,7 +92,7 @@ const QuestionFilter = ({ onFilter }) => {
                         key={type.value}
                         label={type.label}
                         checked={filter.questionTypes[type.value]}
-                        onChange={(checked) => setFilter({ ...filter, questionTypes: { ...filter.questionTypes, [type.value]: checked } })}
+                        onChange={(checked) => updateFilter("questionTypes", { ...filter.questionTypes, [type.value]: checked })}
                     />
                 ))}
             </Box>
@@ -89,17 +105,23 @@ const QuestionFilter = ({ onFilter }) => {
                                 key={language.language}
                                 label={language.label}
                                 checked={filter.codeLanguages[language.language]}
-                                onChange={(checked) => setFilter({ ...filter, codeLanguages: { ...filter.codeLanguages, [language.language]: checked } })}
+                                onChange={(checked) => updateFilter("codeLanguages", { ...filter.codeLanguages, [language.language]: checked })}
                             />
                         ))}
                     </Box>
                 </>
             }
             <Stack direction={"row"} spacing={2}>
-            <Button variant="contained" color="info" fullWidth onClick={() => applyFilter(filter)}> Filter </Button>
+            <Button
+                variant="contained"
+                color="info"
+                fullWidth
+                onClick={async () => onApplyFilter && onApplyFilter(await applyFilter(filter))}
+            > Filter </Button>
             <Button variant="outlined" onClick={async () => {
+                localStorage.removeItem("question-filter");
                 setFilter(initialFilters);
-                await applyFilter(initialFilters);
+                onApplyFilter && onApplyFilter(await applyFilter(initialFilters));
             }}> Clear </Button>
             </Stack>
         </Stack>

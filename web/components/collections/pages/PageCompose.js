@@ -177,12 +177,12 @@ const PageCompose = () => {
                         rightPanel={
                             <Stack direction={"row"} height="100%">
                                 <Box minWidth={"250px"}>
-                                    <QuestionFilter onFilter={setQueryString} />
+                                    <QuestionFilter onApplyFilter={setQueryString} />
                                 </Box>
                                 { collectionToQuestions && searchQuestions &&
                                     <Stack spacing={2} padding={2} width={"100%"}>
                                         <Stack alignItems="center" direction={"row"} justifyContent={"space-between"}>
-                                            <Typography variant="h6">Questions</Typography>
+                                            <Typography variant="h6">Available questions</Typography>
                                         </Stack>
                                         <ScrollContainer spacing={4} padding={1}>
                                             { searchQuestions

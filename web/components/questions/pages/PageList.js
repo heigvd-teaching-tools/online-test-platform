@@ -74,7 +74,7 @@ const PageList = () => {
                 }>
                     <LayoutSplitScreen
                         leftPanel={
-                            <QuestionFilter onFilter={setQueryString} />
+                            <QuestionFilter onApplyFilter={setQueryString} />
                         }
                         rightWidth={70}
                         rightPanel={

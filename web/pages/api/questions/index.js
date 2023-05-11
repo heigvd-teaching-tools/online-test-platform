@@ -56,6 +56,7 @@ const get = async (req, res) => {
 
     // use AND for title and content
     if(title) {
+        console.log("title: " + title)
         where.where.title = {
             contains: title
         }
