@@ -118,7 +118,7 @@ const QuestionUpdate = ({ questionId }) => {
                     question && (
                         <QuestionTypeSpecific
                             question={question}
-                            onQuestionChange={onChange}
+                            onTypeSpecificChange={(type, value) => onPropertyChange(type, value)}
                         />
                     )
                 }

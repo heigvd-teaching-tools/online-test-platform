@@ -22,6 +22,7 @@ import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext"
 
 import { fetcher } from "../../../../code/utils";
 import Loading from "../../../feedback/Loading";
+import ScrollContainer from "../../../layout/ScrollContainer";
 
 const PageTakeJam = () => {
     const router = useRouter();
@@ -97,21 +98,19 @@ const PageTakeJam = () => {
                         <LayoutSplitScreen
                             leftPanel={
                                 jamToQuestions && jamToQuestions.length > 0 && jamToQuestions[page - 1]?.question && (
-                                <>
-                                    <Box sx={{ height: 'calc(100% - 50px)' }}>
-                                        <QuestionView
-                                            order={jamToQuestions[page - 1].order}
-                                            points={jamToQuestions[page - 1].points}
-                                            question={jamToQuestions[page - 1].question}
-                                            page={page}
-                                            totalPages={jamToQuestions.length}
-                                        />
-                                    </Box>
+                                    <>
+                                    <QuestionView
+                                        order={jamToQuestions[page - 1].order}
+                                        points={jamToQuestions[page - 1].points}
+                                        question={jamToQuestions[page - 1].question}
+                                        page={page}
+                                        totalPages={jamToQuestions.length}
+                                    />
                                     <QuestionNav
                                         page={page}
                                         totalPages={jamToQuestions.length}
                                     />
-                                </>
+                                    </>
                             )}
                             rightPanel={
                                 jamToQuestions && jamToQuestions.length > 0 && jamToQuestions.map((q, index) => (
@@ -133,7 +132,7 @@ const PageTakeJam = () => {
                         />
                     </LayoutMain>
                 </StudentPhaseRedirect>
-               )}  
+               )}
             </Loading>
         </Authorisation>
     )
