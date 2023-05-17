@@ -45,6 +45,7 @@ const get = async (req, res) => {
 
     questionTypes = questionTypes ? questionTypes.split(',').map(type => QuestionType[type]) : [];
     codeLanguages = codeLanguages ? codeLanguages.split(',') : [];
+
     tags = tags ? tags.split(',') : [];
 
     let where = {
@@ -56,7 +57,6 @@ const get = async (req, res) => {
 
     // use AND for title and content
     if(title) {
-        console.log("title: " + title)
         where.where.title = {
             contains: title
         }
@@ -96,7 +96,7 @@ const get = async (req, res) => {
         }];
     }
 
-    if(questionTypes.includes(QuestionType.code)) {
+    if(questionTypes.includes(QuestionType.code) && codeLanguages.length > 0) {
         where.where.OR ? where.where.OR.push({
             code: {
                 language: {

@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { useCallback } from 'react';
 import Image from 'next/image';
-import {Stack, TextField, Button } from '@mui/material';
+import {Stack, TextField, Button, Box} from '@mui/material';
 import ContentEditor from '../input/ContentEditor';
 
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
@@ -14,6 +14,7 @@ import QuestionTagsSelector from "./tags/QuestionTagsSelector";
 import {useRouter} from "next/router";
 import Loading from "../feedback/Loading";
 import { fetcher } from "../../code/utils";
+import ScrollContainer from "../layout/ScrollContainer";
 
 const QuestionUpdate = ({ questionId }) => {
     const router = useRouter();
@@ -95,16 +96,18 @@ const QuestionUpdate = ({ questionId }) => {
                                 defaultValue={question.title}
                                 onChange={(e) => onPropertyChange('title', e.target.value)}
                             />
-
-                            <Stack spacing={2} width={"100%"} height={"100%"} overflow={"auto"}>
-                                <ContentEditor
-                                    id={`question-${question.id}`}
-                                    language="markdown"
-                                    rawContent={question.content}
-                                    onChange={(content) => onPropertyChange('content', content)}
-                                />
-                            </Stack>
                             <QuestionTagsSelector questionId={question.id} />
+                            <ScrollContainer>
+                                <Box>
+                                    <ContentEditor
+                                        id={`question-${question.id}`}
+                                        language="markdown"
+                                        rawContent={question.content}
+                                        onChange={(content) => onPropertyChange('content', content)}
+                                    />
+                                </Box>
+                            </ScrollContainer>
+
                             <Stack direction="row" justifyContent="flex-end" sx={{ width:'100%'}}>
                                 <Button startIcon={<Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />} onClick={() => deleteQuestion(question.id)}>Delete this question</Button>
                             </Stack>

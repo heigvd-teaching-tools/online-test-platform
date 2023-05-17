@@ -1,5 +1,4 @@
 import {QuestionType} from "@prisma/client";
-import { Stack } from "@mui/material";
 import ManageMultipleChoice from "./type_specific/ManageMultipleChoice";
 import Code from "./type_specific/Code";
 import TrueFalse from "./type_specific/TrueFalse";
@@ -7,7 +6,7 @@ import Web from "./type_specific/Web";
 
 const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
     return (
-        <Stack height="100%" overflow="auto">
+        <>
             {(
                 ( question.type === QuestionType.multipleChoice &&
                     <ManageMultipleChoice
@@ -35,7 +34,7 @@ const QuestionTypeSpecific = ({ question, onQuestionChange }) => {
                     />
                 )
             )}
-        </Stack>
+        </>
     )
 }
 

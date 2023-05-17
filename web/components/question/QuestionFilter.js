@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useState} from "react";
 import {Box, Button, Checkbox, Stack, TextField, Typography} from "@mui/material";
 
 import types from "./types.json";
@@ -16,9 +16,10 @@ const initialFilters = {
 };
 
 const applyFilter = async (toApply) => {
+
     const query = {...toApply};
     query.questionTypes = Object.keys(query.questionTypes).filter((key) => query.questionTypes[key]);
-    if(!query.questionTypes.code) {
+    if(!toApply.questionTypes.code) {
         delete query.codeLanguages;
     }
     if(query.codeLanguages){
