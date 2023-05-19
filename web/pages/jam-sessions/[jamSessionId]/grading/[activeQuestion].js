@@ -1,5 +1,5 @@
-import PageGrading from '../../../../components/jam-sessions/pages/PageGrading';
+import PageGrading from '../../../../components/jam-sessions/pages/PageGrading'
 
-const Grading = () => <PageGrading />;
+const Grading = () => <PageGrading />
 
-export default Grading;
+export default Grading

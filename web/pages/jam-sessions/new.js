@@ -1,6 +1,5 @@
+import PageDraft from '../../components/jam-sessions/pages/PageDraft'
 
-import PageDraft from "../../components/jam-sessions/pages/PageDraft";
+const NewJamSession = () => <PageDraft />
 
-const NewJamSession = () => <PageDraft />;
-
-export default NewJamSession;
+export default NewJamSession

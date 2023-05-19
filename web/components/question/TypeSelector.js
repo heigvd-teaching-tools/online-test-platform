@@ -1,19 +1,25 @@
-import types from "./types.json";
-import {MenuItem, Stack, Typography} from "@mui/material";
-import DropDown from "../input/DropDown";
-import React from "react";
+import types from './types.json'
+import { MenuItem, Stack, Typography } from '@mui/material'
+import DropDown from '../input/DropDown'
+import React from 'react'
 
 const TypeSelector = ({ type, onChange }) => {
-    return (
-        <DropDown id="question" name="Type" defaultValue={type} minWidth="160px" onChange={onChange}>
-            {types?.map(({value, label}) =>
-                <MenuItem key={value} value={value}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="caption">{label}</Typography>
-                    </Stack>
-                </MenuItem>
-            )}
-        </DropDown>
-    )
+  return (
+    <DropDown
+      id="question"
+      name="Type"
+      defaultValue={type}
+      minWidth="160px"
+      onChange={onChange}
+    >
+      {types?.map(({ value, label }) => (
+        <MenuItem key={value} value={value}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="caption">{label}</Typography>
+          </Stack>
+        </MenuItem>
+      ))}
+    </DropDown>
+  )
 }
-export default TypeSelector;
+export default TypeSelector
