@@ -31,7 +31,9 @@ const handler = async (req, res) => {
       break
     case 'GET':
       await get(req, res)
+      break
     default:
+      res.status(405).json({ message: 'Method not allowed' })
       break
   }
 }
