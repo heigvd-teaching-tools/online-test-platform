@@ -69,7 +69,7 @@ runSandbox({
 */
 
 await getProjectPat({
-    pat:  "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",
+    pat:  "",
     owner: "Ovich",
     repo: "fastapi_keycloak_service_account",
     ref: "main"
