@@ -22,10 +22,13 @@ import {ResizeObserverProvider} from "../../../../context/ResizeObserverContext"
 
 import { fetcher } from "../../../../code/utils";
 import Loading from "../../../feedback/Loading";
-import ScrollContainer from "../../../layout/ScrollContainer";
+import {useSnackbar} from "../../../../context/SnackbarContext";
 
 const PageTakeJam = () => {
     const router = useRouter();
+
+    const { showTopCenter: showSnackbar } = useSnackbar();
+
     const { jamSessionId, pageId } = router.query;
 
     const { data: session } = useSession();
@@ -48,6 +51,22 @@ const PageTakeJam = () => {
         session && jamSessionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            // Check if Ctrl or Cmd key is pressed along with 'S'
+            if ((event.ctrlKey || event.metaKey) && event.keyCode === 83) {
+                event.preventDefault(); // Prevent the default browser save action
+                showSnackbar('Your answer has been saved', 'success');
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown); // Attach the event listener
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown); // Clean up the event listener
+        };
+    }, []);
 
     const [ page, setPage ] = useState(parseInt(pageId));
 

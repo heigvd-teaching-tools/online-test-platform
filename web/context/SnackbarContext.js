@@ -39,6 +39,16 @@ export const SnackbarProvider = ({ children }) => {
         });
     }, []);
 
+    const showTopCenter = useCallback((message, severity) => {
+        setSnackbar({
+            position: {
+                vertical: 'top',
+                horizontal: 'center',
+            },
+            open: true, message, severity
+        });
+    }, []);
+
     const hide = () => {
         setSnackbar({ ...snackbar, open: false, message: '', severity: 'success' });
     }
@@ -49,6 +59,7 @@ export const SnackbarProvider = ({ children }) => {
             show,
             showAt,
             showTopRight,
+            showTopCenter,
             hide
         }}>
             {children}
