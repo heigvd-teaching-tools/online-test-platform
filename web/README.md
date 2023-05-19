@@ -21,6 +21,14 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
+```bash
+npx prisma db push
+```
+A custom script to create a default group
+```bash
+npx prisma db seed 
+```
+
 ## Run the application
 
 Run the development server:
@@ -42,6 +50,7 @@ GitHub Client ID and Secret in .env
 ```bash
 npx prisma studio
 ```
+or use docker-compose in /postgres folder
 
 Database URL in .env
 

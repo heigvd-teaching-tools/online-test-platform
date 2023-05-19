@@ -1,20 +1,23 @@
 import useSWR from "swr";
 import React, {useCallback, useRef} from "react";
 import { create, del, update } from "./crud";
-import {Box, Button, IconButton, Paper, Stack} from "@mui/material";
+import {Box, Button, IconButton, Stack } from "@mui/material";
 import FileEditor from "./FileEditor";
 import Image from "next/image";
 
-import languages from "../languages.json";
+import languages from "../../../../../code/languages.json";
 import CodeCheck from "../CodeCheck";
+import Loading from "../../../../feedback/Loading";
+import { fetcher } from "../../../../../code/utils";
+import ScrollContainer from "../../../../layout/ScrollContainer";
 
 const environments = languages.environments;
 const SolutionFilesManager = ({ questionId, language }) => {
     const filesRef = useRef();
 
-    const { data:codeToSolutionFiles, mutate } = useSWR(
+    const { data:codeToSolutionFiles, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/files/solution`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
@@ -48,31 +51,33 @@ const SolutionFilesManager = ({ questionId, language }) => {
     }, [questionId, mutate, codeToSolutionFiles]);
 
     return (
-        codeToSolutionFiles && (
-            <Stack height="100%" position="relative">
-                <Button onClick={onAddFile}>Add File</Button>
-                <Box ref={filesRef} height="100%" overflow="auto" pb={16}>
-                    {codeToSolutionFiles.map((codeToSolutionFile, index) => (
-                        <FileEditor
-                            key={index}
-                            file={codeToSolutionFile.file}
-                            onChange={async (file) => await onFileUpdate({
-                                ...codeToSolutionFile,
-                                file
-                            })}
-                            secondaryActions={
-                                <Stack direction="row" spacing={1}>
-                                    <IconButton key="delete-file" onClick={async () => await onDeleteFile(codeToSolutionFile)}>
-                                        <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
-                                    </IconButton>
-                                </Stack>
-                            }
-                        />
-                    ))}
-                </Box>
-
-                <Stack zIndex={2} position="absolute" maxHeight="100%" width="100%" overflow="auto" bottom={0} left={0}>
-                    {codeToSolutionFiles?.length > 0 && (
+        <Loading
+            loading={!codeToSolutionFiles}
+            errors={[error]}
+        >{
+            codeToSolutionFiles && (
+                <Stack position={"relative"} height={"100%"} overflow={"hidden"} pb={"60px"}>
+                    <Button onClick={onAddFile}>Add File</Button>
+                    <ScrollContainer ref={filesRef}>
+                        {codeToSolutionFiles.map((codeToSolutionFile, index) => (
+                            <FileEditor
+                                key={index}
+                                file={codeToSolutionFile.file}
+                                onChange={async (file) => await onFileUpdate({
+                                    ...codeToSolutionFile,
+                                    file
+                                })}
+                                secondaryActions={
+                                    <Stack direction="row" spacing={1}>
+                                        <IconButton key="delete-file" onClick={async () => await onDeleteFile(codeToSolutionFile)}>
+                                            <Image alt="Delete" src="/svg/icons/delete.svg" layout="fixed" width="18" height="18" />
+                                        </IconButton>
+                                    </Stack>
+                                }
+                            />
+                        ))}
+                    </ScrollContainer>
+                    <Stack zIndex={2} position={"absolute"} bottom={0} left={0} maxHeight="100%" width="100%" overflow="auto">
                         <CodeCheck
                             codeCheckAction={() => fetch(`/api/sandbox/${questionId}/files`, {
                                 method: 'POST',
@@ -80,10 +85,10 @@ const SolutionFilesManager = ({ questionId, language }) => {
                                 body: JSON.stringify({ files: codeToSolutionFiles.map(file => file.file) })
                             })}
                         />
-                    )}
+                    </Stack>
                 </Stack>
-            </Stack>
-        )
+            )}
+        </Loading>
     )
 }
 

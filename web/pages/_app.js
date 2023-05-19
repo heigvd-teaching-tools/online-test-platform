@@ -12,6 +12,8 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import Authentication from '../components/security/Authentication';
+import {GroupProvider} from "../context/GroupContext";
+import {TagsProvider} from "../context/TagContext";
 
 export const themeOptions = {
   palette: {
@@ -34,8 +36,37 @@ export const themeOptions = {
     fontSize: 12,
     fontWeightLight: 400,
     fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 700,
+
     h1: {
-      fontSize: '4rem',
+      fontSize: '2rem',
+    },
+    h2: {
+        fontSize: '1.75rem',
+    },
+    h3: {
+        fontSize: '1.5rem',
+    },
+    h4: {
+        fontSize: '1.25rem',
+    },
+    h5:{
+        fontSize: '1rem',
+    },
+    h6:{
+        fontSize: '0.9rem',
+    },
+    body1: {
+        fontSize: '0.9rem',
+        color: '#333333',
+    },
+    body2: {
+        fontSize: '0.85rem',
+        color: '#7e7e7e',
+    },
+    button: {
+        fontSize: '0.8rem',
     },
     caption: {
       fontSize: '0.7rem',
@@ -49,15 +80,20 @@ const theme = createTheme(themeOptions);
 function MyApp({ Component, pageProps: { session, ...pageProps} }) {
   return (
     <ThemeProvider theme={theme}>
-      <SnackbarProvider >
-        <CssBaseline />
-        <Meta />
         <SessionProvider session={session}>
-          <Authentication>
-            <Component {...pageProps} />
-          </Authentication>
+          <SnackbarProvider >
+            <CssBaseline />
+            <Meta />
+              <TagsProvider>
+                <GroupProvider session={session}>
+                  <Authentication>
+                    <Component {...pageProps} />
+                  </Authentication>
+                </GroupProvider>
+              </TagsProvider>
+          </SnackbarProvider>
         </SessionProvider>
-      </SnackbarProvider>
+
     </ThemeProvider>
   );
 }

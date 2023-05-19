@@ -15,16 +15,20 @@ import {
     useTheme
 } from "@mui/material";
 import {useDebouncedCallback} from "use-debounce";
-import languages from "./languages.json";
+import languages from "../../../../code/languages.json";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import Loading from "../../../feedback/Loading";
+import { fetcher } from "../../../../code/utils";
+import ScrollContainer from "../../../layout/ScrollContainer";
+import {useSnackbar} from "../../../../context/SnackbarContext";
 
 const environments = languages.environments;
 
 const TestCases = ({ questionId, language }) => {
-
+    const { show: showSnackbar } = useSnackbar();
     const { data: tests, mutate, error } = useSWR(
         `/api/questions/${questionId}/code/tests`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
@@ -43,7 +47,6 @@ const TestCases = ({ questionId, language }) => {
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                index: tests.length + 1,
                 input: "",
                 expectedOutput: "",
                 exec: exec
@@ -74,6 +77,8 @@ const TestCases = ({ questionId, language }) => {
                 await mutate(
                     newTests
                 );
+            }else{
+                showSnackbar("error", "Failed to delete test case");
             }
         });
     }, [questionId, tests, mutate]);
@@ -92,7 +97,7 @@ const TestCases = ({ questionId, language }) => {
             })
         });
         await mutate();
-    }, [questionId, tests, mutate]);
+    }, [questionId, mutate]);
 
     const pullOutputs = useCallback(async (source) => {
         const result = await fetch(`/api/sandbox/${questionId}/${source}`, {
@@ -107,19 +112,21 @@ const TestCases = ({ questionId, language }) => {
             });
         }
     }, [questionId, tests, updateTestCase]);
-
     return(
-        <Stack spacing={2} height="100%">
-            <Stack direction="row" spacing={2} justifyContent="space-between">
-                <Typography variant="h6">Test Cases</Typography>
-                <Box>
-                    <Button onClick={() => pullOutputs("solution")}>Pull outputs from solution</Button>
-                    <Button color="primary" onClick={addTestCase}>Add new test case</Button>
-                </Box>
-            </Stack>
+        <Loading
+            loading={!tests}
+            errors={[error]}
+        >
+            <Stack spacing={2} height={"100%"} flex={1} overflow={"hidden"} >
+                <Stack direction="row" spacing={2} justifyContent="space-between">
+                    <Typography variant="h6">Test Cases</Typography>
+                    <Box>
+                        <Button onClick={() => pullOutputs("solution")}>Pull outputs from solution</Button>
+                        <Button color="primary" onClick={addTestCase}>Add new test case</Button>
+                    </Box>
+                </Stack>
 
-            <Stack direction="column" flexGrow={1} position="relative" >
-                <Stack spacing={2} position="absolute" left={0} right={0} top={0} bottom={0} overflow="auto">
+                <ScrollContainer spacing={2}>
                     {tests?.map((test, i) => (
                         <TestCaseUpdate
                             test={test}
@@ -128,102 +135,15 @@ const TestCases = ({ questionId, language }) => {
                             onDelete={() => deleteTestCase(test.index)}
                         />
                     ))}
-                </Stack>
+                </ScrollContainer>
+
             </Stack>
-        </Stack>
+        </Loading>
     )
 }
 
-
-const PullOutputs = ({ onClick }) => {
-
-    const [open, setOpen] = useState(false);
-    const anchorRef = useRef(null);
-    const [source, setSource] = useState("solution");
-
-    const handleClick = () => {
-        onClick(source);
-    };
-
-    const handleMenuItemClick = (from) => {
-        setSource(from);
-        setOpen(false);
-    };
-
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
-    };
-
-    const handleClose = (event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target)) {
-            return;
-        }
-        setOpen(false);
-    };
-
-    return (
-        <>
-            <ButtonGroup size="small" variant="contained" ref={anchorRef} aria-label="split button">
-                <Button onClick={handleClick}>Pull outputs from {source}</Button>
-                <Button
-                    size="small"
-                    aria-controls={open ? 'split-button-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select merge strategy"
-                    aria-haspopup="menu"
-                    onClick={handleToggle}
-                >
-                    <ArrowDropDownIcon />
-                </Button>
-            </ButtonGroup>
-            <Popper
-                sx={{
-                    zIndex: 1,
-                }}
-                open={open}
-                anchorEl={anchorRef.current}
-                role={undefined}
-                transition
-                disablePortal
-            >
-                {({ TransitionProps, placement }) => (
-                    <Grow
-                        {...TransitionProps}
-                        style={{
-                            transformOrigin:
-                                placement === 'bottom' ? 'center top' : 'center bottom',
-                        }}
-                    >
-                        <Paper>
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList id="split-button-menu" autoFocusItem>
-                                    <MenuItem
-                                        key={1}
-                                        value={"solution"}
-                                        selected={source === "solution"}
-                                        onClick={(event) => handleMenuItemClick("solution")}
-                                    >
-                                        from solution files
-                                    </MenuItem>
-                                    <MenuItem
-                                        key={2}
-                                        value={"template"}
-                                        selected={source === "template"}
-                                        onClick={(event) => handleMenuItemClick( "template")}
-                                    >
-                                        from template files
-                                    </MenuItem>
-                                </MenuList>
-                            </ClickAwayListener>
-                        </Paper>
-                    </Grow>
-                )}
-            </Popper>
-        </>
-    );
-}
-
 const TestCaseUpdate = ({ test, onChange, onDelete }) => {
+
     const theme = useTheme();
     const [ input, setInput ] = useState(test.input);
     const [ expectedOutput, setExpectedOutput ] = useState(test.expectedOutput);

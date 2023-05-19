@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {Stack, Tab, Tabs, TextField, Typography} from "@mui/material";
+import ScrollContainer from "../../../layout/ScrollContainer";
 
 const TestCaseResults = ({ tests }) => {
     const [index, setIndex] = useState(0);
@@ -26,27 +27,13 @@ const TestCaseResults = ({ tests }) => {
                     <TestCaseResult result={tests[index]} />
                 </>
             )}
-
         </Stack>
     )
 }
 
 
 const TestCaseResult = ({ result }) => {
-    /*
 
-        result example:
-         {
-                "exec": "node /src/main.js",
-                "input": "test world\ntest world2\ntest world3",
-                "output": "TEST WORLD\nTEST WORLD2\nTEST WORLD3",
-                "expectedOutput": "TEST WORLD\nTEST WORLD2\nTEST WORLD3",
-                "passed": true
-            }
-
-
-
-    */
     return (
         result &&
         <Stack spacing={4} p={2} flex={1}>

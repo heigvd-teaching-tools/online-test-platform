@@ -1,4 +1,4 @@
-import languages from "../languages.json";
+import languages from "../../../../../code/languages.json";
 import React, {useEffect, useState} from "react";
 import {Box, Stack, TextField, Typography} from "@mui/material";
 import InlineMonacoEditor from "../../../../input/InlineMonacoEditor";

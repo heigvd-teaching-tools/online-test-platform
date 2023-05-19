@@ -4,9 +4,12 @@ import { readFileSync } from 'fs';
 
 // onlinetest_oktokit
 // GitApp : https://github.com/settings/apps/heig-gitbrowser
+
 // App ID: 284699
-// Client ID: Iv1.9dfa9c701bd639f4
-// Secret : 52ffdfa3af5e513fe32798a05c7ff42bfc62d0df
+// Client ID: 
+// Secret : 
+
+// you must have a private key to use App authentication
 
 const privateKey = readFileSync('./git_browser/key.pem', 'utf8');
 
