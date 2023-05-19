@@ -31,8 +31,8 @@ You must have a `.env` file with the following variables:
 # development
 DATABASE_URL="postgresql://onlinetest:onlinetest@localhost:5432/postgres?schema=public"
 # NextAuthGitHub Provider
-GITHUB_ID=
-GITHUB_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 ```
 
 Consider checking the template `.env.sample` file.
@@ -44,7 +44,7 @@ Goto "OAuth Apps" and click "New OAuth App".
 
 Once you create your app you can find the client ID and generate a new secret on the app page.
 
-Use these values to fill `GITHUB_ID` and `GITHUB_SECRET` in your `.env` file.
+Use these values to fill `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in your `.env` file.
 
 `NEXTAUTH_SECRET` is only necessary for prod build.
 
