@@ -69,7 +69,7 @@ const PageTakeJam = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown) // Clean up the event listener
     }
-  }, [])
+  }, [showSnackbar])
 
   const [page, setPage] = useState(parseInt(pageId))
 
