@@ -107,3 +107,7 @@ dist
 testcontainers-node
 
 ssh
+
+# macOS
+.DS_Store
+
