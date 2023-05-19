@@ -2,6 +2,10 @@
 
 ## Install the database with docker
 
+Use docker compose in /postgres folder to create the database with the mounted volume.
+
+or: 
+
 ```bash
 docker pull postgres
 docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5432:5432 -v data:/var/lib/postgresql/data --name postgresql postgres
@@ -13,23 +17,43 @@ docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5
 npx prisma db push
 ```
 
-```bash
-npx prisma migrate dev
-```
+Eventually generate the prisma client:
 
 ```bash
 npx prisma generate
 ```
 
-```bash
-npx prisma db push
-```
+## Configuring the environment
 
-A custom script to create a default group
+You must have a `.env` file with the following variables:
 
 ```bash
-npx prisma db seed
+# development
+DATABASE_URL="postgresql://onlinetest:onlinetest@localhost:5432/postgres?schema=public"
+# NextAuthGitHub Provider
+GITHUB_ID=
+GITHUB_SECRET=
 ```
+
+Consider checking the template `.env.sample` file.
+
+#### Create a GitHub OAuth App
+https://github.com/settings/developers.
+
+Goto "OAuth Apps" and click "New OAuth App".
+
+Once you create your app you can find the client ID and generate a new secret on the app page.
+
+Use these values to fill `GITHUB_ID` and `GITHUB_SECRET` in your `.env` file.
+
+`NEXTAUTH_SECRET` is only necessary for prod build.
+
+You might also use a `.env.development.local` file to override the variables.
+
+Nextjs will automatically load the variables from the .env file and override them with the `.env.development.local` file
+if you run your app using the "dev" script.
+
+Respectively, you can use `.env.production.local` files for the production environment.
 
 ## Run the application
 
@@ -41,81 +65,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## NextAuth with GitHub Provider
+## Production
 
-GitHub Client ID and Secret in .env
+#### NextAuth with GitHub Provider
 
-`NEXTAUTH_SECRET` necessary for prod build
+GitHub Client ID and Secret in `.env` (or in `.env.production.local`) are necessary for the GitHub Provider to work.
 
-#### Prisma Studio
+`NEXTAUTH_SECRET` necessary for prod build.
 
-```bash
-npx prisma studio
-```
-
-or use docker-compose in /postgres folder
-
-Database URL in .env
-
-## Monaco Code Editor
-
-https://www.npmjs.com/package/@monaco-editor/react
-
-## API endpoints
-
-### Code
-
-- /api/code/ [ANY]
-- /api/code/test/answer/:questionId [ANY]
-- /api/code/test/question/:questionId [ANY]
-
-### Exam Sessions
-
-- /api/exam-sessions/ [GET, POST]
-
-###### POST
-
-Will create a new exam session and return the new exam session data.
-It takes examId as a parameter. It will be used to recover all the questions of the exam.
-The COPY of each question for the exam will be created for the exam session.
-
-- /api/exam-sessions/:examSessionId
-- /api/exam-sessions/:examSessionId/register
-- /api/exam-sessions/:examSessionId/questions/with-grading/official
-- /api/exam-sessions/:examSessionId/questions/with-answer/official
-- /api/exam-sessions/:examSessionId/questions/:questionId/answer [PUT]
-
-- /api/answer/:questionId [GET, PUT]
-- /api/exam-sessions/:examSessionId/questions/:questionId/answer/code/:fileId [PUT]
-
-###### PUT
-
-Receives the student answer of the question and saves it in the database.
-
--
-
-### Exams
-
-- /api/exams
-- /api/exams/:examId
-- /api/exams/:examId/questions
-
-### Grading
-
-- /api/grading
-
-### Questions
-
-- /api/questions
-- /api/questions/order
-- /api/questions/:questionId/code [PUT, POST, GET]
-- /api/questions/:questionId/code/sandbox [PUT, POST, GET]
-- /api/questions/:questionId/code/tests [POST, GET]
-- /api/questions/:questionId/code/tests/:index [PUT, DELETE]
-- /api/questions/:questionId/code/files/:nature [POST, GET]
-- /api/questions/:questionId/code/files/:nature/:fileId [PUT, DELETE]
-- /api/questions/:questionId/code/files/:nature/pull [POST]
-
-### users
-
-- /api/users/:email/exam-sessions/:sessionId
+Generate using `openssl rand -base64 32`
