@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-runs
-=======
 runs
 git_browser/key.pem
->>>>>>> e07581732f69107bee855721158e869b45788fea
+node_modules
+.idea

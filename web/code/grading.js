@@ -1,30 +1,30 @@
 import { StudentQuestionGradingStatus, QuestionType } from '@prisma/client';
 
 /*
-    This function is used to grade a student answer to a question.
-    argument "answer" is the student answer to the question.
-    argument "question" is the question to which the student answer is submitted.
+    This function is used to grade a student answers to a question.
+    argument "answers" is the student answers to the question.
+    argument "question" is the question to which the student answers is submitted.
 
-    If called with answer = undefined, the function will return the default grading.
+    If called with answers = undefined, the function will return the default grading.
     Default grading is generally (pointsObtained = 0, status = AUTOGRADED),
 
     Grading differs for code questions (pointsObtained = 0, status = UNGRADED) because the grading cannot be determined
-    during answer editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/student.js).
+    during answers editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/student.js).
 
  */
-export const grading = (question, answer) => {
-    switch(question.type) {
+export const grading = (jamSessionToQuestion, answer) => {
+    switch(jamSessionToQuestion.question.type) {
         case QuestionType.multipleChoice:
-            return gradeMultipleChoice(question, answer);
+            return gradeMultipleChoice(jamSessionToQuestion, answer);
         case QuestionType.trueFalse:
-            return gradeTrueFalse(question, answer);
+            return gradeTrueFalse(jamSessionToQuestion, answer);
         case QuestionType.essay:
-            return gradeEssay(question, answer);
+            return gradeEssay(jamSessionToQuestion, answer);
         case QuestionType.code:
             // student code submission is graded during code test run
-            return gradeCode(question, answer);
+            return gradeCode(jamSessionToQuestion, answer);
         case QuestionType.web:
-            return gradeWeb(question, answer);
+            return gradeWeb(jamSessionToQuestion, answer);
         default:
             return undefined;
     }
@@ -35,37 +35,39 @@ const defaultGrading = ({
     pointsObtained: 0
 });
 
-const gradeMultipleChoice = (question, answer) => {
+const gradeMultipleChoice = (jamSessionToQuestion, answer) => {
     let grading = defaultGrading;
+
     if(answer !== undefined) {
-        let correctOptions = question.multipleChoice.options.filter((opt) => opt.isCorrect);
+        let correctOptions = jamSessionToQuestion.question.multipleChoice.options.filter((opt) => opt.isCorrect);
         let answerOptions = answer.options;
         let isCorrect = correctOptions.length === answerOptions.length && correctOptions.every((opt) => answerOptions.some((aOpt) => aOpt.id === opt.id));
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: isCorrect ? question.points : 0
+            pointsObtained: isCorrect ? jamSessionToQuestion.points : 0
         };
+
     }
     return grading
 }
 
-const gradeTrueFalse = (question, answer) => {
+const gradeTrueFalse = (jamSessionToQuestion, answer) => {
     let grading = defaultGrading;
     if(answer !== undefined) {
-        let isCorrect = question.trueFalse.isTrue === answer.isTrue;
+        let isCorrect = jamSessionToQuestion.question.trueFalse.isTrue === answer.isTrue;
         grading = {
             ...grading,
-            pointsObtained: isCorrect ? question.points : 0
+            pointsObtained: isCorrect ? jamSessionToQuestion.points : 0
         }
     }
     return grading;
 }
 
 /*
-    code grading call is done during answer submission and code test run
+    code grading call is done during answers submission and code test run
     code test run : /api/sandbox/[questionId]/student
 */
-const gradeCode = (question, response) => {
+const gradeCode = (jamSessionToQuestion, response) => {
     let grading = {
         ...defaultGrading,
         status: StudentQuestionGradingStatus.UNGRADED
@@ -75,7 +77,7 @@ const gradeCode = (question, response) => {
         // response is from the code sandbox run
         grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: success ? question.points : 0
+            pointsObtained: success ? jamSessionToQuestion.points : 0
         }
     }
     return grading

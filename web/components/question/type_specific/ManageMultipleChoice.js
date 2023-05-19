@@ -1,16 +1,19 @@
 import useSWR from "swr";
 import {useCallback} from "react";
 import MultipleChoice from "./MultipleChoice";
+import Loading from "../../feedback/Loading";
+import { fetcher } from "../../../code/utils";
 
 const ManageMultipleChoice = ({ questionId }) => {
 
     const { data: options, mutate, error } = useSWR(
         `/api/questions/${questionId}/multiple-choice/options`,
-        questionId ? (...args) => fetch(...args).then((res) => res.json()) : null,
+        questionId ? fetcher : null,
         { revalidateOnFocus: false }
     );
 
     const onChangeOptions = useCallback(async (index, options) => {
+        console.log("change options")
         const updatedOption = options[index];
         await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
             method: "PUT",
@@ -29,6 +32,7 @@ const ManageMultipleChoice = ({ questionId }) => {
     }, [questionId, mutate]);
 
     const onDeleteOption = useCallback(async (_, deletedOption) => {
+        console.log("delete option")
         await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
             method: "DELETE",
             headers: {
@@ -46,6 +50,7 @@ const ManageMultipleChoice = ({ questionId }) => {
     }, [questionId, mutate]);
 
     const onAddOption = useCallback(async () => {
+        console.log("add option")
         await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
             method: "POST",
             headers: {
@@ -63,6 +68,10 @@ const ManageMultipleChoice = ({ questionId }) => {
     }, [questionId, mutate]);
 
     return (
+        <Loading
+            loading={!options}
+            errors={[error]}
+        >
         <MultipleChoice
             options={options}
             onAdd={onAddOption}
@@ -73,6 +82,7 @@ const ManageMultipleChoice = ({ questionId }) => {
                 await onDeleteOption(deletedIndex, deletedOption);
             }}
         />
+        </Loading>
     )
 }
 

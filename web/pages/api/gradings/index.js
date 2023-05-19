@@ -1,6 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
 
-import { hasRole } from '../../../utils/auth';
+import { hasRole } from '../../../code/auth';
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -25,12 +25,12 @@ const handler = async (req, res) => {
 }
 
 const patch = async (req, res) => {
-    
-    const { grading: { 
-            questionId, 
-            userEmail, 
-            pointsObtained, 
-            comment, 
+
+    const { grading: {
+            questionId,
+            userEmail,
+            pointsObtained,
+            comment,
             signedBy,
             status
         } } = req.body;
@@ -45,12 +45,12 @@ const patch = async (req, res) => {
         data: {
             status: status,
             pointsObtained: pointsObtained,
-            signedByUserEmail: signedBy ? signedBy.email : null, 
+            signedByUserEmail: signedBy ? signedBy.email : null,
             comment: comment
         },
         include: {
             signedBy: true
-        }  
+        }
     });
 
     res.status(200).json(updatedGrading);

@@ -53,9 +53,11 @@ model User {
   sessions      Session[]
   role          Role      @default(STUDENT)
 
-  userOnExamSession UserOnExamSession[]
-  studentAnswer     StudentAnswer[]
-  gradingSignedBy   StudentQuestionGrading[]
+  userOnJamSession UserOnJamSession[]
+  studentAnswer    StudentAnswer[]
+  gradingSignedBy  StudentQuestionGrading[]
+  groups           UserOnGroup[]
+  groupsCreated    Group[]
 }
 
 enum Role {
@@ -79,29 +81,67 @@ enum QuestionType {
   web
 }
 
-model Exam {
-  id          String  @id @default(cuid())
-  label       String  @unique
-  description String?
+model Group {
+  id    String @id @default(cuid())
+  label String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  questions Question[]
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+  createdById String?
+
+  members UserOnGroup[]
+
+  questions   Question[]
+  collections Collection[]
+  tags        Tag[]
+  JamSession  JamSession[]
+}
+
+model UserOnGroup {
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  group    Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId  String
+  selected Boolean @default(false)
+
+  @@id([userId, groupId])
+}
+
+model Collection {
+  id    String @id @default(cuid())
+  label String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  collectionToQuestions CollectionToQuestion[]
+
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
+}
+
+model CollectionToQuestion {
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId   String
+
+  order  Int @default(0)
+  points Int @default(4)
+
+  @@id([collectionId, questionId])
 }
 
 model Question {
-  id        String       @id @default(cuid())
-  type      QuestionType
-  content   String
-  points    Int          @default(4)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id      String       @id @default(cuid())
+  type    QuestionType
+  title   String
+  content String
 
-  order Int @default(0)
-
-  exam   Exam?   @relation(fields: [examId], references: [id], onDelete: Cascade)
-  examId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   multipleChoice MultipleChoice?
   trueFalse      TrueFalse?
@@ -109,10 +149,14 @@ model Question {
   code           Code?
   web            Web?
 
-  examSession   ExamSession? @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
-  examSessionId String?
+  collection CollectionToQuestion[]
+
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   studentAnswer StudentAnswer[]
+  questionToTag QuestionToTag[]
+  jamSession    JamSessionToQuestion?
 }
 
 model MultipleChoice {
@@ -225,8 +269,29 @@ model Web {
   js         String?
 }
 
+model Tag {
+  label String @id @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questionToTag QuestionToTag[]
+
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
+}
+
+model QuestionToTag {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  tag        Tag      @relation(fields: [label], references: [label], onDelete: Cascade)
+  label      String
+
+  @@id([questionId, label])
+}
+
 // Order is important here
-enum ExamSessionPhase {
+enum JamSessionPhase {
   NEW
   DRAFT
   IN_PROGRESS
@@ -234,20 +299,20 @@ enum ExamSessionPhase {
   FINISHED
 }
 
-enum ExamSessionStatus {
+enum JamSessionStatus {
   ACTIVE
   ARCHIVED
 }
 
-model ExamSession {
+model JamSession {
   id String @id @default(cuid())
 
-  label      String?           @unique
+  label      String?          @unique
   conditions String?
-  status     ExamSessionStatus @default(ACTIVE)
-  phase      ExamSessionPhase  @default(DRAFT)
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
+  status     JamSessionStatus @default(ACTIVE)
+  phase      JamSessionPhase  @default(DRAFT)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   durationHours Int? @default(0)
   durationMins  Int? @default(0)
@@ -255,22 +320,38 @@ model ExamSession {
   startAt DateTime?
   endAt   DateTime?
 
-  students  UserOnExamSession[]
-  questions Question[]
+  students              UserOnJamSession[]
+  jamSessionToQuestions JamSessionToQuestion[]
+
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
 }
 
-model UserOnExamSession {
+model JamSessionToQuestion {
+  jamSession   JamSession @relation(fields: [jamSessionId], references: [id], onDelete: Cascade)
+  jamSessionId String
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String   @unique
+
+  points Int @default(0)
+  order  Int @default(0)
+
+  @@id([jamSessionId, questionId])
+}
+
+model UserOnJamSession {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
 
-  examSession   ExamSession @relation(fields: [examSessionId], references: [id], onDelete: Cascade)
-  examSessionId String
+  jamSession   JamSession @relation(fields: [jamSessionId], references: [id], onDelete: Cascade)
+  jamSessionId String
 
   registeredAt DateTime @default(now())
 
   score Int @default(0)
 
-  @@id([userEmail, examSessionId])
+  @@id([userEmail, jamSessionId])
 }
 
 enum StudentAnswerStatus {
@@ -366,7 +447,7 @@ model StudentAnswerCode {
 
   // studentAnswerCodeHistory StudentAnswerCodeHistory[]
 
-  testCaseResults           TestCaseResult[]
+  testCaseResults TestCaseResult[]
 
   allTestCasesPassed Boolean @default(false)
 
@@ -417,8 +498,8 @@ model StudentAnswerWeb {
 
 model StudentAnswerCodeHistory {
   //studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-  userEmail         String
-  questionId        String
+  userEmail  String
+  questionId String
 
   createdAt DateTime @default(now())
 
