@@ -78,11 +78,9 @@ const get = async (req, res) => {
   })
 
   if (!userOnJamSession) {
-    res
-      .status(403)
-      .json({
-        message: 'You are not allowed to access this collections session',
-      })
+    res.status(403).json({
+      message: 'You are not allowed to access this collections session',
+    })
     return
   }
   res.status(200).json(userOnJamSession.jamSession)
