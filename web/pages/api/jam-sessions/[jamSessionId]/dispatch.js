@@ -1,6 +1,6 @@
 import { PrismaClient, Role, JamSessionPhase } from '@prisma/client'
 
-import { getUser, getUserSelectedGroup, hasRole } from '../../../../code/auth'
+import { getUser, hasRole } from '../../../../code/auth'
 import { phaseGT } from '../../../../code/phase'
 
 if (!global.prisma) {

@@ -1,4 +1,4 @@
-import { PrismaClient, Role, StudentFilePermission } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 
 import { hasRole } from '../../../../../../../code/auth'
 

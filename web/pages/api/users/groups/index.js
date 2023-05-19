@@ -1,4 +1,4 @@
-import { PrismaClient, Role, QuestionType } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 import { getUser, hasRole } from '../../../../code/auth'
 
 if (!global.prisma) {

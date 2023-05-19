@@ -27,7 +27,7 @@ const put = async (req, res) => {
   const { collectionToQuestions } = req.body
 
   // update the order of the questions in the collection
-  for (const [index, collectionToQuestion] of collectionToQuestions.entries()) {
+  for (const [_, collectionToQuestion] of collectionToQuestions.entries()) {
     await prisma.collectionToQuestion.update({
       where: {
         collectionId_questionId: {

@@ -5,42 +5,6 @@ export const IncludeStrategy = {
   USER_SPECIFIC: 'user_specific',
 }
 
-export const questionsWithIncludes = ({
-  parentResource,
-  parentResourceId,
-  includeTypeSpecific,
-  includeOfficialAnswers,
-  includeUserAnswers,
-  includeGradings,
-}) => {
-  let where = parentResource
-    ? {
-        [parentResource]: {
-          id: parentResourceId,
-        },
-      }
-    : undefined
-
-  // including type specifics with or without official answers
-  let include = questionIncludeClause({
-    includeTypeSpecific,
-    includeOfficialAnswers,
-    includeUserAnswers,
-    includeGradings,
-  })
-
-  /*  including user answers
-        studentAnswer is returned as an array of answers -> one to many relationship
-        For IncludeStrategy.USER_SPECIFIC we will have an array with one answers only
-        For IncludeStrategy.ALL we will have an array with all the answers related to that questions
-    */
-
-  return {
-    where,
-    include,
-  }
-}
-
 const defaultQuestionIncludeClause = {
   includeTypeSpecific: true,
   includeOfficialAnswers: false,

@@ -1,9 +1,9 @@
-import { PrismaClient, QuestionType, Role } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 import {
   questionIncludeClause,
   questionTypeSpecific,
 } from '../../../../code/questions'
-import { hasRole, getUserSelectedGroup } from '../../../../code/auth'
+import { hasRole } from '../../../../code/auth'
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
