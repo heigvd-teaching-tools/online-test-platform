@@ -60,7 +60,7 @@ const PageTakeJam = () => {
       // Check if Ctrl or Cmd key is pressed along with 'S'
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 83) {
         event.preventDefault() // Prevent the default browser save action
-        showSnackbar('Your answer has been saved', 'success')
+        showSnackbar('Your answers are saved automatically', 'success')
       }
     }
 
@@ -69,7 +69,7 @@ const PageTakeJam = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown) // Clean up the event listener
     }
-  }, [])
+  }, [showSnackbar])
 
   const [page, setPage] = useState(parseInt(pageId))
 

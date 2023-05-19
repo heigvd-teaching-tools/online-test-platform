@@ -19,7 +19,7 @@ const InlineMonacoEditor = ({
     if (editor) {
       editor.setScrollPosition({ scrollTop: 0 })
     }
-  }, [contentHeight])
+  }, [contentHeight, editor])
 
   const onContentChange = useCallback(
     (newContent) => {

@@ -26,7 +26,7 @@ export const GroupProvider = ({ children }) => {
       }
       if (!session.user.selected_group && session.user.groups.length > 0) {
         // if the user has no selected group, select the first one
-        ;(async () => {
+        (async () => {
           const group = session.user.groups[0].group
           await switchGroup(group)
           showSnackbar(

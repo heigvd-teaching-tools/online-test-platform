@@ -177,7 +177,7 @@ const QuestionFilter = ({ onApplyFilter }) => {
 const CheckboxLabel = ({ label, checked, onChange }) => {
   const setToggleCheckBox = useCallback(
     () => onChange && onChange(!checked),
-    [onChange]
+    [onChange, checked]
   )
   return (
     <Stack

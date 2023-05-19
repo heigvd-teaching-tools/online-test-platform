@@ -31,7 +31,7 @@ const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
         showSnackbar(data.message, 'error')
       }
     },
-    [group, onSuccess]
+    [group, onSuccess, showSnackbar]
   )
 
   const handleSearch = async (search) => {

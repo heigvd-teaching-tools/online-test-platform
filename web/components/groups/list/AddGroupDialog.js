@@ -32,7 +32,7 @@ const AddGroupDialog = ({ open, selectOnCreate, onClose, onSuccess }) => {
         )
       }
     },
-    [onSuccess]
+    [onSuccess, selectOnCreate, showSnackbarAt]
   )
 
   return (

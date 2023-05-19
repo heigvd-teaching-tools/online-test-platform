@@ -91,7 +91,7 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
       }
       setQuestionData(data)
     }
-  }, [question])
+  }, [question, JamSessionToQuestion])
 
   return (
     <Paper sx={{ p: 2, width: '100%' }}>

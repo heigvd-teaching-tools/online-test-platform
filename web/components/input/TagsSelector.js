@@ -1,5 +1,5 @@
 import { Autocomplete, Chip, TextField } from '@mui/material'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { createFilterOptions } from '@mui/material/Autocomplete'
 
 const filterOptions = createFilterOptions({
@@ -18,7 +18,7 @@ const TagsSelector = ({
   onChange,
 }) => {
   const onChangeValue = useCallback(
-    (event, newValue) => {
+    (_, newValue) => {
       if (onChange) {
         onChange(newValue)
       }

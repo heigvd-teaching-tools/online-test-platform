@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
-import ScrollContainer from '../../../layout/ScrollContainer'
 
 const TestCaseResults = ({ tests }) => {
   const [index, setIndex] = useState(0)

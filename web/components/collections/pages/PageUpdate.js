@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import { Stack, Button, IconButton, Box } from '@mui/material'
 
 import LayoutMain from '../../layout/LayoutMain'
-import LoadingAnimation from '../../feedback/Loading'
 
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { Role } from '@prisma/client'

@@ -60,7 +60,7 @@ const CollectionToQuestion = ({
         onChange && onChange(index, updated)
       }
     },
-    [index, onChange]
+    [onChange]
   )
 
   const debounceSaveCollectionToQuestion = useDebouncedCallback(

@@ -587,7 +587,7 @@ const GradingQuestionFilter = ({ onFilter }) => {
 
   useEffect(() => {
     onFilter(filter)
-  }, [filter])
+  }, [onFilter, filter])
 
   return (
     <Stack direction="row" sx={{ ml: 2 }}>

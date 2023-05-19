@@ -1,4 +1,4 @@
-import { PrismaClient, Role, JamSessionPhase } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 
 import { hasRole, getUser } from '../../../../../code/auth'
 import {
