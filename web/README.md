@@ -2,7 +2,7 @@
 
 ## Install the database with docker
 
-Use docker compose in /postgres folder to create the database with the mounted volume.
+Use docker compose in /postgres (parent) folder to create the database with the mounted volume.
 
 or: 
 
