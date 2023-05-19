@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { Box, Button, MenuItem, Stack } from '@mui/material'
+import { Button, MenuItem, Stack } from '@mui/material'
 import FileEditor from './FileEditor'
 import { update, pull } from './crud'
 import DropDown from '../../../../input/DropDown'

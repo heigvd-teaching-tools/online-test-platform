@@ -7,7 +7,6 @@ import { Button, Typography, Stack, Tab } from '@mui/material'
 import LayoutMain from '../../layout/LayoutMain'
 
 import { useSnackbar } from '../../../context/SnackbarContext'
-import LoadingAnimation from '../../feedback/Loading'
 import ListJamSession from '../list/ListJamSession'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'

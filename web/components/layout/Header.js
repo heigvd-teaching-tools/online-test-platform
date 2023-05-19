@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { AppBar, Box, MenuItem, Select, Stack } from '@mui/material'
+import { AppBar, Box, Stack } from '@mui/material'
 import { useSession } from 'next-auth/react'
 
 import UserAvatar from './UserAvatar'

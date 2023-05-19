@@ -17,7 +17,7 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
         setSourceIndex(targetIndex)
       }
     },
-    [sourceIndex]
+    [sourceIndex, onChangeOrder]
   )
 
   const handleDragEnd = useCallback(
@@ -27,7 +27,7 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
         onOrderEnd(sourceIndex, index)
       }
     },
-    [setSourceIndex]
+    [setSourceIndex, onOrderEnd, sourceIndex]
   )
 
   return (

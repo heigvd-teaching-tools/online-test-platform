@@ -91,7 +91,7 @@ const QuestionUpdate = ({ questionId }) => {
       // debounce the change to the api
       await debounceChange()
     },
-    [question]
+    [question, debounceChange]
   )
 
   return (

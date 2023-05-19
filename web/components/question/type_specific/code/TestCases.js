@@ -4,14 +4,7 @@ import useSWR from 'swr'
 import {
   Box,
   Button,
-  ButtonGroup,
-  ClickAwayListener,
-  Grow,
   IconButton,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
   Stack,
   TextField,
   Typography,
@@ -19,11 +12,10 @@ import {
 } from '@mui/material'
 import { useDebouncedCallback } from 'use-debounce'
 import languages from '../../../../code/languages.json'
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import Loading from '../../../feedback/Loading'
 import { fetcher } from '../../../../code/utils'
 import ScrollContainer from '../../../layout/ScrollContainer'
 import { useSnackbar } from '../../../../context/SnackbarContext'
+import Loading from '../../../feedback/Loading'
 
 const environments = languages.environments
 
@@ -89,7 +81,7 @@ const TestCases = ({ questionId, language }) => {
         }
       })
     },
-    [questionId, tests, mutate]
+    [questionId, tests, mutate, showSnackbar]
   )
 
   const updateTestCase = useCallback(

@@ -26,7 +26,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
         onAnswer(question, updatedStudentAnswer)
       }
     },
-    [question]
+    [question, onAnswer]
   )
   return (
     question &&
@@ -113,6 +113,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                     StudentFilePermission.VIEW && (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Image
+                        alt='viewable icon'
                         src="/svg/icons/viewable.svg"
                         width={24}
                         height={24}
@@ -124,6 +125,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                     StudentFilePermission.UPDATE && (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Image
+                        alt='editable icon'
                         src="/svg/icons/editable.svg"
                         width={24}
                         height={24}
