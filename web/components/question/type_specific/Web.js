@@ -153,6 +153,7 @@ const PreviewPanel = ({ id, web }) => {
                 // set frame height based on content
                 iframe.style.height = `${doc.body.scrollHeight}px`;
                 iframe.style.border = "none";
+                iframe.style.background = "white";
 
             }
         }, [id, web]);

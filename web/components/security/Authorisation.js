@@ -29,6 +29,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
     if(!authorization.hasAllowedRole){
         return <Unauthorized>
             <Typography variant="h6">You are not authorized to view this page.</Typography>
+            <Button onClick={() => signOut()} variant="text" color="primary">Sign Out</Button>
         </Unauthorized>
     }
 
