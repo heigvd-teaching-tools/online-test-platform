@@ -4,7 +4,7 @@
 
 Use docker compose in /postgres (parent) folder to create the database with the mounted volume.
 
-or: 
+or:
 
 ```bash
 docker pull postgres
@@ -38,6 +38,7 @@ GITHUB_CLIENT_SECRET=
 Consider checking the template `.env.sample` file.
 
 #### Create a GitHub OAuth App
+
 https://github.com/settings/developers.
 
 Goto "OAuth Apps" and click "New OAuth App".

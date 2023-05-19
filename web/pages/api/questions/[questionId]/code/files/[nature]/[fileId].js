@@ -23,6 +23,7 @@ const handler = async (req, res) => {
       await del(req, res)
       break
     default:
+      res.status(405).json({ message: 'Method not allowed' })
   }
 }
 

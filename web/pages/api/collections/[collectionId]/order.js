@@ -17,10 +17,8 @@ const handler = async (req, res) => {
     case 'PUT':
       await put(req, res)
       break
-    case 'POST':
-      await post(req, res)
-      break
     default:
+      res.status(405).json({ message: 'Method not allowed' })
   }
 }
 
