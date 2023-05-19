@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
+import SnackbarFeedback from "../components/feedback/SnackbarFeedback";
 
 const SnackbarContext = createContext();
 export const useSnackbar = () => useContext(SnackbarContext);
@@ -21,11 +22,28 @@ export const SnackbarProvider = ({ children }) => {
         });
     }, []);
 
+    const showAt = useCallback((position, message, severity) => {
+        setSnackbar({
+            position,
+            open: true, message, severity
+        });
+    }, []);
+
     const showTopRight = useCallback((message, severity) => {
         setSnackbar({
             position: {
                 vertical: 'top',
                 horizontal: 'right',
+            },
+            open: true, message, severity
+        });
+    }, []);
+
+    const showTopCenter = useCallback((message, severity) => {
+        setSnackbar({
+            position: {
+                vertical: 'top',
+                horizontal: 'center',
             },
             open: true, message, severity
         });
@@ -39,10 +57,13 @@ export const SnackbarProvider = ({ children }) => {
         <SnackbarContext.Provider value={{
             snackbar,
             show,
+            showAt,
             showTopRight,
+            showTopCenter,
             hide
         }}>
             {children}
+            <SnackbarFeedback />
         </SnackbarContext.Provider>
     );
 }

@@ -1,0 +1,233 @@
+{
+  "comment": "Used both in frontend and backend. language property of an environment must match the monaco editor language property : https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages",
+  "environments": [
+    {
+      "language": "cpp",
+      "extension": "cpp",
+      "label": "C++",
+      "icon": "/svg/languages/cpp.svg",
+      "sandbox": {
+        "image": "gcc:latest",
+        "defaultPath": "/src/main.cpp",
+        "exec": "/src/main",
+        "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main"
+      },
+      "testCases": [{
+        "exec": "/src/main",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1\n"
+      }],
+      "files": {
+        "solution": [{
+          "path": "/src/main.cpp",
+          "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+        }],
+        "template": [{
+            "path": "/src/main.cpp",
+            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+        }]
+      }
+    },
+    {
+      "language": "java",
+      "extension": "java",
+      "label": "Java",
+      "icon": "/svg/languages/java.svg",
+      "sandbox": {
+        "image": "openjdk:latest",
+        "defaultPath": "/src/main.java",
+        "exec": "java -cp /src Main",
+        "beforeAll": "javac /src/Main.java"
+      },
+      "testCases": [{
+        "exec": "java -cp /src Main",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1\n"
+      }],
+      "files": {
+          "solution": [{
+          "path": "/src/Main.java",
+          "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
+          }],
+          "template": [{
+              "path": "/src/Main.java",
+              "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
+          }]
+      }
+    },
+    {
+      "language": "javascript",
+      "extension": "js",
+      "label": "JavaScript",
+      "icon": "/svg/languages/javascript.svg",
+      "sandbox": {
+        "image": "node:latest",
+        "defaultPath": "/src/script.js",
+        "exec": "node /src/script.js",
+        "beforeAll": ""
+      },
+      "testCases": [{
+        "exec": "node /src/script.js",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1\n"
+      }],
+        "files": {
+            "solution": [{
+            "path": "/src/script.js",
+            "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+            }],
+            "template": [{
+                "path": "/src/script.js",
+                "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
+            }]
+        }
+    },
+    {
+      "language": "python",
+      "extension": "py",
+      "label": "Python",
+      "icon": "/svg/languages/python.svg",
+      "sandbox": {
+        "image": "python:latest",
+        "defaultPath": "/src/script.py",
+        "exec": "python /src/script.py",
+        "beforeAll": ""
+      },
+      "testCases": [{
+        "exec": "python /src/script.py",
+        "input": "Hello World1",
+        "expectedOutput": "HELLO WORLD1"
+      }],
+        "files": {
+            "solution": [{
+            "path": "/src/script.py",
+            "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+            }],
+            "template": [{
+                "path": "/src/script.py",
+                "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
+            }]
+        }
+    }
+  ],
+  "monacoExtensionToLanguage": {
+    "abap": "abap",
+    "cls": "apex",
+    "azcli": "azcli",
+    "bat": "bat",
+    "bicep": "bicep",
+    "ml4": "cameligo",
+    "clj": "clojure",
+    "cljs": "clojure",
+    "cljc": "clojure",
+    "edn": "clojure",
+    "coffee": "coffee",
+    "cpp": "cpp",
+    "cc": "cpp",
+    "cxx": "cpp",
+    "hpp": "cpp",
+    "hh": "cpp",
+    "hxx": "cpp",
+    "h": "cpp",
+    "c": "cpp",
+    "cs": "csharp",
+    "csp": "csp",
+    "css": "css",
+    "cyp": "cypher",
+    "dart": "dart",
+    "dockerfile": "dockerfile",
+    "ecl": "ecl",
+    "eclxml": "ecl",
+    "ex": "elixir",
+    "exs": "elixir",
+    "flo": "flow9",
+    "ftl": "freemarker2",
+    "fs": "fsharp",
+    "fsi": "fsharp",
+    "fsx": "fsharp",
+    "fsscript": "fsharp",
+    "go": "go",
+    "graphql": "graphql",
+    "gql": "graphql",
+    "hbs": "handlebars",
+    "hcl": "hcl",
+    "html": "html",
+    "htm": "html",
+    "ini": "ini",
+    "java": "java",
+    "js": "javascript",
+    "jsx": "javascript",
+    "jl": "julia",
+    "json": "json",
+    "kt": "kotlin",
+    "kts": "kotlin",
+    "less": "less",
+    "lx": "lexon",
+    "liquid": "liquid",
+    "lua": "lua",
+    "m3": "m3",
+    "md": "markdown",
+    "markdown": "markdown",
+    "s": "mips",
+    "msdax": "msdax",
+    "dax": "msdax",
+    "mysql": "mysql",
+    "m": "objective-c",
+    "mm": "objective-c",
+    "pas": "pascal",
+    "pascaligo": "pascaligo",
+    "pl": "perl",
+    "pgsql": "pgsql",
+    "php": "php",
+    "pla": "pla",
+    "dats": "postiats",
+    "pq": "powerquery",
+    "ps1": "powershell",
+    "psm1": "powershell",
+    "psd1": "powershell",
+    "proto": "protobuf",
+    "pug": "pug",
+    "py": "python",
+    "pyi": "python",
+    "qs": "qsharp",
+    "r": "r",
+    "R": "r",
+    "cshtml": "razor",
+    "vbhtml": "razor",
+    "redis": "redis",
+    "redshift": "redshift",
+    "rst": "restructuredtext",
+    "rb": "ruby",
+    "rs": "rust",
+    "sb": "sb",
+    "scala": "scala",
+    "scm": "scheme",
+    "ss": "scheme",
+    "scss": "scss",
+    "sh": "shell",
+    "bash": "shell",
+    "zsh": "shell",
+    "sol": "solidity",
+    "sofia": "sophia",
+    "rq": "sparql",
+    "sql": "sql",
+    "st": "st",
+    "swift": "swift",
+    "sv": "systemverilog",
+    "tcl": "tcl",
+    "test": "test",
+    "twig": "twig",
+    "ts": "typescript",
+    "tsx": "typescript",
+    "vb": "vb",
+    "xml": "xml",
+    "xsd": "xml",
+    "xsl": "xml",
+    "yaml": "yaml",
+    "yml": "yaml"
+  }
+}
+
+
+
+

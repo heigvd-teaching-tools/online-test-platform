@@ -1,15 +1,43 @@
-## Getting Started
+# Getting Started
+
+## Install the database with docker
+
+```bash
+docker pull postgres
+docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5432:5432 -v data:/var/lib/postgresql/data --name postgresql postgres
+```
+
+## Initialize the database with prisma
+
+```bash
+npx prisma db push
+```
+
+```bash
+npx prisma migrate dev
+```
+
+```bash
+npx prisma generate
+```
+
+```bash
+npx prisma db push
+```
+A custom script to create a default group
+```bash
+npx prisma db seed 
+```
+
+## Run the application
 
 Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
 
 ## NextAuth with GitHub Provider
 
@@ -17,52 +45,37 @@ GitHub Client ID and Secret in .env
 
 `NEXTAUTH_SECRET` necessary for prod build
 
-## Prisma
-
-```bash
-npx prisma migrate dev
-```
-```bash
-npx prisma generate
-```
-```bash
-npx prisma db push
-```
-
 #### Prisma Studio
 
 ```bash
 npx prisma studio
 ```
-
-## Postgres
-
-```bash
-docker pull postgres
-docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5432:5432 -v /data:/var/lib/postgresql/data --name postgresql postgres
-```
+or use docker-compose in /postgres folder
 
 Database URL in .env
 
 ## Monaco Code Editor
+
 https://www.npmjs.com/package/@monaco-editor/react
 
 ## API endpoints
 
-### Code 
+### Code
+
 - /api/code/ [ANY]
 - /api/code/test/answer/:questionId [ANY]
 - /api/code/test/question/:questionId [ANY]
 
 ### Exam Sessions
+
 - /api/exam-sessions/ [GET, POST]
 
-###### POST 
+###### POST
 
-Will create a new exam session and return the new exam session data. 
-It takes examId as a parameter. It will be used to recover all the questions of the exam. 
-The COPY of each question for the exam will be created for the exam session. 
-  
+Will create a new exam session and return the new exam session data.
+It takes examId as a parameter. It will be used to recover all the questions of the exam.
+The COPY of each question for the exam will be created for the exam session.
+
 - /api/exam-sessions/:examSessionId
 - /api/exam-sessions/:examSessionId/register
 - /api/exam-sessions/:examSessionId/questions/with-grading/official
@@ -73,17 +86,18 @@ The COPY of each question for the exam will be created for the exam session.
 - /api/exam-sessions/:examSessionId/questions/:questionId/answer/code/:fileId [PUT]
 
 ###### PUT
+
 Receives the student answer of the question and saves it in the database.
 
+-
 
-- 
-### Exams 
+### Exams
 
-- /api/exams 
+- /api/exams
 - /api/exams/:examId
 - /api/exams/:examId/questions
 
-### Grading 
+### Grading
 
 - /api/grading
 
@@ -99,10 +113,6 @@ Receives the student answer of the question and saves it in the database.
 - /api/questions/:questionId/code/files/:nature/:fileId [PUT, DELETE]
 - /api/questions/:questionId/code/files/:nature/pull [POST]
 
+### users
 
-
-
-
-### users 
-
-- /api/users/:email/exam-sessions/:sessionId 
+- /api/users/:email/exam-sessions/:sessionId

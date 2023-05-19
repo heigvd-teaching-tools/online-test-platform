@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
-import { hasRole } from '../../../../utils/auth';
+import { hasRole } from '../../../../code/auth';
 import { runSandbox } from "../../../../sandbox/runSandboxTC";
 
 if (!global.prisma) {
@@ -33,6 +33,12 @@ export default async function handler(req, res) {
 const post = async (req, res) => {
 
     const { questionId, nature } = req.query;
+
+    // nature must be either 'template' or 'solution'
+    if(['template', 'solution'].indexOf(nature) === -1){
+        res.status(400).json({ message: 'Invalid nature' });
+        return;
+    }
 
     const filesToInclude = nature === 'solution' ? 'solutionFiles' : 'templateFiles';
 

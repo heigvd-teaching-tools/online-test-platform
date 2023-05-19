@@ -1,6 +1,6 @@
 import {PrismaClient, Role} from "@prisma/client";
 
-import {hasRole} from "../../../../../../utils/auth";
+import {hasRole} from "../../../../../../code/auth";
 
 if (!global.prisma) {
     global.prisma = new PrismaClient()
@@ -44,11 +44,17 @@ const get = async (req, res) => {
 const post = async (req, res) => {
     // create a new test case for a code question
     const { questionId } = req.query;
-    const { index, exec, input, expectedOutput } = req.body;
+    const { exec, input, expectedOutput } = req.body;
+
+    const count = await prisma.testCase.count({
+        where: {
+            questionId: questionId,
+        }
+    });
 
     const testCase = await prisma.testCase.create({
         data: {
-            index,
+            index: count + 1,
             exec,
             input,
             expectedOutput,
