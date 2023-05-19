@@ -1,5 +1,5 @@
-import PageInProgress from '../../../../components/jam-sessions/pages/PageInProgress';
+import PageInProgress from '../../../../components/jam-sessions/pages/PageInProgress'
 
-const InProgress = () => <PageInProgress />;
+const InProgress = () => <PageInProgress />
 
-export default InProgress;
+export default InProgress

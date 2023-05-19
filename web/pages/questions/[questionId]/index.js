@@ -1,5 +1,5 @@
-import PageUpdate from "../../../components/questions/pages/PageUpdate";
+import PageUpdate from '../../../components/questions/pages/PageUpdate'
 
-const UpdateQuestion = () => <PageUpdate />;
+const UpdateQuestion = () => <PageUpdate />
 
-export default UpdateQuestion;
+export default UpdateQuestion

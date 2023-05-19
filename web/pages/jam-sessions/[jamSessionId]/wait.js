@@ -1,5 +1,5 @@
-import PageWaiting from '../../../components/jam-sessions/pages/student/PageWaiting';
+import PageWaiting from '../../../components/jam-sessions/pages/student/PageWaiting'
 
-const WaitJamSession = () => <PageWaiting />;
+const WaitJamSession = () => <PageWaiting />
 
-export default WaitJamSession;
+export default WaitJamSession

@@ -8,7 +8,7 @@ Document
   --color-black: #000;
   --text-primary: var(--color-black);
 }
-#app{
+#app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -56,12 +56,11 @@ body {
   min-height: 100vh;
 }
 
-#__next{
-  display:flex;
+#__next {
+  display: flex;
   min-height: 100vh;
   min-width: 100vw;
 }
-
 
 /*
 Grouping content
@@ -69,7 +68,7 @@ Grouping content
 */
 a {
   text-decoration: none;
-  color:var(--text-primary);
+  color: var(--text-primary);
 }
 /**
 1. Add the correct height in Firefox.
@@ -112,7 +111,8 @@ code,
 kbd,
 samp,
 pre {
-  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; /* 1 */
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo,
+    monospace; /* 1 */
   font-size: 1em; /* 2 */
 }
 
@@ -178,7 +178,7 @@ textarea {
   font-size: 0.75rem; /* 1 */
   line-height: 1.15; /* 1 */
   margin: 0; /* 2 */
-  border:0px;
+  border: 0px;
   -webkit-appearance: none;
   outline: none;
 }
@@ -299,17 +299,21 @@ summary {
 
 ul,
 menu,
-ol{
+ol {
   padding: 0;
   margin: 0;
   list-style-type: none;
 }
 
-h1, h2, h3, h4, h5, h6{
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   padding: 0;
 }
-
 
 /* width */
 ::-webkit-scrollbar {

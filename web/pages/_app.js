@@ -1,19 +1,19 @@
-import Head from 'next/head';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import Head from 'next/head'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 
-import CssBaseline from '@mui/material/CssBaseline';
-import { SessionProvider } from "next-auth/react"
-import { SnackbarProvider } from '../context/SnackbarContext';
+import CssBaseline from '@mui/material/CssBaseline'
+import { SessionProvider } from 'next-auth/react'
+import { SnackbarProvider } from '../context/SnackbarContext'
 
 import '../styles/normalize.css'
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
 
-import Authentication from '../components/security/Authentication';
-import {GroupProvider} from "../context/GroupContext";
-import {TagsProvider} from "../context/TagContext";
+import Authentication from '../components/security/Authentication'
+import { GroupProvider } from '../context/GroupContext'
+import { TagsProvider } from '../context/TagContext'
 
 export const themeOptions = {
   palette: {
@@ -43,65 +43,65 @@ export const themeOptions = {
       fontSize: '2rem',
     },
     h2: {
-        fontSize: '1.75rem',
+      fontSize: '1.75rem',
     },
     h3: {
-        fontSize: '1.5rem',
+      fontSize: '1.5rem',
     },
     h4: {
-        fontSize: '1.25rem',
+      fontSize: '1.25rem',
     },
-    h5:{
-        fontSize: '1rem',
+    h5: {
+      fontSize: '1rem',
     },
-    h6:{
-        fontSize: '0.9rem',
+    h6: {
+      fontSize: '0.9rem',
     },
     body1: {
-        fontSize: '0.9rem',
-        color: '#333333',
+      fontSize: '0.9rem',
+      color: '#333333',
     },
     body2: {
-        fontSize: '0.85rem',
-        color: '#7e7e7e',
+      fontSize: '0.85rem',
+      color: '#7e7e7e',
     },
     button: {
-        fontSize: '0.8rem',
+      fontSize: '0.8rem',
     },
     caption: {
       fontSize: '0.7rem',
     },
   },
-};
-
-
-const theme = createTheme(themeOptions);
-
-function MyApp({ Component, pageProps: { session, ...pageProps} }) {
-  return (
-    <ThemeProvider theme={theme}>
-        <SessionProvider session={session}>
-          <SnackbarProvider >
-            <CssBaseline />
-            <Meta />
-              <TagsProvider>
-                <GroupProvider session={session}>
-                  <Authentication>
-                    <Component {...pageProps} />
-                  </Authentication>
-                </GroupProvider>
-              </TagsProvider>
-          </SnackbarProvider>
-        </SessionProvider>
-
-    </ThemeProvider>
-  );
 }
 
-const Meta = () => <Head>
-<title>HEIG-VD - TWeb - Online Test</title>
-<meta name="description" content="HEIG-VD - Online test platform" />
-<link rel="icon" href="/favicon.ico" />
-</Head>
+const theme = createTheme(themeOptions)
+
+function MyApp({ Component, pageProps: { session, ...pageProps } }) {
+  return (
+    <ThemeProvider theme={theme}>
+      <SessionProvider session={session}>
+        <SnackbarProvider>
+          <CssBaseline />
+          <Meta />
+          <TagsProvider>
+            <GroupProvider session={session}>
+              <Authentication>
+                <Component {...pageProps} />
+              </Authentication>
+            </GroupProvider>
+          </TagsProvider>
+        </SnackbarProvider>
+      </SessionProvider>
+    </ThemeProvider>
+  )
+}
+
+const Meta = () => (
+  <Head>
+    <title>HEIG-VD - TWeb - Online Test</title>
+    <meta name="description" content="HEIG-VD - Online test platform" />
+    <link rel="icon" href="/favicon.ico" />
+  </Head>
+)
 
 export default MyApp

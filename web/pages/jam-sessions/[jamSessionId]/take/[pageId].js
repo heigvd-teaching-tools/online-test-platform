@@ -1,5 +1,5 @@
-import PageTakeJam from "../../../../components/jam-sessions/pages/student/PageTakeJam";
+import PageTakeJam from '../../../../components/jam-sessions/pages/student/PageTakeJam'
 
-const TakeJamSession = () => <PageTakeJam />;
+const TakeJamSession = () => <PageTakeJam />
 
-export default TakeJamSession;
+export default TakeJamSession

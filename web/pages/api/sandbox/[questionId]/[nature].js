@@ -1,81 +1,79 @@
-import { PrismaClient, Role } from '@prisma/client';
-import { hasRole } from '../../../../code/auth';
-import { runSandbox } from "../../../../sandbox/runSandboxTC";
+import { PrismaClient, Role } from '@prisma/client'
+import { hasRole } from '../../../../code/auth'
+import { runSandbox } from '../../../../sandbox/runSandboxTC'
 
 if (!global.prisma) {
-    global.prisma = new PrismaClient()
+  global.prisma = new PrismaClient()
 }
 
 const prisma = global.prisma
 
 export default async function handler(req, res) {
+  let isProf = await hasRole(req, Role.PROFESSOR)
 
-    let isProf = await hasRole(req, Role.PROFESSOR);
+  if (!isProf) {
+    res.status(401).json({ message: 'Unauthorized' })
+    return
+  }
 
-    if(!isProf){
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
-    }
-
-    switch (req.method) {
-        case 'POST':
-            await post(req, res);
-            break;
-        default:
-            res.status(405).json({ message: 'Method not allowed' });
-    }
-
+  switch (req.method) {
+    case 'POST':
+      await post(req, res)
+      break
+    default:
+      res.status(405).json({ message: 'Method not allowed' })
+  }
 }
 
 /*
  endpoint to run the sandbox for a question with files (nature = template or solution) recovered from the database
  */
 const post = async (req, res) => {
+  const { questionId, nature } = req.query
 
-    const { questionId, nature } = req.query;
+  // nature must be either 'template' or 'solution'
+  if (['template', 'solution'].indexOf(nature) === -1) {
+    res.status(400).json({ message: 'Invalid nature' })
+    return
+  }
 
-    // nature must be either 'template' or 'solution'
-    if(['template', 'solution'].indexOf(nature) === -1){
-        res.status(400).json({ message: 'Invalid nature' });
-        return;
-    }
+  const filesToInclude =
+    nature === 'solution' ? 'solutionFiles' : 'templateFiles'
 
-    const filesToInclude = nature === 'solution' ? 'solutionFiles' : 'templateFiles';
-
-    const code = await prisma.code.findUnique({
-        where: {
-            questionId: questionId
+  const code = await prisma.code.findUnique({
+    where: {
+      questionId: questionId,
+    },
+    include: {
+      sandbox: true,
+      testCases: {
+        orderBy: {
+          index: 'asc',
         },
+      },
+      [filesToInclude]: {
         include: {
-            sandbox: true,
-            testCases: {
-                orderBy: {
-                    index: 'asc'
-                }
-            },
-            [filesToInclude]: {
-                include: {
-                    file: true
-                }
-            }
-        }
-    });
+          file: true,
+        },
+      },
+    },
+  })
 
-    if(!code || !code[filesToInclude]){
-        res.status(404).json({ message: 'Code not found' });
-        return;
-    }
+  if (!code || !code[filesToInclude]) {
+    res.status(404).json({ message: 'Code not found' })
+    return
+  }
 
-    const files = code[filesToInclude].map((codeToFile) => codeToFile.file);
+  const files = code[filesToInclude].map((codeToFile) => codeToFile.file)
 
-    const result = await runSandbox({
-        image: code.sandbox.image,
-        files: files,
-        beforeAll: code.sandbox.beforeAll,
-        tests: code.testCases
-    }).then((result) => {
-        res.status(200).send(result);
-    });
+  const result = await runSandbox({
+    image: code.sandbox.image,
+    files: files,
+    beforeAll: code.sandbox.beforeAll,
+    tests: code.testCases,
+  }).then((result) => {
+    res.status(200).send(result)
+  })
 
-    res.status(200).send(result);
+  res.status(200).send(result)
 }
