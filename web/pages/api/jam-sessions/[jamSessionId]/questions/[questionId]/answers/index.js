@@ -71,8 +71,9 @@ const get = async (req, res) => {
       code: {
         select: {
           files: {
-            where: { studentPermission: {
-              not: StudentFilePermission.HIDDEN
+            where: {
+              studentPermission: {
+                not: StudentFilePermission.HIDDEN
               }},
             select: { studentPermission: true, file: true },
             orderBy: [
