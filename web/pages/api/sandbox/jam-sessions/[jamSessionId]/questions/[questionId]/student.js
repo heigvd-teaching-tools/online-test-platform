@@ -50,6 +50,7 @@ const post = async (req, res) => {
     include: {
       sandbox: true,
       testCases: true,
+      solutionFiles: true // to get the hidden files
     },
   })
 
@@ -82,6 +83,8 @@ const post = async (req, res) => {
   const files = studentAnswerCodeFiles.files.map(
     (codeToFile) => codeToFile.file
   )
+
+  console.log("files", files)
 
   const response = await runSandbox({
     image: code.sandbox.image,

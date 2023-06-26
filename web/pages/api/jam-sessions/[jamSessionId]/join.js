@@ -68,6 +68,7 @@ const post = async (req, res) => {
       question: {
         include: questionIncludeClause({
           includeTypeSpecific: true,
+          includeOfficialAnswers: true,
         }),
       },
     },
@@ -105,6 +106,10 @@ const post = async (req, res) => {
   // create empty answers and gradings for each questions
   for (const jstq of jamSessionToQuestions) {
     const { question } = jstq
+
+    console.log("template files", question.code.templateFiles)
+
+
     transaction.push(
       prisma.studentAnswer.upsert({
         where: {
@@ -124,6 +129,7 @@ const post = async (req, res) => {
                 ? {
                     files: {
                       create: question.code.templateFiles.map((codeToFile) => {
+                        console.log("codeToFile", codeToFile)
                         return {
                           studentPermission: codeToFile.studentPermission,
                           file: {
@@ -154,7 +160,6 @@ const post = async (req, res) => {
 
   // run the transaction
   const [userOnJamSession] = await prisma.$transaction(transaction)
-  console.log('userOnJamSession', userOnJamSession)
   res.status(200).json(userOnJamSession)
 }
 

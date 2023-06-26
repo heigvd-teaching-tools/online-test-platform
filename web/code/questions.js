@@ -48,7 +48,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 }
               : {}),
             templateFiles: {
-              ...(includeOfficialAnswers
+              ...(!includeOfficialAnswers
                 ? {
                     where: {
                       studentPermission: {
