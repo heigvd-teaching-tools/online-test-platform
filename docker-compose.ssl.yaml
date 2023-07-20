@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: nextjs-app
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://onlinetest:onlinetest@db:5432/onlinetest?schema=public
+    volumes:
+      - ./web:/usr/src/app
+    expose:
+      - 3000
+
+  nginx:
+    image: nginx:1.19-alpine
+    container_name: nginx
+    restart: unless-stopped
+    depends_on:
+      - web
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    ports:
+      - 80:80
+      - 443:443
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  db:
+    image: postgres
+    container_name: db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: onlinetest
+      POSTGRES_PASSWORD: onlinetest
+      POSTGRES_DB: onlinetest
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - 5432
+
+volumes:
+  pgdata:

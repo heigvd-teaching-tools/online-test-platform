@@ -2,6 +2,7 @@ import { getSession } from 'next-auth/react'
 
 const hasRole = async (req, role) => {
   const session = await getSession({ req })
+  console.log("session", session);
   return session && session.user && session.user.role === role
 }
 
