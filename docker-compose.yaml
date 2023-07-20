@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+
+  db:
+    image: postgres
+    restart: unless-stopped
+    env_file:
+      - ./web/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  push_db:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: "no"
+    depends_on:
+      - db
+    command: npx prisma db push
+
+volumes:
+  pgdata:

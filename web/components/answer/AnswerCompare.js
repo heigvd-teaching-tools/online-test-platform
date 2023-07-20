@@ -7,6 +7,7 @@ import CompareMultipleChoice from './CompareMultipleChoice'
 import CompareTrueFalse from './CompareTrueFalse'
 import { ResizeObserverProvider } from '../../context/ResizeObserverContext'
 
+
 const AnswerCompare = ({ questionType, solution, answer }) => {
   return (
     <Paper

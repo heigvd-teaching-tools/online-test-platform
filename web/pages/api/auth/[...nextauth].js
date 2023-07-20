@@ -17,14 +17,15 @@ export default NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      clientId: process.env.NEXTAUTH_GITHUB_ID,
+      clientSecret: process.env.NEXTAUTH_GITHUB_SECRET,
     }),
     KeycloakProvider({
       clientId: process.env.KEYCLOAK_CLIENT_ID,
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   events: {
     async createUser({ user }) {
       if (professors.includes(user?.email)) {
@@ -37,6 +38,7 @@ export default NextAuth({
   },
   callbacks: {
     async session({ session, user }) {
+      
       if (user) {
         const userWithGroups = await prisma.user.findUnique({
           where: { email: user.email },
