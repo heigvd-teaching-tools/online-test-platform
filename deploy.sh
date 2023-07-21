@@ -46,6 +46,6 @@ END
 
 echo "Running Docker Compose on the server..."
 cd ..
-docker-compose down
-docker-compose up --build -d
+docker compose down
+docker compose up --build -d
 EOF
