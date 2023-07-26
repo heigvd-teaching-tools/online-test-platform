@@ -15,33 +15,27 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
     apt-get update && apt-get install -y docker-ce-cli
 
-# Check if we are in production
-ARG NODE_ENV=production
+# Check if we are in development
+ARG NODE_ENV=development
 ENV NODE_ENV $NODE_ENV
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the app's source code
-COPY . .
-
 # Install Node.js dependencies
+COPY package*.json ./
 RUN npm cache clean --force
 RUN npm install -g npm@latest
-RUN rm -rf node_modules package-lock.json
 RUN npm install --loglevel verbose
 
-# Debug install
-RUN ls -la
+# Copy the app's source code
+COPY . .
 
 # Generate Prisma client for multiple platforms
 RUN npx prisma generate
 
-# Build the app
-RUN npm run build
-
 # Expose the port
 EXPOSE 3000
 
-# Run the app
-CMD [ "npm", "start" ]
+# Run the app with nodemon for hot reloading
+CMD [ "npm", "run", "dev" ]

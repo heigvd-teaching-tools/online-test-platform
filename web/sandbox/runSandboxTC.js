@@ -18,11 +18,15 @@ export const runSandbox = ({
   return new Promise(async (resolve, reject) => {
     const directory = await prepareContent(files, tests)
 
+    
+
     const { container, beforeAllOutput } = await startContainer(
       image,
       directory,
       beforeAll
     )
+
+    
 
     /* ## TIMEOUT  */
     let containerStarted = true
@@ -79,6 +83,9 @@ const prepareContent = (files, tests) =>
   })
 
 const startContainer = async (image, filesDirectory, beforeAll) => {
+
+  console.log('in startContainer', image, filesDirectory, beforeAll)
+
   let container = await new GenericContainer(image)
     .withEnvironment('NODE_NO_WARNINGS', '1')
     .withCopyFilesToContainer([
@@ -86,6 +93,8 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
     ])
     .withCommand(['sleep', 'infinity'])
     .start()
+
+  console.log('container started', container)
 
   await container.exec(['sh', '-c', 'tar -xzf code.tar.gz -C /'], {
     tty: false,

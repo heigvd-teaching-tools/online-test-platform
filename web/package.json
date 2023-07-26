@@ -55,7 +55,7 @@
     "react-time-ago": "^7.2.1",
     "swr": "^1.3.0",
     "tar": "^6.1.11",
-    "testcontainers": "^9.1.3",
+    "testcontainers": "^9.12.0",
     "uniqid": "^5.4.0",
     "use-debounce": "^8.0.4"
   },
