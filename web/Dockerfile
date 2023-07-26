@@ -31,9 +31,6 @@ RUN npm install -g npm@latest
 RUN rm -rf node_modules package-lock.json
 RUN npm install --loglevel verbose
 
-# Debug install
-RUN ls -la
-
 # Generate Prisma client for multiple platforms
 RUN npx prisma generate
 
