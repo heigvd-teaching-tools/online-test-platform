@@ -5,7 +5,7 @@ services:
   web:
     build:
       context: ./web
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -34,7 +34,7 @@ services:
   push_db:
     build:
       context: ./web
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     restart: "no"
     depends_on:
       - db
