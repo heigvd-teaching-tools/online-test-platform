@@ -107,9 +107,6 @@ const post = async (req, res) => {
   for (const jstq of jamSessionToQuestions) {
     const { question } = jstq
 
-    console.log("template files", question.code.templateFiles)
-
-
     transaction.push(
       prisma.studentAnswer.upsert({
         where: {
