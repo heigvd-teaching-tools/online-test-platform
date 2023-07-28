@@ -1,6 +1,18 @@
 # Variables for your setup
 $sshUser = $env:REMOTE_USER
 $sshHost = $env:REMOTE_HOST
+$postgresUser = $env:POSTGRES_USER
+$postgresPassword = $env:POSTGRES_PASSWORD
+$postgresDb = $env:POSTGRES_DB
+$nextAuthSecret = $env:NEXTAUTH_SECRET
+$nextAuthGithubId = $env:NEXTAUTH_GITHUB_ID
+$nextAuthGithubSecret = $env:NEXTAUTH_GITHUB_SECRET
+
+# Check if necessary environment variables are set
+if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret) {
+    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET)"
+    exit 1
+}
 
 # Combine user and host into a connection string for ssh commands
 $sshTarget = "{0}@{1}" -f $sshUser, $sshHost
@@ -27,18 +39,17 @@ scp deploy.tar.gz $scpTarget
 Write-Host "Setting up files on the remote server..."
 ssh $sshTarget "tar -xzf ~/onlinetest/deploy.tar.gz -C ~/onlinetest && rm ~/onlinetest/deploy.tar.gz"
 
-
 # SSH into the server and uncompress the archive, generate .env files, and run Docker Compose
 Write-Host "Setting up files and running Docker Compose on the server..."
 $sshCommand = @"
 cd ~/onlinetest
-echo "DATABASE_URL=postgresql://${env:POSTGRES_USER}:${env:POSTGRES_PASSWORD}@db:5432/${env:POSTGRES_DB}" > web/.env
-echo 'POSTGRES_USER=$env:POSTGRES_USER' >> web/.env
-echo 'POSTGRES_PASSWORD=$env:POSTGRES_PASSWORD' >> web/.env
-echo 'POSTGRES_DB=$env:POSTGRES_DB' >> web/.env
-echo 'NEXTAUTH_SECRET=$env:NEXTAUTH_SECRET' > web/.env.production
-echo 'NEXTAUTH_GITHUB_ID=$env:NEXTAUTH_GITHUB_ID' >> web/.env.production
-echo 'NEXTAUTH_GITHUB_SECRET=$env:NEXTAUTH_GITHUB_SECRET' >> web/.env.production
+echo "DATABASE_URL=postgresql://${postgresUser}:${postgresPassword}@db:5432/${postgresDb}" > web/.env
+echo 'POSTGRES_USER=${postgresUser}' >> web/.env
+echo 'POSTGRES_PASSWORD=${postgresPassword}' >> web/.env
+echo 'POSTGRES_DB=${postgresDb}' >> web/.env
+echo 'NEXTAUTH_SECRET=${nextAuthSecret}' > web/.env.production
+echo 'NEXTAUTH_GITHUB_ID=${nextAuthGithubId}' >> web/.env.production
+echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
 echo 'NEXTAUTH_URL=http://eval.iict-heig-vd.in' >> web/.env.production
 docker compose down
 docker compose up --build -d
