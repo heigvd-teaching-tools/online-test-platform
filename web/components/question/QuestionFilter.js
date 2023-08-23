@@ -8,11 +8,13 @@ import {
   Typography,
 } from '@mui/material'
 
-import types from './types.json'
+import { toArray as typesToArray } from './types.js'
 import languages from '../../code/languages.json'
 import { useTags } from '../../context/TagContext'
 import TagsSelector from '../input/TagsSelector'
+
 const environments = languages.environments
+const types = typesToArray()
 
 const initialFilters = {
   title: '',

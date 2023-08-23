@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
-import { QuestionType, StudentFilePermission } from '@prisma/client'
+import { QuestionType, StudentPermission } from '@prisma/client'
 
 import TrueFalse from '../question/type_specific/TrueFalse'
 import MultipleChoice from '../question/type_specific/MultipleChoice'
@@ -106,11 +106,11 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                 file={answerToFile.file}
                 readonlyPath
                 readonlyContent={
-                  answerToFile.studentPermission === StudentFilePermission.VIEW
+                  answerToFile.studentPermission === StudentPermission.VIEW
                 }
                 secondaryActions={
                   (answerToFile.studentPermission ===
-                    StudentFilePermission.VIEW && (
+                      StudentPermission.VIEW && (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Image
                         alt='viewable icon'
@@ -122,7 +122,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                     </Stack>
                   )) ||
                   (answerToFile.studentPermission ===
-                    StudentFilePermission.UPDATE && (
+                      StudentPermission.UPDATE && (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Image
                         alt='editable icon'

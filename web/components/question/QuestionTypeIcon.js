@@ -1,7 +1,10 @@
 import Image from 'next/image'
 import { Box, Stack, Tooltip, Typography } from '@mui/material'
-import types from './types.json'
+import { toArray as typesToArray } from './types.js'
 import { QuestionType } from '@prisma/client'
+
+const types = typesToArray()
+
 const getTooltipByType = (type) => {
   const typeObject = types.find(({ value }) => value === type)
   return typeObject?.label

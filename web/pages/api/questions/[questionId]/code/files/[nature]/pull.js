@@ -1,4 +1,4 @@
-import { PrismaClient, Role, StudentFilePermission } from '@prisma/client'
+import { PrismaClient, Role, StudentPermission } from '@prisma/client'
 
 import { hasRole } from '../../../../../../../code/auth'
 
@@ -72,7 +72,7 @@ const post = async (req, res) => {
   for (const file of files) {
     let newCodeToFile = await prisma.codeToTemplateFile.create({
       data: {
-        studentPermission: StudentFilePermission.UPDATE,
+        studentPermission: StudentPermission.UPDATE,
         file: {
           create: {
             path: file.path,

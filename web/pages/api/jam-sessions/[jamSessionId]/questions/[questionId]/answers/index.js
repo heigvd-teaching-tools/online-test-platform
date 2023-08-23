@@ -2,7 +2,7 @@ import {
   PrismaClient,
   Role,
   StudentAnswerStatus,
-  StudentFilePermission,
+  StudentPermission,
   QuestionType,
 } from '@prisma/client'
 
@@ -73,7 +73,7 @@ const get = async (req, res) => {
           files: {
             where: {
               studentPermission: {
-                not: StudentFilePermission.HIDDEN
+                not: StudentPermission.HIDDEN
               }},
             select: { studentPermission: true, file: true },
             orderBy: [

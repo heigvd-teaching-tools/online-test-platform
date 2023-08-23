@@ -1,4 +1,4 @@
-import { QuestionType, StudentFilePermission } from '@prisma/client'
+import { QuestionType, StudentPermission } from '@prisma/client'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -52,7 +52,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 ? {
                     where: {
                       studentPermission: {
-                        not: StudentFilePermission.HIDDEN,
+                        not: StudentPermission.HIDDEN,
                       },
                     },
                   }

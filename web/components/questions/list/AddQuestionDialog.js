@@ -2,14 +2,17 @@ import { QuestionType } from '@prisma/client'
 import React, { useState } from 'react'
 import DialogFeedback from '../../feedback/DialogFeedback'
 import { Stack, Typography } from '@mui/material'
-import types from '../../question/types.json'
+import { toArray as typesToArray } from '../../question/types'
 import { useSession } from 'next-auth/react'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 import LanguageSelector from '../../question/type_specific/code/LanguageSelector'
+import TypeSelector from '../../question/TypeSelector'
 
 import languages from '../../../code/languages.json'
-import TypeSelector from '../../question/TypeSelector'
+
+const types = typesToArray()
+
 const defaultLanguage = languages.environments[0].language
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {

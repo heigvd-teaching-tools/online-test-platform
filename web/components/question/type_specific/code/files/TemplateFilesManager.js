@@ -3,7 +3,7 @@ import { Button, MenuItem, Stack } from '@mui/material'
 import FileEditor from './FileEditor'
 import { update, pull } from './crud'
 import DropDown from '../../../../input/DropDown'
-import { StudentFilePermission } from '@prisma/client'
+import { StudentPermission } from '@prisma/client'
 import React, { useCallback } from 'react'
 import CodeCheck from '../CodeCheck'
 import Loading from '../../../../feedback/Loading'
@@ -71,13 +71,13 @@ const TemplateFilesManager = ({ questionId }) => {
                         await onFileUpdate(codeToTemplateFile)
                       }}
                     >
-                      <MenuItem value={StudentFilePermission.UPDATE}>
+                      <MenuItem value={StudentPermission.UPDATE}>
                         Update
                       </MenuItem>
-                      <MenuItem value={StudentFilePermission.VIEW}>
+                      <MenuItem value={StudentPermission.VIEW}>
                         View
                       </MenuItem>
-                      <MenuItem value={StudentFilePermission.HIDDEN}>
+                      <MenuItem value={StudentPermission.HIDDEN}>
                         Hidden
                       </MenuItem>
                     </DropDown>

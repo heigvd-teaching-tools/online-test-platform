@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum StudentFilePermission {
+enum StudentPermission {
   UPDATE
   VIEW
   HIDDEN
@@ -79,6 +79,7 @@ enum QuestionType {
   essay
   code
   web
+  database
 }
 
 model Group {
@@ -148,6 +149,7 @@ model Question {
   essay          Essay?
   code           Code?
   web            Web?
+  database       Database?
 
   collection CollectionToQuestion[]
 
@@ -222,6 +224,72 @@ model Code {
   files         File[] // to casdade delete files
 }
 
+model Database {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String   @id
+
+  image   String?         @default("")
+  queries DatabaseQuery[]
+}
+
+model DatabaseQuery {
+  id String @id @default(cuid())
+
+  database   Database @relation(fields: [questionId], references: [questionId], onDelete: Cascade) // to casdade delete queries
+  questionId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String?
+  description String?
+
+  lintRules String?
+
+  solution String?
+  template String?
+
+  studentPermission StudentPermission @default(UPDATE)
+
+  queryOutput       DatabaseQueryOutput[]
+  queryOutputToTest DatabaseQueryToOutputTest[]
+}
+
+model DatabaseQueryOutput {
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String        @id
+
+  output Json
+
+  type DatabaseQueryOutputType @default(TEXT)
+}
+
+enum DatabaseQueryOutputType {
+  RESULT_SET
+  JSDN
+  TEXT
+  SCALAR
+  BOOLEAN
+  ERROR
+}
+
+model DatabaseQueryToOutputTest {
+  query DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  queryId String
+  test    DatabaseQueryOutputTest
+
+  @@id([queryId, test])
+}
+
+enum DatabaseQueryOutputTest {
+  MATCH_OUTPUT
+  MATCH_ROWS
+  MATCH_ROWS_AND_ORDER
+  MATCH_COLUMNS
+  MATCH_COLUMNS_AND_ORDER
+}
+
 model CodeToSolutionFile {
   code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
 
@@ -239,7 +307,7 @@ model CodeToTemplateFile {
   file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId     String @unique
 
-  studentPermission StudentFilePermission @default(UPDATE)
+  studentPermission StudentPermission @default(UPDATE)
 
   @@id([questionId, fileId])
 }
@@ -479,7 +547,7 @@ model StudentAnswerCodeToFile {
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
 
-  studentPermission StudentFilePermission @default(UPDATE)
+  studentPermission StudentPermission @default(UPDATE)
 
   @@id([userEmail, questionId, fileId])
 }
@@ -497,7 +565,7 @@ model StudentAnswerWeb {
 }
 
 model StudentAnswerCodeHistory {
-  //studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  // studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail  String
   questionId String
 
