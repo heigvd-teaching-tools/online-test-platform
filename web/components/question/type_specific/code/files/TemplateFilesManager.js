@@ -86,29 +86,17 @@ const TemplateFilesManager = ({ questionId }) => {
               />
             ))}
           </ScrollContainer>
-          <Stack
-            zIndex={2}
-            position="absolute"
-            maxHeight="100%"
-            width="100%"
-            overflow="auto"
-            bottom={0}
-            left={0}
-          >
-            {codeToTemplateFiles?.length > 0 && (
-              <CodeCheck
-                codeCheckAction={() =>
-                  fetch(`/api/sandbox/${questionId}/files`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      files: codeToTemplateFiles.map((file) => file.file),
-                    }),
-                  })
-                }
-              />
-            )}
-          </Stack>
+          <CodeCheck
+            codeCheckAction={() =>
+              fetch(`/api/sandbox/${questionId}/files`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  files: codeToTemplateFiles.map((file) => file.file),
+                }),
+              })
+            }
+          />
         </Stack>
       )}
     </Loading>

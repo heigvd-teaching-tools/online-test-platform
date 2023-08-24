@@ -265,12 +265,9 @@ model DatabaseQueryOutput {
 }
 
 enum DatabaseQueryOutputType {
-  RESULT_SET
-  JSDN
-  TEXT
+  TABULAR
   SCALAR
-  BOOLEAN
-  ERROR
+  TEXT
 }
 
 model DatabaseQueryToOutputTest {

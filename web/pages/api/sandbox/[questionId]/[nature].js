@@ -71,8 +71,6 @@ const post = async (req, res) => {
     files: files,
     beforeAll: code.sandbox.beforeAll,
     tests: code.testCases,
-  }).then((result) => {
-    res.status(200).send(result)
   })
 
   res.status(200).send(result)

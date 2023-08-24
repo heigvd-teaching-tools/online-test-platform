@@ -16,6 +16,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess'
 
 import { useSnackbar } from '../../../../context/SnackbarContext'
 import TestCaseResults from './TestCaseResults'
+import BottomPanel from "../../../layout/utils/BottomPanel";
 
 const CodeCheck = ({ codeCheckAction }) => {
   const { show: showSnackbar } = useSnackbar()
@@ -24,6 +25,8 @@ const CodeCheck = ({ codeCheckAction }) => {
   const [tests, setTests] = useState([])
   const [codeCheckRunning, setCodeCheckRunning] = useState(false)
   const [expanded, setExpanded] = useState(false)
+
+    console.log('CodeCheck is re-rendering', expanded);  // Place the log statement here
 
   const runCodeCheck = useCallback(async () => {
     setCodeCheckRunning(true)
@@ -47,34 +50,30 @@ const CodeCheck = ({ codeCheckAction }) => {
   }, [codeCheckAction, showSnackbar])
 
   return (
-    <Paper>
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        p={1}
-        pb={2}
-        pt={2}
-      >
-        <LoadingButton
-          size="small"
-          variant="contained"
-          color="info"
-          onClick={runCodeCheck}
-          loading={codeCheckRunning}
-        >
-          Code Check
-        </LoadingButton>
-        <Button
-          size="small"
-          color="info"
-          startIcon={expanded ? <ExpandMore /> : <ExpandLess />}
-          onClick={() => setExpanded(!expanded)}
-        >
-          Result
-        </Button>
-      </Stack>
-      <Collapse in={expanded}>
+    <BottomPanel
+        header={
+            <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                p={1}
+                pb={2}
+                pt={2}
+            >
+                <LoadingButton
+                    size="small"
+                    variant="contained"
+                    color="info"
+                    onClick={runCodeCheck}
+                    loading={codeCheckRunning}
+                >
+                    Code Check
+                </LoadingButton>
+            </Stack>
+        }
+        open={expanded}
+        onChange={setExpanded}
+    >
         {tests && (
           <Stack>
             <Alert
@@ -112,8 +111,7 @@ const CodeCheck = ({ codeCheckAction }) => {
             </Stack>
           </Stack>
         )}
-      </Collapse>
-    </Paper>
+    </BottomPanel>
   )
 }
 
