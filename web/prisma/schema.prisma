@@ -255,6 +255,20 @@ model DatabaseQuery {
   queryOutputToTest DatabaseQueryToOutputTest[]
 }
 
+enum DatabaseQueryOutputType {
+  TABULAR
+  SCALAR
+  TEXT
+}
+
+enum DatabaseDBMS {
+  POSTGRES
+  MYSQL
+  MARIADB
+  MSSQL
+  SQLITE
+}
+
 model DatabaseQueryOutput {
   query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
   queryId String        @id
@@ -262,12 +276,7 @@ model DatabaseQueryOutput {
   output Json
 
   type DatabaseQueryOutputType @default(TEXT)
-}
-
-enum DatabaseQueryOutputType {
-  TABULAR
-  SCALAR
-  TEXT
+  dbms DatabaseDBMS            @default(POSTGRES)
 }
 
 model DatabaseQueryToOutputTest {

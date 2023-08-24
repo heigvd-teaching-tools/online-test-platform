@@ -52,6 +52,30 @@ const post = async (req, res) => {
         queries: queries,
     })
 
+    // for each query, upsert the DatabaseQueryOutput in the database
+    for (let i = 0; i < database.queries.length; i++) {
+        const query = database.queries[i];
+        const output = result[i];
+        await prisma.databaseQueryOutput.upsert({
+            where: {
+                queryId: query.id,
+            },
+            update: {
+                output: output,
+                type: output.type,
+            },
+            create: {
+                output: output,
+                type: output.type,
+                query: {
+                    connect: {
+                        id: query.id
+                    }
+                }
+            }
+        })
+    }
+
     console.log("result: ", result);
 
     res.status(200).send(result)
