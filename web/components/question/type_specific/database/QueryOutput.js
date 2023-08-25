@@ -92,8 +92,6 @@ const QueryOutput = ({ queryOutput }) => {
 }
 const QueryOutputTabular = ({ dataset }) => {
     const theme = useTheme();
-    console.log("QueryOutputTabular dataset", dataset)
-    const columns = Object.keys(dataset.metadata.columns);
 
     return (
         <TableContainer sx={{
@@ -111,7 +109,7 @@ const QueryOutputTabular = ({ dataset }) => {
             >
                 <TableHead>
                     <TableRow>
-                        {columns.map((col, index) => (
+                        {dataset.columns.map((col, index) => (
                             <TableCell
                                 key={index}
                                 variant="head"
@@ -125,13 +123,13 @@ const QueryOutputTabular = ({ dataset }) => {
                                     borderBottom: `1px solid ${theme.palette.divider}`
                                 }}
                             >
-                                {dataset.metadata.columns[col].name}
+                                {col.name}
                             </TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {dataset.data.map((row, rowIndex) => (
+                    {dataset.rows.map((row, rowIndex) => (
                         <TableRow key={rowIndex}>
                             {row.map((value, colIndex) => (
                                 <TableCell
@@ -160,7 +158,7 @@ const QueryOutputTabular = ({ dataset }) => {
 
 const QueryOutputScalar = ({ dataset }) => {
     return (
-        <Typography variant="body1">{dataset.data[0]}</Typography>
+        <Typography variant="body1">{dataset.rows[0]}</Typography>
     )
 }
 

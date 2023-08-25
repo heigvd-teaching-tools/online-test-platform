@@ -157,10 +157,8 @@ const testDatabaseOutput = (output, expectedOutput, testFlags) => {
 * */
 const pgOutputToToDataset = (pgData) => {
     const dataset = {
-        metadata: {
-            columns: {}
-        },
-        data: []
+        columns: [],
+        rows: []
     };
 
     // dataTypeID to actual types for PostgreSQL
@@ -170,20 +168,21 @@ const pgOutputToToDataset = (pgData) => {
     };
 
     // Transform fields to columns in metadata
-    for (const field of pgData.fields) {
-        dataset.metadata.columns[field.name] = {
+    dataset.columns = pgData.fields.map((field) => {
+        return {
             name: field.name,
             type: dataTypeMapping[field.dataTypeID] || field.format
         };
-    }
+    });
+
 
     // Transform rows
     for (const row of pgData.rows) {
         const dataRow = [];
-        for (const column of Object.keys(dataset.metadata.columns)) {
-            dataRow.push(row[column]);
+        for (const column of dataset.columns) {
+            dataRow.push(row[column.name]);
         }
-        dataset.data.push(dataRow);
+        dataset.rows.push(dataRow);
     }
 
     return dataset;
@@ -267,7 +266,7 @@ export const runSandboxDB = async ({
 
         await client.connect();
 
-        await testQueryTests(client);
+        // await testQueryTests(client);
 
         for (let query of queries) {
             try {
