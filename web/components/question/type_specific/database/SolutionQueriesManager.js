@@ -31,13 +31,16 @@ const SolutionQueriesManager = ({ questionId }) => {
         { revalidateOnFocus: false }
     )
 
-
-    const [ queries, setQueries ] = useState([])
-    const [ outputs, setOutputs ] = useState([]);
+    const [ queries, setQueries ] = useState()
+    const [ outputs, setOutputs ] = useState()
     const [ activeQuery, setActiveQuery ] = useState(null)
 
     useEffect(() => {
-        setQueries(data || []);
+        if(!data) return
+        // remove outputs from queries, outputs are managed in a separate state
+        const queriesWithoutOutput = data.filter((q) => ({ ...q, queryOutput: null }))
+        setQueries(queriesWithoutOutput)
+        setOutputs(data.map((q) => q.queryOutput))
     }, [data]);
 
     const onAddQuery = useCallback(async () => {
@@ -53,7 +56,7 @@ const SolutionQueriesManager = ({ questionId }) => {
         });
     }, [queries, mutate])
 
-    const onQueryUpdate = useCallback( async (query) => {
+    const onQueryUpdate = useCallback( async (query, doMutate = false) => {
         await fetch(`/api/questions/${questionId}/database/queries/${query.id}`, {
             method: 'PUT',
             headers: {
@@ -62,24 +65,39 @@ const SolutionQueriesManager = ({ questionId }) => {
             },
             body: JSON.stringify(query),
         }).then(async (res) => {
-            await mutate(
-                queries.map((q) =>
-                    q.id === query.id
-                        ? query
-                        : q
-                )
-            )
+            console.log("do mutate", doMutate)
+            if(!doMutate) {
+                const queryRef = queries.find((q) => q.id === query.id);
+                if (!queryRef) {
+                    return;
+                }
+                // update in memory to avoid re-fetching and re-rendering the full list of queries
+                queryRef.title = query.title;
+                queryRef.description = query.description;
+                queryRef.lintRules = query.lintRules;
+                queryRef.solution = query.solution;
+                queryRef.template = query.template;
+            }else{
+                await mutate([...queries, await res.json()]);
+            }
+
         });
-    }, [queries, mutate, questionId]);
+    }, [queries, questionId, mutate]);
+
+    const debouncedOnQueryUpdate = useDebouncedCallback((q, m) => onQueryUpdate(q, m), 500)
 
     const runAllQueries = useCallback(async () => {
-
         // erase eventual previous outputs
-        setOutputs(queries.map(() => ({
-            status: "RUNNING"
+        setOutputs(queries.map((q, index) => ({
+            ...outputs[index],
+            output:{
+                ...outputs[index]?.output,
+                result: null,
+                status: "RUNNING",
+            }
         })) || []);
 
-        const results = await fetch(`/api/sandbox/${questionId}/database`, {
+        const newOutputs = await fetch(`/api/sandbox/${questionId}/database`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -88,20 +106,24 @@ const SolutionQueriesManager = ({ questionId }) => {
         }).then((res) => res.json());
 
         // set all query outputs
-        setOutputs(results || []);
+        setOutputs(newOutputs);
 
     }, [questionId, outputs, queries]);
 
-    const debouncedOnQueryUpdate = useDebouncedCallback(onQueryUpdate, 500)
+
+
+    const getBorderStyle = useCallback((index) => {
+        return index === activeQuery ? theme.palette.primary.dark : "transparent";
+    }, [activeQuery, theme]);
 
     return (
         <Loading loading={!queries} errors={[error]}>
-            <Stack
-                position={'relative'}
-                height={'100%'}
-                overflow={'hidden'}
-                pb={'60px'}
-            >
+        <Stack
+            position={'relative'}
+            height={'100%'}
+            overflow={'hidden'}
+            pb={'60px'}
+        >
                 <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
                     <Button variant={"outlined"} color={"info"} onClick={() => runAllQueries()}>
                         Run all
@@ -112,32 +134,32 @@ const SolutionQueriesManager = ({ questionId }) => {
                     {queries?.map((query, index) => (
                         <Stack position="relative" onClick={() => setActiveQuery(index)} sx={{
                             cursor: "pointer",
-                            borderLeft: `3px solid ${index === activeQuery ? theme.palette.primary.dark : "transparent"}`
+                            borderLeft: `3px solid ${getBorderStyle(index)}`,
                         }}>
                             <QueryEditor
                                 index={index}
                                 active={index === activeQuery}
                                 key={query.id}
                                 query={query}
-                                onChange={debouncedOnQueryUpdate}
+                                onChange={(q) => debouncedOnQueryUpdate(q)}
                             />
                             <QueryOutput
-                                output={outputs[index]}
+                                queryOutput={outputs[index]}
                             />
                         </Stack>
                     ))}
                 </ScrollContainer>
                 {
-                    queries?.length > 0 && activeQuery !== null && queries[activeQuery] && (
+                    queries?.length > 0 && activeQuery !== null && (
                         <QueryUpdatePanel
                             index={activeQuery}
                             query={queries[activeQuery]}
-                            output={outputs[activeQuery]}
-                            onChange={onQueryUpdate}
+                            queryOutput={outputs[activeQuery]}
+                            onChange={(q) => debouncedOnQueryUpdate(q, true)}
                         />
                     )
                 }
-            </Stack>
+        </Stack>
         </Loading>
     )
 }

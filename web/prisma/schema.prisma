@@ -232,6 +232,27 @@ model Database {
   queries DatabaseQuery[]
 }
 
+enum DatabaseQueryOutputType {
+  TABULAR
+  SCALAR
+  TEXT
+}
+
+enum DatabaseQueryOutputStatus {
+  SUCCESS
+  ERROR
+  WARNING
+  RUNNING
+}
+
+enum DatabaseDBMS {
+  POSTGRES
+  MYSQL
+  MARIADB
+  MSSQL
+  SQLITE
+}
+
 model DatabaseQuery {
   id String @id @default(cuid())
 
@@ -251,32 +272,22 @@ model DatabaseQuery {
 
   studentPermission StudentPermission @default(UPDATE)
 
-  queryOutput       DatabaseQueryOutput[]
-  queryOutputToTest DatabaseQueryToOutputTest[]
-}
-
-enum DatabaseQueryOutputType {
-  TABULAR
-  SCALAR
-  TEXT
-}
-
-enum DatabaseDBMS {
-  POSTGRES
-  MYSQL
-  MARIADB
-  MSSQL
-  SQLITE
+  queryOutput      DatabaseQueryOutput?
+  queryOutputTests DatabaseQueryToOutputTest[]
 }
 
 model DatabaseQueryOutput {
   query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
   queryId String        @id
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   output Json
 
-  type DatabaseQueryOutputType @default(TEXT)
-  dbms DatabaseDBMS            @default(POSTGRES)
+  status DatabaseQueryOutputStatus @default(RUNNING)
+  type   DatabaseQueryOutputType   @default(TEXT)
+  dbms   DatabaseDBMS              @default(POSTGRES)
 }
 
 model DatabaseQueryToOutputTest {
@@ -290,10 +301,8 @@ model DatabaseQueryToOutputTest {
 
 enum DatabaseQueryOutputTest {
   MATCH_OUTPUT
-  MATCH_ROWS
-  MATCH_ROWS_AND_ORDER
-  MATCH_COLUMNS
-  MATCH_COLUMNS_AND_ORDER
+  IGNORE_COLUMN_ORDER
+  IGNORE_ROW_ORDER
 }
 
 model CodeToSolutionFile {

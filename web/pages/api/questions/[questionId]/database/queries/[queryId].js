@@ -16,6 +16,9 @@ const handler = async (req, res) => {
     return
   }
   switch (req.method) {
+      case 'GET':
+            await get(req, res)
+            break
     case 'PUT':
       await put(req, res)
       break
@@ -27,11 +30,20 @@ const handler = async (req, res) => {
   }
 }
 
+
 const put = async (req, res) => {
   // update a query for a database question
 
   const { questionId, queryId } = req.query
-    const { title, description, solution } = req.body
+    const {
+        title,
+        description,
+        solution,
+        template,
+        lintRules,
+        studentPermission,
+        queryOutputTests
+  } = req.body
 
     // check if the query belongs to the question
     const checkQuery = await prisma.databaseQuery.findUnique({
@@ -58,6 +70,13 @@ const put = async (req, res) => {
             title: title,
             description: description,
             solution: solution,
+            template: template,
+            lintRules: lintRules,
+            studentPermission: studentPermission,
+            queryOutputTests: {
+                deleteMany: {},
+                create: queryOutputTests
+            }
         }
     });
 

@@ -1,6 +1,5 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { PrismaClient, DatabaseQueryOutputTest, Role } from '@prisma/client'
 import { hasRole } from '../../../../code/auth'
-import { runSandbox } from '../../../../sandbox/runSandboxTC'
 import {runSandboxDB} from "../../../../sandbox/runSandboxDB";
 
 if (!global.prisma) {
@@ -25,6 +24,9 @@ export default async function handler(req, res) {
       res.status(405).json({ message: 'Method not allowed' })
   }
 }
+
+
+
 
 /*
  endpoint to run the sandbox for a database question with queries recovered from the database
@@ -52,31 +54,69 @@ const post = async (req, res) => {
         queries: queries,
     })
 
+    const transaction = []
+
     // for each query, upsert the DatabaseQueryOutput in the database
     for (let i = 0; i < database.queries.length; i++) {
         const query = database.queries[i];
         const output = result[i];
-        await prisma.databaseQueryOutput.upsert({
-            where: {
-                queryId: query.id,
-            },
-            update: {
-                output: output,
-                type: output.type,
-            },
-            create: {
-                output: output,
-                type: output.type,
-                query: {
-                    connect: {
-                        id: query.id
+
+        if(output){
+            // we got an output for this query
+            transaction.push(prisma.databaseQueryOutput.upsert({
+                where: {
+                    queryId: query.id,
+                },
+                update: {
+                    output: output,
+                    type: output.type,
+                    status: output.status
+                },
+                create: {
+                    output: output,
+                    type: output.type,
+                    status: output.status,
+                    query: {
+                        connect: {
+                            id: query.id
+                        }
                     }
                 }
+            }))
+        }else{
+            // no output for this query
+            const exists = await prisma.databaseQueryOutput.findUnique({
+                where: {
+                    queryId: query.id
+                }
+            })
+
+            if(exists){
+                transaction.push(prisma.databaseQueryOutput.delete({
+                    where: {
+                        queryId: query.id
+                    }
+                }))
             }
-        })
+        }
     }
 
-    console.log("result: ", result);
+    await prisma.$transaction(transaction)
 
-    res.status(200).send(result)
+    const outputs = await prisma.databaseQueryOutput.findMany({
+        where: {
+            query: {
+                questionId: questionId
+            }
+        },
+        orderBy: {
+            query: {
+                createdAt: 'asc'
+            }
+        }
+    });
+
+    if(!outputs) res.status(404).json({message: 'Not found'})
+
+    res.status(200).json(outputs)
 }

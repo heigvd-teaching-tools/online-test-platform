@@ -10,6 +10,8 @@ import {
     Typography, useTheme
 } from "@mui/material";
 import Image from "next/image";
+import DateTimeAgo from "../../../feedback/DateTimeAgo";
+import {useCallback} from "react";
 const OutputStatusDisplay = ({ status }) => {
     const renderStatus = (status) => {
         switch (status) {
@@ -28,15 +30,14 @@ const OutputStatusDisplay = ({ status }) => {
     return renderStatus(status)
 }
 
-const QueryOutput = ({ output }) => {
+const QueryOutput = ({ queryOutput }) => {
 
-    console.log("QueryOutput", output)
     const renderQueryOutput = (output) => {
-        switch (output.type) {
+        switch (output?.type) {
             case "TABULAR":
-                return <QueryOutputTabular result={output.result} />
+                return <QueryOutputTabular dataset={output.result} />
             case "SCALAR":
-                return <QueryOutputScalar result={output.result} />
+                return <QueryOutputScalar dataset={output.result} />
             case "TEXT":
                 return <QueryOutputText feedback={output.feedback} />
             default:
@@ -59,26 +60,40 @@ const QueryOutput = ({ output }) => {
         }
     }
 
+    const getStatus = useCallback( () => {
+        if(queryOutput?.output?.status) {
+            return queryOutput.output.status
+        }
+        return "RUNNING"
+    },  [queryOutput])
+
     return (
-        output && (
-            <Alert severity={severity(output.status)}>
-                <Stack direction={"row"} spacing={1}>
-                    {output.status && output.status === "RUNNING" && (
-                            <Image src="/svg/database/running.svg" width={16} height={16} />
-                    )}
-                    {renderQueryOutput(output)}
+        queryOutput && (
+            <Alert severity={severity(getStatus())}>
+                <Stack spacing={1}>
+                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                        <Typography variant={"caption"}>Last run:</Typography>
+                        {
+                            queryOutput.updatedAt && (
+                                <DateTimeAgo date={new Date(queryOutput.updatedAt)} />
+                            )
+                        }
+                    </Stack>
+                    <Stack direction={"row"} spacing={1}>
+                        {getStatus() === "RUNNING" && (
+                                <Image src="/svg/database/running.svg" width={16} height={16} />
+                        )}
+                        {queryOutput?.output?.result && renderQueryOutput(queryOutput?.output)}
+                    </Stack>
                 </Stack>
             </Alert>
         )
     );
 }
-
-const QueryOutputTabular = ({ result }) => {
-    const theme = useTheme()
-
-    console.log("QueryOutputTabular", theme)
-
-    const columns = result?.fields.map((field) => field.name) || []
+const QueryOutputTabular = ({ dataset }) => {
+    const theme = useTheme();
+    console.log("QueryOutputTabular dataset", dataset)
+    const columns = Object.keys(dataset.metadata.columns);
 
     return (
         <TableContainer sx={{
@@ -110,16 +125,15 @@ const QueryOutputTabular = ({ result }) => {
                                     borderBottom: `1px solid ${theme.palette.divider}`
                                 }}
                             >
-                                {col}
+                                {dataset.metadata.columns[col].name}
                             </TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-
-                    {result.rows.map((row, rowIndex, array) => (
+                    {dataset.data.map((row, rowIndex) => (
                         <TableRow key={rowIndex}>
-                            {columns.map((col, colIndex) => (
+                            {row.map((value, colIndex) => (
                                 <TableCell
                                     key={colIndex}
                                     sx={{
@@ -132,12 +146,11 @@ const QueryOutputTabular = ({ result }) => {
                                         borderBottom: `1px solid ${theme.palette.divider}`
                                     }}
                                 >
-                                    {row[col]}
+                                    {value}
                                 </TableCell>
                             ))}
                         </TableRow>
                     ))}
-
                 </TableBody>
             </Table>
         </TableContainer>
@@ -145,9 +158,9 @@ const QueryOutputTabular = ({ result }) => {
 }
 
 
-const QueryOutputScalar = ({ result }) => {
+const QueryOutputScalar = ({ dataset }) => {
     return (
-        <Typography variant="body1">Output: {result.rows[0][result.fields[0].name]}</Typography>
+        <Typography variant="body1">{dataset.data[0]}</Typography>
     )
 }
 

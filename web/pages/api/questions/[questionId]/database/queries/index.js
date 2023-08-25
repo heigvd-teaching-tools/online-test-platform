@@ -36,6 +36,10 @@ const get = async (req, res) => {
         where: {
           questionId: questionId,
         },
+        include:{
+            queryOutput: true,
+            queryOutputTests: true,
+        },
         orderBy: [
             {
                 createdAt: 'asc'
