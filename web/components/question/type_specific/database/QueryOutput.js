@@ -35,9 +35,10 @@ const QueryOutput = ({ queryOutput }) => {
     const renderQueryOutput = (output) => {
         switch (output?.type) {
             case "TABULAR":
-                return <QueryOutputTabular dataset={output.result} />
             case "SCALAR":
-                return <QueryOutputScalar dataset={output.result} />
+                return <QueryOutputTabular dataset={output.result} />
+
+                // return <QueryOutputScalar dataset={output.result} />
             case "TEXT":
                 return <QueryOutputText feedback={output.feedback} />
             default:
@@ -115,7 +116,7 @@ const QueryOutputTabular = ({ dataset }) => {
                                 variant="head"
                                 sx={{
                                     minWidth: 'min-content',
-                                    maxWidth: '200px',
+                                    maxWidth: '350px',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -136,7 +137,7 @@ const QueryOutputTabular = ({ dataset }) => {
                                     key={colIndex}
                                     sx={{
                                         minWidth: 'min-content',
-                                        maxWidth: '200px',
+                                        maxWidth: '350px',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
