@@ -272,7 +272,9 @@ model DatabaseQuery {
 
   studentPermission StudentPermission @default(UPDATE)
 
-  queryOutput      DatabaseQueryOutput?
+  queryOutput DatabaseQueryOutput?
+
+  testQuery        Boolean                     @default(false)
   queryOutputTests DatabaseQueryToOutputTest[]
 }
 
@@ -300,9 +302,10 @@ model DatabaseQueryToOutputTest {
 }
 
 enum DatabaseQueryOutputTest {
-  MATCH_OUTPUT
   IGNORE_COLUMN_ORDER
   IGNORE_ROW_ORDER
+  IGNORE_EXTRA_COLUMNS
+  INGORE_COLUMN_TYPES
 }
 
 model CodeToSolutionFile {

@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 import BottomPanel from "../../../layout/utils/BottomPanel";
-import {MenuItem, Stack, Tab, Tabs, TextField, Typography, useTheme} from "@mui/material";
+import {MenuItem, Stack, Tab, Tabs, TextField, Typography, Switch, FormGroup, FormControlLabel  } from "@mui/material";
 import TabPanel from "../../../layout/utils/TabPanel";
 import TabContent from "../../../layout/utils/TabContent";
 import QueryOutput from "./QueryOutput";
-import {StudentPermission} from "@prisma/client";
+import {StudentPermission, DatabaseQueryOutputTest} from "@prisma/client";
 import DropDown from "../../../input/DropDown";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
 
@@ -43,7 +43,8 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
                 </Tabs>
                 <TabPanel id="output" value={tab} index={0}>
                     <TabContent padding={2} spacing={4}>
-                        <QueryOutput
+                        <QueryOutputTab
+                            query={query}
                             queryOutput={queryOutput}
                         />
                     </TabContent>
@@ -69,12 +70,53 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
     );
 }
 
+/*
+
+enum DatabaseQueryOutputTest {
+  MATCH_OUTPUT
+  IGNORE_COLUMN_ORDER
+  IGNORE_ROW_ORDER
+  IGNORE_COLUMN_AND_ROW_ORDER
+}
+* */
+
+const QueryOutputTab = ({ query, queryOutput, onChange }) => {
+
+    const [ enableOutputTest, setEnableOutputTest ] = useState(query.queryOutputTests && query.queryOutputTests.length > 0)
+
+    useEffect(() => {
+        setEnableOutputTest(query.queryOutputTests && query.queryOutputTests.length > 0)
+    }, [query.id])
+
+    return (
+        <Stack spacing={3} width={"100%"} pb={1}>
+            <QueryOutput
+                queryOutput={queryOutput}
+            />
+            <FormGroup>
+                <FormControlLabel
+                    label="Enable output tests"
+                    control={
+                        <Switch
+                            checked={enableOutputTest}
+                            onChange={(ev) => {
+                                setEnableOutputTest(ev.target.checked);
+                            }}
+                        />
+                    }
+                />
+            </FormGroup>
+
+        </Stack>
+    )
+}
+
 const QuerySettingsTab = ({ query, onChange }) => {
 
     const [ studentPermission, setStudentPermission ] = useState(query.studentPermission)
     const [ title, setTitle ] = useState(query.title)
     const [ description, setDescription ] = useState(query.description)
-    const [lintRules, setLintRules] = useState(query.lintRules)
+    const [ lintRules, setLintRules ] = useState(query.lintRules)
 
     useEffect(() => {
         setStudentPermission(query.studentPermission)
