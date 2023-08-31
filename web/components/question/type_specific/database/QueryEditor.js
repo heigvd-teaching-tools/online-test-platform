@@ -8,7 +8,7 @@ const QueryStudentPermission = ({ permission }) => {
         case StudentPermission.UPDATE:
             return <Chip color={"primary"} label={"Editable"} />
         case StudentPermission.VIEW:
-            return <Chip color={"secondary"} label={"Visible-only"} />
+            return <Chip color={"info"} label={"Visible-only"} />
         case StudentPermission.HIDDEN:
             return <Chip color={"default"} label={"Hidden"} />
     }
@@ -16,7 +16,7 @@ const QueryStudentPermission = ({ permission }) => {
 
 const QueryEditor = ({ index, active, query, onChange, headerLeft, headerRight }) => {
 
-    
+
 
     const [ solution, setSolution ] = useState(query.solution)
 
@@ -49,6 +49,11 @@ const QueryEditor = ({ index, active, query, onChange, headerLeft, headerRight }
                             )}
                         </Stack>
                     </Stack>
+                    {
+                        query.testQuery && (
+                            <Chip color={"secondary"} label={"Test query"} />
+                        )
+                    }
                     <QueryStudentPermission permission={query.studentPermission} />
                 </Stack>
             </Stack>

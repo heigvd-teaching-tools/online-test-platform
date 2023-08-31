@@ -43,7 +43,8 @@ export const runSandboxDB = async ({
                     status: DatabaseQueryOutputStatus.SUCCESS,
                     feedback: postgresGenerateFeedbackMessage(result.command, result),
                     type: postgresDetermineOutputType(result),
-                    result: dataset
+                    result: dataset,
+                    original: result
                 });
             } catch (error) {
                 results.push({

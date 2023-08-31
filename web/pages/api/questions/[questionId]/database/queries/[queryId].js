@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client'
+import {DatabaseQueryOutputTest, PrismaClient, Role} from '@prisma/client'
 
 import { hasRole } from '../../../../../../code/auth'
 
@@ -42,7 +42,8 @@ const put = async (req, res) => {
         template,
         lintRules,
         studentPermission,
-        queryOutputTests
+        queryOutputTests,
+        testQuery
   } = req.body
 
     // check if the query belongs to the question
@@ -73,9 +74,10 @@ const put = async (req, res) => {
             template: template,
             lintRules: lintRules,
             studentPermission: studentPermission,
+            testQuery: testQuery,
             queryOutputTests: {
                 deleteMany: {},
-                create: queryOutputTests
+                create: queryOutputTests.map(queryOutputTest => ({ test: DatabaseQueryOutputTest[queryOutputTest.test] }))
             }
         }
     });

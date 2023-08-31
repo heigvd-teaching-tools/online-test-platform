@@ -27,7 +27,12 @@ export default NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   events: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log("signIn", user, account, profile)
+      console.log("account organisation", account?)
+    },
     async createUser({ user }) {
+      console.log("createUser", user)
       if (professors.includes(user?.email)) {
         await prisma.user.update({
           where: { email: user.email },
@@ -37,8 +42,8 @@ export default NextAuth({
     },
   },
   callbacks: {
-    async session({ session, user }) {
-      
+    async session({ session, user, profile  }) {
+      console.log("callbacks session", profile)
       if (user) {
         const userWithGroups = await prisma.user.findUnique({
           where: { email: user.email },

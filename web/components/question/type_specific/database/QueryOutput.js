@@ -38,7 +38,6 @@ const QueryOutput = ({ queryOutput }) => {
                 // return <QueryOutputScalar dataset={output.result} />
             case "TABULAR":
                 return <QueryOutputTabular dataset={output.result} />
-
             case "TEXT":
                 return <QueryOutputText feedback={output.feedback} />
             default:

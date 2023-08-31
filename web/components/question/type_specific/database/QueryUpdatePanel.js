@@ -7,6 +7,7 @@ import QueryOutput from "./QueryOutput";
 import {StudentPermission, DatabaseQueryOutputTest} from "@prisma/client";
 import DropDown from "../../../input/DropDown";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
+import ConsoleLog from "../../../layout/utils/ConsoleLog";
 
 const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
 
@@ -46,6 +47,7 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
                         <QueryOutputTab
                             query={query}
                             queryOutput={queryOutput}
+                            onChange={(q) => onChange(q)}
                         />
                     </TabContent>
                 </TabPanel>
@@ -73,20 +75,35 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
 /*
 
 enum DatabaseQueryOutputTest {
-  MATCH_OUTPUT
   IGNORE_COLUMN_ORDER
   IGNORE_ROW_ORDER
-  IGNORE_COLUMN_AND_ROW_ORDER
+  IGNORE_EXTRA_COLUMNS
+  INGORE_COLUMN_TYPES
 }
 * */
 
+const InputDatabaseQueryOutputTest = {
+    [DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER]: {
+        label: 'Ignore column order'
+    },
+    [DatabaseQueryOutputTest.IGNORE_ROW_ORDER]: {
+        label: 'Ignore row order'
+    },
+    [DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS]: {
+        label: 'Ignore extra columns'
+    },
+    [DatabaseQueryOutputTest.INGORE_COLUMN_TYPES]: {
+        label: 'Ignore column types'
+    }
+};
+
 const QueryOutputTab = ({ query, queryOutput, onChange }) => {
 
-    const [ enableOutputTest, setEnableOutputTest ] = useState(query.queryOutputTests && query.queryOutputTests.length > 0)
+    const [ enableOutputTest, setEnableOutputTest ] = useState(query.testQuery)
 
     useEffect(() => {
-        setEnableOutputTest(query.queryOutputTests && query.queryOutputTests.length > 0)
-    }, [query.id])
+        setEnableOutputTest(query.testQuery)
+    }, [query.id, query.testQuery])
 
     return (
         <Stack spacing={3} width={"100%"} pb={1}>
@@ -101,15 +118,71 @@ const QueryOutputTab = ({ query, queryOutput, onChange }) => {
                             checked={enableOutputTest}
                             onChange={(ev) => {
                                 setEnableOutputTest(ev.target.checked);
+                                onChange({
+                                    ...query,
+                                    testQuery: ev.target.checked,
+                                })
                             }}
                         />
                     }
                 />
+                {
+                    enableOutputTest && (
+                        <Stack spacing={1} direction={"row"}>
+                            {Object.keys(InputDatabaseQueryOutputTest).map((key) => {
+                                const { label } = InputDatabaseQueryOutputTest[key];
+                                return (
+                                    <OutputTestToggle
+                                        toggled={query.queryOutputTests.some((test) => test.test === key)}
+                                        label={label}
+                                        testKey={key}
+                                        onToggle={(isChecked, testKey) => {
+                                            const newTests = isChecked
+                                                ? [...query.queryOutputTests, { test: testKey }]
+                                                : query.queryOutputTests.filter((test) => test.test !== testKey);
+                                            onChange({
+                                                ...query,
+                                                queryOutputTests: newTests,
+                                            });
+                                        }}
+                                    />
+                                );
+                            })}
+                        </Stack>
+                    )
+                }
             </FormGroup>
-
         </Stack>
     )
 }
+
+
+const OutputTestToggle = ({ toggled, label, testKey, onToggle }) => {
+    const [enabled, setEnabled] = useState(toggled);
+
+    useEffect(() => {
+        setEnabled(toggled);
+    }, [toggled]);
+
+    const handleToggle = (ev) => {
+        const isChecked = ev.target.checked;
+        setEnabled(isChecked);
+        onToggle(isChecked, testKey);
+    };
+
+    return (
+        <FormControlLabel
+            label={label}
+            control={
+                <Switch
+                    color="info"
+                    checked={enabled}
+                    onChange={handleToggle}
+                />
+            }
+        />
+    );
+};
 
 const QuerySettingsTab = ({ query, onChange }) => {
 
