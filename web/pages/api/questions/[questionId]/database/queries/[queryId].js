@@ -16,18 +16,18 @@ const handler = async (req, res) => {
     return
   }
   switch (req.method) {
-      case 'GET':
-            await get(req, res)
-            break
+    case 'GET':
+        await get(req, res)
+        break
     case 'PUT':
-      await put(req, res)
-      break
+        await put(req, res)
+        break
     case 'DELETE':
-      await del(req, res)
-      break
+        await del(req, res)
+        break
     default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
+        res.status(405).json({ message: 'Method not allowed' })
+    }
 }
 
 
@@ -86,37 +86,34 @@ const put = async (req, res) => {
 }
 
 const del = async (req, res) => {
-  // delete a file for a code question, cascade from codeToFile wont work here
-  // as the file is created for a code question we handle it through CodeToFile entity
+  // DELETE a query for a database question
 
-  const { questionId, nature, fileId } = req.query
+    const { questionId, queryId } = req.query
 
-  const model =
-    nature === 'solution'
-      ? prisma.codeToSolutionFile
-      : prisma.codeToTemplateFile
+    // check if the query belongs to the question
+    const checkQuery = await prisma.databaseQuery.findUnique({
+        where: {
+            id: queryId
+        }
+    });
 
-  const codeToFile = await model.findUnique({
-    where: {
-      questionId_fileId: {
-        questionId,
-        fileId: fileId,
-      },
-    },
-  })
+    if (!checkQuery) {
+        res.status(404).json({ message: 'Not found' })
+        return
+    }
 
-  if (!codeToFile) {
-    res.status(404).json({ message: 'Not found' })
-    return
-  }
+    if (checkQuery.questionId !== questionId) {
+        res.status(404).json({ message: 'Not found' })
+        return
+    }
 
-  await prisma.file.delete({
-    where: {
-      id: fileId,
-    },
-  })
+    const query = await prisma.databaseQuery.delete({
+        where: {
+            id: queryId
+        }
+    });
 
-  res.status(200).json({ message: 'Deleted' })
+    res.status(200).json(query)
 }
 
 export default handler

@@ -86,6 +86,18 @@ const SolutionQueriesManager = ({ questionId }) => {
 
     const debouncedOnQueryUpdate = useDebouncedCallback((q, m) => onQueryUpdate(q, m), 500)
 
+    const onQueryDelete = useCallback(async (query) => {
+        await fetch(`/api/questions/${questionId}/database/queries/${query.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        }).then(async (res) => {
+            await mutate(queries.filter((q) => q.id !== query.id));
+        });
+    }, [queries, mutate, questionId]);
+
     const runAllQueries = useCallback(async () => {
         // erase eventual previous outputs
         setOutputs(queries.map((q, index) => ({
@@ -156,6 +168,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                             query={queries[activeQuery]}
                             queryOutput={outputs[activeQuery]}
                             onChange={(q) => debouncedOnQueryUpdate(q, true)}
+                            onDelete={(q) => onQueryDelete(q)}
                         />
                     )
                 }

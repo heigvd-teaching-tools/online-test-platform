@@ -1,6 +1,17 @@
 import React, {useEffect, useState} from "react";
 import BottomPanel from "../../../layout/utils/BottomPanel";
-import {MenuItem, Stack, Tab, Tabs, TextField, Typography, Switch, FormGroup, FormControlLabel  } from "@mui/material";
+import {
+    MenuItem,
+    Stack,
+    Tab,
+    Tabs,
+    TextField,
+    Typography,
+    Switch,
+    FormGroup,
+    FormControlLabel,
+    Button
+} from "@mui/material";
 import TabPanel from "../../../layout/utils/TabPanel";
 import TabContent from "../../../layout/utils/TabContent";
 import QueryOutput from "./QueryOutput";
@@ -8,10 +19,18 @@ import {StudentPermission, DatabaseQueryOutputTest} from "@prisma/client";
 import DropDown from "../../../input/DropDown";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
 import ConsoleLog from "../../../layout/utils/ConsoleLog";
+import DialogFeedback from "../../../feedback/DialogFeedback";
 
-const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
+const QueryUpdatePanel = ({ index, query, queryOutput, onChange, onDelete }) => {
+
+    const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false)
 
     const [ tab, setTab ] = useState(0)
+
+    useEffect(() => {
+        setTab(0)
+        setDeleteDialogOpen(false)
+    }, [query.id]);
 
     return (
         <BottomPanel header={
@@ -24,24 +43,36 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
             </Stack>
         }>
             <Stack bgcolor={"white"} spacing={2}>
-                <Tabs
-                    value={tab}
-                    onChange={(ev, val) => setTab(val)}
-                    aria-label="query panel tabs"
+                <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
+                <Stack flex={1}>
+                    <Tabs
+                        value={tab}
+                        onChange={(ev, val) => setTab(val)}
+                        aria-label="query panel tabs"
+                    >
+                        <Tab
+                            label={<Typography variant="caption">Output</Typography>}
+                            value={0}
+                        />
+                        <Tab
+                            label={<Typography variant="caption">Settings</Typography>}
+                            value={1}
+                        />
+                        <Tab
+                            label={<Typography variant="caption">Template</Typography>}
+                            value={2}
+                        />
+
+                    </Tabs>
+                </Stack>
+                <Button
+                    variant={"outlined"}
+                    color={"primary"}
+                    onClick={() => setDeleteDialogOpen(true)}
                 >
-                    <Tab
-                        label={<Typography variant="caption">Output</Typography>}
-                        value={0}
-                    />
-                    <Tab
-                        label={<Typography variant="caption">Settings</Typography>}
-                        value={1}
-                    />
-                    <Tab
-                        label={<Typography variant="caption">Template</Typography>}
-                        value={2}
-                    />
-                </Tabs>
+                    Delete query #{index + 1}
+                </Button>
+                </Stack>
                 <TabPanel id="output" value={tab} index={0}>
                     <TabContent padding={2} spacing={4}>
                         <QueryOutputTab
@@ -68,6 +99,16 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange }) => {
                     </TabContent>
                 </TabPanel>
             </Stack>
+            <DialogFeedback
+                open={deleteDialogOpen}
+                onClose={() => setDeleteDialogOpen(false)}
+                title={`Delete query #${index + 1}`}
+                content={`Are you sure you want to delete query #${index + 1}?`}
+                onConfirm={() => {
+                    setDeleteDialogOpen(false)
+                    onDelete && onDelete(query)
+                }}
+            />
         </BottomPanel>
     );
 }
@@ -84,16 +125,16 @@ enum DatabaseQueryOutputTest {
 
 const InputDatabaseQueryOutputTest = {
     [DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER]: {
-        label: 'Ignore column order'
+        label: 'Column order'
     },
     [DatabaseQueryOutputTest.IGNORE_ROW_ORDER]: {
-        label: 'Ignore row order'
+        label: 'Row order'
     },
     [DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS]: {
-        label: 'Ignore extra columns'
+        label: 'Extra columns'
     },
     [DatabaseQueryOutputTest.INGORE_COLUMN_TYPES]: {
-        label: 'Ignore column types'
+        label: 'Column types'
     }
 };
 
@@ -111,46 +152,49 @@ const QueryOutputTab = ({ query, queryOutput, onChange }) => {
                 queryOutput={queryOutput}
             />
             <FormGroup>
-                <FormControlLabel
-                    label="Enable output tests"
-                    control={
-                        <Switch
-                            checked={enableOutputTest}
-                            onChange={(ev) => {
-                                setEnableOutputTest(ev.target.checked);
-                                onChange({
-                                    ...query,
-                                    testQuery: ev.target.checked,
-                                })
-                            }}
-                        />
+                <Stack direction={"row"} spacing={1}>
+                    <FormControlLabel
+                        label="Output test"
+                        control={
+                            <Switch
+                                checked={enableOutputTest}
+                                onChange={(ev) => {
+                                    setEnableOutputTest(ev.target.checked);
+                                    onChange({
+                                        ...query,
+                                        testQuery: ev.target.checked,
+                                    })
+                                }}
+                            />
+                        }
+                    />
+                    {
+                        enableOutputTest && (
+                            <Stack spacing={1} direction={"row"} alignItems={"center"}>
+                                <Typography variant={"h6"}>Ignore : </Typography>
+                                {Object.keys(InputDatabaseQueryOutputTest).map((key) => {
+                                    const { label } = InputDatabaseQueryOutputTest[key];
+                                    return (
+                                        <OutputTestToggle
+                                            toggled={query.queryOutputTests.some((test) => test.test === key)}
+                                            label={label}
+                                            testKey={key}
+                                            onToggle={(isChecked, testKey) => {
+                                                const newTests = isChecked
+                                                    ? [...query.queryOutputTests, { test: testKey }]
+                                                    : query.queryOutputTests.filter((test) => test.test !== testKey);
+                                                onChange({
+                                                    ...query,
+                                                    queryOutputTests: newTests,
+                                                });
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </Stack>
+                        )
                     }
-                />
-                {
-                    enableOutputTest && (
-                        <Stack spacing={1} direction={"row"}>
-                            {Object.keys(InputDatabaseQueryOutputTest).map((key) => {
-                                const { label } = InputDatabaseQueryOutputTest[key];
-                                return (
-                                    <OutputTestToggle
-                                        toggled={query.queryOutputTests.some((test) => test.test === key)}
-                                        label={label}
-                                        testKey={key}
-                                        onToggle={(isChecked, testKey) => {
-                                            const newTests = isChecked
-                                                ? [...query.queryOutputTests, { test: testKey }]
-                                                : query.queryOutputTests.filter((test) => test.test !== testKey);
-                                            onChange({
-                                                ...query,
-                                                queryOutputTests: newTests,
-                                            });
-                                        }}
-                                    />
-                                );
-                            })}
-                        </Stack>
-                    )
-                }
+                </Stack>
             </FormGroup>
         </Stack>
     )
