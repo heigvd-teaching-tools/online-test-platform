@@ -10,6 +10,10 @@ export NEXTAUTH_GITHUB_ID=yourgithubid
 export NEXTAUTH_GITHUB_SECRET=yourgithubsecret
 export REMOTE_USER=yourremoteuser
 export REMOTE_HOST=yourremotehost
+export GITHUB_ORG=yourgithuborg
+export GITHUB_APP_ID=yourgithubappid
+export GITHUB_APP_PRIVATE_KEY_PATH=yourgithubappprivatekeypath
+export GITHUB_APP_INSTALLATION_ID=yourgithubappinstallationid
 '
 
 # Define remote deployment directory
@@ -33,6 +37,10 @@ DATABASE_URL="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_D
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 POSTGRES_DB=$POSTGRES_DB
+GITHUB_ORG=$GITHUB_ORG
+GITHUB_APP_ID=$GITHUB_APP_ID
+GITHUB_APP_PRIVATE_KEY_PATH=$GITHUB_APP_PRIVATE_KEY_PATH
+GITHUB_APP_INSTALLATION_ID=$GITHUB_APP_INSTALLATION_ID
 END
 
 cat <<- END > .env.production

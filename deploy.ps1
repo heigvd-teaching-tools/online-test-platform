@@ -7,6 +7,10 @@ $postgresDb = $env:POSTGRES_DB
 $nextAuthSecret = $env:NEXTAUTH_SECRET
 $nextAuthGithubId = $env:NEXTAUTH_GITHUB_ID
 $nextAuthGithubSecret = $env:NEXTAUTH_GITHUB_SECRET
+$githubOrg = $env:GITHUB_ORG
+$githubAppId = $env:GITHUB_APP_ID
+$githubAppPrivateKeyPath = $env:GITHUB_APP_PRIVATE_KEY_PATH
+$githubAppInstallationId = $env:GITHUB_APP_INSTALLATION_ID
 
 # Check if necessary environment variables are set
 if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret) {
@@ -47,6 +51,10 @@ echo "DATABASE_URL=postgresql://${postgresUser}:${postgresPassword}@db:5432/${po
 echo 'POSTGRES_USER=${postgresUser}' >> web/.env
 echo 'POSTGRES_PASSWORD=${postgresPassword}' >> web/.env
 echo 'POSTGRES_DB=${postgresDb}' >> web/.env
+echo 'GITHUB_ORG=${githubOrg}' >> web/.env
+echo 'GITHUB_APP_ID=${githubAppId}' >> web/.env
+echo 'GITHUB_APP_PRIVATE_KEY_PATH=${githubAppPrivateKeyPath}' >> web/.env
+echo 'GITHUB_APP_INSTALLATION_ID=${githubAppInstallationId}' >> web/.env
 echo 'NEXTAUTH_SECRET=${nextAuthSecret}' > web/.env.production
 echo 'NEXTAUTH_GITHUB_ID=${nextAuthGithubId}' >> web/.env.production
 echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
