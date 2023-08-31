@@ -288,7 +288,7 @@ const post = async (req, res) => {
                         create: collectionToQuestion.question.database.queries.map((query) => ({
                             title: query.title,
                             description: query.description,
-                            content: query.template,
+                            content: query.content,
                             template: query.template,
                             lintRules: query.lintRules,
                             studentPermission: query.studentPermission,
