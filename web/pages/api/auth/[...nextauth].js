@@ -5,13 +5,49 @@ import KeycloakProvider from 'next-auth/providers/keycloak'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { PrismaClient, Role } from '@prisma/client'
 
-const professors = ['bchapuis@gmail.com', 'stefanteofanovic@hotmail.com']
+import { Octokit } from "octokit";
+import { createAppAuth } from "@octokit/auth-app";
+import fetch from "node-fetch";
+import fs from 'fs';
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
 }
 
 const prisma = global.prisma
+
+const octokit = new Octokit({
+  authStrategy: createAppAuth,
+  auth: {
+    appId: process.env.GITHUB_APP_ID,
+    privateKey: fs.readFileSync(process.env.GITHUB_APP_PRIVATE_KEY_PATH, 'utf8'),
+    installationId: process.env.GITHUB_APP_INSTALLATION_ID,
+  },
+  request: {
+    fetch,
+  },
+});
+
+const getOrgMembersIDs = async () => {
+    const { data: members } = await octokit.rest.orgs.listMembers({
+      org: process.env.GITHUB_ORG,
+    });
+    return members.map((member) => member.id);
+}
+
+const setProfessorIfMemberOfOrg = async (account, user) => {
+  if(account.provider === 'github' && user.role !== Role.PROFESSOR) {
+    const memberIDs = await getOrgMembersIDs();
+    if (memberIDs.includes(parseInt(account.providerAccountId))) {
+      await prisma.user.update({
+        where: {email: user.email},
+        data: {role: Role.PROFESSOR},
+      })
+      return true;
+    }
+  }
+  return false;
+}
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -27,18 +63,23 @@ export default NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   events: {
-    async createUser({ user }) {
-      if (professors.includes(user?.email)) {
-        await prisma.user.update({
-          where: { email: user.email },
-          data: { role: Role.PROFESSOR },
-        })
-      }
+    async linkAccount({ user, account})  {
+        if(await setProfessorIfMemberOfOrg(account, user)){
+            // update session to reflect new role
+            return { ...user, role: Role.PROFESSOR }
+        }
     },
+    async signIn({ user, account }) {
+      console.log("signIn", user, account)
+        if(await setProfessorIfMemberOfOrg(account, user)){
+            // update session to reflect new role
+            return { ...user, role: Role.PROFESSOR }
+        }
+    }
   },
   callbacks: {
     async session({ session, user }) {
-      
+
       if (user) {
         const userWithGroups = await prisma.user.findUnique({
           where: { email: user.email },

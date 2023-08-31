@@ -1,0 +1,556 @@
+{
+    "both_mixed": {
+        "dataset1": {
+            "rows": [
+                [
+                    1,
+                    "SMITH",
+                    "MARY"
+                ],
+                [
+                    2,
+                    "JOHNSON",
+                    "PATRICIA"
+                ],
+                [
+                    3,
+                    "WILLIAMS",
+                    "LINDA"
+                ],
+                [
+                    5,
+                    "BROWN",
+                    "ELIZABETH"
+                ],
+                [
+                    4,
+                    "JONES",
+                    "BARBARA"
+                ],
+                [
+                    6,
+                    "DAVIS",
+                    "JENNIFER"
+                ],
+                [
+                    7,
+                    "MILLER",
+                    "MARIA"
+                ],
+                [
+                    8,
+                    "WILSON",
+                    "SUSAN"
+                ],
+                [
+                    9,
+                    "MOORE",
+                    "MARGARET"
+                ],
+                [
+                    10,
+                    "TAYLOR",
+                    "DOROTHY"
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "first_name",
+                    "type": "text"
+                }
+            ]
+        },
+        "dataset2":{
+            "rows": [
+                [
+                    "MARY",
+                    "SMITH",
+                    1
+                ],
+                [
+                    "PATRICIA",
+                    "JOHNSON",
+                    2
+                ],
+                [
+                    "LINDA",
+                    "WILLIAMS",
+                    3
+                ],
+                [
+                    "BARBARA",
+                    "JONES",
+                    4
+                ],
+                [
+                    "ELIZABETH",
+                    "BROWN",
+                    5
+                ],
+                [
+                    "JENNIFER",
+                    "DAVIS",
+                    6
+                ],
+                [
+                    "MARIA",
+                    "MILLER",
+                    7
+                ],
+                [
+                    "SUSAN",
+                    "WILSON",
+                    8
+                ],
+                [
+                    "MARGARET",
+                    "MOORE",
+                    9
+                ],
+                [
+                    "DOROTHY",
+                    "TAYLOR",
+                    10
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "first_name",
+                    "type": "text"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                }
+            ]
+        }
+    },
+    "only_columns_mixed": {
+        "dataset1": {
+            "rows": [
+                [
+                    1,
+                    "SMITH",
+                    "MARY"
+                ],
+                [
+                    2,
+                    "JOHNSON",
+                    "PATRICIA"
+                ],
+                [
+                    3,
+                    "WILLIAMS",
+                    "LINDA"
+                ],
+                [
+                    4,
+                    "JONES",
+                    "BARBARA"
+                ],
+                [
+                    5,
+                    "BROWN",
+                    "ELIZABETH"
+                ],
+                [
+                    6,
+                    "DAVIS",
+                    "JENNIFER"
+                ],
+                [
+                    7,
+                    "MILLER",
+                    "MARIA"
+                ],
+                [
+                    8,
+                    "WILSON",
+                    "SUSAN"
+                ],
+                [
+                    9,
+                    "MOORE",
+                    "MARGARET"
+                ],
+                [
+                    10,
+                    "TAYLOR",
+                    "DOROTHY"
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "first_name",
+                    "type": "text"
+                }
+            ]
+        },
+        "dataset2": {
+            "rows": [
+                [
+                    "MARY",
+                    "SMITH",
+                    1
+                ],
+                [
+                    "PATRICIA",
+                    "JOHNSON",
+                    2
+                ],
+                [
+                    "LINDA",
+                    "WILLIAMS",
+                    3
+                ],
+                [
+                    "BARBARA",
+                    "JONES",
+                    4
+                ],
+                [
+                    "ELIZABETH",
+                    "BROWN",
+                    5
+                ],
+                [
+                    "JENNIFER",
+                    "DAVIS",
+                    6
+                ],
+                [
+                    "MARIA",
+                    "MILLER",
+                    7
+                ],
+                [
+                    "SUSAN",
+                    "WILSON",
+                    8
+                ],
+                [
+                    "MARGARET",
+                    "MOORE",
+                    9
+                ],
+                [
+                    "DOROTHY",
+                    "TAYLOR",
+                    10
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "first_name",
+                    "type": "text"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                }
+            ]
+        }
+    },
+    "only_rows_mixed": {
+        "dataset1": {
+            "rows": [
+                [
+                    1,
+                    "SMITH",
+                    "MARY"
+                ],
+                [
+                    2,
+                    "JOHNSON",
+                    "PATRICIA"
+                ],
+                [
+                    3,
+                    "WILLIAMS",
+                    "LINDA"
+                ],
+                [
+                    4,
+                    "JONES",
+                    "BARBARA"
+                ],
+                [
+                    5,
+                    "BROWN",
+                    "ELIZABETH"
+                ],
+                [
+                    6,
+                    "DAVIS",
+                    "JENNIFER"
+                ],
+                [
+                    7,
+                    "MILLER",
+                    "MARIA"
+                ],
+                [
+                    8,
+                    "WILSON",
+                    "SUSAN"
+                ],
+                [
+                    9,
+                    "MOORE",
+                    "MARGARET"
+                ],
+                [
+                    10,
+                    "TAYLOR",
+                    "DOROTHY"
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "first_name",
+                    "type": "text"
+                }
+            ]
+        },
+        "dataset2": {
+            "rows": [
+                [
+                    1,
+                    "SMITH",
+                    "MARY"
+                ],
+                [
+                    2,
+                    "JOHNSON",
+                    "PATRICIA"
+                ],
+                [
+                    3,
+                    "WILLIAMS",
+                    "LINDA"
+                ],
+                [
+                    4,
+                    "JONES",
+                    "BARBARA"
+                ],
+                [
+                    6,
+                    "DAVIS",
+                    "JENNIFER"
+                ],
+                [
+                    5,
+                    "BROWN",
+                    "ELIZABETH"
+                ],
+                
+                [
+                    7,
+                    "MILLER",
+                    "MARIA"
+                ],
+                [
+                    8,
+                    "WILSON",
+                    "SUSAN"
+                ],
+                [
+                    9,
+                    "MOORE",
+                    "MARGARET"
+                ],
+                [
+                    10,
+                    "TAYLOR",
+                    "DOROTHY"
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "first_name",
+                    "type": "text"
+                }
+            ]
+        }
+    },
+    "neither_mixed": {
+        "dataset1": {
+            "rows": [
+                [
+                    1,
+                    "SMITH",
+                    "MARY"
+                ],
+                [
+                    2,
+                    "JOHNSON",
+                    "PATRICIA"
+                ],
+                [
+                    3,
+                    "WILLIAMS",
+                    "LINDA"
+                ],
+                [
+                    4,
+                    "JONES",
+                    "BARBARA"
+                ],
+                [
+                    5,
+                    "BROWN",
+                    "ELIZABETH"
+                ],
+                [
+                    6,
+                    "DAVIS",
+                    "JENNIFER"
+                ],
+                [
+                    7,
+                    "MILLER",
+                    "MARIA"
+                ],
+                [
+                    8,
+                    "WILSON",
+                    "SUSAN"
+                ],
+                [
+                    9,
+                    "MOORE",
+                    "MARGARET"
+                ],
+                [
+                    10,
+                    "TAYLOR",
+                    "DOROTHY"
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "first_name",
+                    "type": "text"
+                }
+            ]
+        },
+        "dataset2": {
+            "rows": [
+                [
+                    1,
+                    "SMITH",
+                    "MARY"
+                ],
+                [
+                    2,
+                    "JOHNSON",
+                    "PATRICIA"
+                ],
+                [
+                    3,
+                    "WILLIAMS",
+                    "LINDA"
+                ],
+                [
+                    4,
+                    "JONES",
+                    "BARBARA"
+                ],
+                [
+                    5,
+                    "BROWN",
+                    "ELIZABETH"
+                ],
+                [
+                    6,
+                    "DAVIS",
+                    "JENNIFER"
+                ],
+                [
+                    7,
+                    "MILLER",
+                    "MARIA"
+                ],
+                [
+                    8,
+                    "WILSON",
+                    "SUSAN"
+                ],
+                [
+                    9,
+                    "MOORE",
+                    "MARGARET"
+                ],
+                [
+                    10,
+                    "TAYLOR",
+                    "DOROTHY"
+                ]
+            ],
+            "columns": [
+                {
+                    "name": "customer_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_name",
+                    "type": "text"
+                },
+                {
+                    "name": "first_name",
+                    "type": "text"
+                }
+            ]
+        }
+    }
+    
+}
