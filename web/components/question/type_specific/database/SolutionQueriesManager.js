@@ -75,7 +75,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                 queryRef.title = query.title;
                 queryRef.description = query.description;
                 queryRef.lintRules = query.lintRules;
-                queryRef.solution = query.solution;
+                queryRef.content = query.content;
                 queryRef.template = query.template;
             }else{
                 await mutate([...queries, await res.json()]);

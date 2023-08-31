@@ -47,7 +47,7 @@ const post = async (req, res) => {
         }
     });
 
-    const queries = database.queries.map(query => query.solution);
+    const queries = database.queries.map(query => query.content);
 
     const result = await runSandboxDB({
         image: database.image,

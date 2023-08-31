@@ -38,7 +38,7 @@ const put = async (req, res) => {
     const {
         title,
         description,
-        solution,
+        content,
         template,
         lintRules,
         studentPermission,
@@ -70,7 +70,7 @@ const put = async (req, res) => {
         data: {
             title: title,
             description: description,
-            solution: solution,
+            content: content,
             template: template,
             lintRules: lintRules,
             studentPermission: studentPermission,

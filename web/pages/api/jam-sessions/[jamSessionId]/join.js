@@ -120,32 +120,7 @@ const post = async (req, res) => {
           userEmail: studentEmail,
           questionId: question.id,
           [question.type]: {
-            // only code questions have question answer type-specific data -> template files
-            create:
-              question.type === QuestionType.code
-                ? {
-                    files: {
-                      create: question.code.templateFiles.map((codeToFile) => {
-                        console.log("codeToFile", codeToFile)
-                        return {
-                          studentPermission: codeToFile.studentPermission,
-                          file: {
-                            create: {
-                              path: codeToFile.file.path,
-                              content: codeToFile.file.content,
-                              createdAt: codeToFile.file.createdAt,
-                              code: {
-                                connect: {
-                                  questionId: question.id,
-                                },
-                              },
-                            },
-                          },
-                        }
-                      }),
-                    },
-                  }
-                : {},
+            create: createTypeSpecificData(question.type, question)
           },
           studentGrading: {
             create: grading(jstq, undefined),
@@ -158,6 +133,74 @@ const post = async (req, res) => {
   // run the transaction
   const [userOnJamSession] = await prisma.$transaction(transaction)
   res.status(200).json(userOnJamSession)
+}
+
+const createTypeSpecificData = (questionType, question) => {
+  /*
+  code and database questions have type specific data to be copied for the student answer
+  - code has template files
+  - database has queries with starting content being pulled from template
+  */
+  switch (questionType) {
+    case QuestionType.code:
+        return {
+          files: {
+            create: question.code.templateFiles.map((codeToFile) => {
+              return {
+                studentPermission: codeToFile.studentPermission,
+                file: {
+                  create: {
+                    path: codeToFile.file.path,
+                    content: codeToFile.file.content,
+                    createdAt: codeToFile.file.createdAt,
+                    code: {
+                      connect: {
+                        questionId: question.id,
+                      },
+                    },
+                  },
+                },
+              }
+            }),
+          },
+        }
+    case QuestionType.database:
+
+        return {
+            image: question.database.image,
+            queries: {
+                create: question.database.queries.map((query) => {
+                    return {
+                        query: {
+                            create: {
+                                title: query.title,
+                                description: query.description,
+                                content: query.template, // template is the students starting answer
+                                template: undefined,
+                                lintRules: query.lintRules,
+                                studentPermission: query.studentPermission,
+                                testQuery: query.testQuery,
+                                queryOutputTests: {
+                                    create: query.queryOutputTests.map((queryOutputTest) => {
+                                        return {
+                                            test: queryOutputTest.test,
+                                        }
+                                    }),
+                                },
+                                database:{
+                                    connect: {
+                                        questionId: question.id,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    default:
+        return {}
+  }
 }
 
 export default handler

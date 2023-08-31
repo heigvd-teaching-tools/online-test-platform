@@ -25,6 +25,8 @@ export const grading = (jamSessionToQuestion, answer) => {
       return gradeCode(jamSessionToQuestion, answer)
     case QuestionType.web:
       return gradeWeb(jamSessionToQuestion, answer)
+    case QuestionType.database:
+        return gradeDatabase(jamSessionToQuestion, answer)
     default:
       return undefined
   }
@@ -35,6 +37,16 @@ const defaultGrading = {
   pointsObtained: 0,
 }
 
+const gradeDatabase = (jamSessionToQuestion, response) => {
+    let grading = defaultGrading
+    if (response !== undefined) {
+        let isCorrect = response.tests.every((test) => test.passed)
+        grading = {
+            status: StudentQuestionGradingStatus.AUTOGRADED,
+            pointsObtained: isCorrect ? jamSessionToQuestion.points : 0,
+        }
+    }
+}
 const gradeMultipleChoice = (jamSessionToQuestion, answer) => {
   let grading = defaultGrading
 

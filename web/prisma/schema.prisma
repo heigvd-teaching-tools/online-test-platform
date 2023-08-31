@@ -267,8 +267,8 @@ model DatabaseQuery {
 
   lintRules String?
 
-  solution String?
-  template String?
+  content  String?
+  template String? // not used for student answer
 
   studentPermission StudentPermission @default(UPDATE)
 
@@ -276,6 +276,49 @@ model DatabaseQuery {
 
   testQuery        Boolean                     @default(false)
   queryOutputTests DatabaseQueryToOutputTest[]
+
+  studentAnswerDatabaseToQuery StudentAnswerDatabaseToQuery[]
+}
+
+model File {
+  id String @id @default(cuid())
+
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  path    String
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  codeToSolutionFile CodeToSolutionFile?
+  codeToTemplateFile CodeToTemplateFile?
+  studentAnswerCode  StudentAnswerCodeToFile?
+}
+
+model StudentAnswerDatabaseToQuery {
+  studentAnswerDatabase StudentAnswerDatabase @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail             String
+  questionId            String
+
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String        @unique
+
+  @@id([userEmail, questionId, queryId])
+}
+
+model StudentAnswerCodeToFile {
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail         String
+  questionId        String
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
+
+  studentPermission StudentPermission @default(UPDATE)
+
+  @@id([userEmail, questionId, fileId])
 }
 
 model DatabaseQueryOutput {
@@ -328,23 +371,6 @@ model CodeToTemplateFile {
   studentPermission StudentPermission @default(UPDATE)
 
   @@id([questionId, fileId])
-}
-
-model File {
-  id String @id @default(cuid())
-
-  path    String
-  content String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  codeToSolutionFile CodeToSolutionFile?
-  codeToTemplateFile CodeToTemplateFile?
-  studentAnswerCode  StudentAnswerCodeToFile?
-
-  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String
 }
 
 model Web {
@@ -459,6 +485,7 @@ model StudentAnswer {
   essay          StudentAnswerEssay?
   code           StudentAnswerCode?
   web            StudentAnswerWeb?
+  database       StudentAnswerDatabase?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -540,6 +567,20 @@ model StudentAnswerCode {
   @@id([userEmail, questionId])
 }
 
+model StudentAnswerDatabase {
+  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
+
+  image String? @default("")
+
+  testPassed Boolean @default(false)
+
+  queries StudentAnswerDatabaseToQuery[]
+
+  @@id([userEmail, questionId])
+}
+
 model TestCaseResult {
   userEmail  String
   questionId String
@@ -555,19 +596,6 @@ model TestCaseResult {
   passed Boolean
 
   @@id([index, userEmail, questionId])
-}
-
-model StudentAnswerCodeToFile {
-  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-  userEmail         String
-  questionId        String
-
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId String @unique
-
-  studentPermission StudentPermission @default(UPDATE)
-
-  @@id([userEmail, questionId, fileId])
 }
 
 model StudentAnswerWeb {

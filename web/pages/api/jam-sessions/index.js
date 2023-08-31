@@ -114,9 +114,9 @@ const post = async (req, res) => {
     await prisma.$transaction(async (prisma) => {
       jamSession = await prisma.jamSession.create({ data })
 
-      // create the copy of all questions, except code, for the jam session
+      // create the copy of all questions, except code and database, for the jam session
       for (const collectionToQuestion of collectionToQuestions.filter(
-        (ctq) => ctq.question.type !== QuestionType.code
+        (ctq) => ctq.question.type !== QuestionType.code && ctq.question.type !== QuestionType.database
       )) {
         // create question
         const question = await prisma.question.create({
@@ -157,6 +157,7 @@ const post = async (req, res) => {
         })
       }
 
+      // CODE
       // create the copy of code questions for the jam session
       for (const collectionToQuestion of collectionToQuestions.filter(
         (ctq) => ctq.question.type === QuestionType.code
@@ -263,6 +264,73 @@ const post = async (req, res) => {
         }
       }
     })
+
+    // DATABASE
+    // create the copy of database questions for the jam session
+    for (const collectionToQuestion of collectionToQuestions.filter(
+        (ctq) => ctq.question.type === QuestionType.database
+    )) {
+        // create database question, without queries
+        const newDatabaseQuestion = await prisma.question.create({
+            data: {
+                title: collectionToQuestion.question.title,
+                content: collectionToQuestion.question.content,
+                group: {
+                    connect: {
+                        id: collectionToQuestion.question.groupId,
+                    },
+                },
+                type: QuestionType.database,
+                database: {
+                    create: {
+                    image: collectionToQuestion.question.database.image,
+                    queries: {
+                        create: collectionToQuestion.question.database.queries.map((query) => ({
+                            title: query.title,
+                            description: query.description,
+                            content: query.template,
+                            template: query.template,
+                            lintRules: query.lintRules,
+                            studentPermission: query.studentPermission,
+                            testQuery: query.testQuery,
+                            queryOutput:{
+                                create: {
+                                    output: query.queryOutput.output,
+                                    type: query.queryOutput.type,
+                                    status: query.queryOutput.status,
+                                    dbms: query.queryOutput.dbms,
+                                }
+                            },
+                            queryOutputTests: {
+                              create: query.queryOutputTests.map((test) => ({
+                                  test: test.test,
+                              })),
+                            },
+                        })),
+                    },
+                    },
+                },
+            },
+        })
+
+        // create relation between jam session and question
+        await prisma.jamSessionToQuestion.create({
+            data: {
+            points: collectionToQuestion.points,
+            order: collectionToQuestion.order,
+            jamSession: {
+                connect: {
+                id: jamSession.id,
+                },
+            },
+            question: {
+                connect: {
+                id: newDatabaseQuestion.id,
+                },
+            },
+            },
+        })
+    }
 
     res.status(200).json(jamSession)
   } catch (e) {

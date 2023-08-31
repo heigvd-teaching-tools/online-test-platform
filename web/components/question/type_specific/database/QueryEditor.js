@@ -14,14 +14,12 @@ const QueryStudentPermission = ({ permission }) => {
     }
 }
 
-const QueryEditor = ({ index, active, query, onChange, headerLeft, headerRight }) => {
+const QueryEditor = ({ index, query, onChange, headerLeft, headerRight }) => {
 
-
-
-    const [ solution, setSolution ] = useState(query.solution)
+    const [ content, setContent ] = useState(query.content)
 
     useEffect(() => {
-        setSolution(query.solution)
+        setContent(query.content)
     }, [query])
 
     const debouncedOnChange = useCallback(onChange, 500)
@@ -58,15 +56,15 @@ const QueryEditor = ({ index, active, query, onChange, headerLeft, headerRight }
                 </Stack>
             </Stack>
             <InlineMonacoEditor
-                code={solution}
+                code={content}
                 language={'sql'}
                 readOnly={false}
                 onChange={(sql) => {
-                    if (sql === query.solution) return
-                    setSolution(sql)
+                    if (sql === query.content) return
+                    setContent(sql)
                     debouncedOnChange({
                         ...query,
-                        solution: sql,
+                        content: sql,
                     })
                 }}
             />
