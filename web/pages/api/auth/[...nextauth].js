@@ -70,7 +70,6 @@ export default NextAuth({
         }
     },
     async signIn({ user, account }) {
-      console.log("signIn", user, account)
         if(await setProfessorIfMemberOfOrg(account, user)){
             // update session to reflect new role
             return { ...user, role: Role.PROFESSOR }
