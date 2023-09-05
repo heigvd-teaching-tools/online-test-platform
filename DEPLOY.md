@@ -25,7 +25,7 @@ export GITHUB_APP_PRIVATE_KEY_PATH=yourgithubappprivatekeypath
 export GITHUB_APP_INSTALLATION_ID=yourgithubappinstallationid
 ```
 
-## First Deployment
+## First Deployment - OnlineTest App
 
 You need to place the private key of the github app "OnlineTest" in the /web folder of the project.
 
