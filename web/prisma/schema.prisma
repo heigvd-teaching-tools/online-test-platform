@@ -228,8 +228,22 @@ model Database {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
 
-  image   String?         @default("")
-  queries DatabaseQuery[]
+  image           String?                   @default("")
+  solutionQueries DatabaseToSolutionQuery[]
+  databaseQueries DatabaseQuery[]
+}
+
+model DatabaseToSolutionQuery {
+  database   Database @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String        @unique
+
+  outputId String?              @unique
+  output   DatabaseQueryOutput? @relation(fields: [outputId], references: [id])
+
+  @@id([questionId, queryId])
 }
 
 enum DatabaseQueryOutputType {
@@ -256,8 +270,10 @@ enum DatabaseDBMS {
 model DatabaseQuery {
   id String @id @default(cuid())
 
-  database   Database @relation(fields: [questionId], references: [questionId], onDelete: Cascade) // to casdade delete queries
-  questionId String
+  order Int @default(0)
+
+  database   Database? @relation(fields: [questionId], references: [questionId], onDelete: Cascade) // to casdade delete queries
+  questionId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -272,12 +288,11 @@ model DatabaseQuery {
 
   studentPermission StudentPermission @default(UPDATE)
 
-  queryOutput DatabaseQueryOutput?
-
   testQuery        Boolean                     @default(false)
   queryOutputTests DatabaseQueryToOutputTest[]
 
-  studentAnswerDatabaseToQuery StudentAnswerDatabaseToQuery[]
+  studentAnswerDatabaseToQuery StudentAnswerDatabaseToQuery?
+  databaseToSolutionQuery      DatabaseToSolutionQuery?
 }
 
 model File {
@@ -305,6 +320,12 @@ model StudentAnswerDatabaseToQuery {
   query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
   queryId String        @unique
 
+  studentOutputId  String? @unique
+  solutionOutputId String? @unique
+
+  solutionOutput DatabaseQueryOutput? @relation("SolutionOutputRelation", fields: [solutionOutputId], references: [id])
+  studentOutput  DatabaseQueryOutput? @relation("StudentOutputRelation", fields: [studentOutputId], references: [id])
+
   @@id([userEmail, questionId, queryId])
 }
 
@@ -322,8 +343,7 @@ model StudentAnswerCodeToFile {
 }
 
 model DatabaseQueryOutput {
-  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
-  queryId String        @id
+  id String @id @default(cuid())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -333,6 +353,10 @@ model DatabaseQueryOutput {
   status DatabaseQueryOutputStatus @default(RUNNING)
   type   DatabaseQueryOutputType   @default(TEXT)
   dbms   DatabaseDBMS              @default(POSTGRES)
+
+  studentAnswer StudentAnswerDatabaseToQuery? @relation("StudentOutputRelation")
+  solution      StudentAnswerDatabaseToQuery? @relation("SolutionOutputRelation")
+  querySolution DatabaseToSolutionQuery? // Reverse relation for DatabaseToSolutionQuery
 }
 
 model DatabaseQueryToOutputTest {

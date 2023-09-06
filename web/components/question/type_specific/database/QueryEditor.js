@@ -14,7 +14,7 @@ const QueryStudentPermission = ({ permission }) => {
     }
 }
 
-const QueryEditor = ({ index, query, onChange, headerLeft, headerRight }) => {
+const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, headerLeft }) => {
 
     const [ content, setContent ] = useState(query.content)
 
@@ -41,7 +41,7 @@ const QueryEditor = ({ index, query, onChange, headerLeft, headerRight }) => {
                     <Stack direction={"row"} flex={1} alignItems={"center"} justifyContent={"flex-start"} spacing={1}>
                         {headerLeft}
                         <Stack direction={'column'} spacing={1}>
-                            <Typography variant="body1">{`#${index + 1} ${query.title || "Untitled"}`}</Typography>
+                            <Typography variant="body1">{`#${query.order} ${query.title || "Untitled"}`}</Typography>
                             {query.description && (
                                 <Typography variant="body2">{query.description}</Typography>
                             )}
@@ -55,19 +55,22 @@ const QueryEditor = ({ index, query, onChange, headerLeft, headerRight }) => {
                     <QueryStudentPermission permission={query.studentPermission} />
                 </Stack>
             </Stack>
-            <InlineMonacoEditor
-                code={content}
-                language={'sql'}
-                readOnly={false}
-                onChange={(sql) => {
-                    if (sql === query.content) return
-                    setContent(sql)
-                    debouncedOnChange({
-                        ...query,
-                        content: sql,
-                    })
-                }}
-            />
+            { !hidden && (
+                <InlineMonacoEditor
+                    code={content}
+                    language={'sql'}
+                    readOnly={readOnly}
+                    onChange={(sql) => {
+                        if (sql === query.content) return
+                        setContent(sql)
+                        debouncedOnChange({
+                            ...query,
+                            content: sql,
+                        })
+                    }}
+                />
+            )}
+
         </>
     )
 }

@@ -21,7 +21,7 @@ import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
 import ConsoleLog from "../../../layout/utils/ConsoleLog";
 import DialogFeedback from "../../../feedback/DialogFeedback";
 
-const QueryUpdatePanel = ({ index, query, queryOutput, onChange, onDelete }) => {
+const QueryUpdatePanel = ({ query, output, onChange, onDelete }) => {
 
     const [ deleteDialogOpen, setDeleteDialogOpen ] = useState(false)
 
@@ -33,15 +33,17 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange, onDelete }) => 
     }, [query.id]);
 
     return (
-        <BottomPanel header={
-            <Stack pl={1} direction={'column'} spacing={0} height={"60px"} alignItems={"flex-start"}
-                   justifyContent={"center"}>
-                <Typography variant="body1">{`Query #${index + 1} - ${query.title || "Untitled"}`}</Typography>
-                {query.description && (
-                    <Typography variant="body2">{query.description}</Typography>
-                )}
-            </Stack>
-        }>
+        <BottomPanel
+            header={
+                <Stack pl={1} direction={'column'} spacing={0} height={"60px"} alignItems={"flex-start"}
+                       justifyContent={"center"}>
+                    <Typography variant="body1">{`Query #${query.order} - ${query.title || "Untitled"}`}</Typography>
+                    {query.description && (
+                        <Typography variant="body2">{query.description}</Typography>
+                    )}
+                </Stack>
+            }
+        >
             <Stack bgcolor={"white"} spacing={2}>
                 <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
                 <Stack flex={1}>
@@ -70,14 +72,14 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange, onDelete }) => 
                     color={"primary"}
                     onClick={() => setDeleteDialogOpen(true)}
                 >
-                    Delete query #{index + 1}
+                    Delete query #{query.order}
                 </Button>
                 </Stack>
                 <TabPanel id="output" value={tab} index={0}>
                     <TabContent padding={2} spacing={4}>
                         <QueryOutputTab
                             query={query}
-                            queryOutput={queryOutput}
+                            queryOutput={output}
                             onChange={(q) => onChange(q)}
                         />
                     </TabContent>
@@ -102,8 +104,8 @@ const QueryUpdatePanel = ({ index, query, queryOutput, onChange, onDelete }) => 
             <DialogFeedback
                 open={deleteDialogOpen}
                 onClose={() => setDeleteDialogOpen(false)}
-                title={`Delete query #${index + 1}`}
-                content={`Are you sure you want to delete query #${index + 1}?`}
+                title={`Delete query #${query.order}`}
+                content={`Are you sure you want to delete query #${query.order}?`}
                 onConfirm={() => {
                     setDeleteDialogOpen(false)
                     onDelete && onDelete(query)

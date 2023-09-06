@@ -55,7 +55,7 @@ const get = async (req, res) => {
     include: {
       question: {
         select: {
-          // we only select multiple choice because we need the list of all options (not only those selected by the student)
+          // we only select multiple choice from the question because we need the list of all options (not only those selected by the student)
           multipleChoice: {
             select: {
               options: {
@@ -82,6 +82,25 @@ const get = async (req, res) => {
             ],
           },
         },
+      },
+      database: {
+        select: {
+          testPassed: true,
+          queries: {
+            include: {
+              query: {
+                include:{
+                    queryOutput: true,
+                    queryOutputTests: true,
+                }
+              },
+              studentOutput: true,
+            },
+            orderBy: {
+              query: { order: 'asc' } ,
+            }
+          }
+        }
       },
       multipleChoice: { select: { options: true } },
       trueFalse: true,

@@ -7,9 +7,11 @@ const LayoutSplitScreen = ({
   rightPanel,
   footer,
   rightWidth = 60,
+    height = "100%",
+    useScrollContainer = true
 }) => {
   return (
-    <Stack height="100%" maxHeight="100%">
+    <Stack height={height} maxHeight={height}>
       {subheader && subheader}
       <Stack flex={1} alignItems="center" maxHeight="100%">
         <ResizePanel
@@ -21,9 +23,13 @@ const LayoutSplitScreen = ({
               elevation={0}
               sx={{ height: '100%', overflow: 'hidden' }}
             >
-              <ScrollContainer spacing={0} padding={0}>
-                {rightPanel}
-              </ScrollContainer>
+                {useScrollContainer ? (
+                  <ScrollContainer spacing={0} padding={0}>
+                    {rightPanel}
+                  </ScrollContainer>
+                ) : (
+                    rightPanel
+                )}
             </Paper>
           }
         />

@@ -28,23 +28,27 @@ const handler = async (req, res) => {
 }
 
 const get = async (req, res) => {
-    // get the queries for a database question
+    // get the solution queries for a database question
 
     const { questionId } = req.query
 
-    const queries = await prisma.databaseQuery.findMany({
+    const queries = await prisma.databaseToSolutionQuery.findMany({
         where: {
           questionId: questionId,
         },
         include:{
-            queryOutput: true,
-            queryOutputTests: true,
+            query: {
+                include: {
+                    queryOutputTests: true,
+                }
+            },
+            output: true,
         },
-        orderBy: [
-            {
-                createdAt: 'asc'
+        orderBy: [{
+            query: {
+                order: 'asc',
             }
-        ]
+        }]
     });
 
     if (!queries) res.status(404).json({ message: 'Not found' })
@@ -53,16 +57,49 @@ const get = async (req, res) => {
 }
 
 const post = async (req, res) => {
-  // create a new empty query for a database question
-
+  // create a new empty solution query for a database question
   const { questionId } = req.query
 
-    const query = await prisma.databaseQuery.create({
-        data: {
+    // determine the order of the new query
+    const queries = await prisma.databaseToSolutionQuery.findMany({
+        where: {
             questionId: questionId,
         }
     });
 
-    res.status(200).json(query)
+    const order = queries.length + 1;
+    let newQuery;
+
+    const databaseExists = await prisma.database.findUnique({
+        where: {
+            questionId: questionId,
+        },
+    });
+
+    await prisma.$transaction(async (prisma) => {
+        newQuery = await prisma.databaseQuery.create({
+            data: {
+                order: order,
+                database:{
+                    connect: {
+                        questionId: questionId,
+                    }
+                }
+            }
+        });
+
+        // connect the new solution query to the question
+        await prisma.databaseToSolutionQuery.create({
+            data: {
+                questionId: questionId,
+                queryId: newQuery.id,
+            }
+        })
+
+    });
+
+    res.status(200).json(newQuery)
+
+
 }
 export default handler

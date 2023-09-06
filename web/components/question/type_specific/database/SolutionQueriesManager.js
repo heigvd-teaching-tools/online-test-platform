@@ -37,10 +37,10 @@ const SolutionQueriesManager = ({ questionId }) => {
 
     useEffect(() => {
         if(!data) return
+        console.log("data", data)
         // remove outputs from queries, outputs are managed in a separate state
-        const queriesWithoutOutput = data.filter((q) => ({ ...q, queryOutput: null }))
-        setQueries(queriesWithoutOutput)
-        setOutputs(data.map((q) => q.queryOutput))
+        setQueries(data.map((q) => q.query))
+        setOutputs(data.map((q) => q.output))
     }, [data]);
 
     const onAddQuery = useCallback(async () => {
@@ -64,8 +64,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                 'Accept': 'application/json',
             },
             body: JSON.stringify(query),
-        }).then(async (res) => {
-            console.log("do mutate", doMutate)
+        }).then(async () => {
             if(!doMutate) {
                 const queryRef = queries.find((q) => q.id === query.id);
                 if (!queryRef) {
@@ -78,7 +77,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                 queryRef.content = query.content;
                 queryRef.template = query.template;
             }else{
-                await mutate([...queries, await res.json()]);
+                await mutate();
             }
 
         });
@@ -149,13 +148,13 @@ const SolutionQueriesManager = ({ questionId }) => {
                             borderLeft: `3px solid ${getBorderStyle(index)}`,
                         }}>
                             <QueryEditor
-                                index={index}
                                 active={index === activeQuery}
                                 key={query.id}
                                 query={query}
                                 onChange={(q) => debouncedOnQueryUpdate(q)}
                             />
                             <QueryOutput
+                                showAgo
                                 queryOutput={outputs[index]}
                             />
                         </Stack>
@@ -164,9 +163,8 @@ const SolutionQueriesManager = ({ questionId }) => {
                 {
                     queries?.length > 0 && activeQuery !== null && (
                         <QueryUpdatePanel
-                            index={activeQuery}
                             query={queries[activeQuery]}
-                            queryOutput={outputs[activeQuery]}
+                            output={outputs[activeQuery]}
                             onChange={(q) => debouncedOnQueryUpdate(q, true)}
                             onDelete={(q) => onQueryDelete(q)}
                         />

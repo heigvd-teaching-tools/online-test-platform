@@ -270,7 +270,7 @@ const post = async (req, res) => {
     for (const collectionToQuestion of collectionToQuestions.filter(
         (ctq) => ctq.question.type === QuestionType.database
     )) {
-        // create database question, without queries
+        // create database question for jam session
         const newDatabaseQuestion = await prisma.question.create({
             data: {
                 title: collectionToQuestion.question.title,
@@ -283,37 +283,15 @@ const post = async (req, res) => {
                 type: QuestionType.database,
                 database: {
                     create: {
-                    image: collectionToQuestion.question.database.image,
-                    queries: {
-                        create: collectionToQuestion.question.database.queries.map((query) => ({
-                            title: query.title,
-                            description: query.description,
-                            content: query.content,
-                            template: query.template,
-                            lintRules: query.lintRules,
-                            studentPermission: query.studentPermission,
-                            testQuery: query.testQuery,
-                            queryOutput:{
-                                create: {
-                                    output: query.queryOutput.output,
-                                    type: query.queryOutput.type,
-                                    status: query.queryOutput.status,
-                                    dbms: query.queryOutput.dbms,
-                                }
-                            },
-                            queryOutputTests: {
-                              create: query.queryOutputTests.map((test) => ({
-                                  test: test.test,
-                              })),
-                            },
-                        })),
-                    },
+                        image: collectionToQuestion.question.database.image,
                     },
                 },
             },
         })
 
-        // create relation between jam session and question
+
+
+        // create relation between jam session and new question
         await prisma.jamSessionToQuestion.create({
             data: {
             points: collectionToQuestion.points,
@@ -325,14 +303,69 @@ const post = async (req, res) => {
             },
             question: {
                 connect: {
-                id: newDatabaseQuestion.id,
+                    id: newDatabaseQuestion.id,
                 },
             },
             },
         })
+
+
+        // create the copy of queries for the jam session
+        for (const solQuery of collectionToQuestion.question.database.solutionQueries) {
+            const query = solQuery.query;
+            const output = solQuery.output;
+
+            const newQuery = await prisma.databaseQuery.create({
+                data: {
+                    order: query.order,
+                    title: query.title,
+                    description: query.description,
+                    content: query.content,
+                    template: query.template,
+                    lintRules: query.lintRules,
+                    studentPermission: query.studentPermission,
+                    testQuery: query.testQuery,
+                    queryOutput: query.queryOutput ? {
+                        create: {
+                            output: query.queryOutput.output,
+                            status: query.queryOutput.status,
+                            type: query.queryOutput.type,
+                            dbms: query.queryOutput.dbms,
+                        }
+                    } : undefined,
+                    queryOutputTests: {
+                        create: query.queryOutputTests.map((test) => ({
+                            test: test.test,
+                        })),
+                    },
+                    database: {
+                        connect: {
+                            questionId: newDatabaseQuestion.id,
+                        }
+                    }
+                }
+            });
+
+            // connect new queries as sulution queries to the question
+            await prisma.databaseToSolutionQuery.create({
+                data: {
+                    questionId: newDatabaseQuestion.id,
+                    queryId: newQuery.id,
+                    output: {
+                        create: {
+                            output: output.output,
+                            status: output.status,
+                            type: output.type,
+                            dbms: output.dbms,
+                        }
+                    }
+                }
+            });
+        }
     }
 
     res.status(200).json(jamSession)
+
   } catch (e) {
     console.log(e)
     switch (e.code) {
@@ -344,6 +377,8 @@ const post = async (req, res) => {
         break
     }
   }
+
+
 }
 
 export default handler

@@ -71,8 +71,9 @@ const CodeCheck = ({ codeCheckAction }) => {
                 </LoadingButton>
             </Stack>
         }
-        open={expanded}
+
         onChange={setExpanded}
+        open={expanded}
     >
         {tests && (
           <Stack>

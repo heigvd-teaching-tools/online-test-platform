@@ -30,7 +30,7 @@ const OutputStatusDisplay = ({ status }) => {
     return renderStatus(status)
 }
 
-const QueryOutput = ({ queryOutput }) => {
+const QueryOutput = ({ showAgo, header, color, queryOutput }) => {
 
     const renderQueryOutput = (output) => {
         switch (output?.type) {
@@ -48,7 +48,7 @@ const QueryOutput = ({ queryOutput }) => {
     const severity = (status) => {
         switch (status) {
             case "SUCCESS":
-                return "success"
+                return color || "success"
             case "ERROR":
                 return "error"
             case "WARNING":
@@ -72,12 +72,17 @@ const QueryOutput = ({ queryOutput }) => {
             <Alert severity={severity(getStatus())}>
                 <Stack spacing={1}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                        <Typography variant={"caption"}>Last run:</Typography>
-                        {
-                            queryOutput.updatedAt && (
-                                <DateTimeAgo date={new Date(queryOutput.updatedAt)} />
-                            )
-                        }
+                        {header}
+                        {showAgo && (
+                            <>
+                            <Typography variant={"caption"}>Last run:</Typography>
+                            {
+                                queryOutput.updatedAt && (
+                                    <DateTimeAgo date={new Date(queryOutput.updatedAt)} />
+                                )
+                            }
+                            </>
+                        )}
                     </Stack>
                     <Stack direction={"row"} spacing={1}>
                         {getStatus() === "RUNNING" && (
@@ -104,7 +109,8 @@ const QueryOutputTabular = ({ dataset }) => {
                 sx={{
                     width: 'max-content',
                     borderLeft: `1px solid ${theme.palette.divider}`,
-                    borderTop: `1px solid ${theme.palette.divider}`
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    overflow: 'hidden',
                 }}
             >
                 <TableHead>

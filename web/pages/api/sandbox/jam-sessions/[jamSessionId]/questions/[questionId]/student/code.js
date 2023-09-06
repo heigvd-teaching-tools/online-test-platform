@@ -1,9 +1,9 @@
 import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../../../../../code/auth'
-import { runSandbox } from '../../../../../../../sandbox/runSandboxTC'
+import { hasRole } from '../../../../../../../../code/auth'
+import { runSandbox } from '../../../../../../../../sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
-import { grading } from '../../../../../../../code/grading'
-import { isInProgress } from '../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
+import { grading } from '../../../../../../../../code/grading'
+import {isInProgress} from "../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
@@ -30,7 +30,8 @@ export default async function handler(req, res) {
 }
 
 /*
- endpoint to run the sandbox for a student answers to a code question with files from the database
+ endpoint to run the code sandbox for a student answers
+ Only uses files stored in the database
  */
 const post = async (req, res) => {
   const session = await getSession({ req })

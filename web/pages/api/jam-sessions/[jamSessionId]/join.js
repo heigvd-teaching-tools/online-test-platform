@@ -2,7 +2,7 @@ import {
   PrismaClient,
   Role,
   QuestionType,
-  JamSessionPhase,
+  JamSessionPhase, StudentPermission
 } from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { hasRole } from '../../../../code/auth'
@@ -120,7 +120,7 @@ const post = async (req, res) => {
           userEmail: studentEmail,
           questionId: question.id,
           [question.type]: {
-            create: createTypeSpecificData(question.type, question)
+            create: createTypeSpecificData(question.type, question, studentEmail)
           },
           studentGrading: {
             create: grading(jstq, undefined),
@@ -135,7 +135,20 @@ const post = async (req, res) => {
   res.status(200).json(userOnJamSession)
 }
 
-const createTypeSpecificData = (questionType, question) => {
+const getQueryContentForStudent = (query) => {
+    switch (query.studentPermission) {
+        case StudentPermission.UPDATE:
+            return query.template
+        case StudentPermission.VIEW:
+            return query.content
+        case StudentPermission.HIDDEN:
+            return undefined
+        default:
+            return undefined
+    }
+}
+
+const createTypeSpecificData = (questionType, question, studentEmail) => {
   /*
   code and database questions have type specific data to be copied for the student answer
   - code has template files
@@ -165,17 +178,20 @@ const createTypeSpecificData = (questionType, question) => {
           },
         }
     case QuestionType.database:
-
-        return {
+        const q = { // StudentAnswerDatabase
             image: question.database.image,
-            queries: {
-                create: question.database.queries.map((query) => {
-                    return {
+            queries: { // StudentAnswerDatabaseToQuery[]
+                create: question.database.solutionQueries.map((solQuery) => {
+                    const query = solQuery.query;
+                    const output = solQuery.output;
+
+                    return { // StudentAnswerDatabaseToQuery
                         query: {
-                            create: {
+                            create: { // DatabaseQuery
+                                order: query.order,
                                 title: query.title,
                                 description: query.description,
-                                content: query.template, // template is the students starting answer
+                                content: getQueryContentForStudent(query),
                                 template: undefined,
                                 lintRules: query.lintRules,
                                 studentPermission: query.studentPermission,
@@ -187,17 +203,27 @@ const createTypeSpecificData = (questionType, question) => {
                                         }
                                     }),
                                 },
-                                database:{
+                                database: {
                                     connect: {
                                         questionId: question.id,
                                     }
                                 }
                             }
-                        }
+                        },
+                        output: query.testQuery ? {
+                            create:{
+                                output: output.output,
+                                status: output.status,
+                                type: output.type,
+                                dbms: output.dbms,
+                            }
+                        } : undefined,
                     }
                 })
             }
         }
+
+        return q;
     default:
         return {}
   }

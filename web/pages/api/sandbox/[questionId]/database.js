@@ -39,75 +39,104 @@ const post = async (req, res) => {
             questionId: questionId
         },
         include: {
-            queries: {
+            solutionQueries: {
+                include: {
+                    query: true,
+                },
                 orderBy: {
-                    createdAt: 'asc'
+                    query: {
+                        order: 'asc'
+                    }
                 }
             }
         }
     });
 
-    const queries = database.queries.map(query => query.content);
+    const queries = database.solutionQueries.map(dbToSolQuery => dbToSolQuery.query.content);
 
     const result = await runSandboxDB({
         image: database.image,
         queries: queries,
     })
 
-    const transaction = []
+    await prisma.$transaction(async (prisma) => {
+        // for each query, upsert the DatabaseQueryOutput in the database
+        for (let i = 0; i < database.solutionQueries.length; i++) {
+            const query = database.solutionQueries[i].query;
+            const output = result[i];
+            
+            const outputData = {
+                output: output,
+                type: output.type,
+                status: output.status,
+            }
 
-    // for each query, upsert the DatabaseQueryOutput in the database
-    for (let i = 0; i < database.queries.length; i++) {
-        const query = database.queries[i];
-        const output = result[i];
-
-        if(output){
-            // we got an output for this query
-            transaction.push(prisma.databaseQueryOutput.upsert({
+            const databaseToSolutionQuery = await prisma.databaseToSolutionQuery.findUnique({
                 where: {
-                    queryId: query.id,
+                    questionId_queryId:{
+                        questionId: questionId,
+                        queryId: query.id,
+                    }
                 },
-                update: {
-                    output: output,
-                    type: output.type,
-                    status: output.status
-                },
-                create: {
-                    output: output,
-                    type: output.type,
-                    status: output.status,
-                    query: {
-                        connect: {
-                            id: query.id
+                include: {
+                    output: true,
+                }
+            });
+
+            const existingOutput = databaseToSolutionQuery.output;
+
+            if(output){ // output can be null if some of the previous queries failed
+                // we got an output for this query
+                if(existingOutput){
+                    // update existing output
+                    await prisma.databaseQueryOutput.update({
+                        where: {
+                            id: existingOutput.id,
+                        },
+                        data: {
+                            ...outputData,
                         }
-                    }
+                    })
+                }else{
+                    // create new output and connect it to the solution query
+                    await prisma.databaseQueryOutput.create({
+                        data: {
+                            ...outputData,
+                            querySolution: {
+                                connect: {
+                                    questionId_queryId: {
+                                        questionId: questionId,
+                                        queryId: query.id,
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
-            }))
-        }else{
-            // no output for this query
-            const exists = await prisma.databaseQueryOutput.findUnique({
-                where: {
-                    queryId: query.id
-                }
-            })
 
-            if(exists){
-                transaction.push(prisma.databaseQueryOutput.delete({
-                    where: {
-                        queryId: query.id
-                    }
-                }))
+            }else{
+                // some previous queries failed, lets delete the output of the next queries
+                if(existingOutput){
+                    await prisma.databaseQueryOutput.delete({
+                        where: {
+                            questionId_queryId:{
+                                questionId: questionId,
+                                queryId: query.id,
+                            }
+                        }
+                    })
+                }
             }
         }
-    }
+    });
 
-    await prisma.$transaction(transaction)
 
-    const outputs = await prisma.databaseQueryOutput.findMany({
+    const solutionQueries = await prisma.databaseToSolutionQuery.findMany({
         where: {
-            query: {
-                questionId: questionId
-            }
+            questionId: questionId
+        },
+        include: {
+            output: true,
         },
         orderBy: {
             query: {
@@ -116,7 +145,7 @@ const post = async (req, res) => {
         }
     });
 
-    if(!outputs) res.status(404).json({message: 'Not found'})
+    if(!solutionQueries) res.status(404).json({message: 'Not found'})
 
-    res.status(200).json(outputs)
+    res.status(200).json(solutionQueries.map(dbToSolQuery => dbToSolQuery.output))
 }
