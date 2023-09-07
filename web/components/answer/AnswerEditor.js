@@ -1,12 +1,12 @@
 import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react'
 import useSWR from 'swr'
-import { QuestionType, StudentPermission } from '@prisma/client'
+import { QuestionType, StudentPermission, DatabaseQueryOutputTest } from '@prisma/client'
 
 import TrueFalse from '../question/type_specific/TrueFalse'
 import MultipleChoice from '../question/type_specific/MultipleChoice'
 import Essay from '../question/type_specific/Essay'
 import Web from '../question/type_specific/Web'
-import {Box, Button, Stack, Typography} from '@mui/material'
+import {AlertTitle, Box, Breadcrumbs, Button, Chip, Stack, Typography} from '@mui/material'
 import FileEditor from '../question/type_specific/code/files/FileEditor'
 import Image from 'next/image'
 import CodeCheck from '../question/type_specific/code/CodeCheck'
@@ -81,6 +81,13 @@ const AnswerEditor = ({ question, onAnswer }) => {
     )
 }
 
+const queryOutputTestToName = {
+    [DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER]: "Ignore column order",
+    [DatabaseQueryOutputTest.IGNORE_ROW_ORDER]: "Ignore row order",
+    [DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS]: "Ignore extra columns",
+    [DatabaseQueryOutputTest.INGORE_COLUMN_TYPES]: "Ignore types",
+}
+
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
@@ -144,6 +151,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         return studentOutput?.output.testPassed;
     }
     const getTestColor = (studentOutput) => {
+        if(!studentOutput) return "info";
         const testPassed = hasTestPassed(studentOutput);
         if(testPassed === null) return "info";
         return testPassed ? "success" : "error";
@@ -153,7 +161,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         if(testPassed === null) return "Running test...";
         return testPassed ? `Test for query #${order} passed!` : `Test for query #${order} failed!`;
     }
-    
+
     return (
         <Loading errors={[error]} loading={!answer}>
             {answer?.database && (
@@ -173,11 +181,20 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 query={query}
                                 onChange={(query) => onQueryChange(query)}
                             />
-                            { query.testQuery && (
+                            { query.testQuery && studentOutputs[index] && (
                                 <AlertFeedback severity={getTestColor(studentOutputs[index])}>
-                                    <Typography variant={"body1"}>
+                                    <AlertTitle>
                                         {getTestFeedback(query.order, studentOutputs[index])}
-                                    </Typography>
+                                    </AlertTitle>
+                                    {query.queryOutputTests.length > 0 && (
+                                        <Breadcrumbs separator="-" aria-label="breadcrumb">
+                                            {
+                                                query.queryOutputTests.map(({test}, index) => (
+                                                    <Typography variant={"caption"}>{queryOutputTestToName[test]}</Typography>
+                                                ))
+                                            }
+                                        </Breadcrumbs>
+                                    )}
                                 </AlertFeedback>
                             )}
                             <StudentOutputVizualisation
