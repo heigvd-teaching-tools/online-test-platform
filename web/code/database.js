@@ -71,7 +71,7 @@ const sortDatasetRows = (dataset) => {
 
 const runTestsOnDatasets = (d1, d2, outputTests) => {
 
-    if(outputTests.contains(DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS)){
+    if(outputTests.includes(DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS)){
         d2 = removeExtraColumns(d1, d2);
     }
 
@@ -80,15 +80,16 @@ const runTestsOnDatasets = (d1, d2, outputTests) => {
         d2 = removeColumnTypes(d2);
     }
 
-    if(outputTests.contains(DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER)){
+    if(outputTests.includes(DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER)){
         d1 = sortDatasetColumns(d1);
         d2 = sortDatasetColumns(d2);
     }
 
-    if(outputTests.contains(DatabaseQueryOutputTest.IGNORE_ROW_ORDER)){
+    if(outputTests.includes(DatabaseQueryOutputTest.IGNORE_ROW_ORDER)){
         d1 = sortDatasetRows(d1);
         d2 = sortDatasetRows(d2);
     }
+
     return _.isEqual(d1, d2);
 }
 

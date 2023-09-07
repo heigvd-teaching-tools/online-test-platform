@@ -1,7 +1,8 @@
 import {Chip, Stack, Typography, useTheme} from "@mui/material";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
 import {StudentPermission} from "@prisma/client";
+import {useDebouncedCallback} from "use-debounce";
 
 const QueryStudentPermission = ({ permission }) => {
     switch (permission) {
@@ -22,7 +23,7 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
         setContent(query.content)
     }, [query])
 
-    const debouncedOnChange = useCallback(onChange, 500)
+    const debouncedOnChange = useDebouncedCallback(onChange, 500)
 
     return(
         <>

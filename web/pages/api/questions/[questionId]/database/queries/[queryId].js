@@ -107,10 +107,43 @@ const del = async (req, res) => {
         return
     }
 
-    const query = await prisma.databaseQuery.delete({
-        where: {
-            id: queryId
+    let query;
+
+    await prisma.$transaction(async (prisma) => {
+
+        query = await prisma.databaseQuery.delete({
+            where: {
+                id: queryId
+            }
+        });
+
+        // decrease the order of the queries that have a greater order than the deleted query
+        const solQueries = await prisma.databaseToSolutionQuery.findMany({
+            where: {
+                questionId: questionId,
+            },
+            include: {
+                query: true,
+            },
+            orderBy: {
+                query: {
+                    order: 'asc',
+                }
+            }
+        });
+        for (let i = 0; i < solQueries.length; i++) {
+            const solQuery = solQueries[i];
+
+            await prisma.databaseQuery.update({
+                where: {
+                    id: solQuery.query.id,
+                },
+                data: {
+                    order: i + 1,  // Set order to index + 1 to make it 1-indexed
+                },
+            });
         }
+
     });
 
     res.status(200).json(query)

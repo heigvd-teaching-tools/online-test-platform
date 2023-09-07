@@ -39,11 +39,13 @@ export const runSandboxDB = async ({
             try {
                 const result = await client.query(query);
                 const dataset = postgresOutputToToDataset(result);
+                const type = postgresDetermineOutputType(result)
+                const feedback = postgresGenerateFeedbackMessage(result.command, result)
                 results.push({
                     status: DatabaseQueryOutputStatus.SUCCESS,
-                    feedback: postgresGenerateFeedbackMessage(result.command, result),
-                    type: postgresDetermineOutputType(result),
-                    result: dataset
+                    feedback: feedback,
+                    type: type,
+                    result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset
                 });
             } catch (error) {
                 results.push({

@@ -69,7 +69,7 @@ const QueryOutput = ({ showAgo, header, color, queryOutput }) => {
 
     return (
         queryOutput && (
-            <Alert severity={severity(getStatus())}>
+            <Alert icon={false} severity={severity(getStatus())} >
                 <Stack spacing={1}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                         {header}

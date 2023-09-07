@@ -1,9 +1,10 @@
-import { PrismaClient, Role, StudentPermission } from '@prisma/client'
+import { PrismaClient, Role, DatabaseQueryOutputType } from '@prisma/client'
 import { hasRole } from '../../../../../../../../code/auth'
-import { runSandbox } from '../../../../../../../../sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../code/grading'
 import {isInProgress} from "../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {runSandboxDB} from "../../../../../../../../sandbox/runSandboxDB";
+import {runTestsOnDatasets} from "../../../../../../../../code/database";
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
@@ -56,11 +57,25 @@ const post = async (req, res) => {
         include: {
             queries: {
                 include: {
-                    query: true,
+                    query: {
+                      include:{
+                        queryOutputTests:true
+                      }
+                    },
+                    solutionOutput:true,
+
+                },
+                orderBy: {
+                  query: { order: 'asc' } ,
                 }
             },
         }
       },
+      question:{
+        include:{
+          database: true
+        }
+      }
     }
   });
 
@@ -69,39 +84,132 @@ const post = async (req, res) => {
     return
   }
 
-  // get eventual HIDDEN queries
-  const jamSessiionQuestion = await prisma.jamSessionToQuestion.findUnique({
-      where: {
-        jamSessionId_questionId:{
-            jamSessionId: jamSessionId,
-            questionId: questionId,
-        }
-      },
-      select: {
-        question: {
-          select: {
-            database: {
-              select: {
-                queries: {
-                  where: {
-                    studentPermission: {
-                      equals: StudentPermission.HIDDEN,
+  const image = studentAnswer.question.database.image;
+  const sqlQueries = studentAnswer.database.queries.map(q => q.query.content);
+
+  const result = await runSandboxDB({
+    image: image,
+    queries: sqlQueries,
+  });
+
+  // update the student answwer with new query outputs
+  await prisma.$transaction(async (prisma) => {
+      const studentAnswerQueries = studentAnswer.database.queries;
+
+      // for each student answer query, upsert the DatabaseQueryOutput in the database
+      for (let i = 0; i < studentAnswerQueries.length; i++) {
+          const query = studentAnswerQueries[i].query;
+          const currentOutput = result[i];
+
+          const studentAnswerDatabaseToQuery = await prisma.studentAnswerDatabaseToQuery.findUnique({
+            where: {
+              userEmail_questionId_queryId:{
+                userEmail: studentEmail,
+                questionId: questionId,
+                queryId: query.id
+              }
+            },
+            include: {
+              studentOutput: true,
+            }
+          });
+
+          const existingOutput = studentAnswerDatabaseToQuery.studentOutput;
+
+          if(currentOutput){
+
+            const outputData = {
+              output: currentOutput,
+              type: currentOutput.type,
+              status: currentOutput.status,
+            }
+
+            // Eventually apply tests on test query outputs
+            if(query.testQuery){
+              let testPassed = false;
+              const solutionOutput = studentAnswerQueries[i].solutionOutput.output;
+              if(currentOutput.type === solutionOutput.type){
+                switch(currentOutput.type){
+                  case DatabaseQueryOutputType.TEXT:
+                    testPassed = currentOutput.result === solutionOutput.result;
+                    break;
+                  case DatabaseQueryOutputType.SCALAR:
+                  case DatabaseQueryOutputType.TABULAR:
+                    const tests = query.queryOutputTests.map(ot => ot.test)
+                    testPassed = runTestsOnDatasets(solutionOutput.result, currentOutput.result, tests);
+                    break;
+                }
+              }
+
+              // include test results in the output
+              outputData.output = {
+                ...outputData.output,
+                testPassed: testPassed,
+              };
+            }
+
+            // we got output for the current query, update the student query output
+            if(existingOutput){
+              await prisma.databaseQueryOutput.update({
+                where: {
+                  id: existingOutput.id,
+                },
+                data: {
+                  ...outputData,
+                }
+              })
+            }else{
+              // create new output and connect it to the solution query
+              await prisma.databaseQueryOutput.create({
+                data: {
+                  ...outputData,
+                  studentAnswer: {
+                    connect: {
+                      userEmail_questionId_queryId:{
+                        userEmail: studentEmail,
+                        questionId: questionId,
+                        queryId: query.id
+                      }
+                    }
+                  },
+                  query: { // this relation is needed for the output to be deleted when the query is deleted
+                    connect: {
+                      id: query.id,
                     }
                   }
                 }
-              }
+              })
+            }
+          }else{
+            // some previous queries failed, lets delete the output of the next queries
+            if(existingOutput){
+              await prisma.databaseQueryOutput.delete({
+                where: {
+                    id: existingOutput.id,
+                }
+              })
             }
           }
-        }
       }
   });
 
-  if(!jamSessiionQuestion) {
-    res.status(404).json({ message: 'Jam session question not found' })
-    return
-  }
+  const studentAnswerQueries = await prisma.studentAnswerDatabaseToQuery.findMany({
+    where: {
+      userEmail: studentEmail,
+      questionId: questionId,
+    },
+    include: {
+      studentOutput: true,
+    },
+    orderBy: {
+      query: {
+        order: 'asc'
+      }
+    }
 
-  const hiddenQueries = jamSessiionQuestion.question.database.queries;
+  })
 
-  res.status(200).send(jamSessiionQuestion)
+  if(!studentAnswerQueries) res.status(404).json({message: 'Not found'})
+
+  res.status(200).json(studentAnswerQueries.map(studentAnswerQuery => studentAnswerQuery.studentOutput))
 }

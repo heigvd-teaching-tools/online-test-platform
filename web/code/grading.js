@@ -46,6 +46,7 @@ const gradeDatabase = (jamSessionToQuestion, response) => {
             pointsObtained: isCorrect ? jamSessionToQuestion.points : 0,
         }
     }
+    return grading;
 }
 const gradeMultipleChoice = (jamSessionToQuestion, answer) => {
   let grading = defaultGrading

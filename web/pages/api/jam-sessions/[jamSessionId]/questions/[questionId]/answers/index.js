@@ -90,10 +90,10 @@ const get = async (req, res) => {
             include: {
               query: {
                 include:{
-                    queryOutput: true,
                     queryOutputTests: true,
                 }
               },
+              solutionOutput: true,
               studentOutput: true,
             },
             orderBy: {
@@ -113,6 +113,13 @@ const get = async (req, res) => {
     res.status(404).json({ message: 'Student answers not found' })
     return
   }
+
+  // remove hidden queries content
+  studentAnswer.question.database?.queries.forEach(query => {
+    if (query.query.studentPermission === StudentPermission.HIDDEN) {
+      query.query.content = null;
+    }
+  });
 
   res.status(200).json(studentAnswer)
 }

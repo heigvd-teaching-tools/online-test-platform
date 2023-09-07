@@ -64,7 +64,7 @@ const post = async (req, res) => {
         for (let i = 0; i < database.solutionQueries.length; i++) {
             const query = database.solutionQueries[i].query;
             const output = result[i];
-            
+
             const outputData = {
                 output: output,
                 type: output.type,
@@ -109,6 +109,11 @@ const post = async (req, res) => {
                                         queryId: query.id,
                                     }
                                 }
+                            },
+                            query: { // this relation is needed for the output to be deleted when the query is deleted
+                                connect: {
+                                    id: query.id,
+                                }
                             }
                         }
                     })
@@ -140,7 +145,7 @@ const post = async (req, res) => {
         },
         orderBy: {
             query: {
-                createdAt: 'asc'
+                order: 'asc'
             }
         }
     });

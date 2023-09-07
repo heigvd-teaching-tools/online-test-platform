@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback, useRef} from 'react'
+import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react'
 import useSWR from 'swr'
 import { QuestionType, StudentPermission } from '@prisma/client'
 
@@ -20,6 +20,7 @@ import QueryOutput from "../question/type_specific/database/QueryOutput";
 import ScrollContainer from "../layout/ScrollContainer";
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import BottomPanel from "../layout/utils/BottomPanel";
+import AlertFeedback from "../feedback/AlertFeedback";
 
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()
@@ -88,7 +89,28 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const ref = useRef()
 
+    const [ queries, setQueries ] = useState()
+    const [ studentOutputs, setStudentOutputs ] = useState()
+
+    useEffect(() => {
+        if(!answer) return
+        const studentQueries = answer.database.queries;
+        setQueries(studentQueries.map((q) => q.query))
+        setStudentOutputs(studentQueries.map((q) => q.studentOutput))
+    }, [answer]);
+
+    const solutionOutputs = useMemo(() => answer?.database.queries.map((q) => q.solutionOutput), [answer]);
+
     const saveAndTest = useCallback(async () => {
+        setStudentOutputs(queries.map((q, index) => ({
+            ...studentOutputs[index],
+            output:{
+                ...studentOutputs[index]?.output,
+                result: null,
+                status: "RUNNING",
+                testPassed: null,
+            }
+        })) || []);
        const response = await fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/database`, {
             method: 'POST',
             headers: {
@@ -96,10 +118,42 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                 'Accept': 'application/json',
             }
        }).then(res => res.json());
+       setStudentOutputs(response);
+    }, [jamSessionId, questionId, queries, studentOutputs]);
 
-       console.log("saveAndTest", response);
-    }, [jamSessionId, questionId])
+    const onQueryChange = useCallback(
+        async (query) => {
+            const currentQuery = answer.database.queries.find((q) => q.query.id === query.id)
+            if (currentQuery.query.content === query.content) return
+            const updatedStudentAnswer = await fetch(
+                `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/database/${query.id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content: query.content }),
+                }
+            ).then((res) => res.json())
+            onAnswerChange && onAnswerChange(updatedStudentAnswer)
+        },
+        [jamSessionId, questionId, answer, onAnswerChange]
+    )
 
+    const hasTestPassed = (studentOutput) => {
+        return studentOutput?.output.testPassed;
+    }
+    const getTestColor = (studentOutput) => {
+        const testPassed = hasTestPassed(studentOutput);
+        if(testPassed === null) return "info";
+        return testPassed ? "success" : "error";
+    }
+    const getTestFeedback = (order, studentOutput) => {
+        const testPassed = hasTestPassed(studentOutput);
+        if(testPassed === null) return "Running test...";
+        return testPassed ? `Test for query #${order} passed!` : `Test for query #${order} failed!`;
+    }
+    
     return (
         <Loading errors={[error]} loading={!answer}>
             {answer?.database && (
@@ -112,11 +166,27 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                     pb={'52px'}
                 >
                     <ScrollContainer ref={ref}>
-                        {answer?.database.queries?.map((studentAnswerToQuery, index) => (
+                        {queries?.map((query, index) => (
+                            <>
                             <StudentQueryEditor
-                                key={studentAnswerToQuery.query.id}
-                                studentAnswerToQuery={studentAnswerToQuery}
+                                key={query.id}
+                                query={query}
+                                onChange={(query) => onQueryChange(query)}
                             />
+                            { query.testQuery && (
+                                <AlertFeedback severity={getTestColor(studentOutputs[index])}>
+                                    <Typography variant={"body1"}>
+                                        {getTestFeedback(query.order, studentOutputs[index])}
+                                    </Typography>
+                                </AlertFeedback>
+                            )}
+                            <StudentOutputVizualisation
+                                color={getTestColor(studentOutputs[index])}
+                                testQuery={query.testQuery}
+                                studentOutput={studentOutputs[index]}
+                                solutionOutput={solutionOutputs[index]}
+                            />
+                            </>
                         ))}
                     </ScrollContainer>
                     <BottomPanel
@@ -140,55 +210,57 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     )
 }
 
-const StudentQueryEditor = ({ studentAnswerToQuery, onChange }) => {
+const StudentQueryEditor = ({ query, onChange }) => {
     return (
         <Stack>
             <QueryEditor
-                order={studentAnswerToQuery.query.order}
-                key={studentAnswerToQuery.query.id}
-                readOnly={studentAnswerToQuery.query.studentPermission !== StudentPermission.UPDATE}
-                hidden={studentAnswerToQuery.query.studentPermission === StudentPermission.HIDDEN}
-                query={studentAnswerToQuery.query}
-                onChange={(q) => {
-
-                }}
+                order={query.order}
+                key={query.id}
+                readOnly={query.studentPermission !== StudentPermission.UPDATE}
+                hidden={query.studentPermission === StudentPermission.HIDDEN}
+                query={query}
+                onChange={(q) => onChange(q)}
             />
-            {
-                studentAnswerToQuery.query.testQuery ? (
-                    <LayoutSplitScreen
-                        useScrollContainer={false}
-                        leftPanel={
-                            <QueryOutput
-                                header={
-                                    <Typography variant={"caption"}>
-                                        Your output
-                                    </Typography>
-                                }
-                                showAgo
-                                queryOutput={studentAnswerToQuery.studentOutput}
-                            />
-                        }
-                        rightWidth={50}
-                        rightPanel={
-                            <QueryOutput
-                                header={
-                                    <Typography variant={"caption"}>
-                                        Expected output
-                                    </Typography>
-                                }
-                                color={"info"}
-                                queryOutput={studentAnswerToQuery.query.queryOutput}
-                            />
-                        }
-                    />
-                ) : (
-                    <QueryOutput
-                        queryOutput={studentAnswerToQuery.studentOutput}
-                    />
-                )
-            }
-
         </Stack>
+    )
+}
+
+const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionOutput}) => {
+    return (
+        testQuery ? (
+            <LayoutSplitScreen
+                useScrollContainer={false}
+                leftPanel={
+                    <QueryOutput
+                        header={
+                            <Typography variant={"caption"}>
+                                Your output
+                            </Typography>
+                        }
+                        color={color}
+                        showAgo
+                        queryOutput={studentOutput}
+                    />
+                }
+                rightWidth={50}
+                rightPanel={
+                    <QueryOutput
+                        header={
+                            <Typography variant={"caption"}>
+                                Expected output
+                            </Typography>
+                        }
+                        color={color}
+                        queryOutput={solutionOutput}
+                    />
+                }
+            />
+        ) : (
+            <QueryOutput
+                queryOutput={studentOutput}
+                color={"info"}
+            />
+        )
     )
 }
 

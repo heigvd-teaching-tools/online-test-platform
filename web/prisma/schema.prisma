@@ -293,6 +293,10 @@ model DatabaseQuery {
 
   studentAnswerDatabaseToQuery StudentAnswerDatabaseToQuery?
   databaseToSolutionQuery      DatabaseToSolutionQuery?
+
+  // Used for cascade delete,
+  // we can have 2 outputs for the same query, student answer and solution when in context of the student answer
+  databaseQueryOutput DatabaseQueryOutput[]
 }
 
 model File {
@@ -354,9 +358,15 @@ model DatabaseQueryOutput {
   type   DatabaseQueryOutputType   @default(TEXT)
   dbms   DatabaseDBMS              @default(POSTGRES)
 
-  studentAnswer StudentAnswerDatabaseToQuery? @relation("StudentOutputRelation")
-  solution      StudentAnswerDatabaseToQuery? @relation("SolutionOutputRelation")
-  querySolution DatabaseToSolutionQuery? // Reverse relation for DatabaseToSolutionQuery
+  // relatio used for cascade delete
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String
+
+  // we need to distinguish between student and solution output
+  // thus the DatabaseQueryOutput is linked to a student answer as studentAnswer and as solution
+  studentAnswer   StudentAnswerDatabaseToQuery? @relation("StudentOutputRelation")
+  studentSolution StudentAnswerDatabaseToQuery? @relation("SolutionOutputRelation")
+  querySolution   DatabaseToSolutionQuery? // Reverse relation for DatabaseToSolutionQuery
 }
 
 model DatabaseQueryToOutputTest {
@@ -595,8 +605,6 @@ model StudentAnswerDatabase {
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
-
-  image String? @default("")
 
   testPassed Boolean @default(false)
 

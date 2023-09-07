@@ -37,7 +37,6 @@ const SolutionQueriesManager = ({ questionId }) => {
 
     useEffect(() => {
         if(!data) return
-        console.log("data", data)
         // remove outputs from queries, outputs are managed in a separate state
         setQueries(data.map((q) => q.query))
         setOutputs(data.map((q) => q.output))
@@ -50,8 +49,8 @@ const SolutionQueriesManager = ({ questionId }) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-        }).then(async (res) => {
-            await mutate([...queries, await res.json()])
+        }).then(async () => {
+            await mutate();
             ref.current.scrollTop = ref.current.scrollHeight
         });
     }, [queries, mutate])
@@ -92,8 +91,8 @@ const SolutionQueriesManager = ({ questionId }) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-        }).then(async (res) => {
-            await mutate(queries.filter((q) => q.id !== query.id));
+        }).then(async () => {
+            await mutate();
         });
     }, [queries, mutate, questionId]);
 
