@@ -35,19 +35,19 @@ const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) =>
 
     const containerRef = useRef(null);
 
-    const debounchedHeightChange = useDebouncedCallback((h) => onHeightChange(h), 100)
+    const debouncedHeightChange = useDebouncedCallback((h) => onHeightChange(h), 100)
 
     useEffect(() => {
         if (onHeightChange && containerRef.current) {
             const observer = new ResizeObserver(() => {
-                debounchedHeightChange(containerRef.current.getBoundingClientRect().height);
+                debouncedHeightChange(containerRef.current.getBoundingClientRect().height);
             });
             observer.observe(containerRef.current);
 
             // Cleanup observer on component unmount
             return () => observer.disconnect();
         }
-    }, [debounchedHeightChange]);
+    }, [debouncedHeightChange]);
 
     const renderQueryOutput = (output) => {
         switch (output?.type) {
