@@ -1,12 +1,24 @@
 import React, {useState, useEffect, useCallback, useRef, useMemo} from 'react'
 import useSWR from 'swr'
-import { QuestionType, StudentPermission, DatabaseQueryOutputTest } from '@prisma/client'
+import { QuestionType, StudentPermission, DatabaseQueryOutputTest, DatabaseQueryOutputStatus } from '@prisma/client'
 
 import TrueFalse from '../question/type_specific/TrueFalse'
 import MultipleChoice from '../question/type_specific/MultipleChoice'
 import Essay from '../question/type_specific/Essay'
 import Web from '../question/type_specific/Web'
-import {AlertTitle, Box, Breadcrumbs, Button, Chip, Stack, Typography} from '@mui/material'
+import {
+    AlertTitle,
+    Box,
+    Breadcrumbs,
+    Button,
+    Chip,
+    Stack,
+    Step,
+    StepConnector,
+    StepLabel,
+    Stepper,
+    Typography
+} from '@mui/material'
 import FileEditor from '../question/type_specific/code/files/FileEditor'
 import Image from 'next/image'
 import CodeCheck from '../question/type_specific/code/CodeCheck'
@@ -179,9 +191,15 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         <Loading errors={[error]} loading={!answer}>
             {answer?.queries && (
                 <>
+                <Stack pt={1}>
+                    <QueriesRunSummary
+                        queries={queries}
+                        studentOutputs={studentOutputs}
+                    />
+                </Stack>
                 <Stack
                     position={'relative'}
-                    height={'100%'}
+                    height={'calc(100% - 48px)'}
                     overflow={'hidden'}
                     p={1}
                     pb={'52px'}
@@ -219,7 +237,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                     </ScrollContainer>
                     <BottomPanel
                         header={
-                            <Stack p={1}>
+                            <Stack p={1} direction={"row"}>
                                 <LoadingButton
                                     loading={saving}
                                     disabled={saveLock}
@@ -228,6 +246,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 >
                                     Save and test
                                 </LoadingButton>
+
                             </Stack>
                         }
                     />
@@ -235,6 +254,67 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                 </>
             )}
         </Loading>
+    )
+}
+
+const OutputStatusDisplay = ({ status }) => {
+    const renderStatus = (status) => {
+        switch (status) {
+            case "SUCCESS":
+                return <Image src="/svg/database/success.svg" width={16} height={16} />
+            case "ERROR":
+                return <Image src="/svg/database/error.svg" width={16} height={16} />
+            case "WARNING":
+                return <Image src="/svg/database/warning.svg" width={16} height={16} />
+            case "RUNNING":
+                return <Image src="/svg/database/running.svg" width={16} height={16} />
+            default:
+                return <Image src="/svg/database/none.svg" width={16} height={16} />
+        }
+    }
+    return renderStatus(status)
+}
+
+const QueriesRunSummary = ({ queries, studentOutputs }) => {
+
+    const getStatus =  (query, output) => {
+        if(!output) return null;
+
+        let status = output.output.status;
+
+        if(status !== DatabaseQueryOutputStatus.RUNNING) {
+            if(query.testQuery){
+                status = output.output.testPassed ? DatabaseQueryOutputStatus.SUCCESS : status;
+            }
+        }
+
+        return status;
+    }
+
+    return(
+        <Stepper activeStep={1}>
+            {queries?.length > 0 && queries.map((q, index) => (
+                <>
+                <Step completed={studentOutputs[index]?.output?.status === DatabaseQueryOutputStatus.SUCCESS}>
+
+                    <StepLabel>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <Chip
+                                icon={<Typography variant={"caption"}>#{q.order}</Typography>}
+                                label={
+                                    <Box pt={0.5}>
+                                        <OutputStatusDisplay status={getStatus(q, studentOutputs[index])} />
+                                    </Box>
+                            } />
+                        </Stack>
+                    </StepLabel>
+
+                </Step>
+                <StepConnector />
+                </>
+                )
+            )}
+        </Stepper>
     )
 }
 

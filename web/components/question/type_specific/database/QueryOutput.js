@@ -13,23 +13,7 @@ import Image from "next/image";
 import DateTimeAgo from "../../../feedback/DateTimeAgo";
 import {useCallback, useEffect, useRef} from "react";
 import {useDebouncedCallback} from "use-debounce";
-const OutputStatusDisplay = ({ status }) => {
-    const renderStatus = (status) => {
-        switch (status) {
-            case "SUCCESS":
-                return <Image src="/svg/database/success.svg" width={16} height={16} />
-            case "ERROR":
-                return <Image src="/svg/database/error.svg" width={16} height={16} />
-            case "WARNING":
-                return <Image src="/svg/database/warning.svg" width={16} height={16} />
-            case "RUNNING":
-                return <Image src="/svg/database/running.svg" width={16} height={16} />
-            default:
-                return null
-        }
-    }
-    return renderStatus(status)
-}
+
 
 const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) => {
 
@@ -40,7 +24,7 @@ const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) =>
     useEffect(() => {
         if (onHeightChange && containerRef.current) {
             const observer = new ResizeObserver(() => {
-                debouncedHeightChange(containerRef.current.getBoundingClientRect().height);
+                debouncedHeightChange(containerRef.current?.getBoundingClientRect().height);
             });
             observer.observe(containerRef.current);
 
