@@ -199,7 +199,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                 </Stack>
                 <Stack
                     position={'relative'}
-                    height={'calc(100% - 48px)'}
+                    height={'calc(100% - 40px)'}
                     overflow={'hidden'}
                     p={1}
                     pb={'52px'}
@@ -279,15 +279,12 @@ const QueriesRunSummary = ({ queries, studentOutputs }) => {
 
     const getStatus =  (query, output) => {
         if(!output) return null;
-
         let status = output.output.status;
-
-        if(status !== DatabaseQueryOutputStatus.RUNNING) {
+        if(status !== DatabaseQueryOutputStatus.RUNNING && status !== DatabaseQueryOutputStatus.ERROR){
             if(query.testQuery){
-                status = output.output.testPassed ? DatabaseQueryOutputStatus.SUCCESS : status;
+                status = output.output.testPassed ? DatabaseQueryOutputStatus.SUCCESS : DatabaseQueryOutputStatus.WARNING;
             }
         }
-
         return status;
     }
 
