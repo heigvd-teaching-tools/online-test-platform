@@ -145,10 +145,12 @@ const InputDatabaseQueryOutputTest = {
 
 const QueryOutputTab = ({ query, queryOutput, onChange }) => {
 
-    const [ enableOutputTest, setEnableOutputTest ] = useState(query.testQuery)
+    const [ enableOutputTest, setEnableOutputTest ] = useState(query.testQuery);
+    const [ activeTests, setActiveTests ] = useState(query.queryOutputTests);
 
     useEffect(() => {
         setEnableOutputTest(query.testQuery)
+        setActiveTests(query.queryOutputTests)
     }, [query.id, query.testQuery])
 
     return (
@@ -181,13 +183,14 @@ const QueryOutputTab = ({ query, queryOutput, onChange }) => {
                                     const { label } = InputDatabaseQueryOutputTest[key];
                                     return (
                                         <OutputTestToggle
-                                            toggled={query.queryOutputTests.some((test) => test.test === key)}
+                                            toggled={activeTests.some((test) => test.test === key)}
                                             label={label}
                                             testKey={key}
                                             onToggle={(isChecked, testKey) => {
                                                 const newTests = isChecked
-                                                    ? [...query.queryOutputTests, { test: testKey }]
-                                                    : query.queryOutputTests.filter((test) => test.test !== testKey);
+                                                    ? [...activeTests, { test: testKey }]
+                                                    : activeTests.filter((test) => test.test !== testKey);
+                                                setActiveTests(newTests);
                                                 onChange({
                                                     ...query,
                                                     queryOutputTests: newTests,

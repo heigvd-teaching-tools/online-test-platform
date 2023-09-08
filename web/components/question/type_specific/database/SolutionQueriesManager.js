@@ -56,6 +56,7 @@ const SolutionQueriesManager = ({ questionId }) => {
     }, [queries, mutate])
 
     const onQueryUpdate = useCallback( async (query, doMutate = false) => {
+        console.log("onQueryUpdate", query)
         await fetch(`/api/questions/${questionId}/database/queries/${query.id}`, {
             method: 'PUT',
             headers: {
@@ -75,6 +76,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                 queryRef.lintRules = query.lintRules;
                 queryRef.content = query.content;
                 queryRef.template = query.template;
+                queryRef.queryOutputTests = query.queryOutputTests;
             }else{
                 await mutate();
             }
