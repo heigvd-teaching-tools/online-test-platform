@@ -92,8 +92,6 @@ const PageTakeJam = () => {
     [jamToQuestions]
   )
 
-  console.log('userOnJamSession', userOnJamSession, errorUserOnJamSession)
-
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading

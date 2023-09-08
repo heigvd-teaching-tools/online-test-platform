@@ -327,8 +327,7 @@ model StudentAnswerDatabaseToQuery {
   studentOutputId  String? @unique
   solutionOutputId String? @unique
 
-  solutionOutput DatabaseQueryOutput? @relation("SolutionOutputRelation", fields: [solutionOutputId], references: [id])
-  studentOutput  DatabaseQueryOutput? @relation("StudentOutputRelation", fields: [studentOutputId], references: [id])
+  studentOutput DatabaseQueryOutput? @relation("StudentOutputRelation", fields: [studentOutputId], references: [id])
 
   @@id([userEmail, questionId, queryId])
 }
@@ -362,11 +361,8 @@ model DatabaseQueryOutput {
   query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
   queryId String
 
-  // we need to distinguish between student and solution output
-  // thus the DatabaseQueryOutput is linked to a student answer as studentAnswer and as solution
-  studentAnswer   StudentAnswerDatabaseToQuery? @relation("StudentOutputRelation")
-  studentSolution StudentAnswerDatabaseToQuery? @relation("SolutionOutputRelation")
-  querySolution   DatabaseToSolutionQuery? // Reverse relation for DatabaseToSolutionQuery
+  studentAnswer StudentAnswerDatabaseToQuery? @relation("StudentOutputRelation")
+  querySolution DatabaseToSolutionQuery? // Reverse relation for DatabaseToSolutionQuery
 }
 
 model DatabaseQueryToOutputTest {

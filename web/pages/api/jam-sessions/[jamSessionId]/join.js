@@ -224,31 +224,6 @@ const createDatabaseTypeSpecificData = async (prisma, studentAnswer, question) =
             },
         });
 
-        // Create solution output only if a query is a test query
-        if(query.testQuery) {
-            await prisma.databaseQueryOutput.create({
-                data: {
-                    output: output.output,
-                    status: output.status,
-                    type: output.type,
-                    dbms: output.dbms,
-                    query: {
-                        connect: {
-                            id: createdQuery.id,
-                        },
-                    },
-                    studentSolution: {
-                        connect: {
-                            userEmail_questionId_queryId: {
-                                userEmail: studentAnswer.userEmail,
-                                questionId: studentAnswer.questionId,
-                                queryId: createdQuery.id,
-                            },
-                        },
-                    },
-                }
-            });
-        }
     }
 }
 

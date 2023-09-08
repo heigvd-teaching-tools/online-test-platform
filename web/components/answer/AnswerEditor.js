@@ -106,12 +106,13 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     useEffect(() => {
         if(!answer) return
-        const studentQueries = answer.database.queries;
+        const studentQueries = answer.queries;
         setQueries(studentQueries.map((q) => q.query))
         setStudentOutputs(studentQueries.map((q) => q.studentOutput))
     }, [answer]);
 
-    const solutionOutputs = useMemo(() => answer?.database.queries.map((q) => q.solutionOutput), [answer]);
+    const solutionOutputs = useMemo(() => answer?.solutionOutputs, [answer]);
+    const getSolutionOutput = useCallback((order) => solutionOutputs.find(q => q.order === order), [solutionOutputs])
 
     const saveAndTest = useCallback(async () => {
         setSaving(true);
@@ -176,7 +177,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     return (
         <Loading errors={[error]} loading={!answer}>
-            {answer?.database && (
+            {answer?.queries && (
                 <>
                 <Stack
                     position={'relative'}
@@ -187,9 +188,9 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                 >
                     <ScrollContainer ref={ref}>
                         {queries?.map((query, index) => (
-                            <>
+                            <Stack key={query.id}>
                             <StudentQueryEditor
-                                key={query.id}
+
                                 query={query}
                                 onChange={(query) => handleChange(query)}
                             />
@@ -211,9 +212,9 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 color={getTestColor(studentOutputs[index])}
                                 testQuery={query.testQuery}
                                 studentOutput={studentOutputs[index]}
-                                solutionOutput={solutionOutputs[index]}
+                                solutionOutput={getSolutionOutput(query.order)}
                             />
-                            </>
+                            </Stack>
                         ))}
                     </ScrollContainer>
                     <BottomPanel

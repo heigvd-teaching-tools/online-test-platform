@@ -62,8 +62,7 @@ const post = async (req, res) => {
                         queryOutputTests:true
                       }
                     },
-                    solutionOutput:true,
-
+                    studentOutput:true,
                 },
                 orderBy: {
                   query: { order: 'asc' } ,
@@ -73,7 +72,20 @@ const post = async (req, res) => {
       },
       question:{
         include:{
-          database: true
+          database: {
+            include:{
+              solutionQueries: {
+                include: {
+                  query: {
+                    select:{
+                      order:true // we use order to map student query to solution query output
+                    }
+                  },
+                  output:true
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -95,6 +107,9 @@ const post = async (req, res) => {
   // update the student answwer with new query outputs
   await prisma.$transaction(async (prisma) => {
       const studentAnswerQueries = studentAnswer.database.queries;
+      const solutionQueryOutputs = studentAnswer.question.database.solutionQueries;
+
+
 
       // for each student answer query, upsert the DatabaseQueryOutput in the database
       for (let i = 0; i < studentAnswerQueries.length; i++) {
@@ -127,7 +142,7 @@ const post = async (req, res) => {
             // Eventually apply tests on test query outputs
             if(query.testQuery){
               let testPassed = false;
-              const solutionOutput = studentAnswerQueries[i].solutionOutput.output;
+              const solutionOutput = solutionQueryOutputs.find(solQ => solQ.query.order === query.order).output.output;
               if(currentOutput.type === solutionOutput.type){
                 switch(currentOutput.type){
                   case DatabaseQueryOutputType.TEXT:

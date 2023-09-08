@@ -55,7 +55,6 @@ const get = async (req, res) => {
     include: {
       question: {
         select: {
-          // we only select multiple choice from the question because we need the list of all options (not only those selected by the student)
           multipleChoice: {
             select: {
               options: {
@@ -66,6 +65,25 @@ const get = async (req, res) => {
               },
             },
           },
+          database:{
+            include:{
+              solutionQueries: {
+                where: {
+                  query: {
+                    testQuery: true,
+                  },
+                },
+                select: {
+                  query: {
+                    select:{
+                      order:true // we use order to map student query to solution query output
+                    }
+                  },
+                  output:true
+                }
+              }
+            }
+          }
         },
       },
       code: {
@@ -93,7 +111,6 @@ const get = async (req, res) => {
                     queryOutputTests: true,
                 }
               },
-              solutionOutput: true,
               studentOutput: true,
             },
             orderBy: {
@@ -115,13 +132,20 @@ const get = async (req, res) => {
   }
 
   // remove hidden queries content
-  studentAnswer.question.database?.queries.forEach(query => {
+  studentAnswer.database?.queries.forEach(query => {
     if (query.query.studentPermission === StudentPermission.HIDDEN) {
       query.query.content = null;
     }
   });
 
-  res.status(200).json(studentAnswer)
+  res.status(200).json({
+    solutionOutputs: studentAnswer.question.database.solutionQueries.map(solQ => ({
+      order: solQ.query.order,
+      output:solQ.output.output
+    })),
+    queries: studentAnswer.database.queries,
+
+  })
 }
 
 /*
