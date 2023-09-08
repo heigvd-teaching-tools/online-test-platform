@@ -5,6 +5,7 @@ const convertAllCellsToString = (rows) => rows.map(row => row.map(cell => String
 
 // Removes columns from dataset2 that are not present in dataset
 const removeColumnTypes = (dataset) => {
+    dataset.rows = convertAllCellsToString(dataset.rows);
     const newColumns = dataset.columns.map(column => {
         const { type, ...rest } = column; // Destructure out the 'type' key
         return rest;
@@ -80,12 +81,6 @@ const runTestsOnDatasets = (d1, d2, outputTests) => {
     }
 
     if (outputTests.includes(DatabaseQueryOutputTest.INGORE_COLUMN_TYPES)) {
-        /*
-        Convert all cells into string
-        For some reasons, when using CAST operations on columns the database client returns numerical values as string
-        */
-        d1.rows = convertAllCellsToString(d1.rows);
-        d2.rows = convertAllCellsToString(d2.rows);
         d1 = removeColumnTypes(d1);
         d2 = removeColumnTypes(d2);
     }

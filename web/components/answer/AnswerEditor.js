@@ -137,11 +137,6 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const onQueryChange = useCallback(
         async (query) => {
-            const currentQuery = answer.database.queries.find((q) => q.query.id === query.id)
-            if (currentQuery.query.content === query.content) {
-                setSaveLock(false);
-                return
-            }
             const updatedStudentAnswer = await fetch(
                 `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/database/${query.id}`,
                 {
