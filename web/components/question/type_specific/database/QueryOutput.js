@@ -35,7 +35,7 @@ const QueryOutput = ({ showAgo, header, color, queryOutput }) => {
     const renderQueryOutput = (output) => {
         switch (output?.type) {
             case "SCALAR":
-                // return <QueryOutputScalar dataset={output.result} />
+            // return <QueryOutputScalar dataset={output.result} />
             case "TABULAR":
                 return <QueryOutputTabular dataset={output.result} />
             case "TEXT":
@@ -75,18 +75,18 @@ const QueryOutput = ({ showAgo, header, color, queryOutput }) => {
                         {header}
                         {showAgo && (
                             <>
-                            <Typography variant={"caption"}>Last run:</Typography>
-                            {
-                                queryOutput.updatedAt && (
-                                    <DateTimeAgo date={new Date(queryOutput.updatedAt)} />
-                                )
-                            }
+                                <Typography variant={"caption"}>Last run:</Typography>
+                                {
+                                    queryOutput.updatedAt && (
+                                        <DateTimeAgo date={new Date(queryOutput.updatedAt)} />
+                                    )
+                                }
                             </>
                         )}
                     </Stack>
                     <Stack direction={"row"} spacing={1}>
                         {getStatus() === "RUNNING" && (
-                                <Image src="/svg/database/running.svg" width={16} height={16} />
+                            <Image src="/svg/database/running.svg" width={16} height={16} />
                         )}
                         {queryOutput?.output?.result && renderQueryOutput(queryOutput?.output)}
                     </Stack>
@@ -99,6 +99,7 @@ const QueryOutputTabular = ({ dataset }) => {
     const theme = useTheme();
 
     return (
+        <Stack spacing={1}>
         <TableContainer sx={{
             height: 'max-content',
             maxHeight: "300px",
@@ -157,7 +158,10 @@ const QueryOutputTabular = ({ dataset }) => {
                     ))}
                 </TableBody>
             </Table>
+
         </TableContainer>
+        <Typography variant="caption">Row Count: {dataset.rows.length}</Typography>
+    </Stack>
     )
 }
 

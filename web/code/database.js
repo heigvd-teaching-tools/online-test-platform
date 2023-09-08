@@ -1,6 +1,8 @@
 import { DatabaseQueryOutputTest, DatabaseQueryOutputType } from '@prisma/client';
 import _ from 'lodash';
 
+const convertAllCellsToString = (rows) => rows.map(row => row.map(cell => String(cell)));
+
 // Removes columns from dataset2 that are not present in dataset
 const removeColumnTypes = (dataset) => {
     const newColumns = dataset.columns.map(column => {
@@ -71,11 +73,19 @@ const sortDatasetRows = (dataset) => {
 
 const runTestsOnDatasets = (d1, d2, outputTests) => {
 
+
+
     if(outputTests.includes(DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS)){
         d2 = removeExtraColumns(d1, d2);
     }
 
     if (outputTests.includes(DatabaseQueryOutputTest.INGORE_COLUMN_TYPES)) {
+        /*
+        Convert all cells into string
+        For some reasons, when using CAST operations on columns the database client returns numerical values as string
+        */
+        d1.rows = convertAllCellsToString(d1.rows);
+        d2.rows = convertAllCellsToString(d2.rows);
         d1 = removeColumnTypes(d1);
         d2 = removeColumnTypes(d2);
     }
@@ -88,6 +98,10 @@ const runTestsOnDatasets = (d1, d2, outputTests) => {
     if(outputTests.includes(DatabaseQueryOutputTest.IGNORE_ROW_ORDER)){
         d1 = sortDatasetRows(d1);
         d2 = sortDatasetRows(d2);
+    }
+
+    if (outputTests.includes(DatabaseQueryOutputTest.INGORE_COLUMN_TYPES)) {
+        console.log("TEST", d1, d2)
     }
 
     return _.isEqual(d1, d2);

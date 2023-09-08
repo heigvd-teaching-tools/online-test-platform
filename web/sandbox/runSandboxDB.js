@@ -1,11 +1,12 @@
-import { GenericContainer, Wait } from "testcontainers";
-import {DatabaseQueryOutputType, DatabaseQueryOutputStatus } from "@prisma/client";
+import {GenericContainer, Wait} from "testcontainers";
+import {DatabaseQueryOutputStatus, DatabaseQueryOutputType} from "@prisma/client";
 import pkg from 'pg';
 import {
     postgresDetermineOutputType,
     postgresGenerateFeedbackMessage,
     postgresOutputToToDataset,
 } from "../code/database";
+
 const { Client } = pkg;
 
 export const runSandboxDB = async ({
@@ -45,7 +46,7 @@ export const runSandboxDB = async ({
                     status: DatabaseQueryOutputStatus.SUCCESS,
                     feedback: feedback,
                     type: type,
-                    result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset
+                    result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset,
                 });
             } catch (error) {
                 results.push({

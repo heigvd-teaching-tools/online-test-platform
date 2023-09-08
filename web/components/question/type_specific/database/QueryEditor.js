@@ -23,8 +23,6 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
         setContent(query.content)
     }, [query])
 
-    const debouncedOnChange = useDebouncedCallback(onChange, 500)
-
     return(
         <>
             <Stack
@@ -64,7 +62,7 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
                     onChange={(sql) => {
                         if (sql === query.content) return
                         setContent(sql)
-                        debouncedOnChange({
+                        onChange({
                             ...query,
                             content: sql,
                         })

@@ -22,6 +22,9 @@ import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import BottomPanel from "../layout/utils/BottomPanel";
 import AlertFeedback from "../feedback/AlertFeedback";
 
+import { grey } from '@mui/material/colors';
+import {LoadingButton} from "@mui/lab";
+
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()
   const { jamSessionId } = router.query
@@ -96,6 +99,8 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const ref = useRef()
 
+    const [ saveLock, setSaveLock ] = useState(false)
+    const [ saving, setSaving ] = useState(false)
     const [ queries, setQueries ] = useState()
     const [ studentOutputs, setStudentOutputs ] = useState()
 
@@ -109,6 +114,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const solutionOutputs = useMemo(() => answer?.database.queries.map((q) => q.solutionOutput), [answer]);
 
     const saveAndTest = useCallback(async () => {
+        setSaving(true);
         setStudentOutputs(queries.map((q, index) => ({
             ...studentOutputs[index],
             output:{
@@ -126,12 +132,16 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
             }
        }).then(res => res.json());
        setStudentOutputs(response);
+       setSaving(false);
     }, [jamSessionId, questionId, queries, studentOutputs]);
 
     const onQueryChange = useCallback(
         async (query) => {
             const currentQuery = answer.database.queries.find((q) => q.query.id === query.id)
-            if (currentQuery.query.content === query.content) return
+            if (currentQuery.query.content === query.content) {
+                setSaveLock(false);
+                return
+            }
             const updatedStudentAnswer = await fetch(
                 `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/database/${query.id}`,
                 {
@@ -141,11 +151,18 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                     },
                     body: JSON.stringify({ content: query.content }),
                 }
-            ).then((res) => res.json())
+            ).then((res) => res.json());
+            setSaveLock(false);
             onAnswerChange && onAnswerChange(updatedStudentAnswer)
         },
         [jamSessionId, questionId, answer, onAnswerChange]
     )
+
+    const debouncedOnChange = useDebouncedCallback(onQueryChange, 500)
+    const handleChange = (query) => {
+        setSaveLock(true);
+        debouncedOnChange(query);
+    }
 
     const hasTestPassed = (studentOutput) => {
         return studentOutput?.output.testPassed;
@@ -179,7 +196,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                             <StudentQueryEditor
                                 key={query.id}
                                 query={query}
-                                onChange={(query) => onQueryChange(query)}
+                                onChange={(query) => handleChange(query)}
                             />
                             { query.testQuery && studentOutputs[index] && (
                                 <AlertFeedback severity={getTestColor(studentOutputs[index])}>
@@ -188,11 +205,9 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                     </AlertTitle>
                                     {query.queryOutputTests.length > 0 && (
                                         <Breadcrumbs separator="-" aria-label="breadcrumb">
-                                            {
-                                                query.queryOutputTests.map(({test}, index) => (
-                                                    <Typography variant={"caption"}>{queryOutputTestToName[test]}</Typography>
-                                                ))
-                                            }
+                                            { query.queryOutputTests.map(({test}) => (
+                                                <Typography variant={"caption"}>{queryOutputTestToName[test]}</Typography>
+                                            ))}
                                         </Breadcrumbs>
                                     )}
                                 </AlertFeedback>
@@ -209,14 +224,14 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                     <BottomPanel
                         header={
                             <Stack p={1}>
-                                <Button
+                                <LoadingButton
+                                    loading={saving}
+                                    disabled={saveLock}
                                     variant={"contained"}
-                                    onClick={() => {
-                                        saveAndTest()
-                                    }}
+                                    onClick={() => saveAndTest()}
                                 >
                                     Save and test
-                                </Button>
+                                </LoadingButton>
                             </Stack>
                         }
                     />
@@ -227,7 +242,12 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     )
 }
 
-const StudentQueryEditor = ({ query, onChange }) => {
+const StudentQueryEditor = ({ query:initial, onChange }) => {
+
+    const [ query, setQuery ] = useState(initial);
+
+    useEffect(() => setQuery(initial), [initial.id])
+
     return (
         <Stack>
             <QueryEditor
@@ -236,7 +256,10 @@ const StudentQueryEditor = ({ query, onChange }) => {
                 readOnly={query.studentPermission !== StudentPermission.UPDATE}
                 hidden={query.studentPermission === StudentPermission.HIDDEN}
                 query={query}
-                onChange={(q) => onChange(q)}
+                onChange={(q) => {
+                    setQuery(q)
+                    onChange && onChange(q)
+                }}
             />
         </Stack>
     )
