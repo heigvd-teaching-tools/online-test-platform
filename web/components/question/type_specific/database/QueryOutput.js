@@ -11,7 +11,8 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import DateTimeAgo from "../../../feedback/DateTimeAgo";
-import {useCallback} from "react";
+import {useCallback, useEffect, useRef} from "react";
+import {useDebouncedCallback} from "use-debounce";
 const OutputStatusDisplay = ({ status }) => {
     const renderStatus = (status) => {
         switch (status) {
@@ -30,7 +31,23 @@ const OutputStatusDisplay = ({ status }) => {
     return renderStatus(status)
 }
 
-const QueryOutput = ({ showAgo, header, color, queryOutput }) => {
+const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) => {
+
+    const containerRef = useRef(null);
+
+    const debounchedHeightChange = useDebouncedCallback((h) => onHeightChange(h), 100)
+
+    useEffect(() => {
+        if (onHeightChange && containerRef.current) {
+            const observer = new ResizeObserver(() => {
+                debounchedHeightChange(containerRef.current.getBoundingClientRect().height);
+            });
+            observer.observe(containerRef.current);
+
+            // Cleanup observer on component unmount
+            return () => observer.disconnect();
+        }
+    }, [debounchedHeightChange]);
 
     const renderQueryOutput = (output) => {
         switch (output?.type) {
@@ -69,7 +86,7 @@ const QueryOutput = ({ showAgo, header, color, queryOutput }) => {
 
     return (
         queryOutput && (
-            <Alert icon={false} severity={severity(getStatus())} >
+            <Alert icon={false} severity={severity(getStatus())} ref={containerRef}>
                 <Stack spacing={1}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                         {header}
@@ -102,7 +119,7 @@ const QueryOutputTabular = ({ dataset }) => {
         <Stack spacing={1}>
         <TableContainer sx={{
             height: 'max-content',
-            maxHeight: "300px",
+            maxHeight: "350px",
             maxWidth: "100%"
         }}>
             <Table

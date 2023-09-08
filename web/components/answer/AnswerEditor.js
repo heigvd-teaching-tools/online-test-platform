@@ -262,10 +262,19 @@ const StudentQueryEditor = ({ query:initial, onChange }) => {
 }
 
 const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionOutput}) => {
+
+    const [ height, setHeight ] = useState(0);
+
+    const [ leftHeight, setLeftHeight ] = useState(0);
+    const [ rightHeight, setRightHeight ] = useState(0);
+
+    useEffect(() => setHeight(Math.max(leftHeight, rightHeight)), [leftHeight, rightHeight]);
+
     return (
         testQuery ? (
             <LayoutSplitScreen
                 useScrollContainer={false}
+                height={`${height}px`}
                 leftPanel={
                     <QueryOutput
                         header={
@@ -276,6 +285,9 @@ const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionO
                         color={color}
                         showAgo
                         queryOutput={studentOutput}
+                        onHeightChange={(newHeight) => {
+                            setLeftHeight(newHeight);
+                        }}
                     />
                 }
                 rightWidth={50}
@@ -288,6 +300,9 @@ const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionO
                         }
                         color={color}
                         queryOutput={solutionOutput}
+                        onHeightChange={(newHeight) => {
+                            setRightHeight(newHeight)
+                        }}
                     />
                 }
             />
