@@ -1,10 +1,10 @@
 import { PrismaClient, Role, DatabaseQueryOutputType } from '@prisma/client'
-import { hasRole } from '../../../../../../../../code/auth'
+import { hasRole } from '../../../../../../../../../code/auth'
 import { getSession } from 'next-auth/react'
-import { grading } from '../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
-import {runSandboxDB} from "../../../../../../../../sandbox/runSandboxDB";
-import {runTestsOnDatasets} from "../../../../../../../../code/database";
+import { grading } from '../../../../../../../../../code/grading'
+import {isInProgress} from "../../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
+import {runTestsOnDatasets} from "../../../../../../../../../code/database";
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
