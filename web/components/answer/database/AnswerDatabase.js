@@ -1,4 +1,4 @@
-import {DatabaseQueryOutputTest} from "@prisma/client";
+import {DatabaseQueryOutputStatus, DatabaseQueryOutputTest} from "@prisma/client";
 import useSWR from "swr";
 import {fetcher} from "../../../code/utils";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
@@ -94,10 +94,11 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         return studentOutput?.output.testPassed;
     }
     const getTestColor = (studentOutput) => {
-        if(!studentOutput) return "info";
+        if(!studentOutput) return "info"; // no student output yet -> we display solution output in blue
         const testPassed = hasTestPassed(studentOutput);
-        if(testPassed === null) return "info";
-        return testPassed ? "success" : "error";
+        if(testPassed === null) return "info"; // test is running -> we display student output in blue
+        // test is finished, we display student output in success if test passed, warning if fail and error if query failed to run
+        return testPassed ? "success" : studentOutput.status === DatabaseQueryOutputStatus.ERROR ? "error" : "warning";
     }
     const getTestFeedback = (order, studentOutput) => {
         const testPassed = hasTestPassed(studentOutput);

@@ -155,15 +155,18 @@ const SolutionQueriesManager = ({ questionId }) => {
                                 query={query}
                                 onChange={(q) => debouncedOnQueryUpdate(q)}
                             />
-                            <QueryOutput
-                                header={
-                                    <>
-                                        <Typography variant={"caption"}>Last run:</Typography>
-                                        {outputs[index]?.updatedAt && <DateTimeAgo date={new Date(outputs[index].updatedAt)} />}
-                                    </>
-                                }
-                                result={outputs[index].output}
-                            />
+                            { outputs[index] && (
+                                <QueryOutput
+                                    header={
+                                        <>
+                                            <Typography variant={"caption"}>Last run:</Typography>
+                                            {outputs[index]?.updatedAt && <DateTimeAgo date={new Date(outputs[index].updatedAt)} />}
+                                        </>
+                                    }
+                                    result={outputs[index].output}
+                                />
+                            )}
+
                         </Stack>
                     ))}
                 </ScrollContainer>

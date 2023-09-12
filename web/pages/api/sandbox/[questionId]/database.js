@@ -65,11 +65,7 @@ const post = async (req, res) => {
             const query = database.solutionQueries[i].query;
             const output = result[i];
 
-            const outputData = {
-                output: output,
-                type: output.type,
-                status: output.status,
-            }
+
 
             const databaseToSolutionQuery = await prisma.databaseToSolutionQuery.findUnique({
                 where: {
@@ -86,6 +82,11 @@ const post = async (req, res) => {
             const existingOutput = databaseToSolutionQuery.output;
 
             if(output){ // output can be null if some of the previous queries failed
+                const outputData = {
+                    output: output,
+                    type: output.type,
+                    status: output.status,
+                }
                 // we got an output for this query
                 if(existingOutput){
                     // update existing output
@@ -124,10 +125,7 @@ const post = async (req, res) => {
                 if(existingOutput){
                     await prisma.databaseQueryOutput.delete({
                         where: {
-                            questionId_queryId:{
-                                questionId: questionId,
-                                queryId: query.id,
-                            }
+                            id: existingOutput.id,
                         }
                     })
                 }
