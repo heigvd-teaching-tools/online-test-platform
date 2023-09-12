@@ -36,13 +36,15 @@ export const runSandboxDB = async ({
 
         await client.connect();
 
-        for (let query of queries) {
+        let order = 1;
+        for (const query of queries) {
             try {
                 const result = await client.query(query);
                 const dataset = postgresOutputToToDataset(result);
                 const type = postgresDetermineOutputType(result)
                 const feedback = postgresGenerateFeedbackMessage(result.command, result)
                 results.push({
+                    order: order++,
                     status: DatabaseQueryOutputStatus.SUCCESS,
                     feedback: feedback,
                     type: type,
@@ -50,6 +52,7 @@ export const runSandboxDB = async ({
                 });
             } catch (error) {
                 results.push({
+                    order: order,
                     status: DatabaseQueryOutputStatus.ERROR,
                     feedback: error.message,
                     type: DatabaseQueryOutputType.TEXT,

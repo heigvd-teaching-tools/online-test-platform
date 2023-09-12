@@ -10,12 +10,12 @@ import {
     Typography, useTheme
 } from "@mui/material";
 import Image from "next/image";
-import DateTimeAgo from "../../../feedback/DateTimeAgo";
-import {useCallback, useEffect, useRef} from "react";
+import { useEffect, useRef} from "react";
 import {useDebouncedCallback} from "use-debounce";
+import {DatabaseQueryOutputStatus} from "@prisma/client";
 
 
-const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) => {
+const QueryOutput = ({ header, color, result, onHeightChange }) => {
 
     const containerRef = useRef(null);
 
@@ -34,7 +34,8 @@ const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) =>
     }, [debouncedHeightChange]);
 
     const renderQueryOutput = (output) => {
-        switch (output?.type) {
+        if(!output.result) return null
+        switch (output.type) {
             case "SCALAR":
             // return <QueryOutputScalar dataset={output.result} />
             case "TABULAR":
@@ -61,35 +62,16 @@ const QueryOutput = ({ showAgo, header, color, queryOutput, onHeightChange }) =>
         }
     }
 
-    const getStatus = useCallback( () => {
-        if(queryOutput?.output?.status) {
-            return queryOutput.output.status
-        }
-        return "RUNNING"
-    },  [queryOutput])
-
     return (
-        queryOutput && (
-            <Alert icon={false} severity={severity(getStatus())} ref={containerRef}>
+        result && (
+            <Alert icon={false} severity={severity(result.status)} ref={containerRef}>
                 <Stack spacing={1}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                         {header}
-                        {showAgo && (
-                            <>
-                                <Typography variant={"caption"}>Last run:</Typography>
-                                {
-                                    queryOutput.updatedAt && (
-                                        <DateTimeAgo date={new Date(queryOutput.updatedAt)} />
-                                    )
-                                }
-                            </>
-                        )}
                     </Stack>
                     <Stack direction={"row"} spacing={1}>
-                        {getStatus() === "RUNNING" && (
-                            <Image src="/svg/database/running.svg" width={16} height={16} />
-                        )}
-                        {queryOutput?.output?.result && renderQueryOutput(queryOutput?.output)}
+                        {result.status === DatabaseQueryOutputStatus.RUNNING && <Image src="/svg/database/running.svg" width={16} height={16} />}
+                        {renderQueryOutput(result)}
                     </Stack>
                 </Stack>
             </Alert>

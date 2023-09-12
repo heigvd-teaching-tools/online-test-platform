@@ -38,18 +38,13 @@ const post = async (req, res) => {
   const session = await getSession({ req })
 
   const { jamSessionId, questionId } = req.query
-  const { queries, order } = req.body
+  const { query, at } = req.body
   const studentEmail = session.user.email
 
-  if(!order){
-    res.status(400).json({ message: 'Order not provided' })
+  if (at === undefined || at === null) {
+    res.status(400).json({ message: 'At not provided' })
     return
-  }
-
-  if(!queries){
-    res.status(400).json({ message: 'Queries not provided' })
-    return
-  }
+   }
 
   if (!(await isInProgress(jamSessionId))) {
     res.status(400).json({ message: 'Jam session is not in progress' })
@@ -63,18 +58,34 @@ const post = async (req, res) => {
         questionId: questionId,
       }
     },
-    select: {
+    include: {
+      database: {
+        include: {
+          queries: {
+            include: {
+              query: {
+                select: {
+                  content: true,
+                }
+              }
+            },
+            orderBy: {
+              query: { order: 'asc' } ,
+            }
+          },
+        }
+      },
       question:{
-        select:{
+        include:{
           database: {
-            select: {
-              image: true,
+            select:{
+                image:true
             }
           }
         }
       }
     }
-  });
+  })
 
   if (!studentAnswer) {
     res.status(404).json({ message: 'Student answer not found' })
@@ -82,14 +93,30 @@ const post = async (req, res) => {
   }
 
   const image = studentAnswer.question.database.image;
+  const sqlQueries = studentAnswer.database.queries.map(q => q.query.content);
+
+  // add query to the list of queries
+  sqlQueries.splice(at, 0, query);
 
   const result = await runSandboxDB({
     image: image,
-    queries: queries,
+    queries: sqlQueries,
   });
 
-  res.status(200).json({
-    updatedAt: new Date(),
-    output: result[order]
-  });
+  if(!result[at]){
+    // a query before the current one failed, find the last one that failed
+    let i = at - 1;
+    while(i >= 0){
+        if(result[i]){
+            break;
+        }
+        i--;
+    }
+
+    res.status(400).json(result[i]);
+    return;
+
+  }
+
+  res.status(200).json(result[at]);
 }

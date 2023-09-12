@@ -4,7 +4,7 @@ import {fetcher} from "../../../code/utils";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import Loading from "../../feedback/Loading";
-import {AlertTitle, Breadcrumbs, Stack, Typography} from "@mui/material";
+import {AlertTitle, Breadcrumbs, Button, Stack, Typography} from "@mui/material";
 import QueriesRunSummary from "./QueriesRunSummary";
 import ScrollContainer from "../../layout/ScrollContainer";
 import StudentQueryEditor from "./StudentQueryEditor";
@@ -30,6 +30,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const [ saveLock, setSaveLock ] = useState(false)
     const [ saving, setSaving ] = useState(false)
+    const [ openConsole, setOpenConsole ] = useState(false)
     const [ queries, setQueries ] = useState()
     const [ studentOutputs, setStudentOutputs ] = useState()
 
@@ -153,7 +154,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                         </ScrollContainer>
                         <BottomPanel
                             header={
-                                <Stack p={1} direction={"row"}>
+                                <Stack spacing={1} p={1} direction={"row"}>
                                     <LoadingButton
                                         loading={saving}
                                         disabled={saveLock}
@@ -162,6 +163,12 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                     >
                                         Save and test
                                     </LoadingButton>
+                                    <Button
+                                        variant={"outlined"}
+                                        onClick={() => setOpenConsole(true)}
+                                    >
+                                        Console
+                                    </Button>
 
                                 </Stack>
                             }
@@ -172,8 +179,9 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
             <StudentQueryConsole
                 jamSessionId={jamSessionId}
                 questionId={questionId}
-                open={true}
+                open={openConsole}
                 studentQueries={answer?.queries}
+                onClose={() => setOpenConsole(false)}
             />
         </Loading>
     )

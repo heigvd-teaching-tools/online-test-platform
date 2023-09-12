@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen";
 import QueryOutput from "../../question/type_specific/database/QueryOutput";
 import {Typography} from "@mui/material";
+import DateTimeAgo from "../../feedback/DateTimeAgo";
 
 const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionOutput}) => {
 
@@ -20,13 +21,16 @@ const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionO
                 leftPanel={
                     <QueryOutput
                         header={
-                            <Typography variant={"caption"}>
-                                Your output
-                            </Typography>
+                            <>
+                                <Typography variant={"caption"}>
+                                    Your output
+                                </Typography>
+                                <Typography variant={"caption"}>Last run:</Typography>
+                                {studentOutput?.updatedAt && <DateTimeAgo date={new Date(studentOutput.updatedAt)} />}
+                            </>
                         }
                         color={color}
-                        showAgo
-                        queryOutput={studentOutput}
+                        result={studentOutput?.output}
                         onHeightChange={(newHeight) => {
                             setLeftHeight(newHeight);
                         }}
@@ -41,7 +45,7 @@ const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionO
                             </Typography>
                         }
                         color={color}
-                        queryOutput={solutionOutput}
+                        result={solutionOutput.output}
                         onHeightChange={(newHeight) => {
                             setRightHeight(newHeight)
                         }}
@@ -50,7 +54,7 @@ const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionO
             />
         ) : (
             <QueryOutput
-                queryOutput={studentOutput}
+                result={studentOutput.output}
                 color={"info"}
             />
         )
