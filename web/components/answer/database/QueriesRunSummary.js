@@ -7,13 +7,20 @@ const QueriesRunSummary = ({ queries, studentOutputs }) => {
 
     const getStatus =  (query, output) => {
         if(!output) return null;
-        let status = output.output.status;
-        if(status !== DatabaseQueryOutputStatus.RUNNING && status !== DatabaseQueryOutputStatus.ERROR){
-            if(query.testQuery){
-                status = output.output.testPassed ? DatabaseQueryOutputStatus.SUCCESS : DatabaseQueryOutputStatus.WARNING;
-            }
+        if(!query.testQuery) {
+            // status can be either "RUNNING" or "ERROR", otherwise it's "NEUTRAL"
+            const acceptedStatuses = [DatabaseQueryOutputStatus.RUNNING, DatabaseQueryOutputStatus.ERROR];
+            if(acceptedStatuses.includes(output.output.status)) return output.output.status;
+        }else{
+            // status can be either "RUNNING", "ERROR"
+            // status is "WARNING" if testPassed is false
+            // status is "SUCCESS" if testPassed is true
+            const acceptedStatuses = [DatabaseQueryOutputStatus.RUNNING, DatabaseQueryOutputStatus.ERROR];
+            if(acceptedStatuses.includes(output.output.status)) return output.output.status;
+            if(output.output.testPassed === true) return DatabaseQueryOutputStatus.SUCCESS;
+            if(output.output.testPassed === false) return DatabaseQueryOutputStatus.WARNING;
         }
-        return status;
+        return DatabaseQueryOutputStatus.NEUTRAL;
     }
 
     return(
@@ -21,16 +28,11 @@ const QueriesRunSummary = ({ queries, studentOutputs }) => {
             {queries?.length > 0 && queries.map((q, index) => (
                     <>
                         <Step completed={studentOutputs[index]?.output?.status === DatabaseQueryOutputStatus.SUCCESS}>
-
                             <StepLabel>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Chip
-                                        icon={<Typography variant={"caption"}>#{q.order}</Typography>}
-                                        label={
-                                            <Box pt={0.5}>
-                                                <OutputStatusDisplay status={getStatus(q, studentOutputs[index])} />
-                                            </Box>
-                                        } />
+                                    <Box pt={0.5}>
+                                        <OutputStatusDisplay status={getStatus(q, studentOutputs[index])} />
+                                    </Box>
                                 </Stack>
                             </StepLabel>
 

@@ -9,7 +9,7 @@ import QueriesRunSummary from "./QueriesRunSummary";
 import ScrollContainer from "../../layout/ScrollContainer";
 import StudentQueryEditor from "./StudentQueryEditor";
 import AlertFeedback from "../../feedback/AlertFeedback";
-import StudentOutputVizualisation from "./StudentOutputVizualisation";
+import StudentOutputDisplay from "./StudentOutputDisplay";
 import BottomPanel from "../../layout/utils/BottomPanel";
 import {LoadingButton} from "@mui/lab";
 import StudentQueryConsole from "./StudentQueryConsole";
@@ -143,7 +143,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                             )}
                                         </AlertFeedback>
                                     )}
-                                    <StudentOutputVizualisation
+                                    <StudentOutputDisplay
                                         color={getTestColor(studentOutputs[index])}
                                         testQuery={query.testQuery}
                                         studentOutput={studentOutputs[index]}

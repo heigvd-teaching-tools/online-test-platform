@@ -257,6 +257,7 @@ enum DatabaseQueryOutputStatus {
   ERROR
   WARNING
   RUNNING
+  NEUTRAL
 }
 
 enum DatabaseDBMS {

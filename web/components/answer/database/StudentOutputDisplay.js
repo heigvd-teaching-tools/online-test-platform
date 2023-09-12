@@ -4,7 +4,7 @@ import QueryOutput from "../../question/type_specific/database/QueryOutput";
 import {Typography} from "@mui/material";
 import DateTimeAgo from "../../feedback/DateTimeAgo";
 
-const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionOutput}) => {
+const StudentOutputDisplay = ({ color, testQuery, studentOutput, solutionOutput}) => {
 
     const [ height, setHeight ] = useState(0);
 
@@ -61,4 +61,4 @@ const StudentOutputVizualisation = ({ color, testQuery, studentOutput, solutionO
     )
 }
 
-export default StudentOutputVizualisation;
+export default StudentOutputDisplay;

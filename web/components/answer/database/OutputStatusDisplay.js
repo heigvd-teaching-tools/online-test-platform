@@ -1,19 +1,22 @@
 import Image from "next/image";
 import React from "react";
+import {DatabaseQueryOutputStatus} from "@prisma/client";
 
 const OutputStatusDisplay = ({ status }) => {
     const renderStatus = (status) => {
         switch (status) {
-            case "SUCCESS":
+            case DatabaseQueryOutputStatus.SUCCESS:
                 return <Image src="/svg/database/success.svg" width={16} height={16} />
-            case "ERROR":
+            case DatabaseQueryOutputStatus.ERROR:
                 return <Image src="/svg/database/error.svg" width={16} height={16} />
-            case "WARNING":
+            case DatabaseQueryOutputStatus.WARNING:
                 return <Image src="/svg/database/warning.svg" width={16} height={16} />
-            case "RUNNING":
+            case DatabaseQueryOutputStatus.RUNNING:
                 return <Image src="/svg/database/running.svg" width={16} height={16} />
+            case DatabaseQueryOutputStatus.NEUTRAL:
+                return <Image src="/svg/database/neutral.svg" width={16} height={16} />
             default:
-                return <Image src="/svg/database/none.svg" width={16} height={16} />
+                return null
         }
     }
     return renderStatus(status)
