@@ -3,7 +3,7 @@ import {fetcher} from "../../../../code/utils";
 import Loading from "../../../feedback/Loading";
 import {
     Button,
-    Stack,
+    Stack, Typography,
     useTheme,
 } from "@mui/material";
 import React, {useCallback, useEffect, useRef, useState} from "react";
@@ -14,6 +14,7 @@ import {useDebouncedCallback} from "use-debounce";
 import QueryOutput from "./QueryOutput";
 import QueryUpdatePanel from "./QueryUpdatePanel";
 import QueryEditor from "./QueryEditor";
+import DateTimeAgo from "../../../feedback/DateTimeAgo";
 
 
 const SolutionQueriesManager = ({ questionId }) => {
@@ -155,8 +156,13 @@ const SolutionQueriesManager = ({ questionId }) => {
                                 onChange={(q) => debouncedOnQueryUpdate(q)}
                             />
                             <QueryOutput
-                                showAgo
-                                queryOutput={outputs[index]}
+                                header={
+                                    <>
+                                        <Typography variant={"caption"}>Last run:</Typography>
+                                        {outputs[index]?.updatedAt && <DateTimeAgo date={new Date(outputs[index].updatedAt)} />}
+                                    </>
+                                }
+                                result={outputs[index].output}
                             />
                         </Stack>
                     ))}
