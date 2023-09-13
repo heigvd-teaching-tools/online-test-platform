@@ -29,10 +29,8 @@ const QueriesRunSummary = ({ queries, studentOutputs }) => {
                     <>
                         <Step completed={studentOutputs[index]?.output?.status === DatabaseQueryOutputStatus.SUCCESS}>
                             <StepLabel>
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Box pt={0.5}>
-                                        <StatusDisplay status={getStatus(q, studentOutputs[index])} />
-                                    </Box>
+                                <Stack direction={"row"} spacing={1} alignItems={"center"} height={30}>
+                                    <StatusDisplay status={getStatus(q, studentOutputs[index])} />
                                 </Stack>
                             </StepLabel>
 

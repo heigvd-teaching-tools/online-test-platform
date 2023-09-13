@@ -117,11 +117,17 @@ const post = async (req, res) => {
 
           // eventually run the linter
           if(query.lintRules){
-            // run the lint sandbox
-            const lintResult = await runSQLFluffSandbox({
-              sql: query.content,
-              sqlFluffRules: query.lintRules,
-            });
+            let lintResult;
+
+            try{
+              // run the lint sandbox
+              lintResult = await runSQLFluffSandbox({
+                sql: query.content,
+                sqlFluffRules: query.lintRules,
+              });
+            }catch (e) {
+              console.log("Lint Sandbox Error", e);
+            }
 
             // update the DatabaseQuery with the lint result
             await prisma.databaseQuery.update({
