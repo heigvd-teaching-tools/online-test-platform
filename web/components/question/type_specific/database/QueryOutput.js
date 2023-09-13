@@ -1,21 +1,30 @@
 import {
-    Alert,
+    Alert, Badge, Box,
     Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
+    TableRow, Tooltip,
     Typography, useTheme
 } from "@mui/material";
-import Image from "next/image";
 import { useEffect, useRef} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import {DatabaseQueryOutputStatus} from "@prisma/client";
+import StatusDisplay from "../../../feedback/StatusDisplay";
 
-
-const QueryOutput = ({ header, color, result, onHeightChange }) => {
+const ViolationSummary = ({violation}) => {
+    return(
+        <Stack>
+            <Typography variant={"caption"}>{`${violation?.description} (${violation?.code})`}</Typography>
+            {violation?.lines?.map((line) => (
+                <Typography variant={"caption"}>{`Line ${line.line} pos ${line.pos}`}</Typography>
+            ))}
+        </Stack>
+    )
+}
+const QueryOutput = ({ header, color, result, lintResult, onHeightChange }) => {
 
     const containerRef = useRef(null);
 
@@ -61,7 +70,7 @@ const QueryOutput = ({ header, color, result, onHeightChange }) => {
                 return "info"
         }
     }
-
+    // lintResult : [{"filepath": "query.sql", "violations": [{"code": "LT09", "name": "layout.select_targets", "line_no": 1, "line_pos": 1, "description": "Select targets should be on a new line unless there is only one select target."}, {"code": "LT12", "name": "layout.end_of_file", "line_no": 1, "line_pos": 76, "description": "Files must end with a single trailing newline."}]}]
     return (
         result && (
             <Alert icon={false} severity={severity(result.status)} ref={containerRef}>
@@ -70,9 +79,45 @@ const QueryOutput = ({ header, color, result, onHeightChange }) => {
                         {header}
                     </Stack>
                     <Stack direction={"row"} spacing={1}>
-                        {result.status === DatabaseQueryOutputStatus.RUNNING && <Image src="/svg/database/running.svg" width={16} height={16} />}
+                        {result.status === DatabaseQueryOutputStatus.RUNNING && <StatusDisplay status={DatabaseQueryOutputStatus.RUNNING} />}
                         {renderQueryOutput(result)}
                     </Stack>
+                    { lintResult && (
+                        <Stack direction={"row"} spacing={1}>
+                            <Typography variant={"body2"}>Linter</Typography>
+                            <Box ml={1}>
+                            {
+                                lintResult?.violations?.length === 0 && (
+                                    <StatusDisplay status={"SUCCESS"} />
+                                )
+                                ||
+                                lintResult?.violations?.length > 0 && (
+                                    <StatusDisplay status={"WARNING"} />
+                                )
+                            }
+                            </Box>
+
+                            {lintResult?.violations?.map((violation) => (
+                                <Badge
+                                    badgeContent={violation?.lines?.length}
+                                    color="info"
+                                >
+                                    <Tooltip
+                                        title={
+                                            <ViolationSummary violation={violation} />
+                                        }
+                                        placement={"bottom"}
+                                    >
+                                        <Stack direction={"row"} spacing={1} pr={1}>
+                                            <Typography variant={"caption"}>{violation?.code}</Typography>
+                                        </Stack>
+                                    </Tooltip>
+                                </Badge>
+                            ))}
+                        </Stack>
+
+
+                    )}
                 </Stack>
             </Alert>
         )

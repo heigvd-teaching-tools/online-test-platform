@@ -110,7 +110,13 @@ const SolutionQueriesManager = ({ questionId }) => {
             }
         })) || []);
 
-        const newOutputs = await fetch(`/api/sandbox/${questionId}/database`, {
+        // erase eventual lintResults
+        setQueries(queries.map((q, index) => ({
+            ...q,
+            lintResult: null,
+        })) || []);
+
+        const newSolutionQueries = await fetch(`/api/sandbox/${questionId}/database`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -118,8 +124,14 @@ const SolutionQueriesManager = ({ questionId }) => {
             },
         }).then((res) => res.json());
 
+        // update the queries with the new lint results
+        setQueries(queries.map((q, index) => ({
+            ...q,
+            lintResult: newSolutionQueries[index].query.lintResult,
+        })) || []);
+
         // set all query outputs
-        setOutputs(newOutputs);
+        setOutputs(newSolutionQueries.map(q => q.output));
 
     }, [questionId, outputs, queries]);
 
@@ -164,6 +176,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                                         </>
                                     }
                                     result={outputs[index].output}
+                                    lintResult={query.lintResult}
                                 />
                             )}
 

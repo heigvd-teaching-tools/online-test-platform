@@ -1,6 +1,7 @@
 import { PrismaClient, DatabaseQueryOutputTest, Role } from '@prisma/client'
 import { hasRole } from '../../../../code/auth'
 import {runSandboxDB} from "../../../../sandbox/runSandboxDB";
+import {runSQLFluffSandbox} from "../../../../sandbox/runSQLFluffSandbox";
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
@@ -65,7 +66,23 @@ const post = async (req, res) => {
             const query = database.solutionQueries[i].query;
             const output = result[i];
 
+            if(query.lintRules){
+                // run the lint sandbox
+                const lintResult = await runSQLFluffSandbox({
+                    sql: query.content,
+                    sqlFluffRules: query.lintRules,
+                });
 
+                // update the DatabaseQuery with the lint result
+                await prisma.databaseQuery.update({
+                    where: {
+                        id: query.id,
+                    },
+                    data: {
+                        lintResult: lintResult
+                    }
+                });
+            }
 
             const databaseToSolutionQuery = await prisma.databaseToSolutionQuery.findUnique({
                 where: {
@@ -140,6 +157,11 @@ const post = async (req, res) => {
         },
         include: {
             output: true,
+            query: {
+                select: {
+                    lintResult: true,
+                }
+            },
         },
         orderBy: {
             query: {
@@ -150,5 +172,5 @@ const post = async (req, res) => {
 
     if(!solutionQueries) res.status(404).json({message: 'Not found'})
 
-    res.status(200).json(solutionQueries.map(dbToSolQuery => dbToSolQuery.output))
+    res.status(200).json(solutionQueries)
 }

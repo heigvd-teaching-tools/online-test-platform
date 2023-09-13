@@ -187,8 +187,7 @@ const createDatabaseTypeSpecificData = async (prisma, studentAnswer, question) =
     // Create DatabaseQuery and StudentAnswerDatabaseToQuery instances and related outputs
     for (const solQuery of question.database.solutionQueries) {
         const query = solQuery.query;
-        const output = solQuery.output;
-
+        
         // Create DatabaseQuery instance and store the generated ID
         const createdQuery = await prisma.databaseQuery.create({
             data: {

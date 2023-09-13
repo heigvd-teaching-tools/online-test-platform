@@ -1,6 +1,6 @@
 import {DatabaseQueryOutputStatus} from "@prisma/client";
 import {Box, Chip, Stack, Step, StepConnector, StepLabel, Stepper, Typography} from "@mui/material";
-import OutputStatusDisplay from "./OutputStatusDisplay";
+import StatusDisplay from "../../feedback/StatusDisplay";
 import React from "react";
 
 const QueriesRunSummary = ({ queries, studentOutputs }) => {
@@ -31,7 +31,7 @@ const QueriesRunSummary = ({ queries, studentOutputs }) => {
                             <StepLabel>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <Box pt={0.5}>
-                                        <OutputStatusDisplay status={getStatus(q, studentOutputs[index])} />
+                                        <StatusDisplay status={getStatus(q, studentOutputs[index])} />
                                     </Box>
                                 </Stack>
                             </StepLabel>

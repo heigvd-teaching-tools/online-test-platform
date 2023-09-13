@@ -282,7 +282,8 @@ model DatabaseQuery {
   title       String?
   description String?
 
-  lintRules String?
+  lintRules  String?
+  lintResult Json?
 
   content  String?
   template String? // not used for student answer
