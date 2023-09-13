@@ -5,6 +5,7 @@ import { grading } from '../../../../../../../../../code/grading'
 import {isInProgress} from "../../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
 import {runTestsOnDatasets} from "../../../../../../../../../code/database";
+import {runSQLFluffSandbox} from "../../../../../../../../../sandbox/runSQLFluffSandbox";
 
 if (!global.prisma) {
   global.prisma = new PrismaClient()
@@ -109,12 +110,29 @@ const post = async (req, res) => {
       const studentAnswerQueries = studentAnswer.database.queries;
       const solutionQueryOutputs = studentAnswer.question.database.solutionQueries;
 
-
-
       // for each student answer query, upsert the DatabaseQueryOutput in the database
       for (let i = 0; i < studentAnswerQueries.length; i++) {
           const query = studentAnswerQueries[i].query;
           const currentOutput = result[i];
+
+          // eventually run the linter
+          if(query.lintRules){
+            // run the lint sandbox
+            const lintResult = await runSQLFluffSandbox({
+              sql: query.content,
+              sqlFluffRules: query.lintRules,
+            });
+
+            // update the DatabaseQuery with the lint result
+            await prisma.databaseQuery.update({
+              where: {
+                id: query.id,
+              },
+              data: {
+                lintResult: lintResult
+              }
+            });
+          }
 
           const studentAnswerDatabaseToQuery = await prisma.studentAnswerDatabaseToQuery.findUnique({
             where: {
@@ -215,6 +233,11 @@ const post = async (req, res) => {
     },
     include: {
       studentOutput: true,
+      query:{
+        select:{
+          lintResult:true
+        }
+      }
     },
     orderBy: {
       query: {
@@ -226,5 +249,5 @@ const post = async (req, res) => {
 
   if(!studentAnswerQueries) res.status(404).json({message: 'Not found'})
 
-  res.status(200).json(studentAnswerQueries.map(studentAnswerQuery => studentAnswerQuery.studentOutput))
+  res.status(200).json(studentAnswerQueries)
 }

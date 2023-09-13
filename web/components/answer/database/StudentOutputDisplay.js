@@ -4,7 +4,7 @@ import QueryOutput from "../../question/type_specific/database/QueryOutput";
 import {Typography} from "@mui/material";
 import DateTimeAgo from "../../feedback/DateTimeAgo";
 
-const StudentOutputDisplay = ({ color, testQuery, studentOutput, solutionOutput}) => {
+const StudentOutputDisplay = ({ color, testQuery, lintResult, studentOutput, solutionOutput}) => {
 
     const [ height, setHeight ] = useState(0);
 
@@ -31,6 +31,7 @@ const StudentOutputDisplay = ({ color, testQuery, studentOutput, solutionOutput}
                         }
                         color={color}
                         result={studentOutput?.output}
+                        lintResult={lintResult}
                         onHeightChange={(newHeight) => {
                             setLeftHeight(newHeight);
                         }}
@@ -54,7 +55,7 @@ const StudentOutputDisplay = ({ color, testQuery, studentOutput, solutionOutput}
             />
         ) : (
             <QueryOutput
-                result={studentOutput.output}
+                result={studentOutput?.output}
                 color={"info"}
             />
         )

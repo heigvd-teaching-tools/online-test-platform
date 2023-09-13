@@ -55,14 +55,25 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                 testPassed: null,
             }
         })) || []);
-        const response = await fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/database`, {
+
+        // remove any lintResult from queries
+        setQueries(queries.map((q) => ({
+            ...q,
+            lintResult: null,
+        })) || []);
+
+        const studentAnswerQueries = await fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/database`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             }
         }).then(res => res.json());
-        setStudentOutputs(response);
+        setStudentOutputs(studentAnswerQueries.map((q) => q.studentOutput));
+        setQueries(queries.map((q, index) => ({
+            ...q,
+            lintResult: studentAnswerQueries[index].query.lintResult,
+        })) || []);
         setSaving(false);
     }, [jamSessionId, questionId, queries, studentOutputs]);
 
@@ -147,6 +158,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                     <StudentOutputDisplay
                                         color={getTestColor(studentOutputs[index])}
                                         testQuery={query.testQuery}
+                                        lintResult={query.lintResult}
                                         studentOutput={studentOutputs[index]}
                                         solutionOutput={getSolutionOutput(query.order)}
                                     />
