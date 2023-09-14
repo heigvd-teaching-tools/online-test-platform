@@ -1,4 +1,4 @@
-import { PrismaClient, Role, DatabaseQueryOutputType } from '@prisma/client'
+import {PrismaClient, Role, DatabaseQueryOutputType, Prisma} from '@prisma/client'
 import { hasRole } from '../../../../../../../../../code/auth'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../../code/grading'
@@ -135,10 +135,13 @@ const post = async (req, res) => {
                 id: query.id,
               },
               data: {
-                lintResult: lintResult
+                lintResult: !lintResult ? Prisma.JsonNull : lintResult
               }
             });
+
           }
+
+
 
           const studentAnswerDatabaseToQuery = await prisma.studentAnswerDatabaseToQuery.findUnique({
             where: {

@@ -22,18 +22,23 @@ export const runSQLFluffSandbox = async ({ sql, sqlFluffRules, dialect = "postgr
             Tty: false,  // The `-it` flag
             Cmd: ['lint', 'query.sql', '--dialect', dialect, '--format', 'json'],
             HostConfig: {
-                AutoRemove: true,
+                //AutoRemove: true,
                 Binds: [
                     `${absoluteFilesDirectory}:/sql`
                 ]
             }
         };
 
+        let container = null;
+
         return new Promise((resolve, reject) => {
-            docker.createContainer(containerOpts, (err, container) => {
+            docker.createContainer(containerOpts, (err, createdContainer) => {
+
                 if (err) {
                     return reject("Error creating container: " + err.message);
                 }
+
+                container = createdContainer;
 
                 container.start({}, (err, _) => {
                     if (err) {
@@ -65,6 +70,18 @@ export const runSQLFluffSandbox = async ({ sql, sqlFluffRules, dialect = "postgr
         }).finally(async () => {
             // Clean up the files
             await fs.promises.rm(absoluteFilesDirectory, { recursive: true }).catch(err => console.error('Failed to delete directory:', err));
+
+            /*
+                Remove the Docker container manually,
+                AutoRemove option makes the logs retrieval fail every now and then with error:
+                "(HTTP code 409) unexpected - can not get logs from container which is dead or marked for removal"
+             */
+
+            container.remove(err => {
+                if (err) {
+                    console.error('Error removing container:', err);
+                }
+            });
         });
     } catch (error) {
         return Promise.reject('Unexpected error: ' + error.message);

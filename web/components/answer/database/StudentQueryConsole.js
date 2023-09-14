@@ -65,6 +65,7 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
                         }}
                     />
                     <QueryOutput
+                        color={"info"}
                         header={
                             result?.status === DatabaseQueryOutputStatus.ERROR ?
                                 result.order === calculateOffset(when, order) ? "Error at console query" : `Error at query #${result.order}`
