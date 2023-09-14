@@ -126,7 +126,7 @@ const post = async (req, res) => {
                         create: {} // good for most question types, except code and database
                     },
                     studentGrading: {
-                        create: grading(jstq, undefined),
+                        create: grading(question, jstq.points, undefined),
                     }
                 },
                 include: {
@@ -137,7 +137,7 @@ const post = async (req, res) => {
             // code and database questions have type specific data to be copied for the student answer
             switch (question.type) {
                 case QuestionType.code:
-                    await prisma.code.update({
+                    await prisma.studentAnswerCode.update({
                         where: {
                             userEmail_questionId: {
                                 userEmail: studentEmail,
@@ -187,7 +187,7 @@ const createDatabaseTypeSpecificData = async (prisma, studentAnswer, question) =
     // Create DatabaseQuery and StudentAnswerDatabaseToQuery instances and related outputs
     for (const solQuery of question.database.solutionQueries) {
         const query = solQuery.query;
-        
+
         // Create DatabaseQuery instance and store the generated ID
         const createdQuery = await prisma.databaseQuery.create({
             data: {

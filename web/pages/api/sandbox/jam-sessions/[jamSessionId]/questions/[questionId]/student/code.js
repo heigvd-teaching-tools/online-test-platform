@@ -85,8 +85,6 @@ const post = async (req, res) => {
     (codeToFile) => codeToFile.file
   )
 
-  console.log("files", files)
-
   const response = await runSandbox({
     image: code.sandbox.image,
     files: files,
@@ -157,11 +155,11 @@ const post = async (req, res) => {
           questionId: questionId,
         },
       },
-      update: grading(jamSessionToQuestion, response),
+      update: grading(jamSessionToQuestion.question, jamSessionToQuestion.points, response),
       create: {
         userEmail: studentEmail,
         questionId: questionId,
-        ...grading(jamSessionToQuestion, response),
+        ...grading(jamSessionToQuestion.question, jamSessionToQuestion.points, response),
       },
     })
 

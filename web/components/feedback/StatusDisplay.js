@@ -14,7 +14,7 @@ const StatusDisplay = ({ status }) => {
             case "NEUTRAL":
                 return <Image src="/svg/status/neutral.svg" width={16} height={16} />
             default:
-                return null
+                return <Image src="/svg/status/empty.svg" width={16} height={16} />
         }
     }
     return renderStatus(status)

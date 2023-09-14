@@ -604,8 +604,6 @@ model StudentAnswerDatabase {
   userEmail     String
   questionId    String
 
-  testPassed Boolean @default(false)
-
   queries StudentAnswerDatabaseToQuery[]
 
   @@id([userEmail, questionId])

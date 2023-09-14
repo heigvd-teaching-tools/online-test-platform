@@ -96,32 +96,32 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         database: {
             select: {
                 image: true,
-                solutionQueries: {
-                    select: {
-                        query: {
-                            select: {
-                                id: true,
-                                order: true,
-                                title: true,
-                                description: true,
-                                content: true,
-                                template: true,
-                                lintRules: true,
-                                studentPermission: true,
-                                testQuery: true,
-                                queryOutputTests: {
-                                    select: {
-                                        test: true,
+                ...(includeOfficialAnswers ? {
+                    solutionQueries: {
+                        select: {
+                            query: {
+                                select: {
+                                    id: true,
+                                    order: true,
+                                    title: true,
+                                    description: true,
+                                    content: true,
+                                    template: true,
+                                    lintRules: true,
+                                    studentPermission: true,
+                                    testQuery: true,
+                                    queryOutputTests: {
+                                        select: {
+                                            test: true,
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        output: true,
-                    }
-
+                            },
+                            output: true,
+                        }
+                    }} : {}),
                 }
             }
-        },
       }
     : {}
 
@@ -166,6 +166,19 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             testCaseResults: true,
             allTestCasesPassed: true,
           },
+        },
+        database:{
+            select:{
+                queries:{
+                    include:{
+                        query: true,
+                        studentOutput: true,
+                    },
+                    orderBy: {
+                        query: { order: 'asc' } ,
+                    }
+                }
+            }
         },
         multipleChoice: {
           select: { options: { select: { id: true, text: true } } },

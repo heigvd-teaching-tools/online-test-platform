@@ -1,4 +1,4 @@
-import { PrismaClient, DatabaseQueryOutputTest, Role } from '@prisma/client'
+import {PrismaClient, DatabaseQueryOutputTest, Role, Prisma} from '@prisma/client'
 import { hasRole } from '../../../../code/auth'
 import {runSandboxDB} from "../../../../sandbox/runSandboxDB";
 import {runSQLFluffSandbox} from "../../../../sandbox/runSQLFluffSandbox";
@@ -85,7 +85,7 @@ const post = async (req, res) => {
                         id: query.id,
                     },
                     data: {
-                        lintResult: lintResult
+                        lintResult: !lintResult ? Prisma.JsonNull : lintResult
                     }
                 });
             }

@@ -1,4 +1,4 @@
-import { StudentQuestionGradingStatus, QuestionType } from '@prisma/client'
+import {StudentQuestionGradingStatus, QuestionType, DatabaseQueryOutputStatus} from '@prisma/client'
 
 /*
     This function is used to grade a student answers to a question.
@@ -12,51 +12,65 @@ import { StudentQuestionGradingStatus, QuestionType } from '@prisma/client'
     during answers editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/student.js).
 
  */
-export const grading = (jamSessionToQuestion, answer) => {
-  switch (jamSessionToQuestion.question.type) {
+export const grading = (question, totalPoints, studentAnswer) => {
+  console.log("studentAnswer", studentAnswer)
+  switch (question.type) {
     case QuestionType.multipleChoice:
-      return gradeMultipleChoice(jamSessionToQuestion, answer)
+      return gradeMultipleChoice(question, totalPoints, studentAnswer)
     case QuestionType.trueFalse:
-      return gradeTrueFalse(jamSessionToQuestion, answer)
+      return gradeTrueFalse(question, totalPoints, studentAnswer)
     case QuestionType.essay:
-      return gradeEssay(jamSessionToQuestion, answer)
+      return gradeEssay(studentAnswer)
     case QuestionType.code:
-      // student code submission is graded during code test run
-      return gradeCode(jamSessionToQuestion, answer)
+      // student code submission is graded during student code sandbox run
+      return gradeCode(totalPoints, studentAnswer)
     case QuestionType.web:
-      return gradeWeb(jamSessionToQuestion, answer)
+      return gradeWeb(studentAnswer)
     case QuestionType.database:
-        return gradeDatabase(jamSessionToQuestion, answer)
+      // student database submission is graded during student database sandbox run
+        return gradeDatabase(totalPoints, studentAnswer)
     default:
       return undefined
   }
 }
+
+/*
+  jamSessionToQuestion.points,
+  jamSessionToQuestion.question - for official solution
+ */
 
 const defaultGrading = {
   status: StudentQuestionGradingStatus.AUTOGRADED,
   pointsObtained: 0,
 }
 
-const gradeDatabase = (jamSessionToQuestion, response) => {
+const gradeDatabase = (totalPoints, studentAnswer) => {
     let grading = defaultGrading
-    if (response !== undefined) {
-        let isCorrect = response.tests.every((test) => test.passed)
-        grading = {
+
+    if(studentAnswer) {
+        const studentQueries = studentAnswer.database.queries;
+        const studentTestQueries = studentQueries.filter((studentQuery) => studentQuery.query.testQuery);
+        const allQueriesExecuted = studentQueries.every((studentQuery) => studentQuery.studentOutput !== null && studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS);
+        const allTestQueriesPassed = studentTestQueries.every((studentQuery) => studentQuery.studentOutput !== null && studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS && studentQuery.studentOutput.output.testPassed);
+        if (allQueriesExecuted && allTestQueriesPassed) {
+          grading = {
             status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: isCorrect ? jamSessionToQuestion.points : 0,
+            pointsObtained: totalPoints,
+          }
         }
     }
+
     return grading;
 }
-const gradeMultipleChoice = (jamSessionToQuestion, answer) => {
+const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
   let grading = defaultGrading
 
-  if (answer !== undefined) {
+  if (studentAnswer !== undefined) {
     let correctOptions =
-      jamSessionToQuestion.question.multipleChoice.options.filter(
+      question.multipleChoice.options.filter(
         (opt) => opt.isCorrect
       )
-    let answerOptions = answer.options
+    let answerOptions = studentAnswer.options
     let isCorrect =
       correctOptions.length === answerOptions.length &&
       correctOptions.every((opt) =>
@@ -64,20 +78,20 @@ const gradeMultipleChoice = (jamSessionToQuestion, answer) => {
       )
     grading = {
       status: StudentQuestionGradingStatus.AUTOGRADED,
-      pointsObtained: isCorrect ? jamSessionToQuestion.points : 0,
+      pointsObtained: isCorrect ? totalPoints : 0,
     }
   }
   return grading
 }
 
-const gradeTrueFalse = (jamSessionToQuestion, answer) => {
+const gradeTrueFalse = (question, totalPoints, studentAnswer) => {
   let grading = defaultGrading
-  if (answer !== undefined) {
+  if (studentAnswer !== undefined) {
     let isCorrect =
-      jamSessionToQuestion.question.trueFalse.isTrue === answer.isTrue
+      question.trueFalse.isTrue === studentAnswer.isTrue
     grading = {
       ...grading,
-      pointsObtained: isCorrect ? jamSessionToQuestion.points : 0,
+      pointsObtained: isCorrect ? totalPoints : 0,
     }
   }
   return grading
@@ -87,7 +101,7 @@ const gradeTrueFalse = (jamSessionToQuestion, answer) => {
     code grading call is done during answers submission and code test run
     code test run : /api/sandbox/[questionId]/student
 */
-const gradeCode = (jamSessionToQuestion, response) => {
+const gradeCode = (totalPoints, response) => {
   let grading = {
     ...defaultGrading,
     status: StudentQuestionGradingStatus.UNGRADED,
@@ -97,20 +111,20 @@ const gradeCode = (jamSessionToQuestion, response) => {
     // response is from the code sandbox run
     grading = {
       status: StudentQuestionGradingStatus.AUTOGRADED,
-      pointsObtained: success ? jamSessionToQuestion.points : 0,
+      pointsObtained: success ? totalPoints : 0,
     }
   }
   return grading
 }
 
-const gradeEssay = (_, answer) => ({
+const gradeEssay = (answer) => ({
   ...defaultGrading,
   status: answer
     ? StudentQuestionGradingStatus.UNGRADED
     : StudentQuestionGradingStatus.AUTOGRADED,
 })
 
-const gradeWeb = (_, answer) => ({
+const gradeWeb = (answer) => ({
   ...defaultGrading,
   status: answer
     ? StudentQuestionGradingStatus.UNGRADED

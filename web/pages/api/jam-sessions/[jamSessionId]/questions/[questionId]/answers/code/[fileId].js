@@ -106,9 +106,9 @@ const put = async (req, res) => {
       create: {
         userEmail: studentEmail,
         questionId: questionId,
-        ...grading(jamSessionToQuestion, undefined),
+        ...grading(jamSessionToQuestion.question, jamSessionToQuestion.points, undefined),
       },
-      update: grading(jamSessionToQuestion, undefined),
+      update: grading(jamSessionToQuestion.question, jamSessionToQuestion.points, undefined),
     })
   )
 

@@ -24,7 +24,7 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
     }, [query])
 
     return(
-        <>
+        <Stack>
             <Stack
                 direction="row"
                 position="sticky"
@@ -70,7 +70,7 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
                 />
             )}
 
-        </>
+        </Stack>
     )
 }
 

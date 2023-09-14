@@ -21,7 +21,7 @@ const queryOutputTestToName = {
     [DatabaseQueryOutputTest.INGORE_COLUMN_TYPES]: "Ignore types",
 }
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
-    const { data: answer, error } = useSWR(
+    const { data:answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? fetcher : null
     )
@@ -35,13 +35,18 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const [ studentOutputs, setStudentOutputs ] = useState()
 
     useEffect(() => {
-        if(!answer) return
-        const studentQueries = answer.queries;
-        setQueries(studentQueries.map((q) => q.query))
-        setStudentOutputs(studentQueries.map((q) => q.studentOutput))
-    }, [answer]);
+        const studentQueries = answer?.database?.queries;
+        if (studentQueries) {
+            setQueries(studentQueries.map((q) => q.query))
+            setStudentOutputs(studentQueries.map((q) => q.studentOutput))
+        }
+    }, [questionId, answer]);
 
-    const solutionOutputs = useMemo(() => answer?.solutionOutputs, [answer]);
+    const solutionOutputs = useMemo(() => answer?.question.database.solutionQueries.map((solQ) => ({
+        order: solQ.query.order,
+        output: solQ.output.output
+    })), [answer]);
+
     const getSolutionOutput = useCallback((order) => solutionOutputs.find(q => q.order === order), [solutionOutputs])
 
     const saveAndTest = useCallback(async () => {
@@ -119,7 +124,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     return (
         <Loading errors={[error]} loading={!answer}>
-            {answer?.queries && (
+            {queries && queries.length > 0 && (
                 <>
                     <Stack pt={1}>
                         <QueriesRunSummary
@@ -187,15 +192,16 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                             }
                         />
                     </Stack>
+                    <StudentQueryConsole
+                        jamSessionId={jamSessionId}
+                        questionId={questionId}
+                        open={openConsole}
+                        studentQueries={queries}
+                        onClose={() => setOpenConsole(false)}
+                    />
                 </>
             )}
-            <StudentQueryConsole
-                jamSessionId={jamSessionId}
-                questionId={questionId}
-                open={openConsole}
-                studentQueries={answer?.queries}
-                onClose={() => setOpenConsole(false)}
-            />
+
         </Loading>
     )
 }

@@ -18,7 +18,7 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
 
     const [ sql, setSql ] = useState("");
     const [ when, setWhen ] = useState("after")
-    const [ order, setOrder ] = useState(studentQueries[0].query.order)
+    const [ order, setOrder ] = useState(studentQueries[0].order)
 
     const [ running, setRunning ] = useState(false);
     const [ result, setResult ] = useState(undefined);
@@ -28,9 +28,6 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
         setResult({
             status: DatabaseQueryOutputStatus.RUNNING
         });
-        // add sql before or after the "order" query
-        const index = studentQueries.findIndex(({query}) => query.order === order)
-
         const response = await fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/database/console`, {
             method: 'POST',
             headers: {
@@ -100,11 +97,9 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
                                 setOrder(order)
                             }}
                         >
-                            {
-                                studentQueries.map(({query}) => (
-                                    <MenuItem key={query.id} value={query.order}>#{query.order} - {query.title}</MenuItem>
-                                ))
-                            }
+                            {studentQueries.map((query) => (
+                                <MenuItem key={query.id} value={query.order}>#{query.order} - {query.title}</MenuItem>
+                            ))}
                         </DropDown>
                     </Stack>
                     <Stack direction={"row"} spacing={1}>

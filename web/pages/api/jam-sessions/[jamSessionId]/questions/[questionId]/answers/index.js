@@ -66,7 +66,7 @@ const get = async (req, res) => {
             },
           },
           database:{
-            include:{
+            select:{
               solutionQueries: {
                 where: {
                   query: {
@@ -103,7 +103,6 @@ const get = async (req, res) => {
       },
       database: {
         select: {
-          testPassed: true,
           queries: {
             include: {
               query: {
@@ -131,21 +130,18 @@ const get = async (req, res) => {
     return
   }
 
-  // remove hidden queries content
-  studentAnswer.database?.queries.forEach(query => {
-    if (query.query.studentPermission === StudentPermission.HIDDEN) {
-      query.query.content = null;
-    }
-  });
+  if(studentAnswer.database){
+    // remove hidden queries content
+    studentAnswer.database.queries = studentAnswer.database?.queries.map(saTq => ({
+        ...saTq,
+        query: {
+            ...saTq.query,
+            content: saTq.query.studentPermission === StudentPermission.HIDDEN ? null : saTq.query.content
+        }
+    }))
+  }
 
-  res.status(200).json({
-    solutionOutputs: studentAnswer.question.database.solutionQueries.map(solQ => ({
-      order: solQ.query.order,
-      output:solQ.output.output
-    })),
-    queries: studentAnswer.database.queries,
-
-  })
+  res.status(200).json(studentAnswer)
 }
 
 /*
@@ -273,7 +269,7 @@ const prepareAnswer = (questionToJamSession, answer) => {
         answer: {
           isTrue: answer ? answer.isTrue : null,
         },
-        grading: grading(questionToJamSession, answer),
+        grading: grading(question, questionToJamSession.points, answer),
       }
     case QuestionType.essay:
       return {
@@ -281,7 +277,7 @@ const prepareAnswer = (questionToJamSession, answer) => {
         answer: {
           content: answer ? String(answer.content) : null,
         },
-        grading: grading(questionToJamSession, answer),
+        grading: grading(question, questionToJamSession.points, answer),
       }
     case QuestionType.web:
       return {
@@ -291,7 +287,7 @@ const prepareAnswer = (questionToJamSession, answer) => {
           html: answer ? answer.html : null,
           js: answer ? answer.js : null,
         },
-        grading: grading(questionToJamSession, answer),
+        grading: grading(question, questionToJamSession.points, answer),
       }
     default:
       return undefined
