@@ -18,8 +18,8 @@ const ViolationSummary = ({violation}) => {
     return(
         <Stack>
             <Typography variant={"caption"}>{`${violation?.description} (${violation?.code})`}</Typography>
-            {violation?.lines?.map((line) => (
-                <Typography variant={"caption"}>{`Line ${line.line} pos ${line.pos}`}</Typography>
+            {violation?.lines?.map((line, index) => (
+                <Typography key={index} variant={"caption"}>{`Line ${line.line} pos ${line.pos}`}</Typography>
             ))}
         </Stack>
     )
@@ -40,7 +40,7 @@ const QueryOutput = ({ header, color, result, lintResult, onHeightChange }) => {
             // Cleanup observer on component unmount
             return () => observer.disconnect();
         }
-    }, [debouncedHeightChange]);
+    }, [debouncedHeightChange, onHeightChange]);
 
     const renderQueryOutput = (output) => {
         if(!output.result) return null

@@ -97,7 +97,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
             setSaveLock(false);
             onAnswerChange && onAnswerChange(updatedStudentAnswer)
         },
-        [jamSessionId, questionId, answer, onAnswerChange]
+        [jamSessionId, questionId, onAnswerChange]
     )
 
     const debouncedOnChange = useDebouncedCallback(onQueryChange, 500)
@@ -105,22 +105,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         setSaveLock(true);
         debouncedOnChange(query);
     }
-
-    const hasTestPassed = (studentOutput) => {
-        return studentOutput?.output.testPassed;
-    }
-    const getTestColor = (studentOutput) => {
-        if(!studentOutput) return "info"; // no student output yet -> we display solution output in blue
-        const testPassed = hasTestPassed(studentOutput);
-        if(testPassed === null) return "info"; // test is running -> we display student output in blue
-        // test is finished, we display student output in success if test passed, warning if fail and error if query failed to run
-        return testPassed ? "success" : studentOutput.status === DatabaseQueryOutputStatus.ERROR ? "error" : "warning";
-    }
-    const getTestFeedback = (order, studentOutput) => {
-        const testPassed = hasTestPassed(studentOutput);
-        if(testPassed === null) return "Running test...";
-        return testPassed ? `Test for query #${order} passed!` : `Test for query #${order} failed!`;
-    }
+   
 
     return (
         <Loading errors={[error]} loading={!answer}>
@@ -146,22 +131,11 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                         query={query}
                                         onChange={(query) => handleChange(query)}
                                     />
-                                    { query.testQuery && studentOutputs[index] && (
-                                        <AlertFeedback severity={getTestColor(studentOutputs[index])}>
-                                            <AlertTitle>
-                                                {getTestFeedback(query.order, studentOutputs[index])}
-                                            </AlertTitle>
-                                            {query.queryOutputTests.length > 0 && (
-                                                <Breadcrumbs separator="-" aria-label="breadcrumb">
-                                                    { query.queryOutputTests.map(({test}) => (
-                                                        <Typography variant={"caption"}>{queryOutputTestToName[test]}</Typography>
-                                                    ))}
-                                                </Breadcrumbs>
-                                            )}
-                                        </AlertFeedback>
-                                    )}
+                                    <StudentTestFeedback
+                                        query={query}
+                                        studentOutput={studentOutputs[index]}
+                                    />
                                     <StudentOutputDisplay
-                                        color={getTestColor(studentOutputs[index])}
                                         testQuery={query.testQuery}
                                         lintResult={query.lintResult}
                                         studentOutput={studentOutputs[index]}
@@ -205,5 +179,33 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         </Loading>
     )
 }
+
+
+const StudentTestFeedback = ({ query, studentOutput }) => {
+
+    const getTestFeedback = (order, studentOutput) => {
+        const testPassed = studentOutput?.output.testPassed;
+        if(testPassed === null) return "Running test...";
+        return testPassed ? `Test for query #${order} passed!` : `Test for query #${order} failed!`;
+    }
+
+    return (
+        query.testQuery && studentOutput && (
+            <AlertFeedback severity={getTestColor(studentOutput)}>
+                <AlertTitle>
+                    {getTestFeedback(query.order, studentOutput)}
+                </AlertTitle>
+                {query.queryOutputTests.length > 0 && (
+                    <Breadcrumbs separator="-" aria-label="breadcrumb">
+                        { query.queryOutputTests.map(({test}, index) => (
+                            <Typography key={index} variant={"caption"}>{queryOutputTestToName[test]}</Typography>
+                        ))}
+                    </Breadcrumbs>
+                )}
+            </AlertFeedback>
+        )
+    )
+}
+
 
 export default AnswerDatabase;

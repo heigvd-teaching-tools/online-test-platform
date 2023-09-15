@@ -4,7 +4,7 @@ import QueryOutput from "../../question/type_specific/database/QueryOutput";
 import {Typography} from "@mui/material";
 import DateTimeAgo from "../../feedback/DateTimeAgo";
 
-const StudentOutputDisplay = ({ color, testQuery, lintResult, studentOutput, solutionOutput}) => {
+const StudentOutputDisplay = ({ testQuery, lintResult, studentOutput, solutionOutput}) => {
 
     const [ height, setHeight ] = useState(0);
 
@@ -12,6 +12,18 @@ const StudentOutputDisplay = ({ color, testQuery, lintResult, studentOutput, sol
     const [ rightHeight, setRightHeight ] = useState(0);
 
     useEffect(() => setHeight(Math.max(leftHeight, rightHeight)), [leftHeight, rightHeight]);
+
+    const hasTestPassed = (studentOutput) => {
+        return studentOutput?.output.testPassed;
+    }
+
+    const getTestColor = (studentOutput) => {
+        if(!studentOutput) return "info"; // no student output yet -> we display solution output in blue
+        const testPassed = hasTestPassed(studentOutput);
+        if(testPassed === null) return "info"; // test is running -> we display student output in blue
+        // test is finished, we display student output in success if test passed, warning if fail and error if query failed to run
+        return testPassed ? "success" : studentOutput.status === DatabaseQueryOutputStatus.ERROR ? "error" : "warning";
+    }
 
     return (
         testQuery ? (
@@ -29,7 +41,7 @@ const StudentOutputDisplay = ({ color, testQuery, lintResult, studentOutput, sol
                                 {studentOutput?.updatedAt && <DateTimeAgo date={new Date(studentOutput.updatedAt)} />}
                             </>
                         }
-                        color={color}
+                        color={getTestColor(studentOutput)}
                         result={studentOutput?.output}
                         lintResult={lintResult}
                         onHeightChange={(newHeight) => {
@@ -45,7 +57,7 @@ const StudentOutputDisplay = ({ color, testQuery, lintResult, studentOutput, sol
                                 Expected output
                             </Typography>
                         }
-                        color={color}
+                        color={getTestColor(studentOutput)}
                         result={solutionOutput.output}
                         onHeightChange={(newHeight) => {
                             setRightHeight(newHeight)
