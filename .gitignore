@@ -111,3 +111,5 @@ ssh
 # macOS
 .DS_Store
 
+
+deploy.tar.gz

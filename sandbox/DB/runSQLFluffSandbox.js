@@ -1,35 +1,32 @@
 import uniqid from 'uniqid'
 import fs from 'fs'
-import { GenericContainer } from 'testcontainers'
 import Docker  from "dockerode";
-import { get } from 'http';
 import path from 'path'
-import tar from "tar-stream";
-import { c } from 'tar';
 
 const docker = new Docker();
 
 export const runSQLFluffSandbox = async ({ sql, sqlfluffRules }) => {
+    let absoluteFilesDirectory = null;
     try {
         // Step 1: Prepare the files
         const files = [
             { path: 'query.sql', content: sql },
-            { path: '.sqlfluff', content: sqlfluffRules },
-            { path: 'log.txt', content: ''}
+            { path: 'query2.sql', content: sql },
+            { path: 'query3.sql', content: sql },
+            { path: '.sqlfluff', content: sqlfluffRules }
         ];
-
         
         const directory = await prepareContent(files);
-        const absoluteFilesDirectory = path.resolve(directory);
+        absoluteFilesDirectory = path.resolve(directory);
 
         const containerOpts = {
             Image: "sqlfluff/sqlfluff:latest",
-            Tty: false,  // This corresponds to the `-it` flag
-            Cmd: ['lint', 'query.sql', '--dialect', 'postgres', '--format', 'json'],
+            Tty: false,  // The `-it` flag
+            Cmd: ['lint', '.', '--dialect', 'postgres', '--format', 'json'],
             HostConfig: {
                 AutoRemove: true,
                 Binds: [
-                `${absoluteFilesDirectory}:/sql`  // This corresponds to `-v $PWD:/sql`
+                    `${absoluteFilesDirectory}:/sql`  
                 ]
             }
         };
@@ -46,7 +43,6 @@ export const runSQLFluffSandbox = async ({ sql, sqlfluffRules }) => {
                     } else {
                         container.wait((err, _) => {
                             if (err) {
-                                console.error('Error waiting for container:', err);
                                 return reject("Error waiting for container: " + err.message);
                             }
                 
@@ -62,13 +58,13 @@ export const runSQLFluffSandbox = async ({ sql, sqlfluffRules }) => {
                     }
                 });
             });
+        }).finally(async () => {
+            // Clean up the files
+            await fs.promises.rm(absoluteFilesDirectory, { recursive: true }).catch(err => console.error('Failed to delete directory:', err));
         });
     } catch (error) {
         return Promise.reject('Unexpected error: ' + error.message);
-    } finally {
-        // Clean up the files
-        await fs.promises.rmdir(absoluteFilesDirectory, { recursive: true }).catch(err => console.error('Failed to delete directory:', err));
-    }
+    } 
 };
 
 const prepareContent = (files) =>

@@ -1,4 +1,4 @@
-# LINE ENDINGS MUST BE LF
+# end of line must be LF
 # Variables for your setup
 $sshUser = $env:REMOTE_USER
 $sshHost = $env:REMOTE_HOST
