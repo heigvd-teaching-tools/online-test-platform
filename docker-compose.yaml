@@ -38,7 +38,7 @@ services:
     restart: "no"
     depends_on:
       - db
-    command: npx prisma db push
+    command: npx prisma db push --accept-data-loss
     networks:
       - app-network
 

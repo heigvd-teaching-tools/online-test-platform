@@ -14,8 +14,8 @@ $githubAppPrivateKeyPath = $env:GITHUB_APP_PRIVATE_KEY_PATH
 $githubAppInstallationId = $env:GITHUB_APP_INSTALLATION_ID
 
 # Check if necessary environment variables are set
-if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret) {
-    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET)"
+if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret -or !$githubOrg -or !$githubAppId -or !$githubAppPrivateKeyPath -or !$githubAppInstallationId) {
+    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET, GITHUB_ORG, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY_PATH, GITHUB_APP_INSTALLATION_ID)"
     exit 1
 }
 
