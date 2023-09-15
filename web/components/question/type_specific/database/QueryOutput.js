@@ -110,8 +110,8 @@ const LintResult = ({ lintResult }) => {
                         <>
                             <Divider variant={"middle"} orientation={"vertical"} flexItem={true} />
                             <Stack direction={"row"} spacing={2}>
-                                {lintResult?.violations?.map((violation) => (
-                                    <Badge badgeContent={violation?.lines?.length || 0} color="info">
+                                {lintResult?.violations?.map((violation, index) => (
+                                    <Badge key={index} badgeContent={violation?.lines?.length || 0} color="info">
                                         <Tooltip
                                             title={
                                                 <ViolationSummary violation={violation} />

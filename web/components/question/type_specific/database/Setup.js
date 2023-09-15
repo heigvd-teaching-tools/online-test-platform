@@ -1,10 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { Stack, TextField, Typography } from '@mui/material'
-import useSWR from 'swr'
-import Loading from '../../../feedback/Loading'
-import { fetcher } from '../../../../code/utils'
-const Setup = ({ questionId, database }) => {
+
+const Setup = ({ questionId, database, onChange }) => {
 
   const [image, setImage] = useState(database?.image)
 
@@ -12,7 +10,7 @@ const Setup = ({ questionId, database }) => {
     setImage(database?.image)
   }, [database])
 
-  const onChange = useCallback(async (database) => {
+  const onChangeImage = useCallback(async (database) => {
     await fetch(`/api/questions/${questionId}/database`, {
       method: 'PUT',
       headers: {
@@ -20,30 +18,31 @@ const Setup = ({ questionId, database }) => {
         Accept: 'application/json',
       },
       body: JSON.stringify(database),
-    })
+    }).then((res) => res.json())
+
   }, [questionId]);
 
-  const debouncedOnChange = useDebouncedCallback(onChange, 500)
+  const debouncedOnChange = useDebouncedCallback(onChangeImage, 500)
 
   return (
-    <Loading loading={!database}>
-        <Stack spacing={2}>
-          <Typography variant="h6">Sandbox</Typography>
-            <TextField
-              id="image"
-              label="Image"
-              variant="standard"
-              value={image}
-              onChange={(ev) => {
-                setImage(ev.target.value)
-                debouncedOnChange({
-                  ...database,
-                  image: ev.target.value,
-                })
-              }}
-            />
-        </Stack>
-    </Loading>
+      <Stack spacing={2}>
+        <Typography variant="h6">Sandbox</Typography>
+          <TextField
+            id="image"
+            label="Image"
+            variant="standard"
+            value={image}
+            onChange={(ev) => {
+              setImage(ev.target.value)
+              const newDatabase = {
+                ...database,
+                image: ev.target.value,
+              }
+              onChange && onChange(newDatabase)
+              debouncedOnChange(newDatabase)
+            }}
+          />
+      </Stack>
   )
 }
 
