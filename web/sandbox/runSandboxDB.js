@@ -29,7 +29,7 @@ export const runSandboxDB = async ({
             .start();
 
         client = new Client({
-            host: "localhost",
+            host: process.env.DB_SANDBOX_CLIENT_HOST || "localhost",
             port: container.getFirstMappedPort(),
             ...databaseConfig,
         });
