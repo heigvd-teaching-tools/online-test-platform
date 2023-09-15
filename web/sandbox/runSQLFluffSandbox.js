@@ -2,9 +2,19 @@ import uniqid from 'uniqid'
 import fs from 'fs'
 import Docker  from "dockerode";
 import path from 'path'
+import url from 'url'
+
 import { cleanUpDockerStreamHeaders } from "./utils";
 
-const docker = new Docker();
+const dockerHost = process.env.DOCKER_HOST;
+let socketPath;
+
+if (dockerHost && dockerHost.startsWith('unix://')) {
+    socketPath = url.parse(dockerHost).pathname;
+}
+
+const docker = new Docker(socketPath ? { socketPath } : undefined);
+
 export const runSQLFluffSandbox = async ({ sql, sqlFluffRules, dialect = "postgres" }) => {
     let absoluteFilesDirectory = null;
     try {
@@ -76,12 +86,13 @@ export const runSQLFluffSandbox = async ({ sql, sqlFluffRules, dialect = "postgr
                 AutoRemove option makes the logs retrieval fail every now and then with error:
                 "(HTTP code 409) unexpected - can not get logs from container which is dead or marked for removal"
              */
-
-            container.remove(err => {
-                if (err) {
-                    console.error('Error removing container:', err);
-                }
-            });
+            if(container){
+                container.remove(err => {
+                    if (err) {
+                        console.error('Error removing container:', err);
+                    }
+                });
+            }
         });
     } catch (error) {
         return Promise.reject('Unexpected error: ' + error.message);
