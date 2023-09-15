@@ -2,7 +2,7 @@ import {
   PrismaClient,
   Role,
   StudentAnswerStatus,
-  StudentFilePermission,
+  StudentPermission,
   QuestionType,
 } from '@prisma/client'
 
@@ -55,7 +55,6 @@ const get = async (req, res) => {
     include: {
       question: {
         select: {
-          // we only select multiple choice because we need the list of all options (not only those selected by the student)
           multipleChoice: {
             select: {
               options: {
@@ -66,6 +65,25 @@ const get = async (req, res) => {
               },
             },
           },
+          database:{
+            select:{
+              solutionQueries: {
+                where: {
+                  query: {
+                    testQuery: true,
+                  },
+                },
+                select: {
+                  query: {
+                    select:{
+                      order:true // we use order to map student query to solution query output
+                    }
+                  },
+                  output:true
+                }
+              }
+            }
+          }
         },
       },
       code: {
@@ -73,7 +91,7 @@ const get = async (req, res) => {
           files: {
             where: {
               studentPermission: {
-                not: StudentFilePermission.HIDDEN
+                not: StudentPermission.HIDDEN
               }},
             select: { studentPermission: true, file: true },
             orderBy: [
@@ -82,6 +100,23 @@ const get = async (req, res) => {
             ],
           },
         },
+      },
+      database: {
+        select: {
+          queries: {
+            include: {
+              query: {
+                include:{
+                    queryOutputTests: true,
+                }
+              },
+              studentOutput: true,
+            },
+            orderBy: {
+              query: { order: 'asc' } ,
+            }
+          }
+        }
       },
       multipleChoice: { select: { options: true } },
       trueFalse: true,
@@ -93,6 +128,17 @@ const get = async (req, res) => {
   if (!studentAnswer) {
     res.status(404).json({ message: 'Student answers not found' })
     return
+  }
+
+  if(studentAnswer.database){
+    // remove hidden queries content
+    studentAnswer.database.queries = studentAnswer.database?.queries.map(saTq => ({
+        ...saTq,
+        query: {
+            ...saTq.query,
+            content: saTq.query.studentPermission === StudentPermission.HIDDEN ? null : saTq.query.content
+        }
+    }))
   }
 
   res.status(200).json(studentAnswer)
@@ -223,7 +269,7 @@ const prepareAnswer = (questionToJamSession, answer) => {
         answer: {
           isTrue: answer ? answer.isTrue : null,
         },
-        grading: grading(questionToJamSession, answer),
+        grading: grading(question, questionToJamSession.points, answer),
       }
     case QuestionType.essay:
       return {
@@ -231,7 +277,7 @@ const prepareAnswer = (questionToJamSession, answer) => {
         answer: {
           content: answer ? String(answer.content) : null,
         },
-        grading: grading(questionToJamSession, answer),
+        grading: grading(question, questionToJamSession.points, answer),
       }
     case QuestionType.web:
       return {
@@ -241,7 +287,7 @@ const prepareAnswer = (questionToJamSession, answer) => {
           html: answer ? answer.html : null,
           js: answer ? answer.js : null,
         },
-        grading: grading(questionToJamSession, answer),
+        grading: grading(question, questionToJamSession.points, answer),
       }
     default:
       return undefined

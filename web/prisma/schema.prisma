@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum StudentFilePermission {
+enum StudentPermission {
   UPDATE
   VIEW
   HIDDEN
@@ -79,6 +79,7 @@ enum QuestionType {
   essay
   code
   web
+  database
 }
 
 model Group {
@@ -148,6 +149,7 @@ model Question {
   essay          Essay?
   code           Code?
   web            Web?
+  database       Database?
 
   collection CollectionToQuestion[]
 
@@ -222,6 +224,165 @@ model Code {
   files         File[] // to casdade delete files
 }
 
+model Database {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String   @id
+
+  image           String?                   @default("")
+  solutionQueries DatabaseToSolutionQuery[]
+  databaseQueries DatabaseQuery[]
+}
+
+model DatabaseToSolutionQuery {
+  database   Database @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String        @unique
+
+  outputId String?              @unique
+  output   DatabaseQueryOutput? @relation(fields: [outputId], references: [id])
+
+  @@id([questionId, queryId])
+}
+
+enum DatabaseQueryOutputType {
+  TABULAR
+  SCALAR
+  TEXT
+}
+
+enum DatabaseQueryOutputStatus {
+  SUCCESS
+  ERROR
+  WARNING
+  RUNNING
+  NEUTRAL
+}
+
+enum DatabaseDBMS {
+  POSTGRES
+  MYSQL
+  MARIADB
+  MSSQL
+  SQLITE
+}
+
+model DatabaseQuery {
+  id String @id @default(cuid())
+
+  order Int @default(0)
+
+  database   Database? @relation(fields: [questionId], references: [questionId], onDelete: Cascade) // to casdade delete queries
+  questionId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String?
+  description String?
+
+  lintRules  String?
+  lintResult Json?
+
+  content  String?
+  template String? // not used for student answer
+
+  studentPermission StudentPermission @default(UPDATE)
+
+  testQuery        Boolean                     @default(false)
+  queryOutputTests DatabaseQueryToOutputTest[]
+
+  studentAnswerDatabaseToQuery StudentAnswerDatabaseToQuery?
+  databaseToSolutionQuery      DatabaseToSolutionQuery?
+
+  // Used for cascade delete,
+  // we can have 2 outputs for the same query, student answer and solution when in context of the student answer
+  databaseQueryOutput DatabaseQueryOutput[]
+}
+
+model File {
+  id String @id @default(cuid())
+
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  path    String
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  codeToSolutionFile CodeToSolutionFile?
+  codeToTemplateFile CodeToTemplateFile?
+  studentAnswerCode  StudentAnswerCodeToFile?
+}
+
+model StudentAnswerDatabaseToQuery {
+  studentAnswerDatabase StudentAnswerDatabase @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail             String
+  questionId            String
+
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String        @unique
+
+  studentOutputId  String? @unique
+  solutionOutputId String? @unique
+
+  studentOutput DatabaseQueryOutput? @relation("StudentOutputRelation", fields: [studentOutputId], references: [id])
+
+  @@id([userEmail, questionId, queryId])
+}
+
+model StudentAnswerCodeToFile {
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail         String
+  questionId        String
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
+
+  studentPermission StudentPermission @default(UPDATE)
+
+  @@id([userEmail, questionId, fileId])
+}
+
+model DatabaseQueryOutput {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  output Json
+
+  status DatabaseQueryOutputStatus @default(RUNNING)
+  type   DatabaseQueryOutputType   @default(TEXT)
+  dbms   DatabaseDBMS              @default(POSTGRES)
+
+  // relatio used for cascade delete
+  query   DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  queryId String
+
+  studentAnswer StudentAnswerDatabaseToQuery? @relation("StudentOutputRelation")
+  querySolution DatabaseToSolutionQuery? // Reverse relation for DatabaseToSolutionQuery
+}
+
+model DatabaseQueryToOutputTest {
+  query DatabaseQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  queryId String
+  test    DatabaseQueryOutputTest
+
+  @@id([queryId, test])
+}
+
+enum DatabaseQueryOutputTest {
+  IGNORE_COLUMN_ORDER
+  IGNORE_ROW_ORDER
+  IGNORE_EXTRA_COLUMNS
+  INGORE_COLUMN_TYPES
+}
+
 model CodeToSolutionFile {
   code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
 
@@ -239,26 +400,9 @@ model CodeToTemplateFile {
   file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId     String @unique
 
-  studentPermission StudentFilePermission @default(UPDATE)
+  studentPermission StudentPermission @default(UPDATE)
 
   @@id([questionId, fileId])
-}
-
-model File {
-  id String @id @default(cuid())
-
-  path    String
-  content String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  codeToSolutionFile CodeToSolutionFile?
-  codeToTemplateFile CodeToTemplateFile?
-  studentAnswerCode  StudentAnswerCodeToFile?
-
-  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String
 }
 
 model Web {
@@ -373,6 +517,7 @@ model StudentAnswer {
   essay          StudentAnswerEssay?
   code           StudentAnswerCode?
   web            StudentAnswerWeb?
+  database       StudentAnswerDatabase?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -454,6 +599,16 @@ model StudentAnswerCode {
   @@id([userEmail, questionId])
 }
 
+model StudentAnswerDatabase {
+  studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail     String
+  questionId    String
+
+  queries StudentAnswerDatabaseToQuery[]
+
+  @@id([userEmail, questionId])
+}
+
 model TestCaseResult {
   userEmail  String
   questionId String
@@ -471,19 +626,6 @@ model TestCaseResult {
   @@id([index, userEmail, questionId])
 }
 
-model StudentAnswerCodeToFile {
-  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
-  userEmail         String
-  questionId        String
-
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId String @unique
-
-  studentPermission StudentFilePermission @default(UPDATE)
-
-  @@id([userEmail, questionId, fileId])
-}
-
 model StudentAnswerWeb {
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
@@ -497,7 +639,7 @@ model StudentAnswerWeb {
 }
 
 model StudentAnswerCodeHistory {
-  //studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  // studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail  String
   questionId String
 

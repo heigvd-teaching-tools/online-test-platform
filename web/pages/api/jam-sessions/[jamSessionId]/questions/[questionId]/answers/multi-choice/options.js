@@ -40,7 +40,7 @@ const addOrRemoveOption = async (req, res) => {
 
   const { option } = req.body
 
-  const questionToJamSession = await prisma.jamSessionToQuestion.findUnique({
+  const jamSessionToQuestion = await prisma.jamSessionToQuestion.findUnique({
     where: {
       jamSessionId_questionId: {
         jamSessionId: jamSessionId,
@@ -60,7 +60,7 @@ const addOrRemoveOption = async (req, res) => {
     },
   })
 
-  if (!questionToJamSession) {
+  if (!jamSessionToQuestion) {
     res.status(400).json({ message: 'Internal Server Error' })
     return
   }
@@ -155,9 +155,9 @@ const addOrRemoveOption = async (req, res) => {
     create: {
       userEmail: studentEmail,
       questionId: questionId,
-      ...grading(questionToJamSession, studentAnswer),
+      ...grading(jamSessionToQuestion.question, jamSessionToQuestion.points, studentAnswer),
     },
-    update: grading(questionToJamSession, studentAnswer),
+    update: grading(jamSessionToQuestion.question,jamSessionToQuestion.points, studentAnswer),
   })
 
   const updatedStudentAnswer = await prisma.studentAnswer.findUnique({

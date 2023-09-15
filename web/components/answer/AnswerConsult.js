@@ -5,6 +5,7 @@ import ConsultEssay from './ConsultEssay'
 import ConsultWeb from './ConsultWeb'
 import ConsultCode from './ConsultCode'
 import CompareTrueFalse from './CompareTrueFalse'
+import ConsultDatabase from './ConsultDatabase'
 /*
     this component is used to display the student answer and grading to a question in the context of the student's consultation
     it displays the answer and grading, but not the solutions
@@ -18,9 +19,10 @@ const AnswerConsult = ({ id, questionType, question, answer }) => {
   return (
     <Stack height="100%" overflow="auto">
       {answer &&
-        ((questionType === QuestionType.trueFalse && (
-          <CompareTrueFalse mode="consult" answer={answer.isTrue} />
-        )) ||
+        (
+          (questionType === QuestionType.trueFalse && (
+            <CompareTrueFalse mode="consult" answer={answer.isTrue} />
+          )) ||
           (questionType === QuestionType.multipleChoice && answer.options && (
             <CompareMultipleChoice
               id={id}
@@ -37,7 +39,14 @@ const AnswerConsult = ({ id, questionType, question, answer }) => {
           )) ||
           (questionType === QuestionType.web && (
             <ConsultWeb answer={answer} />
-          )))}
+          )) ||
+          (questionType === QuestionType.database && (
+              <ConsultDatabase 
+                queries={answer.queries} 
+                />
+          ))
+          
+        )}
     </Stack>
   )
 }

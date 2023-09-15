@@ -46,27 +46,3 @@ export const ResizeObserverProvider = ({ children }) => {
 }
 
 export const useResizeObserver = () => useContext(ResizeObserverContext)
-
-function ChildComponent() {
-  const dimensions = useResizeObserver()
-
-  return (
-    <div>
-      <p>Width: {dimensions.width}</p>
-      <p>Height: {dimensions.height}</p>
-    </div>
-  )
-}
-
-function ParentComponent() {
-  return (
-    <ResizeObserverProvider>
-      <div>
-        <ChildComponent />
-        <ResizeObserverProvider>
-          <ChildComponent />
-        </ResizeObserverProvider>
-      </div>
-    </ResizeObserverProvider>
-  )
-}

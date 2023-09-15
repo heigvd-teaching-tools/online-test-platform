@@ -2,7 +2,7 @@ import {
   PrismaClient,
   Role,
   QuestionType,
-  StudentFilePermission,
+  StudentPermission,
 } from '@prisma/client'
 import { getUserSelectedGroup, hasRole } from '../../../code/auth'
 import {
@@ -308,7 +308,7 @@ const codeInitialUpdateQuery = (questionId, code) => {
       },
       templateFiles: {
         create: code.files.template.map((file) => ({
-          studentPermission: StudentFilePermission.UPDATE,
+          studentPermission: StudentPermission.UPDATE,
           file: {
             create: {
               path: file.path,

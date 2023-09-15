@@ -1,4 +1,4 @@
-import { QuestionType, StudentFilePermission } from '@prisma/client'
+import { QuestionType, StudentPermission } from '@prisma/client'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -52,7 +52,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 ? {
                     where: {
                       studentPermission: {
-                        not: StudentFilePermission.HIDDEN,
+                        not: StudentPermission.HIDDEN,
                       },
                     },
                   }
@@ -93,6 +93,35 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         },
         essay: true,
         web: true,
+        database: {
+            select: {
+                image: true,
+                ...(includeOfficialAnswers ? {
+                    solutionQueries: {
+                        select: {
+                            query: {
+                                select: {
+                                    id: true,
+                                    order: true,
+                                    title: true,
+                                    description: true,
+                                    content: true,
+                                    template: true,
+                                    lintRules: true,
+                                    studentPermission: true,
+                                    testQuery: true,
+                                    queryOutputTests: {
+                                        select: {
+                                            test: true,
+                                        }
+                                    }
+                                }
+                            },
+                            output: true,
+                        }
+                    }} : {}),
+                }
+            }
       }
     : {}
 
@@ -137,6 +166,19 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             testCaseResults: true,
             allTestCasesPassed: true,
           },
+        },
+        database:{
+            select:{
+                queries:{
+                    include:{
+                        query: true,
+                        studentOutput: true,
+                    },
+                    orderBy: {
+                        query: { order: 'asc' } ,
+                    }
+                }
+            }
         },
         multipleChoice: {
           select: { options: { select: { id: true, text: true } } },

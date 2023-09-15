@@ -63,6 +63,7 @@ export default NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   events: {
+
     async linkAccount({ user, account})  {
         if(await setProfessorIfMemberOfOrg(account, user)){
             // update session to reflect new role
@@ -77,8 +78,8 @@ export default NextAuth({
     }
   },
   callbacks: {
-    async session({ session, user }) {
 
+    async session({ session, user }) {
       if (user) {
         const userWithGroups = await prisma.user.findUnique({
           where: { email: user.email },

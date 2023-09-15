@@ -115,27 +115,17 @@ const SolutionFilesManager = ({ questionId, language }) => {
               />
             ))}
           </ScrollContainer>
-          <Stack
-            zIndex={2}
-            position={'absolute'}
-            bottom={0}
-            left={0}
-            maxHeight="100%"
-            width="100%"
-            overflow="auto"
-          >
-            <CodeCheck
-              codeCheckAction={() =>
-                fetch(`/api/sandbox/${questionId}/files`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    files: codeToSolutionFiles.map((file) => file.file),
-                  }),
-                })
-              }
-            />
-          </Stack>
+          <CodeCheck
+            codeCheckAction={() =>
+              fetch(`/api/sandbox/${questionId}/files`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  files: codeToSolutionFiles.map((file) => file.file),
+                }),
+              })
+            }
+          />
         </Stack>
       )}
     </Loading>

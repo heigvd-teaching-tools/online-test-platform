@@ -1,8 +1,8 @@
 import { Box, Grow, Paper, Stack, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { getQuestionSuccessRate, typeSpecificStats } from '../pages/stats'
+import { getQuestionSuccessRate, typeSpecificStats } from './stats'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
-import Image from 'next/image'
+
 import PiePercent from '../../feedback/PiePercent'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 
@@ -86,6 +86,45 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
               : 0
           break
         }
+        case QuestionType.database: 
+        
+          data[question.type].testQueriesStats = data[question.type].testQueriesStats.map((testQueryStats) => {
+            const testSuccesses =  testQueryStats.testSuccesses;
+            const testFailures =  testQueryStats.testFailures;
+            return {
+              label: `Test Query #${testQueryStats.order} - ${testQueryStats.title}`,
+              success: {
+                label: "Success",
+                percent: testSuccesses + testFailures > 0 ? Math.round((testSuccesses / (testSuccesses + testFailures)) * 100) : 0,
+                amount: testSuccesses,
+              },
+              failure: {
+                label: "Failure",
+                percent: testSuccesses + testFailures > 0 ? Math.round((testFailures / (testSuccesses + testFailures)) * 100) : 0,
+                amount: testFailures,
+              }
+            }
+          });
+
+          data[question.type].lintQueriesStats = data[question.type].lintQueriesStats.map((lintQueryStats) => {
+            const lintSuccesses =  lintQueryStats.lintSuccesses;
+            const lintFailures =  lintQueryStats.lintFailures;
+            return {
+              label: `Lint Query #${lintQueryStats.order} - ${lintQueryStats.title}`,
+              success: {
+                label: "Success",
+                percent: lintSuccesses + lintFailures > 0 ? Math.round((lintSuccesses / (lintSuccesses + lintFailures)) * 100) : 0,
+                amount: lintSuccesses,
+              },
+              failure: {
+                label: "Failure",
+                percent: lintSuccesses + lintFailures > 0 ? Math.round((lintFailures / (lintSuccesses + lintFailures)) * 100) : 0,
+                amount: lintFailures,
+              }
+            }
+          });
+
+        break;
         default:
           break
       }
@@ -122,7 +161,6 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
         {questionData &&
           ((questionData.type === QuestionType.multipleChoice && (
             <Stack direction="column" alignItems="flex-start" spacing={2}>
-              <ConsoleLog data={questionData} />
               {questionData[questionData.type].map((option, index) => (
                 <AnalyticsRow
                   key={index}
@@ -179,7 +217,56 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
                   amount={questionData[questionData.type].missing.count}
                 />
               </>
-            )))}
+            )) ||
+            (questionData.type === QuestionType.database && (
+              <>
+                <Stack direction="row" alignItems="flex-start" spacing={2} width={"100%"}>
+                  <Stack flex={1} spacing={1}>
+                    <Typography variant="h5"> Output tests </Typography>
+                    {questionData[questionData.type].testQueriesStats.map((testQueryStats, index) => (
+                      <Stack key={index} direction="column" alignItems="flex-start" spacing={1}>
+                        <Typography variant="body1"><b>{testQueryStats.label}</b></Typography>
+                        <AnalyticsRow
+                          label={testQueryStats.success.label}
+                          color="success"
+                          percent={testQueryStats.success.percent}
+                          amount={testQueryStats.success.amount}
+                        />
+                        <AnalyticsRow
+                          label={testQueryStats.failure.label}
+                          color="error"
+                          percent={testQueryStats.failure.percent}
+                          amount={testQueryStats.failure.amount}
+                        />
+                      </Stack>
+                    ))}
+                  </Stack>
+                  <Stack flex={1} spacing={1}>
+                    <Typography variant="h5"> Lint tests </Typography>
+                    {questionData[questionData.type].lintQueriesStats.map((lintQueryStats, index) => (
+                      <Stack key={index} direction="column" alignItems="flex-start" spacing={1}>
+                        <Typography variant="body1"><b>{lintQueryStats.label}</b></Typography>
+                        <AnalyticsRow
+                          label={lintQueryStats.success.label}
+                          color="success"
+                          percent={lintQueryStats.success.percent}
+                          amount={lintQueryStats.success.amount}
+                        />
+                        <AnalyticsRow
+                          label={lintQueryStats.failure.label}
+                          color="error"
+                          percent={lintQueryStats.failure.percent}
+                          amount={lintQueryStats.failure.amount}
+                        />
+                        </Stack>
+                    ))}
+                  </Stack>
+                </Stack>
+
+              </>
+            ))
+            )
+            }
         <Stack direction="row" spacing={1} alignItems="center">
           <PiePercent value={getQuestionSuccessRate(JamSessionToQuestion)} />
           <Box>

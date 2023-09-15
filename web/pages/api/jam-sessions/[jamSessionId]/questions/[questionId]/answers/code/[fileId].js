@@ -57,45 +57,6 @@ const put = async (req, res) => {
     return
   }
 
-  // get all the files of the student answers
-  const studentAnswerFiles = await prisma.studentAnswerCodeToFile.findMany({
-    where: {
-      userEmail: studentEmail,
-      questionId: questionId,
-    },
-    select: {
-      file: true,
-    },
-  })
-
-  // get original code question templateFiles
-  const originalFiles = await prisma.codeToTemplateFile.findMany({
-    where: {
-      questionId: questionId,
-    },
-    select: {
-      file: true,
-    },
-  })
-
-  // deciding whatever the answer if submitted or missing
-  // find any difference between the original files and the student answers files
-  // to find the corresponding file use the "path" property and then compare the "content" property
-  const diffFiles = studentAnswerFiles.filter((studentAnswerFile) => {
-    const originalFile = originalFiles.find(
-      (originalFile) => originalFile.file.path === studentAnswerFile.file.path
-    )
-    if (originalFile.file.path === file.path) {
-      return originalFile.file.content !== file.content
-    }
-    return originalFile.file.content !== studentAnswerFile.file.content
-  })
-
-  const status =
-    diffFiles.length === 0
-      ? StudentAnswerStatus.MISSING
-      : StudentAnswerStatus.SUBMITTED
-
   const transaction = [] // to do in single transaction, queries are done in order
 
   // update the status of the student answers
@@ -108,7 +69,7 @@ const put = async (req, res) => {
         },
       },
       data: {
-        status,
+        status: StudentAnswerStatus.SUBMITTED
       },
     })
   )
@@ -145,9 +106,9 @@ const put = async (req, res) => {
       create: {
         userEmail: studentEmail,
         questionId: questionId,
-        ...grading(jamSessionToQuestion, undefined),
+        ...grading(jamSessionToQuestion.question, jamSessionToQuestion.points, undefined),
       },
-      update: grading(jamSessionToQuestion, undefined),
+      update: grading(jamSessionToQuestion.question, jamSessionToQuestion.points, undefined),
     })
   )
 

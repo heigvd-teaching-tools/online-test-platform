@@ -8,7 +8,7 @@ import DataGrid from '../../ui/DataGrid'
 import UserAvatar from '../../layout/UserAvatar'
 import PiePercent from '../../feedback/PiePercent'
 import PhaseRedirect from './PhaseRedirect'
-import { getObtainedPoints, getSignedSuccessRate } from './stats'
+import { getObtainedPoints, getSignedSuccessRate } from '../analytics/stats'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'

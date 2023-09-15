@@ -1,7 +1,9 @@
-import types from './types.json'
+import { toArray as typesToArray } from './types.js'
 import { MenuItem, Stack, Typography } from '@mui/material'
 import DropDown from '../input/DropDown'
 import React from 'react'
+
+const types = typesToArray()
 
 const TypeSelector = ({ type, onChange }) => {
   return (

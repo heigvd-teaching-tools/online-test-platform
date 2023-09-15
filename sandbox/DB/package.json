@@ -1,6 +1,10 @@
 {
   "type": "module",
   "dependencies": {
-    "lodash": "^4.17.21"
+    "dockerode": "^3.3.5",
+    "lodash": "^4.17.21",
+    "tar": "^6.2.0",
+    "testcontainers": "^10.2.1",
+    "uniqid": "^5.4.0"
   }
 }

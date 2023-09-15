@@ -3,6 +3,7 @@ import fs from 'fs'
 import tar from 'tar'
 
 import { GenericContainer } from 'testcontainers'
+import {cleanUpDockerStreamHeaders} from "./utils";
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
@@ -18,7 +19,7 @@ export const runSandbox = ({
   return new Promise(async (resolve, reject) => {
     const directory = await prepareContent(files, tests)
 
-    
+
 
     const { container, beforeAllOutput } = await startContainer(
       image,
@@ -26,7 +27,7 @@ export const runSandbox = ({
       beforeAll
     )
 
-    
+
 
     /* ## TIMEOUT  */
     let containerStarted = true
@@ -94,8 +95,6 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
     .withCommand(['sleep', 'infinity'])
     .start()
 
-  console.log('container started', container)
-
   await container.exec(['sh', '-c', 'tar -xzf code.tar.gz -C /'], {
     tty: false,
   })
@@ -139,30 +138,4 @@ const execTests = async (container, tests) => {
   }
 
   return results
-}
-
-const cleanUpDockerStreamHeaders = (input) => {
-  /*
-        The response contains some headers that we need to remove
-        \x01 -> response comes from stdout
-        \x02 -> response comes from stderr
-        and the first 8 bytes are the length of the message
-    */
-  // find \x01 or \x02 and remove the next 8 bytes
-  /*
-        tried with regexp : input.replaceAll(/(\x01|\x02).{8}/gm, '')
-        but it didnt not work
-    */
-
-  let output = ''
-
-  for (let i = 0; i < input.length; i++) {
-    if (input[i] !== '\x01' && input[i] !== '\x02') {
-      output += input[i]
-    } else {
-      i += 7
-    }
-  }
-
-  return output
 }
