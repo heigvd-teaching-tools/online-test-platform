@@ -14,6 +14,7 @@ export GITHUB_ORG=yourgithuborg
 export GITHUB_APP_ID=yourgithubappid
 export GITHUB_APP_PRIVATE_KEY_PATH=yourgithubappprivatekeypath
 export GITHUB_APP_INSTALLATION_ID=yourgithubappinstallationid
+export DB_SANDBOX_CLIENT_HOST="172.17.0.1"
 '
 
 # Define remote deployment directory
@@ -48,6 +49,7 @@ NEXTAUTH_SECRET=$NEXTAUTH_SECRET
 NEXTAUTH_GITHUB_ID=$NEXTAUTH_GITHUB_ID
 NEXTAUTH_GITHUB_SECRET=$NEXTAUTH_GITHUB_SECRET
 NEXTAUTH_URL=http://eval.iict-heig-vd.in
+DB_SANDBOX_CLIENT_HOST=$DB_SANDBOX_CLIENT_HOST
 END
 
 echo "Running Docker Compose on the server..."

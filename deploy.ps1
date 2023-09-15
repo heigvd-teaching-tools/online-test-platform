@@ -12,10 +12,11 @@ $githubOrg = $env:GITHUB_ORG
 $githubAppId = $env:GITHUB_APP_ID
 $githubAppPrivateKeyPath = $env:GITHUB_APP_PRIVATE_KEY_PATH
 $githubAppInstallationId = $env:GITHUB_APP_INSTALLATION_ID
+$dbSandboxClientHost = $env:DB_SANDBOX_CLIENT_HOST
 
 # Check if necessary environment variables are set
-if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret -or !$githubOrg -or !$githubAppId -or !$githubAppPrivateKeyPath -or !$githubAppInstallationId) {
-    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET, GITHUB_ORG, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY_PATH, GITHUB_APP_INSTALLATION_ID)"
+if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret -or !$githubOrg -or !$githubAppId -or !$githubAppPrivateKeyPath -or !$githubAppInstallationId -or !$dbSandboxClientHost) {
+    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET, GITHUB_ORG, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY_PATH, GITHUB_APP_INSTALLATION_ID, DB_SANDBOX_CLIENT_HOST)"
     exit 1
 }
 
@@ -60,6 +61,7 @@ echo 'NEXTAUTH_SECRET=${nextAuthSecret}' > web/.env.production
 echo 'NEXTAUTH_GITHUB_ID=${nextAuthGithubId}' >> web/.env.production
 echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
 echo 'NEXTAUTH_URL=http://eval.iict-heig-vd.in' >> web/.env.production
+echo 'DB_SANDBOX_CLIENT_HOST=${dbSandboxClientHost}' >> web/.env.production
 docker compose down
 docker compose up --build -d
 "@
