@@ -214,7 +214,7 @@ export const typeSpecificStats = (question) => {
         for(const lintQuery of lintQueries) {
           const lintSuccesses =  question.studentAnswer.reduce((acc, sa) => {
             const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === lintQuery.query.order);
-            if(studentQuery.lintResult?.violations.length === 0) {
+            if(studentQuery.query.lintResult?.violations.length === 0) {
               return acc + 1
             }
             return acc
@@ -222,7 +222,7 @@ export const typeSpecificStats = (question) => {
 
           const lintFailures =  question.studentAnswer.reduce((acc, sa) => {
             const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === lintQuery.query.order);
-            if(!studentQuery.lintResult || studentQuery.lintResult?.violations.length > 0) {
+            if(!studentQuery.query.lintResult || studentQuery.query.lintResult?.violations.length > 0) {
               return acc + 1
             }
             return acc
