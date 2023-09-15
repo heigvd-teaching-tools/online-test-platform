@@ -72,12 +72,7 @@ export const getQuestionSuccessRate = (jamSessionToQuestions) => {
     (acc, sa) => acc + sa.studentGrading.pointsObtained,
     0
   )
-  console.log(
-    'totalPoints',
-    totalPoints,
-    'totalObtainedPoints',
-    totalObtainedPoints
-  )
+
   return totalPoints > 0
     ? Math.round((totalObtainedPoints / totalPoints) * 100)
     : 0
@@ -180,6 +175,70 @@ export const typeSpecificStats = (question) => {
         missing: {
           count: missing,
         },
+      }
+      case QuestionType.database:
+        
+        const testQueries = question.database.solutionQueries.filter((sq) => sq.query.testQuery)
+        const lintQueries = question.database.solutionQueries.filter((sq) => sq.query.lintRules)
+
+        const testQueriesStats = []
+        const lintQueriesStats = []
+
+
+        for(const testQuery of testQueries) {
+          const testSuccesses =  question.studentAnswer.reduce((acc, sa) => {           
+            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === testQuery.query.order);
+            if(studentQuery.studentOutput?.output.testPassed) {
+              return acc + 1
+            }
+            return acc
+            
+          }, 0);
+
+          const testFailures =  question.studentAnswer.reduce((acc, sa) => {
+            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === testQuery.query.order);
+            if(!studentQuery.studentOutput?.output.testPassed) {
+              return acc + 1
+            }
+            return acc
+          }, 0);
+
+          testQueriesStats.push({
+            order: testQuery.query.order,
+            title: testQuery.query.title,
+            testSuccesses,
+            testFailures,
+          })
+        }
+
+        for(const lintQuery of lintQueries) {
+          const lintSuccesses =  question.studentAnswer.reduce((acc, sa) => {
+            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === lintQuery.query.order);
+            if(studentQuery.lintResult?.violations.length === 0) {
+              return acc + 1
+            }
+            return acc
+          }, 0);
+
+          const lintFailures =  question.studentAnswer.reduce((acc, sa) => {
+            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === lintQuery.query.order);
+            if(!studentQuery.lintResult || studentQuery.lintResult?.violations.length > 0) {
+              return acc + 1
+            }
+            return acc
+          }, 0);
+
+          lintQueriesStats.push({
+            order: lintQuery.query.order,
+            title: lintQuery.query.title,
+            lintSuccesses,
+            lintFailures,
+          })
+        }
+
+      return {
+        testQueriesStats,
+        lintQueriesStats,
       }
     default:
       return null

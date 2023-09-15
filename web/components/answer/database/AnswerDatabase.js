@@ -14,12 +14,6 @@ import BottomPanel from "../../layout/utils/BottomPanel";
 import {LoadingButton} from "@mui/lab";
 import StudentQueryConsole from "./StudentQueryConsole";
 
-const queryOutputTestToName = {
-    [DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER]: "Ignore column order",
-    [DatabaseQueryOutputTest.IGNORE_ROW_ORDER]: "Ignore row order",
-    [DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS]: "Ignore extra columns",
-    [DatabaseQueryOutputTest.INGORE_COLUMN_TYPES]: "Ignore types",
-}
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
@@ -131,12 +125,11 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                         query={query}
                                         onChange={(query) => handleChange(query)}
                                     />
-                                    <StudentTestFeedback
-                                        query={query}
-                                        studentOutput={studentOutputs[index]}
-                                    />
+                                    
                                     <StudentOutputDisplay
+                                        order={query.order}
                                         testQuery={query.testQuery}
+                                        queryOutputTests={query.queryOutputTests}
                                         lintResult={query.lintResult}
                                         studentOutput={studentOutputs[index]}
                                         solutionOutput={getSolutionOutput(query.order)}
@@ -181,31 +174,6 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 }
 
 
-const StudentTestFeedback = ({ query, studentOutput }) => {
-
-    const getTestFeedback = (order, studentOutput) => {
-        const testPassed = studentOutput?.output.testPassed;
-        if(testPassed === null) return "Running test...";
-        return testPassed ? `Test for query #${order} passed!` : `Test for query #${order} failed!`;
-    }
-
-    return (
-        query.testQuery && studentOutput && (
-            <AlertFeedback severity={getTestColor(studentOutput)}>
-                <AlertTitle>
-                    {getTestFeedback(query.order, studentOutput)}
-                </AlertTitle>
-                {query.queryOutputTests.length > 0 && (
-                    <Breadcrumbs separator="-" aria-label="breadcrumb">
-                        { query.queryOutputTests.map(({test}, index) => (
-                            <Typography key={index} variant={"caption"}>{queryOutputTestToName[test]}</Typography>
-                        ))}
-                    </Breadcrumbs>
-                )}
-            </AlertFeedback>
-        )
-    )
-}
 
 
 export default AnswerDatabase;

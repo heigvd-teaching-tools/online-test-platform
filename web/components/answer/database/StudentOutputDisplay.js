@@ -1,17 +1,21 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen";
 import QueryOutput from "../../question/type_specific/database/QueryOutput";
-import {Typography} from "@mui/material";
+import {AlertTitle, Box, Breadcrumbs, Typography} from "@mui/material";
 import DateTimeAgo from "../../feedback/DateTimeAgo";
+import AlertFeedback from "../../feedback/AlertFeedback";
+import { DatabaseQueryOutputStatus, DatabaseQueryOutputTest } from "@prisma/client";
 
-const StudentOutputDisplay = ({ testQuery, lintResult, studentOutput, solutionOutput}) => {
+const StudentOutputDisplay = ({ order, testQuery, queryOutputTests, lintResult, studentOutput, solutionOutput}) => {
+
+    const subheaderRef = useRef(null);
 
     const [ height, setHeight ] = useState(0);
 
     const [ leftHeight, setLeftHeight ] = useState(0);
     const [ rightHeight, setRightHeight ] = useState(0);
 
-    useEffect(() => setHeight(Math.max(leftHeight, rightHeight)), [leftHeight, rightHeight]);
+    useEffect(() => setHeight(Math.max(leftHeight, rightHeight) + subheaderRef.current?.getBoundingClientRect().height), [leftHeight, rightHeight])
 
     const hasTestPassed = (studentOutput) => {
         return studentOutput?.output.testPassed;
@@ -28,6 +32,16 @@ const StudentOutputDisplay = ({ testQuery, lintResult, studentOutput, solutionOu
     return (
         testQuery ? (
             <LayoutSplitScreen
+                subheader={
+                    <Box ref={subheaderRef}>
+                        <StudentTestFeedback
+                            order={order}
+                            color={getTestColor(studentOutput)}
+                            queryOutputTests={queryOutputTests}
+                            studentOutput={studentOutput}
+                        />
+                    </Box>
+                }
                 useScrollContainer={false}
                 height={`${height}px`}
                 leftPanel={
@@ -70,6 +84,40 @@ const StudentOutputDisplay = ({ testQuery, lintResult, studentOutput, solutionOu
                 result={studentOutput?.output}
                 color={"info"}
             />
+        )
+    )
+}
+
+
+const queryOutputTestToName = {
+    [DatabaseQueryOutputTest.IGNORE_COLUMN_ORDER]: "Ignore column order",
+    [DatabaseQueryOutputTest.IGNORE_ROW_ORDER]: "Ignore row order",
+    [DatabaseQueryOutputTest.IGNORE_EXTRA_COLUMNS]: "Ignore extra columns",
+    [DatabaseQueryOutputTest.INGORE_COLUMN_TYPES]: "Ignore types",
+}
+
+const StudentTestFeedback = ({ order, color, queryOutputTests, studentOutput }) => {
+
+    const getTestFeedback = (order, studentOutput) => {
+        const testPassed = studentOutput?.output.testPassed;
+        if(testPassed === null) return "Running test...";
+        return testPassed ? `Test for query #${order} passed!` : `Test for query #${order} failed!`;
+    }
+
+    return (
+        studentOutput && (
+            <AlertFeedback severity={color}>
+                <AlertTitle>
+                    {getTestFeedback(order, studentOutput)}
+                </AlertTitle>
+                {queryOutputTests.length > 0 && (
+                    <Breadcrumbs separator="-" aria-label="breadcrumb">
+                        { queryOutputTests.map(({test}, index) => (
+                            <Typography key={index} variant={"caption"}>{queryOutputTestToName[test]}</Typography>
+                        ))}
+                    </Breadcrumbs>
+                )}
+            </AlertFeedback>
         )
     )
 }

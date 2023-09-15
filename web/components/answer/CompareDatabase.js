@@ -92,7 +92,7 @@ const CompareDatabase = ({ solution, answer }) => {
                     useScrollContainer={false}
                     key={saQ.query.id}
                     height={"auto"}
-                    rightWidth={25}
+                    rightWidth={35}
                     leftPanel={
                         <ConsultQuery
                             header={

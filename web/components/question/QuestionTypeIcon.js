@@ -22,6 +22,8 @@ const getTextByType = (type) => {
       return 'Essay'
     case QuestionType.web:
       return 'Web'
+    case QuestionType.database:
+      return 'Database'
     default:
       return 'Unknown'
   }
