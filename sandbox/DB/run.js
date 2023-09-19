@@ -2,7 +2,7 @@ import { runSandbox } from "./runSandboxTC.js"
 import { runSQLFluffSandbox } from "./runSQLFluffSandbox.js"
 
 const rules = `[sqlfluff]
-exclude_rules = `
+exclude_rules = AM04`
 
 const runLint = async () => {
 
