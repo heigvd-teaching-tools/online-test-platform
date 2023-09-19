@@ -56,11 +56,6 @@ const prepareContent = (files, tests) =>
   new Promise((resolve, _) => {
     let codeDirectory = `sandbox/runs/tc/${uniqid()}`
     fs.mkdirSync(codeDirectory, { recursive: true })
-    fs.mkdirSync(`${codeDirectory}/tests`)
-
-    tests.map(({ input }, index) => {
-      fs.writeFileSync(`${codeDirectory}/tests/test${index}.txt`, input || '')
-    })
 
     files.map(({ path, content }) => {
       let filesDirectory = `${codeDirectory}/${path
@@ -117,7 +112,7 @@ const execTests = async (container, tests) => {
     const { exec, input, expectedOutput } = tests[index]
     
     let { output } = await container.exec(
-      ['sh', '-c', `${exec} < /tests/test${index}.txt`],
+      ['sh', '-c', `echo "${input}" | ${exec}`],
       { tty: false }
     )
 
