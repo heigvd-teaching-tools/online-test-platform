@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import React, { useCallback, useRef } from 'react'
 import { create, del, update } from './crud'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Button, IconButton, Stack } from '@mui/material'
 import FileEditor from './FileEditor'
 import Image from 'next/image'
 

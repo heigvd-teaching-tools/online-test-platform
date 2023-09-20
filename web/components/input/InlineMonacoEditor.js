@@ -1,29 +1,32 @@
 import { useState, useEffect, useCallback } from 'react'
 import Editor from '@monaco-editor/react'
-const getContentHeight = (editor) =>
-  Math.max(100, editor.getModel().getLineCount() * 19 + 21) // little magic number dont hurt anyone
+const getContentHeight = (editor, minHeight = 100) =>
+  Math.max(minHeight, editor.getModel().getLineCount() * 19 + 21);
+
 const InlineMonacoEditor = ({
   code,
   language = 'javascript',
   readOnly = false,
   onChange,
+  minHeight = 0,
 }) => {
   const [editor, setEditor] = useState(null)
   const [contentHeight, setContentHeight] = useState(100)
   const editorMount = (editor, _monaco) => {
     setEditor(editor)
-    setContentHeight(getContentHeight(editor))
+    setContentHeight(getContentHeight(editor, minHeight))
   }
 
   useEffect(() => {
-    if (editor) {
+    if(editor){
       editor.setScrollPosition({ scrollTop: 0 })
+      setContentHeight(getContentHeight(editor, minHeight))
     }
-  }, [contentHeight, editor])
+  }, [code, editor, minHeight])
 
   const onContentChange = useCallback(
     (newContent) => {
-      setContentHeight(getContentHeight(editor))
+      setContentHeight(getContentHeight(editor, minHeight))
       onChange(newContent)
     },
     [editor, onChange]

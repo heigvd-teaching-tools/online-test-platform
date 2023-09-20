@@ -74,6 +74,7 @@ const FileEditor = ({
           code={content}
           language={languageBasedOnPathExtension(path)}
           readOnly={readonlyContent}
+          minHeight={100}
           onChange={(code) => {
             if (code === file?.content) return
             setContent(code)

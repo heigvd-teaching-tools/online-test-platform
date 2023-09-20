@@ -2,16 +2,15 @@ import {Chip, Stack, Typography, useTheme} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
 import {StudentPermission} from "@prisma/client";
-import {useDebouncedCallback} from "use-debounce";
 
 const QueryStudentPermission = ({ permission }) => {
     switch (permission) {
         case StudentPermission.UPDATE:
-            return <Chip color={"primary"} label={"Editable"} />
+            return <Chip size={"small"} variant={"outlined"} color={"primary"} label={"Editable"} />
         case StudentPermission.VIEW:
-            return <Chip color={"info"} label={"Visible-only"} />
+            return <Chip size={"small"} variant={"outlined"} color={"info"} label={"Visible-only"} />
         case StudentPermission.HIDDEN:
-            return <Chip color={"default"} label={"Hidden"} />
+            return <Chip size={"small"} variant={"outlined"} color={"default"} label={"Hidden"} />
     }
 }
 
@@ -48,7 +47,7 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
                     </Stack>
                     {
                         query.testQuery && (
-                            <Chip color={"secondary"} label={"Test query"} />
+                            <Chip size={"small"} variant={"outlined"} color={"info"} label={"Evaluated"} />
                         )
                     }
                     <QueryStudentPermission permission={query.studentPermission} />
