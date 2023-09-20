@@ -73,7 +73,7 @@ const post = async (req, res) => {
                     // run the lint sandbox
                     lintResult = await runSQLFluffSandbox({
                         sql: query.content,
-                        sqlFluffRules: query.lintRules,
+                        rules: query.lintRules,
                     });
                 }catch (e) {
                     console.log("Lint Sandbox Error", e);
