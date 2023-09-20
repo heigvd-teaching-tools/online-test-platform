@@ -49,6 +49,8 @@ ssh $sshTarget "tar -xzf ~/onlinetest/deploy.tar.gz -C ~/onlinetest && rm ~/onli
 Write-Host "Setting up files and running Docker Compose on the server..."
 $sshCommand = @"
 cd ~/onlinetest
+
+# Writing .env files
 echo "DATABASE_URL=postgresql://${postgresUser}:${postgresPassword}@db:5432/${postgresDb}" > web/.env
 echo 'POSTGRES_USER=${postgresUser}' >> web/.env
 echo 'POSTGRES_PASSWORD=${postgresPassword}' >> web/.env
@@ -62,6 +64,17 @@ echo 'NEXTAUTH_GITHUB_ID=${nextAuthGithubId}' >> web/.env.production
 echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
 echo 'NEXTAUTH_URL=http://eval.iict-heig-vd.in' >> web/.env.production
 echo 'DB_SANDBOX_CLIENT_HOST=${dbSandboxClientHost}' >> web/.env.production
+
+# Building custom docker images
+cd docker-images
+for d in */ ; do
+    echo "Building Docker image $d..."
+    docker build -t "${d%/}" "$d"
+done
+
+cd ..
+
+# Run Docker Compose Build
 docker compose down
 docker compose up --build -d
 "@
