@@ -11,6 +11,7 @@ import Loading from '../../feedback/Loading'
 
 import { fetcher } from '../../../code/utils'
 import TabPanel from "../../layout/utils/TabPanel";
+
 const Code = ({ questionId }) => {
   const { data: code, error } = useSWR(
     `/api/questions/${questionId}/code`,

@@ -39,15 +39,14 @@ const QuestionUpdate = ({ questionId }) => {
         body: JSON.stringify({ question }),
       })
         .then((res) => res.json())
-        .then(async (updated) => {
-          await mutate(updated)
+        .then(async (_) => {
           showSnackbar('Question saved', 'success')
         })
         .catch(() => {
           showSnackbar('Error saving questions', 'error')
         })
     },
-    [showSnackbar, mutate]
+    [showSnackbar]
   )
 
   const deleteQuestion = useCallback(async () => {

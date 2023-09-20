@@ -13,9 +13,11 @@ import {
 } from '../../../context/ResizeObserverContext'
 
 const Web = ({ id = 'web', readOnly = false, web: initial, onChange }) => {
+  
   const [web, setWeb] = useState(initial)
 
   const [tab, setTab] = useState('html')
+
   useEffect(() => {
     setWeb(initial)
   }, [initial, id])
