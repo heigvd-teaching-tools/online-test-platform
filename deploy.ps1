@@ -66,13 +66,13 @@ echo 'NEXTAUTH_URL=http://eval.iict-heig-vd.in' >> web/.env.production
 echo 'DB_SANDBOX_CLIENT_HOST=${dbSandboxClientHost}' >> web/.env.production
 
 # Building custom docker images
-cd docker-images
+cd ~/onlinetest/docker-images
 for d in */ ; do
     echo "Building Docker image $d..."
     docker build -t "${d%/}" "$d"
 done
 
-cd ..
+cd ~/onlinetest
 
 # Run Docker Compose Build
 docker compose down

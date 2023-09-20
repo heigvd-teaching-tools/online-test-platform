@@ -53,7 +53,7 @@ DB_SANDBOX_CLIENT_HOST=$DB_SANDBOX_CLIENT_HOST
 END
 
 echo "Building custom Docker images..."
-cd ../docker-images
+cd $REMOTE_DEPLOY_DIR/docker-images
 for d in */ ; do
     echo "Building Docker image $d..."
     docker build -t "${d%/}" "$d"
