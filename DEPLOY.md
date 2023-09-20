@@ -23,6 +23,7 @@ export GITHUB_ORG=yourgithuborg
 export GITHUB_APP_ID=yourgithubappid
 export GITHUB_APP_PRIVATE_KEY_PATH=yourgithubappprivatekeypath
 export GITHUB_APP_INSTALLATION_ID=yourgithubappinstallationid
+export DB_SANDBOX_CLIENT_HOST="172.17.0.1"
 ```
 
 ## First Deployment - OnlineTest App
@@ -32,3 +33,18 @@ You need to place the private key of the github app "OnlineTest" in the /web fol
 Online Test App : https://github.com/organizations/heigvd-teaching-tools/settings/applications/2307660
 
 The private key `eval-teaching-tools.private-key.pem` is now stored on the server in the user home directory.
+
+## Setting up SSL
+
+The SSL certificate is stored on the server at : /etc/ssl/certs/iict-heig-vd.in/
+
+The nginx configuration is expecting the certificates to be located in the /ssl folder of the project.
+
+
+```bash	
+sudo cp /etc/ssl/certs/iict-heig-vd.in/fullchain.pem ~/onlinetest/ssl/
+sudo cp /etc/ssl/certs/iict-heig-vd.in/privkey.pem ~/onlinetest/ssl/
+```
+
+The nginx container will fail to run if the certificates are not present. Make sure to re-run the nginx container after copying the certificates.
+
