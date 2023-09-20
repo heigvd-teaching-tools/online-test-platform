@@ -2,6 +2,8 @@
 
 This image needs to be built on the production server for the sql fluff linter to work properly.
 
+This is done by the deployment scripts.
+
 This linter is used in the database question type. 
 
 ## Building the image
