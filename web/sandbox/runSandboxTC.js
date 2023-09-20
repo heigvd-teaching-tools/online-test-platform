@@ -76,8 +76,6 @@ const prepareContent = (files) =>
 
 const startContainer = async (image, filesDirectory, beforeAll) => {
 
-  console.log('in startContainer', image, filesDirectory, beforeAll)
-
   let container = await new GenericContainer(image)
     .withEnvironment('NODE_NO_WARNINGS', '1')
     .withCopyFilesToContainer([

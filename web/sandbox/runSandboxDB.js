@@ -1,4 +1,4 @@
-import {GenericContainer, Wait} from "testcontainers";
+import {GenericContainer, Wait } from "testcontainers";
 import {DatabaseQueryOutputStatus, DatabaseQueryOutputType} from "@prisma/client";
 import pkg from 'pg';
 import {
@@ -64,6 +64,7 @@ export const runSandboxDB = async ({
 
     } catch (error) {
         // General error handling for the container setup or connection
+        console.log("Error: ", error.message || "Unknown error")
         results.push({
             status: DatabaseQueryOutputStatus.ERROR,
             feedback: "Database Container or Client connection error",
