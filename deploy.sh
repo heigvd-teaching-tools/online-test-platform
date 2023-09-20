@@ -52,14 +52,9 @@ NEXTAUTH_URL=http://eval.iict-heig-vd.in
 DB_SANDBOX_CLIENT_HOST=$DB_SANDBOX_CLIENT_HOST
 END
 
-echo "Building custom Docker images..."
-cd $REMOTE_DEPLOY_DIR/docker-images
-for d in */ ; do
-    echo "Building Docker image $d..."
-    docker build -t "${d%/}" "$d"
-done
-
-cd ..
+echo "Building Custom Docker images..."
+# Build Docker Images
+docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
 
 echo "Running Docker Compose on the server..."
 cd ..

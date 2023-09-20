@@ -65,14 +65,9 @@ echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
 echo 'NEXTAUTH_URL=http://eval.iict-heig-vd.in' >> web/.env.production
 echo 'DB_SANDBOX_CLIENT_HOST=${dbSandboxClientHost}' >> web/.env.production
 
-# Building custom docker images
-cd ~/onlinetest/docker-images
-for d in */ ; do
-    echo "Building Docker image $d..."
-    docker build -t "${d%/}" "$d"
-done
-
-cd ~/onlinetest
+echo "Building Custom Docker images..."
+# Build Docker Images
+docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
 
 # Run Docker Compose Build
 docker compose down
