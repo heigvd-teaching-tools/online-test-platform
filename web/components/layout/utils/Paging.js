@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { Tabs, Tab } from '@mui/material'
 import FilledBullet from '../../feedback/FilledBullet'
-const QuestionPages = ({ items, active, link }) => {
+const Paging = ({ items, active, link }) => {
   const router = useRouter()
 
   return (
@@ -30,4 +30,4 @@ const QuestionPages = ({ items, active, link }) => {
   )
 }
 
-export default QuestionPages
+export default Paging

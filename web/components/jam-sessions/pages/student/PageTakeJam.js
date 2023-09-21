@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react'
 import { Stack, Box } from '@mui/material'
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen'
-import QuestionPages from '../../take/QuestionPages'
+import QuestionPages from '../../../layout/utils/Paging'
 
 import JamSessionCountDown from '../../in-progress/JamSessionCountDown'
 
@@ -23,6 +23,7 @@ import { ResizeObserverProvider } from '../../../../context/ResizeObserverContex
 import { fetcher } from '../../../../code/utils'
 import Loading from '../../../feedback/Loading'
 import { useSnackbar } from '../../../../context/SnackbarContext'
+import Paging from '../../../layout/utils/Paging'
 
 const PageTakeJam = () => {
   const router = useRouter()
@@ -113,7 +114,7 @@ const PageTakeJam = () => {
                     </Box>
                   )}
                   {jamToQuestions && jamToQuestions.length > 0 && (
-                    <QuestionPages
+                    <Paging
                       items={pages}
                       active={pages[page - 1]}
                       link={(_, index) =>
