@@ -13,7 +13,6 @@ import {StudentQuestionGradingStatus, QuestionType, DatabaseQueryOutputStatus} f
 
  */
 export const grading = (question, totalPoints, studentAnswer) => {
-  console.log("studentAnswer", studentAnswer)
   switch (question.type) {
     case QuestionType.multipleChoice:
       return gradeMultipleChoice(question, totalPoints, studentAnswer)

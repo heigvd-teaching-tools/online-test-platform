@@ -283,10 +283,6 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
   )
 }
 
-const ConsoleLog = ({ data }) => {
-  console.log(data)
-  return null
-}
 
 const AnalyticsRow = ({ label, percent, amount, color = 'info' }) => (
   <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%' }}>

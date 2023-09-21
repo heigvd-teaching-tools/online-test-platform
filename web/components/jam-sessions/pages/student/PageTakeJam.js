@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react'
 import { Stack, Box } from '@mui/material'
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen'
-import QuestionPages from '../../take/QuestionPages'
+import QuestionPages from '../../../layout/utils/Paging'
 
 import JamSessionCountDown from '../../in-progress/JamSessionCountDown'
 
@@ -23,6 +23,7 @@ import { ResizeObserverProvider } from '../../../../context/ResizeObserverContex
 import { fetcher } from '../../../../code/utils'
 import Loading from '../../../feedback/Loading'
 import { useSnackbar } from '../../../../context/SnackbarContext'
+import Paging from '../../../layout/utils/Paging'
 
 const PageTakeJam = () => {
   const router = useRouter()
@@ -73,11 +74,16 @@ const PageTakeJam = () => {
 
   const [page, setPage] = useState(parseInt(pageId))
 
-  const [jamToQuestions, setJamToQuestions] = useState([])
+  const [ pages, setPages ] = useState([])
 
   useEffect(() => {
     if (userOnJamSession) {
-      setJamToQuestions(userOnJamSession.jamSessionToQuestions)
+      const pages = userOnJamSession.jamSessionToQuestions.map((jtq) => ({
+        id: jtq.question.id,
+        label: `Q${jtq.order}`,
+        isFilled: jtq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
+      }))
+      setPages(pages);
     }
   }, [userOnJamSession])
 
@@ -85,12 +91,8 @@ const PageTakeJam = () => {
     setPage(parseInt(pageId))
   }, [pageId])
 
-  const hasAnswered = useCallback(
-    (questionId) =>
-      jamToQuestions.find((jtq) => jtq.question.id === questionId)?.question
-        .studentAnswer[0].status === StudentAnswerStatus.SUBMITTED,
-    [jamToQuestions]
-  )
+
+  const jamToQuestions = userOnJamSession?.jamSessionToQuestions;
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
@@ -112,15 +114,12 @@ const PageTakeJam = () => {
                     </Box>
                   )}
                   {jamToQuestions && jamToQuestions.length > 0 && (
-                    <QuestionPages
-                      questions={jamToQuestions
-                        .sort((jtq) => jtq.order)
-                        .map((jtq) => jtq.question)}
-                      activeQuestion={jamToQuestions[page - 1].question}
+                    <Paging
+                      items={pages}
+                      active={pages[page - 1]}
                       link={(_, index) =>
                         `/jam-sessions/${jamSessionId}/take/${index + 1}`
                       }
-                      isFilled={hasAnswered}
                     />
                   )}
                 </Stack>
@@ -163,7 +162,13 @@ const PageTakeJam = () => {
                             question.studentAnswer[0].status =
                               updatedStudentAnswer.status
                             /* change the state to trigger a re-render */
-                            setJamToQuestions([...jamToQuestions])
+                            setPages((prevPages) => {
+                              const newPages = [...prevPages]
+                              newPages[index].isFilled =
+                                updatedStudentAnswer.status ===
+                                StudentAnswerStatus.SUBMITTED
+                              return newPages
+                            })
                           }}
                         />
                       </ResizeObserverProvider>
