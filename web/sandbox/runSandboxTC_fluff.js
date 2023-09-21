@@ -119,7 +119,6 @@ const execTests = async (container, tests) => {
 
   for (let index = 0; index < tests.length; index++) {
     const { exec, input, expectedOutput } = tests[index]
-    console.log("doing exec", ['sh', '-c', `echo -e -n "${input}\\n" | ${exec}`]);
 
     let { output } = await container.exec(
       //['sh', '-c', `echo -e "${input}\\n" | ${exec}`],

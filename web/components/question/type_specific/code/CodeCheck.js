@@ -26,8 +26,6 @@ const CodeCheck = ({ codeCheckAction }) => {
   const [codeCheckRunning, setCodeCheckRunning] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
-    console.log('CodeCheck is re-rendering', expanded);  // Place the log statement here
-
   const runCodeCheck = useCallback(async () => {
     setCodeCheckRunning(true)
     setTests(null)

@@ -50,7 +50,6 @@ const PageJoin = () => {
             })()
           })
           .catch((err) => {
-            console.log('catch: ', err)
             setError(err.message)
           })
       })()
