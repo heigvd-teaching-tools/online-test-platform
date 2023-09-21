@@ -130,7 +130,7 @@ const PageTakeJam = () => {
                 leftPanel={
                   jamToQuestions &&
                   jamToQuestions.length > 0 &&
-                  jamToQuestions[page - 1]?.question && (
+                  jamToQuestions.sort((jtq) => jtq.order)[page - 1]?.question && (
                     <>
                       <QuestionView
                         order={jamToQuestions[page - 1].order}
@@ -149,7 +149,7 @@ const PageTakeJam = () => {
                 rightPanel={
                   jamToQuestions &&
                   jamToQuestions.length > 0 &&
-                  jamToQuestions.map((q, index) => (
+                  jamToQuestions.sort((jtq) => jtq.order).map((q, index) => (
                     <Box
                       key={q.question.id}
                       height="100%"
@@ -163,7 +163,7 @@ const PageTakeJam = () => {
                             question.studentAnswer[0].status =
                               updatedStudentAnswer.status
                             /* change the state to trigger a re-render */
-                            setJamToQuestions([...jamToQuestions])
+                            setJamToQuestions([...jamToQuestions].sort((jtq) => jtq.order))
                           }}
                         />
                       </ResizeObserverProvider>

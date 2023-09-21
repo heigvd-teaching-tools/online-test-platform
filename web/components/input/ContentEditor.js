@@ -14,6 +14,7 @@ const ContentEditor = ({
     <ReactMarkdown>{rawContent?.toString()}</ReactMarkdown>
   ) : (
     <InlineMonacoEditor
+      minHeight={100}
       code={rawContent}
       language={language}
       readOnly={readOnly}
