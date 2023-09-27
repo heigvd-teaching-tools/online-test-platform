@@ -14,7 +14,9 @@ const LoginGitHub = () => {
     >
       <Button
         variant="contained"
-        onClick={() => signIn('github')}
+        onClick={() => signIn('github', {
+            callbackUrl: window.location.href
+        })}
         startIcon={<LockPersonIcon />}
       >
         Sign In
