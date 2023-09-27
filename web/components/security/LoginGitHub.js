@@ -1,7 +1,11 @@
 import LockPersonIcon from '@mui/icons-material/LockPerson'
 import { signIn } from 'next-auth/react'
 import { Box, Button } from '@mui/material'
+import { useRouter } from 'next/router'
 const LoginGitHub = () => {
+    const router = useRouter();
+
+    console.log("LoginGitHub.js: router: ", router)
   return (
     <Box
       sx={{

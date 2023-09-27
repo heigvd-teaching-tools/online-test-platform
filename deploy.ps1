@@ -62,7 +62,7 @@ echo 'GITHUB_APP_INSTALLATION_ID=${githubAppInstallationId}' >> web/.env
 echo 'NEXTAUTH_SECRET=${nextAuthSecret}' > web/.env.production
 echo 'NEXTAUTH_GITHUB_ID=${nextAuthGithubId}' >> web/.env.production
 echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
-echo 'NEXTAUTH_URL=http://eval.iict-heig-vd.in' >> web/.env.production
+echo 'NEXTAUTH_URL=https://eval.iict-heig-vd.in' >> web/.env.production
 echo 'DB_SANDBOX_CLIENT_HOST=${dbSandboxClientHost}' >> web/.env.production
 
 echo "Building Custom Docker images..."
