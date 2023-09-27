@@ -29,7 +29,7 @@ COPY . .
 RUN npm cache clean --force
 RUN npm install -g npm@latest
 RUN rm -rf node_modules package-lock.json
-RUN npm install --loglevel verbose
+RUN npm install
 
 # Generate Prisma client for multiple platforms
 RUN npx prisma generate
