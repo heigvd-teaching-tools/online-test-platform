@@ -5,6 +5,7 @@
 export POSTGRES_USER=youruser
 export POSTGRES_PASSWORD=yourpassword
 export POSTGRES_DB=yourdatabase
+export NEXTAUTH_URL=http://localhost:3000
 export NEXTAUTH_SECRET=yoursecret
 export NEXTAUTH_GITHUB_ID=yourgithubid
 export NEXTAUTH_GITHUB_SECRET=yourgithubsecret
@@ -16,6 +17,12 @@ export GITHUB_APP_PRIVATE_KEY_PATH=yourgithubappprivatekeypath
 export GITHUB_APP_INSTALLATION_ID=yourgithubappinstallationid
 export DB_SANDBOX_CLIENT_HOST="172.17.0.1"
 '
+
+# Check if necessary environment variables are set
+if [ -z "$POSTGRES_USER" ] || [ -z "$POSTGRES_PASSWORD" ] || [ -z "$POSTGRES_DB" ] || [ -z "$NEXTAUTH_URL" ] || [ -z "$NEXTAUTH_SECRET" ] || [ -z "$NEXTAUTH_GITHUB_ID" ] || [ -z "$NEXTAUTH_GITHUB_SECRET" ] || [ -z "$REMOTE_USER" ] || [ -z "$REMOTE_HOST" ] || [ -z "$GITHUB_ORG" ] || [ -z "$GITHUB_APP_ID" ] || [ -z "$GITHUB_APP_PRIVATE_KEY_PATH" ] || [ -z "$GITHUB_APP_INSTALLATION_ID" ] || [ -z "$DB_SANDBOX_CLIENT_HOST" ]; then
+  echo "Please set all necessary environment variables before running this script."
+  exit 1
+fi
 
 # Define remote deployment directory
 REMOTE_DEPLOY_DIR="~/onlinetest"
@@ -48,7 +55,7 @@ cat <<- END > .env.production
 NEXTAUTH_SECRET=$NEXTAUTH_SECRET
 NEXTAUTH_GITHUB_ID=$NEXTAUTH_GITHUB_ID
 NEXTAUTH_GITHUB_SECRET=$NEXTAUTH_GITHUB_SECRET
-NEXTAUTH_URL=http://eval.iict-heig-vd.in
+NEXTAUTH_URL=$NEXTAUTH_URL
 DB_SANDBOX_CLIENT_HOST=$DB_SANDBOX_CLIENT_HOST
 END
 
