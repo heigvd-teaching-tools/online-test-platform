@@ -4,11 +4,12 @@ import FileEditor from './FileEditor'
 import { update, pull } from './crud'
 import DropDown from '../../../../input/DropDown'
 import { StudentPermission } from '@prisma/client'
-import React, { useCallback } from 'react'
+import React, {useCallback, useState} from 'react'
 import CodeCheck from '../CodeCheck'
 import Loading from '../../../../feedback/Loading'
 import { fetcher } from '../../../../../code/utils'
 import ScrollContainer from '../../../../layout/ScrollContainer'
+import {useDebouncedCallback} from "use-debounce";
 
 const TemplateFilesManager = ({ questionId }) => {
   const {
@@ -21,8 +22,11 @@ const TemplateFilesManager = ({ questionId }) => {
     { revalidateOnFocus: false }
   )
 
+  const [ lockCodeCheck, setLockCodeCheck ] = useState(false)
+
   const onFileUpdate = useCallback(
     async (codeToTemplateFile) => {
+      setLockCodeCheck(true)
       await update('template', questionId, codeToTemplateFile).then(
         async (updatedFile) => {
           await mutate(
@@ -34,9 +38,12 @@ const TemplateFilesManager = ({ questionId }) => {
           )
         }
       )
+      setLockCodeCheck(false)
     },
     [questionId, codeToTemplateFiles, mutate]
   )
+
+  const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
 
   const onPullSolution = useCallback(async () => {
     await pull(questionId).then(async (data) => await mutate(data))
@@ -53,12 +60,13 @@ const TemplateFilesManager = ({ questionId }) => {
                 key={index}
                 file={codeToTemplateFile.file}
                 readonlyPath
-                onChange={async (file) =>
-                  await onFileUpdate({
+                onChange={(file) => {
+                  setLockCodeCheck(true)
+                  debouncedOnFileChange({
                     ...codeToTemplateFile,
                     file,
                   })
-                }
+                }}
                 secondaryActions={
                   <Stack direction="row" spacing={1}>
                     <DropDown
@@ -87,6 +95,7 @@ const TemplateFilesManager = ({ questionId }) => {
             ))}
           </ScrollContainer>
           <CodeCheck
+            lockCodeCheck={lockCodeCheck}
             codeCheckAction={() =>
               fetch(`/api/sandbox/${questionId}/files`, {
                 method: 'POST',

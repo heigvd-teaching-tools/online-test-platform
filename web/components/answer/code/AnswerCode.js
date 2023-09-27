@@ -89,7 +89,10 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                                             </Stack>
                                         ))
                                 }
-                                onChange={debouncedOnChange}
+                                onChange={(file) => {
+                                    setLockCodeCheck(true)
+                                    debouncedOnChange(file)
+                                }}
                             />
                         ))}
                     </ScrollContainer>

@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import React, { useCallback, useRef } from 'react'
+import React, {useCallback, useRef, useState} from 'react'
 import { create, del, update } from './crud'
 import { Button, IconButton, Stack } from '@mui/material'
 import FileEditor from './FileEditor'
@@ -10,6 +10,7 @@ import CodeCheck from '../CodeCheck'
 import Loading from '../../../../feedback/Loading'
 import { fetcher } from '../../../../../code/utils'
 import ScrollContainer from '../../../../layout/ScrollContainer'
+import {useDebouncedCallback} from "use-debounce";
 
 const environments = languages.environments
 const SolutionFilesManager = ({ questionId, language }) => {
@@ -24,6 +25,8 @@ const SolutionFilesManager = ({ questionId, language }) => {
     questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
+
+  const [ lockCodeCheck, setLockCodeCheck ] = useState(false)
 
   const onAddFile = useCallback(async () => {
     const extension = environments.find(
@@ -45,6 +48,7 @@ const SolutionFilesManager = ({ questionId, language }) => {
 
   const onFileUpdate = useCallback(
     async (file) => {
+      setLockCodeCheck(true)
       await update('solution', questionId, file).then(async (updatedFile) => {
         await mutate(
           codeToSolutionFiles.map((codeToFile) =>
@@ -54,9 +58,12 @@ const SolutionFilesManager = ({ questionId, language }) => {
           )
         )
       })
+      setLockCodeCheck(false)
     },
     [questionId, codeToSolutionFiles, mutate]
   )
+
+  const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
 
   const onDeleteFile = useCallback(
     async (codeToSolutionFile) => {
@@ -88,12 +95,13 @@ const SolutionFilesManager = ({ questionId, language }) => {
               <FileEditor
                 key={index}
                 file={codeToSolutionFile.file}
-                onChange={async (file) =>
-                  await onFileUpdate({
-                    ...codeToSolutionFile,
-                    file,
-                  })
-                }
+                onChange={(file) => {
+                    setLockCodeCheck(true)
+                    debouncedOnFileChange({
+                      ...codeToSolutionFile,
+                      file,
+                    })
+                }}
                 secondaryActions={
                   <Stack direction="row" spacing={1}>
                     <IconButton
@@ -116,6 +124,7 @@ const SolutionFilesManager = ({ questionId, language }) => {
             ))}
           </ScrollContainer>
           <CodeCheck
+            lockCodeCheck={lockCodeCheck}
             codeCheckAction={() =>
               fetch(`/api/sandbox/${questionId}/files`, {
                 method: 'POST',
