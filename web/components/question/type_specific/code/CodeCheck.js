@@ -1,24 +1,18 @@
 import { useState, useCallback } from 'react'
 
 import {
-  Collapse,
   Stack,
-  Button,
   Typography,
   Alert,
-  Paper,
   TextField,
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
-
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import ExpandLess from '@mui/icons-material/ExpandLess'
 
 import { useSnackbar } from '../../../../context/SnackbarContext'
 import TestCaseResults from './TestCaseResults'
 import BottomPanel from "../../../layout/utils/BottomPanel";
 
-const CodeCheck = ({ codeCheckAction }) => {
+const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
   const { show: showSnackbar } = useSnackbar()
 
   const [beforeAll, setBeforeAll] = useState(null)
@@ -63,7 +57,7 @@ const CodeCheck = ({ codeCheckAction }) => {
                     variant="contained"
                     color="info"
                     onClick={runCodeCheck}
-                    loading={codeCheckRunning}
+                    loading={codeCheckRunning || lockCodeCheck}
                 >
                     Code Check
                 </LoadingButton>

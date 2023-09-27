@@ -31,8 +31,6 @@ const FileEditor = ({
     setLanguage(languageBasedOnPathExtension(file?.path) || 'text')
   }, [file?.id, file?.path, file?.content])
 
-  const debouncedOnChange = useDebouncedCallback(onChange, 500)
-
   return (
     file && (
       <Stack position="relative">
@@ -57,7 +55,7 @@ const FileEditor = ({
               onChange={(ev) => {
                 if (ev.target.value === file?.content) return
                 setPath(ev.target.value)
-                debouncedOnChange({
+                  onChange({
                   ...file,
                   path: ev.target.value,
                 })
@@ -78,7 +76,7 @@ const FileEditor = ({
           onChange={(code) => {
             if (code === file?.content) return
             setContent(code)
-            debouncedOnChange({
+              onChange({
               ...file,
               content: code,
             })

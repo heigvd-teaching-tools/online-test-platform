@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import {fetcher} from "../../../code/utils";
-import React, {useCallback, useRef} from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import Loading from "../../feedback/Loading";
 import {Stack, Typography} from "@mui/material";
@@ -19,8 +19,11 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const ref = useRef()
 
+    const [ lockCodeCheck, setLockCodeCheck ] = useState(false)
+
     const onFileChange = useCallback(
         async (file) => {
+            setLockCodeCheck(true)
             const currentFile = answer.code.files.find((f) => f.file.id === file.id)
             if (currentFile.file.content === file.content) return
             const updatedStudentAnswer = await fetch(
@@ -33,6 +36,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                     body: JSON.stringify({ file }),
                 }
             ).then((res) => res.json())
+            setLockCodeCheck(false)
             onAnswerChange && onAnswerChange(updatedStudentAnswer)
         },
         [jamSessionId, questionId, answer, onAnswerChange]
@@ -85,12 +89,16 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                                             </Stack>
                                         ))
                                 }
-                                onChange={debouncedOnChange}
+                                onChange={(file) => {
+                                    setLockCodeCheck(true)
+                                    debouncedOnChange(file)
+                                }}
                             />
                         ))}
                     </ScrollContainer>
 
                     <CodeCheck
+                        lockCodeCheck={lockCodeCheck}
                         codeCheckAction={() =>
                             fetch(
                                 `/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/code`,
