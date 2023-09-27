@@ -28,7 +28,7 @@ export const runSandbox = ({
     /* ## TIMEOUT  */
     let containerStarted = true
     let timeout = prepareTimeout(() => {
-      container.stop()
+     // container.stop()
       containerStarted = false
     })
 
@@ -39,7 +39,7 @@ export const runSandbox = ({
     if (containerStarted) {
       // If no timeout
       // Stop the container
-      await container.stop()
+     // await container.stop()
     } else {
       reject('Execution timed out')
     }
@@ -89,7 +89,7 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
   })
   let beforeAllOutput = undefined
   if (beforeAll) {
-    let { output } = await container.exec(['sh', '-c', beforeAll], {
+    let { output } = await container.exec(['sh', '-c', `${beforeAll} 2>&1`], {
       tty: false,
     })
     beforeAllOutput = cleanUpDockerStreamHeaders(output)
@@ -113,8 +113,8 @@ const execTests = async (container, tests) => {
   for (let index = 0; index < tests.length; index++) {
     const { exec, input, expectedOutput } = tests[index]
     let { output } = await container.exec(
-      ['sh', '-c', `echo "${input}" | ${exec}`],
-      { tty: false }
+        ['sh', '-c', `echo "${input}" | ${exec} 2>&1`],
+        { tty: false }
     )
     output = cleanUpDockerStreamHeaders(output)
     results.push({
