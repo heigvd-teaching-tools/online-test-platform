@@ -78,7 +78,8 @@ const AnswerEditor = ({ question, onAnswer }) => {
 const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
   const { data: answer, error } = useSWR(
     `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    jamSessionId && questionId ? fetcher : null
+    jamSessionId && questionId ? fetcher : null,
+      { revalidateOnFocus: false }
   )
 
   const [options, setOptions] = useState(undefined)
@@ -139,7 +140,8 @@ const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
 const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
   const { data: answer, error } = useSWR(
     `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null
+    questionId ? fetcher : null,
+      { revalidateOnFocus: false }
   )
 
   const onTrueFalseChange = useCallback(
@@ -183,7 +185,8 @@ const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
 const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
   const { data: answer, error } = useSWR(
     `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null
+    questionId ? fetcher : null,
+      { revalidateOnFocus: false }
   )
 
   const onEssayChange = useCallback(
@@ -226,7 +229,8 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
 const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
   const { data: answer, error } = useSWR(
     `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null
+    questionId ? fetcher : null,
+      { revalidateOnFocus: false }
   )
 
   const onWebChange = useCallback(

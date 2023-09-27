@@ -13,7 +13,8 @@ import CodeCheck from "../../question/type_specific/code/CodeCheck";
 const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        questionId ? fetcher : null
+        questionId ? fetcher : null,
+        { revalidateOnFocus: false }
     )
 
     const ref = useRef()

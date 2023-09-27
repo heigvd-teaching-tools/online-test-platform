@@ -19,7 +19,6 @@ const QuestionView = ({ order, points, question, totalPages }) => {
       <Stack direction="row" alignItems="center" spacing={1}>
         <Column width="32px">
           <Image
-            alt="Loading..."
             src={`/svg/questions/${question.type}.svg`}
             layout="responsive"
             width="32px"
@@ -36,7 +35,8 @@ const QuestionView = ({ order, points, question, totalPages }) => {
           <Chip color="info" label={`${points} pts`} />
         </Column>
       </Stack>
-      <Stack flex={1}>
+      <Stack flex={1} spacing={1}>
+        <Typography variant="h4">{question.title}</Typography>
         <ScrollContainer>
           <ContentEditor
             id={'questions-view-' + question.id}

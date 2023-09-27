@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import { JamSessionPhase, Role, StudentAnswerStatus } from '@prisma/client'
@@ -7,8 +7,6 @@ import { useSession } from 'next-auth/react'
 import { Stack, Box } from '@mui/material'
 
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen'
-import QuestionPages from '../../../layout/utils/Paging'
-
 import JamSessionCountDown from '../../in-progress/JamSessionCountDown'
 
 import QuestionView from '../../../question/QuestionView'
@@ -99,6 +97,7 @@ const PageTakeJam = () => {
       <Loading
         loading={!jamSessionPhase || !userOnJamSession}
         errors={[errorJamSessionPhase, errorUserOnJamSession]}
+        message={"Loading jam session..."}
       >
         {userOnJamSession && (
           <StudentPhaseRedirect phase={userOnJamSession.phase}>
