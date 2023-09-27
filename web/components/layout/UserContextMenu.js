@@ -19,7 +19,9 @@ const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
         <Link href={`/groups`}>
           <Button startIcon={<GroupIcon />}>Manage Groups</Button>
         </Link>
-        <Button onClick={() => signOut()} startIcon={<LockClosedIcon />}>
+        <Button onClick={() => signOut({
+            callbackUrl: window.location.href
+          })} startIcon={<LockClosedIcon />}>
           Sign Out
         </Button>
       </Stack>
