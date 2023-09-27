@@ -5,6 +5,7 @@ $sshHost = $env:REMOTE_HOST
 $postgresUser = $env:POSTGRES_USER
 $postgresPassword = $env:POSTGRES_PASSWORD
 $postgresDb = $env:POSTGRES_DB
+$nextAuthUrl = $env:NEXTAUTH_URL
 $nextAuthSecret = $env:NEXTAUTH_SECRET
 $nextAuthGithubId = $env:NEXTAUTH_GITHUB_ID
 $nextAuthGithubSecret = $env:NEXTAUTH_GITHUB_SECRET
@@ -15,8 +16,8 @@ $githubAppInstallationId = $env:GITHUB_APP_INSTALLATION_ID
 $dbSandboxClientHost = $env:DB_SANDBOX_CLIENT_HOST
 
 # Check if necessary environment variables are set
-if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret -or !$githubOrg -or !$githubAppId -or !$githubAppPrivateKeyPath -or !$githubAppInstallationId -or !$dbSandboxClientHost) {
-    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET, GITHUB_ORG, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY_PATH, GITHUB_APP_INSTALLATION_ID, DB_SANDBOX_CLIENT_HOST)"
+if (!$sshUser -or !$sshHost -or !$postgresUser -or !$postgresPassword -or !$postgresDb -or !$nextAuthUrl -or !$nextAuthSecret -or !$nextAuthGithubId -or !$nextAuthGithubSecret -or !$githubOrg -or !$githubAppId -or !$githubAppPrivateKeyPath -or !$githubAppInstallationId -or !$dbSandboxClientHost) {
+    Write-Host "Please ensure that all necessary environment variables are set. (REMOTE_USER, REMOTE_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, NEXTAUTH_URL NEXTAUTH_SECRET, NEXTAUTH_GITHUB_ID, NEXTAUTH_GITHUB_SECRET, GITHUB_ORG, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY_PATH, GITHUB_APP_INSTALLATION_ID, DB_SANDBOX_CLIENT_HOST)"
     exit 1
 }
 
@@ -62,7 +63,7 @@ echo 'GITHUB_APP_INSTALLATION_ID=${githubAppInstallationId}' >> web/.env
 echo 'NEXTAUTH_SECRET=${nextAuthSecret}' > web/.env.production
 echo 'NEXTAUTH_GITHUB_ID=${nextAuthGithubId}' >> web/.env.production
 echo 'NEXTAUTH_GITHUB_SECRET=${nextAuthGithubSecret}' >> web/.env.production
-echo 'NEXTAUTH_URL=https://eval.iict-heig-vd.in' >> web/.env.production
+echo 'NEXTAUTH_URL=${nextAuthUrl}' >> web/.env.production
 echo 'DB_SANDBOX_CLIENT_HOST=${dbSandboxClientHost}' >> web/.env.production
 
 echo "Building Custom Docker images..."
