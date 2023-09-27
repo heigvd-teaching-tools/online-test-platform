@@ -15,7 +15,8 @@ import StudentQueryConsole from "./StudentQueryConsole";
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-        questionId ? fetcher : null
+        questionId ? fetcher : null,
+        { revalidateOnFocus: false }
     )
 
     const ref = useRef()
@@ -97,7 +98,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         setSaveLock(true);
         debouncedOnChange(query);
     }
-   
+
 
     return (
         <Loading errors={[error]} loading={!answer}>
@@ -123,7 +124,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                         query={query}
                                         onChange={(query) => handleChange(query)}
                                     />
-                                    
+
                                     <StudentOutputDisplay
                                         order={query.order}
                                         testQuery={query.testQuery}
