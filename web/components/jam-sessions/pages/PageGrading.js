@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import {
@@ -32,7 +32,7 @@ import LayoutMain from '../../layout/LayoutMain'
 import Loading from '../../feedback/Loading'
 
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
-import QuestionPages from '../take/QuestionPages'
+import Paging from '../../layout/utils/Paging'
 import MainMenu from '../../layout/MainMenu'
 import QuestionView from '../../question/QuestionView'
 import AnswerCompare from '../../answer/AnswerCompare'
@@ -43,7 +43,7 @@ import { useSnackbar } from '../../../context/SnackbarContext'
 
 import Authorisation from '../../security/Authorisation'
 import { update } from './crud'
-import { getGradingStats, getSignedSuccessRate } from './stats'
+import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 import { fetcher } from '../../../code/utils'
 
 const PageGrading = () => {
@@ -273,6 +273,27 @@ const PageGrading = () => {
     }
   }, [activeQuestion, jamSessionId, participantId, participants, router])
 
+  const allGradingsSigned = useCallback((questionId) => {
+    const jstq = jamSessionToQuestions.find(
+      (jstq) => jstq.question.id === questionId
+    )
+    return (
+      jstq &&
+      jstq.question.studentAnswer.every(
+        (sa) => sa.studentGrading.signedBy
+      )
+    )
+  }, [jamSessionToQuestions])
+
+  const questionPages = useMemo(() => {
+    return applyFilter(jamSessionToQuestions).map(
+      (jstq) => jstq.question
+    ).map((q) => ({
+      id: q.id,
+      isFilled: allGradingsSigned(q.id),
+    }));
+  }, [jamSessionToQuestions, applyFilter, allGradingsSigned])
+
   const ready =
     jamSessionToQuestions &&
     jamSessionToQuestion &&
@@ -292,27 +313,14 @@ const PageGrading = () => {
               <Stack direction="row" alignItems="center">
                 <Stack flex={1} sx={{ overflow: 'hidden' }}>
                   {ready && (
-                    <QuestionPages
-                      questions={applyFilter(jamSessionToQuestions).map(
-                        (jstq) => jstq.question
-                      )}
-                      activeQuestion={jamSessionToQuestion.question}
-                      link={(questionId, index) =>
+                    <Paging
+                      items={questionPages}
+                      active={jamSessionToQuestion.question}
+                      link={(_, index) =>
                         `/jam-sessions/${jamSessionId}/grading/${
                           index + 1
                         }?participantId=${participantId}`
                       }
-                      isFilled={(questionId) => {
-                        const jstq = jamSessionToQuestions.find(
-                          (jstq) => jstq.question.id === questionId
-                        )
-                        return (
-                          jstq &&
-                          jstq.question.studentAnswer.every(
-                            (sa) => sa.studentGrading.signedBy
-                          )
-                        )
-                      }}
                     />
                   )}
                 </Stack>
@@ -370,6 +378,7 @@ const PageGrading = () => {
                             jamSessionToQuestion.question.studentAnswer.find(
                               (sa) => sa.user.id === participant.id
                             ).studentGrading
+                            console.log("isParticipantFilled", participant, grading)
                           return grading && grading.signedBy
                         }}
                       />

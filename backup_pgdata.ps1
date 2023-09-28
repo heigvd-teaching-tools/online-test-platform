@@ -1,4 +1,6 @@
 # Backup-RemotePgData.ps1
+# ENDLINE MUST BE LF!!
+# Make the backup of the postgres 15 database volume from the remote server
 
 # Variables for your SSH setup
 $sshUser = $env:REMOTE_USER
