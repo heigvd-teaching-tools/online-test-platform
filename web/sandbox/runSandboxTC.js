@@ -28,7 +28,7 @@ export const runSandbox = ({
     /* ## TIMEOUT  */
     let containerStarted = true
     let timeout = prepareTimeout(() => {
-     // container.stop()
+      container.stop()
       containerStarted = false
     })
 
@@ -39,7 +39,7 @@ export const runSandbox = ({
     if (containerStarted) {
       // If no timeout
       // Stop the container
-     // await container.stop()
+      await container.stop()
     } else {
       reject('Execution timed out')
     }
