@@ -14,11 +14,19 @@ if (!$sshUser -or !$sshHost) {
 
 # Combine user and host into a connection string for ssh commands
 $sshTarget = "{0}@{1}" -f $sshUser, $sshHost
+$backFolder = "backups"
+
+if (-not (Test-Path "./$backFolder")) {
+    New-Item -ItemType Directory -Path "./$backFolder" -Force
+}
+
+# Generate a date-time string
+$currentTime = (Get-Date).ToString("yyyy-MM-dd_HH-mm-ss")
 
 # Variables for backup process
-$backupFilename = "pgdata_backup.tar.gz"
-$backupLocalPath = "./$backupFilename"
-$backupRemotePath = "~/$backupFilename"
+$backupFilename = "pgdata_backup_$currentTime.tar.gz"
+$backupLocalPath = "./$backFolder/$backupFilename"
+$backupRemotePath = "~/$backFolder/$backupFilename"
 
 # Backup the Docker volume on the remote server.
 Write-Host "Backing up the PostgreSQL volume on the remote server..."

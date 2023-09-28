@@ -4,8 +4,8 @@ import { Role } from '@prisma/client'
 import Authorisation from '../../../security/Authorisation'
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen'
 import { Paper, Stack } from '@mui/material'
-import QuestionPages from '../../take/QuestionPages'
-import { useEffect, useState } from 'react'
+import Paging from '../../../layout/utils/Paging'
+import { useEffect, useMemo, useState } from 'react'
 import StudentPhaseRedirect from './StudentPhaseRedirect'
 import QuestionView from '../../../question/QuestionView'
 import GradingSigned from '../../grading/GradingSigned'
@@ -45,6 +45,8 @@ const PageConsult = () => {
     }
   }, [questionPage, jamSessionToQuestions])
 
+  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id: jstq.question.id })), [jamSessionToQuestions])
+
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading loading={!jamSession} error={[error]}>
@@ -55,12 +57,10 @@ const PageConsult = () => {
                 header={
                   <Stack direction="row" alignItems="center">
                     <Stack flex={1} sx={{ overflow: 'hidden' }}>
-                      <QuestionPages
-                        questions={jamSessionToQuestions.map(
-                          (jstq) => jstq.question
-                        )}
-                        activeQuestion={selected.question}
-                        link={(questionId, questionIndex) =>
+                      <Paging
+                        items={questionPages}
+                        active={selected.question}
+                        link={(_, questionIndex) =>
                           `/jam-sessions/${jamSessionId}/consult/${
                             questionIndex + 1
                           }`
