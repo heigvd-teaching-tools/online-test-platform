@@ -106,13 +106,11 @@ dist
 # Project
 testcontainers-node
 
-ssh
-
 # macOS
 .DS_Store
-
-
 
 ssl
 
 *.tar.gz
+
+*.pem
