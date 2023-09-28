@@ -20,7 +20,7 @@ services:
       - app-network
 
   db:
-    image: postgres
+    image: postgres:15.0
     restart: unless-stopped
     env_file:
       - ./web/.env
