@@ -112,6 +112,7 @@ ssh
 .DS_Store
 
 
-deploy.tar.gz
 
 ssl
+
+*.tar.gz
