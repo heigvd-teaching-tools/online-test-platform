@@ -22,3 +22,4 @@ echo "Fetching the backup archive from the remote server..."
 scp $SSH_TARGET:~/$BACKUP_FILE_NAME ./
 
 echo "Backup completed and stored at ./$BACKUP_FILE_NAME"
+

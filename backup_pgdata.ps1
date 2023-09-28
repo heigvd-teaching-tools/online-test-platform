@@ -38,4 +38,5 @@ Write-Host "Fetching the backup archive from the remote server..."
 $scpTargetForBackup = "{0}@{1}:$backupRemotePath" -f $sshUser, $sshHost
 scp $scpTargetForBackup $backupLocalPath
 
+
 Write-Host "Backup completed and stored at $backupLocalPath"
