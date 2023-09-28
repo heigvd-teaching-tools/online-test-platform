@@ -72,7 +72,7 @@ const ParticipantNav = ({
             collapsed={collapsed}
             participant={participant}
             onClick={() => onParticipantClick(participant)}
-            isFilled={() => isParticipantFilled(participant)}
+            isFilled={isParticipantFilled(participant)}
           />
         ))}
       </Stack>

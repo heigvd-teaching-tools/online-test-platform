@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Make the backup of the postgres 15 database volume from the remote server
 # Variables for your setup
 SSH_USER="$REMOTE_USER"
 SSH_HOST="$REMOTE_HOST"
