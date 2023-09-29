@@ -3,53 +3,36 @@ import fs from 'fs'
 import tar from 'tar'
 
 import { GenericContainer } from 'testcontainers'
-import {cleanUpDockerStreamHeaders} from "./utils";
+import {cleanUpDockerStreamHeaders, sanitizeUTF8} from "./utils";
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
 // https://github.com/apocas/dockerode
 
 const EXECUTION_TIMEOUT = 30000
-export const runSandbox = ({
-  image = 'node:latest',
-  files = [],
-  beforeAll = undefined,
-  tests = [],
-}) => {
-  return new Promise(async (resolve, reject) => {
-    const directory = await prepareContent(files)
+export const runSandbox = async ({ image = 'node:latest', files = [], beforeAll = undefined, tests = [] }) => {
+  const directory = await prepareContent(files);
 
-    const { container, beforeAllOutput } = await startContainer(
-      image,
-      directory,
-      beforeAll
-    )
+  const { container, beforeAllOutput } = await startContainer(image, directory, beforeAll);
 
-    /* ## TIMEOUT  */
-    let containerStarted = true
-    let timeout = prepareTimeout(() => {
-      container.stop()
-      containerStarted = false
-    })
+  let timeout;
+  try {
+      timeout = setTimeout(() => {
+          container.stop();
+          throw new Error('Execution timed out');
+      }, EXECUTION_TIMEOUT);
 
-    let testsResults = await execTests(container, tests)
+      const testsResults = await execTests(container, tests);
 
-    clearTimeout(timeout)
-
-    if (containerStarted) {
-      // If no timeout
-      // Stop the container
-      await container.stop()
-    } else {
-      reject('Execution timed out')
-    }
-
-    resolve({
-      beforeAll: beforeAllOutput,
-      tests: testsResults,
-    })
-  })
-}
+      return {
+          beforeAll: beforeAllOutput,
+          tests: testsResults,
+      };
+  } finally {
+      clearTimeout(timeout);
+      await container.stop();
+  }
+};
 
 const prepareContent = (files) =>
   new Promise((resolve, _) => {
@@ -92,7 +75,7 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
     let { output } = await container.exec(['sh', '-c', `${beforeAll} 2>&1`], {
       tty: false,
     })
-    beforeAllOutput = cleanUpDockerStreamHeaders(output)
+    beforeAllOutput = sanitizeUTF8(cleanUpDockerStreamHeaders(output))
   }
 
   /* ## CONTENT DELETE */
@@ -104,9 +87,6 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
   }
 }
 
-const prepareTimeout = (timeoutCallback) =>
-  setTimeout(() => timeoutCallback('Execution timed out'), EXECUTION_TIMEOUT)
-
 const execTests = async (container, tests) => {
   const results = []
 
@@ -116,7 +96,8 @@ const execTests = async (container, tests) => {
         ['sh', '-c', `echo "${input}" | ${exec} 2>&1`],
         { tty: false }
     )
-    output = cleanUpDockerStreamHeaders(output)
+    output = sanitizeUTF8(cleanUpDockerStreamHeaders(output))
+    console.log("output", output)
     results.push({
       exec,
       input,
