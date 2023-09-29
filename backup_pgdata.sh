@@ -16,6 +16,9 @@ if [ -z "$SSH_USER" ] || [ -z "$SSH_HOST" ]; then
     exit 1
 fi
 
+# Ensure local backups directory exists
+mkdir -p ./$BACKUP_FOLDER
+
 # Connect to remote server and backup the PostgreSQL volume
 echo "Backing up the PostgreSQL volume on the remote server..."
 
