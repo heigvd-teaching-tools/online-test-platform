@@ -134,9 +134,8 @@ const postgresOutputToToDataset = (pgData) => {
 }
 
 const postgresDetermineOutputType = (result) => {
-    const rowCount = result.rowCount;
+    const rowCount = result.rows.length;
     const fieldCount = result.fields.length;
-
     if (fieldCount > 1 || fieldCount === 1 && rowCount > 1) {
         return DatabaseQueryOutputType.TABULAR;
     }
