@@ -181,7 +181,6 @@ const QueryOutputTabular = ({ dataset }) => {
                                     key={colIndex}
                                     sx={{
                                         minWidth: 'min-content',
-                                        maxWidth: '350px',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
@@ -189,7 +188,9 @@ const QueryOutputTabular = ({ dataset }) => {
                                         borderBottom: `1px solid ${theme.palette.divider}`
                                     }}
                                 >
-                                    {value}
+                                    <QueryOutputCellValue 
+                                        value={value}
+                                    />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -205,8 +206,23 @@ const QueryOutputTabular = ({ dataset }) => {
 
 
 const QueryOutputScalar = ({ dataset }) => {
+    const value = dataset.rows[0];
     return (
-        <Typography variant="body1">{dataset.rows[0]}</Typography>
+        <Typography variant="body1"> 
+           <QueryOutputCellValue 
+                value={value}
+            />
+        </Typography>
+    )
+}
+
+const QueryOutputCellValue = ({ value }) => {
+    return (
+        typeof value === 'object' ? 
+            <Typography style={{ whiteSpace: 'pre-wrap' }}>
+                {JSON.stringify(value, null, 2)}
+            </Typography> 
+        : value
     )
 }
 
