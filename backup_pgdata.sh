@@ -27,6 +27,6 @@ ssh $SSH_TARGET "docker run --rm -v $POSTGRES_VOLUME_NAME:/volume -v ~/$BACKUP_F
 
 # Fetch the backup archive from the remote server
 echo "Fetching the backup archive from the remote server..."
-scp $SSH_TARGET:~/$BACKUP_FOLDER/$BACKUP_FILE_NAME ./
+scp $SSH_TARGET:~/$BACKUP_FOLDER/$BACKUP_FILE_NAME ./$BACKUP_FOLDER/
 
-echo "Backup completed and stored at ./$BACKUP_FILE_NAME"
+echo "Backup completed and stored at ./$BACKUP_FOLDER/$BACKUP_FILE_NAME"
