@@ -1,4 +1,3 @@
-
 export const cleanUpDockerStreamHeaders = (input) => {
     /*
           The response contains some headers that we need to remove
@@ -24,3 +23,8 @@ export const cleanUpDockerStreamHeaders = (input) => {
 
     return output
 }
+
+/*
+will filter out any invalid utf8 character. Used to sanitize the output of the sandboxes
+*/
+export const sanitizeUTF8 = (str) => str.replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\uD7FF\uE000-\uFFFD]/g, '')
