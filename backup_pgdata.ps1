@@ -34,7 +34,7 @@ Write-Host "Backing up the PostgreSQL volume on the remote server..."
 $backupCommand = @"
 docker run --rm \
   --volume onlinetest_pgdata:/volume \
-  --volume ~/:/backup \
+  --volume ~/${backFolder}:/backup \
   alpine \
   tar -czf /backup/$backupFilename -C /volume ./
 "@
@@ -47,6 +47,5 @@ Write-Host "Fetching the backup archive from the remote server..."
 # Adjusting the SCP target to fetch the backup
 $scpTargetForBackup = "{0}@{1}:$backupRemotePath" -f $sshUser, $sshHost
 scp $scpTargetForBackup $backupLocalPath
-
 
 Write-Host "Backup completed and stored at $backupLocalPath"
