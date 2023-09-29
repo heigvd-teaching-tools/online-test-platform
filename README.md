@@ -102,19 +102,20 @@ export DB_SANDBOX_CLIENT_HOST=172.17.0.1
 
 Some manual steps are necessary for the first time deployment. This can be done either before or after running the deployment script. The nginx container will fail to start if these steps are done after the deployment script. So consider starting the nginx container manually after these steps.
 
-Manual steps:
+A copy of the sll certificates and the GitHub App private key are stored in the server at the following location: `~/backups`
+
+Manual steps to be done on the server:
 - Copy the ssl certificates to the project folder under : `~/onlinetest/ssl/`
 - Copy the github app private key to the project folder under : `~/onlinetest/eval-teaching-tools.private-key.pem`
 
 #### Copy SSL certificates
 
-Must contact system admins to get the pregenerated ssl certificates. A copy of the certificates is stored in the server at the following location: `~/backups/ssl/`
+ Use the existing copy in the server at the following location: `~/backups/ssl/`. or contact system admin to get a new copy.
 
 #### Copy github app private key
 
-for the first time, you need to generate a private key for the github app. This can be done in the github app settings.
+A copy of the key is stored in the server at the following location: `~/backups/eval-teaching-tools.private-key.pem`. Or generate a new private key for the github app. This can be done in the github app settings.
 
-A copy of the key is stored in the server at the following location: `~/backups/eval-teaching-tools.private-key.pem`
 
 # Backup
 
