@@ -82,6 +82,7 @@ const StudentOutputDisplay = ({ order, testQuery, queryOutputTests, lintResult, 
         ) : (
             <QueryOutput
                 result={studentOutput?.output}
+                lintResult={lintResult}
                 color={"info"}
             />
         )

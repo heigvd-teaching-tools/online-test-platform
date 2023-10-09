@@ -327,6 +327,7 @@ const post = async (req, res) => {
                         description: query.description,
                         content: query.content,
                         template: query.template,
+                        lintActive: query.lintActive,
                         lintRules: query.lintRules,
                         studentPermission: query.studentPermission,
                         testQuery: query.testQuery,
