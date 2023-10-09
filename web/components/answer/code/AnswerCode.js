@@ -9,6 +9,10 @@ import FileEditor from "../../question/type_specific/code/files/FileEditor";
 import {StudentPermission} from "@prisma/client";
 import Image from "next/image";
 import CodeCheck from "../../question/type_specific/code/CodeCheck";
+import StudentPermissionIcon from "../../feedback/StudentPermissionIcon";
+
+
+
 
 const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data: answer, error } = useSWR(
@@ -63,31 +67,8 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 readonlyContent={
                                     answerToFile.studentPermission === StudentPermission.VIEW
                                 }
-                                secondaryActions={
-                                    (answerToFile.studentPermission ===
-                                        StudentPermission.VIEW && (
-                                            <Stack direction="row" spacing={1} alignItems="center">
-                                                <Image
-                                                    alt='viewable icon'
-                                                    src="/svg/icons/viewable.svg"
-                                                    width={24}
-                                                    height={24}
-                                                />
-                                                <Typography variant="caption">view</Typography>
-                                            </Stack>
-                                        )) ||
-                                    (answerToFile.studentPermission ===
-                                        StudentPermission.UPDATE && (
-                                            <Stack direction="row" spacing={1} alignItems="center">
-                                                <Image
-                                                    alt='editable icon'
-                                                    src="/svg/icons/editable.svg"
-                                                    width={24}
-                                                    height={24}
-                                                />
-                                                <Typography variant="caption">edit</Typography>
-                                            </Stack>
-                                        ))
+                                leftCorner={
+                                    <StudentPermissionIcon permission={answerToFile.studentPermission} />
                                 }
                                 onChange={(file) => {
                                     setLockCodeCheck(true)

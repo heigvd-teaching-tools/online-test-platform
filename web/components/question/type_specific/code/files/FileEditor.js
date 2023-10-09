@@ -15,6 +15,7 @@ const FileEditor = ({
   readonlyContent = false,
   onChange = () => {},
   secondaryActions,
+  leftCorner,
 }) => {
   // automatically set language based on path extension
   const [language, setLanguage] = useState(
@@ -44,6 +45,7 @@ const FileEditor = ({
           zIndex={1}
           bgcolor="white"
         >
+          {leftCorner}
           {(!readonlyPath && (
             <TextField
               id={`${file.id}-${path}`}

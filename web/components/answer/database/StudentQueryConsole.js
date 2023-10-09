@@ -6,19 +6,16 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { Button, MenuItem, Stack} from "@mui/material";
+import { Button, Menu, MenuItem, Stack} from "@mui/material";
 import DropDown from "../../input/DropDown";
 import QueryOutput from "../../question/type_specific/database/QueryOutput";
 import {LoadingButton} from "@mui/lab";
 
-const calculateOffset = (when, order) => {
-    return when === "after" ? order + 1 : order;
-}
+
 const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , onClose }) => {
 
     const [ sql, setSql ] = useState("");
-    const [ when, setWhen ] = useState("after")
-    const [ order, setOrder ] = useState(studentQueries[0].order)
+    const [ order, setOrder ] = useState(0)
 
     const [ running, setRunning ] = useState(false);
     const [ result, setResult ] = useState(undefined);
@@ -36,12 +33,12 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
             },
             body: JSON.stringify({
                 query: sql,
-                at: calculateOffset(when, order) - 1
+                at: order,
             })
         }).then(res => res.json());
         setResult(response);
         setRunning(false);
-    }, [jamSessionId, questionId, sql, when, order, studentQueries]);
+    }, [jamSessionId, questionId, sql, order, studentQueries]);
 
     return (
         <Dialog
@@ -65,7 +62,7 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
                         color={"info"}
                         header={
                             result?.status === DatabaseQueryOutputStatus.ERROR ?
-                                result.order === calculateOffset(when, order) ? "Error at console query" : `Error at query #${result.order}`
+                                result.order === order + 1 ? "Error at console query" : `Error at query #${result.order}`
                             : result?.status === DatabaseQueryOutputStatus.RUNNING &&
                                 "Running"
                         }
@@ -79,24 +76,13 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
                         <DropDown
                             size={"small"}
                             variant={"outlined"}
-                            defaultValue={when}
-                            onChange={(when) => {
-                                setResult(undefined)
-                                setWhen(when)
-                            }}
-                        >
-                            <MenuItem value={"after"}>After</MenuItem>
-                            <MenuItem value={"before"}>Before</MenuItem>
-                        </DropDown>
-                        <DropDown
-                            size={"small"}
-                            variant={"outlined"}
                             defaultValue={order}
                             onChange={(order) => {
                                 setResult(undefined)
                                 setOrder(order)
                             }}
                         >
+                            <MenuItem value={0}>Before All</MenuItem>
                             {studentQueries.map((query) => (
                                 <MenuItem key={query.id} value={query.order}>#{query.order} - {query.title}</MenuItem>
                             ))}

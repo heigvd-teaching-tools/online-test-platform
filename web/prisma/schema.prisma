@@ -282,6 +282,7 @@ model DatabaseQuery {
   title       String?
   description String?
 
+  lintActive Boolean @default(false)
   lintRules  String?
   lintResult Json?
 

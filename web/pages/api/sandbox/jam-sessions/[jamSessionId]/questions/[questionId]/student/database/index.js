@@ -121,7 +121,7 @@ const post = async (req, res) => {
         const currentOutput = result[i];
 
         // eventually run the linter
-        if(query.lintRules){
+        if(query.lintActive){
           let lintResult;
 
           try{
