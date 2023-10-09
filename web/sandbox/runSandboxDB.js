@@ -64,7 +64,6 @@ export const runSandboxDB = async ({
 
     } catch (error) {
         // General error handling for the container setup or connection
-        console.log("Error: ", error.message || "Unknown error")
         results.push({
             status: DatabaseQueryOutputStatus.ERROR,
             feedback: "Database Container or Client connection error",

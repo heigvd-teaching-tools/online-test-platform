@@ -97,7 +97,6 @@ const execTests = async (container, tests) => {
         { tty: false }
     )
     output = sanitizeUTF8(cleanUpDockerStreamHeaders(output))
-    console.log("output", output)
     results.push({
       exec,
       input,

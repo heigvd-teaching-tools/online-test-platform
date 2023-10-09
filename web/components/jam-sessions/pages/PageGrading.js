@@ -378,7 +378,6 @@ const PageGrading = () => {
                             jamSessionToQuestion.question.studentAnswer.find(
                               (sa) => sa.user.id === participant.id
                             ).studentGrading
-                            console.log("isParticipantFilled", participant, grading)
                           return grading && grading.signedBy
                         }}
                       />
