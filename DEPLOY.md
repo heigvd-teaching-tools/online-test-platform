@@ -11,14 +11,14 @@ Please check the the script for more information.
 
 ## Environement variables for MacOS and Linux
 ```bash
+export REMOTE_USER=yourremoteuser
+export REMOTE_HOST=yourremotehost
 export POSTGRES_USER=youruser
 export POSTGRES_PASSWORD=yourpassword
 export POSTGRES_DB=yourdatabase
 export NEXTAUTH_SECRET=yoursecret
 export NEXTAUTH_GITHUB_ID=yourgithubid
 export NEXTAUTH_GITHUB_SECRET=yourgithubsecret
-export REMOTE_USER=yourremoteuser
-export REMOTE_HOST=yourremotehost
 export GITHUB_ORG=yourgithuborg
 export GITHUB_APP_ID=yourgithubappid
 export GITHUB_APP_PRIVATE_KEY_PATH=yourgithubappprivatekeypath
