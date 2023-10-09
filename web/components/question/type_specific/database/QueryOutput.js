@@ -75,7 +75,7 @@ const QueryOutput = ({ header, color, result, lintResult, onHeightChange }) => {
         result && (
             <Alert icon={false} severity={severity(result.status)} ref={containerRef}
             sx={{ 
-                '& .css-1pxa9xg-MuiAlert-message': { 
+                '& .MuiAlert-message': { 
                     width: "100%"
                 } 
             }}
