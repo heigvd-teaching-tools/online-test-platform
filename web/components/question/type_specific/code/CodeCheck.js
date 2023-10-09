@@ -57,7 +57,8 @@ const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
                     variant="contained"
                     color="info"
                     onClick={runCodeCheck}
-                    loading={codeCheckRunning || lockCodeCheck}
+                    disabled={lockCodeCheck}
+                    loading={codeCheckRunning}
                 >
                     Code Check
                 </LoadingButton>
