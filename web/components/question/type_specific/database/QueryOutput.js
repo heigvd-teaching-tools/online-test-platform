@@ -73,8 +73,14 @@ const QueryOutput = ({ header, color, result, lintResult, onHeightChange }) => {
 
     return (
         result && (
-            <Alert icon={false} severity={severity(result.status)} ref={containerRef}>
-                <Stack spacing={1}>
+            <Alert icon={false} severity={severity(result.status)} ref={containerRef}
+            sx={{ 
+                '& .css-1pxa9xg-MuiAlert-message': { 
+                    width: "100%"
+                } 
+            }}
+            >
+                <Stack spacing={1} width={"100%"}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                         {header}
                     </Stack>

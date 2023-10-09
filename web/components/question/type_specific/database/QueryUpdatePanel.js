@@ -7,9 +7,9 @@ import {
     Tabs,
     TextField,
     Typography,
-    Switch,
     FormGroup,
     FormControlLabel,
+    Switch, 
     Button
 } from "@mui/material";
 import TabPanel from "../../../layout/utils/TabPanel";
@@ -18,7 +18,6 @@ import QueryOutput from "./QueryOutput";
 import {StudentPermission, DatabaseQueryOutputTest} from "@prisma/client";
 import DropDown from "../../../input/DropDown";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
-import ConsoleLog from "../../../layout/utils/ConsoleLog";
 import DialogFeedback from "../../../feedback/DialogFeedback";
 
 const QueryUpdatePanel = ({ query, output, onChange, onDelete }) => {
@@ -241,12 +240,14 @@ const QuerySettingsTab = ({ query, onChange }) => {
     const [ studentPermission, setStudentPermission ] = useState(query.studentPermission)
     const [ title, setTitle ] = useState(query.title)
     const [ description, setDescription ] = useState(query.description)
+    const [ lintActive, setLintActive ] = useState(query.lintActive);
     const [ lintRules, setLintRules ] = useState(query.lintRules)
 
     useEffect(() => {
         setStudentPermission(query.studentPermission)
         setTitle(query.title || "")
         setDescription(query.description || "")
+        setLintActive(query.lintActive)
         setLintRules(query.lintRules || "")
     }, [query.id])
 
@@ -303,13 +304,31 @@ const QuerySettingsTab = ({ query, onChange }) => {
             />
             {
                 query.studentPermission === StudentPermission.UPDATE && (
+                    <>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={lintActive}
+                                onChange={(ev) => {
+                                    setLintActive(ev.target.checked);
+                                    onChange({
+                                        ...query,
+                                        lintActive: ev.target.checked,
+                                    });
+                                }}
+                                name="lintActiveSwitch"
+                            />
+                        }
+                        label="Linter active"
+                    />
                     <TextField
-                        label={"Lint Rules"}
+                        label={"Custom Lint Rules"}
                         value={lintRules}
                         multiline
                         fullWidth
                         minRows={3}
                         maxRows={10}
+                        disabled={!lintActive}
                         onChange={(ev) => {
                             setLintRules(ev.target.value)
                             onChange({
@@ -318,6 +337,7 @@ const QuerySettingsTab = ({ query, onChange }) => {
                             })
                         }}
                     />
+                    </>
                 )
             }
 

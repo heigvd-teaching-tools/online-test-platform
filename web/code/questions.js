@@ -107,6 +107,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                                     description: true,
                                     content: true,
                                     template: true,
+                                    lintActive: true,
                                     lintRules: true,
                                     studentPermission: true,
                                     testQuery: true,

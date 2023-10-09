@@ -1,18 +1,7 @@
 import {Chip, Stack, Typography, useTheme} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
-import {StudentPermission} from "@prisma/client";
 
-const QueryStudentPermission = ({ permission }) => {
-    switch (permission) {
-        case StudentPermission.UPDATE:
-            return <Chip size={"small"} variant={"outlined"} color={"primary"} label={"Editable"} />
-        case StudentPermission.VIEW:
-            return <Chip size={"small"} variant={"outlined"} color={"info"} label={"Visible-only"} />
-        case StudentPermission.HIDDEN:
-            return <Chip size={"small"} variant={"outlined"} color={"default"} label={"Hidden"} />
-    }
-}
 
 const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, headerLeft }) => {
 
@@ -37,9 +26,12 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
             >
                 <Stack direction={'row'} spacing={1} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                     <Stack direction={"row"} flex={1} alignItems={"center"} justifyContent={"flex-start"} spacing={1}>
-                        {headerLeft}
+                       
                         <Stack direction={'column'} spacing={1}>
-                            <Typography variant="body1">{`#${query.order} ${query.title || "Untitled"}`}</Typography>
+                            <Stack direction={'row'} spacing={1} alignItems={"center"}>
+                                {headerLeft}
+                                <Typography variant="body1">{`#${query.order} ${query.title || "Untitled"}`}</Typography>
+                            </Stack>
                             {query.description && (
                                 <Typography variant="body2">{query.description}</Typography>
                             )}
@@ -47,10 +39,10 @@ const QueryEditor = ({ readOnly = false, hidden = false, query, onChange, header
                     </Stack>
                     {
                         query.testQuery && (
-                            <Chip size={"small"} variant={"outlined"} color={"info"} label={"Evaluated"} />
+                            <Chip size={"small"} variant={"outlined"} color={"warning"} label={"Evaluated"} />
                         )
                     }
-                    <QueryStudentPermission permission={query.studentPermission} />
+                    
                 </Stack>
             </Stack>
             { !hidden && (

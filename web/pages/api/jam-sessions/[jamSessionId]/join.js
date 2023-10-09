@@ -196,6 +196,7 @@ const createDatabaseTypeSpecificData = async (prisma, studentAnswer, question) =
                 description: query.description,
                 content: query.studentPermission === StudentPermission.UPDATE ? query.template : query.content,
                 template: undefined,
+                lintActive: query.lintActive,
                 lintRules: query.lintRules,
                 studentPermission: query.studentPermission,
                 testQuery: query.testQuery,

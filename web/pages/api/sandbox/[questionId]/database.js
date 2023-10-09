@@ -66,7 +66,7 @@ const post = async (req, res) => {
             const query = database.solutionQueries[i].query;
             const output = result[i];
 
-            if(query.lintRules){
+            if(query.lintActive){
                 let lintResult;
 
                 try{

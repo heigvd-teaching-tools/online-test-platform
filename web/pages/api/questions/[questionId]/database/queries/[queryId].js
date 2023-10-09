@@ -1,4 +1,4 @@
-import {DatabaseQueryOutputTest, PrismaClient, Role} from '@prisma/client'
+import {DatabaseQueryOutputTest, PrismaClient, Role, JsonNull} from '@prisma/client'
 
 import { hasRole } from '../../../../../../code/auth'
 
@@ -30,7 +30,6 @@ const handler = async (req, res) => {
     }
 }
 
-
 const put = async (req, res) => {
   // update a query for a database question
 
@@ -40,6 +39,7 @@ const put = async (req, res) => {
         description,
         content,
         template,
+        lintActive,
         lintRules,
         studentPermission,
         queryOutputTests,
@@ -63,23 +63,30 @@ const put = async (req, res) => {
         return
     }
 
+    const data = {
+        title: title,
+        description: description,
+        content: content,
+        template: template,
+        lintActive: lintActive,
+        lintRules: lintRules,
+        studentPermission: studentPermission,
+        testQuery: testQuery,
+        queryOutputTests: {
+            deleteMany: {},
+            create: queryOutputTests.map(queryOutputTest => ({ test: DatabaseQueryOutputTest[queryOutputTest.test] }))
+        }
+    }
+    
+    if (!lintActive) {
+        data.lintResult = JsonNull
+    }
+
     const query = await prisma.databaseQuery.update({
         where: {
             id: queryId
         },
-        data: {
-            title: title,
-            description: description,
-            content: content,
-            template: template,
-            lintRules: lintRules,
-            studentPermission: studentPermission,
-            testQuery: testQuery,
-            queryOutputTests: {
-                deleteMany: {},
-                create: queryOutputTests.map(queryOutputTest => ({ test: DatabaseQueryOutputTest[queryOutputTest.test] }))
-            }
-        }
+        data: data
     });
 
     res.status(200).json(query)

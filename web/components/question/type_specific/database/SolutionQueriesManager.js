@@ -15,6 +15,7 @@ import QueryOutput from "./QueryOutput";
 import QueryUpdatePanel from "./QueryUpdatePanel";
 import QueryEditor from "./QueryEditor";
 import DateTimeAgo from "../../../feedback/DateTimeAgo";
+import StudentPermissionIcon from "../../../feedback/StudentPermissionIcon";
 
 
 const SolutionQueriesManager = ({ questionId }) => {
@@ -163,6 +164,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                             <QueryEditor
                                 active={index === activeQuery}
                                 key={query.id}
+                                headerLeft={<StudentPermissionIcon permission={query.studentPermission} size={16} />}
                                 query={query}
                                 onChange={(q) => debouncedOnQueryUpdate(q)}
                             />
