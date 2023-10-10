@@ -38,6 +38,7 @@
     "@testcontainers/postgresql": "^10.2.1",
     "@uiw/react-md-editor": "^3.20.2",
     "axios": "^0.27.2",
+    "clipboard-copy": "^4.0.1",
     "deep-equal": "^2.0.5",
     "docker-cli-js": "^2.9.0",
     "dockerode": "^3.3.5",
