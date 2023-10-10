@@ -123,7 +123,9 @@ const Web = ({ id = 'web', readOnly = false, web: initial, onChange }) => {
               </ResizeObserverProvider>
             </Stack>
           }
-          rightPanel={<PreviewPanel id={`${id}-preview`} web={web} />}
+          rightPanel={
+            <PreviewPanel id={`${id}-preview`} web={web} />
+          }
         />
       </TabContext>
     </Stack>
@@ -145,48 +147,66 @@ const EditorSwitchWrapper = ({ value, language, readOnly, onChange }) => {
 }
 
 const PreviewPanel = ({ id, web }) => {
-  let frame = useRef()
+  const frame = useRef();
+
+  const updateIframeHeight = () => {
+    if (frame.current) {
+      const doc = frame.current.contentDocument || frame.current.contentWindow.document;
+      frame.current.style.height = `${doc.documentElement.offsetHeight}px`;
+    }
+  };
+
+  const updateIframeContent = () => {
+    if (web && frame.current) {
+      let iframe = frame.current;
+
+      let html = web.html || '';
+      let css = web.css || '';
+      let js = web.js || '';
+
+      let fullHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            ${css}
+          </style>
+        </head>
+        <body style="margin:0;">
+          ${html}
+          <script>${js}</script>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([fullHtml], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      iframe.onload = () => {
+        URL.revokeObjectURL(blobUrl);  // Release the Blob URL to free up resources
+        // Use a timeout to give scripts inside the iframe, if any, some time to run
+        setTimeout(updateIframeHeight, 100);
+      };
+
+      iframe.src = blobUrl;  // Update the iframe's content
+    }
+  };
 
   useEffect(() => {
-    if (web && frame) {
-      let iframe = frame.current
-
-      let html = web.html || ''
-      let css = web.css || ''
-      let js = web.js || ''
-
-      let doc = iframe.contentDocument || iframe.contentWindow.document
-      doc.body.innerHTML = ''
-      doc.head.innerHTML = ''
-
-      // set css into iframe head
-      let style = document.createElement('style')
-      style.innerHTML = css
-
-      doc.head.appendChild(style)
-
-      // set javascript into iframe body
-      let script = document.createElement('script')
-      script.innerHTML = js
-      doc.body.appendChild(script)
-
-      // set html into iframe body
-      doc.body.innerHTML = html
-      doc.body.style.margin = '0'
-
-      iframe.style.width = '100%'
-      // set frame height based on content
-      iframe.style.height = `${doc.body.scrollHeight}px`
-      iframe.style.border = 'none'
-      iframe.style.background = 'white'
+    if (frame.current) {
+      frame.current.src = 'about:blank';  // Reset iframe
+      updateIframeContent();
     }
-  }, [id, web])
+  }, [id, web]);
 
   return (
     <Box height="100%" padding={2}>
-      <iframe ref={frame} />
+      <iframe ref={frame} style={{ width: '100%', border: 'none', background: 'white' }} />
     </Box>
-  )
+  );
 }
+
+
 
 export default Web
