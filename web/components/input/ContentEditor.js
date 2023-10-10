@@ -14,11 +14,11 @@ const ContentEditor = ({
   return readOnly ? (
     <ReactMarkdown
       components={{
-        code: ({ children, className}) => {
+        code: ({ children:code, className}) => {
           const language = className?.replace('language-', '') || 'text'
           return (
             <SyntaxHighlighter language={language}>
-              {children}
+              {code}
             </SyntaxHighlighter>
           )
         },
