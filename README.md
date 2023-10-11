@@ -16,106 +16,18 @@ https://github.com/organizations/heigvd-teaching-tools/settings/actions/runners
 Name of the runner: `deploy`
 Add label: `deploy`
 
+#### GitHub Secrets
 
+A number of secrets are required to deploy the application. These secrets are stored in the GitHub repository settings under the section `Secrets`.
+https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/actions
 
-
-
-
-
-# Deployment
-
-The server is accessible only when using vpn (vpn.heig-vd.ch). Thus, no github action is used for automated deployment.
-
-The project contains 2 deployment scripts:
-- `deploy.sh` - to be used on linux or macos
-- `deploy.ps1` - to be used on windows
-
-The scripts will:
-- use git archive to create a zip file of the project
-- copy the zip file to the server using scp
-- unzip the archive on the server
-- create the production .env files necessary for the application to run
-- build the custom docker images ./docker-images)
-    - custom-sqlfluff : used to run sqlfluff sandbox to lint database question queries
-- run docker-compose up with build option in detached mode
-
-## Usage
-
-Each script is dependant on the following environment variables. These variables must be set before running the script.
-
-| Variable | Value |  Description                                                                                                                                                     |
-| ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REMOTE_USER`                  | `heiguser`                      | The user to use to connect to the server                                                                                                                       |
-| `REMOTE_HOST`                  | `eval.iict-heig-vd.in`          | The host to connect to                                                                                                                                         |
-| `POSTGRES_USER`                | `onlinetest`                    | The postgres user to use by the application                                                                                                                    |
-| `POSTGRES_PASSWORD`            | `onlinetest`                    | The postgres password to use by the application                                                                                                                |
-| `POSTGRES_DB`                  | `onlinetest`                    | The postgres database to use by the application                                                                                                                |
-| `NEXTAUTH_URL`                 | `https://eval.iict-heig-vd.in`  | The url of the application to be used by next-auth                                                                                                             |
-| `NEXTAUTH_SECRET`              | `...`                           | The secret to use by next-auth                                                                                                                                 |
-| `NEXTAUTH_GITHUB_ID`           | `...`                           | The github id to use by next-auth, check the oauth app in the organisation settings                                                                             |
-| `NEXTAUTH_GITHUB_SECRET`       | `...`                           | The github secret to use by next-auth, check the oauth app in the organisation settings                                                                        |
-| `NEXTAUTH_GITHUB_ORG`          | `heigvd-teaching-tools`         | The app is used to determine if the user is a professor -> all members of the organisation are considered as professors                                         |
-| `GITHUB_APP_ID`                | `383691`                        | The github app id to use by next-auth, check the github app in the organisation settings                                                                       |
-| `GITHUB_APP_PRIVATE_KEY_PATH`  | `eval-teaching-tools.private-key.pem` | The github app private key                                                                                                                                       |
-| `GITHUB_APP_INSTALLATION_ID`   | `41302676`                      | The github app installation id, can be found in the organisation in installed apps                                                                              |
-| `DB_SANDBOX_CLIENT_HOST`       | `172.17.0.1`                    | Used by the database postgres client to connect to the database sandbox in a sibling container                                                                  |
-
-
-
-Oauth App "heigvd-teaching-tools"/"settings":
-https://github.com/organizations/heigvd-teaching-tools/settings/applications/2307660
-
-GitHub App "heigvd-teaching-tools"/"settings"/"apps":
-https://github.com/organizations/heigvd-teaching-tools/settings/apps/eval-teaching-tools
-
-#### Environement variables for powershell
-
-```powershell
-$env:POSTGRES_USER="onlinetest"
-$env:POSTGRES_PASSWORD="onlinetest"
-$env:POSTGRES_DB="onlinetest"
-$env:NEXTAUTH_URL="https://eval.iict-heig-vd.in"
-$env:NEXTAUTH_SECRET="..."
-$env:NEXTAUTH_GITHUB_ID="..."
-$env:NEXTAUTH_GITHUB_SECRET="..."
-$env:REMOTE_USER="heiguser"
-$env:REMOTE_HOST="eval.iict-heig-vd.in"
-$env:GITHUB_ORG="heigvd-teaching-tools"
-$env:GITHUB_APP_ID=383691
-$env:GITHUB_APP_PRIVATE_KEY_PATH="eval-teaching-tools.private-key.pem"
-$env:GITHUB_APP_INSTALLATION_ID=41302676
-$env:DB_SANDBOX_CLIENT_HOST="172.17.0.1"
-```
-
-#### Environement variables for bash
-
-```bash
-export POSTGRES_USER=onlinetest
-export POSTGRES_PASSWORD=onlinetest
-export POSTGRES_DB=onlinetest
-export NEXTAUTH_URL=https://eval.iict-heig-vd.in
-export NEXTAUTH_SECRET=...
-export NEXTAUTH_GITHUB_ID=...
-export NEXTAUTH_GITHUB_SECRET=...
-export REMOTE_USER=heiguser
-export REMOTE_HOST=eval.iict-heig-vd.in
-export GITHUB_ORG=heigvd-teaching-tools
-export GITHUB_APP_ID=383691
-export GITHUB_APP_PRIVATE_KEY_PATH=eval-teaching-tools.private-key.pem
-export GITHUB_APP_INSTALLATION_ID=41302676
-export DB_SANDBOX_CLIENT_HOST=172.17.0.1
-```
-
-#### Run the script
-
-```bash
-./deploy.sh
-```
-
-```powershell
-.\deploy.ps1
-```
-
+| Secret | Description |
+| --- | --- |
+| `POSTGRES_USER` | The postgres user |
+| `POSTGRES_PASSWORD` | The postgres password |
+| `NEXTAUTH_SECRET` | The nextauth secret |
+| `NEXTAUTH_GITHUB_ID` | The nextauth github id |
+| `NEXTAUTH_GITHUB_SECRET` | The nextauth github secret |
 
 ## Server configuration
 
