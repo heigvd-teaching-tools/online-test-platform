@@ -9,41 +9,52 @@ import { useCallback } from 'react';
         using Monaco Editor for editing content in markdown
         using ReactMarkdown for displaying content in markdown
 */
-const ContentEditor = ({
-  readOnly = false,
-  language = 'markdown',
-  rawContent,
-  onChange,
-}) => {
+
+const CodeBlock = ({ language, value }) => {
   const theme = useTheme()
 
   const { show: showSnackbar } = useSnackbar()
-
+  
   const handleCopyToClipboard = useCallback((code) => {
     copyToClipboard(code);
     // Optional: Show a notification or tooltip saying "Copied!"
     showSnackbar('Copied!', 'success')
   }, [showSnackbar])
 
+  return (
+    <Box border={`1px dashed ${theme.palette.divider}`} borderRadius={1} mr={1} mt={1} mb={1} position={"relative"}>
+      <SyntaxHighlighter language={language}>
+        {value}
+      </SyntaxHighlighter>
+      <Button 
+          size="small"
+          sx={{ position: 'absolute', top: 0, right: 0 }}
+          onClick={() => handleCopyToClipboard(value)}
+        >
+          Copy
+      </Button>
+    </Box>
+  )
+}
+
+const ContentEditor = ({
+  readOnly = false,
+  language = 'markdown',
+  rawContent,
+  onChange,
+}) => {
+ 
   return readOnly ? (
     <ReactMarkdown
       components={{
-        code: ({ children:code, className}) => {
+        code: ({children:code, className, inline}) => {
+
+          // If it's its inline code, we'll use the <code> component
+          if(inline) return <code>{code}</code>
+
+          // If it's a block, we'll use the SyntaxHighlighter component
           const language = className?.replace('language-', '') || 'text'
-          return (
-            <Box border={`1px dashed ${theme.palette.divider}`} borderRadius={1} mr={1} mt={1} mb={1} position={"relative"}>
-              <SyntaxHighlighter language={language}>
-                {code}
-              </SyntaxHighlighter>
-              <Button 
-                  size="small"
-                  sx={{ position: 'absolute', top: 0, right: 0 }}
-                  onClick={() => handleCopyToClipboard(code)}
-                >
-                  Copy
-              </Button>
-            </Box>
-          )
+          return <CodeBlock language={language} value={code} />
         },
       }}
     >{rawContent?.toString()}</ReactMarkdown>
