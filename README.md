@@ -1,3 +1,27 @@
+# Deployment Using Gihub Actions
+
+A self-hosted runner is used to deploy the application. The runner is configured on the organisation level and is available to all repositories:
+
+https://github.com/organizations/heigvd-teaching-tools/settings/actions/runners
+
+The runner is configured to run on the server `eval.iict-heig-vd.in` and is configured to run as the user `heiguser`. 
+
+Runner files can be found in the following location: `~/actions-runner`
+
+#### Setup a new runner
+
+If you need to setup a new runner, please follow the instructions in the following link:
+https://github.com/organizations/heigvd-teaching-tools/settings/actions/runners
+
+Name of the runner: `deploy`
+Add label: `deploy`
+
+
+
+
+
+
+
 # Deployment
 
 The server is accessible only when using vpn (vpn.heig-vd.ch). Thus, no github action is used for automated deployment.
