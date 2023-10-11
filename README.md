@@ -4,9 +4,23 @@ A self-hosted runner is used to deploy the application. The runner is configured
 
 https://github.com/organizations/heigvd-teaching-tools/settings/actions/runners
 
-The runner is configured to run on the server `eval.iict-heig-vd.in` and is configured to run as the user `heiguser`. 
+The runner is configured to run on the server `eval.iict-heig-vd.in`. Runner files can be found in the following location: `~/actions-runner`
 
-Runner files can be found in the following location: `~/actions-runner`
+#### Runner status 
+If the runner is not running, you can start it manually using the following command:
+
+```bash
+# should run it in background so that it does not stop when you close the terminal
+nohup ~/actions-runner/run.sh &
+```
+The logs of the runner can be checked using the following command:
+    
+```bash
+cat nohup.out
+```
+
+Its status can be checked on the following page:
+https://github.com/organizations/heigvd-teaching-tools/settings/actions/runners
 
 #### Setup a new runner
 
@@ -25,6 +39,9 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 | --- | --- |
 | `POSTGRES_USER` | The postgres user |
 | `POSTGRES_PASSWORD` | The postgres password |
+| `POSTGRES_DB` | The postgres database |
+| ´GH_APP_ID´ | The github app id used to browse org members |
+| `GH_APP_INSTALLATION_ID` | The github app installation id used to browse org members |
 | `NEXTAUTH_SECRET` | The nextauth secret |
 | `NEXTAUTH_GITHUB_ID` | The nextauth github id |
 | `NEXTAUTH_GITHUB_SECRET` | The nextauth github secret |
