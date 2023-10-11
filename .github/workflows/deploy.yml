@@ -25,7 +25,7 @@ jobs:
         echo "GITHUB_APP_ID=383691" >> web/.env
         echo "GITHUB_APP_PRIVATE_KEY_PATH=eval-teaching-tools.private-key.pem" >> web/.env
 
-        echo "NEXTAUTH_URL=https://eval.iict-heig-vd.in" >> web/.env.production
+        echo "NEXTAUTH_URL=https://eval.iict-heig-vd.in" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> web/.env.production
         echo "NEXTAUTH_GITHUB_ID=${{ secrets.NEXTAUTH_GITHUB_ID }}" >> web/.env.production
         echo "NEXTAUTH_GITHUB_SECRET=${{ secrets.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
