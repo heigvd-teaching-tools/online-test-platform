@@ -21,6 +21,7 @@ const CodeBlock = ({ language, value }) => {
     showSnackbar('Copied!', 'success')
   }, [showSnackbar])
 
+  
   return (
     <Box border={`1px dashed ${theme.palette.divider}`} borderRadius={1} mr={1} mt={1} mb={1} position={"relative"}>
       <SyntaxHighlighter language={language}>
