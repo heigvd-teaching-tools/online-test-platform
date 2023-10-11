@@ -6,31 +6,40 @@ on:
 jobs:
   deploy:
     runs-on: [self-hosted, deploy]
+    
+    defaults:
+      run:
+        working-directory: /home/heiguser/onlinetest
 
     steps:
-    - name: Checkout code
+    - name: Checkout code to the desired location
       uses: actions/checkout@v2
+      with:
+        path: /home/heiguser/onlinetest
 
-    - name: Archive the current state of your application
-      run: git archive --format tar.gz --output deploy.tar.gz HEAD
-
-    - name: Setup and Deploy
+    - name: Deploy
       run: |
-          mkdir -p ~/onlinetest
-          tar -xzf deploy.tar.gz -C ~/onlinetest && rm deploy.tar.gz
-          cd ~/onlinetest
+        # Writing .env files
+        
+        echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/onlinetest" > web/.env
+        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> web/.env
+        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> web/.env
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> web/.env
+        echo "GITHUB_ORG=heigvd-teaching-tools" >> web/.env
+        echo "GITHUB_APP_ID=${{ secrets.GITHUB_APP_ID }}' >> web/.env
+        echo "GITHUB_APP_PRIVATE_KEY_PATH=eval-teaching-tools.private-key.pem" >> web/.env
 
-          # Writing .env files
-          echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}" > web/.env
-          # ... 
-          # Add other environment variables in a similar fashion
+        echo "NEXTAUTH_URL=https://eval.iict-heig-vd.in" >> web/.env.production
+        echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> web/.env.production
+        echo "NEXTAUTH_GITHUB_ID=${{ secrets.NEXTAUTH_GITHUB_ID }}" >> web/.env.production
+        echo "NEXTAUTH_GITHUB_SECRET=${{ secrets.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
+        echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
 
-          echo "Building Custom Docker images..."
-          docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
+        echo "Building Custom Docker images..."
+        docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
 
-          echo "Building Docker images..."
-          docker compose build
-          docker compose down
+        echo "Building Docker images..."
+        docker compose build
 
-          echo "Running Docker images..."
-          docker compose up -d
+        echo "Running Docker images..."
+        docker compose up -d
