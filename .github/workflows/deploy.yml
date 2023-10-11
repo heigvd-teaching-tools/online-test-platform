@@ -1,0 +1,36 @@
+name: Deploy to Remote Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, deploy]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Archive the current state of your application
+      run: git archive --format tar.gz --output deploy.tar.gz HEAD
+
+    - name: Setup and Deploy
+      run: |
+          mkdir -p ~/onlinetest
+          tar -xzf deploy.tar.gz -C ~/onlinetest && rm deploy.tar.gz
+          cd ~/onlinetest
+
+          # Writing .env files
+          echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}" > web/.env
+          # ... 
+          # Add other environment variables in a similar fashion
+
+          echo "Building Custom Docker images..."
+          docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
+
+          echo "Building Docker images..."
+          docker compose build
+          docker compose down
+
+          echo "Running Docker images..."
+          docker compose up -d
