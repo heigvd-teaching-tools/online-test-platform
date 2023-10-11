@@ -1,4 +1,4 @@
-name: Deploy to Remote Server
+name: Deploy to PROD
 
 on:
   workflow_dispatch:
@@ -6,25 +6,26 @@ on:
 jobs:
   deploy:
     runs-on: [self-hosted, deploy]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Move checked-out code to desired location
+    - name: Move checked-out code to production folder
       run: |
         rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/onlinetest/ --exclude .git
-        cd /home/heiguser/onlinetest
 
-        # Writing .env files
+    - name: Set up environment files
+      run: |
+        cd /home/heiguser/onlinetest
         echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/onlinetest" > web/.env
         echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> web/.env
         echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> web/.env
-        echo "POSTGRES_DB=onlinetest" >> web/.env
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> web/.env
         echo "GITHUB_ORG=heigvd-teaching-tools" >> web/.env
-        echo "GITHUB_APP_ID=383691" >> web/.env
+        echo "GITHUB_APP_ID=${{ secrets.GH_APP_ID }}" >> web/.env
         echo "GITHUB_APP_PRIVATE_KEY_PATH=eval-teaching-tools.private-key.pem" >> web/.env
-        echo "GITHUB_APP_INSTALLATION_ID=41302676" >> web/.env
+        echo "GITHUB_APP_INSTALLATION_ID=${{ secrets.GH_APP_INSTALLATION_ID }}" >> web/.env
 
         echo "NEXTAUTH_URL=https://eval.iict-heig-vd.in" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> web/.env.production
@@ -32,14 +33,18 @@ jobs:
         echo "NEXTAUTH_GITHUB_SECRET=${{ secrets.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
 
-        
-        echo "Building Custom Docker images..."
+    - name: Build Custom Docker images
+      run: |
+        cd /home/heiguser/onlinetest
         docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
 
-        echo "Building Docker images..."
+    - name: Build Docker Compose Images
+      run: |
+        cd /home/heiguser/onlinetest
         docker compose build
 
-        echo "Running Docker images..."
+    - name: Start Docker Compose Services
+      run: |
+        cd /home/heiguser/onlinetest
         docker compose up -d
-
 
