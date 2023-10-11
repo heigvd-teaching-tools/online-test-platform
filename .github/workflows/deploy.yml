@@ -7,20 +7,16 @@ jobs:
   deploy:
     runs-on: [self-hosted, deploy]
     
-    defaults:
-      run:
-        working-directory: /home/heiguser/onlinetest
-
     steps:
-    - name: Checkout code to the desired location
+    - name: Checkout code
       uses: actions/checkout@v2
-      with:
-        path: /home/heiguser/onlinetest
 
-    - name: Deploy
+    - name: Move checked-out code to desired location
       run: |
+        rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/onlinetest/ --exclude .git
+        cd /home/heiguser/onlinetest
+
         # Writing .env files
-        
         echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/onlinetest" > web/.env
         echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> web/.env
         echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> web/.env
@@ -35,6 +31,7 @@ jobs:
         echo "NEXTAUTH_GITHUB_SECRET=${{ secrets.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
 
+        
         echo "Building Custom Docker images..."
         docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
 
@@ -43,3 +40,5 @@ jobs:
 
         echo "Running Docker images..."
         docker compose up -d
+
+
