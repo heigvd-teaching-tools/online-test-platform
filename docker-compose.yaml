@@ -11,7 +11,6 @@ services:
       - "3000:3000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./eval-teaching-tools.private-key.pem:/app/eval-teaching-tools.private-key.pem
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
@@ -32,14 +31,14 @@ services:
     networks:
       - app-network
 
-  push_db:
+  migrate_db:
     build:
       context: ./web
       dockerfile: Dockerfile
     restart: "no"
     depends_on:
       - db
-    command: npx prisma db push --accept-data-loss
+    command: npx prisma migrate deploy
     networks:
       - app-network
 

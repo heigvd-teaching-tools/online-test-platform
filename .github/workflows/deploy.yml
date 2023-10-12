@@ -15,7 +15,7 @@ jobs:
       run: |
         rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/onlinetest/ --exclude .git
 
-    - name: Set up environment files
+    - name: Generate environment files
       run: |
         cd /home/heiguser/onlinetest
         echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/onlinetest" > web/.env
@@ -33,6 +33,16 @@ jobs:
         echo "NEXTAUTH_GITHUB_SECRET=${{ secrets.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
 
+    - name: Generate GitHub App private key and ssl certificates
+      run: |
+        cd /home/heiguser/onlinetest
+        mkdir -p web
+        echo "${{ secrets.GH_APP_PRIVATE_KEY }}" > web/eval-teaching-tools.private-key.pem
+
+        mkdir -p ssl
+        echo "${{ secrets.SSL_FULLCHAIN }}" > ssl/fullchain.pem
+        echo "${{ secrets.SSL_PRIVKEY }}" > ssl/privkey.pem
+        
     - name: Build Custom Docker images
       run: |
         cd /home/heiguser/onlinetest
