@@ -61,5 +61,6 @@ jobs:
     - name: Run Prisma Migrations
       run: |
         cd /home/heiguser/onlinetest
-        docker compose run --rm web npx prisma migrate deploy
+        container_id=$(docker ps -qf "name=onlinetest-web-")
+        docker exec $container_id npx prisma migrate deploy
 
