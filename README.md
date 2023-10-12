@@ -26,7 +26,7 @@ npx prisma migrate dev --name <migration-name> --create-only
 
 # list the migrations
 npx prisma migrate status
-
+```
 
 # Deployment Using Gihub Actions
 
