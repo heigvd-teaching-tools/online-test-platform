@@ -31,17 +31,6 @@ services:
     networks:
       - app-network
 
-  migrate_db:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    restart: "no"
-    depends_on:
-      - db
-    command: npx prisma migrate deploy
-    networks:
-      - app-network
-
   nginx:
     image: nginx
     ports:

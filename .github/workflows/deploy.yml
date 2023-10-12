@@ -58,3 +58,8 @@ jobs:
         cd /home/heiguser/onlinetest
         docker compose up -d
 
+    - name: Run Prisma Migrations
+      run: |
+        cd /home/heiguser/onlinetest
+        docker compose run --rm web npx prisma migrate deploy
+
