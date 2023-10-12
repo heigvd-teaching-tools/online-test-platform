@@ -1,3 +1,33 @@
+# Development
+
+## Database Schema Migrations
+
+*Important*: Do not use `npx prisma db push` to update the database schema. This will render the database schema out of sync with the migrations. 
+
+Instead, use the following command:
+
+```bash
+# generate the migration
+npx prisma migrate dev --name <migration-name>
+```
+
+This will generate a migration file in the `prisma/migrations` folder. 
+
+These migrations will be applied on production database by the docker compose during the deploy workflow.
+
+#### Useful Prisma Migration Commands
+
+```bash
+# generate the migration
+npx prisma migrate dev --name <migration-name>
+
+# generate but do not apply the migration
+npx prisma migrate dev --name <migration-name> --create-only
+
+# list the migrations
+npx prisma migrate status
+
+
 # Deployment Using Gihub Actions
 
 A self-hosted runner is used to deploy the application. The runner is configured on the organisation level and is available to all repositories:
@@ -50,25 +80,6 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 
 - Must have a running docker daemon
 - Open ports: 80, 443 and 22
-
-## First time deployment - Manual steps
-
-Some manual steps are necessary for the first time deployment. This can be done either before or after running the deployment script. The nginx container will fail to start if these steps are done after the deployment script. So consider starting the nginx container manually after these steps.
-
-A copy of the sll certificates and the GitHub App private key are stored in the server at the following location: `~/backups`
-
-Manual steps to be done on the server:
-- Copy the ssl certificates to the project folder under : `~/onlinetest/ssl/`
-- Copy the github app private key to the project folder under : `~/onlinetest/eval-teaching-tools.private-key.pem`
-
-#### Copy SSL certificates
-
- Use the existing copy in the server at the following location: `~/backups/ssl/`. or contact system admin to get a new copy.
-
-#### Copy github app private key
-
-A copy of the key is stored in the server at the following location: `~/backups/eval-teaching-tools.private-key.pem`. Or generate a new private key for the github app. This can be done in the github app settings.
-
 
 # Backup
 
