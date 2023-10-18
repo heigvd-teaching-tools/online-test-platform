@@ -66,7 +66,7 @@ runs:
       run: |
         cd /home/heiguser/onlinetest
         mkdir -p web
-        echo "${{ secrets.GH_APP_PRIVATE_KEY }}" > web/eval-teaching-tools.private-key.pem
+        echo "${{ inputs.GH_APP_PRIVATE_KEY }}" > web/eval-teaching-tools.private-key.pem
 
         mkdir -p ssl
         echo "${{ inputs.SSL_FULLCHAIN }}" > ssl/fullchain.pem
