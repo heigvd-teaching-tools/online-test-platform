@@ -19,25 +19,21 @@ const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, step 
     setErrorMessage(undefined);
     setValue(inputValue);  // Update the state with whatever user types
 
-    if (inputValue === '') {
-        // The user should be able to delete the input
-        setErrorMessage("Not a valid number");
-        onChange('');  // Trigger onChange with empty value
-        return;
-    }
-
-    if (!regex.test(inputValue)) {
+    // Test the input value format
+    if (inputValue === '' || !regex.test(inputValue) || inputValue[inputValue.length - 1] === '.') {
         setErrorMessage("Not a valid number");
         return;
     }
    
     const floatValue = parseFloat(inputValue);
 
+    // Value must be convertable to a float
     if (isNaN(floatValue)) {
         setErrorMessage("Not a valid number");
         return;
     }    
 
+    // Value must be between min and max
     if(floatValue < min ) {
         floatValue = min;     
         setValue(floatValue); 
