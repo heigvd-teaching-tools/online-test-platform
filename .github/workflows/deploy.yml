@@ -1,13 +1,6 @@
-name: Deploy to PROD
-
-on:
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: [self-hosted, deploy]
-
-    steps:
+name: Deployment Procedure
+runs:
+  steps:
     - name: Checkout code
       uses: actions/checkout@v2
 

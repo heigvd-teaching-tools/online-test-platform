@@ -11,6 +11,7 @@ import {
 import DragHandleSVG from '../../layout/utils/DragHandleSVG'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 import Image from 'next/image'
+import DecimalInput from '../../input/DecimalInput'
 
 const CollectionToQuestion = ({
   collectionToQuestion,
@@ -99,21 +100,18 @@ const CollectionToQuestion = ({
           </Typography>
         </Stack>
 
-        <Box minWidth={60} width={60}>
-          <TextField
+        <Box minWidth={120} width={120}>
+          <DecimalInput
             label="Points"
-            type="number"
-            width={50}
-            size={'small'}
-            defaultValue={collectionToQuestion.points}
+            value={collectionToQuestion.points}
             variant="standard"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onChange={async (ev) => {
+            size={'small'}
+            rightAdornement={'step 0.25'}
+            onChange={async (value) => {
+              console.log("value", value)
               await debounceSaveCollectionToQuestion(index, {
                 ...collectionToQuestion,
-                points: ev.target.value,
+                points: value
               })
             }}
           />

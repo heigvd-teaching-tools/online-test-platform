@@ -18,6 +18,8 @@ import {
   MenuItem,
   Typography,
   IconButton,
+  Tooltip,
+  Box,
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -45,6 +47,7 @@ import Authorisation from '../../security/Authorisation'
 import { update } from './crud'
 import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 import { fetcher } from '../../../code/utils'
+import { useDebouncedCallback } from 'use-debounce'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -88,35 +91,9 @@ const PageGrading = () => {
     }
   }, [data])
 
-  const applyFilter = useCallback(
-    (jamSessionToQuestions) => {
-      switch (filter) {
-        case 'unsigned':
-          let questionToDisplay = jamSessionToQuestions.filter((jstq) =>
-            jstq.question.studentAnswer.some(
-              (sg) => !sg.studentGrading.signedBy
-            )
-          )
-          const indexToDisplay = questionToDisplay.findIndex(
-            (q) => q.id === jamSessionToQuestion?.question.id
-          )
-          if (questionToDisplay.length > 0 && indexToDisplay === -1) {
-            // active questions is not in the filtered list -> jump to first
-            router.push(
-              `/jam-sessions/${jamSessionId}/grading/1?participantId=${questionToDisplay[0].studentGrading[0].user.id}`
-            )
-          }
-          return questionToDisplay
-        default:
-          return jamSessionToQuestions
-      }
-    },
-    [jamSessionId, filter, jamSessionToQuestion, router]
-  )
-
   useEffect(() => {
     if (jamSessionToQuestions && jamSessionToQuestions.length > 0) {
-      let jstq = applyFilter(jamSessionToQuestions)[activeQuestion - 1]
+      let jstq = jamSessionToQuestions[activeQuestion - 1]
       if (!jstq) {
         // goto first question and first participant
         router.push(
@@ -147,7 +124,6 @@ const PageGrading = () => {
     participantId,
     jamSessionToQuestions,
     router,
-    applyFilter,
   ])
 
   const saveGrading = async (grading) => {
@@ -165,7 +141,9 @@ const PageGrading = () => {
     return newGrading
   }
 
-  const onSignOff = useCallback(
+  const debouncedSaveGrading = useDebouncedCallback(saveGrading, 500)
+
+  const onChangeGrading = useCallback(
     async (grading) => {
       const newJamSessionToQuestions = [...jamSessionToQuestions]
       let newGrading = grading
@@ -182,7 +160,7 @@ const PageGrading = () => {
           }
           return sa
         })
-      await saveGrading(newGrading)
+      debouncedSaveGrading(newGrading)
       setJamSessionToQuestions(newJamSessionToQuestions)
       await mutate(newJamSessionToQuestions, false)
     },
@@ -286,13 +264,13 @@ const PageGrading = () => {
   }, [jamSessionToQuestions])
 
   const questionPages = useMemo(() => {
-    return applyFilter(jamSessionToQuestions).map(
+    return jamSessionToQuestions.map(
       (jstq) => jstq.question
     ).map((q) => ({
       id: q.id,
       isFilled: allGradingsSigned(q.id),
     }));
-  }, [jamSessionToQuestions, applyFilter, allGradingsSigned])
+  }, [jamSessionToQuestions, allGradingsSigned])
 
   const ready =
     jamSessionToQuestions &&
@@ -324,11 +302,6 @@ const PageGrading = () => {
                     />
                   )}
                 </Stack>
-                <GradingQuestionFilter
-                  onFilter={(filter) => {
-                    setFilter(filter)
-                  }}
-                />
               </Stack>
             }
             padding={0}
@@ -423,18 +396,7 @@ const PageGrading = () => {
                         ).studentGrading
                       }
                       maxPoints={jamSessionToQuestion.points}
-                      onSignOff={onSignOff}
-                      clickNextParticipant={(current) => {
-                        const next =
-                          participants.findIndex(
-                            (studentGrading) => studentGrading.id === current.id
-                          ) + 1
-                        if (next < participants.length) {
-                          router.push(
-                            `/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[next].id}`
-                          )
-                        }
-                      }}
+                      onChange={onChangeGrading}
                     />
                     <SuccessRate
                       value={getSignedSuccessRate(jamSessionToQuestions)}
@@ -524,6 +486,12 @@ const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
 
 const SuccessRate = ({ value }) => {
   return (
+    <Tooltip
+      title={<>
+        <Box>Displays the overall success rate based on all <b>signed</b> gradings up to this point.</Box>
+        <Box>(total of all awarded points / total of all possible points) * 100</Box>
+      </>}
+    >
     <Paper sx={{ p: 1 }}>
       <Stack alignItems="center" justifyContent="center" spacing={1}>
         <Typography variant="body2" sx={{ mr: 1 }}>
@@ -532,6 +500,7 @@ const SuccessRate = ({ value }) => {
         <PiePercent value={value} />
       </Stack>
     </Paper>
+    </Tooltip>
   )
 }
 
@@ -541,6 +510,13 @@ const GradingActions = ({
   signOffAllAutograded,
   endGrading,
 }) => (
+  <Tooltip
+    title={
+      totalSigned === totalGradings
+        ? 'All gradings signed'
+        : `You have ${totalGradings - totalSigned} gradings to sign off`
+    }
+  >
   <Paper sx={{ p: 1 }}>
     <Stack justifyContent="center" spacing={1} sx={{ height: '100%' }}>
       <Stack
@@ -586,6 +562,7 @@ const GradingActions = ({
       )}
     </Stack>
   </Paper>
+  </Tooltip>
 )
 
 const GradingQuestionFilter = ({ onFilter }) => {

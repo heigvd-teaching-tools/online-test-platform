@@ -45,7 +45,7 @@ const patch = async (req, res) => {
     },
     data: {
       status: status,
-      pointsObtained: pointsObtained,
+      pointsObtained: parseFloat(pointsObtained),
       signedByUserEmail: signedBy ? signedBy.email : null,
       comment: comment,
     },
