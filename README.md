@@ -83,6 +83,7 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 | `POSTGRES_DB` | The postgres database |
 | ´GH_APP_ID´ | The github app id used to browse org members |
 | `GH_APP_INSTALLATION_ID` | The github app installation id used to browse org members |
+| `GH_APP_PRIVATE_KEY` | The github app private key used to browse org members |
 | `NEXTAUTH_SECRET` | The nextauth secret |
 | `NEXTAUTH_GITHUB_ID` | The nextauth github id |
 | `NEXTAUTH_GITHUB_SECRET` | The nextauth github secret |
@@ -93,46 +94,30 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 - Open ports: 80, 443 and 22
 - Must have rsync installed
 
-# Backup
+# Database backup and restore
 
-The project has 2 utility scripts to backup the database volume:
-- `./backup_pgdata.sh` - to be used on linux or macos
-- `./backup_pgdata.ps1` - to be used on windows
+The deployment is doing a backup of the database before applying the migrations.
 
-These scripts use ssh to connect to the server and use docker to create a backup of the database volume. The backup is stored in the server at the following location: `~/backups/pgdata_backup_$(date +%Y-%m-%d_%H-%M-%S).tar.gz`
+Here is how you can do it manually. 
 
-The backup file will then be downloaded to the local machine at the following location: `./backups/pgdata_backup_$(date +%Y-%m-%d_%H-%M-%S).tar.gz`
+On the server under ~/db_dumps, you can find the latest backup of the database. The backups are named using the following pattern: `dump_onlinetest_2021-05-04_14-30-01.sql`. 
 
-## Usage
+The same folder contains 2 scripts that can be used to backup and restore the database. 
 
-The scripts are dependant on the following environment variables. These variables must be set before running the script.
+A new copy of these scripts can be found in the `scripts` folder of the repository.
 
-| Variable | Value | Description |
-| --- | --- |
-| `REMOTE_USER` | `heiguser` | The user to use to connect to the server |
-| `REMOTE_HOST` | `eval.iict-heig-vd.in` | The host to connect to |
-
-
-#### Environement variables for powershell
-
-```powershell
-$env:REMOTE_USER="heiguser"
-$env:REMOTE_HOST="eval.iict-heig-vd.in"
-```
-
-#### Environement variables for bash
+## Backup the database
 
 ```bash
-export REMOTE_USER=heiguser
-export REMOTE_HOST=eval.iict-heig-vd.in
+cd ~/db_dumps
+sh pg_backup.sh
 ```
+This will create a new backup file in the same folder.
 
-#### Run the script
+## Restore the database
 
 ```bash
-./backup_pgdata.sh
+cd ~/db_dumps
+sh pg_restore.sh <backup-file-name>
 ```
 
-```powershell
-.\backup_pgdata.ps1
-```
