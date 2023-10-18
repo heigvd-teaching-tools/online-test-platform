@@ -49,7 +49,7 @@ runs:
     - name: Generate environment files
       run: |
         cd /home/heiguser/onlinetest
-        echo "DATABASE_URL=postgresql://${{ inputs.POSTGRES_USER }}:${{ inputs.POSTGRES_PASSWORD }}@db:5432/onlinetest" > web/.env
+        echo "DATABASE_URL=postgresql://${{ inputs.POSTGRES_USER }}:${{ inputs.POSTGRES_PASSWORD }}@db:5432/${{ inputs.POSTGRES_DB }}" > web/.env
         echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" >> web/.env
         echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> web/.env
         echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> web/.env
@@ -94,9 +94,19 @@ runs:
         docker compose up -d
       shell: bash
 
+    - name: Create Database Dump
+      run: |
+        cd /home/heiguser/db_dumps
+        backup_date=$(date +"%Y%m%d_%H%M%S")
+        backup_filename="pg_backup_$backup_date.sql"
+        
+        # Connect to the 'db' service container and run pg_dump to create a dump
+        container_db_id=$(docker ps -qf "name=onlinetest-db-")
+        docker exec $container_db_id pg_dump -U ${{ inputs.POSTGRES_USER }} -d ${{ inputs.POSTGRES_DB }} -F c > $backup_filename
+      shell: bash
+
     - name: Run Prisma Migrations
       run: |
-        cd /home/heiguser/onlinetest
         container_id=$(docker ps -qf "name=onlinetest-web-")
         docker exec $container_id npx prisma migrate deploy
       shell: bash
