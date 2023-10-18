@@ -1,7 +1,7 @@
 import useSWR from 'swr'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import Image from 'next/image'
-import { Stack, TextField, Button, Box, Tooltip } from '@mui/material'
+import { Stack, TextField, Button, Box, Tooltip, FormControlLabel, Switch, Typography } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
 
 import LayoutSplitScreen from '../layout/LayoutSplitScreen'
@@ -28,6 +28,8 @@ const QuestionUpdate = ({ questionId }) => {
   } = useSWR(`/api/questions/${questionId}`, questionId ? fetcher : null, {
     revalidateOnFocus: false,
   })
+
+  const [isPreview, setIsPreview] = useState(false);
 
   const saveQuestion = useCallback(
     async (question) => {
@@ -121,16 +123,30 @@ const QuestionUpdate = ({ questionId }) => {
                 </Tooltip>
               </Stack>
               <QuestionTagsSelector questionId={question.id} />
-              <ScrollContainer>
-                <Box>
-                  <ContentEditor
-                    id={`question-${question.id}`}
-                    language="markdown"
-                    rawContent={question.content}
-                    onChange={(content) => onPropertyChange('content', content)}
+              <Stack spacing={0} height={"100%"}>
+                <Stack direction="row" alignItems="center" spacing={1} justifyContent={"space-between"}>
+                  <Typography variant="body1">Task Description</Typography>
+                  <FormControlLabel
+                    control={<Switch checked={isPreview} onChange={() => setIsPreview(!isPreview)} />}
+                    label={
+                      <Typography variant="body2">
+                        {isPreview ? "Preview" : "Markdown"}
+                      </Typography>
+                    }
                   />
-                </Box>
-              </ScrollContainer>
+                </Stack>
+                <ScrollContainer>
+                  <Box>
+                    <ContentEditor
+                      id={`question-${question.id}`}
+                      language="markdown"
+                      rawContent={question.content}
+                      readOnly={isPreview}
+                      onChange={(content) => onPropertyChange('content', content)}
+                    />
+                  </Box>
+                </ScrollContainer>
+              </Stack>
 
               <Stack
                 direction="row"

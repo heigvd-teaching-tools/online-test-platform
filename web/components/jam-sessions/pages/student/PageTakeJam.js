@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import { JamSessionPhase, Role, StudentAnswerStatus } from '@prisma/client'
@@ -22,9 +22,12 @@ import { fetcher } from '../../../../code/utils'
 import Loading from '../../../feedback/Loading'
 import { useSnackbar } from '../../../../context/SnackbarContext'
 import Paging from '../../../layout/utils/Paging'
+import ScrollContainer from '../../../layout/ScrollContainer'
 
 const PageTakeJam = () => {
   const router = useRouter()
+
+  const scrollContainerRef = useRef()
 
   const { showTopCenter: showSnackbar } = useSnackbar()
 
@@ -154,22 +157,24 @@ const PageTakeJam = () => {
                       display={index + 1 === page ? 'block' : 'none'}
                     >
                       <ResizeObserverProvider>
-                        <AnswerEditor
-                          question={q.question}
-                          onAnswer={(question, updatedStudentAnswer) => {
-                            /* update the student answers status in memory */
-                            question.studentAnswer[0].status =
-                              updatedStudentAnswer.status
-                            /* change the state to trigger a re-render */
-                            setPages((prevPages) => {
-                              const newPages = [...prevPages]
-                              newPages[index].isFilled =
-                                updatedStudentAnswer.status ===
-                                StudentAnswerStatus.SUBMITTED
-                              return newPages
-                            })
-                          }}
-                        />
+                        <ScrollContainer ref={scrollContainerRef}>
+                          <AnswerEditor
+                            question={q.question}
+                            onAnswer={(question, updatedStudentAnswer) => {
+                              /* update the student answers status in memory */
+                              question.studentAnswer[0].status =
+                                updatedStudentAnswer.status
+                              /* change the state to trigger a re-render */
+                              setPages((prevPages) => {
+                                const newPages = [...prevPages]
+                                newPages[index].isFilled =
+                                  updatedStudentAnswer.status ===
+                                  StudentAnswerStatus.SUBMITTED
+                                return newPages
+                              })
+                            }}
+                          />
+                        </ScrollContainer>
                       </ResizeObserverProvider>
                     </Box>
                   ))

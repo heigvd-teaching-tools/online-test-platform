@@ -3,11 +3,10 @@ import {fetcher} from "../../../code/utils";
 import React, {useCallback, useRef, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 import Loading from "../../feedback/Loading";
-import {Stack, Typography} from "@mui/material";
+import {Stack} from "@mui/material";
 import ScrollContainer from "../../layout/ScrollContainer";
 import FileEditor from "../../question/type_specific/code/files/FileEditor";
 import {StudentPermission} from "@prisma/client";
-import Image from "next/image";
 import CodeCheck from "../../question/type_specific/code/CodeCheck";
 import StudentPermissionIcon from "../../feedback/StudentPermissionIcon";
 

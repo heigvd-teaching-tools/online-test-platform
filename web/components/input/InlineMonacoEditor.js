@@ -8,7 +8,7 @@ const InlineMonacoEditor = ({
   language = 'javascript',
   readOnly = false,
   onChange,
-  minHeight = 0,
+  minHeight = 100,
 }) => {
   const [editor, setEditor] = useState(null)
   const [contentHeight, setContentHeight] = useState(100)
@@ -26,7 +26,9 @@ const InlineMonacoEditor = ({
 
   const onContentChange = useCallback(
     (newContent) => {
-      setContentHeight(getContentHeight(editor, minHeight))
+      const newContentHeight = getContentHeight(editor, minHeight)      
+      setContentHeight(newContentHeight)
+      editor.setScrollPosition({ scrollTop: 0 })
       onChange(newContent)
     },
     [editor, onChange]

@@ -70,15 +70,6 @@ a {
   text-decoration: none;
   color: var(--text-primary);
 }
-/**
-1. Add the correct height in Firefox.
-2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)
-*/
-
-hr {
-  height: 0; /* 1 */
-  color: inherit; /* 2 */
-}
 
 /*
 Text-level semantics
@@ -124,26 +115,6 @@ small {
   font-size: 80%;
 }
 
-/**
-Prevent 'sub' and 'sup' elements from affecting the line height in all browsers.
-*/
-
-sub,
-sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-
-sub {
-  bottom: -0.25em;
-}
-
-sup {
-  top: -0.5em;
-}
-
 /*
 Tabular data
 ============
@@ -164,24 +135,6 @@ Forms
 =====
 */
 
-/**
-1. Change the font styles in all browsers.
-2. Remove the margin in Firefox and Safari.
-*/
-
-button,
-input,
-optgroup,
-select,
-textarea {
-  font-family: inherit; /* 1 */
-  font-size: 0.75rem; /* 1 */
-  line-height: 1.15; /* 1 */
-  margin: 0; /* 2 */
-  border: 0px;
-  -webkit-appearance: none;
-  outline: none;
-}
 
 /**
 Remove the inheritance of text transform in Edge and Firefox.
@@ -232,14 +185,6 @@ See: https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d4
 }
 
 /**
-Remove the padding so developers are not caught out when they zero out 'fieldset' elements in all browsers.
-*/
-
-legend {
-  padding: 0;
-}
-
-/**
 Add the correct vertical alignment in Chrome and Firefox.
 */
 
@@ -284,36 +229,7 @@ Remove the inner padding in Chrome and Safari on macOS.
   font: inherit; /* 2 */
 }
 
-/*
-Interactive
-===========
-*/
 
-/*
-Add the correct display in Chrome and Safari.
-*/
-
-summary {
-  display: list-item;
-}
-
-ul,
-menu,
-ol {
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
-  padding: 0;
-}
 
 /* width */
 ::-webkit-scrollbar {

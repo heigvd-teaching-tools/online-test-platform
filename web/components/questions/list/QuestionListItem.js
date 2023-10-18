@@ -1,26 +1,8 @@
-import { QuestionType } from '@prisma/client'
 import { Box, Paper, Stack, Typography } from '@mui/material'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 import LanguageIcon from '../../question/type_specific/code/LanguageIcon'
-import ContentEditor from '../../input/ContentEditor'
 import DateTimeAgo from '../../feedback/DateTimeAgo'
 import QuestionTagsViewer from '../../question/tags/QuestionTagsViewer'
-
-const markdownToText = (markdown) => {
-  // Replace markdown headings with an empty string
-  markdown = markdown.replace(/^#+\s/gm, '')
-
-  // Replace markdown links with the link text
-  markdown = markdown.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-
-  // Replace other markdown formatting with an empty string
-  markdown = markdown.replace(/([*_~`])/g, '')
-
-  // Remove leading and trailing whitespace
-  markdown = markdown.trim()
-
-  return markdown
-}
 
 const truncateString = (str, n) => {
   if (str.length <= n) {
@@ -49,21 +31,6 @@ const QuestionListItem = ({ question, actions = [] }) => {
             <LanguageIcon language={question.code?.language} size={22} />
           )}
         </Stack>
-
-        {question.content && question.content.length > 0 && (
-          <ContentEditor
-            id={'questions-content-' + question.id}
-            readOnly
-            rawContent={truncateString(markdownToText(question.content), 500)}
-          />
-        )}
-        {!question.content ||
-          (question.content.length === 0 && (
-            <Typography variant="caption" component="span">
-              No content
-            </Typography>
-          ))}
-
         <QuestionTagsViewer size={'small'} tags={question.questionToTag} />
         <Stack
           justifyContent={'space-between'}

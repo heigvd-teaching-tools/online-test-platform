@@ -1,6 +1,7 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import InlineMonacoEditor from './InlineMonacoEditor'
 import ReactMarkdown from 'react-markdown'
+import gfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import copyToClipboard from 'clipboard-copy';
 import { useSnackbar } from '../../context/SnackbarContext';
@@ -46,22 +47,22 @@ const ContentEditor = ({
 }) => {
  
   return readOnly ? (
+    <Box className="markdown-body">
     <ReactMarkdown
+      remarkPlugins={[gfm]}
       components={{
         code: ({children:code, className, inline}) => {
-
           // If it's its inline code, we'll use the <code> component
           if(inline) return <code>{code}</code>
-
           // If it's a block, we'll use the SyntaxHighlighter component
           const language = className?.replace('language-', '') || 'text'
           return <CodeBlock language={language} value={code} />
         },
       }}
     >{rawContent?.toString()}</ReactMarkdown>
+    </Box>
   ) : (
     <InlineMonacoEditor
-      minHeight={100}
       code={rawContent}
       language={language}
       readOnly={readOnly}
