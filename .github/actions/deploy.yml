@@ -3,9 +3,7 @@ description: 'Common deployment steps'
 runs:
   using: 'composite'
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
+    
     - name: Move checked-out code to production folder
       run: |
         rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/onlinetest/ --exclude .git
