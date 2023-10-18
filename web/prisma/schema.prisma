@@ -130,7 +130,7 @@ model CollectionToQuestion {
   questionId   String
 
   order  Int @default(0)
-  points Int @default(4)
+  points Float @default(4)
 
   @@id([collectionId, questionId])
 }
@@ -479,7 +479,7 @@ model JamSessionToQuestion {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @unique
 
-  points Int @default(0)
+  points Float @default(0)
   order  Int @default(0)
 
   @@id([jamSessionId, questionId])
@@ -543,7 +543,7 @@ model StudentQuestionGrading {
   updatedAt DateTime @default(now()) @updatedAt
 
   status         StudentQuestionGradingStatus @default(UNGRADED)
-  pointsObtained Int                          @default(0)
+  pointsObtained Float                          @default(0)
 
   signedBy          User?   @relation(fields: [signedByUserEmail], references: [email])
   signedByUserEmail String?

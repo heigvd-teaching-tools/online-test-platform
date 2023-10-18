@@ -1,0 +1,25 @@
+name: Deploy Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deployment Target? (PROD or STAGE)'     
+        required: true
+        default: 'PROD'
+
+jobs:
+  deploy_to_prod:
+    runs-on: [self-hosted, prod-runner]
+    if: github.event.inputs.target == 'PROD'
+    steps:
+      - name: Deploy to PROD
+        uses: ./.github/actions/deploy
+
+  deploy_to_stage:
+    runs-on: [self-hosted, stage-runner]
+    if: github.event.inputs.target == 'STAGE'
+    steps:
+      - name: Deploy to STAGE
+        uses: ./.github/actions/deploy
+

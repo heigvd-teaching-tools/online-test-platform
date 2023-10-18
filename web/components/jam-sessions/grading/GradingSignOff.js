@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
-import { Box, Paper, Stack, TextField, InputAdornment } from '@mui/material'
+import { Box, Paper, Stack, TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 
 import GradingStatus from './GradingStatus'
@@ -9,12 +9,13 @@ import GradingStatus from './GradingStatus'
 import { useSession } from 'next-auth/react'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
+import DecimalInput from '../../input/DecimalInput'
 
 const GradingSignOff = ({
   loading,
   grading: initial,
   maxPoints,
-  onSignOff,
+  onChange,
 }) => {
   const [grading, setGrading] = useState(initial)
   const { data } = useSession()
@@ -23,7 +24,7 @@ const GradingSignOff = ({
     setGrading(initial)
   }, [initial])
 
-  const signOffGrading = () => {
+  const signOffGrading = useCallback(() => {
     let status = grading.status
     switch (grading.status) {
       case StudentQuestionGradingStatus.UNGRADED:
@@ -45,10 +46,10 @@ const GradingSignOff = ({
       signedBy: data.user,
     }
     setGrading(newGrading)
-    onSignOff(newGrading)
-  }
+    onChange(newGrading)
+  }, [grading, initial, maxPoints, onChange, data])
 
-  const unsignGrading = () => {
+  const unsignGrading = useCallback(() => {
     let newGrading = {
       ...grading,
       status:
@@ -58,8 +59,8 @@ const GradingSignOff = ({
       signedBy: undefined,
     }
     setGrading(newGrading)
-    onSignOff(newGrading)
-  }
+    onChange(newGrading)
+  }, [grading, onChange])
 
   return (
     <Paper
@@ -74,13 +75,12 @@ const GradingSignOff = ({
           alignItems="center"
           justifyContent="space-between"
           sx={{ height: '100%', p: 2 }}
-          spacing={2}
+          spacing={8}
         >
           <Stack direction="row">
             {grading.signedBy ? (
               <GradingSigned
                 signedBy={grading.signedBy}
-                grading={grading}
                 onUnsign={unsignGrading}
               />
             ) : (
@@ -108,38 +108,19 @@ const GradingSignOff = ({
           {!grading.signedBy && (
             <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>
               <Box>
-                <TextField
-                  label="Pts"
-                  id="filled-points"
-                  type="number"
-                  variant="filled"
+                <DecimalInput
+                  label={'Pts'}
                   value={grading.pointsObtained}
-                  InputProps={{
-                    sx: { pr: 2 },
-                    inputProps: {
-                      min: 0,
-                      max: maxPoints,
-                      sx: { minWidth: 30 },
-                    },
-                    endAdornment: (
-                      <InputAdornment position="end" sx={{ mt: 2.2 }}>
-                        / {maxPoints}
-                      </InputAdornment>
-                    ),
-                  }}
-                  onChange={(event) => {
-                    let points = parseInt(event.target.value)
-                    if (points > maxPoints) {
-                      points = maxPoints
-                    }
-                    if (points < 0) {
-                      points = 0
-                    }
-                    let newGrading = {
+                  max={maxPoints}
+                  rightAdornement={'/ ' + maxPoints + ' pts'}
+                  variant="filled"
+                  onChange={async (value) => {
+                    const newGrading = {
                       ...grading,
-                      pointsObtained: points,
+                      pointsObtained: value,
                     }
                     setGrading(newGrading)
+                    onChange(newGrading)
                   }}
                 />
               </Box>
@@ -147,6 +128,7 @@ const GradingSignOff = ({
                 label="Comment"
                 fullWidth
                 multiline
+                maxRows={3}
                 variant="filled"
                 value={grading.comment || ''}
                 onChange={(event) => {
@@ -155,6 +137,7 @@ const GradingSignOff = ({
                     comment: event.target.value,
                   }
                   setGrading(newGrading)
+                  onChange(newGrading)
                 }}
               />
             </Stack>

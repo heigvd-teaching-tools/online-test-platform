@@ -1,8 +1,8 @@
-import { Chip, Stack, Typography } from '@mui/material'
+import { Chip, Stack, TextField, Typography } from '@mui/material'
 const GradingPointsComment = ({ points, maxPoints, comment }) => {
   let color = points > 0 ? 'success' : 'error'
   return (
-    <Stack direction="row" alignItems="center" spacing={1}>
+    <Stack direction="row" alignItems="center" spacing={1} flex={1}>
       <Chip
         variant="outlined"
         color={color}
@@ -17,9 +17,17 @@ const GradingPointsComment = ({ points, maxPoints, comment }) => {
           </>
         }
       />
-      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        {comment}
-      </Typography>
+      <TextField
+        label="Comment"
+        fullWidth
+        multiline
+        maxRows={3}
+        size={"small"}
+        value={comment || ''}
+        InputProps={{
+          readOnly: true,
+        }}
+      />
     </Stack>
   )
 }

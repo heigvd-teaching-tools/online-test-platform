@@ -97,7 +97,7 @@ const put = async (req, res) => {
       },
     },
     data: {
-      points: parseInt(collectionToQuestion.points),
+      points: parseFloat(collectionToQuestion.points),
     },
   })
 

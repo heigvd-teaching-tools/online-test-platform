@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "CollectionToQuestion" ALTER COLUMN "points" SET DEFAULT 4,
+ALTER COLUMN "points" SET DATA TYPE DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "JamSessionToQuestion" ALTER COLUMN "points" SET DEFAULT 0,
+ALTER COLUMN "points" SET DATA TYPE DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "StudentQuestionGrading" ALTER COLUMN "pointsObtained" SET DEFAULT 0,
+ALTER COLUMN "pointsObtained" SET DATA TYPE DOUBLE PRECISION;

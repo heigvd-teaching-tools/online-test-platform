@@ -40,7 +40,7 @@
       "label": "Java",
       "icon": "/svg/languages/java.svg",
       "sandbox": {
-        "image": "openjdk:latest",
+        "image": "eclipse-temurin:latest",
         "defaultPath": "/src/main.java",
         "exec": "java -cp /src Main",
         "beforeAll": "javac /src/Main.java"
