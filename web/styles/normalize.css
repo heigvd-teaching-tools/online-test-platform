@@ -353,3 +353,8 @@ foreignObject {
   font-weight: bold;
   font-style: normal;
 }
+
+svg {
+  margin: 0;
+  padding: 0;
+}

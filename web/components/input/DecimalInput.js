@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
-import { InputAdornment, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, InputAdornment, Stack, Tooltip, Typography } from '@mui/material';
 
 // Regular expression to allow only numbers with up to 2 decimal places
 const regex = /^-?(\d+\.?\d{0,2}|\.\d{0,2})$/;
@@ -59,6 +59,18 @@ const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, step 
 
   }, [min, max, step, onChange]);
 
+  const incrementValue = () => {
+    const newValue = Math.min(parseFloat(value || 0) + step, max);
+    setValue(newValue);
+    onChange(newValue);
+  };
+
+  const decrementValue = () => {
+    const newValue = Math.max(parseFloat(value || 0) - step, min);
+    setValue(newValue);
+    onChange(newValue);
+  };
+
   return (
     <TextField
         value={value}
@@ -69,9 +81,27 @@ const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, step 
         InputProps={{
             inputMode: 'numeric',
             pattern: '^\\d*(\\.\\d{0,2})?$',
-            endAdornment:rightAdornement && (
+            endAdornment:(
                 <InputAdornment position="end">
-                    <Typography variant={"caption"}>{rightAdornement}</Typography>
+                    <Stack alignItems={"center"} spacing={0.3}>
+                        <Box onClick={incrementValue} style={{cursor: 'pointer'}} width={14} height={20} p={0.2}>
+                            <svg width="10" height="6" viewBox="0 0 12 6" fill="none" >
+                                <path d="M1 5L6 1L11 5" stroke="green"/>
+                            </svg>
+                        </Box>
+                        <Box onClick={decrementValue} style={{cursor: 'pointer'}} width={14} height={20} p={0.2}>
+                            <svg width="10" height="6" viewBox="0 0 12 6" fill="none" style={{verticalAlign: 'top'}}>
+                                <path d="M1 1L6 5L11 1" stroke="red"/>
+                            </svg>
+                        </Box>
+                    </Stack>
+                { rightAdornement && (
+                    <Stack ml={0.5} alignItems={"center"}>
+                    <Typography variant="caption" color="textSecondary">
+                        {rightAdornement}
+                    </Typography>
+                    </Stack>
+                )}    
                 </InputAdornment>
               ),
             step,

@@ -114,6 +114,7 @@ const QuestionUpdate = ({ questionId }) => {
                   <DecimalInput
                     label={'Default pts'}
                     value={question.defaultPoints}
+                    rightAdornement={'step 0.25'}
                     variant="outlined"
                     onChange={(value) => onPropertyChange('defaultPoints', value)}
                   />
