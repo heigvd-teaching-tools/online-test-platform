@@ -5,7 +5,6 @@ import {
   IconButton,
   Paper,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material'
 import DragHandleSVG from '../../layout/utils/DragHandleSVG'

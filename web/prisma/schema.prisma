@@ -140,6 +140,7 @@ model Question {
   type    QuestionType
   title   String
   content String
+  defaultPoints Float @default(4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

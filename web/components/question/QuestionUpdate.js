@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import { useCallback } from 'react'
 import Image from 'next/image'
-import { Stack, TextField, Button, Box } from '@mui/material'
+import { Stack, TextField, Button, Box, Tooltip } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
 
 import LayoutSplitScreen from '../layout/LayoutSplitScreen'
@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
 import ScrollContainer from '../layout/ScrollContainer'
+import DecimalInput from '../input/DecimalInput'
 
 const QuestionUpdate = ({ questionId }) => {
   const router = useRouter()
@@ -99,15 +100,25 @@ const QuestionUpdate = ({ questionId }) => {
         leftPanel={
           question && (
             <Stack spacing={2} sx={{ pl: 2, pt: 3, pb: 2, height: '100%' }}>
-              <TextField
-                id={`question-${question.id}-title`}
-                label="Title"
-                variant="outlined"
-                fullWidth
-                focused
-                defaultValue={question.title}
-                onChange={(e) => onPropertyChange('title', e.target.value)}
-              />
+              <Stack direction="row" alignItems="flex-start" spacing={1}>
+                <TextField
+                  id={`question-${question.id}-title`}
+                  label="Title"
+                  variant="outlined"
+                  fullWidth
+                  focused
+                  defaultValue={question.title}
+                  onChange={(e) => onPropertyChange('title', e.target.value)}
+                />
+                <Tooltip title={"A default amount of points that will pre-fill points field in a collection"}>
+                  <DecimalInput
+                    label={'Default pts'}
+                    value={question.defaultPoints}
+                    variant="outlined"
+                    onChange={(value) => onPropertyChange('defaultPoints', value)}
+                  />
+                </Tooltip>
+              </Stack>
               <QuestionTagsSelector questionId={question.id} />
               <ScrollContainer>
                 <Box>
