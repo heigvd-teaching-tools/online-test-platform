@@ -19,6 +19,9 @@ inputs:
   GH_APP_PRIVATE_KEY:
     description: 'GitHub App Private Key'
     required: true
+  NEXTAUTH_URL:
+    description: 'NextAuth URL'
+    required: true
   NEXTAUTH_SECRET:
     description: 'NextAuth Secret'
     required: true
@@ -55,7 +58,7 @@ runs:
         echo "GITHUB_APP_PRIVATE_KEY_PATH=eval-teaching-tools.private-key.pem" >> web/.env
         echo "GITHUB_APP_INSTALLATION_ID=${{ inputs.GH_APP_INSTALLATION_ID }}" >> web/.env
 
-        echo "NEXTAUTH_URL=https://eval.iict-heig-vd.in" > web/.env.production
+        echo "NEXTAUTH_URL=${{inputs.NEXTAUTH_URL}}" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ inputs.NEXTAUTH_SECRET }}" >> web/.env.production
         echo "NEXTAUTH_GITHUB_ID=${{ inputs.NEXTAUTH_GITHUB_ID }}" >> web/.env.production
         echo "NEXTAUTH_GITHUB_SECRET=${{ inputs.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production

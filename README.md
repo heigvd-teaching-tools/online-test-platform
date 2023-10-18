@@ -91,6 +91,7 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 
 - Must have a running docker daemon
 - Open ports: 80, 443 and 22
+- Must have rsync installed
 
 # Backup
 
