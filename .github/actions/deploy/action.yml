@@ -96,6 +96,7 @@ runs:
 
     - name: Create Database Dump
       run: |
+        mkdir -p /home/heiguser/db_dumps
         cd /home/heiguser/db_dumps
         backup_date=$(date +"%Y%m%d_%H%M%S")
         backup_filename="pg_backup_$backup_date.sql"
