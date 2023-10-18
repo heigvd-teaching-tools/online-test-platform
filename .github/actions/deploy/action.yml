@@ -1,7 +1,6 @@
 name: 'Deployment Procedure'
 description: 'Common deployment steps'
 runs:
-  using: 'composite'
   steps:
     
     - name: Move checked-out code to production folder
