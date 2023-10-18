@@ -39,10 +39,14 @@ const post = async (req, res) => {
   const { jamSessionId, questionId } = req.query
   const studentEmail = session.user.email
 
+  
+  
   if (!(await isInProgress(jamSessionId))) {
     res.status(400).json({ message: 'Jam session is not in progress' })
     return
   }
+
+  
 
   const code = await prisma.code.findUnique({
     where: {
@@ -60,6 +64,7 @@ const post = async (req, res) => {
     return
   }
 
+  
   const studentAnswerCodeFiles = await prisma.studentAnswerCode.findUnique({
     where: {
       userEmail_questionId: {
@@ -76,6 +81,7 @@ const post = async (req, res) => {
     },
   })
 
+  
   if (!studentAnswerCodeFiles || !studentAnswerCodeFiles.files) {
     res.status(404).json({ message: 'Student files not found' })
     return
@@ -85,6 +91,8 @@ const post = async (req, res) => {
     (codeToFile) => codeToFile.file
   )
 
+
+  
   const response = await runSandbox({
     image: code.sandbox.image,
     files: files,
@@ -107,6 +115,8 @@ const post = async (req, res) => {
         }
 
         * */
+
+        
 
     await prisma.StudentAnswerCode.update({
       where: {
