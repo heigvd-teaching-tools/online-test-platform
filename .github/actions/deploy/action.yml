@@ -1,11 +1,13 @@
 name: 'Deployment Procedure'
 description: 'Common deployment steps'
 runs:
+  using: 'composite'
   steps:
     
     - name: Move checked-out code to production folder
       run: |
         rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/onlinetest/ --exclude .git
+      shell: bash
 
     - name: Generate environment files
       run: |
@@ -24,6 +26,7 @@ runs:
         echo "NEXTAUTH_GITHUB_ID=${{ secrets.NEXTAUTH_GITHUB_ID }}" >> web/.env.production
         echo "NEXTAUTH_GITHUB_SECRET=${{ secrets.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
+      shell: bash
 
     - name: Generate GitHub App private key and ssl certificates
       run: |
@@ -34,25 +37,30 @@ runs:
         mkdir -p ssl
         echo "${{ secrets.SSL_FULLCHAIN }}" > ssl/fullchain.pem
         echo "${{ secrets.SSL_PRIVKEY }}" > ssl/privkey.pem
+      shell: bash
         
     - name: Build Custom Docker images
       run: |
         cd /home/heiguser/onlinetest
         docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
+      shell: bash
 
     - name: Build Docker Compose Images
       run: |
         cd /home/heiguser/onlinetest
         docker compose build
+      shell: bash
 
     - name: Start Docker Compose Services
       run: |
         cd /home/heiguser/onlinetest
         docker compose up -d
+      shell: bash
 
     - name: Run Prisma Migrations
       run: |
         cd /home/heiguser/onlinetest
         container_id=$(docker ps -qf "name=onlinetest-web-")
         docker exec $container_id npx prisma migrate deploy
+      shell: bash
 
