@@ -7,7 +7,7 @@ const Essay = ({ id = 'essay', content, onChange }) => {
     <Stack spacing={1} width="100%" height="100%" position="relative" p={1}>
       <ContentEditor
         id={id}
-        title={"Essay Solution"}
+        title={"Correct Answer"}
         rawContent={content}
         onChange={(newContent) => {
           if (newContent === content) return

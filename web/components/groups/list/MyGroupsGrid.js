@@ -122,6 +122,7 @@ const getMyGroupsActions = (group, user, onLeave, onDelete) => {
     >
       Leave this group
     </Button>,
+
   ]
 
   if (group.createdById === user.id) {

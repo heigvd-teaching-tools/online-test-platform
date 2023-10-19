@@ -88,6 +88,11 @@ export default NextAuth({
               include: {
                 group: true,
               },
+              orderBy: {
+                group: {
+                  label: 'asc',
+                },
+              },
             },
           },
         })

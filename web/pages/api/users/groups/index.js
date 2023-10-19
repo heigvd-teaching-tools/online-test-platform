@@ -32,6 +32,11 @@ const get = async (req, res) => {
     include: {
       group: true,
     },
+    orderBy: {
+      group: {
+        label: 'asc',
+      },
+    },
   })
 
   res.status(200).json(groups)
