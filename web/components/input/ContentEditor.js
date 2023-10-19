@@ -21,14 +21,13 @@ const ContentEditor = ({
   onChange,
 }) => {
 
-
   return readOnly ? 
     <PreviewMarkdown 
       rawContent={rawContent} 
     /> 
   : 
     <EditMarkdown 
-      title={title} 
+      title={title || ''} 
       rawContent={rawContent} 
       height={height} 
       onChange={onChange} 
@@ -39,6 +38,8 @@ const ContentEditor = ({
 const EditMarkdown = ({ title, rawContent: initial, height, onChange }) => {
 
   const ref = useRef(null)
+
+  const readOnly = onChange === undefined
 
   const [ mode, setMode ] = useState("source")
 
@@ -93,6 +94,7 @@ const EditMarkdown = ({ title, rawContent: initial, height, onChange }) => {
               <InlineMonacoEditor
                 code={rawContent}
                 language={"markdown"}
+                readOnly={readOnly}
                 onChange={onChangeContent}
               />)
           ) || (
@@ -102,6 +104,7 @@ const EditMarkdown = ({ title, rawContent: initial, height, onChange }) => {
                     <InlineMonacoEditor
                       code={rawContent}
                       language={"markdown"}
+                      readOnly={readOnly}
                       onChange={onChangeContent}
                     /> 
                   }
