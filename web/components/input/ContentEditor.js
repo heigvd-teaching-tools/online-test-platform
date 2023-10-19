@@ -42,8 +42,6 @@ const EditMarkdown = ({ title, rawContent, height, onChange }) => {
 
   const [ mode, setMode ] = useState("source")
 
-  console.log("EditMarkdown", title, rawContent)
-
   return (
     <Stack spacing={0} height={height} ref={ref}>
       <Stack direction="row" alignItems="center" spacing={1} justifyContent={"space-between"}>
@@ -75,7 +73,7 @@ const EditMarkdown = ({ title, rawContent, height, onChange }) => {
           </IconButton>
         </Stack>
       </Stack>
-      <ScrollContainer ref={ref} dashed>
+      <ScrollContainer ref={ref}>
         {
 
           (

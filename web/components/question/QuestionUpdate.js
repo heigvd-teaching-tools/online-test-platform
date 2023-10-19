@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Stack, TextField, Button, Box, Tooltip, FormControlLabel, Switch, Typography } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
@@ -21,12 +21,27 @@ const QuestionUpdate = ({ questionId }) => {
   const { show: showSnackbar } = useSnackbar()
 
   const {
-    data: question,
+    data:question,
     mutate,
     error,
   } = useSWR(`/api/questions/${questionId}`, questionId ? fetcher : null, {
     revalidateOnFocus: false,
   })
+
+  useEffect(() => {
+    // if group changes, re-fetch questions
+    if (questionId) {
+      ;(async () => await mutate())()
+    }
+  }, [questionId])
+
+  const [ title, setTitle ] = useState(undefined)
+
+  useEffect(() => {
+    if (question) {
+      setTitle(question.title)
+    }
+  }, [question])
 
   const saveQuestion = useCallback(
     async (question) => {
@@ -69,7 +84,7 @@ const QuestionUpdate = ({ questionId }) => {
       })
   }, [question, showSnackbar, router, mutate])
 
-  const onChange = useCallback(
+  const onChangeQuestion = useCallback(
     async (question) => {
       await saveQuestion(question)
     },
@@ -78,8 +93,8 @@ const QuestionUpdate = ({ questionId }) => {
 
   const debounceChange = useDebouncedCallback(
     useCallback(async () => {
-      await onChange(question)
-    }, [question, onChange]),
+      await onChangeQuestion(question)
+    }, [question, onChangeQuestion]),
     500
   )
 
@@ -98,7 +113,7 @@ const QuestionUpdate = ({ questionId }) => {
       <LayoutSplitScreen
         leftPanel={
           question && (
-            <Stack spacing={2} sx={{ pl: 2, pt: 3, pb: 2, height: '100%' }}>
+            <Stack spacing={2} sx={{ pl: 2, pt: 1, pb: 2, height: '100%' }}>
               <Stack direction="row" alignItems="flex-start" spacing={1}>
                 <TextField
                   id={`question-${question.id}-title`}
@@ -106,8 +121,11 @@ const QuestionUpdate = ({ questionId }) => {
                   variant="outlined"
                   fullWidth
                   focused
-                  defaultValue={question.title}
-                  onChange={(e) => onPropertyChange('title', e.target.value)}
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value)
+                    onPropertyChange('title', e.target.value)
+                  }}
                 />
                 <Tooltip title={"A default amount of points that will pre-fill points field in a collection"}>
                   <DecimalInput

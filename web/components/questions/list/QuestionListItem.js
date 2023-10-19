@@ -4,16 +4,9 @@ import LanguageIcon from '../../question/type_specific/code/LanguageIcon'
 import DateTimeAgo from '../../feedback/DateTimeAgo'
 import QuestionTagsViewer from '../../question/tags/QuestionTagsViewer'
 
-const truncateString = (str, n) => {
-  if (str.length <= n) {
-    return str
-  }
-  return str.slice(0, n) + '\n\n...'
-}
-
-const QuestionListItem = ({ question, actions = [] }) => {
+const QuestionListItem = ({ question, selected, actions = [] }) => {
   return (
-    <Paper elevation={1}>
+    <Paper elevation={1} sx={{ p: 1, width: '100%' }} variant={selected ? 'outlined' : 'elevation'}>
       <Stack spacing={2} p={2}>
         <Stack direction="row" justifyContent="space-between">
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
@@ -38,7 +31,9 @@ const QuestionListItem = ({ question, actions = [] }) => {
           direction={'row'}
           width="100%"
         >
+          <Stack direction={'row'} spacing={1} alignItems={'center'}>
           {actions}
+          </Stack>
           <Box>
             <Stack
               direction={'row'}

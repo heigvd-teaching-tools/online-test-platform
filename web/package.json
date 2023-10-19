@@ -59,6 +59,7 @@
     "react-dom": "18.2.0",
     "react-draft-wysiwyg": "^1.15.0",
     "react-markdown": "^8.0.5",
+    "react-resizable": "^3.0.5",
     "react-syntax-highlighter": "^15.5.0",
     "react-time-ago": "^7.2.1",
     "react-window": "^1.8.9",

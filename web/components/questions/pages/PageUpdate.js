@@ -24,7 +24,7 @@ const PageUpdate = () => {
           </Stack>
         }
       >
-        <Box width="100%" height="100%">
+        <Box width="100%" height="100%" pt={1}>
           <QuestionUpdate questionId={router.query.questionId} />
         </Box>
       </LayoutMain>
