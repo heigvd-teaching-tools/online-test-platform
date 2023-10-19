@@ -176,7 +176,7 @@ const QuestionListContainer = ({ questions, selected, setSelected }) => {
               variant={'text'}
               color={"secondary"}
             >
-              Select
+              Aside
             </Button>,
           ]}
         />
