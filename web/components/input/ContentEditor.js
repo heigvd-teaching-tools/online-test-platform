@@ -175,10 +175,10 @@ const SourceViewIcon = ({ size = 24, active = false}) => {
 
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 3H21V21H3V3Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 8H18" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 12H18" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 16H12" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 3H21V21H3V3Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 8H18" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 12H18" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 16H12" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
@@ -190,11 +190,11 @@ const SplitViewIcon = ({ size = 24, active = false}) => {
 
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 3H21V21H3V3Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 3V21" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 8H10" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 12H10" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 16H12" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 3H21V21H3V3Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 3V21" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 8H10" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 12H10" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 16H12" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
@@ -206,7 +206,7 @@ const PreviewIcon = ({ size = 24, active = false}) => {
 
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3 3H21V21H3V3Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 3H21V21H3V3Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }

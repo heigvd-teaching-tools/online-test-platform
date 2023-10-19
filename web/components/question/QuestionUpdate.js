@@ -35,7 +35,7 @@ const QuestionUpdate = ({ questionId }) => {
     }
   }, [questionId])
 
-  const [ title, setTitle ] = useState(undefined)
+  const [ title, setTitle ] = useState("")
 
   useEffect(() => {
     if (question) {
@@ -128,6 +128,7 @@ const QuestionUpdate = ({ questionId }) => {
                   }}
                 />
                 <Tooltip title={"A default amount of points that will pre-fill points field in a collection"}>
+                  <Box>
                   <DecimalInput
                     label={'Default pts'}
                     value={question.defaultPoints}
@@ -135,6 +136,7 @@ const QuestionUpdate = ({ questionId }) => {
                     variant="outlined"
                     onChange={(value) => onPropertyChange('defaultPoints', value)}
                   />
+                  </Box>
                 </Tooltip>
               </Stack>
               <QuestionTagsSelector questionId={question.id} />

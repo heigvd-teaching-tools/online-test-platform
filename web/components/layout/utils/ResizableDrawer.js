@@ -1,9 +1,9 @@
 import { Box, Drawer, Stack } from "@mui/material";
 import { useState } from "react";
 
-const ResizableDrawer = ({ open, width=70, onClose, children }) => {
+const ResizableDrawer = ({ open, width:initial=70, onClose, children }) => {
     const [ dragging, setDragging ] = useState(false)
-    const [ width, setWidth ] = useState(width); // Initially set to 70vw
+    const [ width, setWidth ] = useState(initial); // Initially set to 70vw
 
     return (
         <Drawer
@@ -16,13 +16,12 @@ const ResizableDrawer = ({ open, width=70, onClose, children }) => {
             <Box pl={1} width={"100%"} height={"100%"} position={"relative"}>
                 
                 { dragging && (
-                    <Stack position={"fixed"} top={0} left={0} right={0} bottom={0} width={"100vw"} height={"100vh"} zIndex={100}
+                    <Stack position={"fixed"} top={0} left={0} right={0} bottom={0} width={"100vw"} height={"100vh"} zIndex={100} border={"1px dashed red"} bgcolor={"rgba(255,255,255,0.5)"}
                         onMouseMove={(e) => {
-                            if (dragging) {
                             setWidth((window.innerWidth - e.clientX) / window.innerWidth * 100);
-                            }
                         }}
                         onMouseUp={(e) => {
+                            console.log("mouseup static")
                             setDragging(false)
                         }}
                     />
@@ -36,16 +35,9 @@ const ResizableDrawer = ({ open, width=70, onClose, children }) => {
                     zIndex={2}
                     alignItems={"center"}
                     justifyContent={"center"}
-                    sx={{
-                        cursor: "ew-resize",
-                    }}
-                    onMouseDown={(e) => {
-                        setDragging(true)
-                    }}
-                    onMouseUp={(e) => {
-                        setDragging(false)
-                    }}
-                    
+                    sx={{ cursor: "ew-resize" }}
+                    onMouseDown={(e) => setDragging(true)}
+                    onMouseUp={(e) => setDragging(false)}
                 >
                     <ResizeHandleIcon />
                 </Stack>

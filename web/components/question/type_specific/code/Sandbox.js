@@ -15,12 +15,12 @@ const Sandbox = ({ questionId, language }) => {
     { revalidateOnFocus: false }
   )
 
-  const [image, setImage] = useState(sandbox?.image)
-  const [beforeAll, setBeforeAll] = useState(sandbox?.beforeAll)
+  const [image, setImage] = useState(sandbox?.image || '')
+  const [beforeAll, setBeforeAll] = useState(sandbox?.beforeAll || '')
 
   useEffect(() => {
-    setImage(sandbox?.image)
-    setBeforeAll(sandbox?.beforeAll)
+    setImage(sandbox?.image || '')
+    setBeforeAll(sandbox?.beforeAll || '')
   }, [sandbox])
 
   useEffect(() => {

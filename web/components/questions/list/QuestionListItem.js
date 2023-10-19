@@ -6,8 +6,8 @@ import QuestionTagsViewer from '../../question/tags/QuestionTagsViewer'
 
 const QuestionListItem = ({ question, selected, actions = [] }) => {
   return (
-    <Paper elevation={1} sx={{ p: 1, width: '100%' }} variant={selected ? 'outlined' : 'elevation'}>
-      <Stack spacing={2} p={2}>
+    <Paper sx={{ p: 1, width: '100%' }} variant={selected ? 'outlined' : 'elevation'}>
+      <Stack spacing={1} p={2}>
         <Stack direction="row" justifyContent="space-between">
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
             <QuestionTypeIcon type={question.type} size={32} withLabel />
@@ -20,11 +20,14 @@ const QuestionListItem = ({ question, selected, actions = [] }) => {
               >{`{missing title}`}</Typography>
             )}
           </Stack>
-          {question.type === 'code' && question.code?.language && (
-            <LanguageIcon language={question.code?.language} size={22} />
-          )}
+          <Stack direction={'row'} spacing={1} alignItems={'center'}>
+            <QuestionTagsViewer size={'small'} tags={question.questionToTag} />
+            {question.type === 'code' && question.code?.language && (
+              <LanguageIcon language={question.code?.language} size={22} />
+            )}
+          </Stack>
         </Stack>
-        <QuestionTagsViewer size={'small'} tags={question.questionToTag} />
+        
         <Stack
           justifyContent={'space-between'}
           alignItems={'center'}
