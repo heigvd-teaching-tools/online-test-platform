@@ -21,6 +21,7 @@ import Authorisation from '../../security/Authorisation'
 import MainMenu from '../../layout/MainMenu'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import StudentRegistration from '../draft/StudentRegistration'
 
 const PageInProgress = () => {
   const router = useRouter()
@@ -34,7 +35,11 @@ const PageInProgress = () => {
     data: jamSession,
     mutate,
     error,
-  } = useSWR(`/api/jam-sessions/${jamSessionId}`, jamSessionId ? fetcher : null)
+  } = useSWR(
+      `/api/jam-sessions/${jamSessionId}`, 
+      jamSessionId ? fetcher : null,
+      { refreshInterval: 1000}
+      )
 
   const [saving, setSaving] = useState(false)
 
@@ -122,7 +127,14 @@ const PageInProgress = () => {
                 >
                   End jam session
                 </LoadingButton>
+               
               </Stack>
+              
+              <StudentRegistration 
+                students={jamSession?.students}
+                questions={jamSession?.jamSessionToQuestions}
+              />
+              
               <DialogFeedback
                 open={endSessionDialogOpen}
                 title="End of In-Progress phase"

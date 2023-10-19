@@ -59,6 +59,7 @@ const QuestionTypeSpecific = ({ question, onTypeSpecificChange }) => {
           if (question.essay) {
             return (
                 <Essay
+                  title={"Solution Answer"}
                   content={question.essay.solution}
                   onChange={(newContent) =>
                       onTypeSpecificChange(question.type, { solution: newContent })

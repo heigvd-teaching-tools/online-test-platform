@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import DurationPicker from '../../input/DurationPicker'
 import UserAvatar from '../../layout/UserAvatar'
+import StudentRegistration from './StudentRegistration'
 
 const StepSchedule = ({ jamSession, onChange }) => {
   const [useDuration, setUseDuration] = useState(false)
@@ -67,21 +68,12 @@ const StepSchedule = ({ jamSession, onChange }) => {
           }}
         />
       )}
-      <Typography variant="h6">Student registration</Typography>
-      {jamSession && jamSession.students && jamSession.students.length > 0 && (
-        <>
-          <Typography variant="body1">
-            {jamSession.students.length} registered students
-          </Typography>
-          <List>
-            {jamSession.students.map((student, index) => (
-              <UserAvatar key={index} user={student.user} />
-            ))}
-          </List>
-        </>
-      )}
+      <StudentRegistration 
+        students={jamSession?.students}
+      />
     </Stack>
   )
 }
+
 
 export default StepSchedule

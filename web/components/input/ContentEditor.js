@@ -5,7 +5,7 @@ import gfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import copyToClipboard from 'clipboard-copy';
 import { useSnackbar } from '../../context/SnackbarContext';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ScrollContainer from '../layout/ScrollContainer';
 import ResizePanel from '../layout/utils/ResizePanel';
 /*
@@ -36,11 +36,23 @@ const ContentEditor = ({
     
 }
 
-const EditMarkdown = ({ title, rawContent, height, onChange }) => {
+const EditMarkdown = ({ title, rawContent: initial, height, onChange }) => {
 
   const ref = useRef(null)
 
   const [ mode, setMode ] = useState("source")
+
+  const [ rawContent, setRawContent ] = useState(initial || '')
+
+  useEffect(() => {
+    setRawContent(initial)
+  }, [initial])
+
+
+  const onChangeContent = useCallback((newContent) => {
+    setRawContent(newContent)
+    onChange(newContent === '' ? undefined : newContent)
+  }, [rawContent, onChange])
 
   return (
     <Stack spacing={0} height={height} ref={ref}>
@@ -79,9 +91,9 @@ const EditMarkdown = ({ title, rawContent, height, onChange }) => {
           (
           mode === 'source' && (
               <InlineMonacoEditor
-                code={rawContent || ''}
+                code={rawContent}
                 language={"markdown"}
-                onChange={onChange}
+                onChange={onChangeContent}
               />)
           ) || (
           mode === 'split' && (
@@ -90,7 +102,7 @@ const EditMarkdown = ({ title, rawContent, height, onChange }) => {
                     <InlineMonacoEditor
                       code={rawContent}
                       language={"markdown"}
-                      onChange={onChange}
+                      onChange={onChangeContent}
                     /> 
                   }
                   rightPanel={

@@ -40,8 +40,33 @@ const get = async (req, res) => {
       students: {
         select: {
           user: true,
+          registeredAt: true,
         },
       },
+      jamSessionToQuestions: {
+        select: {
+          question: {
+            select:{
+              id: true,
+              studentAnswer:{
+                select:{
+                  question: {
+                    select:{
+                      id: true
+                    }
+                  },
+                  userEmail: true,
+                  status: true
+                }
+              },
+            },
+          },
+          order: true,
+        },
+        orderBy: {
+          order: 'asc',
+        },
+      }
     },
   })
   res.status(200).json(jamSession)

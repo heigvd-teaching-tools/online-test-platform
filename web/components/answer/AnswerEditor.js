@@ -219,6 +219,7 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
         {answer?.essay && (
           <Essay
             id={`answer-editor-${questionId}`}
+            title={"Your Answer"}
             content={answer.essay.content}
             onChange={debouncedOnChange}
           />
