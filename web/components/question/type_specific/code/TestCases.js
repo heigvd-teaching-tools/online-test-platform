@@ -190,6 +190,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
           id="input"
           label="Input"
           variant="standard"
+          inputProps={{ style: { fontFamily: 'monospace' } }}
           multiline
           fullWidth
           value={input}
@@ -201,6 +202,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
         <TextField
           id="output"
           label="Output"
+          inputProps={{ style: { fontFamily: 'monospace' } }}
           multiline
           fullWidth
           variant="standard"

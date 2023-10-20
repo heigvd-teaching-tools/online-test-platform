@@ -92,7 +92,7 @@ const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
                   maxRows={12}
                   focused
                   color="info"
-                  label="Before All"
+                  label="Console"
                   value={beforeAll}
                   InputProps={{
                     readOnly: true,

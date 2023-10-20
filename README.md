@@ -110,7 +110,7 @@ A new copy of these scripts can be found in the `scripts` folder of the reposito
 
 ```bash
 cd ~/db_dumps
-sh pg_backup.sh
+bash pg_backup.sh
 ```
 This will create a new backup file in the same folder.
 
@@ -120,6 +120,6 @@ On the server under ~/db_dumps, you can find the latest backup of the database. 
 
 ```bash
 cd ~/db_dumps
-sh pg_restore.sh <backup-file-name>
+bash pg_restore.sh <backup-file-name>
 ```
 
