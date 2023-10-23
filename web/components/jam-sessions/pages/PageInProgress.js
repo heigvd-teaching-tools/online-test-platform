@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
@@ -21,7 +21,7 @@ import Authorisation from '../../security/Authorisation'
 import MainMenu from '../../layout/MainMenu'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
-import StudentRegistration from '../draft/StudentRegistration'
+import StudentList from '../draft/StudentList'
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
 
@@ -147,7 +147,8 @@ const PageInProgress = () => {
                 </Typography>
               </Alert>
               <Loading loading={!students} errors={[errorStudents]}>
-                <StudentRegistration 
+                <StudentList 
+                  title={"Students submissions"}
                   students={students?.students}
                   questions={students?.jamSessionToQuestions}
                 />

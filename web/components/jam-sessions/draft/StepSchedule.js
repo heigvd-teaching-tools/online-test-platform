@@ -10,7 +10,7 @@ import {
   AlertTitle,
 } from '@mui/material'
 import DurationPicker from '../../input/DurationPicker'
-import StudentRegistration from './StudentRegistration'
+import StudentList from './StudentList'
 import useSWR from 'swr'
 import { fetcher } from '../../../code/utils'
 import Loading from '../../feedback/Loading'
@@ -96,8 +96,9 @@ const StepSchedule = ({ jamSession, onChange }) => {
       )}
       { jamSession.id && (
         <Loading loading={!students} errors={[errorStudents]}>
-         <StudentRegistration 
-           students={students?.students}
+         <StudentList 
+            title={`Registered students (${students?.students.length})`}
+            students={students?.students}
          />
          </Loading>
       )}

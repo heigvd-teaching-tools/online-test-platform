@@ -82,7 +82,7 @@ const PageTakeJam = () => {
       const pages = userOnJamSession.jamSessionToQuestions.map((jtq) => ({
         id: jtq.question.id,
         label: `Q${jtq.order}`,
-        tooltip: jtq.question.title,
+        tooltip: `${jtq.question.type} "${jtq.question.title}" - ${jtq.points} points`,
         isFilled: jtq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
       }))
       setPages(pages);

@@ -6,8 +6,7 @@ import FilledBullet from "../../feedback/FilledBullet"
 import PiePercent from "../../feedback/PiePercent"
 import { useCallback, useMemo } from "react"
 
-const StudentRegistration = ({ students, questions = [] }) => {
-
+const StudentList = ({ title, students, questions = [] }) => {
 
     const columns = [
         {
@@ -56,7 +55,7 @@ const StudentRegistration = ({ students, questions = [] }) => {
 
     return (
         <Stack>
-            <Typography variant="h6">Student registration</Typography>
+            <Typography variant="h6">{title}</Typography>
             <Datagrid
                 header={{ columns: columns }}
                 items={
@@ -79,4 +78,4 @@ const StudentRegistration = ({ students, questions = [] }) => {
 }
 
 
-export default StudentRegistration
+export default StudentList
