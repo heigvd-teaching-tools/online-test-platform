@@ -2,10 +2,12 @@ import { Box } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
 const ConsultEssay = ({ content }) => {
   return (
-    <Box p={2} pt={0} height={"100%"}>
+    <Box p={2} pt={1} height={"100%"}>
       <ContentEditor
         id={`answer-compare-essay`}
-        rawContent={content}
+        mode={"preview"}
+        title={"Your answer"}
+        rawContent={content || ''}
       />
     </Box>
   )
