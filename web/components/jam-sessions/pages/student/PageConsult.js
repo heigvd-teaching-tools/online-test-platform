@@ -107,6 +107,7 @@ const PageConsult = () => {
                             justifyContent="center"
                             alignItems="center"
                             height="100%"
+                            pr={1}
                           >
                             {selected.question.studentAnswer[0].studentGrading
                               .signedBy ? (

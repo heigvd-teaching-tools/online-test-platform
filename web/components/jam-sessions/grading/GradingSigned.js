@@ -3,7 +3,7 @@ import UserAvatar from '../../layout/UserAvatar'
 import Image from 'next/image'
 import ClearIcon from '@mui/icons-material/Clear'
 
-const GradingSigned = ({ signedBy, onUnsign }) => {
+const GradingSigned = ({ signedBy, readOnly, onUnsign }) => {
 
   return (
     <Stack
@@ -22,17 +22,19 @@ const GradingSigned = ({ signedBy, onUnsign }) => {
           height={32}
         />
       </Stack>
-       
-      <Button
-        size="small"
-        id="grading-sign-off-remove"
-        startIcon={
-          <ClearIcon sx={{ color: 'error.main', width: 24, height: 24 }} />
-        }
-        onClick={onUnsign}
-      >
-        <Typography variant="body1">Unsign</Typography>
-      </Button>
+       { !readOnly && (
+        <Button
+          size="small"
+          id="grading-sign-off-remove"
+          startIcon={
+            <ClearIcon sx={{ color: 'error.main', width: 24, height: 24 }} />
+          }
+          onClick={onUnsign}
+        >
+          <Typography variant="body1">Unsign</Typography>
+        </Button>
+       )}
+      
     </Stack>
   )
 }

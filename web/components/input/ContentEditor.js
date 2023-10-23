@@ -1,4 +1,4 @@
-import { Box, Button, FormControlLabel, IconButton, Stack, Switch, Typography, useTheme } from '@mui/material';
+import { Box, Button, IconButton, Stack, Typography, useTheme } from '@mui/material';
 import InlineMonacoEditor from './InlineMonacoEditor'
 import ReactMarkdown from 'react-markdown'
 import gfm from "remark-gfm";
