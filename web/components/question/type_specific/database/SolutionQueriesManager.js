@@ -16,6 +16,7 @@ import QueryUpdatePanel from "./QueryUpdatePanel";
 import QueryEditor from "./QueryEditor";
 import DateTimeAgo from "../../../feedback/DateTimeAgo";
 import StudentPermissionIcon from "../../../feedback/StudentPermissionIcon";
+import BottomCollapsiblePanel from "../../../layout/utils/BottomCollapsiblePanel";
 
 
 const SolutionQueriesManager = ({ questionId }) => {
@@ -143,48 +144,8 @@ const SolutionQueriesManager = ({ questionId }) => {
 
     return (
         <Loading loading={!queries} errors={[error]}>
-        <Stack
-            position={'relative'}
-            height={'100%'}
-            overflow={'hidden'}
-            pb={'60px'}
-        >
-                <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
-                    <Button variant={"outlined"} color={"info"} onClick={() => runAllQueries()}>
-                        Run all
-                    </Button>
-                    <Button onClick={onAddQuery}>Add new query</Button>
-                </Stack>
-                <ScrollContainer ref={ref}>
-                    {queries?.map((query, index) => (
-                        <Stack position="relative" onClick={() => setActiveQuery(index)} sx={{
-                            cursor: "pointer",
-                            borderLeft: `3px solid ${getBorderStyle(index)}`,
-                        }}>
-                            <QueryEditor
-                                active={index === activeQuery}
-                                key={query.id}
-                                headerLeft={<StudentPermissionIcon permission={query.studentPermission} size={16} />}
-                                query={query}
-                                onChange={(q) => debouncedOnQueryUpdate(q)}
-                            />
-                            { outputs[index] && (
-                                <QueryOutput
-                                    header={
-                                        <>
-                                            <Typography variant={"caption"}>Last run:</Typography>
-                                            {outputs[index]?.updatedAt && <DateTimeAgo date={new Date(outputs[index].updatedAt)} />}
-                                        </>
-                                    }
-                                    result={outputs[index].output}
-                                    lintResult={query.lintResult}
-                                />
-                            )}
-
-                        </Stack>
-                    ))}
-                </ScrollContainer>
-                {
+            <BottomCollapsiblePanel
+                bottomPanel={
                     queries?.length > 0 && activeQuery !== null && (
                         <QueryUpdatePanel
                             query={queries[activeQuery]}
@@ -194,7 +155,42 @@ const SolutionQueriesManager = ({ questionId }) => {
                         />
                     )
                 }
-        </Stack>
+                >
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
+                        <Button variant={"outlined"} color={"info"} onClick={() => runAllQueries()}>
+                            Run all
+                        </Button>
+                        <Button onClick={onAddQuery}>Add new query</Button>
+                    </Stack>
+                    <ScrollContainer ref={ref}>
+                        {queries?.map((query, index) => (
+                            <Stack position="relative" onClick={() => setActiveQuery(index)} sx={{
+                                cursor: "pointer",
+                                borderLeft: `3px solid ${getBorderStyle(index)}`,
+                            }}>
+                                <QueryEditor
+                                    key={query.id}
+                                    headerLeft={<StudentPermissionIcon permission={query.studentPermission} size={16} />}
+                                    query={query}
+                                    onChange={(q) => debouncedOnQueryUpdate(q)}
+                                />
+                                { outputs[index] && (
+                                    <QueryOutput
+                                        header={
+                                            <>
+                                                <Typography variant={"caption"}>Last run:</Typography>
+                                                {outputs[index]?.updatedAt && <DateTimeAgo date={new Date(outputs[index].updatedAt)} />}
+                                            </>
+                                        }
+                                        result={outputs[index].output}
+                                        lintResult={query.lintResult}
+                                    />
+                                )}
+
+                            </Stack>
+                        ))}
+                    </ScrollContainer>
+            </BottomCollapsiblePanel>
         </Loading>
     )
 }

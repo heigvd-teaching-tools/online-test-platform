@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import BottomPanel from "../../../layout/utils/BottomPanel";
 import {
     MenuItem,
     Stack,
@@ -19,6 +18,8 @@ import {StudentPermission, DatabaseQueryOutputTest} from "@prisma/client";
 import DropDown from "../../../input/DropDown";
 import InlineMonacoEditor from "../../../input/InlineMonacoEditor";
 import DialogFeedback from "../../../feedback/DialogFeedback";
+import BottomPanelHeader from "../../../layout/utils/BottomPanelHeader";
+import BottomPanelContent from "../../../layout/utils/BottomPanelContent";
 
 const QueryUpdatePanel = ({ query, output, onChange, onDelete }) => {
 
@@ -33,74 +34,72 @@ const QueryUpdatePanel = ({ query, output, onChange, onDelete }) => {
 
     return (
         query && (
-            <BottomPanel
-                header={
-                    <Stack pl={1} direction={'column'} spacing={0} height={"60px"} alignItems={"flex-start"}
-                           justifyContent={"center"}>
-                        <Typography variant="body1">{`Query #${query.order} - ${query.title || "Untitled"}`}</Typography>
-                        {query.description && (
-                            <Typography variant="body2">{query.description}</Typography>
-                        )}
-                    </Stack>
-                }
-            >
-                <Stack bgcolor={"white"} spacing={2}>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
-                        <Stack flex={1}>
-                            <Tabs
-                                value={tab}
-                                onChange={(ev, val) => setTab(val)}
-                                aria-label="query panel tabs"
-                            >
-                                <Tab
-                                    label={<Typography variant="caption">Output</Typography>}
-                                    value={0}
-                                />
-                                <Tab
-                                    label={<Typography variant="caption">Settings</Typography>}
-                                    value={1}
-                                />
-                                <Tab
-                                    label={<Typography variant="caption">Template</Typography>}
-                                    value={2}
-                                />
+            <>
+                <BottomPanelHeader>
+                    <Typography variant="body1">{`Query #${query.order} - ${query.title || "Untitled"}`}</Typography>
+                    {query.description && (
+                        <Typography variant="body2">{query.description}</Typography>
+                    )}
+                </BottomPanelHeader>
+                <BottomPanelContent>
+                    <Stack bgcolor={"white"} spacing={2}>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"} p={1}>
+                            <Stack flex={1}>
+                                <Tabs
+                                    value={tab}
+                                    onChange={(ev, val) => setTab(val)}
+                                    aria-label="query panel tabs"
+                                >
+                                    <Tab
+                                        label={<Typography variant="caption">Output</Typography>}
+                                        value={0}
+                                    />
+                                    <Tab
+                                        label={<Typography variant="caption">Settings</Typography>}
+                                        value={1}
+                                    />
+                                    <Tab
+                                        label={<Typography variant="caption">Template</Typography>}
+                                        value={2}
+                                    />
 
-                            </Tabs>
+                                </Tabs>
+                            </Stack>
+                            <Button
+                                variant={"outlined"}
+                                color={"primary"}
+                                onClick={() => setDeleteDialogOpen(true)}
+                            >
+                                Delete query #{query.order}
+                            </Button>
                         </Stack>
-                        <Button
-                            variant={"outlined"}
-                            color={"primary"}
-                            onClick={() => setDeleteDialogOpen(true)}
-                        >
-                            Delete query #{query.order}
-                        </Button>
+                        <TabPanel id="output" value={tab} index={0}>
+                            <TabContent padding={2} spacing={4}>
+                                <QueryOutputTab
+                                    query={query}
+                                    queryOutput={output}
+                                    onChange={(q) => onChange(q)}
+                                />
+                            </TabContent>
+                        </TabPanel>
+                        <TabPanel id="settings" value={tab} index={1}>
+                            <TabContent padding={2} spacing={4}>
+                                <QuerySettingsTab
+                                    query={query}
+                                    onChange={(q) => onChange(q)}
+                                />
+                            </TabContent>
+                        </TabPanel>
+                        <TabPanel id="template" value={tab} index={2}>
+                            <TabContent padding={2} spacing={4}>
+                                <QueryTemplateTab
+                                    query={query}
+                                    onChange={(q) => onChange(q)}
+                                />
+                            </TabContent>
+                        </TabPanel>
                     </Stack>
-                    <TabPanel id="output" value={tab} index={0}>
-                        <TabContent padding={2} spacing={4}>
-                            <QueryOutputTab
-                                query={query}
-                                queryOutput={output}
-                                onChange={(q) => onChange(q)}
-                            />
-                        </TabContent>
-                    </TabPanel>
-                    <TabPanel id="settings" value={tab} index={1}>
-                        <TabContent padding={2} spacing={4}>
-                            <QuerySettingsTab
-                                query={query}
-                                onChange={(q) => onChange(q)}
-                            />
-                        </TabContent>
-                    </TabPanel>
-                    <TabPanel id="template" value={tab} index={2}>
-                        <TabContent padding={2} spacing={4}>
-                            <QueryTemplateTab
-                                query={query}
-                                onChange={(q) => onChange(q)}
-                            />
-                        </TabContent>
-                    </TabPanel>
-                </Stack>
+                </BottomPanelContent>
                 <DialogFeedback
                     open={deleteDialogOpen}
                     onClose={() => setDeleteDialogOpen(false)}
@@ -111,7 +110,7 @@ const QueryUpdatePanel = ({ query, output, onChange, onDelete }) => {
                         onDelete && onDelete(query)
                     }}
                 />
-            </BottomPanel>
+            </>
         )
 
     );

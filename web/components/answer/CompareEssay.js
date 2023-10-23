@@ -9,7 +9,7 @@ const CompareEssay = ({ solution, answer }) => {
           <ContentEditor
             title={"Student's answer"}
             id={`answer-compare-essay`}
-            rawContent={answer}
+            rawContent={answer || ''}
           />
         }
         rightPanel={

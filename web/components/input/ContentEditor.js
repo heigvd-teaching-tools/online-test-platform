@@ -17,7 +17,7 @@ const ContentEditor = ({
   title,
   readOnly = false,
   height = "100%",
-  rawContent,
+  rawContent = '',
   onChange,
 }) => {
 

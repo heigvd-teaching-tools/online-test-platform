@@ -44,18 +44,18 @@ const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
   }, [codeCheckAction, showSnackbar, openPanel])
 
   return (
-    <>
+    <Stack maxHeight={"calc(100% - 90px)"}>
       <BottomPanelHeader>
-                <LoadingButton
-                    size="small"
-                    variant="contained"
-                    color="info"
-                    onClick={runCodeCheck}
-                    disabled={lockCodeCheck}
-                    loading={codeCheckRunning}
-                >
-                    Code Check
-                </LoadingButton>
+          <LoadingButton
+              size="small"
+              variant="contained"
+              color="info"
+              onClick={runCodeCheck}
+              disabled={lockCodeCheck}
+              loading={codeCheckRunning}
+          >
+              Code Check
+          </LoadingButton>
       </BottomPanelHeader>
       <BottomPanelContent>
         {tests && (
@@ -99,7 +99,7 @@ const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
           </Stack>
         )}
         </BottomPanelContent>
-    </>
+    </Stack>
   )
 }
 

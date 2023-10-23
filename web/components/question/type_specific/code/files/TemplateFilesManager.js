@@ -10,6 +10,7 @@ import Loading from '../../../../feedback/Loading'
 import { fetcher } from '../../../../../code/utils'
 import ScrollContainer from '../../../../layout/ScrollContainer'
 import {useDebouncedCallback} from "use-debounce";
+import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
 const TemplateFilesManager = ({ questionId }) => {
   const {
@@ -52,7 +53,22 @@ const TemplateFilesManager = ({ questionId }) => {
   return (
     <Loading loading={!codeToTemplateFiles} errors={[error]}>
       {codeToTemplateFiles && (
-        <Stack height="100%" position="relative" pb={'60px'}>
+        <BottomCollapsiblePanel
+          bottomPanel={
+            <CodeCheck
+              lockCodeCheck={lockCodeCheck}
+              codeCheckAction={() =>
+                fetch(`/api/sandbox/${questionId}/files`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    files: codeToTemplateFiles.map((file) => file.file),
+                  }),
+                })
+              }
+            />
+          }
+        >
           <Button onClick={onPullSolution}>Pull Solution Files</Button>
           <ScrollContainer>
             {codeToTemplateFiles.map((codeToTemplateFile, index) => (
@@ -94,19 +110,8 @@ const TemplateFilesManager = ({ questionId }) => {
               />
             ))}
           </ScrollContainer>
-          <CodeCheck
-            lockCodeCheck={lockCodeCheck}
-            codeCheckAction={() =>
-              fetch(`/api/sandbox/${questionId}/files`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  files: codeToTemplateFiles.map((file) => file.file),
-                }),
-              })
-            }
-          />
-        </Stack>
+          
+        </BottomCollapsiblePanel>
       )}
     </Loading>
   )

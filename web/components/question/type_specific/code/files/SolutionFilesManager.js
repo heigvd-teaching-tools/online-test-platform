@@ -11,6 +11,7 @@ import Loading from '../../../../feedback/Loading'
 import { fetcher } from '../../../../../code/utils'
 import ScrollContainer from '../../../../layout/ScrollContainer'
 import {useDebouncedCallback} from "use-debounce";
+import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
 const environments = languages.environments
 const SolutionFilesManager = ({ questionId, language }) => {
@@ -83,59 +84,57 @@ const SolutionFilesManager = ({ questionId, language }) => {
   return (
     <Loading loading={!codeToSolutionFiles} errors={[error]}>
       {codeToSolutionFiles && (
-        <Stack
-          position={'relative'}
-          height={'100%'}
-          overflow={'hidden'}
-          pb={'60px'}
-        >
-          <Button onClick={onAddFile}>Add File</Button>
-          <ScrollContainer ref={filesRef}>
-            {codeToSolutionFiles.map((codeToSolutionFile, index) => (
-              <FileEditor
-                key={index}
-                file={codeToSolutionFile.file}
-                onChange={(file) => {
-                    setLockCodeCheck(true)
-                    debouncedOnFileChange({
-                      ...codeToSolutionFile,
-                      file,
-                    })
-                }}
-                secondaryActions={
-                  <Stack direction="row" spacing={1}>
-                    <IconButton
-                      key="delete-file"
-                      onClick={async () =>
-                        await onDeleteFile(codeToSolutionFile)
-                      }
-                    >
-                      <Image
-                        alt="Delete"
-                        src="/svg/icons/delete.svg"
-                        layout="fixed"
-                        width="18"
-                        height="18"
-                      />
-                    </IconButton>
-                  </Stack>
+         <BottomCollapsiblePanel
+            bottomPanel={
+              <CodeCheck
+                lockCodeCheck={lockCodeCheck}
+                codeCheckAction={() =>
+                  fetch(`/api/sandbox/${questionId}/files`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      files: codeToSolutionFiles.map((file) => file.file),
+                    }),
+                  })
                 }
               />
-            ))}
-          </ScrollContainer>
-          <CodeCheck
-            lockCodeCheck={lockCodeCheck}
-            codeCheckAction={() =>
-              fetch(`/api/sandbox/${questionId}/files`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  files: codeToSolutionFiles.map((file) => file.file),
-                }),
-              })
             }
-          />
-        </Stack>
+            >
+            <Button onClick={onAddFile}>Add File</Button>
+            <ScrollContainer ref={filesRef}>
+              {codeToSolutionFiles.map((codeToSolutionFile, index) => (
+                <FileEditor
+                  key={index}
+                  file={codeToSolutionFile.file}
+                  onChange={(file) => {
+                      setLockCodeCheck(true)
+                      debouncedOnFileChange({
+                        ...codeToSolutionFile,
+                        file,
+                      })
+                  }}
+                  secondaryActions={
+                    <Stack direction="row" spacing={1}>
+                      <IconButton
+                        key="delete-file"
+                        onClick={async () =>
+                          await onDeleteFile(codeToSolutionFile)
+                        }
+                      >
+                        <Image
+                          alt="Delete"
+                          src="/svg/icons/delete.svg"
+                          layout="fixed"
+                          width="18"
+                          height="18"
+                        />
+                      </IconButton>
+                    </Stack>
+                  }
+                />
+              ))}
+            </ScrollContainer>
+          </BottomCollapsiblePanel>
       )}
     </Loading>
   )
