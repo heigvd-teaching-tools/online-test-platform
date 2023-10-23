@@ -455,7 +455,7 @@ enum JamSessionStatus {
 model JamSession {
   id String @id @default(cuid())
 
-  label      String?          @unique
+  label      String?          
   conditions String?
   status     JamSessionStatus @default(ACTIVE)
   phase      JamSessionPhase  @default(DRAFT)
@@ -473,6 +473,7 @@ model JamSession {
 
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String
+  @@unique([groupId, label])
 }
 
 model JamSessionToQuestion {

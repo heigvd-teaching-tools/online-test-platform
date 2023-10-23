@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { JamSessionPhase, Role } from '@prisma/client'
 import { update } from './crud'
 
-import { Stack, Stepper, Step, StepLabel, Typography } from '@mui/material'
+import { Stack, Stepper, Step, StepLabel, Typography, Alert } from '@mui/material'
 
 import { useSnackbar } from '../../../context/SnackbarContext'
 
@@ -23,6 +23,8 @@ import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import StudentRegistration from '../draft/StudentRegistration'
 
+const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
+
 const PageInProgress = () => {
   const router = useRouter()
   const { jamSessionId } = router.query
@@ -37,9 +39,20 @@ const PageInProgress = () => {
     error,
   } = useSWR(
       `/api/jam-sessions/${jamSessionId}`, 
-      jamSessionId ? fetcher : null,
-      { refreshInterval: 1000}
+      jamSessionId ? fetcher : null
       )
+
+  
+  const {
+    data: students,
+    mutate: mutateStudents,
+    error: errorStudents,
+  } = useSWR(
+      `/api/jam-sessions/${jamSessionId}/students`, 
+      jamSessionId ? fetcher : null,
+      { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
+      )
+    
 
   const [saving, setSaving] = useState(false)
 
@@ -91,7 +104,6 @@ const PageInProgress = () => {
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!jamSession} errors={[error]}>
         <PhaseRedirect phase={jamSession?.phase}>
-          {jamSession && (
             <LayoutMain header={<MainMenu />} padding={2} spacing={2}>
               <JoinClipboard jamSessionId={jamSessionId} />
               <Stepper activeStep={0} orientation="vertical">
@@ -129,11 +141,18 @@ const PageInProgress = () => {
                 </LoadingButton>
                
               </Stack>
-              
-              <StudentRegistration 
-                students={jamSession?.students}
-                questions={jamSession?.jamSessionToQuestions}
-              />
+
+              <Alert severity={'info'}>
+                <Typography variant="body1">
+                  Students are currently working on their answers. You can see their progress below.
+                </Typography>
+              </Alert>
+              <Loading loading={!students} errors={[errorStudents]}>
+                <StudentRegistration 
+                  students={students?.students}
+                  questions={students?.jamSessionToQuestions}
+                />
+              </Loading>
               
               <DialogFeedback
                 open={endSessionDialogOpen}
@@ -156,7 +175,6 @@ const PageInProgress = () => {
                 onConfirm={moveToGradingPhase}
               />
             </LayoutMain>
-          )}
         </PhaseRedirect>
       </Loading>
     </Authorisation>

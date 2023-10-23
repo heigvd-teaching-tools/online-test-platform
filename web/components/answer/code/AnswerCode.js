@@ -9,18 +9,16 @@ import FileEditor from "../../question/type_specific/code/files/FileEditor";
 import {StudentPermission} from "@prisma/client";
 import CodeCheck from "../../question/type_specific/code/CodeCheck";
 import StudentPermissionIcon from "../../feedback/StudentPermissionIcon";
-
-
+import BottomPanel from "../../layout/utils/BottomPanel";
 
 
 const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
+
     const { data: answer, error } = useSWR(
         `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
-
-    const ref = useRef()
 
     const [ lockCodeCheck, setLockCodeCheck ] = useState(false)
 
@@ -48,51 +46,61 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500)
 
     return (
-        <Loading errors={[error]} loading={!answer}>
+        <Loading errors={[error]} loading={!answer}> 
             {answer?.code && (
-                <Stack
-                    position={'relative'}
-                    height={'100%'}
-                    overflow={'hidden'}
-                    p={1}
-                    pb={'50px'}
+                <BottomCollapsiblePanel
+                    bottomPanel={
+                        <CodeCheck
+                            lockCodeCheck={lockCodeCheck}
+                            codeCheckAction={() =>
+                                fetch(
+                                    `/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/code`,
+                                    {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                    }
+                                )
+                            }
+                        />
+                    }
                 >
-                    <ScrollContainer ref={ref}>
-                        {answer.code.files?.map((answerToFile, index) => (
-                            <FileEditor
-                                key={index}
-                                file={answerToFile.file}
-                                readonlyPath
-                                readonlyContent={
-                                    answerToFile.studentPermission === StudentPermission.VIEW
-                                }
-                                leftCorner={
-                                    <StudentPermissionIcon permission={answerToFile.studentPermission} />
-                                }
-                                onChange={(file) => {
-                                    setLockCodeCheck(true)
-                                    debouncedOnChange(file)
-                                }}
-                            />
-                        ))}
-                    </ScrollContainer>
-
-                    <CodeCheck
-                        lockCodeCheck={lockCodeCheck}
-                        codeCheckAction={() =>
-                            fetch(
-                                `/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/code`,
-                                {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                }
-                            )
-                        }
-                    />
-                </Stack>
-
-            )}
+                    {answer?.code.files?.map((answerToFile, index) => (
+                        <FileEditor
+                            key={index}
+                            file={answerToFile.file}
+                            readonlyPath
+                            readonlyContent={
+                                answerToFile.studentPermission === StudentPermission.VIEW
+                            }
+                            leftCorner={
+                                <StudentPermissionIcon permission={answerToFile.studentPermission} />
+                            }
+                            onChange={(file) => {
+                                setLockCodeCheck(true)
+                                debouncedOnChange(file)
+                            }}
+                        />
+                    ))}
+            </BottomCollapsiblePanel>   
+            )} 
+              
         </Loading>
+    )
+}
+
+const BottomCollapsiblePanel = ({ children, bottomPanel, ...props }) => {
+    const ref = useRef(null);
+    return(
+        <Stack height={"100%"} {...props}>
+            <BottomPanel>
+                <Stack flex={1}>
+                        <ScrollContainer ref={ref}>     
+                            {children}
+                        </ScrollContainer> 
+                </Stack>
+                {bottomPanel}
+            </BottomPanel>
+        </Stack>
     )
 }
 

@@ -82,6 +82,7 @@ const PageTakeJam = () => {
       const pages = userOnJamSession.jamSessionToQuestions.map((jtq) => ({
         id: jtq.question.id,
         label: `Q${jtq.order}`,
+        tooltip: jtq.question.title,
         isFilled: jtq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
       }))
       setPages(pages);
@@ -110,8 +111,8 @@ const PageTakeJam = () => {
                   {userOnJamSession.startAt && userOnJamSession.endAt && (
                     <Box sx={{ ml: 2 }}>
                       <JamSessionCountDown
-                        startDate={userOnJamSession.startAt}
-                        endDate={userOnJamSession.endAt}
+                        startDate={jamSessionPhase.startAt}
+                        endDate={jamSessionPhase.endAt}
                       />
                     </Box>
                   )}

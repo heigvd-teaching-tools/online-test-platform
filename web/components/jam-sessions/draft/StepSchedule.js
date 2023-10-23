@@ -6,16 +6,33 @@ import {
   FormGroup,
   FormControlLabel,
   Switch,
+  Alert,
+  AlertTitle,
 } from '@mui/material'
 import DurationPicker from '../../input/DurationPicker'
-import UserAvatar from '../../layout/UserAvatar'
 import StudentRegistration from './StudentRegistration'
+import useSWR from 'swr'
+import { fetcher } from '../../../code/utils'
+import Loading from '../../feedback/Loading'
+
+const STUDENTS_ACTIVE_PULL_INTERVAL = 1000;
 
 const StepSchedule = ({ jamSession, onChange }) => {
+
+  const {
+    data: students,
+    error: errorStudents,
+  } = useSWR(
+      `/api/jam-sessions/${jamSession.id}/students`, 
+      jamSession?.id ? fetcher : null,
+      { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
+      )
+    
+
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
     hours: 0,
-    minutes: 15,
+    minutes: 0,
   })
 
   useEffect(() => {
@@ -46,7 +63,10 @@ const StepSchedule = ({ jamSession, onChange }) => {
               onChange={(e) => {
                 setUseDuration(e.target.checked)
                 if (!e.target.checked) {
-                  setDuration(undefined)
+                  setDuration({
+                    hours: 0,
+                    minutes: 0,
+                  })
                 }
               }}
             />
@@ -55,23 +75,34 @@ const StepSchedule = ({ jamSession, onChange }) => {
         />
       </FormGroup>
       {useDuration && (
-        <DurationPicker
-          value={duration}
-          onChange={(value) => {
-            if (
-              duration &&
-              (value.hours !== duration.hours ||
-                value.minutes !== duration.minutes)
-            ) {
-              setDuration(value)
-            }
-          }}
-        />
+        <>
+          <Alert severity="warning">
+            <AlertTitle>Warning</AlertTitle>
+            <Typography variant="body1">
+              The jam session will not end automatically. You will have to end it manually in the in-progress phase.
+            </Typography>
+            <Typography variant="body1">
+              The sole purpose of this feature is to give students an idea of the time they have to complete the jam session.
+            </Typography>
+          </Alert>
+          <DurationPicker
+            value={duration}
+            onChange={(value) => {
+                setDuration(value)
+            }}
+          />
+        </>
+        
       )}
-      <StudentRegistration 
-        students={jamSession?.students}
-      />
-    </Stack>
+      { jamSession.id && (
+        <Loading loading={!students} errors={[errorStudents]}>
+         <StudentRegistration 
+           students={students?.students}
+         />
+         </Loading>
+      )}
+     
+      </Stack>
   )
 }
 

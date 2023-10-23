@@ -33,6 +33,8 @@ const get = async (req, res) => {
     },
     select: {
       phase: true,
+      startAt: true,
+      endAt: true,
     },
   })
   res.status(200).json(exam)

@@ -157,7 +157,6 @@ const PageDraft = () => {
       <Loading error={[error]} loading={!jamSession}>
         <PhaseRedirect phase={jamSession?.phase}>
           <LayoutMain header={<MainMenu />} padding={2}>
-            {jamSession && (
               <Stack sx={{ width: '100%' }} spacing={4} pb={40}>
                 {jamSession.id && (
                   <JoinClipboard jamSessionId={jamSession.id} />
@@ -203,7 +202,6 @@ const PageDraft = () => {
                   )}
                 </Stack>
               </Stack>
-            )}
           </LayoutMain>
         </PhaseRedirect>
       </Loading>

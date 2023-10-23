@@ -1,33 +1,36 @@
-import { Stack, Typography } from '@mui/material'
+import { Box, Tooltip } from '@mui/material'
 import Image from 'next/image'
 import { StudentPermission } from '@prisma/client'
 
 const permissionToIcon = {
     [StudentPermission.VIEW]: {
         src: '/svg/icons/viewable.svg',
-        alt: 'viewable icon',
+        tooltip: 'You have view permission',
         text: 'view',
     },
     [StudentPermission.UPDATE]: {
         src: '/svg/icons/editable.svg',
-        alt: 'editable icon',
+        tooltip: 'You have edit permission',
         text: 'edit',
     },
     [StudentPermission.HIDDEN]: {
         src: '/svg/icons/hidden.svg',
-        alt: 'hidden icon',
+        tooltip: 'You have no permission',
         text: 'hidden',
     },
 }
 
 const StudentPermissionIcon = ({ permission, size=16 }) => {
     return (
-        <Image
-            alt={permissionToIcon[permission].alt}
-            src={permissionToIcon[permission].src}
-            width={size}
-            height={size}
-        />
+        <Tooltip title={permissionToIcon[permission].tooltip} placement="bottom">
+            <Box>
+                <Image
+                    src={permissionToIcon[permission].src}
+                    width={size}
+                    height={size}
+                />
+            </Box> 
+        </Tooltip>
     )
 }
 

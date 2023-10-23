@@ -1,24 +1,11 @@
-import { useEffect } from 'react'
-
 import { Stack, MenuItem } from '@mui/material'
 import { useInput } from '../../code/useInput'
 import DropDown from './DropDown'
 import { Box } from '@mui/system'
 
 const DurationPicker = ({ value, onChange }) => {
-  const { value: hours, setValue: setHours } = useInput(
-    (value && value.hours) || 0
-  )
-  const { value: minutes, setValue: setMinutes } = useInput(
-    (value && value.minutes) || 45
-  )
-
-  useEffect(() => {
-    onChange({
-      hours,
-      minutes,
-    })
-  }, [hours, minutes, onChange])
+  const { value: hours, setValue: setHours } = useInput(value?.hours || 0)
+  const { value: minutes, setValue: setMinutes } = useInput(value?.minutes || 0)
 
   return (
     <Box sx={{ width: '150px' }}>
@@ -27,7 +14,10 @@ const DurationPicker = ({ value, onChange }) => {
           id={'hours'}
           name={'Hours'}
           defaultValue={hours}
-          onChange={setHours}
+          onChange={(value) => {
+            setHours(value)
+            onChange({ hours: value, minutes })
+          }}
           minWidth={'70px'}
         >
           {[...Array(24).keys()].map((item) => (
@@ -40,7 +30,10 @@ const DurationPicker = ({ value, onChange }) => {
           id={'minutes'}
           name={'Minutes'}
           defaultValue={minutes}
-          onChange={setMinutes}
+          onChange={(value) => {
+            setMinutes(value)
+            onChange({ hours, minutes: value })
+          }}
           minWidth={'80px'}
         >
           {[...Array(60 / 5).keys()].map((item) => (
