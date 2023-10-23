@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import { JamSessionPhase, Role } from '@prisma/client'
 import { update } from './crud'
 
-import { Stack, Stepper, Step, StepLabel, Typography } from '@mui/material'
+import { Stack, Stepper, Step, StepLabel, Typography, Alert } from '@mui/material'
 
 import { useSnackbar } from '../../../context/SnackbarContext'
 
@@ -21,6 +21,9 @@ import Authorisation from '../../security/Authorisation'
 import MainMenu from '../../layout/MainMenu'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import StudentList from '../draft/StudentList'
+
+const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
 
 const PageInProgress = () => {
   const router = useRouter()
@@ -34,7 +37,21 @@ const PageInProgress = () => {
     data: jamSession,
     mutate,
     error,
-  } = useSWR(`/api/jam-sessions/${jamSessionId}`, jamSessionId ? fetcher : null)
+  } = useSWR(
+      `/api/jam-sessions/${jamSessionId}`, 
+      jamSessionId ? fetcher : null
+      )
+
+  
+  const {
+    data: students,
+    error: errorStudents,
+  } = useSWR(
+      `/api/jam-sessions/${jamSessionId}/students`, 
+      jamSessionId ? fetcher : null,
+      { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
+      )
+    
 
   const [saving, setSaving] = useState(false)
 
@@ -86,7 +103,6 @@ const PageInProgress = () => {
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!jamSession} errors={[error]}>
         <PhaseRedirect phase={jamSession?.phase}>
-          {jamSession && (
             <LayoutMain header={<MainMenu />} padding={2} spacing={2}>
               <JoinClipboard jamSessionId={jamSessionId} />
               <Stepper activeStep={0} orientation="vertical">
@@ -122,7 +138,22 @@ const PageInProgress = () => {
                 >
                   End jam session
                 </LoadingButton>
+               
               </Stack>
+
+              <Alert severity={'info'}>
+                <Typography variant="body1">
+                  Students are currently working on their answers. You can see their progress below.
+                </Typography>
+              </Alert>
+              <Loading loading={!students} errors={[errorStudents]}>
+                <StudentList 
+                  title={"Students submissions"}
+                  students={students?.students}
+                  questions={students?.jamSessionToQuestions}
+                />
+              </Loading>
+              
               <DialogFeedback
                 open={endSessionDialogOpen}
                 title="End of In-Progress phase"
@@ -144,7 +175,6 @@ const PageInProgress = () => {
                 onConfirm={moveToGradingPhase}
               />
             </LayoutMain>
-          )}
         </PhaseRedirect>
       </Loading>
     </Authorisation>

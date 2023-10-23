@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback } from 'react'
+import React, {useState, useEffect, useCallback, useRef } from 'react'
 import useSWR from 'swr'
 import { QuestionType } from '@prisma/client'
 
@@ -13,6 +13,7 @@ import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
 import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
+import ScrollContainer from '../layout/ScrollContainer'
 
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()
@@ -215,13 +216,14 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
 
   return (
     <Loading errors={[error]} loading={!answer}>
-      {answer?.essay && (
-        <Essay
-          id={`answer-editor-${questionId}`}
-          content={answer.essay.content}
-          onChange={debouncedOnChange}
-        />
-      )}
+        {answer?.essay && (
+          <Essay
+            id={`answer-editor-${questionId}`}
+            title={"Your Answer"}
+            content={answer.essay.content}
+            onChange={debouncedOnChange}
+          />
+        )}
     </Loading>
   )
 }

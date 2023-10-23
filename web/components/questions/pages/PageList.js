@@ -6,7 +6,7 @@ import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import QuestionFilter from '../../question/QuestionFilter'
 import MainMenu from '../../layout/MainMenu'
-import { Button, Stack, Typography } from '@mui/material'
+import { Box, Button, Stack, Typography } from '@mui/material'
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { useRouter } from 'next/router'
 import AddQuestionDialog from '../list/AddQuestionDialog'
@@ -16,6 +16,8 @@ import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import ScrollContainer from '../../layout/ScrollContainer'
+import QuestionUpdate from '../../question/QuestionUpdate'
+import ResizableDrawer from '../../layout/utils/ResizableDrawer'
 
 const PageList = () => {
   const router = useRouter()
@@ -38,6 +40,8 @@ const PageList = () => {
   )
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
+
+  const [ selected, setSelected ] = useState(undefined)
 
   useEffect(() => {
     // if group changes, re-fetch questions
@@ -79,7 +83,7 @@ const PageList = () => {
         <LayoutMain header={<MainMenu />}>
           <LayoutSplitScreen
             leftPanel={<QuestionFilter onApplyFilter={setQueryString} />}
-            rightWidth={70}
+            rightWidth={80}
             rightPanel={
               questions && (
                 <Stack spacing={2} padding={2} height={'100%'}>
@@ -96,24 +100,25 @@ const PageList = () => {
                     </Button>
                   </Stack>
                   <ScrollContainer spacing={4} padding={1}>
-                    {questions &&
-                      questions.map((question) => (
-                        <QuestionListItem
-                          key={question.id}
-                          question={question}
-                          actions={[
-                            <Button
-                              key={`action-update-${question.id}`}
-                              onClick={async () => {
-                                await router.push(`/questions/${question.id}`)
-                              }}
-                              variant={'text'}
-                            >
-                              Update
-                            </Button>,
-                          ]}
-                        />
-                      ))}
+                      <QuestionListContainer 
+                        questions={questions} 
+                        selected={selected}
+                        setSelected={setSelected}                      
+                      />
+                      <ResizableDrawer
+                        open={selected !== undefined}
+                        onClose={() => setSelected(undefined)}
+                      >
+                        <Box pt={2} width={"100%"} height={"100%"}>
+                          { selected && (
+                              <QuestionUpdate
+                                questionId={selected.id}
+                              />
+                            )
+                          }
+                        </Box>
+                      </ResizableDrawer>
+                  
                   </ScrollContainer>
                   {questions && questions.length === 0 && (
                     <AlertFeedback severity="info">
@@ -138,6 +143,44 @@ const PageList = () => {
         </LayoutMain>
       </Loading>
     </Authorisation>
+  )
+}
+
+
+const QuestionListContainer = ({ questions, selected, setSelected }) => {
+  
+  const router = useRouter()
+
+  return (
+    questions &&
+      questions.map((question) => (
+        <QuestionListItem
+          key={question.id}
+          selected={selected && selected.id === question.id}
+          question={question}
+          actions={[
+            <Button
+              key={`action-update-${question.id}`}
+              onClick={async () => {
+                await router.push(`/questions/${question.id}`)
+              }}
+              variant={'text'}
+            >
+              Update
+            </Button>,
+            <Button
+              key={`action-select-${question.id}`}
+              onClick={async () => {
+                setSelected(question)
+              }}
+              variant={'text'}
+              color={"secondary"}
+            >
+              Aside
+            </Button>,
+          ]}
+        />
+      ))
   )
 }
 export default PageList

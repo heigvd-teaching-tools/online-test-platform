@@ -56,6 +56,7 @@ const TestCaseResult = ({ result }) => {
           value={result.input}
           InputProps={{
             readOnly: true,
+            style: { fontFamily: 'monospace' } 
           }}
           variant="standard"
           focused
@@ -69,6 +70,7 @@ const TestCaseResult = ({ result }) => {
             value={result.output}
             InputProps={{
               readOnly: true,
+              style: { fontFamily: 'monospace' } 
             }}
             variant="standard"
             focused
@@ -83,6 +85,7 @@ const TestCaseResult = ({ result }) => {
             value={result.expectedOutput}
             InputProps={{
               readOnly: true,
+              style: { fontFamily: 'monospace' } 
             }}
             variant="standard"
             focused

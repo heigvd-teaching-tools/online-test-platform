@@ -226,6 +226,10 @@ export const questionTypeSpecific = (
         css: question?.web.css ?? '',
         js: question?.web.js ?? '',
       }
+    case QuestionType.essay:
+      return {
+        solution: question?.essay.solution ?? '',
+      }
     case QuestionType.multipleChoice:
       return !question
         ? {

@@ -83,7 +83,7 @@ const PageCompose = () => {
           },
           body: JSON.stringify({
             questionId: question.id,
-            collectionId: router.query.collectionId,
+            defaultPoints: question.defaultPoints
           }),
         }
       )

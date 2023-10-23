@@ -24,9 +24,8 @@ const PageList = () => {
   const [selectedGroup, setSelectedGroup] = useState()
 
   const [addGroupDialogOpen, setAddGroupDialogOpen] = useState(false)
-
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false)
-
+  
   const {
     data: group,
     error,
@@ -87,6 +86,7 @@ const PageList = () => {
                   onDelete={async (groupId) =>
                     await onGroupsLeaveOrDelete(groupId)
                   }
+                 
                 />
               </>
             }
@@ -106,7 +106,16 @@ const PageList = () => {
                       Add a new member
                     </Button>
                   </Stack>
-                  <GroupMembersGrid group={group} />
+                  <GroupMembersGrid 
+                    group={group} 
+                    onUpdate={
+                      async () => { 
+                        await mutate()
+                        await mutateGroups()
+                      }
+  
+                    }
+                  />
                 </>
               ) : (
                 <Stack p={2}>
@@ -125,6 +134,7 @@ const PageList = () => {
             onClose={() => setAddGroupDialogOpen(false)}
             onSuccess={async () => await mutateGroups()}
           />
+
           <AddMemberDialog
             group={group}
             open={addMemberDialogOpen}

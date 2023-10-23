@@ -1,5 +1,5 @@
 import { Box } from '@mui/material'
-const Column = ({ children, width, flexGrow, flex, alignItems, right }) => {
+const Column = ({ children, width, flexGrow, flex, alignItems, right, ...rest }) => {
   let sx = {}
 
   if (flexGrow) {
@@ -21,7 +21,7 @@ const Column = ({ children, width, flexGrow, flex, alignItems, right }) => {
 
   sx.width = width
 
-  return <Box sx={{ ...sx, minWidth: 0 }}>{children}</Box>
+  return <Box sx={{ ...sx }} {...rest}>{children}</Box>
 }
 
 export default Column

@@ -4,6 +4,8 @@ import Code from './type_specific/Code'
 import TrueFalse from './type_specific/TrueFalse'
 import Web from './type_specific/Web'
 import Database from "./type_specific/Database";
+import Essay from './type_specific/Essay'
+import ScrollContainer from '../layout/ScrollContainer'
 
 const QuestionTypeSpecific = ({ question, onTypeSpecificChange }) => {
 
@@ -53,13 +55,24 @@ const QuestionTypeSpecific = ({ question, onTypeSpecificChange }) => {
           );
         }
         break;
-
+        case QuestionType.essay:
+          if (question.essay) {
+            return (
+                <Essay
+                  title={"Solution Answer"}
+                  content={question.essay.solution}
+                  onChange={(newContent) =>
+                      onTypeSpecificChange(question.type, { solution: newContent })
+                  }
+                />
+            );
+        }
       default:
         return null; // or a default component or some feedback to the user
     }
   };
 
-  return <>{renderSpecificType()}</>;
+  return <ScrollContainer>{renderSpecificType()}</ScrollContainer>;
 }
 
 export default QuestionTypeSpecific;

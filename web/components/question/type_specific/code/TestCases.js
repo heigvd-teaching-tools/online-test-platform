@@ -151,14 +151,14 @@ const TestCases = ({ questionId, language }) => {
 
 const TestCaseUpdate = ({ test, onChange, onDelete }) => {
   const theme = useTheme()
-  const [input, setInput] = useState(test.input)
-  const [expectedOutput, setExpectedOutput] = useState(test.expectedOutput)
-  const [exec, setExec] = useState(test.exec)
+  const [input, setInput] = useState(test.input || '')
+  const [expectedOutput, setExpectedOutput] = useState(test.expectedOutput || '')
+  const [exec, setExec] = useState(test.exec || '')
 
   useEffect(() => {
-    setInput(test.input)
-    setExpectedOutput(test.expectedOutput)
-    setExec(test.exec)
+    setInput(test.input || '')
+    setExpectedOutput(test.expectedOutput || '')
+    setExec(test.exec || '')
   }, [test])
 
   const debouncedOnChange = useDebouncedCallback(onChange, 300)
@@ -190,6 +190,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
           id="input"
           label="Input"
           variant="standard"
+          inputProps={{ style: { fontFamily: 'monospace' } }}
           multiline
           fullWidth
           value={input}
@@ -201,6 +202,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
         <TextField
           id="output"
           label="Output"
+          inputProps={{ style: { fontFamily: 'monospace' } }}
           multiline
           fullWidth
           variant="standard"

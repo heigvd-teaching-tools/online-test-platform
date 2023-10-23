@@ -46,6 +46,8 @@ const pullImageIfNotExists = async (image) => {
     }
 }
 
+const EXECUTION_TIMEOUT = 5000
+
 const startContainer = async (image) => {
     const container = await new GenericContainer(image)
         .withExposedPorts(5432)
@@ -106,57 +108,78 @@ export const runSandboxDB = async ({
         }
     }  
 
-    // Container is running, try to connect to it and execute the queries
-    try{
+    return new Promise(async (resolve, _) => {
+        // Container is running, try to connect to it and execute the queries
+        try{
 
-        client = new Client({
-            host: process.env.DB_SANDBOX_CLIENT_HOST || "localhost",
-            port: container.getFirstMappedPort(),
-            ...databaseConfig,
-        });
-
-        await client.connect();
-
-        let order = 1;
-        for (const query of queries) {
+            client = new Client({
+                host: process.env.DB_SANDBOX_CLIENT_HOST || "localhost",
+                port: container.getFirstMappedPort(),
+                ...databaseConfig,
+            });
+        
+            let timeout = setTimeout(() => {
+                client.end();
+                container.stop();
+                resolve([{
+                    status: DatabaseQueryOutputStatus.ERROR,
+                    feedback: 'Sandbox Execution Timeout',
+                    type: DatabaseQueryOutputType.TEXT,
+                    result: 'Sandbox Execution Timeout'
+                }]);
+            }, EXECUTION_TIMEOUT);
+    
             try {
-                const result = await client.query(query);
-                const dataset = postgresOutputToToDataset(result);
-                const type = postgresDetermineOutputType(result)
-                const feedback = postgresGenerateFeedbackMessage(result.command, result)
-                results.push({
-                    order: order++,
-                    status: DatabaseQueryOutputStatus.SUCCESS,
-                    feedback: feedback,
-                    type: type,
-                    result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset,
-                });
+
+                await client.connect();
+
+                let order = 1;
+                for (const query of queries) {
+                    const result = await client.query(query);
+                    const dataset = postgresOutputToToDataset(result);
+                    const type = postgresDetermineOutputType(result)
+                    const feedback = postgresGenerateFeedbackMessage(result.command, result)
+                    results.push({
+                        order: order++,
+                        status: DatabaseQueryOutputStatus.SUCCESS,
+                        feedback: feedback,
+                        type: type,
+                        result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset,
+                    });
+                }
+                clearTimeout(timeout);  // Clear the timeout if queries finish on time
+                resolve(results);
+                
             } catch (error) {
+                clearTimeout(timeout);  // Clear the timeout if there's an error
+                console.log("DB Execution Error:", error);
                 results.push({
-                    order: order,
+                    order: results.length + 1,  // Adjusted order logic
                     status: DatabaseQueryOutputStatus.ERROR,
                     feedback: error.message,
                     type: DatabaseQueryOutputType.TEXT,
                     result: error
                 });
-                break;  // Stop executing further queries if one fails
+                resolve(results);
             }
+        
+
+        } catch (error) {
+            // General error handling for the container setup or connection
+            console.log("error: ", error);
+            results.push({
+                status: DatabaseQueryOutputStatus.ERROR,
+                feedback: `Client connection error: ${error.message}`,
+                type: DatabaseQueryOutputType.TEXT,
+                result: `Client connection error: ${error.message}`
+            });
+            resolve(results);
+        } finally {
+            console.log("Finally block")
+            if (client) await client.end();
+            if (container) await container.stop();
         }
-
-    } catch (error) {
-        // General error handling for the container setup or connection
-        results.push({
-            status: DatabaseQueryOutputStatus.ERROR,
-            feedback: `Client connection error: ${error.message}`,
-            type: DatabaseQueryOutputType.TEXT,
-            result: `Client connection error: ${error.message}`
-        });
-    } finally {
-        if (client) await client.end();
-        if (container) await container.stop();
-    }
-
-    return results;
+    });
 }
 
 

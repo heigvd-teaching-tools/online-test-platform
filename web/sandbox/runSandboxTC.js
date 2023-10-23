@@ -9,29 +9,35 @@ import {cleanUpDockerStreamHeaders, sanitizeUTF8} from "./utils";
 // https://www.npmjs.com/package/testcontainers
 // https://github.com/apocas/dockerode
 
-const EXECUTION_TIMEOUT = 30000
+const EXECUTION_TIMEOUT = 5000
 export const runSandbox = async ({ image = 'node:latest', files = [], beforeAll = undefined, tests = [] }) => {
   const directory = await prepareContent(files);
 
   const { container, beforeAllOutput } = await startContainer(image, directory, beforeAll);
 
-  let timeout;
-  try {
-      timeout = setTimeout(() => {
+  return new Promise(async (resolve, reject) => {
+      let timeout = setTimeout(() => {
           container.stop();
-          throw new Error('Execution timed out');
+          resolve({
+              beforeAll: "Execution Timeout",
+              tests: [],
+          });
       }, EXECUTION_TIMEOUT);
 
-      const testsResults = await execTests(container, tests);
-
-      return {
-          beforeAll: beforeAllOutput,
-          tests: testsResults,
-      };
-  } finally {
-      clearTimeout(timeout);
-      await container.stop();
-  }
+      try {
+          const testsResults = await execTests(container, tests);
+          clearTimeout(timeout);  // Clear the timeout if tests finish on time
+          resolve({
+              beforeAll: beforeAllOutput,
+              tests: testsResults,
+          });
+      } catch (error) {
+          clearTimeout(timeout);  // Clear the timeout if there's an error
+          reject(error);  // This will propagate the error outside if you wish to handle it
+      } finally {
+          await container.stop();
+      }
+  });
 };
 
 const prepareContent = (files) =>

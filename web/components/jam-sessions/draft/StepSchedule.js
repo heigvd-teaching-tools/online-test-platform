@@ -6,15 +6,33 @@ import {
   FormGroup,
   FormControlLabel,
   Switch,
+  Alert,
+  AlertTitle,
 } from '@mui/material'
 import DurationPicker from '../../input/DurationPicker'
-import UserAvatar from '../../layout/UserAvatar'
+import StudentList from './StudentList'
+import useSWR from 'swr'
+import { fetcher } from '../../../code/utils'
+import Loading from '../../feedback/Loading'
+
+const STUDENTS_ACTIVE_PULL_INTERVAL = 1000;
 
 const StepSchedule = ({ jamSession, onChange }) => {
+
+  const {
+    data: students,
+    error: errorStudents,
+  } = useSWR(
+      `/api/jam-sessions/${jamSession.id}/students`, 
+      jamSession?.id ? fetcher : null,
+      { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
+      )
+    
+
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
     hours: 0,
-    minutes: 15,
+    minutes: 0,
   })
 
   useEffect(() => {
@@ -45,7 +63,10 @@ const StepSchedule = ({ jamSession, onChange }) => {
               onChange={(e) => {
                 setUseDuration(e.target.checked)
                 if (!e.target.checked) {
-                  setDuration(undefined)
+                  setDuration({
+                    hours: 0,
+                    minutes: 0,
+                  })
                 }
               }}
             />
@@ -54,34 +75,37 @@ const StepSchedule = ({ jamSession, onChange }) => {
         />
       </FormGroup>
       {useDuration && (
-        <DurationPicker
-          value={duration}
-          onChange={(value) => {
-            if (
-              duration &&
-              (value.hours !== duration.hours ||
-                value.minutes !== duration.minutes)
-            ) {
-              setDuration(value)
-            }
-          }}
-        />
-      )}
-      <Typography variant="h6">Student registration</Typography>
-      {jamSession && jamSession.students && jamSession.students.length > 0 && (
         <>
-          <Typography variant="body1">
-            {jamSession.students.length} registered students
-          </Typography>
-          <List>
-            {jamSession.students.map((student, index) => (
-              <UserAvatar key={index} user={student.user} />
-            ))}
-          </List>
+          <Alert severity="warning">
+            <AlertTitle>Warning</AlertTitle>
+            <Typography variant="body1">
+              The jam session will not end automatically. You will have to end it manually in the in-progress phase.
+            </Typography>
+            <Typography variant="body1">
+              The sole purpose of this feature is to give students an idea of the time they have to complete the jam session.
+            </Typography>
+          </Alert>
+          <DurationPicker
+            value={duration}
+            onChange={(value) => {
+                setDuration(value)
+            }}
+          />
         </>
+        
       )}
-    </Stack>
+      { jamSession.id && (
+        <Loading loading={!students} errors={[errorStudents]}>
+         <StudentList 
+            title={`Registered students (${students?.students.length})`}
+            students={students?.students}
+         />
+         </Loading>
+      )}
+     
+      </Stack>
   )
 }
+
 
 export default StepSchedule

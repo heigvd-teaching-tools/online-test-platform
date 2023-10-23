@@ -140,6 +140,7 @@ model Question {
   type    QuestionType
   title   String
   content String
+  defaultPoints Float @default(4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -187,6 +188,8 @@ model TrueFalse {
 model Essay {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
+
+  solution String?
 }
 
 model SandBox {
@@ -452,7 +455,7 @@ enum JamSessionStatus {
 model JamSession {
   id String @id @default(cuid())
 
-  label      String?          @unique
+  label      String?          
   conditions String?
   status     JamSessionStatus @default(ACTIVE)
   phase      JamSessionPhase  @default(DRAFT)
@@ -470,6 +473,7 @@ model JamSession {
 
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String
+  @@unique([groupId, label])
 }
 
 model JamSessionToQuestion {

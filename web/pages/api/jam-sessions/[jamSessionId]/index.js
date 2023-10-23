@@ -36,13 +36,6 @@ const get = async (req, res) => {
     where: {
       id: jamSessionId,
     },
-    include: {
-      students: {
-        select: {
-          user: true,
-        },
-      },
-    },
   })
   res.status(200).json(jamSession)
 }

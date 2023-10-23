@@ -60,7 +60,8 @@ const PageFinished = () => {
   const gridHeaders = () => {
     let q = JamSessionToQuestions.map((jstq) => ({
       label: <b>{`Q${jstq.order + 1}`}</b>,
-      column: { width: '50px' },
+      tooltip: jstq.question.title,
+      column: { width: '30px', align: 'center' },
     }))
 
     return {
@@ -102,9 +103,11 @@ const PageFinished = () => {
         let color =
           successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error'
         questionColumnValues[`Q${jstq.order + 1}`] = (
-          <Typography variant="button" sx={{ color: `${color}.main` }}>
-            <b>{`${pointsObtained}/${totalPoints}`}</b>
-          </Typography>
+          <Stack display="inline-flex" alignItems="center" justifyContent="center" spacing={0.1}>
+            <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${pointsObtained}`}</Typography>
+            <Divider sx={{ width:"100%" }} />
+            <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${totalPoints}`}</Typography>
+          </Stack>
         )
       })
 
@@ -128,6 +131,8 @@ const PageFinished = () => {
       }
     })
 
+  const dotToComma = (value) => value.toString().replace('.', ',');
+
   const exportAsCSV = () => {
     let COLUMN_SEPARATOR = ';'
     let LINE_SEPARATOR = '\r'
@@ -148,14 +153,14 @@ const PageFinished = () => {
       let participantSuccessRate =
         totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
 
-      csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${participantSuccessRate}${COLUMN_SEPARATOR}${totalPoints}${COLUMN_SEPARATOR}${obtainedPoints}${COLUMN_SEPARATOR}`
+      csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${`${participantSuccessRate} %`}${COLUMN_SEPARATOR}${dotToComma(totalPoints)}${COLUMN_SEPARATOR}${dotToComma(obtainedPoints)}${COLUMN_SEPARATOR}`
 
       JamSessionToQuestions.forEach((jstq) => {
         const grading = jstq.question.studentAnswer.find(
           (sa) => sa.user.email === participant.email
         ).studentGrading
         let pointsObtained = grading ? grading.pointsObtained : 0
-        csv += `${pointsObtained}${COLUMN_SEPARATOR}`
+        csv += `"${dotToComma(pointsObtained)}"${COLUMN_SEPARATOR}`
       })
 
       csv += LINE_SEPARATOR
