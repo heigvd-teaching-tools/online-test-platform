@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Stack, TextField, Button, Box, Tooltip, FormControlLabel, Switch, Typography } from '@mui/material'
+import { Stack, TextField, Button, Box, Tooltip, FormControlLabel, Switch, Typography, Alert } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
 
 import LayoutSplitScreen from '../layout/LayoutSplitScreen'
@@ -15,8 +15,9 @@ import { useRouter } from 'next/router'
 import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
 import DecimalInput from '../input/DecimalInput'
+import DialogFeedback from '../feedback/DialogFeedback'
 
-const QuestionUpdate = ({ questionId }) => {
+const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
   const router = useRouter()
   const { show: showSnackbar } = useSnackbar()
 
@@ -27,6 +28,8 @@ const QuestionUpdate = ({ questionId }) => {
   } = useSWR(`/api/questions/${questionId}`, questionId ? fetcher : null, {
     revalidateOnFocus: false,
   })
+
+  const [ deleteQuestionDialogOpen, setDeleteQuestionDialogOpen ] = useState(false)
 
   useEffect(() => {
     // if group changes, re-fetch questions
@@ -54,14 +57,15 @@ const QuestionUpdate = ({ questionId }) => {
         body: JSON.stringify({ question }),
       })
         .then((res) => res.json())
-        .then(async (_) => {
+        .then(async (question) => {
+          onUpdate && onUpdate(question)
           showSnackbar('Question saved', 'success')
         })
         .catch(() => {
           showSnackbar('Error saving questions', 'error')
         })
     },
-    [showSnackbar]
+    [showSnackbar, onUpdate]
   )
 
   const deleteQuestion = useCallback(async () => {
@@ -76,13 +80,14 @@ const QuestionUpdate = ({ questionId }) => {
       .then((res) => res.json())
       .then(async () => {
         await mutate()
+        onDelete && onDelete(question)
         showSnackbar('Question deleted', 'success')
         await router.push('/questions')
       })
       .catch(() => {
         showSnackbar('Error deleting question', 'error')
       })
-  }, [question, showSnackbar, router, mutate])
+  }, [question, showSnackbar, router, mutate, onDelete])
 
   const onChangeQuestion = useCallback(
     async (question) => {
@@ -139,7 +144,10 @@ const QuestionUpdate = ({ questionId }) => {
                   </Box>
                 </Tooltip>
               </Stack>
-              <QuestionTagsSelector questionId={question.id} />
+              <QuestionTagsSelector 
+                questionId={question.id} 
+                onChange={() => onUpdate(question)}
+              />
               
               <ContentEditor
                 id={`question-${question.id}`}
@@ -164,7 +172,7 @@ const QuestionUpdate = ({ questionId }) => {
                       height="18"
                     />
                   }
-                  onClick={() => deleteQuestion(question.id)}
+                  onClick={() => setDeleteQuestionDialogOpen(true)}
                 >
                   Delete this question
                 </Button>
@@ -182,6 +190,17 @@ const QuestionUpdate = ({ questionId }) => {
             />
           )
         }
+      />
+      <DialogFeedback
+        open={deleteQuestionDialogOpen}
+        title="Delete question"
+        content={
+            <Typography variant="body1">
+              You are about to delete this question. Are you sure?
+            </Typography>
+        }
+        onClose={() => setDeleteQuestionDialogOpen(false)}
+        onConfirm={deleteQuestion}
       />
     </Loading>
   )

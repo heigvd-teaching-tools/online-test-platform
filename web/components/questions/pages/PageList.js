@@ -113,6 +113,14 @@ const PageList = () => {
                           { selected && (
                               <QuestionUpdate
                                 questionId={selected.id}
+                                onUpdate={async (question) => {
+                                  await mutate()
+                                  setSelected(question)
+                                }}
+                                onDelete={async () => {
+                                  await mutate()
+                                  setSelected(undefined)
+                                }}
                               />
                             )
                           }
