@@ -66,6 +66,9 @@ const prepareContent = (files) =>
 const startContainer = async (image, filesDirectory, beforeAll) => {
 
   let container = await new GenericContainer(image)
+    .withResourcesQuota({
+      cpu: 0.2          // Equivalent to 0.2 of a CPU core
+    })
     .withEnvironment('NODE_NO_WARNINGS', '1')
     .withCopyFilesToContainer([
       { source: `${filesDirectory}/code.tar.gz`, target: '/code.tar.gz' },
