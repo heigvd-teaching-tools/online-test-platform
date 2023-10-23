@@ -51,7 +51,7 @@ const EXECUTION_TIMEOUT = 5000
 const startContainer = async (image) => {
     const container = await new GenericContainer(image)
         .withResourcesQuota({
-            cpu: 0.2          // Equivalent to 0.2 of a CPU core
+            cpu: 0.25          // Equivalent to 0.2 of a CPU core
         })
         .withExposedPorts(5432)
         .withWaitStrategy(Wait.forLogMessage("database system is ready to accept connections"))
