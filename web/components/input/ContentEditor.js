@@ -18,6 +18,7 @@ const ContentEditor = ({
   readOnly = false,
   height = "100%",
   rawContent = '',
+  mode = 'source',
   onChange,
 }) => {
 
@@ -28,6 +29,7 @@ const ContentEditor = ({
   : 
     <EditMarkdown 
       title={title || ''} 
+      mode={mode}
       rawContent={rawContent} 
       height={height} 
       onChange={onChange} 
@@ -35,13 +37,13 @@ const ContentEditor = ({
     
 }
 
-const EditMarkdown = ({ title, rawContent: initial, height, onChange }) => {
+const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial, height, onChange }) => {
 
   const ref = useRef(null)
 
   const readOnly = onChange === undefined
 
-  const [ mode, setMode ] = useState("source")
+  const [ mode, setMode ] = useState(initialMode)
 
   const [ rawContent, setRawContent ] = useState(initial || '')
 

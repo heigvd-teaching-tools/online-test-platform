@@ -7,6 +7,7 @@ const CompareEssay = ({ solution, answer }) => {
       <ResizePanel
         leftPanel={
           <ContentEditor
+            mode={"preview"}
             title={"Student's answer"}
             id={`answer-compare-essay`}
             rawContent={answer || ''}
@@ -14,6 +15,7 @@ const CompareEssay = ({ solution, answer }) => {
         }
         rightPanel={
           <ContentEditor
+            mode={"preview"}
             title={"Solution"}
             id={`solution-compare-essay`}
             rawContent={solution.solution || ''}
