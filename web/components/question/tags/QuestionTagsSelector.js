@@ -5,7 +5,7 @@ import TagsSelector from '../../input/TagsSelector'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 
-const QuestionTagsSelector = ({ questionId }) => {
+const QuestionTagsSelector = ({ questionId, onChange }) => {
   const { tags: allTags, upsert } = useTags()
 
   const {
@@ -16,12 +16,13 @@ const QuestionTagsSelector = ({ questionId }) => {
     fallbackData: [],
   })
 
-  const onChange = useCallback(
+  const onTagsChange = useCallback(
     async (newTags) => {
       await upsert(questionId, newTags)
       await mutate(newTags)
+      onChange && onChange(newTags)
     },
-    [questionId, mutate, upsert]
+    [questionId, mutate, upsert, onChange]
   )
 
   return (
@@ -29,7 +30,7 @@ const QuestionTagsSelector = ({ questionId }) => {
       <TagsSelector
         options={allTags.map((tag) => tag.label)}
         value={tags.map((tag) => tag.label)}
-        onChange={onChange}
+        onChange={onTagsChange}
       />
     </Loading>
   )
