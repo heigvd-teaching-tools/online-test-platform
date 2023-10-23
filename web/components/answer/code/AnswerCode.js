@@ -10,6 +10,7 @@ import {StudentPermission} from "@prisma/client";
 import CodeCheck from "../../question/type_specific/code/CodeCheck";
 import StudentPermissionIcon from "../../feedback/StudentPermissionIcon";
 import BottomPanel from "../../layout/utils/BottomPanel";
+import BottomCollapsiblePanel from "../../layout/utils/BottomCollapsiblePanel";
 
 
 const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
@@ -88,20 +89,5 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
     )
 }
 
-const BottomCollapsiblePanel = ({ children, bottomPanel, ...props }) => {
-    const ref = useRef(null);
-    return(
-        <Stack height={"100%"} {...props}>
-            <BottomPanel>
-                <Stack flex={1}>
-                        <ScrollContainer ref={ref}>     
-                            {children}
-                        </ScrollContainer> 
-                </Stack>
-                {bottomPanel}
-            </BottomPanel>
-        </Stack>
-    )
-}
 
 export default AnswerCode
