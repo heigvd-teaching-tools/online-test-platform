@@ -8,9 +8,9 @@ import QueriesRunSummary from "./QueriesRunSummary";
 import ScrollContainer from "../../layout/ScrollContainer";
 import StudentQueryEditor from "./StudentQueryEditor";
 import StudentOutputDisplay from "./StudentOutputDisplay";
-import BottomPanel from "../../layout/utils/BottomPanel";
 import {LoadingButton} from "@mui/lab";
 import StudentQueryConsole from "./StudentQueryConsole";
+import BottomCollapsiblePanel from "../../layout/utils/BottomCollapsiblePanel";
 
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
@@ -104,19 +104,33 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
         <Loading errors={[error]} loading={!answer}>
             {queries && queries.length > 0 && (
                 <>
-                    <Stack pt={1}>
-                        <QueriesRunSummary
-                            queries={queries}
-                            studentOutputs={studentOutputs}
-                        />
-                    </Stack>
-                    <Stack
-                        position={'relative'}
-                        height={'calc(100% - 40px)'}
-                        overflow={'hidden'}
-                        p={1}
-                        pb={'52px'}
-                    >
+                    <BottomCollapsiblePanel
+                        bottomPanel={
+                            <Stack direction="row" spacing={1} p={1}>
+                                <LoadingButton
+                                    loading={saving}
+                                    disabled={saveLock}
+                                    variant={"contained"}
+                                    onClick={() => saveAndTest()}
+                                >
+                                    Save and test
+                                </LoadingButton>
+                                
+                                <Button
+                                    variant={"outlined"}
+                                    onClick={() => setOpenConsole(true)}
+                                >
+                                    Console
+                                </Button>
+                            </Stack>
+                        }
+                        >
+                        <Stack pt={1}>
+                            <QueriesRunSummary
+                                queries={queries}
+                                studentOutputs={studentOutputs}
+                            />
+                        </Stack>
                         <ScrollContainer ref={ref}>
                             {queries?.map((query, index) => (
                                 <Stack key={query.id}>
@@ -136,28 +150,8 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 </Stack>
                             ))}
                         </ScrollContainer>
-                        <BottomPanel
-                            header={
-                                <Stack spacing={1} p={1} direction={"row"}>
-                                    <LoadingButton
-                                        loading={saving}
-                                        disabled={saveLock}
-                                        variant={"contained"}
-                                        onClick={() => saveAndTest()}
-                                    >
-                                        Save and test
-                                    </LoadingButton>
-                                    <Button
-                                        variant={"outlined"}
-                                        onClick={() => setOpenConsole(true)}
-                                    >
-                                        Console
-                                    </Button>
-
-                                </Stack>
-                            }
-                        />
-                    </Stack>
+                       
+                    </BottomCollapsiblePanel>
                     <StudentQueryConsole
                         jamSessionId={jamSessionId}
                         questionId={questionId}

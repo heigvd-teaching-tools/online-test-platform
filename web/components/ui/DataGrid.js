@@ -7,6 +7,7 @@ import {
   ListItem,
   Menu,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -15,13 +16,16 @@ import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
 
 const Datagrid = ({ header, items }) => {
+  console.log("Datagrid.js: Datagrid: header: ", header)
   return (
     <List>
       <ListItem divider>
         <Row>
-          {header.columns.map(({ label, column }) => (
+          {header.columns.map(({ label, tooltip, column }) => (
             <Column key={label} {...column}>
-              <Typography variant="button">{label}</Typography>
+              <Tooltip title={tooltip} placement="bottom">
+                <Typography variant="button">{label}</Typography>
+              </Tooltip>
             </Column>
           ))}
 

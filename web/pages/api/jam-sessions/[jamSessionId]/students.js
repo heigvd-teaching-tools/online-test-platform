@@ -43,6 +43,7 @@ const get = async (req, res) => {
             question: {
               select:{
                 id: true,
+                title: true,
                 studentAnswer:{
                   select:{
                     question: {

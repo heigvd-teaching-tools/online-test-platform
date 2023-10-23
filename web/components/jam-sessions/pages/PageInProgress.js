@@ -45,7 +45,6 @@ const PageInProgress = () => {
   
   const {
     data: students,
-    mutate: mutateStudents,
     error: errorStudents,
   } = useSWR(
       `/api/jam-sessions/${jamSessionId}/students`, 

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { Tabs, Tab, Tooltip } from '@mui/material'
+import { Tabs, Tab, Tooltip, Typography } from '@mui/material'
 import FilledBullet from '../../feedback/FilledBullet'
 const Paging = ({ items, active, link }) => {
   const router = useRouter()
@@ -12,7 +12,11 @@ const Paging = ({ items, active, link }) => {
       onChange={(e, index) => router.push(link(items[index].id, index))}
     >
       {items.map(({ id, tooltip, isFilled }, index) => (
-        <Tooltip key={id} title={tooltip} placement="bottom">
+        <Tooltip key={id} title={tooltip && 
+          <Typography variant="caption">
+            {tooltip}
+          </Typography>
+        } placement="bottom">
         <Tab
           label={`Q${index + 1}`}
           iconPosition="start"

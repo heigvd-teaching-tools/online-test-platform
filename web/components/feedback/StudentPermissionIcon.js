@@ -1,4 +1,4 @@
-import { Box, Tooltip } from '@mui/material'
+import { Stack, Tooltip } from '@mui/material'
 import Image from 'next/image'
 import { StudentPermission } from '@prisma/client'
 
@@ -23,13 +23,13 @@ const permissionToIcon = {
 const StudentPermissionIcon = ({ permission, size=16 }) => {
     return (
         <Tooltip title={permissionToIcon[permission].tooltip} placement="bottom">
-            <Box>
+            <Stack>
                 <Image
                     src={permissionToIcon[permission].src}
                     width={size}
                     height={size}
                 />
-            </Box> 
+            </Stack> 
         </Tooltip>
     )
 }

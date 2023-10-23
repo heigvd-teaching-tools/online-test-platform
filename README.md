@@ -123,3 +123,7 @@ cd ~/db_dumps
 bash pg_restore.sh <backup-file-name>
 ```
 
+## Hints in case of issues with the scripts
+- Line ending must be LF
+- Execute permissions: `chmod +x pg_backup.sh`
+

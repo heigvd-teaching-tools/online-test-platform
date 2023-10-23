@@ -23,6 +23,7 @@ const StudentRegistration = ({ students, questions = [] }) => {
     // Create dynamic columns for each question
     const questionColumns = useMemo( () => questions.map(q => ({
         label: `Q${q.order + 1}`, // Assuming questions order starts at 0
+        tooltip: q.question.title,
         column: { width: 40 },
     })), [questions]);
 

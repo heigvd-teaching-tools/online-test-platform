@@ -268,6 +268,7 @@ const PageGrading = () => {
       (jstq) => jstq.question
     ).map((q) => ({
       id: q.id,
+      tooltip: q.title,
       isFilled: allGradingsSigned(q.id),
     }));
   }, [jamSessionToQuestions, allGradingsSigned])

@@ -60,6 +60,7 @@ const PageFinished = () => {
   const gridHeaders = () => {
     let q = JamSessionToQuestions.map((jstq) => ({
       label: <b>{`Q${jstq.order + 1}`}</b>,
+      tooltip: jstq.question.title,
       column: { width: '30px', align: 'center' },
     }))
 
