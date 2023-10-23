@@ -121,12 +121,13 @@ export const runSandboxDB = async ({
             let timeout = setTimeout(() => {
                 client.end();
                 container.stop();
-                resolve([{
+                results.push({
                     status: DatabaseQueryOutputStatus.ERROR,
                     feedback: 'Sandbox Execution Timeout',
                     type: DatabaseQueryOutputType.TEXT,
                     result: 'Sandbox Execution Timeout'
-                }]);
+                });
+                resolve(results);
             }, EXECUTION_TIMEOUT);
     
             try {
