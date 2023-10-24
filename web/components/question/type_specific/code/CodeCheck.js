@@ -93,9 +93,11 @@ const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
                 />
               </Stack>
             )}
-            <Stack spacing={1} direction="row" pb={2}>
-              <TestCaseResults tests={tests} />
-            </Stack>
+            { tests.length > 0 && (
+              <Stack spacing={1} direction="row" pb={2}>
+                <TestCaseResults tests={tests} />
+              </Stack>
+            )}
           </Stack>
         )}
         </BottomPanelContent>

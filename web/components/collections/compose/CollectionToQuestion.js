@@ -1,16 +1,20 @@
 import { useCallback } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import {
+  Alert,
   Box,
   IconButton,
   Paper,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import DragHandleSVG from '../../layout/utils/DragHandleSVG'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 import Image from 'next/image'
 import DecimalInput from '../../input/DecimalInput'
+import UserHelpPopper from '../../feedback/UserHelpPopper'
+import DialogHelp from '../../feedback/DialogHelp'
 
 const CollectionToQuestion = ({
   collectionToQuestion,
@@ -100,20 +104,20 @@ const CollectionToQuestion = ({
         </Stack>
 
         <Box minWidth={120} width={120}>
-          <DecimalInput
-            label="Points"
-            value={collectionToQuestion.points}
-            variant="standard"
-            size={'small'}
-            rightAdornement={'step 0.25'}
-            onChange={async (value) => {
-              console.log("value", value)
-              await debounceSaveCollectionToQuestion(index, {
-                ...collectionToQuestion,
-                points: value
-              })
-            }}
-          />
+            <DecimalInput
+              label="Points"
+              value={collectionToQuestion.points}
+              variant="standard"
+              size={'small'}
+              rightAdornement={'step 1'}
+              onChange={async (value) => {
+                console.log("value", value)
+                await debounceSaveCollectionToQuestion(index, {
+                  ...collectionToQuestion,
+                  points: value
+                })
+              }}
+            />
         </Box>
         <IconButton
           key="delete-collection"

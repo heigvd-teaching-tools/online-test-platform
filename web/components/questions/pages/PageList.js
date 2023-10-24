@@ -1,12 +1,12 @@
 import useSWR from 'swr'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import LayoutMain from '../../layout/LayoutMain'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import QuestionFilter from '../../question/QuestionFilter'
 import MainMenu from '../../layout/MainMenu'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper, Stack, Typography } from '@mui/material'
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { useRouter } from 'next/router'
 import AddQuestionDialog from '../list/AddQuestionDialog'
@@ -18,6 +18,7 @@ import { fetcher } from '../../../code/utils'
 import ScrollContainer from '../../layout/ScrollContainer'
 import QuestionUpdate from '../../question/QuestionUpdate'
 import ResizableDrawer from '../../layout/utils/ResizableDrawer'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 const PageList = () => {
   const router = useRouter()
@@ -169,26 +170,29 @@ const QuestionListContainer = ({ questions, selected, setSelected }) => {
           actions={[
             <Button
               key={`action-update-${question.id}`}
+              size='small'
               onClick={async () => {
                 await router.push(`/questions/${question.id}`)
               }}
               variant={'text'}
             >
-              Update
+              Update in new page
             </Button>,
             <Button
               key={`action-select-${question.id}`}
+              size='small'
               onClick={async () => {
                 setSelected(question)
               }}
               variant={'text'}
               color={"secondary"}
             >
-              Aside
-            </Button>,
+              Update in Side View (Overlay)
+            </Button>        
           ]}
         />
       ))
   )
 }
+
 export default PageList

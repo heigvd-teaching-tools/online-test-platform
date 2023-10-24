@@ -134,7 +134,7 @@ const TestCases = ({ questionId, language }) => {
           </Box>
         </Stack>
 
-        <ScrollContainer spacing={2}>
+        <ScrollContainer spacing={2} pb={24}>
           {tests?.map((test, i) => (
             <TestCaseUpdate
               test={test}

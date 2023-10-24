@@ -58,7 +58,7 @@ const get = async (req, res) => {
 const post = async (req, res) => {
   // add a new question to a collection
   const { collectionId } = req.query
-  const { questionId, defaultPoints } = req.body
+  const { questionId } = req.body
 
   // find the latest order
   const latestOrder = await prisma.collectionToQuestion.findFirst({
@@ -77,7 +77,6 @@ const post = async (req, res) => {
       collectionId: collectionId,
       questionId: questionId,
       order: order,
-      points: parseFloat(defaultPoints) || 0,
     },
   })
 

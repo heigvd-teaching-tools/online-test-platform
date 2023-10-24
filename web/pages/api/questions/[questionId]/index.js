@@ -54,7 +54,6 @@ const put = async (req, res) => {
     data: {
       title: question.title,
       content: question.content,
-      defaultPoints: parseFloat(question.defaultPoints) || 0,
       [question.type]: {
         update: questionTypeSpecific(question.type, question),
       },

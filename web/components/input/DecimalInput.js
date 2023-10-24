@@ -6,7 +6,7 @@ import { Box, IconButton, InputAdornment, Stack, Tooltip, Typography } from '@mu
 const regex = /^-?(\d+\.?\d{0,2}|\.\d{0,2})$/;
 
 
-const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, step = 0.25, rightAdornement, ...props }) => {
+const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, step = 1, rightAdornement, ...props }) => {
   const [ value, setValue ] = useState(initial);
   const [ errorMessage, setErrorMessage] = useState();
 

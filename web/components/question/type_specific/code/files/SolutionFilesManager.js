@@ -101,7 +101,7 @@ const SolutionFilesManager = ({ questionId, language }) => {
             }
             >
             <Button onClick={onAddFile}>Add File</Button>
-            <ScrollContainer ref={filesRef}>
+            <ScrollContainer ref={filesRef} pb={24}>
               {codeToSolutionFiles.map((codeToSolutionFile, index) => (
                 <FileEditor
                   key={index}

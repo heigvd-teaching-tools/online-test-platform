@@ -69,8 +69,14 @@ const QuestionFilter = ({ onApplyFilter }) => {
     [filter]
   )
 
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission which reloads the page
+    onApplyFilter && onApplyFilter(await applyFilter(filter));
+  };
+
   return (
     filter && (
+      <form onSubmit={handleSubmit}>
       <Stack spacing={2} padding={2}>
         <Typography variant="body2" color="info">
           {' '}
@@ -153,9 +159,7 @@ const QuestionFilter = ({ onApplyFilter }) => {
             variant="contained"
             color="info"
             fullWidth
-            onClick={async () =>
-              onApplyFilter && onApplyFilter(await applyFilter(filter))
-            }
+            type="submit"
           >
             {' '}
             Filter{' '}
@@ -173,6 +177,7 @@ const QuestionFilter = ({ onApplyFilter }) => {
           </Button>
         </Stack>
       </Stack>
+      </form>
     )
   )
 }

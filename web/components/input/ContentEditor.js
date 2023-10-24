@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Button, IconButton, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import InlineMonacoEditor from './InlineMonacoEditor'
 import ReactMarkdown from 'react-markdown'
 import gfm from "remark-gfm";
@@ -60,38 +60,45 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
   return (
     <Stack spacing={0} height={height} ref={ref}>
       <Stack direction="row" alignItems="center" spacing={1} justifyContent={"space-between"}>
+        <Stack direction="row" alignItems="center" spacing={1}>
         <Typography variant="body1">{title}</Typography>
+        <Typography variant="caption">(markdown)</Typography>
+        </Stack>
         <Stack direction="row" alignItems="center" spacing={0}>
-          <IconButton
-            size='small'
-            onClick={() => setMode('source')}
-          >
-            <SourceViewIcon
-              active={mode === 'source'}
-            />
-          </IconButton>
-          <IconButton
-            size='small'
-            onClick={() => setMode('split')}
-          >
-            <SplitViewIcon 
-              active={mode === 'split'}
-            />
-          </IconButton>
-          <IconButton
-            size='small'
-            onClick={() => setMode('preview')}
-          >
-            <PreviewIcon
-              active={mode === 'preview'}
-            />
-          </IconButton>
+          <Tooltip title="Source view">
+            <IconButton
+              size='small'
+              onClick={() => setMode('source')}
+            >
+              <SourceViewIcon
+                active={mode === 'source'}
+              />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Split view">
+            <IconButton
+              size='small'
+              onClick={() => setMode('split')}
+            >
+              <SplitViewIcon 
+                active={mode === 'split'}
+              />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Preview">
+            <IconButton
+              size='small'
+              onClick={() => setMode('preview')}
+            >
+              <PreviewIcon
+                active={mode === 'preview'}
+              />
+            </IconButton>
+          </Tooltip>
         </Stack>
       </Stack>
       <ScrollContainer ref={ref}>
-        {
-
-          (
+        {(
           mode === 'source' && (
               <InlineMonacoEditor
                 code={rawContent}
