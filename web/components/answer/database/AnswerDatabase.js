@@ -131,7 +131,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 studentOutputs={studentOutputs}
                             />
                         </Stack>
-                        <ScrollContainer ref={ref}>
+                        <ScrollContainer ref={ref} pb={24}>
                             {queries?.map((query, index) => (
                                 <Stack key={query.id}>
                                     <StudentQueryEditor

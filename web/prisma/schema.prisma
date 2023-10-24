@@ -112,8 +112,8 @@ model UserOnGroup {
 
 model Collection {
   id    String @id @default(cuid())
-  label String @unique
-
+  label String 
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -121,6 +121,7 @@ model Collection {
 
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String
+  @@unique([groupId, label])
 }
 
 model CollectionToQuestion {
@@ -139,8 +140,7 @@ model Question {
   id      String       @id @default(cuid())
   type    QuestionType
   title   String
-  content String
-  defaultPoints Float @default(4)
+  content String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

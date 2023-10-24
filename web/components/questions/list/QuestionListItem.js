@@ -7,7 +7,7 @@ import QuestionTagsViewer from '../../question/tags/QuestionTagsViewer'
 const QuestionListItem = ({ question, selected, actions = [] }) => {
   return (
     <Paper sx={{ p: 1, width: '100%' }} variant={selected ? 'outlined' : 'elevation'}>
-      <Stack spacing={1} p={2}>
+      <Stack spacing={2} p={2}>
         <Stack direction="row" justifyContent="space-between">
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
             <QuestionTypeIcon type={question.type} size={32} withLabel />
@@ -34,7 +34,7 @@ const QuestionListItem = ({ question, selected, actions = [] }) => {
           direction={'row'}
           width="100%"
         >
-          <Stack direction={'row'} spacing={1} alignItems={'center'}>
+          <Stack direction={'row'} spacing={0} alignItems={'center'}>
           {actions}
           </Stack>
           <Box>

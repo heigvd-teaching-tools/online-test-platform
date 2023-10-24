@@ -162,7 +162,7 @@ const SolutionQueriesManager = ({ questionId }) => {
                         </Button>
                         <Button onClick={onAddQuery}>Add new query</Button>
                     </Stack>
-                    <ScrollContainer ref={ref}>
+                    <ScrollContainer ref={ref} pb={24}>
                         {queries?.map((query, index) => (
                             <Stack position="relative" onClick={() => setActiveQuery(index)} sx={{
                                 cursor: "pointer",

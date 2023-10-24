@@ -3,6 +3,7 @@ import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import {
+  Alert,
   Box,
   Button,
   Stack,
@@ -82,8 +83,7 @@ const PageCompose = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            questionId: question.id,
-            defaultPoints: question.defaultPoints
+            questionId: question.id
           }),
         }
       )
@@ -179,42 +179,45 @@ const PageCompose = () => {
         >
           <LayoutSplitScreen
             leftPanel={
-              <>
-                {collection && (
-                  <Stack spacing={2} padding={2} pt={3} pr={0}>
-                    <TextField
-                      label="Collection Label"
-                      variant="outlined"
-                      fullWidth
-                      value={label}
-                      onChange={async (ev) => {
-                        setLabel(ev.target.value)
-                        const updated = { ...collection }
-                        updated.label = ev.target.value
-                        await debounceSaveCollection(updated)
-                      }}
-                    />
-                    <ReorderableList onChangeOrder={onChangeCollectionOrder}>
-                      {collectionToQuestions &&
-                        collectionToQuestions.map(
-                          (collectionToQuestion, index) => (
-                            <CollectionToQuestion
-                              key={collectionToQuestion.question.id}
-                              index={index}
-                              collectionToQuestion={collectionToQuestion}
-                              onChange={(index, updates) =>
-                                onCollectionToQuestionChange(index, updates)
-                              }
-                              onDelete={(index) =>
-                                onDeleteCollectionToQuestion(index)
-                              }
-                            />
-                          )
-                        )}
-                    </ReorderableList>
+              collection && (
+                <Stack height={"100%"} p={1} pt={4}>
+                  <TextField
+                    label="Collection Label"
+                    variant="outlined"
+                    fullWidth
+                    value={label}
+                    onChange={async (ev) => {
+                      setLabel(ev.target.value)
+                      const updated = { ...collection }
+                      updated.label = ev.target.value
+                      await debounceSaveCollection(updated)
+                    }}
+                  />
+                  <Stack mt={2} flex={1}>
+                  
+                  <ScrollContainer spacing={2} padding={1} pb={24}>
+                  <ReorderableList onChangeOrder={onChangeCollectionOrder}>
+                    {collectionToQuestions &&
+                      collectionToQuestions.map(
+                        (collectionToQuestion, index) => (
+                          <CollectionToQuestion
+                            key={collectionToQuestion.question.id}
+                            index={index}
+                            collectionToQuestion={collectionToQuestion}
+                            onChange={(index, updates) =>
+                              onCollectionToQuestionChange(index, updates)
+                            }
+                            onDelete={(index) =>
+                              onDeleteCollectionToQuestion(index)
+                            }
+                          />
+                        )
+                      )}
+                  </ReorderableList>
+                  </ScrollContainer>
                   </Stack>
-                )}
-              </>
+                </Stack>
+              )
             }
             rightPanel={
               <Stack direction={'row'} height="100%">
@@ -230,7 +233,8 @@ const PageCompose = () => {
                     >
                       <Typography variant="h6">Available questions</Typography>
                     </Stack>
-                    <ScrollContainer spacing={4} padding={1}>
+                   
+                    <ScrollContainer spacing={4} padding={1} pb={12}>
                       {searchQuestions
                         .filter(
                           (question) =>

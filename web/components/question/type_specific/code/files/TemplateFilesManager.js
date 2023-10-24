@@ -70,7 +70,7 @@ const TemplateFilesManager = ({ questionId }) => {
           }
         >
           <Button onClick={onPullSolution}>Pull Solution Files</Button>
-          <ScrollContainer>
+          <ScrollContainer pb={24}>
             {codeToTemplateFiles.map((codeToTemplateFile, index) => (
               <FileEditor
                 key={index}

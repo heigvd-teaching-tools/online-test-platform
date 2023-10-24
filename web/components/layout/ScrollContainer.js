@@ -10,13 +10,14 @@ The parent container must have a height and width set.
 */
 
 const ScrollContainer = forwardRef(
-  ({ children, spacing = 0, padding = 0, dashed = false }, ref) => {
+  ({ children, dashed = false, ...props }, ref) => {
+    console.log("ScrollContainer", props)
     return (
       <Stack
         ref={ref}
         position={'relative'}
         flex={1}
-        overflow={'auto'}
+        
         height={'100%'}
         width={'100%'}
         border={dashed ? '1px dashed red' : 0}
@@ -27,10 +28,12 @@ const ScrollContainer = forwardRef(
           left={0}
           bottom={0}
           right={0}
-          spacing={spacing}
-          padding={padding}
+          overflow={'auto'}
+          {...props}
         >
-          {children}
+        
+            {children}
+      
         </Stack>
       </Stack>
     )

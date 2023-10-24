@@ -16,7 +16,7 @@ import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
 
 const Datagrid = ({ header, items }) => {
-  console.log("Datagrid.js: Datagrid: header: ", header)
+
   return (
     <List>
       <ListItem divider>

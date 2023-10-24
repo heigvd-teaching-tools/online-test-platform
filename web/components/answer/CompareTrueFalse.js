@@ -6,16 +6,16 @@ const CompareTrueFalse = ({ mode, solution, answer }) => {
     <Stack direction="row" spacing={2} padding={2} alignItems="center">
       <RadioViewer
         mode={mode}
-        selected={solution === true}
-        filled={answer === true}
+        isCorrect={solution === true}
+        isFilled={answer === true}
       />
       <Box>
         <Typography variant="body1">True</Typography>
       </Box>
       <RadioViewer
         mode={mode}
-        selected={solution === false}
-        filled={answer === false}
+        isCorrect={solution === false}
+        isFilled={answer === false}
       />
       <Box>
         <Typography variant="body1">False</Typography>

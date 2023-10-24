@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Stack, TextField, Button, Box, Tooltip, FormControlLabel, Switch, Typography, Alert } from '@mui/material'
+import { Stack, TextField, Button, Typography } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
 
 import LayoutSplitScreen from '../layout/LayoutSplitScreen'
@@ -14,7 +14,6 @@ import QuestionTagsSelector from './tags/QuestionTagsSelector'
 import { useRouter } from 'next/router'
 import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
-import DecimalInput from '../input/DecimalInput'
 import DialogFeedback from '../feedback/DialogFeedback'
 
 const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
@@ -132,17 +131,6 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
                     onPropertyChange('title', e.target.value)
                   }}
                 />
-                <Tooltip title={"A default amount of points that will pre-fill points field in a collection"}>
-                  <Box>
-                  <DecimalInput
-                    label={'Default pts'}
-                    value={question.defaultPoints}
-                    rightAdornement={'step 0.25'}
-                    variant="outlined"
-                    onChange={(value) => onPropertyChange('defaultPoints', value)}
-                  />
-                  </Box>
-                </Tooltip>
               </Stack>
               <QuestionTagsSelector 
                 questionId={question.id} 
