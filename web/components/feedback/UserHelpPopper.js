@@ -14,7 +14,6 @@ const UserHelpPopper = ({ children, content, placement = "bottom" }) => {
 
   const theme = useTheme();
 
-  console.log("theme", theme);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [showHelp, setShowHelp] = useState(false);

@@ -106,6 +106,7 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
     async (property, value) => {
       // instantly update the question object in memory
       question[property] = value
+      console.log("onPropertyChange", property, value, question)
       // debounce the change to the api
       await debounceChange()
     },
@@ -134,7 +135,7 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
               </Stack>
               <QuestionTagsSelector 
                 questionId={question.id} 
-                onChange={() => onUpdate(question)}
+                onChange={() => onUpdate && onUpdate(question)}
               />
               
               <ContentEditor

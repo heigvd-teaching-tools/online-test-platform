@@ -21,7 +21,6 @@ const ResizableDrawer = ({ open, width:initial=70, onClose, children }) => {
                             setWidth((window.innerWidth - e.clientX) / window.innerWidth * 100);
                         }}
                         onMouseUp={(e) => {
-                            console.log("mouseup static")
                             setDragging(false)
                         }}
                     />

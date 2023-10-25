@@ -91,8 +91,21 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             ...(includeOfficialAnswers ? { isTrue: true } : {}),
           },
         },
-        essay: true,
-        web: true,
+        essay: {
+          select: {
+            questionId: true,
+            ...(includeOfficialAnswers ? { solution: true } : {})
+          },
+        },
+        web: {
+          select:{
+            questionId: true,
+            templateHtml: true,
+            templateCss: true,
+            templateJs: true,
+            ...(includeOfficialAnswers ? { solutionHtml: true, solutionCss: true, solutionJs: true } : {}),
+          },
+        },
         database: {
             select: {
                 image: true,
@@ -152,6 +165,11 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         code: {
           select: {
             files: {
+              where:{
+                studentPermission: {
+                  not: StudentPermission.HIDDEN,
+                },
+              },
               include: {
                 file: true,
               },
@@ -222,9 +240,12 @@ export const questionTypeSpecific = (
       }
     case QuestionType.web:
       return {
-        html: question?.web.html ?? '',
-        css: question?.web.css ?? '',
-        js: question?.web.js ?? '',
+        solutionHtml: question?.web.solutionHtml ?? '',
+        solutionCss: question?.web.solutionCss ?? '',
+        solutionJs: question?.web.solutionJs ?? '',
+        templateHtml: question?.web.templateHtml ?? '',
+        templateCss: question?.web.templateCss ?? '',
+        templateJs: question?.web.templateJs ?? '',
       }
     case QuestionType.essay:
       return {

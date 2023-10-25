@@ -2,6 +2,7 @@ import languages from '../../../../../code/languages.json'
 import React, { useEffect, useState } from 'react'
 import { Box, Stack, TextField, Typography } from '@mui/material'
 import InlineMonacoEditor from '../../../../input/InlineMonacoEditor'
+import { useTheme } from '@emotion/react'
 
 const languageBasedOnPathExtension = (path) => {
   if (!path) return null
@@ -17,6 +18,7 @@ const FileEditor = ({
   secondaryActions,
   leftCorner,
 }) => {
+  const theme = useTheme()
   // automatically set language based on path extension
   const [language, setLanguage] = useState(
     languageBasedOnPathExtension(file?.path)
@@ -43,7 +45,7 @@ const FileEditor = ({
           alignItems="center"
           justifyContent="center"
           zIndex={1}
-          bgcolor="white"
+          bgcolor={theme.palette.background.paper}
         >
           {leftCorner}
           {(!readonlyPath && (

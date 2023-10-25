@@ -111,7 +111,6 @@ const CollectionToQuestion = ({
               size={'small'}
               rightAdornement={'step 1'}
               onChange={async (value) => {
-                console.log("value", value)
                 await debounceSaveCollectionToQuestion(index, {
                   ...collectionToQuestion,
                   points: value
