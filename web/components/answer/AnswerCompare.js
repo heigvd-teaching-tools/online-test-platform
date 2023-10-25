@@ -27,7 +27,6 @@ const AnswerCompare = ({ questionType, solution, answer }) => {
           )) ||
             (questionType === QuestionType.multipleChoice && answer.options && (
               <CompareMultipleChoice
-                mode="compare"
                 options={solution.options}
                 answer={answer.options}
               />

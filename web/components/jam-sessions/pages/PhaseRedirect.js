@@ -12,7 +12,6 @@ const phasePageRelationship = {
 const redirectToPhasePage = (phase, router) => {
   const { jamSessionId } = router.query
   if (router.pathname === phasePageRelationship[phase]) return
-  console.log("redirecting to phase page", phase)
   switch (phase) {
     case JamSessionPhase.NEW:
       router.push(`/jam-sessions/new`)

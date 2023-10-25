@@ -33,7 +33,7 @@ const StudentSelectionSummary = ({ options, answer }) => {
   );
 };
 
-const CompareMultipleChoice = ({ mode, options, answer }) => {
+const CompareMultipleChoice = ({ options, answer }) => {
   return (
     <Box p={2} pt={1} height={"100%"}>
       <StudentSelectionSummary options={options} answer={answer} />
@@ -50,7 +50,7 @@ const CompareMultipleChoice = ({ mode, options, answer }) => {
                 sx={{ flex: 1 }}
               >
                 <RadioViewer
-                  mode={mode}
+                  mode={"compare"}
                   key={index}
                   isCorrect={option.isCorrect}
                   isFilled={answer.some((opt) => opt.id === option.id)}
@@ -74,7 +74,7 @@ const CompareMultipleChoice = ({ mode, options, answer }) => {
                 sx={{ flex: 1 }}
               >
                 <RadioViewer
-                  mode={mode}
+                  mode={"compare"}
                   key={index}
                   isCorrect={option.isCorrect}
                   isFilled={option.isCorrect}

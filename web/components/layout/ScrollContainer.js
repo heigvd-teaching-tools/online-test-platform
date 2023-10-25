@@ -11,7 +11,6 @@ The parent container must have a height and width set.
 
 const ScrollContainer = forwardRef(
   ({ children, dashed = false, ...props }, ref) => {
-    console.log("ScrollContainer", props)
     return (
       <Stack
         ref={ref}

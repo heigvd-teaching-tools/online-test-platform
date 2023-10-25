@@ -1,11 +1,11 @@
 import { QuestionType } from '@prisma/client'
 import { Stack } from '@mui/material'
-import CompareMultipleChoice from './CompareMultipleChoice'
 import ConsultEssay from './ConsultEssay'
 import ConsultWeb from './ConsultWeb'
 import ConsultCode from './ConsultCode'
 import CompareTrueFalse from './CompareTrueFalse'
 import ConsultDatabase from './ConsultDatabase'
+import ConsultMultipleChoice from './ConsultMultipleChoice'
 /*
     this component is used to display the student answer and grading to a question in the context of the student's consultation
     it displays the answer and grading, but not the solutions
@@ -24,9 +24,8 @@ const AnswerConsult = ({ id, questionType, question, answer }) => {
             <CompareTrueFalse mode="consult" answer={answer.isTrue} />
           )) ||
           (questionType === QuestionType.multipleChoice && answer.options && (
-            <CompareMultipleChoice
+            <ConsultMultipleChoice
               id={id}
-              mode="consult"
               options={question.multipleChoice.options}
               answer={answer.options}
             />

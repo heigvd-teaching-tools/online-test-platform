@@ -72,10 +72,23 @@ const post = async (req, res) => {
 
   const order = latestOrder ? latestOrder.order + 1 : 0
 
+  // In case this question was already used in another collection, fine the last points assigned to it
+  const latestPoints = await prisma.collectionToQuestion.findFirst({
+    where: {
+      questionId: questionId,
+    },
+    orderBy: {
+      order: 'desc',
+    },
+  })
+
+  const points = latestPoints ? latestPoints.points : undefined
+
   const collectionToQuestion = await prisma.collectionToQuestion.create({
     data: {
       collectionId: collectionId,
       questionId: questionId,
+      points: points,
       order: order,
     },
   })

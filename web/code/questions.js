@@ -91,8 +91,18 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             ...(includeOfficialAnswers ? { isTrue: true } : {}),
           },
         },
-        essay: true,
-        web: true,
+        essay: {
+          select: {
+            questionId: true,
+            ...(includeOfficialAnswers ? { solution: true } : {})
+          },
+        },
+        web: {
+          select:{
+            questionId: true,
+            ...(includeOfficialAnswers ? { html: true, css: true, js: true } : {}),
+          },
+        },
         database: {
             select: {
                 image: true,
@@ -152,6 +162,11 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         code: {
           select: {
             files: {
+              where:{
+                studentPermission: {
+                  not: StudentPermission.HIDDEN,
+                },
+              },
               include: {
                 file: true,
               },

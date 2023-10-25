@@ -134,7 +134,7 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
               </Stack>
               <QuestionTagsSelector 
                 questionId={question.id} 
-                onChange={() => onUpdate(question)}
+                onChange={() => onUpdate && onUpdate(question)}
               />
               
               <ContentEditor
