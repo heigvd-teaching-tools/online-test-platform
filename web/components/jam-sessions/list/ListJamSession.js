@@ -1,11 +1,13 @@
 import Link from 'next/link'
+import { JamSessionStatus } from '@prisma/client'
 import DataGrid from '../../ui/DataGrid'
-import { Button, IconButton, Stack } from '@mui/material'
+import { Button, IconButton, Stack, Tooltip } from '@mui/material'
 import DisplayPhase from '../DisplayPhase'
 import { JamSessionPhase } from '@prisma/client'
 import Image from 'next/image'
 import { displayDateTime, linkPerPhase } from './utils'
 import { getStudentEntryLink } from '../../../code/utils'
+
 const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
   <DataGrid
     header={gridHeader}
@@ -43,6 +45,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
         linkHref: linkPerPhase(jamSession.phase, jamSession.id),
         actions: [
           <>
+          <Tooltip title="Copy student link to clipboard">
             <IconButton
               key="add-link-to-clipboard"
               title={'Copy and share a link with a student'}
@@ -64,29 +67,55 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
                 height="18"
               />
             </IconButton>
+            </Tooltip>
             <Link href={`/jam-sessions/${jamSession.id}/analytics`} passHref>
-              <IconButton key="analytics">
-                <Image
-                  alt="Analytics"
-                  src="/svg/icons/analytics.svg"
-                  layout="fixed"
-                  width="18"
-                  height="18"
-                />
-              </IconButton>
+              <Tooltip title="Open Analytics Page">
+                <IconButton key="analytics">
+                  <Image
+                    alt="Analytics"
+                    src="/svg/icons/analytics.svg"
+                    layout="fixed"
+                    width="18"
+                    height="18"
+                  />
+                </IconButton>
+              </Tooltip>
             </Link>
-            <IconButton
-              key="delete-jam-session"
-              onClick={(ev) => onDelete(ev, jamSession)}
-            >
-              <Image
-                alt="Delete"
-                src="/svg/icons/delete.svg"
-                layout="fixed"
-                width="18"
-                height="18"
-              />
-            </IconButton>
+            { jamSession.status === JamSessionStatus.ACTIVE && (
+                <Tooltip title="Add to archive">
+                  <IconButton
+                    key="archive"
+                    onClick={(ev) => onDelete(ev, jamSession)}
+                  >
+                    <Image
+                      alt="Add to archive"
+                      src="/svg/icons/archive.svg"
+                      layout="fixed"
+                      width="18"
+                      height="18"
+                    />
+                </IconButton>
+                </Tooltip>
+            )}
+
+            { jamSession.status === JamSessionStatus.ARCHIVED && (
+                <Tooltip title="Delete definitively">
+                  <IconButton
+                    key="archive"
+                    onClick={(ev) => onDelete(ev, jamSession)}
+                  >
+                    <Image
+                      alt="Delete definitively"
+                      src="/svg/icons/delete.svg"
+                      layout="fixed"
+                      width="18"
+                      height="18"
+                    />
+                </IconButton>
+                </Tooltip>
+            )}
+            
+            
           </>,
         ],
       },

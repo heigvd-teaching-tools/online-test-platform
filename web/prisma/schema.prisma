@@ -412,9 +412,14 @@ model CodeToTemplateFile {
 model Web {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  html       String?
-  css        String?
-  js         String?
+  
+  solutionHtml       String?
+  solutionCss        String?
+  solutionJs         String?
+
+  templateHtml       String?
+  templateCss        String?
+  templateJs         String?
 }
 
 model Tag {

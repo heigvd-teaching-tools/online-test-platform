@@ -100,7 +100,10 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         web: {
           select:{
             questionId: true,
-            ...(includeOfficialAnswers ? { html: true, css: true, js: true } : {}),
+            templateHtml: true,
+            templateCss: true,
+            templateJs: true,
+            ...(includeOfficialAnswers ? { solutionHtml: true, solutionCss: true, solutionJs: true } : {}),
           },
         },
         database: {
@@ -237,9 +240,12 @@ export const questionTypeSpecific = (
       }
     case QuestionType.web:
       return {
-        html: question?.web.html ?? '',
-        css: question?.web.css ?? '',
-        js: question?.web.js ?? '',
+        solutionHtml: question?.web.solutionHtml ?? '',
+        solutionCss: question?.web.solutionCss ?? '',
+        solutionJs: question?.web.solutionJs ?? '',
+        templateHtml: question?.web.templateHtml ?? '',
+        templateCss: question?.web.templateCss ?? '',
+        templateJs: question?.web.templateJs ?? '',
       }
     case QuestionType.essay:
       return {

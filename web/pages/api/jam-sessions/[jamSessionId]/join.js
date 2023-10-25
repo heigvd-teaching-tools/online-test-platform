@@ -123,7 +123,7 @@ const post = async (req, res) => {
                     userEmail: studentEmail,
                     questionId: question.id,
                     [question.type]: {
-                        create: {} // good for most question types, except code and database
+                        create: {} // good for most question types
                     },
                     studentGrading: {
                         create: grading(question, jstq.points, undefined),
@@ -136,6 +136,21 @@ const post = async (req, res) => {
 
             // code and database questions have type specific data to be copied for the student answer
             switch (question.type) {
+                case QuestionType.web:
+                    await prisma.studentAnswerWeb.update({
+                        where: {
+                            userEmail_questionId: {
+                                userEmail: studentEmail,
+                                questionId: question.id,
+                            }
+                        },
+                        data: {
+                            html: question.web.templateHtml || '',
+                            css: question.web.templateCss || '',
+                            js: question.web.templateJs || '',
+                        }
+                    });
+                    break;
                 case QuestionType.code:
                     await prisma.studentAnswerCode.update({
                         where: {

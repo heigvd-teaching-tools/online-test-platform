@@ -1,7 +1,7 @@
 import { QuestionType } from '@prisma/client'
 import { Paper } from '@mui/material'
 import CompareCode from './CompareCode'
-import ConsultWeb from './ConsultWeb'
+import CompareWeb from './CompareWeb'
 import CompareEssay from './CompareEssay'
 import CompareMultipleChoice from './CompareMultipleChoice'
 import CompareTrueFalse from './CompareTrueFalse'
@@ -40,7 +40,7 @@ const AnswerCompare = ({ questionType, solution, answer }) => {
               </ResizeObserverProvider>
             )) ||
             (questionType === QuestionType.web && (
-              <ConsultWeb answer={answer} />
+              <CompareWeb solution={solution}  answer={answer} />
             ))) ||
             (questionType === QuestionType.database && (
                 <CompareDatabase solution={solution} answer={answer} />

@@ -1,11 +1,10 @@
-import React, {useState, useEffect, useCallback, useRef } from 'react'
+import React, {useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
 import { QuestionType } from '@prisma/client'
 
 import TrueFalse from '../question/type_specific/TrueFalse'
 import MultipleChoice from '../question/type_specific/MultipleChoice'
 import Essay from '../question/type_specific/Essay'
-import Web from '../question/type_specific/Web'
 
 import { useDebouncedCallback } from 'use-debounce'
 import { useRouter } from 'next/router'
@@ -13,11 +12,20 @@ import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
 import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
-import ScrollContainer from '../layout/ScrollContainer'
+import WebEditor from '../question/type_specific/web/WebEditor'
+import { Stack } from '@mui/material'
+import ResizePanel from '../layout/utils/ResizePanel'
+import PreviewPanel from '../question/type_specific/web/PreviewPanel'
 
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()
   const { jamSessionId } = router.query
+
+  const { data: answer, error } = useSWR(
+    `/api/jam-sessions/${jamSessionId}/questions/${question.id}/answers`,
+    jamSessionId && question ? fetcher : null,
+      { revalidateOnFocus: false }
+  )
 
   const onAnswerChange = useCallback(
     (updatedStudentAnswer) => {
@@ -28,60 +36,62 @@ const AnswerEditor = ({ question, onAnswer }) => {
     [question, onAnswer]
   )
   return (
-    question &&
-    ((question.type === QuestionType.trueFalse && (
-      <AnswerTrueFalse
-        jamSessionId={jamSessionId}
-        questionId={question.id}
-        onAnswerChange={onAnswerChange}
-      />
-    )) ||
-      (question.type === QuestionType.multipleChoice && (
-        <AnswerMultipleChoice
+    <Loading errors={[error]} loading={!answer}>{
+      question &&
+      ((question.type === QuestionType.trueFalse && (
+        <AnswerTrueFalse
+          answer={answer}
           jamSessionId={jamSessionId}
           questionId={question.id}
           onAnswerChange={onAnswerChange}
         />
       )) ||
-      (question.type === QuestionType.essay && (
-        <AnswerEssay
-          jamSessionId={jamSessionId}
-          questionId={question.id}
-          onAnswerChange={onAnswerChange}
-        />
-      )) ||
-      (question.type === QuestionType.code && (
-        <AnswerCode
-          jamSessionId={jamSessionId}
-          questionId={question.id}
-          onAnswerChange={onAnswerChange}
-        />
-      )) ||
-      (question.type === QuestionType.web && (
-        <AnswerWeb
-          jamSessionId={jamSessionId}
-          questionId={question.id}
-          onAnswerChange={onAnswerChange}
-        />
-      ))) ||
-    (question.type === QuestionType.database && (
-        <AnswerDatabase
+        (question.type === QuestionType.multipleChoice && (
+          <AnswerMultipleChoice
+            answer={answer}
             jamSessionId={jamSessionId}
             questionId={question.id}
             onAnswerChange={onAnswerChange}
-        />
-        ))
+          />
+        )) ||
+        (question.type === QuestionType.essay && (
+          <AnswerEssay
+            answer={answer}
+            jamSessionId={jamSessionId}
+            questionId={question.id}
+            onAnswerChange={onAnswerChange}
+          />
+        )) ||
+        (question.type === QuestionType.code && (
+          <AnswerCode
+            jamSessionId={jamSessionId}
+            questionId={question.id}
+            onAnswerChange={onAnswerChange}
+          />
+        )) ||
+        (question.type === QuestionType.web && (
+          <AnswerWeb
+            answer={answer}
+            jamSessionId={jamSessionId}
+            questionId={question.id}
+            onAnswerChange={onAnswerChange}
+          />
+        ))) ||
+      (question.type === QuestionType.database && (
+          <AnswerDatabase
+              answer={answer}
+              jamSessionId={jamSessionId}
+              questionId={question.id}
+              onAnswerChange={onAnswerChange}
+          />
+          ))
+    }</Loading>
     )
 }
 
 
 
-const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
-  const { data: answer, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    jamSessionId && questionId ? fetcher : null,
-      { revalidateOnFocus: false }
-  )
+const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
 
   const [options, setOptions] = useState(undefined)
 
@@ -125,26 +135,19 @@ const AnswerMultipleChoice = ({ jamSessionId, questionId, onAnswerChange }) => {
   )
 
   return (
-    <Loading errors={[error]} loading={!answer}>
-      {answer?.multipleChoice && options && (
-        <MultipleChoice
-          id={`answer-editor-${questionId}`}
-          selectOnly
-          options={options}
-          onChange={onOptionChange}
-        />
-      )}
-    </Loading>
+    answer?.multipleChoice && options && (
+      <MultipleChoice
+        id={`answer-editor-${questionId}`}
+        selectOnly
+        options={options}
+        onChange={onOptionChange}
+      />
+    )
   )
 }
 
-const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
-  const { data: answer, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null,
-      { revalidateOnFocus: false }
-  )
-
+const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+  
   const onTrueFalseChange = useCallback(
     async (isTrue) => {
       const answer = {
@@ -170,26 +173,19 @@ const AnswerTrueFalse = ({ jamSessionId, questionId, onAnswerChange }) => {
   )
 
   return (
-    <Loading errors={[error]} loading={!answer}>
-      {answer?.trueFalse && (
+    answer?.trueFalse && (
         <TrueFalse
           id={`answer-editor-${questionId}`}
           allowUndefined={true}
           isTrue={answer.trueFalse.isTrue}
           onChange={onTrueFalseChange}
         />
-      )}
-    </Loading>
+      )
   )
 }
 
-const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
-  const { data: answer, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null,
-      { revalidateOnFocus: false }
-  )
-
+const AnswerEssay = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+  
   const onEssayChange = useCallback(
     async (content) => {
       if (answer.essay.content === content) return
@@ -215,25 +211,26 @@ const AnswerEssay = ({ jamSessionId, questionId, onAnswerChange }) => {
   const debouncedOnChange = useDebouncedCallback(onEssayChange, 500)
 
   return (
-    <Loading errors={[error]} loading={!answer}>
-        {answer?.essay && (
-          <Essay
-            id={`answer-editor-${questionId}`}
-            title={"Your Answer"}
-            content={answer.essay.content}
-            onChange={debouncedOnChange}
-          />
-        )}
-    </Loading>
+    answer?.essay && (
+        <Essay
+          id={`answer-editor-${questionId}`}
+          title={"Your Answer"}
+          content={answer.essay.content}
+          onChange={debouncedOnChange}
+        />
+      )
   )
 }
 
-const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
-  const { data: answer, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null,
-      { revalidateOnFocus: false }
-  )
+const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+
+  const [ web, setWeb ] = useState(answer?.web)
+
+  useEffect(() => {
+    if (answer?.web) {
+      setWeb(answer.web)
+    }
+  }, [answer])
 
   const onWebChange = useCallback(
     async (web) => {
@@ -262,15 +259,29 @@ const AnswerWeb = ({ jamSessionId, questionId, onAnswerChange }) => {
   const debouncedOnChange = useDebouncedCallback(onWebChange, 500)
 
   return (
-    <Loading errors={[error]} loading={!answer}>
-      {answer?.web && (
-        <Web
-          id={`answer-editor-${questionId}`}
-          web={answer.web}
-          onChange={debouncedOnChange}
+    answer?.web && (
+        <ResizePanel
+          leftPanel={
+            <Stack spacing={0} pt={0} position={"relative"} pb={24}>
+              <WebEditor
+                id={'web-answer-editor'}
+                web={web}
+                onChange={(web) => {
+                  setWeb(web)
+                  debouncedOnChange(web)
+                }}
+              />
+            </Stack>
+          }
+          rightPanel={
+            <PreviewPanel
+              id={"preview"}
+              web={web}
+            />
+          }
         />
-      )}
-    </Loading>
+        
+      )
   )
 }
 
