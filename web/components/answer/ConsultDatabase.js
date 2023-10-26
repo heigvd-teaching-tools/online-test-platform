@@ -6,7 +6,7 @@ const ConsultDatabase = ({ queries }) => {
 
   return (
     queries?.map((answerToQuery, index) => (
-        <>
+        <React.Fragment key={`query-${answerToQuery.query.id}`}>
           <QueryEditor
               key={index}
               query={answerToQuery.query}
@@ -17,7 +17,7 @@ const ConsultDatabase = ({ queries }) => {
             result={answerToQuery.studentOutput?.output}
             lintResult={answerToQuery.query.lintResult}
           />
-        </>
+        </React.Fragment>
       ))
         
   )

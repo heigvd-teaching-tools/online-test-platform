@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Stack, TextField, Button, Typography } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
 import DialogFeedback from '../feedback/DialogFeedback'
+import MagicResizeHandle from '../layout/utils/MagicResizeHandle'
 
 const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
   const router = useRouter()
@@ -137,7 +138,6 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
                 questionId={question.id} 
                 onChange={() => onUpdate && onUpdate(question)}
               />
-              
               <ContentEditor
                 id={`question-${question.id}`}
                 title="Problem Statement"
@@ -194,5 +194,8 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
     </Loading>
   )
 }
+
+
+
 
 export default QuestionUpdate

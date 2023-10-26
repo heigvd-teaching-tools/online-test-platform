@@ -26,7 +26,7 @@ const WebEditor = ({ id = "web", title, readOnly = false, web: initial, onChange
         onChange={(code) => {
           const newWeb = { ...web, html: code }
           setWeb(newWeb)
-          onChange(newWeb)
+          onChange && onChange(newWeb)
         }}
       />
       <WebEditorInput
@@ -37,7 +37,7 @@ const WebEditor = ({ id = "web", title, readOnly = false, web: initial, onChange
         onChange={(code) => {
           const newWeb = { ...web, css: code }
           setWeb(newWeb)
-          onChange(newWeb)
+          onChange && onChange(newWeb)
         }}
       />
       <WebEditorInput
@@ -48,7 +48,7 @@ const WebEditor = ({ id = "web", title, readOnly = false, web: initial, onChange
         onChange={(code) => {
           const newWeb = { ...web, js: code }
           setWeb(newWeb)
-          onChange(newWeb)
+          onChange && onChange(newWeb)
         }}
       />
     </Stack>

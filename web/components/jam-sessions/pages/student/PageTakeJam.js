@@ -180,6 +180,7 @@ const PageTakeJam = () => {
                     </Box>
                   ))
                 }
+                rightWidth={70}
               />
             </LayoutMain>
           </StudentPhaseRedirect>

@@ -7,6 +7,7 @@ import { JamSessionPhase } from '@prisma/client'
 import Image from 'next/image'
 import { displayDateTime, linkPerPhase } from './utils'
 import { getStudentEntryLink } from '../../../code/utils'
+import React from 'react'
 
 const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
   <DataGrid
@@ -41,14 +42,12 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
         </Stack>
       ),
       meta: {
-        key: jamSession.id,
+        key: `jam-session-${jamSession.id}`,
         linkHref: linkPerPhase(jamSession.phase, jamSession.id),
         actions: [
-          <>
-          <Tooltip title="Copy student link to clipboard">
+          <React.Fragment key="actions">
+          <Tooltip title="Copy student link to clipboard" key="add-link-to-clipboard">
             <IconButton
-              key="add-link-to-clipboard"
-              title={'Copy and share a link with a student'}
               onClick={(ev) => {
                 ev.preventDefault()
                 ev.stopPropagation()
@@ -68,9 +67,9 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
               />
             </IconButton>
             </Tooltip>
-            <Link href={`/jam-sessions/${jamSession.id}/analytics`} passHref>
+            <Link href={`/jam-sessions/${jamSession.id}/analytics`} passHref key="analytics">
               <Tooltip title="Open Analytics Page">
-                <IconButton key="analytics">
+                <IconButton component="span">
                   <Image
                     alt="Analytics"
                     src="/svg/icons/analytics.svg"
@@ -82,9 +81,9 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
               </Tooltip>
             </Link>
             { jamSession.status === JamSessionStatus.ACTIVE && (
-                <Tooltip title="Add to archive">
+                <Tooltip title="Add to archive" key="archive">
                   <IconButton
-                    key="archive"
+                    
                     onClick={(ev) => onDelete(ev, jamSession)}
                   >
                     <Image
@@ -99,9 +98,8 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
             )}
 
             { jamSession.status === JamSessionStatus.ARCHIVED && (
-                <Tooltip title="Delete definitively">
+                <Tooltip title="Delete definitively" key="archive">
                   <IconButton
-                    key="archive"
                     onClick={(ev) => onDelete(ev, jamSession)}
                   >
                     <Image
@@ -116,7 +114,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
             )}
             
             
-          </>,
+          </React.Fragment>,
         ],
       },
     }))}

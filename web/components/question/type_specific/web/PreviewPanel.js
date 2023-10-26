@@ -1,16 +1,14 @@
+import { useTheme } from "@emotion/react";
 import { Box } from "@mui/material";
 import { useEffect, useRef } from "react";
 
 const PreviewPanel = ({ id, web }) => {
+
+    const theme = useTheme();
+
     const frame = useRef();
 
-    const updateIframeHeight = () => {
-        if (frame.current) {
-        const doc = frame.current.contentDocument || frame.current.contentWindow.document;
-        frame.current.style.height = `${doc.documentElement.offsetHeight}px`;
-        }
-    };
-
+  
     const updateIframeContent = () => {
         if (web && frame.current) {
         let iframe = frame.current;
@@ -40,8 +38,6 @@ const PreviewPanel = ({ id, web }) => {
 
         iframe.onload = () => {
             URL.revokeObjectURL(blobUrl);  // Release the Blob URL to free up resources
-            // Use a timeout to give scripts inside the iframe, if any, some time to run
-            setTimeout(updateIframeHeight, 100);
         };
 
         iframe.src = blobUrl;  // Update the iframe's content
@@ -50,14 +46,14 @@ const PreviewPanel = ({ id, web }) => {
 
     useEffect(() => {
         if (frame.current) {
-        frame.current.src = 'about:blank';  // Reset iframe
-        updateIframeContent();
+            frame.current.src = 'about:blank';  // Reset iframe content
+            updateIframeContent();
         }
     }, [id, web]);
 
     return (
-        <Box height="100%" padding={2}>
-        <iframe ref={frame} style={{ width: '100%', border: 'none', background: 'white' }} />
+        <Box height="100%" padding={2} position={"relative"}>
+            <iframe ref={frame} style={{ width: '100%', minHeight:'100%', border: 'none', background: theme.palette.background.paper }} />
         </Box>
     );
 }

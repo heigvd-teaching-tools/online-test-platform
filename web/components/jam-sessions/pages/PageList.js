@@ -38,7 +38,7 @@ const JamSessions = () => {
     }
   }, [group, mutate])
 
-  const [tab, setTab] = useState(1)
+  const [tab, setTab] = useState(JamSessionStatus.ACTIVE)
   const [jamSessions, setJamSessions] = useState(data)
 
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
@@ -120,10 +120,10 @@ const JamSessions = () => {
                   onChange={(e, v) => setTab(v)}
                   aria-label="simple tabs example"
                 >
-                  <Tab label="Active" value={1} />
-                  <Tab label="Archived" value={2} />
+                  <Tab label="Active" value={JamSessionStatus.ACTIVE} />
+                  <Tab label="Archived" value={JamSessionStatus.ARCHIVED} />
                 </TabList>
-                {tab === 1 && (
+                {tab === JamSessionStatus.ACTIVE && (
                   <Link href="/jam-sessions/new">
                     <Button>Create a new jam session</Button>
                   </Link>
@@ -136,10 +136,7 @@ const JamSessions = () => {
               <ListJamSession
                 jamSessions={jamSessions.filter(
                   (jamSession) =>
-                    jamSession.status ===
-                    (tab === 1
-                      ? JamSessionStatus.ACTIVE
-                      : JamSessionStatus.ARCHIVED)
+                    jamSession.status === tab
                 )}
                 onStart={(ev, session) => {
                   ev.stopPropagation()

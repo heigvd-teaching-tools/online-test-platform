@@ -97,25 +97,29 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
           </Tooltip>
         </Stack>
       </Stack>
-      <ScrollContainer ref={ref}>
+      <ScrollContainer>
         {(
           mode === 'source' && (
+            
               <InlineMonacoEditor
                 code={rawContent}
                 language={"markdown"}
                 readOnly={readOnly}
                 onChange={onChangeContent}
-              />)
+              />
+              )
           ) || (
           mode === 'split' && (
               <ResizePanel
                   leftPanel={
-                    <InlineMonacoEditor
-                      code={rawContent}
-                      language={"markdown"}
-                      readOnly={readOnly}
-                      onChange={onChangeContent}
-                    /> 
+                    <ScrollContainer>
+                      <InlineMonacoEditor
+                        code={rawContent}
+                        language={"markdown"}
+                        readOnly={readOnly}
+                        onChange={onChangeContent}
+                      /> 
+                    </ScrollContainer>
                   }
                   rightPanel={
                     <ScrollContainer>
@@ -135,8 +139,8 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
             )
           )
         }
+        </ScrollContainer>
         
-      </ScrollContainer>
     </Stack>
   )
 
