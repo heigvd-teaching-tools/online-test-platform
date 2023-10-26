@@ -16,6 +16,7 @@ import WebEditor from '../question/type_specific/web/WebEditor'
 import { Stack } from '@mui/material'
 import ResizePanel from '../layout/utils/ResizePanel'
 import PreviewPanel from '../question/type_specific/web/PreviewPanel'
+import ScrollContainer from '../layout/ScrollContainer'
 
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()
@@ -262,20 +263,22 @@ const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
     answer?.web && (
         <ResizePanel
           leftPanel={
-            <Stack spacing={0} pt={0} position={"relative"} pb={24}>
-              <WebEditor
-                id={'web-answer-editor'}
-                web={web}
-                onChange={(web) => {
-                  setWeb(web)
-                  debouncedOnChange(web)
-                }}
-              />
-            </Stack>
+            <ScrollContainer>
+              <Stack spacing={0} pt={0} position={"relative"} pb={24}>
+                <WebEditor
+                  id={'web-answer-editor'}
+                  web={web}
+                  onChange={(web) => {
+                    setWeb(web)
+                    debouncedOnChange(web)
+                  }}
+                />
+              </Stack>
+            </ScrollContainer>
           }
           rightPanel={
             <PreviewPanel
-              id={"preview"}
+              id={`web-preview-${questionId}`}
               web={web}
             />
           }

@@ -26,17 +26,17 @@ const QueriesRunSummary = ({ queries, studentOutputs }) => {
     return(
         <Stepper activeStep={1}>
             {queries?.length > 0 && queries.map((q, index) => (
-                    <>
-                        <Step completed={studentOutputs[index]?.output?.status === DatabaseQueryOutputStatus.SUCCESS}>
-                            <StepLabel>
-                                <Stack direction={"row"} spacing={1} alignItems={"center"} height={30}>
-                                    <StatusDisplay status={getStatus(q, studentOutputs[index])} />
-                                </Stack>
-                            </StepLabel>
+                <React.Fragment key={`query-${q.id}`}>
+                    <Step completed={studentOutputs[index]?.output?.status === DatabaseQueryOutputStatus.SUCCESS}>
+                        <StepLabel>
+                            <Stack direction={"row"} spacing={1} alignItems={"center"} height={30}>
+                                <StatusDisplay status={getStatus(q, studentOutputs[index])} />
+                            </Stack>
+                        </StepLabel>
 
-                        </Step>
-                        <StepConnector />
-                    </>
+                    </Step>
+                    <StepConnector />
+                </React.Fragment>
                 )
             )}
         </Stepper>

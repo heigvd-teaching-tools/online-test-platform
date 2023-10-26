@@ -76,17 +76,23 @@ const CompareCode = ({ solution, answer }) => {
           </Tabs>
           <TabPanel value={tab} index={0}>
             <TabContent>
-              <ScrollContainer>
                 <ResizePanel
-                  leftPanel={answer.files?.map((answerToFile, index) => (
-                    <FileEditor
-                      key={index}
-                      file={answerToFile.file}
-                      readonlyPath
-                      readonlyContent
-                    />
-                  ))}
-                  rightPanel={solution.solutionFiles?.map(
+                  leftPanel={
+                    <ScrollContainer>{
+                      answer.files?.map((answerToFile, index) => (
+                        <FileEditor
+                          key={index}
+                          file={answerToFile.file}
+                          readonlyPath
+                          readonlyContent
+                        />
+                      ))}
+                      </ScrollContainer>
+                    }
+                  
+                  rightPanel={
+                    <ScrollContainer>{
+                    solution.solutionFiles?.map(
                     (solutionToFile, index) => (
                       <FileEditor
                         key={index}
@@ -94,11 +100,11 @@ const CompareCode = ({ solution, answer }) => {
                         readonlyPath
                         readonlyContent
                       />
-                    )
-                  )}
+                    ))
+                    }</ScrollContainer>
+                  }
                   rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
                 />
-              </ScrollContainer>
             </TabContent>
           </TabPanel>
           <TabPanel value={tab} index={1}>

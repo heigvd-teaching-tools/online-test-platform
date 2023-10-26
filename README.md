@@ -22,6 +22,9 @@ These migrations will be applied on production database by the docker compose du
 npx prisma migrate dev --name <migration-name>
 
 # generate but do not apply the migration
+# this can be usefull when its necessary to create a migration but you want first to change the migration file before applying it
+# For instance, when renaming a field prisma migration consider it to be a drop and create field. You can usee --create-only to avoid applying the migration and change the migration file to rename the field.
+# You will still get the warning about the data loss but you can ignore it and say yes
 npx prisma migrate dev --name <migration-name> --create-only
 
 # list the migrations

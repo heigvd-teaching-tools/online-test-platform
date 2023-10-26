@@ -332,7 +332,6 @@ const PageGrading = () => {
                   padding={1}
                   position="relative"
                   height="100%"
-                  overflowX="auto"
                 >
                   {ready && (
                     <>

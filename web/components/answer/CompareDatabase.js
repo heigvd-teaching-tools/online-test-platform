@@ -7,6 +7,7 @@ import QueryOutput from "../question/type_specific/database/QueryOutput";
 import LayoutSplitScreen from "../layout/LayoutSplitScreen";
 import QueriesRunSummary from './database/QueriesRunSummary';
 import { DatabaseQueryOutputStatus } from '@prisma/client';
+import ResizePanel from '../layout/utils/ResizePanel';
 
 const ConsultQuery = ({ header, query, output }) => {
 
@@ -88,10 +89,8 @@ const CompareDatabase = ({ solution, answer }) => {
         <ScrollContainer spacing={2}>
           {
             allQueries.map((saQ) => (
-                <LayoutSplitScreen
-                    useScrollContainer={false}
+                <ResizePanel
                     key={saQ.query.id}
-                    height={"auto"}
                     rightWidth={35}
                     leftPanel={
                         <ConsultQuery

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import * as resizePanelStyles from './ResizePanel.module.css'
+import MagicResizeHandle from './MagicResizeHandle'
+import { Box, Stack } from '@mui/material'
 
 const ResizePanel = ({
   leftPanel,
@@ -9,77 +10,27 @@ const ResizePanel = ({
   rightWidth,
   height = '100%',
 }) => {
-  const container = useRef(null)
-  const separator = useRef(null)
-
-  const [drag, setDrag] = useState(false)
-  const [width, setWidth] = useState(rightWidth)
-
-  useEffect(() => setWidth(rightWidth), [rightWidth])
-
-  const handleDrag = useCallback((state) => setDrag(state), [setDrag])
-
-  const handleMouseMove = useCallback(
-    (ev) => {
-      if (drag) {
-        const bounds = container.current.getBoundingClientRect()
-        const totalWidth = bounds.width
-        const partialWidth = ev.clientX - bounds.left
-        const widthPercentage = 100 - (100 * partialWidth) / totalWidth
-        // panel min width in css
-        setWidth(widthPercentage)
-      }
-    },
-    [drag, container, setWidth]
-  )
+ 
   return useMemo(
     () => (
-      <div
-        className={resizePanelStyles.resizePanelContainer}
-        style={{ height }}
+      <Stack
+        direction={"row"}
+        sx={{ height: height, width: '100%' }}
         data-testid="resize-panel"
-        ref={container}
       >
-        <div
-          className={`${resizePanelStyles.panelResizable} ${
-            width === 100 ? ` ${resizePanelStyles.magnetic}` : ''
-          }`}
-          style={{ maxWidth: `${100 - width}%`, width: `${100 - width}%` }}
-        >
+        <Box height={"100%"} minWidth={0} flex={1} overflow={"hidden"}>
           {leftPanel}
-        </div>
-        <div className={resizePanelStyles.panelSeparator}>
-          <div
-            ref={separator}
-            className={resizePanelStyles.panelDragHandle}
-            role="button"
-            tabIndex={0}
-            label="drag handle"
-            onMouseMove={(ev) => handleMouseMove(ev)}
-            onMouseDown={() => handleDrag(true)}
-            onMouseUp={() => handleDrag(false)}
-          />
-          <div className={resizePanelStyles.panelHandle} />
-        </div>
-        <div
-          className={`${resizePanelStyles.panelResizable} ${
-            width === 0 ? ` ${resizePanelStyles.magnetic}` : ''
-          }`}
-          style={{ maxWidth: `${width}%`, width: `${width}%` }}
-        >
+        </Box>
+        <MagicResizeHandle width={rightWidth} />
+        <Box height={"100%"} minWidth={0} overflow={"hidden"}>
           {rightPanel}
-        </div>
-      </div>
+        </Box>
+      </Stack>
     ),
     [
-      container,
       leftPanel,
-      separator,
       rightPanel,
-      width,
       height,
-      handleMouseMove,
-      handleDrag,
     ]
   )
 }

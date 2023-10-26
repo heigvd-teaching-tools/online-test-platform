@@ -31,23 +31,26 @@ const CompareWeb = ({ solution, answer }) => {
         </FormGroup>
       </Stack>
       <Stack flex={1}>
-      <ScrollContainer>
+      
       <ResizePanel
         leftPanel={
-          isPreviewMode ? 
-            <PreviewPanel
-              id={`student-preview`}
-              web={answer}
-            />
-          : 
-            <WebEditor
-              id={`web-student`}
-              title={"Student Answer"}
-              readOnly
-              web={answer}
-            />
+          <ScrollContainer>{
+            isPreviewMode ? 
+              <PreviewPanel
+                id={`student-preview`}
+                web={answer}
+              />
+            : 
+              <WebEditor
+                id={`web-student`}
+                title={"Student Answer"}
+                readOnly
+                web={answer}
+              />
+          }</ScrollContainer>
         }
         rightPanel={
+          <ScrollContainer>{
           isPreviewMode ? 
             <PreviewPanel
               id={`solution-preview`}
@@ -68,9 +71,10 @@ const CompareWeb = ({ solution, answer }) => {
                 js: solution.solutionJs,
               }}
             />
+          }</ScrollContainer>
         }
       />
-      </ScrollContainer>
+      
       </Stack>
     </Stack>
   )
