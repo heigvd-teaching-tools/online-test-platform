@@ -16,7 +16,7 @@ const ScrollContainer = forwardRef(
         ref={ref}
         position={'relative'}
         flex={1}
-        
+        overflow={"hidden"}
         height={'100%'}
         width={'100%'}
         border={dashed ? '1px dashed red' : 0}

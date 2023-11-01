@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import { Role } from '@prisma/client'
+import { Role, StudentAnswerStatus } from '@prisma/client'
 import Authorisation from '../../../security/Authorisation'
 import LayoutSplitScreen from '../../../layout/LayoutSplitScreen'
 import { Paper, Stack } from '@mui/material'
@@ -45,7 +45,11 @@ const PageConsult = () => {
     }
   }, [questionPage, jamSessionToQuestions])
 
-  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id: jstq.question.id })), [jamSessionToQuestions])
+  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id: 
+    jstq.question.id,
+    tooltip: `${jstq.question.title} - ${jstq.points} points`,
+    isFilled: jstq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
+  })), [jamSessionToQuestions])
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>

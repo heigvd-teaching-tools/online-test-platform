@@ -1,7 +1,6 @@
-import { Stack, MenuItem } from '@mui/material'
+import { Stack, MenuItem, Box } from '@mui/material'
 import { useInput } from '../../code/useInput'
 import DropDown from './DropDown'
-import { Box } from '@mui/system'
 
 const DurationPicker = ({ value, onChange }) => {
   const { value: hours, setValue: setHours } = useInput(value?.hours || 0)

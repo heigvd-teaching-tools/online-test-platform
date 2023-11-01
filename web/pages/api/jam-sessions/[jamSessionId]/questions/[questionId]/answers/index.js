@@ -118,7 +118,12 @@ const get = async (req, res) => {
           }
         }
       },
-      multipleChoice: { select: { options: true } },
+      multipleChoice: { select: { options: {
+        select: {
+          id: true,
+          text: true,
+        },
+      } } },
       trueFalse: true,
       essay: true,
       web: true,

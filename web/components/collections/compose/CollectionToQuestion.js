@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import {
-  Alert,
   Box,
   IconButton,
   Paper,
@@ -13,8 +12,6 @@ import DragHandleSVG from '../../layout/utils/DragHandleSVG'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 import Image from 'next/image'
 import DecimalInput from '../../input/DecimalInput'
-import UserHelpPopper from '../../feedback/UserHelpPopper'
-import DialogHelp from '../../feedback/DialogHelp'
 
 const CollectionToQuestion = ({
   collectionToQuestion,
@@ -118,23 +115,25 @@ const CollectionToQuestion = ({
               }}
             />
         </Box>
-        <IconButton
-          key="delete-collection"
-          onClick={async (ev) => {
-            ev.preventDefault()
-            ev.stopPropagation()
-            await deleteCollectionToQuestion(collectionToQuestion)
-            onDelete && onDelete()
-          }}
-        >
-          <Image
-            alt="Delete"
-            src="/svg/icons/delete.svg"
-            layout="fixed"
-            width="18"
-            height="18"
-          />
-        </IconButton>
+        <Tooltip title="Remove from collection">
+          <IconButton
+            key="delete-collection"
+            onClick={async (ev) => {
+              ev.preventDefault()
+              ev.stopPropagation()
+              await deleteCollectionToQuestion(collectionToQuestion)
+              onDelete && onDelete()
+            }}
+          >
+            <Image
+              alt="Remove From Collection"
+              src="/svg/icons/cross.svg"
+              layout="fixed"
+              width="24"
+              height="24"
+            />
+          </IconButton>
+        </Tooltip>
       </Stack>
     </Paper>
   )
