@@ -243,6 +243,7 @@ const post = async (req, res) => {
                 data: {
                   questionId: newCodeQuestion.id,
                   fileId: newFile.id,
+                  order: codeToFile.order,
                   studentPermission: codeToFile.studentPermission,
                 },
               })
@@ -266,6 +267,7 @@ const post = async (req, res) => {
                 data: {
                   questionId: newCodeQuestion.id,
                   fileId: newFile.id,
+                  order: codeToFile.order,
                   studentPermission: codeToFile.studentPermission,
                 },
               })

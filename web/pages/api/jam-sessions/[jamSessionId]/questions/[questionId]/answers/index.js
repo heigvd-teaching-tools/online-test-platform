@@ -93,11 +93,8 @@ const get = async (req, res) => {
               studentPermission: {
                 not: StudentPermission.HIDDEN
               }},
-            select: { studentPermission: true, file: true },
-            orderBy: [
-              { file: { createdAt: 'asc' } },
-              { file: { questionId: 'asc' } },
-            ],
+            select: { studentPermission: true, order: true, file: true },
+            orderBy: { order: 'asc' },
           },
         },
       },

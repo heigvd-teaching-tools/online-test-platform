@@ -343,6 +343,8 @@ model StudentAnswerCodeToFile {
   userEmail         String
   questionId        String
 
+  order Int @default(0)
+
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
 
@@ -389,8 +391,10 @@ enum DatabaseQueryOutputTest {
 
 model CodeToSolutionFile {
   code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-
   questionId String
+
+  order Int @default(0)
+
   file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId     String @unique
 
@@ -399,8 +403,11 @@ model CodeToSolutionFile {
 
 model CodeToTemplateFile {
   code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-
   questionId String
+
+
+  order Int @default(0)
+
   file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId     String @unique
 

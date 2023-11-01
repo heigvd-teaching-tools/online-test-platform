@@ -109,7 +109,7 @@ const GradingSignOff = ({
             <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>
               <Box>
                 <DecimalInput
-                  label={'Pts'}
+                  label={'Awarded Points'}
                   value={grading.pointsObtained}
                   max={maxPoints}
                   rightAdornement={'/ ' + maxPoints + ' pts'}

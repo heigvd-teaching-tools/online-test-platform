@@ -180,6 +180,7 @@ const createCodeTypeSpecificData = (question) => {
             create: question.code.templateFiles.map((codeToFile) => {
                 return {
                     studentPermission: codeToFile.studentPermission,
+                    order: codeToFile.order,
                     file: {
                         create: {
                             path: codeToFile.file.path,

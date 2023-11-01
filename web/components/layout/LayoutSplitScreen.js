@@ -1,6 +1,7 @@
 import { Paper, Stack } from '@mui/material'
 import ResizePanel from './utils/ResizePanel'
 import ScrollContainer from './ScrollContainer'
+
 const LayoutSplitScreen = ({
     subheader,
     leftPanel,
@@ -16,7 +17,11 @@ const LayoutSplitScreen = ({
       <Stack flex={1} alignItems="center" maxHeight="100%">
         <ResizePanel
           rightWidth={rightWidth}
-          leftPanel={<ScrollContainer>{leftPanel}</ScrollContainer>}
+          leftPanel={
+            <ScrollContainer>
+              {leftPanel}
+            </ScrollContainer>
+          }
           rightPanel={
             <Paper square elevation={0} sx={{ height: '100%', overflow: 'hidden' }}>
                 {useScrollContainer ? (

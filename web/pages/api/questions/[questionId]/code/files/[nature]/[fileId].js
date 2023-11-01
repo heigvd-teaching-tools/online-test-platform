@@ -106,10 +106,28 @@ const del = async (req, res) => {
     return
   }
 
-  await prisma.file.delete({
-    where: {
-      id: fileId,
-    },
+  await prisma.$transaction(async (prisma) => {
+    // decrement order for all files with order > codeToFile.order
+
+    await model.updateMany({
+      where: {
+        questionId,
+        order: {
+          gt: codeToFile.order,
+        },
+      },
+      data: {
+        order: {
+          decrement: 1,
+        },
+      },
+    })
+
+    await prisma.file.delete({
+      where: {
+        id: fileId,
+      },
+    })
   })
 
   res.status(200).json({ message: 'Deleted' })

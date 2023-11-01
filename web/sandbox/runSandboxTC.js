@@ -67,8 +67,9 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
 
   let container = await new GenericContainer(image)
     .withResourcesQuota({
-      cpu: 0.35          //a CPU core
+      cpu: 0.5          //a CPU core
     })
+    .withWorkingDir('/')
     .withEnvironment('NODE_NO_WARNINGS', '1')
     .withCopyFilesToContainer([
       { source: `${filesDirectory}/code.tar.gz`, target: '/code.tar.gz' },
@@ -101,16 +102,23 @@ const execTests = async (container, tests) => {
 
   for (let index = 0; index < tests.length; index++) {
     const { exec, input, expectedOutput } = tests[index]
+    // time before execution
+    const startTime = new Date().getTime()
     let { output } = await container.exec(
         ['sh', '-c', `echo "${input}" | ${exec} 2>&1`],
         { tty: false }
     )
+    // time after execution
+    const endTime = new Date().getTime()
+    // time difference
+    const executionTime = endTime - startTime
     output = sanitizeUTF8(cleanUpDockerStreamHeaders(output))
     results.push({
       exec,
       input,
       output,
       expectedOutput,
+      executionTimeMS: executionTime,
       passed: output === expectedOutput,
     })
   }

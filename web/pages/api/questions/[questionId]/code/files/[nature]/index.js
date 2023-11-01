@@ -39,14 +39,7 @@ const get = async (req, res) => {
 
   const codeToFiles = await model.findMany({
     where: { questionId },
-    orderBy: [
-      {
-        file: { createdAt: 'asc' },
-      },
-      {
-        file: { questionId: 'asc' },
-      },
-    ],
+    orderBy: { order: 'asc' },
     include: {
       file: true,
     },
@@ -71,8 +64,11 @@ const post = async (req, res) => {
       ? prisma.codeToSolutionFile
       : prisma.codeToTemplateFile
 
+  const order = await model.count({ where: { questionId } })
+
   const codeToFile = await model.create({
     data: {
+      order: order,
       file: {
         create: {
           path,

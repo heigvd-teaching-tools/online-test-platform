@@ -100,13 +100,11 @@ const CollectionToQuestion = ({
           </Typography>
         </Stack>
 
-        <Box minWidth={120} width={120}>
+        <Box minWidth={70} width={70}>
             <DecimalInput
-              label="Points"
               value={collectionToQuestion.points}
               variant="standard"
-              size={'small'}
-              rightAdornement={'step 1'}
+              rightAdornement={'pts'}
               onChange={async (value) => {
                 await debounceSaveCollectionToQuestion(index, {
                   ...collectionToQuestion,
