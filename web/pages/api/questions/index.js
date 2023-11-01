@@ -292,7 +292,8 @@ const codeInitialUpdateQuery = (questionId, code) => {
         })),
       },
       solutionFiles: {
-        create: code.files.solution.map((file) => ({
+        create: code.files.solution.map((file, index) => ({
+          order: index,
           file: {
             create: {
               path: file.path,
@@ -307,7 +308,8 @@ const codeInitialUpdateQuery = (questionId, code) => {
         })),
       },
       templateFiles: {
-        create: code.files.template.map((file) => ({
+        create: code.files.template.map((file, index) => ({
+          order: index,
           studentPermission: StudentPermission.UPDATE,
           file: {
             create: {
