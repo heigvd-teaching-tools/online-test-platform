@@ -7,7 +7,7 @@ import UserAvatar from './UserAvatar'
 import UserContextMenu from './UserContextMenu'
 import Logo from './Logo'
 
-const Header = ({ children, color }) => {
+const Header = ({ hideLogo, children, color }) => {
   const { data: session } = useSession()
   const [anchorElUser, setAnchorElUser] = useState(null)
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget)
@@ -33,9 +33,12 @@ const Header = ({ children, color }) => {
         spacing={1}
         height="100%"
       >
-        <Box sx={{ mt: 1, ml: 1, mr: 0.5 }}>
-          <Logo color="red" />
-        </Box>
+        { !hideLogo && (
+          <Box sx={{ mt: 1, ml: 1, mr: 0.5 }}>
+            <Logo color="red" />
+          </Box>
+        )}
+        
         <Stack flex={1} sx={{ overflow: 'hidden' }}>
           {children}
         </Stack>

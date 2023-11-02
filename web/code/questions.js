@@ -148,6 +148,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
       where: saWhere,
       select: {
         status: true,
+        user: true,
         code: {
           select: {
             files: {

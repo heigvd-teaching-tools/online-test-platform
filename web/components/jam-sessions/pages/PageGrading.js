@@ -48,6 +48,7 @@ import { update } from './crud'
 import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 import { fetcher } from '../../../code/utils'
 import { useDebouncedCallback } from 'use-debounce'
+import BackButton from '../../layout/BackButton'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -287,7 +288,17 @@ const PageGrading = () => {
           loading={!jamSession || !data}
         >
           <LayoutMain
-            header={<MainMenu />}
+            hideLogo
+            header={
+              <Stack direction="row" alignItems="center">
+                <BackButton backUrl={`/jam-sessions`} />
+                { jamSession?.id && (
+                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    {jamSession.label}
+                  </Typography>
+                )}
+              </Stack>
+            }
             subheader={
               <Stack direction="row" alignItems="center">
                 <Stack flex={1} sx={{ overflow: 'hidden' }}>

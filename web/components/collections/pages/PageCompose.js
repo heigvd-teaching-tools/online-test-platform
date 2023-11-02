@@ -25,6 +25,7 @@ import CollectionToQuestion from '../compose/CollectionToQuestion'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import ScrollContainer from '../../layout/ScrollContainer'
+import BackButton from '../../layout/BackButton'
 
 const PageCompose = () => {
   const router = useRouter()
@@ -169,12 +170,11 @@ const PageCompose = () => {
         loading={!searchQuestions || !collection}
       >
         <LayoutMain
+          hideLogo
           header={
-            <Box>
-              <Link href="/collections">
-                <Button startIcon={<ArrowBackIosIcon />}>Back</Button>
-              </Link>
-            </Box>
+            <BackButton
+              backUrl={`/collections`}
+            />
           }
         >
           <LayoutSplitScreen

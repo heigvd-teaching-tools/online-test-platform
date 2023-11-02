@@ -5,6 +5,7 @@ import Datagrid from "../../ui/DataGrid"
 import FilledBullet from "../../feedback/FilledBullet"
 import PiePercent from "../../feedback/PiePercent"
 import { useCallback, useMemo } from "react"
+import DateTimeAgo from "../../feedback/DateTimeAgo"
 
 const StudentList = ({ title, students, questions = [] }) => {
 
@@ -61,7 +62,12 @@ const StudentList = ({ title, students, questions = [] }) => {
                 items={
                     students?.map(student => ({
                         student: <UserAvatar user={student.user} />,
-                        registeredAt: new Date(student.registeredAt).toLocaleString(),
+                        registeredAt: <>
+                            <Typography variant="body2">{new Date(student.registeredAt).toLocaleString()}</Typography>
+                            <Typography variant="caption">
+                                <DateTimeAgo date={new Date(student.registeredAt)} />
+                            </Typography>
+                        </>,
                         submissionPercentage: <PiePercent value={getSubmissionPercentage(student.user.email) || 0} />,
                         ...questions.reduce((acc, q) => {
                             acc[`question${q.order}`] = <FilledBullet isFilled={getStudentAnswerStatus(student.user.email, q.question.id) === StudentAnswerStatus.SUBMITTED} />;

@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import { JamSessionPhase, Role } from '@prisma/client'
 import { update } from './crud'
 
-import { Stack, Stepper, Step, StepLabel, Typography, Alert } from '@mui/material'
+import { Stack, Stepper, Step, StepLabel, Typography, Alert, AlertTitle, Tooltip, Button } from '@mui/material'
 
 import { useSnackbar } from '../../../context/SnackbarContext'
 
@@ -18,10 +18,10 @@ import DisplayPhase from '../DisplayPhase'
 import DialogFeedback from '../../feedback/DialogFeedback'
 import PhaseRedirect from './PhaseRedirect'
 import Authorisation from '../../security/Authorisation'
-import MainMenu from '../../layout/MainMenu'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import StudentList from '../draft/StudentList'
+import BackButton from '../../layout/BackButton'
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
 
@@ -103,7 +103,22 @@ const PageInProgress = () => {
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!jamSession} errors={[error]}>
         <PhaseRedirect phase={jamSession?.phase}>
-            <LayoutMain header={<MainMenu />} padding={2} spacing={2}>
+            <LayoutMain 
+              hideLogo 
+              header={
+                <Stack direction="row" alignItems="center">
+                  <BackButton backUrl={`/jam-sessions`} />
+                  { jamSession?.id && (
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                      {jamSession.label}
+                    </Typography>
+                  )}
+                </Stack>
+              } 
+              padding={2} 
+              spacing={2}
+              >
+
               <JoinClipboard jamSessionId={jamSessionId} />
               <Stepper activeStep={0} orientation="vertical">
                 <Step key="in-progress">
@@ -119,6 +134,28 @@ const PageInProgress = () => {
               </Stepper>
 
               <Stack direction="row" justifyContent="center" spacing={1}>
+
+                <a href={`/jam-sessions/${jamSessionId}/analytics`} key="analytics" target="_blank">
+                  <Tooltip title="Open live analytics in a new tab">
+                      <Button 
+                        key={"analytics"}
+                        component="span"
+                        color="info"
+                        startIcon={
+                          <Image
+                            alt="Analytics"
+                            src="/svg/icons/analytics.svg"
+                            layout="fixed"
+                            width="18"
+                            height="18"
+                          />
+                        }
+                      >
+                        Live Analytics
+                      </Button>
+                  </Tooltip>
+                </a>
+
                 <DisplayPhase phase={JamSessionPhase.IN_PROGRESS} />
 
                 <LoadingButton
@@ -142,8 +179,9 @@ const PageInProgress = () => {
               </Stack>
 
               <Alert severity={'info'}>
+                <AlertTitle>Students submissions</AlertTitle>
                 <Typography variant="body1">
-                  Students are currently working on their answers. You can see their progress below.
+                  The filled bullet point indicate the student has started working on the related question. 
                 </Typography>
               </Alert>
               <Loading loading={!students} errors={[errorStudents]}>

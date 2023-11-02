@@ -1,4 +1,4 @@
-import { Box, Grow, Paper, Stack, Typography } from '@mui/material'
+import { Box, Divider, Grow, Paper, Stack, Tooltip, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { getQuestionSuccessRate, typeSpecificStats } from './stats'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
@@ -132,6 +132,9 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
     }
   }, [question, JamSessionToQuestion])
 
+  const submittedAnswers = question.studentAnswer.filter((sa) => sa.status === StudentAnswerStatus.SUBMITTED).length;
+  const totalAnswers = question.studentAnswer.length;
+
   return (
     <Paper sx={{ p: 2, width: '100%' }}>
       <Stack spacing={2}>
@@ -148,15 +151,6 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
             </Typography>
             <Typography variant="body1">{question.title}</Typography>
           </Stack>
-          <Typography variant="body2">
-            Submitted Answers :
-            {
-              question.studentAnswer.filter(
-                (sa) => sa.status === StudentAnswerStatus.SUBMITTED
-              ).length
-            }
-            /{question.studentAnswer.length}
-          </Typography>
         </Stack>
         {questionData &&
           ((questionData.type === QuestionType.multipleChoice && (
@@ -188,13 +182,25 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
             (questionData.type === QuestionType.code && (
               <>
                 <AnalyticsRow
-                  label="Success"
+                  label={
+                    <Tooltip title="For the last code check run, all test cases passed">
+                      <Typography variant="body1">
+                        <b>Success</b>
+                      </Typography>
+                    </Tooltip>
+                  }
                   color="success"
                   percent={questionData[questionData.type].success.percentage}
                   amount={questionData[questionData.type].success.count}
                 />
                 <AnalyticsRow
-                  label="Failure"
+                  label={
+                    <Tooltip title="For the last code check run, at least one test case failed">
+                      <Typography variant="body1">
+                        <b>Failure</b>
+                      </Typography>
+                    </Tooltip>
+                  }
                   color="error"
                   percent={questionData[questionData.type].failure.percentage}
                   amount={questionData[questionData.type].failure.count}
@@ -267,16 +273,42 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
             ))
             )
             }
-        <Stack direction="row" spacing={1} alignItems="center">
-          <PiePercent value={getQuestionSuccessRate(JamSessionToQuestion)} />
-          <Box>
-            <Typography variant="body1">
-              <b>Success Rate</b>
-            </Typography>
-            <Typography variant="caption">
-              Based on obtained points after grading
-            </Typography>
-          </Box>
+        <Stack direction="row" spacing={4} alignItems="center">
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <PiePercent 
+              label={
+                <Stack alignItems="center" justifyContent="center" spacing={0}>
+                  <Typography variant="caption">
+                    {submittedAnswers}
+                  </Typography>
+                  <Divider sx={{ width: '100%' }} />
+                  <Typography variant="caption">
+                    {totalAnswers}
+                  </Typography>
+                </Stack>
+              }
+              value={submittedAnswers/totalAnswers * 100} 
+            />
+            <Box>
+              <Typography variant="body1">
+                <b>Submitted Answers</b>
+              </Typography>
+              <Typography variant="caption">
+                Based on total number of students
+              </Typography>
+            </Box>
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <PiePercent value={getQuestionSuccessRate(JamSessionToQuestion)} />
+            <Box>
+              <Typography variant="body1">
+                <b>Success Rate</b>
+              </Typography>
+              <Typography variant="caption">
+                Based on obtained points after grading
+              </Typography>
+            </Box>
+          </Stack>
         </Stack>
       </Stack>
     </Paper>
