@@ -132,7 +132,50 @@
           }
         ]
       }
+    },
+    {
+      "language": "go",
+      "extension": "go",
+      "label": "Go",
+      "icon": "/svg/languages/go.svg",
+      "sandbox": {
+        "image": "golang:latest",
+        "defaultPath": "/go/src/main.go",
+        "exec": "/go/src/main",
+        "beforeAll": "cd /go/src && go build -o main"
+      },
+      "testCases": [
+        {
+          "exec": "/go/src/main",
+          "input": "Hello World1",
+          "expectedOutput": "HELLO WORLD1\n"
+        }
+      ],
+      "files": {
+        "solution": [
+          {
+            "path": "/go/src/main.go",
+            "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+          },
+          {
+            "path": "/go/src/go.mod",
+            "content": "module main\n\ngo 1.18\n"
+          }
+        ],
+        "template": [
+          {
+            "path": "/go/src/main.go",
+            "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+          },
+          {
+            "path": "/go/src/go.mod",
+            "content": "module main\n\ngo 1.18\n"
+          }
+        ]
+      }
     }
+    
+    
   ],
   "monacoExtensionToLanguage": {
     "abap": "abap",
@@ -180,6 +223,7 @@
     "ini": "ini",
     "java": "java",
     "js": "javascript",
+    "mjs": "javascript",
     "jsx": "javascript",
     "jl": "julia",
     "json": "json",

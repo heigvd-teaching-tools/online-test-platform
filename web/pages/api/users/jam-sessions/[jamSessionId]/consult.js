@@ -7,7 +7,6 @@ import {
 } from '../../../../../code/questions'
 import {
   isFinished,
-  isInProgress,
 } from '../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
 
 if (!global.prisma) {

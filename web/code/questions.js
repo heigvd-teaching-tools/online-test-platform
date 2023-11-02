@@ -36,14 +36,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                     include: {
                       file: true,
                     },
-                    orderBy: [
-                      {
-                        file: { createdAt: 'asc' },
-                      },
-                      {
-                        file: { questionId: 'asc' },
-                      },
-                    ],
+                    orderBy: { order: 'asc' }
                   },
                 }
               : {}),
@@ -60,14 +53,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
               include: {
                 file: true,
               },
-              orderBy: [
-                {
-                  file: { createdAt: 'asc' },
-                },
-                {
-                  file: { questionId: 'asc' },
-                },
-              ],
+              orderBy: { order: 'asc' }
             },
             language: true,
             sandbox: true,
@@ -162,6 +148,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
       where: saWhere,
       select: {
         status: true,
+        user: true,
         code: {
           select: {
             files: {
@@ -173,14 +160,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
               include: {
                 file: true,
               },
-              orderBy: [
-                {
-                  file: { createdAt: 'asc' },
-                },
-                {
-                  file: { questionId: 'asc' },
-                },
-              ],
+              orderBy: { order: 'asc' }
             },
             testCaseResults: true,
             allTestCasesPassed: true,

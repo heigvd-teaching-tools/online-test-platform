@@ -128,23 +128,28 @@ export const typeSpecificStats = (question) => {
       }
     case QuestionType.code:
       let success = question.studentAnswer.reduce((acc, sa) => {
+        // Check if the student's answer has been submitted, test cases have been run, and all test cases passed.
         if (
           sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa[question.type]?.testCaseResults?.length > 0 &&
           sa[question.type].allTestCasesPassed
         ) {
-          return acc + 1
+          return acc + 1;
         }
-        return acc
-      }, 0)
+        return acc;
+      }, 0);
+
       let failure = question.studentAnswer.reduce((acc, sa) => {
+        // Check if the student's answer has been submitted, test cases have been run, and not all test cases passed.
         if (
           sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa[question.type]?.testCaseResults?.length > 0 &&
           !sa[question.type].allTestCasesPassed
         ) {
-          return acc + 1
+          return acc + 1;
         }
-        return acc
-      }, 0)
+        return acc;
+      }, 0);
 
       return {
         success: {
@@ -153,7 +158,7 @@ export const typeSpecificStats = (question) => {
         failure: {
           count: failure,
         },
-      }
+      };
     case QuestionType.essay:
     case QuestionType.web:
       let submitted = question.studentAnswer.reduce((acc, sa) => {

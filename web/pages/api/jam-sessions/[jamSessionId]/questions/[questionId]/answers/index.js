@@ -93,11 +93,8 @@ const get = async (req, res) => {
               studentPermission: {
                 not: StudentPermission.HIDDEN
               }},
-            select: { studentPermission: true, file: true },
-            orderBy: [
-              { file: { createdAt: 'asc' } },
-              { file: { questionId: 'asc' } },
-            ],
+            select: { studentPermission: true, order: true, file: true },
+            orderBy: { order: 'asc' },
           },
         },
       },
@@ -118,7 +115,12 @@ const get = async (req, res) => {
           }
         }
       },
-      multipleChoice: { select: { options: true } },
+      multipleChoice: { select: { options: {
+        select: {
+          id: true,
+          text: true,
+        },
+      } } },
       trueFalse: true,
       essay: true,
       web: true,

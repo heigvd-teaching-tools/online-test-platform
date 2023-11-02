@@ -1,4 +1,4 @@
-import { StepLabel, StepContent, Typography, Stack, Box } from '@mui/material'
+import { StepLabel, StepContent, Typography, Stack, Box, Alert } from '@mui/material'
 import MinutesSelector from '../in-progress/MinutesSelector'
 import JamSessionCountDown from './JamSessionCountDown'
 const StepInProgress = ({ jamSession, onDurationChange, onJamSessionEnd }) => {
@@ -24,7 +24,7 @@ const StepInProgress = ({ jamSession, onDurationChange, onJamSessionEnd }) => {
                 The exam session is in progress.
               </Typography>
               <Typography variant="body1">
-                Go to the next phase to end the session
+                To end the jam session click the button below.
               </Typography>
             </Box>
           </Stack>
@@ -36,7 +36,7 @@ const StepInProgress = ({ jamSession, onDurationChange, onJamSessionEnd }) => {
 
 const DurationManager = ({ jamSession, onChange, onJamSessionEnd }) => {
   return (
-    <Box pt={4} pb={4}>
+    <Stack pt={4} pb={4} spacing={2}>
       <Stack
         spacing={4}
         direction="row"
@@ -77,7 +77,12 @@ const DurationManager = ({ jamSession, onChange, onJamSessionEnd }) => {
           }}
         />
       </Stack>
-    </Box>
+      <Alert severity={'info'}>
+        <Typography variant="body1">
+          The jam session will <b>not end automatically</b> after the contdown.
+        </Typography>
+      </Alert>
+    </Stack>
   )
 }
 

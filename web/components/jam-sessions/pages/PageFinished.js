@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Stack, Divider, Typography, Button, Tab } from '@mui/material'
+import { Stack, Divider, Typography, Button, Tab, IconButton, Tooltip } from '@mui/material'
 
 import LayoutMain from '../../layout/LayoutMain'
 import DataGrid from '../../ui/DataGrid'
@@ -17,9 +17,10 @@ import JamSessionAnalytics from '../analytics/JamSessionAnalytics'
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import JoinClipboard from '../JoinClipboard'
-import MainMenu from '../../layout/MainMenu'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import BackButton from '../../layout/BackButton'
+import Image from 'next/image'
 
 const PageFinished = () => {
   const router = useRouter()
@@ -71,6 +72,10 @@ const PageFinished = () => {
           column: { flexGrow: 1 },
         },
         {
+          label: 'Actions',
+          column: { width: '80px' },
+        },
+        {
           label: 'Success',
           column: { width: '80px' },
         },
@@ -113,6 +118,22 @@ const PageFinished = () => {
 
       return {
         participant: <UserAvatar user={participant} />,
+        actions: (
+          <Tooltip title="View student's answers" key="view-student-answers">
+            <a href={`/jam-sessions/${jamSessionId}/consult/student/${participant.email}/1`} target="_blank">
+              <IconButton size="small">
+                <Image
+                  alt="View"
+                  src="/svg/icons/view-user.svg"
+                  layout="fixed"
+                  width="18"
+                  height="18"
+                />
+                
+              </IconButton>
+            </a>
+          </Tooltip>
+        ),
         successRate: (
           <PiePercent
             size={60}
@@ -127,7 +148,10 @@ const PageFinished = () => {
           />
         ),
         ...questionColumnValues,
-        meta: { key: participant.email },
+        meta: { 
+          key: participant.email,
+          linkHref: `/jam-sessions/${jamSessionId}/consult/student/${participant.email}/1`,
+        },
       }
     })
 
@@ -194,7 +218,17 @@ const PageFinished = () => {
           <TabContext value={tab}>
             {JamSessionToQuestions && JamSessionToQuestions.length > 0 && (
               <LayoutMain
-                header={<MainMenu />}
+                hideLogo
+                header={
+                  <Stack direction="row" alignItems="center">
+                    <BackButton backUrl={`/jam-sessions`} />
+                    { jamSession?.id && (
+                      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        {jamSession.label}
+                      </Typography>
+                    )}
+                  </Stack>
+                }
                 subheader={
                   <TabList onChange={handleTabChange}>
                     <Tab label="Results" value={1} />

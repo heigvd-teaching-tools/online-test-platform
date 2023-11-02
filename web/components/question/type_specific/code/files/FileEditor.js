@@ -73,7 +73,7 @@ const FileEditor = ({
         </Stack>
         <InlineMonacoEditor
           code={content}
-          language={languageBasedOnPathExtension(path)}
+          language={language}
           readOnly={readonlyContent}
           minHeight={100}
           onChange={(code) => {

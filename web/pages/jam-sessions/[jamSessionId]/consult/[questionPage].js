@@ -1,5 +1,5 @@
 import PageConsult from '../../../../components/jam-sessions/pages/student/PageConsult'
 
-const ConsultJamSession = () => <PageConsult />
+const StudentConsultJamSession = () => <PageConsult />
 
-export default ConsultJamSession
+export default StudentConsultJamSession

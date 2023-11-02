@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { JamSessionPhase, Role } from '@prisma/client'
 import useSWR from 'swr'
 
-import { Stack } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import LayoutMain from '../../layout/LayoutMain'
 import { useRouter } from 'next/router'
 import { useSnackbar } from '../../../context/SnackbarContext'
@@ -16,9 +16,9 @@ import { LoadingButton } from '@mui/lab'
 import { update, create } from './crud'
 import PhaseRedirect from './PhaseRedirect'
 import Authorisation from '../../security/Authorisation'
-import MainMenu from '../../layout/MainMenu'
 import { fetcher } from '../../../code/utils'
 import Loading from '../../feedback/Loading'
+import BackButton from '../../layout/BackButton'
 
 const PageDraft = () => {
   const router = useRouter()
@@ -156,7 +156,20 @@ const PageDraft = () => {
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading error={[error]} loading={!jamSession}>
         <PhaseRedirect phase={jamSession?.phase}>
-          <LayoutMain header={<MainMenu />} padding={2}>
+          <LayoutMain 
+            hideLogo
+            header={
+              <Stack direction="row" alignItems="center">
+                <BackButton backUrl={`/jam-sessions`} />
+                { jamSession.id && (
+                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    {jamSession.label}
+                  </Typography>
+                )}
+              </Stack>
+            } 
+            padding={2}
+            >
               <Stack sx={{ width: '100%' }} spacing={4} pb={40}>
                 {jamSession.id && (
                   <JoinClipboard jamSessionId={jamSession.id} />

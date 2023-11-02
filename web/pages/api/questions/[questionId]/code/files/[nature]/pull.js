@@ -45,55 +45,60 @@ const post = async (req, res) => {
 
   if (!codeToFiles) res.status(404).json({ message: 'Not found' })
 
-  let files = codeToFiles.map((codeToFile) => codeToFile.file)
-
-  /*
-        delete any existing template files, there is no ownership relation between codeToTemplateFile and file
-        so we have to select the files first and then delete them
-    */
-
-  const filesToDelete = await prisma.codeToTemplateFile.findMany({
-    where: { questionId },
-    include: {
-      file: true,
-    },
-  })
-
-  for (const file of filesToDelete) {
-    await prisma.file.delete({
-      where: {
-        id: file.file.id,
-      },
-    })
-  }
 
   const newCodeToFiles = []
-  // create new template files
-  for (const file of files) {
-    let newCodeToFile = await prisma.codeToTemplateFile.create({
-      data: {
-        studentPermission: StudentPermission.UPDATE,
-        file: {
-          create: {
-            path: file.path,
-            content: file.content,
+
+  await prisma.$transaction(async (prisma) => {
+
+      /*
+        delete any existing template files, there is no ownership relation between codeToTemplateFile and file
+        so we have to select the files first and then delete them
+      */
+
+      const filesToDelete = await prisma.codeToTemplateFile.findMany({
+        where: { questionId },
+        include: {
+          file: true,
+        },
+      })
+
+      for (const file of filesToDelete) {
+        await prisma.file.delete({
+          where: {
+            id: file.file.id,
+          },
+        })
+      }
+
+      
+      // create new template files
+      for (const codeToFile of codeToFiles) {
+        let newCodeToFile = await prisma.codeToTemplateFile.create({
+          data: {
+            studentPermission: StudentPermission.UPDATE,
+            order: codeToFile.order,
+            file: {
+              create: {
+                path: codeToFile.file.path,
+                content: codeToFile.file.content,
+                code: {
+                  connect: { questionId },
+                },
+              },
+            },
             code: {
-              connect: { questionId },
+              connect: {
+                questionId,
+              },
             },
           },
-        },
-        code: {
-          connect: {
-            questionId,
+          include: {
+            file: true,
           },
-        },
-      },
-      include: {
-        file: true,
-      },
-    })
-    newCodeToFiles.push(newCodeToFile)
-  }
+        })
+        newCodeToFiles.push(newCodeToFile)
+      }
+  });
 
   res.status(200).json(newCodeToFiles || [])
 }

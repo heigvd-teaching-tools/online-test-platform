@@ -1,28 +1,32 @@
-import { useRouter } from 'next/router'
-import useSWR from 'swr'
-import { Role, StudentAnswerStatus } from '@prisma/client'
-import Authorisation from '../../../security/Authorisation'
-import LayoutSplitScreen from '../../../layout/LayoutSplitScreen'
-import { Paper, Stack } from '@mui/material'
-import Paging from '../../../layout/utils/Paging'
-import { useEffect, useMemo, useState } from 'react'
-import StudentPhaseRedirect from './StudentPhaseRedirect'
-import QuestionView from '../../../question/QuestionView'
-import GradingSigned from '../../grading/GradingSigned'
-import GradingPointsComment from '../../grading/GradingPointsComment'
-import LayoutMain from '../../../layout/LayoutMain'
-import AnswerConsult from '../../../answer/AnswerConsult'
-import AlertFeedback from '../../../feedback/AlertFeedback'
-import Loading from '../../../feedback/Loading'
-import { fetcher } from '../../../../code/utils'
+import { useRouter } from "next/router"
+import { useEffect, useMemo, useState } from "react"
+import useSWR from "swr"
+import Authorisation from "../../security/Authorisation"
+import Loading from "../../feedback/Loading"
+import { Role, StudentAnswerStatus } from "@prisma/client"
+import { fetcher } from "../../../code/utils"
+import LayoutMain from "../../layout/LayoutMain"
+import { Paper, Stack } from "@mui/material"
+import Paging from "../../layout/utils/Paging"
+import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
+import QuestionView from "../../question/QuestionView"
+import AnswerConsult from "../../answer/AnswerConsult"
+import GradingSigned from "../grading/GradingSigned"
+import GradingPointsComment from "../grading/GradingPointsComment"
+import AlertFeedback from "../../feedback/AlertFeedback"
+import BackButton from "../../layout/BackButton"
+import UserAvatar from "../../layout/UserAvatar"
+import AnswerCompare from "../../answer/AnswerCompare"
 
-const PageConsult = () => {
+
+const PageProfConsult = () => {
   const router = useRouter()
-  const { jamSessionId, questionPage } = router.query
+  
+  const { jamSessionId, userEmail, questionPage } = router.query
 
   const { data: jamSession, error } = useSWR(
-    `/api/users/jam-sessions/${jamSessionId}/consult`,
-    jamSessionId ? fetcher : null,
+    `/api/jam-sessions/${jamSessionId}/consult/${userEmail}`,
+    jamSessionId && userEmail ? fetcher : null,
     { revalidateOnFocus: false }
   )
   const [jamSessionToQuestions, setJamSessionToQuestions] = useState([])
@@ -48,33 +52,36 @@ const PageConsult = () => {
   const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id: 
     jstq.question.id,
     tooltip: `${jstq.question.title} - ${jstq.points} points`,
-    isFilled: jstq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
-  })), [jamSessionToQuestions])
+    isFilled: jstq.question.studentAnswer[0]?.status === StudentAnswerStatus.SUBMITTED
+  })), [jamSessionToQuestions])  
+  
+  const isDataReady = useMemo(() => jamSessionToQuestions.length > 0 && selected && selected.question.studentAnswer[0], [jamSessionToQuestions, selected])  
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
+    <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!jamSession} error={[error]}>
-        {jamSession && (
-          <StudentPhaseRedirect phase={jamSession.phase}>
-            {jamSessionToQuestions && selected && (
-              <LayoutMain
-                header={
-                  <Stack direction="row" alignItems="center">
-                    <Stack flex={1} sx={{ overflow: 'hidden' }}>
-                      <Paging
-                        items={questionPages}
-                        active={selected.question}
-                        link={(_, questionIndex) =>
-                          `/jam-sessions/${jamSessionId}/consult/${
-                            questionIndex + 1
-                          }`
-                        }
-                      />
-                    </Stack>
-                  </Stack>
-                }
-              >
-                <LayoutSplitScreen
+        {isDataReady && (
+          <LayoutMain
+            hideLogo
+            header={
+              <Stack direction="row" alignItems="center">
+                <BackButton backUrl={`/jam-sessions/${jamSessionId}/finished`} />
+                { selected && (
+                  <UserAvatar user={selected.question.studentAnswer[0].user} />
+                )}
+                <Stack flex={1} sx={{ overflow: 'hidden' }}>
+                  <Paging
+                    items={questionPages}
+                    active={selected?.question}
+                    link={(_, questionIndex) =>
+                      `/jam-sessions/${jamSessionId}/consult/student/${userEmail}/${questionIndex + 1}`
+                    }
+                  />
+                </Stack>
+              </Stack>
+            }
+          >
+             <LayoutSplitScreen
                   leftPanel={
                     selected && (
                       <QuestionView
@@ -88,16 +95,18 @@ const PageConsult = () => {
                   rightWidth={65}
                   rightPanel={
                     selected && (
-                      <AnswerConsult
+                      <Stack pt={1} height={'100%'}>
+                      <AnswerCompare
                         id={`answer-viewer-${selected.question.id}`}
                         questionType={selected.question.type}
-                        question={selected.question}
+                        solution={selected.question[selected.question.type]}
                         answer={
                           selected.question.studentAnswer[0][
                             selected.question.type
                           ]
                         }
                       />
+                      </Stack>
                     )
                   }
                   footer={
@@ -146,13 +155,12 @@ const PageConsult = () => {
                     </>
                   }
                 />
-              </LayoutMain>
-            )}
-          </StudentPhaseRedirect>
+          </LayoutMain>
         )}
+          
       </Loading>
     </Authorisation>
   )
 }
 
-export default PageConsult
+export default PageProfConsult

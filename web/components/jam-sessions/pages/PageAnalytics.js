@@ -2,13 +2,13 @@ import LayoutMain from '../../layout/LayoutMain'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import JamSessionAnalytics from '../analytics/JamSessionAnalytics'
-import { Autocomplete, Stack, TextField } from '@mui/material'
+import { Autocomplete, Stack, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
-import MainMenu from '../../layout/MainMenu'
 import { fetcher } from '../../../code/utils'
 import Loading from '../../feedback/Loading'
+import BackButton from '../../layout/BackButton'
 
 const PageAnalytics = () => {
   const router = useRouter()
@@ -46,7 +46,20 @@ const PageAnalytics = () => {
         error={[errorJamSessions, errorJamSession, errorQuestions]}
         loading={!jamSession || !jamSessions || !JamSessionToQuestions}
       >
-        <LayoutMain header={<MainMenu />} padding={2} spacing={2}>
+        <LayoutMain 
+            header={
+              <Stack direction="row" alignItems="center">
+                <BackButton backUrl={"/jam-sessions"} />
+                { jamSession?.id && (
+                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    {jamSession.label}
+                  </Typography>
+                )}
+              </Stack>
+            } 
+            padding={2} 
+            spacing={2}
+          >
           {jamSession && jamSessions && JamSessionToQuestions && (
             <Stack alignItems="center" spacing={2} padding={2}>
               <Autocomplete
