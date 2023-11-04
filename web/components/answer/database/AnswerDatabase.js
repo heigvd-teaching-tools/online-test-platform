@@ -37,7 +37,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const solutionOutputs = useMemo(() => answer?.question.database.solutionQueries.map((solQ) => ({
         order: solQ.query.order,
-        output: solQ.output.output
+        output: solQ.output?.output
     })), [answer]);
 
     const getSolutionOutput = useCallback((order) => solutionOutputs.find(q => q.order === order), [solutionOutputs])

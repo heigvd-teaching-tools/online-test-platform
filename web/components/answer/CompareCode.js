@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Alert, Box, Stack, Tab, Tabs, Typography } from '@mui/material'
 import ResizePanel from '../layout/utils/ResizePanel'
 import FileEditor from '../question/type_specific/code/files/FileEditor'
 import CheckIcon from '@mui/icons-material/Check'
@@ -26,6 +26,8 @@ const CompareCode = ({ solution, answer }) => {
 
     */
   const { height: containerHeight } = useResizeObserver()
+
+  console.log("answer", answer)
 
   return (
     answer &&
@@ -69,10 +71,16 @@ const CompareCode = ({ solution, answer }) => {
                       No code-check runs
                     </Typography>
                   )}
+                  
                 </Stack>
               }
               value={1}
             />
+            {answer.files.some((ansToFile) => ansToFile.file.updatedAt > answer.testCaseResults[0]?.createdAt) && (
+              <Alert severity="warning">
+                Post code-check modifications
+              </Alert>
+            )}
           </Tabs>
           <TabPanel value={tab} index={0}>
             <TabContent>

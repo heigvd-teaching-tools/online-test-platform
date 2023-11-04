@@ -631,6 +631,9 @@ model TestCaseResult {
   questionId String
   index      Int
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+
   studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
 
   exec           String
