@@ -321,6 +321,8 @@ const post = async (req, res) => {
             for (const solQuery of collectionToQuestion.question.database.solutionQueries) {
                 const query = solQuery.query;
                 const output = solQuery.output;
+                console.log("query: ", query)
+                console.log("output: ", output)
 
                 const newQuery = await prisma.databaseQuery.create({
                     data: {
@@ -346,26 +348,34 @@ const post = async (req, res) => {
                     }
                 });
 
-                const newQueryOutput = await prisma.databaseQueryOutput.create({
-                    data: {
-                        output: output.output,
-                        status: output.status,
-                        type: output.type,
-                        dbms: output.dbms,
-                        query:{
-                            connect: {
-                                id: newQuery.id,
-                            }
-                        }
-                    }
-                });
+                let newQueryOutput = undefined;
+
+                if(output){
+
+                  newQueryOutput = await prisma.databaseQueryOutput.create({
+                      data: {
+                          output: output.output,
+                          status: output.status,
+                          type: output.type,
+                          dbms: output.dbms,
+                          query:{
+                              connect: {
+                                  id: newQuery.id,
+                              }
+                          }
+                      }
+                  });
+               
+                }
+
+                console.log("newQueryOutput: ", newQueryOutput)
 
                 // connect new queries as sulution queries to the question
                 await prisma.databaseToSolutionQuery.create({
                     data: {
                         questionId: newDatabaseQuestion.id,
                         queryId: newQuery.id,
-                        outputId: newQueryOutput.id,
+                        outputId: newQueryOutput?.id,
                     }
                 });
             }
