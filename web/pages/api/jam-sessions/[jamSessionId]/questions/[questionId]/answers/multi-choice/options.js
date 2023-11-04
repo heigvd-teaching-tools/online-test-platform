@@ -52,13 +52,18 @@ const addOrRemoveOption = async (req, res) => {
         include: {
           multipleChoice: {
             select: {
-              options: true,
+              options: {
+                select: {
+                  id: true,
+                  text: true,
+                },
+              },
+              },
             },
           },
         },
       },
-    },
-  })
+    })
 
   if (!jamSessionToQuestion) {
     res.status(400).json({ message: 'Internal Server Error' })
@@ -83,7 +88,12 @@ const addOrRemoveOption = async (req, res) => {
         },
       },
       select: {
-        options: true,
+        options: {
+          select: {
+            id: true,
+            text: true,
+          },
+        },
       },
     })
 
@@ -140,7 +150,12 @@ const addOrRemoveOption = async (req, res) => {
       },
     },
     select: {
-      options: true,
+      options: {
+        select: {
+          id: true,
+          text: true,
+        },
+      },
     },
   })
 
@@ -171,7 +186,12 @@ const addOrRemoveOption = async (req, res) => {
       status: true,
       multipleChoice: {
         include: {
-          options: true,
+          options: {
+            select: {
+              id: true,
+              text: true,
+            },
+          },
         },
       },
     },
