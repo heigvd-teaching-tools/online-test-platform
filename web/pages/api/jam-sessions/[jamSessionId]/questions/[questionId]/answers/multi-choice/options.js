@@ -40,6 +40,9 @@ const addOrRemoveOption = async (req, res) => {
 
   const { option } = req.body
 
+  // get all options including their official answer status, 
+  // these are used to grade the student answers 
+  // WARNING! they should not be returned by the api to the student
   const jamSessionToQuestion = await prisma.jamSessionToQuestion.findUnique({
     where: {
       jamSessionId_questionId: {
@@ -52,12 +55,7 @@ const addOrRemoveOption = async (req, res) => {
         include: {
           multipleChoice: {
             select: {
-              options: {
-                select: {
-                  id: true,
-                  text: true,
-                },
-              },
+              options: true, 
               },
             },
           },
@@ -175,6 +173,8 @@ const addOrRemoveOption = async (req, res) => {
     update: grading(jamSessionToQuestion.question,jamSessionToQuestion.points, studentAnswer),
   })
 
+
+  // get the updated student answers -> do not return the options official answer status "isCorerct"
   const updatedStudentAnswer = await prisma.studentAnswer.findUnique({
     where: {
       userEmail_questionId: {
