@@ -1,36 +1,18 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
-import { hasRole } from '../../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/**
+ * 
+  * Managing the sandbox part of a code question
+  * Handles images and beforeAll
+  * get: get the sandbox for a code question
+  * put: update the sandbox for a code question
+  * post: create the sandbox for a code question
+ */
 
-const prisma = global.prisma
-
-// hanlder for GET, PUT and POST requests
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   // get the sandbox for a code question
   const { questionId } = req.query
   const sandbox = await prisma.sandBox.findUnique({
@@ -42,7 +24,7 @@ const get = async (req, res) => {
   res.status(200).json(sandbox)
 }
 
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // update a sandbox
   const { questionId } = req.query
 
@@ -61,7 +43,7 @@ const put = async (req, res) => {
   res.status(200).json(sandbox)
 }
 
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // create a new sandbox
   const { questionId } = req.query
 
@@ -78,4 +60,14 @@ const post = async (req, res) => {
   res.status(200).json(sandbox)
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+      withPrisma(get), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+      withPrisma(put), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+      withPrisma(post), [Role.PROFESSOR]
+  )
+})

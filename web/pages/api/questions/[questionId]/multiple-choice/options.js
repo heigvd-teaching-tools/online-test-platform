@@ -1,40 +1,39 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
-import { hasRole } from '../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/**
+ * 
+ * Managing the options of a multichoice question
+ * get: list options of a multichoice question
+ * put: update an option of a multichoice question
+ * post: create an option for a multichoice question
+ * del: delete an option of a multichoice question
+ */
 
-const prisma = global.prisma
+// get the options of the multichoice question
+const get = async (req, res, prisma) => {
+  const { questionId } = req.query
 
-// handler for PUT, POST, DELETE and GET requests
+  const multiChoice = await prisma.multipleChoice.findUnique({
+    where: {
+      questionId: questionId,
+    },
+    include: {
+      options: {
+        orderBy: {
+          id: 'asc',
+        },
+      },
+    },
+  })
 
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
+  res.status(200).json(multiChoice.options)
 }
 
 // update the option of the multichoice question
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   const { questionId } = req.query
   const { option } = req.body
 
@@ -64,7 +63,7 @@ const put = async (req, res) => {
 }
 
 // create a new option for the multichoice question
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   const { questionId } = req.query
   const { option } = req.body
 
@@ -84,7 +83,7 @@ const post = async (req, res) => {
   res.status(200).json(newOption)
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   const { questionId } = req.query
   const { option } = req.body
 
@@ -113,23 +112,17 @@ const del = async (req, res) => {
   res.status(200).json({ message: 'Option deleted' })
 }
 
-// get the options of the multichoice question
-const get = async (req, res) => {
-  const { questionId } = req.query
-
-  const multiChoice = await prisma.multipleChoice.findUnique({
-    where: {
-      questionId: questionId,
-    },
-    include: {
-      options: {
-        orderBy: {
-          id: 'asc',
-        },
-      },
-    },
-  })
-
-  res.status(200).json(multiChoice.options)
-}
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  ),
+})

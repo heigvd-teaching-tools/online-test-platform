@@ -1,32 +1,15 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
-import { hasRole } from '../../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/**
+ * Managing the test cases of a question
+ * put: update a test case
+ * del: delete a test case
+ */
 
-const prisma = global.prisma
-
-// hanlder for PUT and DELETE requests
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // update a test case
   const { questionId, index } = req.query
   const { exec, input, expectedOutput } = req.body
@@ -46,7 +29,7 @@ const put = async (req, res) => {
   res.status(200).json(testCase)
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   const { questionId, index } = req.query
 
   // update the index of the test cases after the deleted one
@@ -87,4 +70,11 @@ const del = async (req, res) => {
   res.status(200).json('Test case deleted')
 }
 
-export default handler
+export default withMethodHandler({
+  PUT: withAuthorization(
+      withPrisma(put), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+      withPrisma(del), [Role.PROFESSOR]
+  )
+})

@@ -1,40 +1,14 @@
-import { PrismaClient, Role, DatabaseQueryOutputType } from '@prisma/client'
-import { hasRole } from '../../../../../../../../../code/auth'
+import { Role } from '@prisma/client'
 import { getSession } from 'next-auth/react'
-import { grading } from '../../../../../../../../../code/grading'
 import {isInProgress} from "../../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
-import {runTestsOnDatasets} from "../../../../../../../../../code/database";
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-export default async function handler(req, res) {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  const IsStudent = await hasRole(req, Role.STUDENT)
-
-  if (!(isProf || IsStudent)) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
+import { withAuthorization, withMethodHandler } from '../../../../../../../../../middleware/withAuthorization';
+import { withPrisma } from '../../../../../../../../../middleware/withPrisma';
 
 /*
- endpoint to run the database sandbox for a student answers
- Only uses queries stored in the database
+ endpoint to run the database console query sandbox for a student
  */
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   const session = await getSession({ req })
 
   const { jamSessionId, questionId } = req.query
@@ -46,7 +20,7 @@ const post = async (req, res) => {
     return
    }
 
-  if (!(await isInProgress(jamSessionId))) {
+  if (!(await isInProgress(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Jam session is not in progress' })
     return
   }
@@ -120,3 +94,9 @@ const post = async (req, res) => {
 
   res.status(200).json(result[at]);
 }
+
+export default withMethodHandler({
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR, Role.STUDENT]
+  ),
+})

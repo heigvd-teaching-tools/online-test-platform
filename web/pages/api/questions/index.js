@@ -1,45 +1,30 @@
 import {
-  PrismaClient,
   Role,
   QuestionType,
   StudentPermission,
 } from '@prisma/client'
-import { getUserSelectedGroup, hasRole } from '../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../middleware/withAuthorization'
+import { withPrisma } from '../../../middleware/withPrisma'
+import { getUserSelectedGroup } from '../../../code/auth'
 import {
   questionIncludeClause,
   questionTypeSpecific,
 } from '../../../code/questions'
 
 import languages from '../../../code/languages.json'
+
 const environments = languages.environments
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/** 
+ * Managing the questions of a group 
+ * 
+ * get: list questions of a group (filter by title, content, tags, question types, code languages)
+ * post: create a new question
+ * del: delete a question
+ * 
+*/
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   const group = await getUserSelectedGroup(req)
 
   if (!group) {
@@ -145,7 +130,7 @@ const get = async (req, res) => {
   res.status(200).json(questions)
 }
 
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // create a new question -> at this point we only know the question type
 
   const { type } = req.body
@@ -195,7 +180,7 @@ const post = async (req, res) => {
   res.status(200).json(createdQuestion)
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   const { question } = req.body
 
   if (!question?.id) {
@@ -333,4 +318,16 @@ const codeInitialUpdateQuery = (questionId, code) => {
   }
 }
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  )
+})
+

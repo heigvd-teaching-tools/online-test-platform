@@ -1,31 +1,14 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../middleware/withPrisma'
 
-import { hasRole } from '../../../../../../code/auth'
+/**
+ * Managing the test cases of a code question
+ * get: get the list of test cases for a code question
+ * post: create a new test case for a code question
+ */
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   // get the list of test cases for a code question
   const { questionId } = req.query
   const testCases = await prisma.testCase.findMany({
@@ -40,7 +23,7 @@ const get = async (req, res) => {
   res.status(200).json(testCases)
 }
 
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // create a new test case for a code question
   const { questionId } = req.query
   const { exec, input, expectedOutput } = req.body
@@ -63,4 +46,12 @@ const post = async (req, res) => {
   res.status(200).json(testCase)
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+      withPrisma(get), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+      withPrisma(post), [Role.PROFESSOR]
+  )
+})
+

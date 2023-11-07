@@ -1,35 +1,21 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 import {
   questionIncludeClause,
   questionTypeSpecific,
 } from '../../../../code/questions'
-import { hasRole } from '../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/** 
+ * Managing a question
+ * 
+ * get: get a question by id
+ * put: update a question
+ *  only handles true/false, multiple choice, essay, and web questions, see questionTypeSpecific for more info
+ *  database and code question have separate endpoints 
+*/
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'PUT':
-      await put(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   // get a question by id
 
   const { questionId } = req.query
@@ -46,7 +32,7 @@ const get = async (req, res) => {
   res.status(200).json(question)
 }
 
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   const { question } = req.body
 
   const updatedQuestion = await prisma.question.update({
@@ -72,4 +58,12 @@ const put = async (req, res) => {
   res.status(200).json(updatedQuestion)
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+})
+

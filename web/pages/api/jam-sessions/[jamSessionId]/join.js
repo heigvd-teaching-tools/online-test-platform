@@ -1,43 +1,13 @@
-import {
-  PrismaClient,
-  Role,
-  QuestionType,
-  JamSessionPhase, StudentPermission
-} from '@prisma/client'
-import { getSession } from 'next-auth/react'
-import { hasRole } from '../../../../code/auth'
-import { grading } from '../../../../code/grading'
-import { phaseGT } from '../../../../code/phase'
+import { withPrisma } from '../../../../middleware/withPrisma';
+import { withMethodHandler, withAuthorization } from '../../../../middleware/withAuthorization';
+import { getSession } from 'next-auth/react';
+import { Role, JamSessionPhase, QuestionType, StudentPermission } from '@prisma/client';
+import { phaseGT } from '../../../../code/phase';
+import { questionIncludeClause } from '../../../../code/questions';
+import { grading } from '../../../../code/grading';
 
-import {
-  questionIncludeClause,
-} from '../../../../code/questions'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  const isProfOrStudent =
-    (await hasRole(req, Role.PROFESSOR)) || (await hasRole(req, Role.STUDENT))
-
-  if (!isProfOrStudent) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
+    
     const { jamSessionId } = req.query
     const session = await getSession({ req })
     const studentEmail = session.user.email
@@ -243,4 +213,8 @@ const createDatabaseTypeSpecificData = async (prisma, studentAnswer, question) =
     }
 }
 
-export default handler
+export default withMethodHandler({
+    POST: withAuthorization(
+        withPrisma(post), [Role.PROFESSOR, Role.STUDENT]
+    ),
+});

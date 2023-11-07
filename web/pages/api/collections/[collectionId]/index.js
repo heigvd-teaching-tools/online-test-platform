@@ -1,35 +1,16 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../../code/auth'
+import { Role } from '@prisma/client'
 import { questionIncludeClause } from '../../../../code/questions'
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/*
+ collection compose - collection content (list of questions), delete collection, update collection label
 
-const prisma = global.prisma
+ get: get a collection with its questions -> used by the collection compose
 
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
+*/
 
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'PUT':
-      await put(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   const { collectionId } = req.query
 
   const collectionWithQuestions = await prisma.collection.findUnique({
@@ -41,8 +22,8 @@ const get = async (req, res) => {
         include: {
           question: {
             include: questionIncludeClause({
-              includeTypeSpecific: true,
-              includeOfficialAnswers: true,
+              includeTypeSpecific: false,
+              includeOfficialAnswers: false,
             }),
           },
         },
@@ -55,7 +36,7 @@ const get = async (req, res) => {
   res.status(200).json(collectionWithQuestions)
 }
 
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   const { collectionId } = req.query
   const { collection } = req.body
 
@@ -71,7 +52,7 @@ const put = async (req, res) => {
   res.status(200).json(updated)
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   const { collectionId } = req.query
   const collection = await prisma.collection.delete({
     where: {
@@ -81,4 +62,16 @@ const del = async (req, res) => {
   res.status(200).json(collection)
 }
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  ),
+})
+

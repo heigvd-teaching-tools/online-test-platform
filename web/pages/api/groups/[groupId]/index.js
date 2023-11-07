@@ -1,31 +1,14 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { getUser, hasRole } from '../../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'DELETE':
-      await del(req, res)
-      break
-    case 'PUT':
-      await put(req, res)
-      break;
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const del = async (req, res) => {
+import { Role } from '@prisma/client'
+import { getUser } from '../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../middleware/withPrisma'
+/** 
+ * Managing group 
+ * 
+ * del: delete a group
+ * put: update a group label
+*/
+const del = async (req, res, prisma) => {
   // delete a group
   const { groupId } = req.query
 
@@ -55,7 +38,7 @@ const del = async (req, res) => {
   res.status(200).json({ message: 'Group deleted' })
 }
 
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // update a group
   const { groupId } = req.query
   const { label } = req.body
@@ -103,4 +86,12 @@ const put = async (req, res) => {
   res.status(200).json(updatedGroup)
 }
 
-export default handler
+export default withMethodHandler({
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+})
+

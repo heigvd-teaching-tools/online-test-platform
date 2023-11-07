@@ -1,40 +1,18 @@
 import {
-  PrismaClient,
   Role,
   JamSessionPhase,
   QuestionType,
 } from '@prisma/client'
-import { getUserSelectedGroup, hasRole } from '../../../code/auth'
+import { withPrisma } from '../../../middleware/withPrisma'
+import { withAuthorization, withMethodHandler } from '../../../middleware/withAuthorization'
+import { getUserSelectedGroup } from '../../../code/auth'
 import {
   questionIncludeClause,
   questionTypeSpecific,
 } from '../../../code/questions'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(res, req)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (res, req) => {
+const get = async (req, res, prisma) => {
   // shallow session to question get -> we just need to count the number of questions
   const group = await getUserSelectedGroup(req)
 
@@ -58,7 +36,7 @@ The jam session must freeze the questions at the time of creation
 The code questions are copied with all the files
 The database questions are copied with all the queries and their outputs
 * */
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   const { label, conditions, duration, collectionId } = req.body
 
   const group = await getUserSelectedGroup(req)
@@ -321,8 +299,6 @@ const post = async (req, res) => {
             for (const solQuery of collectionToQuestion.question.database.solutionQueries) {
                 const query = solQuery.query;
                 const output = solQuery.output;
-                console.log("query: ", query)
-                console.log("output: ", output)
 
                 const newQuery = await prisma.databaseQuery.create({
                     data: {
@@ -368,8 +344,6 @@ const post = async (req, res) => {
                
                 }
 
-                console.log("newQueryOutput: ", newQueryOutput)
-
                 // connect new queries as sulution queries to the question
                 await prisma.databaseToSolutionQuery.create({
                     data: {
@@ -381,6 +355,7 @@ const post = async (req, res) => {
             }
         }
     })
+
     res.status(200).json(jamSession)
 
   } catch (e) {
@@ -398,4 +373,11 @@ const post = async (req, res) => {
 
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR]
+  ),
+})

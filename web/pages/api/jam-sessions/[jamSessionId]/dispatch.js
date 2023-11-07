@@ -1,37 +1,16 @@
-import { PrismaClient, Role, JamSessionPhase } from '@prisma/client'
+import { Role, JamSessionPhase } from '@prisma/client'
+import { withPrisma } from '../../../../middleware/withPrisma';
+import { withMethodHandler, withAuthorization } from '../../../../middleware/withAuthorization';
 
-import { getUser, hasRole } from '../../../../code/auth'
 import { phaseGT } from '../../../../code/phase'
+import { getUser } from '../../../../code/auth';
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  const isProfOrStudent =
-    (await hasRole(req, Role.PROFESSOR)) || (await hasRole(req, Role.STUDENT))
-
-  if (!isProfOrStudent) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
 /*
 fetch the informations necessary to decide where the user should be redirected
 based on the phase of the jam session and the relation between the user and the jam session
 Will respond with the JamSession phase and the UserOnJamSession object
 * */
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   const { jamSessionId } = req.query
 
   const user = await getUser(req)
@@ -82,4 +61,9 @@ const get = async (req, res) => {
     userOnJamSession: userOnJamSession,
   })
 }
-export default handler
+
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR, Role.STUDENT]),
+});

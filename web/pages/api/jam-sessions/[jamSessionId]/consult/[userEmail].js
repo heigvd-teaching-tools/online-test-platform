@@ -1,36 +1,15 @@
-import { PrismaClient, Role } from '@prisma/client'
-
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 import {
   IncludeStrategy,
   questionIncludeClause,
 } from '../../../../../code/questions'
-import { getUserSelectedGroup, hasRole } from '../../../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+/*
+  Professor can consult the student's answers to the questions of a jam session
+*/
+const get = async (req, res, prisma) => {
     const { jamSessionId, userEmail } = req.query
-
-    const group = await getUserSelectedGroup(req)
 
     const jamSession = await prisma.jamSession.findUnique({
         where: {
@@ -58,12 +37,12 @@ const get = async (req, res) => {
             },
         },
     });
-
     res.status(200).json(jamSession)
 
 }
 
-export default handler
-
-
-
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+})

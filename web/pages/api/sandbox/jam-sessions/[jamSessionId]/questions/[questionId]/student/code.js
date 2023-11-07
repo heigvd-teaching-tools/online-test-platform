@@ -1,52 +1,26 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../../../../../../code/auth'
+import { Role } from '@prisma/client'
 import { runSandbox } from '../../../../../../../../sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../code/grading'
 import {isInProgress} from "../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-export default async function handler(req, res) {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  const IsStudent = await hasRole(req, Role.STUDENT)
-
-  if (!(isProf || IsStudent)) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
+import { withAuthorization, withMethodHandler } from '../../../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../../../middleware/withPrisma'
 
 /*
  endpoint to run the code sandbox for a student answers
  Only uses files stored in the database
  */
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   const session = await getSession({ req })
 
   const { jamSessionId, questionId } = req.query
   const studentEmail = session.user.email
 
-  
-  
-  if (!(await isInProgress(jamSessionId))) {
+  if (!(await isInProgress(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Jam session is not in progress' })
     return
   }
 
-  
 
   const code = await prisma.code.findUnique({
     where: {
@@ -90,34 +64,14 @@ const post = async (req, res) => {
   const files = studentAnswerCodeFiles.files.map(
     (codeToFile) => codeToFile.file
   )
-
-
-  
-  const response = await runSandbox({
+ 
+  await runSandbox({
     image: code.sandbox.image,
     files: files,
     beforeAll: code.sandbox.beforeAll,
     tests: code.testCases,
   }).then(async (response) => {
-    /*
-
-        RESULT :  {
-          beforeAll: undefined,
-          tests: [
-            {
-              exec: 'python /src/script.py',
-              input: 'Hello World1',
-              output: 'HELLO WORLD1',
-              expectedOutput: 'HELLO WORLD1',
-              passed: true
-            }
-          ]
-        }
-
-        * */
-
-        
-
+    // update the status of the student answers
     await prisma.StudentAnswerCode.update({
       where: {
         userEmail_questionId: {
@@ -174,7 +128,14 @@ const post = async (req, res) => {
     })
 
     res.status(200).send(response)
+  }).catch((error) => {
+    console.log(error)
+    res.status(500).json({ message: 'Internal server error' })
   })
-
-  res.status(200).send(response)
 }
+
+export default withMethodHandler({
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR, Role.STUDENT]
+  ),
+})

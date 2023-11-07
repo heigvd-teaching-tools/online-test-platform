@@ -1,28 +1,14 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../code/auth'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../middleware/withAuthorization'
+import { withPrisma } from '../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/**
+ * 
+ * Search for professors users
+ * Used by AutoComplete Search Component when adding a professor to a group
+ */
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   const { search } = req.query
 
   // find professors users that match the search query
@@ -35,7 +21,7 @@ const get = async (req, res) => {
   const users = await prisma.user.findMany({
     where: {
       role: Role.PROFESSOR,
-      OR: [
+      OR: [ // OR applies on the array of conditions
         {
           name: {
             contains: search,
@@ -60,4 +46,8 @@ const get = async (req, res) => {
   res.status(200).json(users)
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+})

@@ -1,30 +1,17 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
-import { hasRole } from '../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/**
+ * Managing the database part of a question
+ * Holds the image of the database question
+ * 
+ * get: get the database part of a question
+ * put: update the database part of a question
+ */
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'PUT':
-        await put(req, res)
-        break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   // get the "database" part of the question
   const { questionId } = req.query
   const database = await prisma.database.findUnique({
@@ -36,7 +23,7 @@ const get = async (req, res) => {
   res.status(200).json(database)
 }
 
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
     // update the "database" part of the question
     const { questionId } = req.query
     const { image } = req.body
@@ -53,4 +40,13 @@ const put = async (req, res) => {
     res.status(200).json(database)
 }
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  )
+})
+

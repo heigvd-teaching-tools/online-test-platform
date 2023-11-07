@@ -4,13 +4,11 @@ import { withAuthorization, withMethodHandler } from '../../../../middleware/wit
 import { withPrisma } from '../../../../middleware/withPrisma'
 
 /*
-    endpoint to run the sandbox for a question with files from the request body
-    Should only be used for question update
-* */
+ endpoint to run the sandbox for a question with solution files recovered from the database
+ used by the pull from sulution files feature that fills the test cases with the solution output
+ */
 const post = async (req, res, prisma) => {
   const { questionId } = req.query
-
-  const { files } = req.body
 
   const code = await prisma.code.findUnique({
     where: {
@@ -23,23 +21,30 @@ const post = async (req, res, prisma) => {
           index: 'asc',
         },
       },
+      solutionFiles: {
+        include: {
+          file: true,
+        },
+      },
     },
   })
 
-  if (!code) {
+  if (!code || !code.solutionFiles) {
     res.status(404).json({ message: 'Code not found' })
     return
   }
+
+  const files = code.solutionFiles.map((codeToFile) => codeToFile.file)
 
   const result = await runSandbox({
     image: code.sandbox.image,
     files: files,
     beforeAll: code.sandbox.beforeAll,
     tests: code.testCases,
-  });
+  })
+
   res.status(200).send(result)
 }
-
 
 export default withMethodHandler({
   POST: withAuthorization(

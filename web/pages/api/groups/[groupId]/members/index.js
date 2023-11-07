@@ -1,34 +1,16 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole, getUser } from '../../../../../code/auth'
+import { Role } from '@prisma/client'
+import { getUser } from '../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/** Managing the members of a group 
+ * 
+ * get: list members of a group
+ * post: add a member to a group
+ * del: remove a member from a group
+*/
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   // get all members of group
   const { groupId } = req.query
 
@@ -72,7 +54,7 @@ const get = async (req, res) => {
   res.status(200).json(members)
 }
 
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // add member to group
   const { groupId } = req.query
   const { member } = req.body
@@ -124,7 +106,7 @@ const post = async (req, res) => {
   }
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   // remove member from group
   const { groupId } = req.query
 
@@ -159,4 +141,15 @@ const del = async (req, res) => {
   res.status(200).json({ message: 'Member removed' })
 }
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  ),
+})

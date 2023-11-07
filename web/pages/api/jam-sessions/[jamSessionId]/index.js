@@ -1,46 +1,20 @@
-import { PrismaClient, Role, JamSessionPhase } from '@prisma/client'
+import { JamSessionPhase, Role } from '@prisma/client';
+import { withPrisma } from '../../../../middleware/withPrisma';
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization';
+import { getUserSelectedGroup } from '../../../../code/auth';
 
-import { getUserSelectedGroup, hasRole } from '../../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  if (!isProf) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'PATCH':
-      await patch(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   const { jamSessionId } = req.query
   const jamSession = await prisma.jamSession.findUnique({
     where: {
       id: jamSessionId,
     },
   })
-  res.status(200).json(jamSession)
-}
 
-const patch = async (req, res) => {
+  res.status(200).json(jamSession)
+};
+
+const patch = async (req, res, prisma) => {
   const { jamSessionId } = req.query
 
   const currentJamSession = await prisma.jamSession.findUnique({
@@ -136,7 +110,7 @@ const patch = async (req, res) => {
   }
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   const { jamSessionId } = req.query
 
   const group = await getUserSelectedGroup(req)
@@ -171,6 +145,17 @@ const del = async (req, res) => {
   })
 
   res.status(200).json({ message: 'Jam session deleted' })
-}
+};
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  PATCH: withAuthorization(
+    withPrisma(patch), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  ),
+});

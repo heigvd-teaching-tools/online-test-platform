@@ -1,33 +1,8 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../../middleware/withPrisma'
 
-import { hasRole } from '../../../../../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-// hanlder for POST, GET
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // update a file for a code question
   // as the file is created for a code question we handle it through CodeToFile entity
 
@@ -81,7 +56,7 @@ const put = async (req, res) => {
   res.status(200).json(file)
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   // delete a file for a code question, cascade from codeToFile wont work here
   // as the file is created for a code question we handle it through CodeToFile entity
 
@@ -133,4 +108,11 @@ const del = async (req, res) => {
   res.status(200).json({ message: 'Deleted' })
 }
 
-export default handler
+export default withMethodHandler({
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  )
+})

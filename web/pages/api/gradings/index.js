@@ -1,28 +1,11 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../middleware/withAuthorization'
+import { withPrisma } from '../../../middleware/withPrisma'
 
-import { hasRole } from '../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  if (!isProf) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'PATCH':
-      await patch(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
+/** Managing the grading of a qstudent answer 
+ * 
+ * Used by the page JamSession Grading 
+*/
 
 const patch = async (req, res) => {
   const {
@@ -57,4 +40,9 @@ const patch = async (req, res) => {
   res.status(200).json(updatedGrading)
 }
 
-export default handler
+export default withMethodHandler({
+  PATCH: withAuthorization(
+    withPrisma(patch), [Role.PROFESSOR]
+  ),
+})
+

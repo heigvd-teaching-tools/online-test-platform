@@ -1,28 +1,10 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../../code/auth'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/** Managing the order of the questions in a collection */
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // update the order of the questions in the collection
   const { collectionToQuestions } = req.body
 
@@ -44,4 +26,10 @@ const put = async (req, res) => {
   res.status(200).json({ message: 'OK' })
 }
 
-export default handler
+export default withMethodHandler({
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+})
+
+

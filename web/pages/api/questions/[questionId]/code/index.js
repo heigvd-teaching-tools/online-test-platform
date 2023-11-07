@@ -1,26 +1,7 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-import { hasRole } from '../../../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
 const get = async (req, res) => {
   // get the code of the question
   const { questionId } = req.query
@@ -33,4 +14,10 @@ const get = async (req, res) => {
   res.status(200).json(code)
 }
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+      withPrisma(get), [Role.PROFESSOR]
+  ),
+})
+

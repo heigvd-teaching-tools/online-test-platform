@@ -1,41 +1,22 @@
-import { PrismaClient, Role, StudentAnswerStatus } from '@prisma/client'
+import { Role, StudentAnswerStatus } from '@prisma/client'
 import { getSession } from 'next-auth/react'
-import { hasRole } from '../../../../../../../../code/auth'
 import { isInProgress } from '../utils'
 import { grading } from '../../../../../../../../code/grading'
+import { withAuthorization, withMethodHandler } from '../../../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/*
+  Student update a database query during a jam session
+*/
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  let isProfOrStudent =
-    (await hasRole(req, Role.PROFESSOR)) || (await hasRole(req, Role.STUDENT))
-
-  if (!isProfOrStudent) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   const session = await getSession({ req })
   const studentEmail = session.user.email
   const { jamSessionId, questionId, queryId } = req.query
 
   const { content } = req.body
 
-  if (!(await isInProgress(jamSessionId))) {
+  if (!(await isInProgress(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Exam session is not in progress' })
     return
   }
@@ -129,4 +110,8 @@ const put = async (req, res) => {
   res.status(200).json(updatedAnswer)
 }
 
-export default handler
+export default withMethodHandler({
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR, Role.STUDENT]
+  ),
+})

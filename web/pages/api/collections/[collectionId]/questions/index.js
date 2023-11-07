@@ -1,37 +1,21 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole, getUserSelectedGroup } from '../../../../../code/auth'
+import { Role } from '@prisma/client'
+import { getUserSelectedGroup } from '../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
 
-const prisma = global.prisma
+/*
 
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
+ endpoints used for collection compose. Managing questions in a copllection
+  post: add a question to a collection
+  put: update the points of a question in a collection
+  delete: remove a question from a collection
+ endpoint used by the autocomplete collection selector
+  get: get all shallow questions in a collection -> used by autocomplete when creating a jam session (s collection selector)
+*/
 
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    case 'PUT':
-      await put(req, res)
-      break
-    case 'DELETE':
-      await del(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
 
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
   // get all questions in a collection, only shallow question data for counting purposes
   const { collectionId } = req.query
 
@@ -55,7 +39,7 @@ const get = async (req, res) => {
   res.status(200).json(questions)
 }
 
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // add a new question to a collection
   const { collectionId } = req.query
   const { questionId } = req.body
@@ -98,7 +82,7 @@ const post = async (req, res) => {
   res.status(200).json(collectionToQuestion)
 }
 
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // update the collectionToQuestion
   const { collectionToQuestion } = req.body
 
@@ -117,7 +101,7 @@ const put = async (req, res) => {
   res.status(200).json({ message: 'OK' })
 }
 
-const del = async (req, res) => {
+const del = async (req, res, prisma) => {
   // delete a question from a collection
   const { collectionId } = req.query
   const { questionId } = req.body
@@ -134,4 +118,18 @@ const del = async (req, res) => {
   res.status(200).json({ message: 'OK' })
 }
 
-export default handler
+
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR]
+  ),
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR]
+  ),
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+  DELETE: withAuthorization(
+    withPrisma(del), [Role.PROFESSOR]
+  ),
+})

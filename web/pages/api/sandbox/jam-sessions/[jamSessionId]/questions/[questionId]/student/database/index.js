@@ -1,35 +1,17 @@
-import {PrismaClient, Role, DatabaseQueryOutputType, Prisma} from '@prisma/client'
-import { hasRole } from '../../../../../../../../../code/auth'
+import { Role, DatabaseQueryOutputType, Prisma} from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../../code/grading'
 import {isInProgress} from "../../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
 import {runTestsOnDatasets} from "../../../../../../../../../code/database";
 import {runSQLFluffSandbox} from "../../../../../../../../../sandbox/runSQLFluffSandbox";
+import { withAuthorization, withMethodHandler } from '../../../../../../../../../middleware/withAuthorization';
+import { withPrisma } from '../../../../../../../../../middleware/withPrisma';
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-export default async function handler(req, res) {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  const IsStudent = await hasRole(req, Role.STUDENT)
-
-  if (!(isProf || IsStudent)) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
+/*
+ endpoint to run the database sandbox for a student answers
+ Only uses queries stored in the database
+ */
 
 const getStudentAnswer = async (prisma, studentEmail, questionId) => {
   return await prisma.studentAnswer.findUnique({
@@ -80,17 +62,14 @@ const getStudentAnswer = async (prisma, studentEmail, questionId) => {
   });
 }
 
-/*
- endpoint to run the database sandbox for a student answers
- Only uses queries stored in the database
- */
-const post = async (req, res) => {
+
+const post = async (req, res, prisma) => {
   const session = await getSession({ req })
 
   const { jamSessionId, questionId } = req.query
   const studentEmail = session.user.email
 
-  if (!(await isInProgress(jamSessionId))) {
+  if (!(await isInProgress(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Jam session is not in progress' })
     return
   }
@@ -294,3 +273,10 @@ const post = async (req, res) => {
 
   res.status(200).json(studentAnswerQueries)
 }
+
+
+export default withMethodHandler({
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR, Role.STUDENT]
+  ),
+})

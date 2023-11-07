@@ -1,30 +1,15 @@
-import { PrismaClient, Role, StudentPermission } from '@prisma/client'
+import { Role, StudentPermission } from '@prisma/client'
 
-import { hasRole } from '../../../../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/**
+ * 
+ * Pull the solution files from the code question to the template files
+ * Pull deletes any existing template files and replaces them with the solution files
+ */
 
-const prisma = global.prisma
-
-// hanlder for POST
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // copy solution files to template files
 
   const { questionId, nature } = req.query
@@ -69,8 +54,6 @@ const post = async (req, res) => {
           },
         })
       }
-
-      
       // create new template files
       for (const codeToFile of codeToFiles) {
         let newCodeToFile = await prisma.codeToTemplateFile.create({
@@ -103,4 +86,9 @@ const post = async (req, res) => {
   res.status(200).json(newCodeToFiles || [])
 }
 
-export default handler
+
+export default withMethodHandler({
+  POST: withAuthorization(
+      withPrisma(post), [Role.PROFESSOR]
+  )
+})

@@ -1,33 +1,8 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../../../middleware/withAuthorization';
+import { withPrisma } from '../../../../../../middleware/withPrisma';
 
-import { hasRole } from '../../../../../../code/auth'
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-// hanlder for POST, GET
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
+const get = async (req, res, prisma) => {
     // get the solution queries for a database question
 
     const { questionId } = req.query
@@ -56,7 +31,7 @@ const get = async (req, res) => {
     res.status(200).json(queries)
 }
 
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // create a new empty solution query for a database question
   const { questionId } = req.query
 
@@ -69,12 +44,6 @@ const post = async (req, res) => {
 
     const order = queries.length + 1;
     let newQuery;
-
-    const databaseExists = await prisma.database.findUnique({
-        where: {
-            questionId: questionId,
-        },
-    });
 
     await prisma.$transaction(async (prisma) => {
         newQuery = await prisma.databaseQuery.create({
@@ -99,7 +68,15 @@ const post = async (req, res) => {
     });
 
     res.status(200).json(newQuery)
-
-
 }
-export default handler
+
+export default withMethodHandler({
+    GET: withAuthorization(
+        withPrisma(get), [Role.PROFESSOR]
+    ),
+    POST: withAuthorization(
+        withPrisma(post), [Role.PROFESSOR]
+    )
+})
+
+  

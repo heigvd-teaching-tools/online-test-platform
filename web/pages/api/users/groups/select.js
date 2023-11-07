@@ -1,27 +1,9 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../../code/auth'
+import { Role } from '@prisma/client'
 import { getUser } from '../../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    default:
-  }
-}
-
-const put = async (req, res) => {
+const put = async (req, res, prisma) => {
   // change the selected group of the user
   const { groupId } = req.body
 
@@ -74,4 +56,9 @@ const put = async (req, res) => {
   res.status(200).json({ message: 'ok' })
 }
 
-export default handler
+
+export default withMethodHandler({
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+})
