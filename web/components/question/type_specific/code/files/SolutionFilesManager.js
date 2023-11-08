@@ -14,7 +14,7 @@ import {useDebouncedCallback} from "use-debounce";
 import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
 const environments = languages.environments
-const SolutionFilesManager = ({ questionId, language }) => {
+const SolutionFilesManager = ({ groupScope, questionId, language }) => {
   const filesRef = useRef()
 
   const {
@@ -22,8 +22,8 @@ const SolutionFilesManager = ({ questionId, language }) => {
     mutate,
     error,
   } = useSWR(
-    `/api/questions/${questionId}/code/files/solution`,
-    questionId ? fetcher : null,
+    `/api/${groupScope}/questions/${questionId}/code/files/solution`,
+      groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -35,7 +35,7 @@ const SolutionFilesManager = ({ questionId, language }) => {
     ).extension
     const path = `/src/file${codeToSolutionFiles?.length || ''}.${extension}`
 
-    await create('solution', questionId, {
+    await create('solution', groupScope, questionId, {
       file: {
         path,
         content: '',
@@ -45,12 +45,12 @@ const SolutionFilesManager = ({ questionId, language }) => {
       // scroll to the bottom of the files list
       filesRef.current.scrollTop = filesRef.current.scrollHeight
     })
-  }, [questionId, codeToSolutionFiles, mutate, language])
+  }, [groupScope, questionId, codeToSolutionFiles, mutate, language])
 
   const onFileUpdate = useCallback(
     async (file) => {
       setLockCodeCheck(true)
-      await update('solution', questionId, file).then(async (updatedFile) => {
+      await update('solution', groupScope, questionId, file).then(async (updatedFile) => {
         await mutate(
           codeToSolutionFiles.map((codeToFile) =>
             codeToFile.file.id === updatedFile.id
@@ -61,14 +61,14 @@ const SolutionFilesManager = ({ questionId, language }) => {
       })
       setLockCodeCheck(false)
     },
-    [questionId, codeToSolutionFiles, mutate]
+    [groupScope, questionId, codeToSolutionFiles, mutate]
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
 
   const onDeleteFile = useCallback(
     async (codeToSolutionFile) => {
-      await del('solution', questionId, codeToSolutionFile).then(
+      await del('solution', groupScope, questionId, codeToSolutionFile).then(
         async (msg) => {
           await mutate(
             codeToSolutionFiles.filter(
@@ -78,7 +78,7 @@ const SolutionFilesManager = ({ questionId, language }) => {
         }
       )
     },
-    [questionId, mutate, codeToSolutionFiles]
+    [groupScope, questionId, mutate, codeToSolutionFiles]
   )
 
   return (

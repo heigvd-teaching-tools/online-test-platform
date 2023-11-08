@@ -3,19 +3,15 @@ import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import {
-  Alert,
   Box,
   Button,
   Stack,
   TextField,
   Typography,
 } from '@mui/material'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import Link from 'next/link'
 import QuestionFilter from '../../question/QuestionFilter'
 import { useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
-import { useGroup } from '../../../context/GroupContext'
 import QuestionListItem from '../../questions/list/QuestionListItem'
 import AddIcon from '@mui/icons-material/Add'
 import ReorderableList from '../../layout/utils/ReorderableList'
@@ -30,7 +26,7 @@ import BackButton from '../../layout/BackButton'
 const PageCompose = () => {
   const router = useRouter()
 
-  const { group } = useGroup()
+  const { groupScope, collectionId } = router.query
 
   const [queryString, setQueryString] = useState(undefined)
 
@@ -39,10 +35,10 @@ const PageCompose = () => {
     error: errorSearch,
     mutate: mutateSearch,
   } = useSWR(
-    `/api/questions${
+    `/api/${groupScope}/questions${
       queryString ? `?${new URLSearchParams(queryString).toString()}` : ''
     }`,
-    group ? fetcher : null
+      groupScope ? fetcher : null
   )
 
   const {
@@ -50,20 +46,12 @@ const PageCompose = () => {
     error: errorCollection,
     mutate: mutateCollection,
   } = useSWR(
-    `/api/collections/${router.query.collectionId}`,
-    group && router.query.collectionId ? fetcher : null
+    `/api/${groupScope}/collections/${collectionId}`,
+      groupScope && collectionId ? fetcher : null
   )
 
   const [label, setLabel] = useState('')
   const [collectionToQuestions, setCollectionToQuestions] = useState([])
-
-  useEffect(() => {
-    // if group changes, re-fetch questions
-    if (group) {
-      ;(async () => await mutateCollection())()
-      ;(async () => await mutateSearch())()
-    }
-  }, [group, mutateSearch, mutateCollection])
 
   useEffect(() => {
     if (collection) {
@@ -77,7 +65,7 @@ const PageCompose = () => {
       // add question to collection
       // mutate collection
       const response = await fetch(
-        `/api/collections/${router.query.collectionId}/questions`,
+        `/api/${groupScope}/collections/${collectionId}/questions`,
         {
           method: 'POST',
           headers: {
@@ -92,13 +80,13 @@ const PageCompose = () => {
         await mutateCollection()
       }
     },
-    [router.query.collectionId, mutateCollection]
+    [groupScope, collectionId, mutateCollection]
   )
 
   const saveReOrder = useCallback(async () => {
     // save question order
     const response = await fetch(
-      `/api/collections/${router.query.collectionId}/order`,
+      `/api/${groupScope}/collections/${collectionId}/order`,
       {
         method: 'PUT',
         headers: {
@@ -112,12 +100,12 @@ const PageCompose = () => {
     if (response.ok) {
       await mutateCollection()
     }
-  }, [collectionToQuestions, router.query.collectionId, mutateCollection])
+  }, [groupScope, collectionToQuestions, collectionId, mutateCollection])
 
   const saveCollection = useCallback(
     async (updated) => {
       // save collection
-      await fetch(`/api/collections/${router.query.collectionId}`, {
+      await fetch(`/api/${groupScope}/collections/${collectionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +115,7 @@ const PageCompose = () => {
         }),
       })
     },
-    [router.query.collectionId]
+    [groupScope, collectionId]
   )
 
   const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300)
@@ -194,13 +182,14 @@ const PageCompose = () => {
                     }}
                   />
                   <Stack mt={2} flex={1}>
-                  
+
                   <ScrollContainer spacing={2} padding={1} pb={24}>
                   <ReorderableList onChangeOrder={onChangeCollectionOrder}>
                     {collectionToQuestions &&
                       collectionToQuestions.map(
                         (collectionToQuestion, index) => (
                           <CollectionToQuestion
+                            groupScope={groupScope}
                             key={collectionToQuestion.question.id}
                             index={index}
                             collectionToQuestion={collectionToQuestion}
@@ -233,7 +222,7 @@ const PageCompose = () => {
                     >
                       <Typography variant="h6">Available questions</Typography>
                     </Stack>
-                   
+
                     <ScrollContainer spacing={4} padding={1} pb={12}>
                       {searchQuestions
                         .filter(

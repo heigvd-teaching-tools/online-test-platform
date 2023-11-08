@@ -8,11 +8,11 @@ import {fetcher} from "../../../code/utils";
 import SolutionQueriesManager from "./database/SolutionQueriesManager";
 import Loading from "../../feedback/Loading";
 
-const Database = ({ questionId }) => {
+const Database = ({ groupScope, questionId }) => {
 
     const { data: database, error } = useSWR(
-        `/api/questions/${questionId}/database`,
-        questionId ? fetcher : null,
+        `/api/${groupScope}/questions/${questionId}/database`,
+        groupScope && questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
 
@@ -36,9 +36,10 @@ const Database = ({ questionId }) => {
             </Tabs>
             <TabPanel id="setup" value={tab} index={0}>
                 <TabContent padding={2} spacing={4}>
-                    <Setup 
-                        questionId={questionId} 
-                        database={database} 
+                    <Setup
+                        groupScope={groupScope}
+                        questionId={questionId}
+                        database={database}
                         onChange={(data) => {
                             database.image = data.image
                         }}
@@ -47,7 +48,10 @@ const Database = ({ questionId }) => {
             </TabPanel>
             <TabPanel id="queries" value={tab} index={1}>
                 <TabContent>
-                    <SolutionQueriesManager questionId={questionId} />
+                    <SolutionQueriesManager
+                        groupScope={groupScope}
+                        questionId={questionId}
+                    />
                 </TabContent>
             </TabPanel>
         </Loading>

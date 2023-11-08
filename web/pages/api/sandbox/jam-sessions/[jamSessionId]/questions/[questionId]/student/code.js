@@ -2,7 +2,7 @@ import { Role } from '@prisma/client'
 import { runSandbox } from '../../../../../../../../sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "../../../../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import { withAuthorization, withMethodHandler } from '../../../../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../../../../middleware/withPrisma'
 
@@ -38,7 +38,7 @@ const post = async (req, res, prisma) => {
     return
   }
 
-  
+
   const studentAnswerCodeFiles = await prisma.studentAnswerCode.findUnique({
     where: {
       userEmail_questionId: {
@@ -55,7 +55,7 @@ const post = async (req, res, prisma) => {
     },
   })
 
-  
+
   if (!studentAnswerCodeFiles || !studentAnswerCodeFiles.files) {
     res.status(404).json({ message: 'Student files not found' })
     return
@@ -64,7 +64,7 @@ const post = async (req, res, prisma) => {
   const files = studentAnswerCodeFiles.files.map(
     (codeToFile) => codeToFile.file
   )
- 
+
   await runSandbox({
     image: code.sandbox.image,
     files: files,

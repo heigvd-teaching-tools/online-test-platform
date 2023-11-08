@@ -5,7 +5,7 @@ import {
   IncludeStrategy,
   questionIncludeClause,
 } from '../../../../../code/questions'
-import { isInProgress } from '../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
+import { isInProgress } from '../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
 import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../middleware/withPrisma'
 
@@ -19,7 +19,7 @@ Each question has included the answer for that particular student only
 */
 
 const get = async (req, res, prisma) => {
- 
+
   const { jamSessionId } = req.query
   const { email } = await getUser(req)
 

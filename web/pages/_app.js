@@ -84,11 +84,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           <CssBaseline />
           <Meta />
           <TagsProvider>
-            <GroupProvider session={session}>
-              <Authentication>
-                <Component {...pageProps} />
-              </Authentication>
-            </GroupProvider>
+            <Authentication>
+              <Component {...pageProps} />
+            </Authentication>
           </TagsProvider>
         </SnackbarProvider>
       </SessionProvider>
@@ -98,8 +96,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
 const Meta = () => (
   <Head>
-    <title>HEIG-VD - TWeb - Online Test</title>
-    <meta name="description" content="HEIG-VD - Online test platform" />
+    <title>HEIG-VD - EVAL</title>
+    <meta name="description" content="HEIG-VD - Eval Platform" />
     <link rel="icon" href="/favicon.ico" />
   </Head>
 )

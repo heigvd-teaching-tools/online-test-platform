@@ -4,14 +4,14 @@ import { Stack, TextField, Typography } from '@mui/material'
 import useSWR from 'swr'
 import Loading from '../../../feedback/Loading'
 import { fetcher } from '../../../../code/utils'
-const Sandbox = ({ questionId, language }) => {
+const Sandbox = ({ groupScope, questionId, language }) => {
   const {
     data: sandbox,
     mutate,
     error,
   } = useSWR(
-    `/api/questions/${questionId}/code/sandbox`,
-    questionId ? fetcher : null,
+    `/api/${groupScope}/questions/${questionId}/code/sandbox`,
+      groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -28,7 +28,7 @@ const Sandbox = ({ questionId, language }) => {
   }, [language, mutate])
 
   const onChange = async (sandbox) => {
-    await fetch(`/api/questions/${questionId}/code/sandbox`, {
+    await fetch(`/api/${groupScope}/questions/${questionId}/code/sandbox`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

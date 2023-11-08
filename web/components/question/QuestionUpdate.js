@@ -15,9 +15,8 @@ import { useRouter } from 'next/router'
 import Loading from '../feedback/Loading'
 import { fetcher } from '../../code/utils'
 import DialogFeedback from '../feedback/DialogFeedback'
-import MagicResizeHandle from '../layout/utils/MagicResizeHandle'
 
-const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
+const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
   const router = useRouter()
   const { show: showSnackbar } = useSnackbar()
 
@@ -25,7 +24,7 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
     data:question,
     mutate,
     error,
-  } = useSWR(`/api/questions/${questionId}`, questionId ? fetcher : null, {
+  } = useSWR(`/api/${groupScope}/questions/${questionId}`, questionId ? fetcher : null, {
     revalidateOnFocus: false,
   })
 
@@ -48,7 +47,7 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
 
   const saveQuestion = useCallback(
     async (question) => {
-      await fetch(`/api/questions/${question.id}`, {
+      await fetch(`/api/${groupScope}/questions/${question.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -65,11 +64,11 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
           showSnackbar('Error saving questions', 'error')
         })
     },
-    [showSnackbar, onUpdate]
+    [groupScope, showSnackbar, onUpdate]
   )
 
   const deleteQuestion = useCallback(async () => {
-    await fetch(`/api/questions`, {
+    await fetch(`/api/${groupScope}/questions`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -82,7 +81,7 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
         await mutate()
         onDelete && onDelete(question)
         showSnackbar('Question deleted', 'success')
-        await router.push('/questions')
+        await router.push(`/${groupScope}/questions`)
       })
       .catch(() => {
         showSnackbar('Error deleting question', 'error')
@@ -107,7 +106,6 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
     async (property, value) => {
       // instantly update the question object in memory
       question[property] = value
-      console.log("onPropertyChange", property, value, question)
       // debounce the change to the api
       await debounceChange()
     },
@@ -134,8 +132,9 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
                   }}
                 />
               </Stack>
-              <QuestionTagsSelector 
-                questionId={question.id} 
+              <QuestionTagsSelector
+                groupScope={groupScope}
+                questionId={question.id}
                 onChange={() => onUpdate && onUpdate(question)}
               />
               <ContentEditor
@@ -172,10 +171,11 @@ const QuestionUpdate = ({ questionId, onUpdate, onDelete }) => {
         rightPanel={
           question && (
             <QuestionTypeSpecific
-              question={question}
-              onTypeSpecificChange={(type, value) =>
-                onPropertyChange(type, value)
-              }
+                groupScope={groupScope}
+                question={question}
+                onTypeSpecificChange={(type, value) =>
+                    onPropertyChange(type, value)
+                }
             />
           )
         }

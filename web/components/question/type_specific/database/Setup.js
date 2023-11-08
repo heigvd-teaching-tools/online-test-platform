@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { Stack, TextField, Typography } from '@mui/material'
 
-const Setup = ({ questionId, database, onChange }) => {
+const Setup = ({ groupScope, questionId, database, onChange }) => {
 
   const [image, setImage] = useState(database?.image)
 
@@ -11,7 +11,7 @@ const Setup = ({ questionId, database, onChange }) => {
   }, [database])
 
   const onChangeImage = useCallback(async (database) => {
-    await fetch(`/api/questions/${questionId}/database`, {
+    await fetch(`/api/${groupScope}/questions/${questionId}/database`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ const Setup = ({ questionId, database, onChange }) => {
       body: JSON.stringify(database),
     }).then((res) => res.json())
 
-  }, [questionId]);
+  }, [groupScope, questionId]);
 
   const debouncedOnChange = useDebouncedCallback(onChangeImage, 500)
 

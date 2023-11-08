@@ -14,7 +14,7 @@ import JamSessionCountDown from "../../jam-sessions/in-progress/JamSessionCountD
 import Paging from "../../layout/utils/Paging"
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
 import QuestionView from "../../question/QuestionView"
-import QuestionNav from "../../jam-sessions/take/QuestionNav"
+import QuestionNav from "./take/QuestionNav"
 import { ResizeObserverProvider } from "../../../context/ResizeObserverContext"
 import ScrollContainer from "../../layout/ScrollContainer"
 import AnswerEditor from "../../answer/AnswerEditor"
@@ -84,7 +84,7 @@ const PageTakeJam = () => {
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
-      
+
       <Loading loading={!jamSessionPhase} errors={[errorJamSessionPhase]}>
         {jamSessionPhase && (
           <StudentPhaseRedirect phase={jamSessionPhase.phase}>
@@ -102,7 +102,7 @@ const PageTakeJam = () => {
                           <Box sx={{ ml: 2 }}>
                             <JamSessionCountDown
                               startDate={jamSessionPhase.startAt}
-                              endDate={jamSessionPhase.endAt} 
+                              endDate={jamSessionPhase.endAt}
                             />
                           </Box>
                         )}
@@ -173,7 +173,7 @@ const PageTakeJam = () => {
                     }
                     rightWidth={70}
                   />
-  
+
                 </LayoutMain>
 
             )}
@@ -182,7 +182,7 @@ const PageTakeJam = () => {
         )}
       </Loading>
 
-          
+
     </Authorisation>
   )
 }

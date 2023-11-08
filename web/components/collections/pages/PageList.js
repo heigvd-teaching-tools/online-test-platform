@@ -13,10 +13,10 @@ import Authorisation from '../../security/Authorisation'
 import AddCollectionDialog from '../list/AddCollectionDialog'
 import MainMenu from '../../layout/MainMenu'
 import DateTimeAgo from '../../feedback/DateTimeAgo'
-import { useGroup } from '../../../context/GroupContext'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import {useRouter} from "next/router";
 
 const gridHeader = {
   actions: {
@@ -48,7 +48,9 @@ const gridHeader = {
 }
 
 const PageList = () => {
-  const { group } = useGroup()
+
+  const router = useRouter()
+  const { groupScope } = router.query
 
   const { show: showSnackbar } = useSnackbar()
 
@@ -56,9 +58,9 @@ const PageList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [collectionToDelete, setCollectionToDelete] = useState(null)
 
-  const { data, error, mutate } = useSWR(
-    `/api/collections`,
-    group ? fetcher : null
+  const { data, error } = useSWR(
+    `/api/${groupScope}/collections`,
+    groupScope ? fetcher : null
   )
 
   const [collections, setCollections] = useState(data)
@@ -67,15 +69,8 @@ const PageList = () => {
     setCollections(data)
   }, [data])
 
-  useEffect(() => {
-    // if group changes, re-fetch questions
-    if (group) {
-      ;(async () => await mutate())()
-    }
-  }, [group, mutate])
-
   const deleteCollection = async () => {
-    await fetch(`/api/collections/${collectionToDelete}`, {
+    await fetch(`/api/${groupScope}/collections/${collectionToDelete}`, {
       method: 'DELETE',
     })
       .then((_) => {
@@ -128,7 +123,7 @@ const PageList = () => {
                     } pts` || '0',
                   meta: {
                     key: collection.id,
-                    linkHref: `/collections/${collection.id}`,
+                    linkHref: `/${groupScope}/collections/${collection.id}`,
                     actions: [
                       <IconButton
                         key="delete-collection"

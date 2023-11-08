@@ -11,21 +11,25 @@ import QuestionUpdate from '../../question/QuestionUpdate'
 import BackButton from '../../layout/BackButton'
 
 const PageUpdate = () => {
-  const router = useRouter()
-  return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
-      <LayoutMain
-        hideLogo
-        header={
-          <BackButton backUrl={`/questions`} />
-        }
-      >
-        <Box width="100%" height="100%" pt={1}>
-          <QuestionUpdate questionId={router.query.questionId} />
-        </Box>
-      </LayoutMain>
-    </Authorisation>
-  )
+    const router = useRouter()
+    const { groupScope } = router.query;
+    return (
+        <Authorisation allowRoles={[Role.PROFESSOR]}>
+          <LayoutMain
+            hideLogo
+            header={
+              <BackButton backUrl={`/${groupScope}/questions`} />
+            }
+          >
+            <Box width="100%" height="100%" pt={1}>
+              <QuestionUpdate
+                  groupScope={router.query.groupScope}
+                  questionId={router.query.questionId}
+              />
+            </Box>
+          </LayoutMain>
+        </Authorisation>
+    )
 }
 
 export default PageUpdate

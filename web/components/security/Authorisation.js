@@ -8,7 +8,6 @@ import { useGroup } from '../../context/GroupContext'
 
 const Authorisation = ({ children, allowRoles = [] }) => {
   const { data: session } = useSession()
-  const { mutate } = useGroup()
 
   const [authorization, setAuthorization] = useState({
     hasAllowedRole: false,
@@ -52,7 +51,6 @@ const Authorisation = ({ children, allowRoles = [] }) => {
                     It is not working because "update" is undefined for some reason
                     So we dispatch the event manually:
                  */
-          await mutate()
           const event = new Event('visibilitychange')
           document.dispatchEvent(event)
         }}

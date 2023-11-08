@@ -86,6 +86,8 @@ model Group {
   id    String @id @default(cuid())
   label String @unique
 
+  scope String? @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -112,8 +114,8 @@ model UserOnGroup {
 
 model Collection {
   id    String @id @default(cuid())
-  label String 
-  
+  label String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -121,6 +123,7 @@ model Collection {
 
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String
+
   @@unique([groupId, label])
 }
 
@@ -130,7 +133,7 @@ model CollectionToQuestion {
   question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId   String
 
-  order  Int @default(0)
+  order  Int   @default(0)
   points Float @default(4)
 
   @@id([collectionId, questionId])
@@ -390,26 +393,25 @@ enum DatabaseQueryOutputTest {
 }
 
 model CodeToSolutionFile {
-  code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
   questionId String
 
   order Int @default(0)
 
-  file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId     String @unique
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
 
   @@id([questionId, fileId])
 }
 
 model CodeToTemplateFile {
-  code Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
   questionId String
-
 
   order Int @default(0)
 
-  file       File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId     String @unique
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
 
   studentPermission StudentPermission @default(UPDATE)
 
@@ -419,14 +421,14 @@ model CodeToTemplateFile {
 model Web {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @id
-  
-  solutionHtml       String?
-  solutionCss        String?
-  solutionJs         String?
 
-  templateHtml       String?
-  templateCss        String?
-  templateJs         String?
+  solutionHtml String?
+  solutionCss  String?
+  solutionJs   String?
+
+  templateHtml String?
+  templateCss  String?
+  templateJs   String?
 }
 
 model Tag {
@@ -467,7 +469,7 @@ enum JamSessionStatus {
 model JamSession {
   id String @id @default(cuid())
 
-  label      String?          
+  label      String?
   conditions String?
   status     JamSessionStatus @default(ACTIVE)
   phase      JamSessionPhase  @default(DRAFT)
@@ -485,6 +487,7 @@ model JamSession {
 
   group   Group  @relation(fields: [groupId], references: [id])
   groupId String
+
   @@unique([groupId, label])
 }
 
@@ -496,7 +499,7 @@ model JamSessionToQuestion {
   questionId String   @unique
 
   points Float @default(0)
-  order  Int @default(0)
+  order  Int   @default(0)
 
   @@id([jamSessionId, questionId])
 }
@@ -559,7 +562,7 @@ model StudentQuestionGrading {
   updatedAt DateTime @default(now()) @updatedAt
 
   status         StudentQuestionGradingStatus @default(UNGRADED)
-  pointsObtained Float                          @default(0)
+  pointsObtained Float                        @default(0)
 
   signedBy          User?   @relation(fields: [signedByUserEmail], references: [email])
   signedByUserEmail String?
@@ -631,7 +634,7 @@ model TestCaseResult {
   questionId String
   index      Int
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
   studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)

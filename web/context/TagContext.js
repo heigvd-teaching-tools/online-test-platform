@@ -3,6 +3,7 @@ import useSWR from 'swr'
 import { Role } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { fetcher } from '../code/utils'
+import {useRouter} from "next/router";
 
 const TagsContext = createContext()
 export const useTags = () => useContext(TagsContext)
@@ -10,6 +11,12 @@ export const useTags = () => useContext(TagsContext)
 const isProfessor = (user) => user?.role === Role.PROFESSOR
 
 export const TagsProvider = ({ children }) => {
+
+  const router = useRouter()
+
+  const { groupScope } = router.query
+
+
   const { data: session } = useSession()
 
   const {
@@ -17,7 +24,7 @@ export const TagsProvider = ({ children }) => {
     mutate,
     error,
   } = useSWR(
-    `/api/questions/tags`,
+    `/api/${groupScope}/questions/tags`,
     isProfessor(session?.user) && session.user.selected_group ? fetcher : null,
     { fallbackData: [] }
   )
@@ -32,7 +39,7 @@ export const TagsProvider = ({ children }) => {
 
   const upsert = useCallback(
     async (questionId, tags) => {
-      return await fetch(`/api/questions/${questionId}/tags`, {
+      return await fetch(`/api/${groupScope}/questions/${questionId}/tags`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +54,7 @@ export const TagsProvider = ({ children }) => {
           await mutate(updated)
         })
     },
-    [mutate]
+    [groupScope, mutate]
   )
 
   if (error) return children // they wont have access to tags

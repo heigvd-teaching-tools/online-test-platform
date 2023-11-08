@@ -1,7 +1,7 @@
 import { Role, DatabaseQueryOutputType, Prisma} from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "../../../../../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
 import {runTestsOnDatasets} from "../../../../../../../../../code/database";
 import {runSQLFluffSandbox} from "../../../../../../../../../sandbox/runSQLFluffSandbox";

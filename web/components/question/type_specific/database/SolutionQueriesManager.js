@@ -19,7 +19,7 @@ import StudentPermissionIcon from "../../../feedback/StudentPermissionIcon";
 import BottomCollapsiblePanel from "../../../layout/utils/BottomCollapsiblePanel";
 
 
-const SolutionQueriesManager = ({ questionId }) => {
+const SolutionQueriesManager = ({ groupScope, questionId }) => {
     const theme = useTheme()
 
     const ref = useRef()
@@ -29,8 +29,8 @@ const SolutionQueriesManager = ({ questionId }) => {
         mutate,
         error,
     } = useSWR(
-        `/api/questions/${questionId}/database/queries`,
-        questionId ? fetcher : null,
+        `/api/${groupScope}/questions/${questionId}/database/queries`,
+        groupScope && questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
 
@@ -46,7 +46,7 @@ const SolutionQueriesManager = ({ questionId }) => {
     }, [data]);
 
     const onAddQuery = useCallback(async () => {
-        await fetch(`/api/questions/${questionId}/database/queries`, {
+        await fetch(`/api/${groupScope}/questions/${questionId}/database/queries`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,10 +56,10 @@ const SolutionQueriesManager = ({ questionId }) => {
             await mutate();
             ref.current.scrollTop = ref.current.scrollHeight
         });
-    }, [queries, mutate])
+    }, [groupScope, queries, mutate])
 
     const onQueryUpdate = useCallback( async (query, doMutate = false) => {
-        await fetch(`/api/questions/${questionId}/database/queries/${query.id}`, {
+        await fetch(`/api/${groupScope}/questions/${questionId}/database/queries/${query.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -84,12 +84,12 @@ const SolutionQueriesManager = ({ questionId }) => {
             }
 
         });
-    }, [queries, questionId, mutate]);
+    }, [groupScope, queries, questionId, mutate]);
 
     const debouncedOnQueryUpdate = useDebouncedCallback((q, m) => onQueryUpdate(q, m), 500)
 
     const onQueryDelete = useCallback(async (query) => {
-        await fetch(`/api/questions/${questionId}/database/queries/${query.id}`, {
+        await fetch(`/api/${groupScope}/questions/${questionId}/database/queries/${query.id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ const SolutionQueriesManager = ({ questionId }) => {
         }).then(async () => {
             await mutate();
         });
-    }, [queries, mutate, questionId]);
+    }, [groupScope, queries, mutate, questionId]);
 
     const runAllQueries = useCallback(async () => {
         // erase eventual previous outputs

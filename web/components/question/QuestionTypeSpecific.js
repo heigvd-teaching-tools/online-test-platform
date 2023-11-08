@@ -7,13 +7,14 @@ import Database from "./type_specific/Database";
 import Essay from './type_specific/Essay'
 import ScrollContainer from '../layout/ScrollContainer'
 
-const QuestionTypeSpecific = ({ question, onTypeSpecificChange }) => {
+const QuestionTypeSpecific = ({ groupScope, question, onTypeSpecificChange }) => {
 
   const renderSpecificType = () => {
     switch (question.type) {
       case QuestionType.multipleChoice:
         return (
           <ManageMultipleChoice
+              groupScope={groupScope}
               questionId={question.id}
           />
         );
@@ -21,6 +22,7 @@ const QuestionTypeSpecific = ({ question, onTypeSpecificChange }) => {
       case QuestionType.code:
         return (
             <Code
+                groupScope={groupScope}
                 questionId={question.id}
             />
         );
@@ -28,7 +30,8 @@ const QuestionTypeSpecific = ({ question, onTypeSpecificChange }) => {
       case QuestionType.database:
         return (
             <Database
-              questionId={question.id}
+                groupScope={groupScope}
+                questionId={question.id}
             />
         );
 

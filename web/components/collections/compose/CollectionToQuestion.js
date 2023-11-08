@@ -14,6 +14,7 @@ import Image from 'next/image'
 import DecimalInput from '../../input/DecimalInput'
 
 const CollectionToQuestion = ({
+    groupScope,
   collectionToQuestion,
   index,
   onChange,
@@ -24,7 +25,7 @@ const CollectionToQuestion = ({
       // delete collectionToQuestion
       // mutate collection
       const response = await fetch(
-        `/api/collections/${toDelete.collectionId}/questions`,
+        `/api/${groupScope}/collections/${toDelete.collectionId}/questions`,
         {
           method: 'DELETE',
           headers: {
@@ -39,14 +40,14 @@ const CollectionToQuestion = ({
         onDelete && onDelete(index)
       }
     },
-    [index, onDelete]
+    [groupScope, index, onDelete]
   )
 
   const saveCollectionToQuestion = useCallback(
     async (index, updated) => {
       // save collectionToQuestion
       const response = await fetch(
-        `/api/collections/${updated.collectionId}/questions`,
+        `/api/${groupScope}/collections/${updated.collectionId}/questions`,
         {
           method: 'PUT',
           headers: {
@@ -61,7 +62,7 @@ const CollectionToQuestion = ({
         onChange && onChange(index, updated)
       }
     },
-    [onChange]
+    [groupScope, onChange]
   )
 
   const debounceSaveCollectionToQuestion = useDebouncedCallback(
