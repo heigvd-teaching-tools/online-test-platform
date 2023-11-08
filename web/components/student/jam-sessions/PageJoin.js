@@ -1,8 +1,9 @@
-import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
-import LoadingAnimation from '../../../feedback/LoadingAnimation'
-import { redirectToPhasePage } from '../../../../code/phase'
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+import LoadingAnimation from "../../feedback/LoadingAnimation"
+import { studentPhaseRedirect } from "../../../code/phase"
+
 /*
  *    Used as entry point for students
  *    Sends a join request to the server and redirects to the waiting page
@@ -46,7 +47,7 @@ const PageJoin = () => {
             setError(null)
             const phase = data?.jamSession.phase
             ;(async () => {
-              redirectToPhasePage(jamSessionId, phase, router)
+              studentPhaseRedirect(jamSessionId, phase, router)
             })()
           })
           .catch((err) => {

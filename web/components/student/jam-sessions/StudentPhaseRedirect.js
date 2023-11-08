@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router'
 import {
   phasePageRelationship,
-  redirectToPhasePage,
-} from '../../../../code/phase'
+  studentPhaseRedirect,
+} from '../../../code/phase'
 /*
     Checks if the current pathname corresponds to the expected pathname for the current phase.
     If not, redirects to the expected pathname.
@@ -10,11 +10,12 @@ import {
 */
 const StudentPhaseRedirect = ({ phase, children }) => {
   const router = useRouter()
+
   if (router.pathname !== phasePageRelationship[phase]) {
     // the pathname is not the expected one, we redirect
     const jamSessionId = router.query.jamSessionId
     ;(async () => {
-      await redirectToPhasePage(jamSessionId, phase, router)
+      await studentPhaseRedirect(jamSessionId, phase, router)
     })()
     return null
   }

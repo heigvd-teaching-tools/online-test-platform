@@ -10,7 +10,6 @@ import { Paper, Stack } from "@mui/material"
 import Paging from "../../layout/utils/Paging"
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
 import QuestionView from "../../question/QuestionView"
-import AnswerConsult from "../../answer/AnswerConsult"
 import GradingSigned from "../grading/GradingSigned"
 import GradingPointsComment from "../grading/GradingPointsComment"
 import AlertFeedback from "../../feedback/AlertFeedback"
@@ -74,7 +73,7 @@ const PageProfConsult = () => {
                     items={questionPages}
                     active={selected?.question}
                     link={(_, questionIndex) =>
-                      `/jam-sessions/${jamSessionId}/consult/student/${userEmail}/${questionIndex + 1}`
+                      `/jam-sessions/${jamSessionId}/consult/${userEmail}/${questionIndex + 1}`
                     }
                   />
                 </Stack>

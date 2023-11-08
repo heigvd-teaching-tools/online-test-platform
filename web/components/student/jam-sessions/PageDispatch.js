@@ -1,12 +1,12 @@
 import { Role, JamSessionPhase } from '@prisma/client'
 import { useRouter } from 'next/router'
-import Authentication from '../../../security/Authentication'
-import Authorisation from '../../../security/Authorisation'
+import Authentication from '../../security/Authentication'
+import Authorisation from '../../security/Authorisation'
 import useSWR from 'swr'
 import { useEffect } from 'react'
-import { phaseGT, redirectToPhasePage } from '../../../../code/phase'
-import { fetcher } from '../../../../code/utils'
-import Loading from '../../../feedback/Loading'
+import { phaseGT, studentPhaseRedirect } from '../../../code/phase'
+import { fetcher } from '../../../code/utils'
+import Loading from '../../feedback/Loading'
 
 const PageDispatch = () => {
   const router = useRouter()
@@ -25,12 +25,12 @@ const PageDispatch = () => {
         // check if the current phase of the JamSession allow the user to join
         if (!phaseGT(jamSession.phase, JamSessionPhase.IN_PROGRESS)) {
           ;(async () => {
-            await router.push(`/jam-sessions/${jamSessionId}/join`)
+            await router.push(`/student/jam-sessions/${jamSessionId}/join`)
           })()
         }
       } else {
         ;(async () => {
-          await redirectToPhasePage(jamSessionId, jamSession.phase, router)
+          await studentPhaseRedirect(jamSessionId, jamSession.phase, router)
         })()
       }
     }

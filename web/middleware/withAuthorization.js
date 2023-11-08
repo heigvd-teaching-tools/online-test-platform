@@ -2,7 +2,6 @@ import { getRole } from '../code/auth';
 
 export function withAuthorization(handler, allowedRoles) {
     return async (req, res) => {
-        console.log("withAuthorization", req.method, req.url, allowedRoles)
         const userRole = await getRole(req);
         const isAuthorized = allowedRoles.includes(userRole);
 

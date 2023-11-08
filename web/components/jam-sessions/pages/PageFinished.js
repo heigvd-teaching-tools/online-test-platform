@@ -120,7 +120,7 @@ const PageFinished = () => {
         participant: <UserAvatar user={participant} />,
         actions: (
           <Tooltip title="View student's answers" key="view-student-answers">
-            <a href={`/jam-sessions/${jamSessionId}/consult/student/${participant.email}/1`} target="_blank">
+            <a href={`/jam-sessions/${jamSessionId}/consult/${participant.email}/1`} target="_blank">
               <IconButton size="small">
                 <Image
                   alt="View"
@@ -150,7 +150,7 @@ const PageFinished = () => {
         ...questionColumnValues,
         meta: { 
           key: participant.email,
-          linkHref: `/jam-sessions/${jamSessionId}/consult/student/${participant.email}/1`,
+          linkHref: `/jam-sessions/${jamSessionId}/consult/${participant.email}/1`,
         },
       }
     })

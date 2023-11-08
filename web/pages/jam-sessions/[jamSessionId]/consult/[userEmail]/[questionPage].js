@@ -1,4 +1,4 @@
-import PageProfConsult from "../../../../../../components/jam-sessions/pages/PageProfConsult"
+import PageProfConsult from "../../../../../components/jam-sessions/pages/PageProfConsult"
 
 const ProfessorConsultJamSession = () => <PageProfConsult />
 
