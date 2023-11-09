@@ -20,7 +20,7 @@ import {useGroup} from "../../../context/GroupContext";
 
 const PageList = () => {
 
-  const { groups } = useGroup()
+  const { groups, mutate:mutateGroups } = useGroup()
 
   const [selectedGroup, setSelectedGroup] = useState()
 
@@ -80,12 +80,14 @@ const PageList = () => {
                 <MyGroupsGrid
                   groups={groups}
                   onSelected={(group) => setSelectedGroup(group)}
-                  onLeave={async (groupId) =>
+                  onLeave={async (groupId) => {
                     await onGroupsLeaveOrDelete(groupId)
-                  }
-                  onDelete={async (groupId) =>
+                    await mutateGroups()
+                  }}
+                  onDelete={async (groupId) => {
                     await onGroupsLeaveOrDelete(groupId)
-                  }
+                    await mutateGroups()
+                  }}
 
                 />
               </>

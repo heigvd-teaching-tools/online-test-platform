@@ -14,6 +14,8 @@ const PageAnalytics = () => {
   const router = useRouter()
   const { groupScope, jamSessionId } = router.query
 
+    console.log("PageAnalytics")
+
   const { data: jamSessions, error: errorJamSessions } = useSWR(
     `/api/${groupScope}/jam-sessions`,
       groupScope && jamSessionId ? fetcher : null

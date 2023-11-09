@@ -7,7 +7,7 @@ import { withPrisma } from '../../../../middleware/withPrisma'
  * Used by the page JamSession Grading
 */
 
-const patch = async (req, res) => {
+const patch = async (req, res, prisma) => {
   const {
     grading: {
       questionId,

@@ -3,18 +3,15 @@ import GithubProvider from 'next-auth/providers/github'
 import KeycloakProvider from 'next-auth/providers/keycloak'
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
 import { Octokit } from "octokit";
 import { createAppAuth } from "@octokit/auth-app";
 import fetch from "node-fetch";
 import fs from 'fs';
+import { getPrisma } from "../../../middleware/withPrisma";
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
+const prisma = getPrisma();
 
 const octokit = new Octokit({
   authStrategy: createAppAuth,

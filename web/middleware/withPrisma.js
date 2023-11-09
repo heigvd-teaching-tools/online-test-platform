@@ -9,3 +9,7 @@ export function withPrisma(handler) {
         return handler(req, res, global.xyz_prisma);
     };
 }
+
+export function getPrisma() {
+    return global.xyz_prisma;
+}

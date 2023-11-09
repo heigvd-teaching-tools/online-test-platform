@@ -1,12 +1,14 @@
-import { Role, DatabaseQueryOutputType, Prisma} from '@prisma/client'
-import { getSession } from 'next-auth/react'
-import { grading } from '../../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {DatabaseQueryOutputType, Prisma, Role} from '@prisma/client'
+import {getSession} from 'next-auth/react'
+import {grading} from '../../../../../../../../../code/grading'
+import {
+  isInProgress
+} from "../../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
 import {runTestsOnDatasets} from "../../../../../../../../../code/database";
 import {runSQLFluffSandbox} from "../../../../../../../../../sandbox/runSQLFluffSandbox";
-import { withAuthorization, withMethodHandler } from '../../../../../../../../../middleware/withAuthorization';
-import { withPrisma } from '../../../../../../../../../middleware/withPrisma';
+import {withAuthorization, withMethodHandler} from '../../../../../../../../../middleware/withAuthorization';
+import {withPrisma} from '../../../../../../../../../middleware/withPrisma';
 
 /*
  endpoint to run the database sandbox for a users answers
@@ -84,14 +86,33 @@ const post = async (req, res, prisma) => {
   const image = studentAnswer.question.database.image;
   const sqlQueries = studentAnswer.database.queries.map(q => q.query.content);
 
+  // run the database sandbox
   const result = await runSandboxDB({
     image: image,
     queries: sqlQueries,
   });
 
+  // run the lint sandbox
+  const lintResults = {};
+  const studentAnswerQueries = studentAnswer.database.queries;
+
+  for (const answerToQuery of studentAnswerQueries) {
+    const query = answerToQuery.query;
+    if (query.lintActive) {
+      try {
+        lintResults[query.id] = await runSQLFluffSandbox({
+          sql: query.content,
+          sqlFluffRules: query.lintRules,
+        });
+      } catch (e) {
+        // Handle or log error
+        lintResults[query.id] = null; // or an appropriate error indicator
+      }
+    }
+  }
+
   // update the users answwer with new query outputs
   await prisma.$transaction(async (prisma) => {
-    const studentAnswerQueries = studentAnswer.database.queries;
     const solutionQueryOutputs = studentAnswer.question.database.solutionQueries;
 
     // for each users answer query, upsert the DatabaseQueryOutput in the database
@@ -99,21 +120,9 @@ const post = async (req, res, prisma) => {
         const query = studentAnswerQueries[i].query;
         const currentOutput = result[i];
 
-        // eventually run the linter
         if(query.lintActive){
-          let lintResult;
-
-          try{
-            // run the lint sandbox
-            lintResult = await runSQLFluffSandbox({
-              sql: query.content,
-              sqlFluffRules: query.lintRules,
-            });
-          }catch (e) {
-            console.log("Lint Sandbox Error", e);
-          }
-
           // update the DatabaseQuery with the lint result
+          const lintResult = lintResults[query.id];
           await prisma.databaseQuery.update({
             where: {
               id: query.id,
@@ -122,7 +131,6 @@ const post = async (req, res, prisma) => {
               lintResult: !lintResult ? Prisma.JsonNull : lintResult
             }
           });
-
         }
 
         const studentAnswerDatabaseToQuery = await prisma.studentAnswerDatabaseToQuery.findUnique({
@@ -248,7 +256,7 @@ const post = async (req, res, prisma) => {
 
 
 
-  const studentAnswerQueries = await prisma.studentAnswerDatabaseToQuery.findMany({
+  const studentAnswerDatabaseToQuery = await prisma.studentAnswerDatabaseToQuery.findMany({
     where: {
       userEmail: studentEmail,
       questionId: questionId,
@@ -269,9 +277,9 @@ const post = async (req, res, prisma) => {
 
   })
 
-  if(!studentAnswerQueries) res.status(404).json({message: 'Not found'})
+  if(!studentAnswerDatabaseToQuery) res.status(404).json({message: 'Not found'})
 
-  res.status(200).json(studentAnswerQueries)
+  res.status(200).json(studentAnswerDatabaseToQuery)
 }
 
 

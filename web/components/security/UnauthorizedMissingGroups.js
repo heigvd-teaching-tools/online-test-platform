@@ -10,7 +10,7 @@ const UnauthorizedMissingGroups = () => {
     const { groups } = useGroup()
     // if the user has no groups, redirect to the index page
     useEffect(() => {
-        if(groups.length === 0) {
+        if(groups?.length === 0) {
             (async () => {
                 if (router.pathname !== "/" && router.pathname.includes("[groupScope]")) {
                     await router.push('/')

@@ -13,16 +13,13 @@ const Authorisation = ({ children, allowRoles = [] }) => {
 
   const [authorization, setAuthorization] = useState({
     hasAllowedRole: false,
-    hasGroups: false,
+    hasGroups: undefined,
   })
 
   useEffect(() => {
-    if (session?.user) {
-      setAuthorization({
-        hasAllowedRole: allowRoles.includes(session.user.role),
-        hasGroups: groups.length > 0,
-      })
-    }
+    const hasAllowedRole = session?.user && allowRoles.includes(session.user.role)
+    const hasGroups = groups?.length > 0 || undefined
+    setAuthorization({ hasAllowedRole, hasGroups })
   }, [groups, session, allowRoles])
 
   if (!authorization.hasAllowedRole) {
@@ -37,12 +34,13 @@ const Authorisation = ({ children, allowRoles = [] }) => {
       </Unauthorized>
     )
   }
-    console.log("authorization.hasGroups", authorization.hasGroups)
+
   if (
     authorization.hasAllowedRole &&
     session.user.role === Role.PROFESSOR &&
-    !authorization.hasGroups
+    authorization.hasGroups === false // can be undefined
   ) {
+    // the professor must have groups
     return (
       <UnauthorizedMissingGroups />
     )
@@ -50,6 +48,5 @@ const Authorisation = ({ children, allowRoles = [] }) => {
 
   return children
 }
-
 
 export default Authorisation

@@ -10,15 +10,13 @@ export const useGroup = () => useContext(GroupContext)
 
 export const GroupProvider = ({ children }) => {
 
-  const { data: groups , mutate, error } = useSWR(
-    `/api/users/groups`,
-    fetcher
-  )
-
-
+    const { data: groups, mutate, error } = useSWR(
+        `/api/users/groups`,
+        fetcher
+    )
     const switchGroup = async (scope) => {
         // Persist the selected group in the database
-        await fetch('/api/users/groups/select', {
+        return await fetch('/api/users/groups/select', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -39,7 +37,7 @@ export const GroupProvider = ({ children }) => {
       mutate,
       error,
     }}>
-      {groups && children}
+      {children}
     </GroupContext.Provider>
   )
 }
