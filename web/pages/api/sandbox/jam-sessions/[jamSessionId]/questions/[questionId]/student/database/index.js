@@ -1,7 +1,7 @@
 import { Role, DatabaseQueryOutputType, Prisma} from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "../../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
 import {runTestsOnDatasets} from "../../../../../../../../../code/database";
 import {runSQLFluffSandbox} from "../../../../../../../../../sandbox/runSQLFluffSandbox";
@@ -9,7 +9,7 @@ import { withAuthorization, withMethodHandler } from '../../../../../../../../..
 import { withPrisma } from '../../../../../../../../../middleware/withPrisma';
 
 /*
- endpoint to run the database sandbox for a student answers
+ endpoint to run the database sandbox for a users answers
  Only uses queries stored in the database
  */
 
@@ -48,7 +48,7 @@ const getStudentAnswer = async (prisma, studentEmail, questionId) => {
                 include: {
                   query: {
                     select:{
-                      order:true // we use order to map student query to solution query output
+                      order:true // we use order to map users query to solution query output
                     }
                   },
                   output:true
@@ -89,12 +89,12 @@ const post = async (req, res, prisma) => {
     queries: sqlQueries,
   });
 
-  // update the student answwer with new query outputs
+  // update the users answwer with new query outputs
   await prisma.$transaction(async (prisma) => {
     const studentAnswerQueries = studentAnswer.database.queries;
     const solutionQueryOutputs = studentAnswer.question.database.solutionQueries;
 
-    // for each student answer query, upsert the DatabaseQueryOutput in the database
+    // for each users answer query, upsert the DatabaseQueryOutput in the database
     for (let i = 0; i < studentAnswerQueries.length; i++) {
         const query = studentAnswerQueries[i].query;
         const currentOutput = result[i];
@@ -172,7 +172,7 @@ const post = async (req, res, prisma) => {
             };
           }
 
-          // we got output for the current query, update the student query output
+          // we got output for the current query, update the users query output
           if(existingOutput){
             await prisma.databaseQueryOutput.update({
               where: {
@@ -218,7 +218,7 @@ const post = async (req, res, prisma) => {
 
     // GRADING
 
-    // get the student answers after the update
+    // get the users answers after the update
     const updatedStudentAnswer = await getStudentAnswer(prisma, studentEmail, questionId);
 
     // code questions grading

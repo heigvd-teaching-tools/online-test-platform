@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import {useState, useEffect, useCallback} from 'react'
 import useSWR from 'swr'
 import Link from 'next/link'
 
@@ -14,29 +14,21 @@ import DialogFeedback from '../../feedback/DialogFeedback'
 import { useRouter } from 'next/router'
 import Authorisation from '../../security/Authorisation'
 import MainMenu from '../../layout/MainMenu'
-import { useGroup } from '../../../context/GroupContext'
 import { fetcher } from '../../../code/utils'
 import Loading from '../../feedback/Loading'
 
 const JamSessions = () => {
   const router = useRouter()
 
-  const { group } = useGroup()
+  const { groupScope } = router.query
 
   const { show: showSnackbar } = useSnackbar()
   const [selected, setSelected] = useState(null)
 
   const { data, error, mutate } = useSWR(
-    `/api/jam-sessions`,
-    group ? fetcher : null
+      `/api/${groupScope}/jam-sessions`,
+      groupScope ? fetcher : null
   )
-
-  useEffect(() => {
-    // if group changes, re-fetch jam-sessions
-    if (group) {
-      ;(async () => await mutate())()
-    }
-  }, [group, mutate])
 
   const [tab, setTab] = useState(JamSessionStatus.ACTIVE)
   const [jamSessions, setJamSessions] = useState(data)
@@ -51,9 +43,9 @@ const JamSessions = () => {
     }
   }, [data])
 
-  const endDraftPhase = async () => {
+  const endDraftPhase = useCallback(async () => {
     setEndOfDraftDialogOpen(false)
-    await fetch(`/api/jam-sessions/${selected.id}`, {
+    await fetch(`/api/${groupScope}/jam-sessions/${selected.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -61,11 +53,11 @@ const JamSessions = () => {
       },
       body: JSON.stringify({ phase: JamSessionPhase.IN_PROGRESS }),
     })
-    await router.push(`/jam-sessions/${selected.id}/in-progress`)
-  }
+    await router.push(`/${groupScope}/jam-sessions/${selected.id}/in-progress`)
+  }, [groupScope, router, selected])
 
-  const archiveJamSession = async () => {
-    await fetch(`/api/jam-sessions/${selected.id}`, {
+  const archiveJamSession = useCallback(async () => {
+    await fetch(`/api/${groupScope}/jam-sessions/${selected.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status: JamSessionStatus.ARCHIVED }),
       headers: { 'Content-Type': 'application/json' },
@@ -85,10 +77,10 @@ const JamSessions = () => {
         showSnackbar('Error archiving collections session', 'error')
       })
     setSelected(null)
-  }
+  }, [groupScope, jamSessions, selected, showSnackbar])
 
-  const deleteJamSession = async () => {
-    await fetch(`/api/jam-sessions/${selected.id}`, {
+  const deleteJamSession = useCallback(async () => {
+    await fetch(`/api/${groupScope}/jam-sessions/${selected.id}`, {
       method: 'DELETE',
     })
       .then((_) => {
@@ -101,7 +93,7 @@ const JamSessions = () => {
         showSnackbar('Error deleting collections session', 'error')
       })
     setSelected(null)
-  }
+  }, [groupScope, jamSessions, selected, showSnackbar])
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
@@ -124,7 +116,7 @@ const JamSessions = () => {
                   <Tab label="Archived" value={JamSessionStatus.ARCHIVED} />
                 </TabList>
                 {tab === JamSessionStatus.ACTIVE && (
-                  <Link href="/jam-sessions/new">
+                  <Link href={`/${groupScope}/jam-sessions/new`}>
                     <Button>Create a new jam session</Button>
                   </Link>
                 )}
@@ -134,6 +126,7 @@ const JamSessions = () => {
           >
             {jamSessions && jamSessions.length > 0 && (
               <ListJamSession
+                groupScope={groupScope}
                 jamSessions={jamSessions.filter(
                   (jamSession) =>
                     jamSession.status === tab

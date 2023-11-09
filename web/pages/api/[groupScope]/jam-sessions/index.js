@@ -4,8 +4,7 @@ import {
   QuestionType,
 } from '@prisma/client'
 import { withPrisma } from '../../../../middleware/withPrisma'
-import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
-import { getUserSelectedGroup } from '../../../../code/auth'
+import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../middleware/withAuthorization'
 import {
   questionIncludeClause,
   questionTypeSpecific,
@@ -14,11 +13,13 @@ import {
 
 const get = async (req, res, prisma) => {
   // shallow session to question get -> we just need to count the number of questions
-  const group = await getUserSelectedGroup(req)
+  const { groupScope } = req.query
 
   const jams = await prisma.jamSession.findMany({
     where: {
-      groupId: group.id,
+        group: {
+            scope: groupScope
+        }
     },
     include: {
       jamSessionToQuestions: true,
@@ -39,12 +40,7 @@ The database questions are copied with all the queries and their outputs
 const post = async (req, res, prisma) => {
   const { label, conditions, duration, collectionId } = req.body
 
-  const group = await getUserSelectedGroup(req)
-
-  if (!group) {
-    res.status(400).json({ message: 'No group selected.' })
-    return
-  }
+  const { groupScope } = req.query
 
   if (!collectionId) {
     res.status(400).json({ message: 'No collection selected.' })
@@ -85,7 +81,7 @@ const post = async (req, res, prisma) => {
     conditions,
     group: {
       connect: {
-        id: group.id,
+        scope: groupScope,
       },
     },
   }
@@ -369,15 +365,13 @@ const post = async (req, res, prisma) => {
         break
     }
   }
-
-
 }
 
 export default withMethodHandler({
   GET: withAuthorization(
-    withPrisma(get), [Role.PROFESSOR]
+      withGroupScope(withPrisma(get)), [Role.PROFESSOR]
   ),
   POST: withAuthorization(
-    withPrisma(post), [Role.PROFESSOR]
+      withGroupScope(withPrisma(post)), [Role.PROFESSOR]
   ),
 })

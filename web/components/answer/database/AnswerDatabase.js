@@ -14,7 +14,7 @@ import BottomCollapsiblePanel from "../../layout/utils/BottomCollapsiblePanel";
 
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
-        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
@@ -78,7 +78,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const onQueryChange = useCallback(
         async (query) => {
             const updatedStudentAnswer = await fetch(
-                `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/database/${query.id}`,
+                `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers/database/${query.id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -115,7 +115,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 >
                                     Save and test
                                 </LoadingButton>
-                                
+
                                 <Button
                                     variant={"outlined"}
                                     onClick={() => setOpenConsole(true)}
@@ -150,7 +150,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
                                 </Stack>
                             ))}
                         </ScrollContainer>
-                       
+
                     </BottomCollapsiblePanel>
                     <StudentQueryConsole
                         jamSessionId={jamSessionId}

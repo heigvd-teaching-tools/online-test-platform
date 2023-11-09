@@ -5,7 +5,7 @@ import { withPrisma } from '../../../../middleware/withPrisma'
 
 const get = async (req, res, prisma) => {
   const user = await getUser(req)
-  // get the list of groups that this user is a member of
+  // get the list of groups that this users is a member of
   const groups = await prisma.userOnGroup.findMany({
     where: {
       userId: user.id,

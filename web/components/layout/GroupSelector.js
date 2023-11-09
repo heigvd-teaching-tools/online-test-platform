@@ -1,12 +1,13 @@
 import DropDown from '../input/DropDown'
 import GroupIcon from '@mui/icons-material/Group'
-import { Button, MenuItem, Stack, Typography } from '@mui/material'
+import {Button, MenuItem, Stack, Typography} from '@mui/material'
 import Link from 'next/link'
 import useSWR from "swr";
 import {fetcher} from "../../code/utils";
 import {useRouter} from "next/router";
 import {useEffect, useState} from "react";
 import Loading from "../feedback/Loading";
+import {useGroup} from "../../context/GroupContext";
 
 const GroupSelector = () => {
 
@@ -14,21 +15,19 @@ const GroupSelector = () => {
 
   const { groupScope } = query
 
-  const { data: groups, error } = useSWR(
-        '/api/users/groups',
-        fetcher
-  );
+  const { groups, switchGroup, error: errorGroups } = useGroup()
 
   const findGroupBy = (what, value) => groups?.map(uOg => uOg.group).find((group) => group[what] === value) || undefined
 
   const switchGroupLink = (group) => {
     // replaces the root part of the path by the new group scope
-    const newPath = asPath.replace(/\/[^\/]*\//, `/${group.scope}/`)
-    return newPath
+    return asPath.replace(/\/[^\/]*\//, `/${group.scope}/`)
   }
 
   const handleGroupClick = async (group) => {
-    await push(switchGroupLink(group))
+    await push(switchGroupLink(group)).finally(() => {
+      switchGroup(group.scope)
+    })
   }
 
   const [ selected, setSelected ] = useState(undefined)
@@ -43,7 +42,7 @@ const GroupSelector = () => {
   return (
       <Loading
             loading={!groups}
-            error={error}
+            error={errorGroups}
         >{
           groups?.length > 0 && selected && (
             <DropDown

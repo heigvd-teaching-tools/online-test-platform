@@ -71,7 +71,7 @@ const QuestionTypeSpecific = ({ groupScope, question, onTypeSpecificChange }) =>
             );
         }
       default:
-        return null; // or a default component or some feedback to the user
+        return null; // or a default component or some feedback to the users
     }
   };
 

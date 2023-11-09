@@ -4,21 +4,24 @@ import { withAuthorization, withMethodHandler } from '../../../middleware/withAu
 import { withPrisma } from '../../../middleware/withPrisma'
 /**
  * Managing groups
- * 
+ *
  * post: create a new group
  *
  */
 
+
+
 const post = async (req, res, prisma) => {
   // create a new group
-  const { label, select } = req.body
+  const { label, scope, select } = req.body
 
   const user = await getUser(req)
 
   try {
     const group = await prisma.group.create({
       data: {
-        label,
+        label: label,
+        scope: scope,
         createdBy: {
           connect: {
             id: user.id,

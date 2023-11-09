@@ -6,7 +6,7 @@ import {
   questionIncludeClause,
 } from '../../../../../../code/questions'
 /*
-  Professor can consult the student's answers to the questions of a jam session
+  Professor can consult the users's answers to the questions of a jam session
 */
 const get = async (req, res, prisma) => {
     const { jamSessionId, userEmail } = req.query

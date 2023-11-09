@@ -5,7 +5,6 @@ import { Box, Button, Stack, Typography } from '@mui/material'
 
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
-import { useGroup } from '../../../context/GroupContext'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Link from 'next/link'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -17,15 +16,17 @@ import MyGroupsGrid from '../list/MyGroupsGrid'
 import GroupMembersGrid from '../list/GroupMembersGrid'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import {useGroup} from "../../../context/GroupContext";
 
 const PageList = () => {
-  const { groups, mutate: mutateGroups } = useGroup()
+
+  const { groups } = useGroup()
 
   const [selectedGroup, setSelectedGroup] = useState()
 
   const [addGroupDialogOpen, setAddGroupDialogOpen] = useState(false)
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false)
-  
+
   const {
     data: group,
     error,
@@ -37,7 +38,7 @@ const PageList = () => {
 
   useEffect(() => {
     if (groups && groups.length > 0) {
-      setSelectedGroup(groups[0])
+      setSelectedGroup(groups[0].group)
     }
   }, [groups])
 
@@ -46,9 +47,8 @@ const PageList = () => {
       if (selectedGroup && selectedGroup.id === groupId) {
         setSelectedGroup(null)
       }
-      await mutateGroups()
     },
-    [selectedGroup, setSelectedGroup, mutateGroups]
+    [selectedGroup, setSelectedGroup]
   )
 
   return (
@@ -57,7 +57,7 @@ const PageList = () => {
         <LayoutMain
           header={
             <Box>
-              <Link href="/questions">
+              <Link href="/">
                 <Button startIcon={<ArrowBackIosIcon />}>Back</Button>
               </Link>
             </Box>
@@ -86,7 +86,7 @@ const PageList = () => {
                   onDelete={async (groupId) =>
                     await onGroupsLeaveOrDelete(groupId)
                   }
-                 
+
                 />
               </>
             }
@@ -106,14 +106,14 @@ const PageList = () => {
                       Add a new member
                     </Button>
                   </Stack>
-                  <GroupMembersGrid 
-                    group={group} 
+                  <GroupMembersGrid
+                    group={group}
                     onUpdate={
-                      async () => { 
+                      async () => {
                         await mutate()
                         await mutateGroups()
                       }
-  
+
                     }
                   />
                 </>
@@ -132,7 +132,6 @@ const PageList = () => {
           <AddGroupDialog
             open={addGroupDialogOpen}
             onClose={() => setAddGroupDialogOpen(false)}
-            onSuccess={async () => await mutateGroups()}
           />
 
           <AddMemberDialog

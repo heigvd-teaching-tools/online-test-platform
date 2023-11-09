@@ -23,7 +23,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
   const { jamSessionId } = router.query
 
   const { data: answer, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions/${question.id}/answers`,
+    `/api/users/jam-sessions/${jamSessionId}/questions/${question.id}/answers`,
     jamSessionId && question ? fetcher : null,
       { revalidateOnFocus: false }
   )
@@ -98,7 +98,7 @@ const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange
 
   useEffect(() => {
     if (answer?.question.multipleChoice.options && answer) {
-      // merge the options with the student answers
+      // merge the options with the users answers
 
       let allOptions = answer.question.multipleChoice.options
       let studentOptions = answer.multipleChoice?.options
@@ -123,7 +123,7 @@ const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange
       const changedOption = options[index]
       const method = changedOption.isCorrect ? 'POST' : 'DELETE'
       const updatedStudentAnswer = await fetch(
-        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/multi-choice/options`,
+        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers/multi-choice/options`,
         {
           method: method,
           headers: { 'Content-Type': 'application/json' },
@@ -148,7 +148,7 @@ const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange
 }
 
 const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
-  
+
   const onTrueFalseChange = useCallback(
     async (isTrue) => {
       const answer = {
@@ -161,7 +161,7 @@ const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) =
       }
 
       const updatedStudentAnswer = await fetch(
-        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -186,12 +186,12 @@ const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) =
 }
 
 const AnswerEssay = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
-  
+
   const onEssayChange = useCallback(
     async (content) => {
       if (answer.essay.content === content) return
       const updatedStudentAnswer = await fetch(
-        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -245,7 +245,7 @@ const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
       }
 
       const updatedStudentAnswer = await fetch(
-        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -283,7 +283,7 @@ const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
             />
           }
         />
-        
+
       )
   )
 }

@@ -3,7 +3,11 @@ import { Role, StudentAnswerStatus } from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { isInProgress } from '../utils'
 import { grading } from '../../../../../../../../../code/grading'
-import { withAuthorization, withMethodHandler } from '../../../../../../../../../middleware/withAuthorization'
+import {
+  withAuthorization,
+  withGroupScope,
+  withMethodHandler
+} from '../../../../../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../../../../../middleware/withPrisma'
 
 const addOrRemoveOption = async (req, res, prisma) => {
@@ -16,8 +20,8 @@ const addOrRemoveOption = async (req, res, prisma) => {
   const { option } = req.body
 
   // get all options including their official answer status,
-  // these are used to grade the student answers
-  // WARNING! they should not be returned by the api to the student
+  // these are used to grade the users answers
+  // WARNING! they should not be returned by the api to the users
   const jamSessionToQuestion = await prisma.jamSessionToQuestion.findUnique({
     where: {
       jamSessionId_questionId: {
@@ -77,7 +81,7 @@ const addOrRemoveOption = async (req, res, prisma) => {
 
   const transaction = [] // to do in single transaction, queries are done in order
 
-  // update the status of the student answers
+  // update the status of the users answers
   transaction.push(
     prisma.studentAnswer.update({
       where: {
@@ -92,7 +96,7 @@ const addOrRemoveOption = async (req, res, prisma) => {
     })
   )
 
-  // add option to student multi-choice answers
+  // add option to users multi-choice answers
   transaction.push(
     prisma.studentAnswerMultipleChoice.update({
       where: {
@@ -114,7 +118,7 @@ const addOrRemoveOption = async (req, res, prisma) => {
   // prisma transaction
   await prisma.$transaction(transaction)
 
-  // get the updated student answers
+  // get the updated users answers
   const studentAnswer = await prisma.studentAnswerMultipleChoice.findUnique({
     where: {
       userEmail_questionId: {
@@ -132,7 +136,7 @@ const addOrRemoveOption = async (req, res, prisma) => {
     },
   })
 
-  // grade the student answers
+  // grade the users answers
   await prisma.studentQuestionGrading.upsert({
     where: {
       userEmail_questionId: {
@@ -149,7 +153,7 @@ const addOrRemoveOption = async (req, res, prisma) => {
   })
 
 
-  // get the updated student answers -> do not return the options official answer status "isCorerct"
+  // get the updated users answers -> do not return the options official answer status "isCorerct"
   const updatedStudentAnswer = await prisma.studentAnswer.findUnique({
     where: {
       userEmail_questionId: {
@@ -177,9 +181,9 @@ const addOrRemoveOption = async (req, res, prisma) => {
 
 export default withMethodHandler({
   POST: withAuthorization(
-    withPrisma(addOrRemoveOption), [Role.PROFESSOR, Role.STUDENT]
+      withPrisma(addOrRemoveOption), [Role.PROFESSOR, Role.STUDENT]
   ),
   DELETE: withAuthorization(
-    withPrisma(addOrRemoveOption), [Role.PROFESSOR, Role.STUDENT]
+      withPrisma(addOrRemoveOption), [Role.PROFESSOR, Role.STUDENT]
   )
 })

@@ -17,39 +17,39 @@ const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, right
     const inputValue = e.target.value;
     setErrorMessage(undefined);
     // replace comma with dot
-    setValue(inputValue.replace(',', '.'));  // Update the state with whatever user types
+    setValue(inputValue.replace(',', '.'));  // Update the state with whatever users types
 
     // Test the input value format
     if (inputValue === '' || !regex.test(inputValue) || inputValue[inputValue.length - 1] === '.') {
         setErrorMessage("Not a valid number");
         return;
     }
-   
-    const floatValue = parseFloat(inputValue);
+
+    let floatValue = parseFloat(inputValue);
 
     // Value must be convertable to a float
     if (isNaN(floatValue)) {
         setErrorMessage("Not a valid number");
         return;
-    }    
+    }
 
     // Value must be between min and max
     if(floatValue < min ) {
-        floatValue = min;     
-        setValue(floatValue); 
-        onChange(floatValue); 
+        floatValue = min;
+        setValue(floatValue);
+        onChange(floatValue);
         return;
     }
 
     if(floatValue > max ) {
         floatValue = max;
-        setValue(floatValue); 
-        onChange(floatValue); 
+        setValue(floatValue);
+        onChange(floatValue);
         return;
     }
 
     onChange(floatValue);
-    
+
 
   }, [min, max, onChange]);
 
@@ -64,7 +64,7 @@ const DecimalInput = ({ value: initial, onChange, min = 0, max = Infinity, right
             inputMode: 'numeric',
             pattern: '^\\d*(\\.\\d{0,2})?$',
             endAdornment: <InputAdornment position="end"><Typography variant={"caption"}>{rightAdornement}</Typography></InputAdornment>,
-        }}            
+        }}
         {...props}
     />
   );

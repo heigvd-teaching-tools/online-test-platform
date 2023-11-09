@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import PageTakeJam from '../../../../../components/student/jam-sessions/PageTakeJam'
+import PageTakeJam from '../../../../../components/users/jam-sessions/PageTakeJam'
 
 const TakeJamSession = () => {
     return (

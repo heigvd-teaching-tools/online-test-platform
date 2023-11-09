@@ -1,12 +1,12 @@
 import { Role } from '@prisma/client'
 import { getSession } from 'next-auth/react'
-import {isInProgress} from "../../../../../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "../../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
 import { withAuthorization, withMethodHandler } from '../../../../../../../../../middleware/withAuthorization';
 import { withPrisma } from '../../../../../../../../../middleware/withPrisma';
 
 /*
- endpoint to run the database console query sandbox for a student
+ endpoint to run the database console query sandbox for a users
  */
 const post = async (req, res, prisma) => {
   const session = await getSession({ req })

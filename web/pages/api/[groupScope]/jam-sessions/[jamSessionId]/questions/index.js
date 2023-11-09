@@ -1,21 +1,19 @@
 import {  Role } from '@prisma/client'
-import { withAuthorization, withMethodHandler } from '../../../../../../middleware/withAuthorization'
+import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../../middleware/withPrisma'
 
 import {
   IncludeStrategy,
   questionIncludeClause,
 } from '../../../../../../code/questions'
-import { getUserSelectedGroup } from '../../../../../../code/auth'
 
 /*
 used by the jam session pages grading, finished and analytics to fetch the questions of the jam session with official amswers
-and include all student answers and gradings
+and include all users answers and gradings
 
 */
 const get = async (req, res, prisma) => {
-  const { jamSessionId, withGradings = 'false' } = req.query
-  const group = await getUserSelectedGroup(req)
+  const { groupScope, jamSessionId, withGradings = 'false' } = req.query
 
   let questionIncludeOptions = {
     includeTypeSpecific: true,
@@ -33,7 +31,9 @@ const get = async (req, res, prisma) => {
     where: {
       jamSessionId: jamSessionId,
       question: {
-        groupId: group.id,
+        group: {
+            scope: groupScope,
+        }
       },
     },
     include: {
@@ -50,5 +50,5 @@ const get = async (req, res, prisma) => {
 
 export default withMethodHandler({
   GET: withAuthorization(
-    withPrisma(get), [Role.PROFESSOR]),
+    withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
 })

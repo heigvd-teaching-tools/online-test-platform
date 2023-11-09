@@ -9,7 +9,7 @@ import { displayDateTime, linkPerPhase } from './utils'
 import { getStudentEntryLink } from '../../../code/utils'
 import React from 'react'
 
-const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
+const ListJamSession = ({ groupScope, jamSessions, onStart, onDelete }) => (
   <DataGrid
     header={gridHeader}
     items={jamSessions?.map((jamSession) => ({
@@ -43,7 +43,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
       ),
       meta: {
         key: `jam-session-${jamSession.id}`,
-        linkHref: linkPerPhase(jamSession.phase, jamSession.id),
+        linkHref: linkPerPhase(groupScope, jamSession.phase, jamSession.id),
         actions: [
           <React.Fragment key="actions">
           <Tooltip title="Copy student link to clipboard" key="add-link-to-clipboard">
@@ -67,7 +67,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
               />
             </IconButton>
             </Tooltip>
-            <Link href={`/jam-sessions/${jamSession.id}/analytics`} passHref key="analytics">
+            <Link href={`/${groupScope}/jam-sessions/${jamSession.id}/analytics`} passHref key="analytics">
               <Tooltip title="Open Analytics Page">
                 <IconButton component="span">
                   <Image
@@ -83,7 +83,7 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
             { jamSession.status === JamSessionStatus.ACTIVE && (
                 <Tooltip title="Add to archive" key="archive">
                   <IconButton
-                    
+
                     onClick={(ev) => onDelete(ev, jamSession)}
                   >
                     <Image
@@ -112,8 +112,8 @@ const ListJamSession = ({ jamSessions, onStart, onDelete }) => (
                 </IconButton>
                 </Tooltip>
             )}
-            
-            
+
+
           </React.Fragment>,
         ],
       },

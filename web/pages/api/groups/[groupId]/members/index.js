@@ -3,8 +3,8 @@ import { getUser } from '../../../../../code/auth'
 import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../middleware/withPrisma'
 
-/** Managing the members of a group 
- * 
+/** Managing the members of a group
+ *
  * get: list members of a group
  * post: add a member to a group
  * del: remove a member from a group
@@ -14,7 +14,7 @@ const get = async (req, res, prisma) => {
   // get all members of group
   const { groupId } = req.query
 
-  // check if the user is a member of the group they are trying to get members of
+  // check if the users is a member of the group they are trying to get members of
   const user = await getUser(req)
 
   if (!user) {
@@ -59,7 +59,7 @@ const post = async (req, res, prisma) => {
   const { groupId } = req.query
   const { member } = req.body
 
-  // check if the user is a member of the group they are trying to add a member to
+  // check if the users is a member of the group they are trying to add a member to
   const requester = await getUser(req)
 
   if (!requester) {
@@ -112,7 +112,7 @@ const del = async (req, res, prisma) => {
 
   const user = await getUser(req)
 
-  // check if the user is a member of the group they are trying to remove a member from
+  // check if the users is a member of the group they are trying to remove a member from
   const userIsMemberOfGroup = await prisma.group.findFirst({
     where: {
       id: groupId,

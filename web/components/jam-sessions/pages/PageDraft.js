@@ -22,13 +22,13 @@ import BackButton from '../../layout/BackButton'
 
 const PageDraft = () => {
   const router = useRouter()
-  const { jamSessionId } = router.query
+  const { groupScope, jamSessionId } = router.query
 
   const { show: showSnackbar } = useSnackbar()
 
   const { data: jamSession, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}`,
-    jamSessionId ? fetcher : null,
+    `/api/${groupScope}/jam-sessions/${jamSessionId}`,
+      groupScope && jamSessionId ? fetcher : null,
     {
       fallbackData: {
         id: undefined,
@@ -105,7 +105,7 @@ const PageDraft = () => {
     }
 
     if (jamSession.id) {
-      await update(jamSession.id, data)
+      await update(groupScope, jamSession.id, data)
         .then((response) => {
           if (response.ok) {
             showSnackbar('Jam session saved', 'success')
@@ -119,11 +119,11 @@ const PageDraft = () => {
           showSnackbar('Error while saving jam session', 'error')
         })
     } else {
-      await create(data)
+      await create(groupScope, data)
         .then((response) => {
           if (response.ok) {
             response.json().then(async (data) => {
-              await router.push(`/jam-sessions/${data.id}/draft`)
+              await router.push(`/${groupScope}/jam-sessions/${data.id}/draft`)
             })
           } else {
             response.json().then((data) => {
@@ -144,30 +144,31 @@ const PageDraft = () => {
     duration,
     showSnackbar,
     router,
+    groupScope,
   ])
 
   const handleFinalize = useCallback(async () => {
     if (await handleSave()) {
-      await router.push(`/jam-sessions`)
+      await router.push(`/${groupScope}/jam-sessions`)
     }
-  }, [router, handleSave])
+  }, [groupScope, router, handleSave])
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading error={[error]} loading={!jamSession}>
         <PhaseRedirect phase={jamSession?.phase}>
-          <LayoutMain 
+          <LayoutMain
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/jam-sessions`} />
+                <BackButton backUrl={`/${groupScope}/jam-sessions`} />
                 { jamSession.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {jamSession.label}
                   </Typography>
                 )}
               </Stack>
-            } 
+            }
             padding={2}
             >
               <Stack sx={{ width: '100%' }} spacing={4} pb={40}>
@@ -176,6 +177,7 @@ const PageDraft = () => {
                 )}
 
                 <StepReferenceCollection
+                  groupScope={groupScope}
                   disabled={jamSessionQuestions.length > 0}
                   jamSession={jamSession}
                   onChangeCollection={onChangeReferenceCollection}
@@ -191,10 +193,11 @@ const PageDraft = () => {
                 />
 
                 <StepSchedule
+                  groupScope={groupScope}
                   jamSession={jamSession}
                   onChange={onDurationChange}
                 />
-                
+
 
                 <Stack direction="row" justifyContent="space-between">
                   <LoadingButton

@@ -9,7 +9,7 @@ import {
 } from '../../../../../code/questions'
 import {
   isFinished,
-} from '../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
+} from './questions/[questionId]/answers/utils'
 
 
 const get = async (req, res, prisma) => {

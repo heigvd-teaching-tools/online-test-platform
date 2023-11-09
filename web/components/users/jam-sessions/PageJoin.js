@@ -16,12 +16,12 @@ const PageJoin = () => {
   const [error, setError] = useState(null)
   useEffect(() => {
     /*
-     * student is joining the jam session (it must be in draft or in-progress phase)
+     * users is joining the jam session (it must be in draft or in-progress phase)
      * */
     setError(null)
     if (jamSessionId && session && status === 'authenticated') {
       ;(async () => {
-        await fetch(`/api/jam-sessions/${jamSessionId}/join`, {
+        await fetch(`/api/users/jam-sessions/${jamSessionId}/join`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

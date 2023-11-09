@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
 import { withPrisma } from '../../../../../middleware/withPrisma';
-import { withMethodHandler, withAuthorization } from '../../../../../middleware/withAuthorization';
+import {withMethodHandler, withAuthorization, withGroupScope} from '../../../../../middleware/withAuthorization';
 
 const get = async (req, res, prisma) => {
   const { jamSessionId } = req.query
@@ -19,6 +19,6 @@ const get = async (req, res, prisma) => {
 
 export default withMethodHandler({
   GET: withAuthorization(
-    withPrisma(get), [Role.PROFESSOR, Role.STUDENT]
+    withGroupScope(withPrisma(get)), [Role.PROFESSOR, Role.STUDENT]
   ),
 })

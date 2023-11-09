@@ -29,7 +29,7 @@ const PageWaiting = () => {
   const jamSessionId = router.query.jamSessionId
 
   const { data, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/dispatch`,
+    `/api/users/jam-sessions/${jamSessionId}/dispatch`,
     jamSessionId ? fetcher : null,
     { refreshInterval: 1000 }
   )

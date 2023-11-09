@@ -8,19 +8,22 @@ import {
 import { getSession } from 'next-auth/react'
 import { isInProgress } from './utils'
 import { grading } from '../../../../../../../../code/grading'
-import { withAuthorization, withMethodHandler } from '../../../../../../../../middleware/withAuthorization'
+import {
+  withAuthorization,
+  withGroupScope,
+  withMethodHandler
+} from '../../../../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../../../../middleware/withPrisma'
 
 
 /*
-  get the student answers for a question including related nested data
+  get the users answers for a question including related nested data
 
 */
 const get = async (req, res, prisma) => {
   const session = await getSession({ req })
   const studentEmail = session.user.email
   const { questionId } = req.query
-
 
   const studentAnswer = await prisma.studentAnswer.findUnique({
     where: {
@@ -53,7 +56,7 @@ const get = async (req, res, prisma) => {
                 select: {
                   query: {
                     select:{
-                      order:true // we use order to map student query to solution query output
+                      order:true // we use order to map users query to solution query output
                     }
                   },
                   output:true
@@ -124,12 +127,12 @@ const get = async (req, res, prisma) => {
 }
 
 /*
- endpoint to handle student answers related to all single level question types (without complex nesting)
+ endpoint to handle users answers related to all single level question types (without complex nesting)
  ONLY : [true false, essay, web]
  The complexe question types have their own endpoints
 */
 const put = async (req, res, prisma) => {
-  // update student answers
+  // update users answers
   const session = await getSession({ req })
   const studentEmail = session.user.email
   const { jamSessionId, questionId } = req.query
@@ -166,7 +169,7 @@ const put = async (req, res, prisma) => {
 
   const transaction = [] // to do in single transaction, queries are done in order
 
-  // update the status of the student answers
+  // update the status of the users answers
   transaction.push(
     prisma.studentAnswer.update({
       where: {
@@ -181,7 +184,7 @@ const put = async (req, res, prisma) => {
     })
   )
 
-  // update the typeSpecific student answers
+  // update the typeSpecific users answers
 
   const {
     answer: data,
@@ -238,7 +241,7 @@ const put = async (req, res, prisma) => {
 }
 
 /*
-    prepare the answers and grading for the student answers and select the correct model to update
+    prepare the answers and grading for the users answers and select the correct model to update
     this function also insures that no other fields or related entities are changed by the client
 */
 const prepareAnswer = (questionToJamSession, answer) => {
@@ -277,9 +280,9 @@ const prepareAnswer = (questionToJamSession, answer) => {
 
 export default withMethodHandler({
   PUT: withAuthorization(
-    withPrisma(put), [Role.STUDENT, Role.PROFESSOR]
+      withPrisma(put), [Role.STUDENT, Role.PROFESSOR]
   ),
   GET: withAuthorization(
-    withPrisma(get), [Role.STUDENT, Role.PROFESSOR]
+      withPrisma(get), [Role.STUDENT, Role.PROFESSOR]
   ),
 })

@@ -3,17 +3,17 @@ export const displayDateTime = (date) => {
   const d = new Date(date)
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
 }
-export const linkPerPhase = (phase, examSessionId) => {
+export const linkPerPhase = (groupScope, phase, jamSessionId) => {
   switch (phase) {
     case JamSessionPhase.DRAFT:
-      return `/jam-sessions/${examSessionId}/draft`
+      return `/${groupScope}/jam-sessions/${jamSessionId}/draft`
     case JamSessionPhase.IN_PROGRESS:
-      return `/jam-sessions/${examSessionId}/in-progress`
+      return `/${groupScope}/jam-sessions/${jamSessionId}/in-progress`
     case JamSessionPhase.GRADING:
-      return `/jam-sessions/${examSessionId}/grading/1`
+      return `/${groupScope}/jam-sessions/${jamSessionId}/grading/1`
     case JamSessionPhase.FINISHED:
-      return `/jam-sessions/${examSessionId}/finished`
+      return `/${groupScope}/jam-sessions/${jamSessionId}/finished`
     default:
-      return `/jam-sessions`
+      return `/${groupScope}/jam-sessions`
   }
 }

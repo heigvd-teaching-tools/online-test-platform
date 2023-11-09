@@ -98,10 +98,10 @@ export default NextAuth({
         })
 
         if (userWithGroups) {
-          session.user.groups = userWithGroups.groups
+          session.user.groups = userWithGroups.groups.map((g) => g.group.scope);
           session.user.selected_group = userWithGroups.groups.find(
             (g) => g.selected
-          )?.group
+          )?.group.scope
         }
       }
       session.user.id = user.id

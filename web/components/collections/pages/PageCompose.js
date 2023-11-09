@@ -161,7 +161,7 @@ const PageCompose = () => {
           hideLogo
           header={
             <BackButton
-              backUrl={`/collections`}
+              backUrl={`/${groupScope}/collections`}
             />
           }
         >

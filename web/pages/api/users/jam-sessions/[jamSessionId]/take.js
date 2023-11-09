@@ -5,16 +5,16 @@ import {
   IncludeStrategy,
   questionIncludeClause,
 } from '../../../../../code/questions'
-import { isInProgress } from '../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
+import { isInProgress } from './questions/[questionId]/answers/utils'
 import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../middleware/withPrisma'
 
 /*
-Get the details about thr jam session for a student
+Get the details about thr jam session for a users
 get the list of questions of that jam session including points oprder and question
 Only shallow question is included (type, title,content ...) without type specific data (code, database, ...
 No official answers are included and no question type specific at all
-Each question has included the answer for that particular student only
+Each question has included the answer for that particular users only
 
 */
 

@@ -6,8 +6,8 @@ import { phaseGT } from '../../../../../code/phase'
 import { getUser } from '../../../../../code/auth';
 
 /*
-fetch the informations necessary to decide where the user should be redirected
-based on the phase of the jam session and the relation between the user and the jam session
+fetch the informations necessary to decide where the users should be redirected
+based on the phase of the jam session and the relation between the users and the jam session
 Will respond with the JamSession phase and the UserOnJamSession object
 * */
 const get = async (req, res, prisma) => {
@@ -40,13 +40,13 @@ const get = async (req, res, prisma) => {
 
   if (!userOnJamSession) {
     if (phaseGT(jamSession.phase, JamSessionPhase.IN_PROGRESS)) {
-      // the user is not in the jam session, and the jam session after the in progress phase
+      // the users is not in the jam session, and the jam session after the in progress phase
       res
         .status(401)
         .json({ message: "It is too late to apologize. It's too late." })
       return
     }
-    // the user is not in the jam session, but its not to late to join
+    // the users is not in the jam session, but its not to late to join
     // the response is still ok
     res.status(200).json({
       jamSession: jamSession,
@@ -55,7 +55,7 @@ const get = async (req, res, prisma) => {
     return
   }
 
-  // the user is already in the jam session
+  // the users is already in the jam session
   res.status(200).json({
     jamSession: jamSession,
     userOnJamSession: userOnJamSession,

@@ -32,7 +32,7 @@ const PageTakeJam = () => {
   const { data: session } = useSession()
 
   const { data: jamSessionPhase, error: errorJamSessionPhase } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/phase`,
+    `/api/users/jam-sessions/${jamSessionId}/phase`,
     jamSessionId ? fetcher : null,
     { refreshInterval: 1000 }
   )
@@ -111,7 +111,7 @@ const PageTakeJam = () => {
                             items={pages}
                             active={pages[page - 1]}
                             link={(_, index) =>
-                              `/student/jam-sessions/${jamSessionId}/take/${index + 1}`
+                              `/users/jam-sessions/${jamSessionId}/take/${index + 1}`
                             }
                           />
                         )}
@@ -153,7 +153,7 @@ const PageTakeJam = () => {
                               <AnswerEditor
                                 question={q.question}
                                 onAnswer={(question, updatedStudentAnswer) => {
-                                  /* update the student answers status in memory */
+                                  /* update the users answers status in memory */
                                   question.studentAnswer[0].status =
                                     updatedStudentAnswer.status
                                   /* change the state to trigger a re-render */

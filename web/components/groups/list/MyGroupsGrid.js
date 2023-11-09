@@ -66,7 +66,7 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
       {session && groups && groups.length > 0 && (
         <DataGrid
           header={myGroupsGridHeader}
-          items={groups.map((group) => ({
+          items={groups.map(({group}) => ({
             label: group.label,
             owner:
               group.createdById === session.user.id ? (

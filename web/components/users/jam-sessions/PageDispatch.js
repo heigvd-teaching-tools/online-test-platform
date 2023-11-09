@@ -13,7 +13,7 @@ const PageDispatch = () => {
   const { jamSessionId } = router.query
 
   const { data, error: dispatchError } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/dispatch`,
+    `/api/users/jam-sessions/${jamSessionId}/dispatch`,
     jamSessionId ? fetcher : null
   )
 
@@ -21,11 +21,11 @@ const PageDispatch = () => {
     if (data && !dispatchError) {
       const { jamSession, userOnJamSession } = data
       if (!userOnJamSession) {
-        // the user is not yet on the jam session
-        // check if the current phase of the JamSession allow the user to join
+        // the users is not yet on the jam session
+        // check if the current phase of the JamSession allow the users to join
         if (!phaseGT(jamSession.phase, JamSessionPhase.IN_PROGRESS)) {
           ;(async () => {
-            await router.push(`/student/jam-sessions/${jamSessionId}/join`)
+            await router.push(`/users/jam-sessions/${jamSessionId}/join`)
           })()
         }
       } else {

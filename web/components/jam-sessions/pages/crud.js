@@ -1,5 +1,5 @@
-export const update = async (jamSessionId, data) => {
-  return fetch(`/api/jam-sessions/${jamSessionId}`, {
+export const update = async (groupScope, jamSessionId, data) => {
+  return fetch(`/api/${groupScope}/jam-sessions/${jamSessionId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -9,8 +9,8 @@ export const update = async (jamSessionId, data) => {
   })
 }
 
-export const create = async (data) => {
-  return fetch('/api/jam-sessions', {
+export const create = async (groupScope, data) => {
+  return fetch(`/api/${groupScope}/jam-sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

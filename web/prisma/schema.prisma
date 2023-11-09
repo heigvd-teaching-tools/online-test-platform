@@ -121,7 +121,7 @@ model Collection {
 
   collectionToQuestions CollectionToQuestion[]
 
-  group   Group  @relation(fields: [groupId], references: [id])
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
 
   @@unique([groupId, label])
@@ -293,7 +293,7 @@ model DatabaseQuery {
   lintResult Json?
 
   content  String?
-  template String? // not used for student answer
+  template String? // not used for users answer
 
   studentPermission StudentPermission @default(UPDATE)
 
@@ -304,7 +304,7 @@ model DatabaseQuery {
   databaseToSolutionQuery      DatabaseToSolutionQuery?
 
   // Used for cascade delete,
-  // we can have 2 outputs for the same query, student answer and solution when in context of the student answer
+  // we can have 2 outputs for the same query, users answer and solution when in context of the users answer
   databaseQueryOutput DatabaseQueryOutput[]
 }
 
@@ -485,7 +485,7 @@ model JamSession {
   students              UserOnJamSession[]
   jamSessionToQuestions JamSessionToQuestion[]
 
-  group   Group  @relation(fields: [groupId], references: [id])
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
 
   @@unique([groupId, label])

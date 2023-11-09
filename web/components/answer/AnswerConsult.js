@@ -7,12 +7,12 @@ import CompareTrueFalse from './CompareTrueFalse'
 import ConsultDatabase from './ConsultDatabase'
 import ConsultMultipleChoice from './ConsultMultipleChoice'
 /*
-    this component is used to display the student answer and grading to a question in the context of the student's consultation
+    this component is used to display the users answer and grading to a question in the context of the users's consultation
     it displays the answer and grading, but not the solutions
     MultipleChoice:
-    In the case of the multiple choice question, it displays all the options and the student's answer
-    remember that the student answer only contains options selected by the student (not all options)
-    this is why we passe question as a prop to this component, so that we can display all options and check the ones selected by the student
+    In the case of the multiple choice question, it displays all the options and the users's answer
+    remember that the users answer only contains options selected by the users (not all options)
+    this is why we passe question as a prop to this component, so that we can display all options and check the ones selected by the users
     it is important not to fetch the "isCorrect" property of the option
 * */
 const AnswerConsult = ({ id, questionType, question, answer }) => {
@@ -40,11 +40,11 @@ const AnswerConsult = ({ id, questionType, question, answer }) => {
             <ConsultWeb answer={answer} />
           )) ||
           (questionType === QuestionType.database && (
-              <ConsultDatabase 
-                queries={answer.queries} 
+              <ConsultDatabase
+                queries={answer.queries}
                 />
           ))
-          
+
         )}
     </Stack>
   )

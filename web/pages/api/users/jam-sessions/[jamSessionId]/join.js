@@ -28,7 +28,7 @@ const post = async (req, res, prisma) => {
         return
     }
 
-    // Is user already connected to the jam session?
+    // Is users already connected to the jam session?
     let userOnJamSession = await prisma.userOnJamSession.findUnique({
         where: {
             userEmail_jamSessionId: {
@@ -51,7 +51,7 @@ const post = async (req, res, prisma) => {
     }
 
     await prisma.$transaction(async (prisma) => {
-        // connect the user to the jam session
+        // connect the users to the jam session
         userOnJamSession = await prisma.userOnJamSession.create({
             data: {
                 userEmail: studentEmail,
@@ -104,7 +104,7 @@ const post = async (req, res, prisma) => {
                 }
             });
 
-            // code and database questions have type specific data to be copied for the student answer
+            // code and database questions have type specific data to be copied for the users answer
             switch (question.type) {
                 case QuestionType.web:
                     await prisma.studentAnswerWeb.update({

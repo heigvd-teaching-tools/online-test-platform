@@ -1,29 +1,31 @@
 import { Role } from '@prisma/client'
-import { getUser } from '../../../../code/auth'
 import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../middleware/withPrisma'
+import {getUser} from "../../../../code/auth";
 
 const put = async (req, res, prisma) => {
-  // change the selected group of the user
-  const { groupId } = req.body
+  // change the selected group of the users
+  const { groupScope } = req.body
 
   const user = await getUser(req)
 
-  const usersGroups = user.groups
+  const allUserGroups = await prisma.userOnGroup.findMany({
+    where: {
+        userId: user.id,
+    },
+    include: {
+        group: true
+    }
+  });
 
-  const currentUserToGroup = usersGroups.find(
-    (userToGroup) => userToGroup.selected
-  )
-
-  // check is the user is in the group he wants to select
-  const userInGroup = usersGroups.find(
-    (userToGroup) => userToGroup.group.id === groupId
-  )
+  const userInGroup = allUserGroups.find((userOnGroup) => userOnGroup.group.scope === groupScope)
 
   if (!userInGroup) {
     res.status(400).json({ message: 'You are not a member of this group' })
     return
   }
+
+  const currentUserToGroup = allUserGroups.find((userOnGroup) => userOnGroup.selected)
 
   if (currentUserToGroup) {
     // unselect the current group
@@ -45,7 +47,7 @@ const put = async (req, res, prisma) => {
     where: {
       userId_groupId: {
         userId: user.id,
-        groupId: groupId,
+        groupId: userInGroup.group.id,
       },
     },
     data: {

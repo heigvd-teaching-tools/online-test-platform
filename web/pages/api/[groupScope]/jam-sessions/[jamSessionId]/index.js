@@ -1,6 +1,6 @@
 import { JamSessionPhase, Role } from '@prisma/client';
 import { withPrisma } from '../../../../../middleware/withPrisma';
-import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization';
+import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../middleware/withAuthorization';
 import { getUserSelectedGroup } from '../../../../../code/auth';
 
 const get = async (req, res, prisma) => {
@@ -111,9 +111,7 @@ const patch = async (req, res, prisma) => {
 }
 
 const del = async (req, res, prisma) => {
-  const { jamSessionId } = req.query
-
-  const group = await getUserSelectedGroup(req)
+  const { groupScope, jamSessionId } = req.query
 
   /*
         get all the questions related to this jam session
@@ -134,7 +132,9 @@ const del = async (req, res, prisma) => {
         id: {
           in: questionIds,
         },
-        groupId: group.id,
+        group: {
+            scope: groupScope
+        }
       },
     })
     await prisma.jamSession.delete({
@@ -150,12 +150,12 @@ const del = async (req, res, prisma) => {
 
 export default withMethodHandler({
   GET: withAuthorization(
-    withPrisma(get), [Role.PROFESSOR]
+      withGroupScope(withPrisma(get)), [Role.PROFESSOR]
   ),
   PATCH: withAuthorization(
-    withPrisma(patch), [Role.PROFESSOR]
+      withGroupScope(withPrisma(patch)), [Role.PROFESSOR]
   ),
   DELETE: withAuthorization(
-    withPrisma(del), [Role.PROFESSOR]
+      withGroupScope(withPrisma(del)), [Role.PROFESSOR]
   ),
 });

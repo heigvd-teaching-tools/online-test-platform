@@ -25,7 +25,7 @@ export const fetcher = async (url) => {
 }
 
 /*
-this link send to student to the PageDispatch which decides (using api jam-session/id/dispatch endpoint) where the student should be directed
+this link send to users to the PageDispatch which decides (using api jam-session/id/dispatch endpoint) where the users should be directed
 * */
 export const getStudentEntryLink = (jamSessionId) =>
-  `${window && window.location.origin}/student/jam-sessions/${jamSessionId}`
+  `${window && window.location.origin}/users/jam-sessions/${jamSessionId}`

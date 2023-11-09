@@ -2,12 +2,12 @@ import { Role } from '@prisma/client'
 import { runSandbox } from '../../../../../../../../sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
 import { grading } from '../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../[groupScope]/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
 import { withAuthorization, withMethodHandler } from '../../../../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../../../../middleware/withPrisma'
 
 /*
- endpoint to run the code sandbox for a student answers
+ endpoint to run the code sandbox for a users answers
  Only uses files stored in the database
  */
 const post = async (req, res, prisma) => {
@@ -71,7 +71,7 @@ const post = async (req, res, prisma) => {
     beforeAll: code.sandbox.beforeAll,
     tests: code.testCases,
   }).then(async (response) => {
-    // update the status of the student answers
+    // update the status of the users answers
     await prisma.StudentAnswerCode.update({
       where: {
         userEmail_questionId: {

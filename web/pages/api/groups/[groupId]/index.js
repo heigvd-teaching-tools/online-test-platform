@@ -2,9 +2,9 @@ import { Role } from '@prisma/client'
 import { getUser } from '../../../../code/auth'
 import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../middleware/withPrisma'
-/** 
- * Managing group 
- * 
+/**
+ * Managing group
+ *
  * del: delete a group
  * put: update a group label
 */
@@ -14,7 +14,7 @@ const del = async (req, res, prisma) => {
 
   const user = await getUser(req)
 
-  // check if the user is an owner of the group they are trying to delete
+  // check if the users is an owner of the group they are trying to delete
   const userIsOwnerOfGroup = await prisma.group.findFirst({
     where: {
       id: groupId,
@@ -45,7 +45,7 @@ const put = async (req, res, prisma) => {
 
   const user = await getUser(req)
 
-  // check if the user is a member of the group they are trying to update
+  // check if the users is a member of the group they are trying to update
   const userIsMemberOfGroup = await prisma.group.findFirst({
     where: {
       id: groupId,

@@ -2,18 +2,23 @@ import { Role, StudentAnswerStatus } from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { isInProgress } from '../utils'
 import { grading } from '../../../../../../../../../code/grading'
+import {
+  withAuthorization,
+  withGroupScope,
+  withMethodHandler
+} from '../../../../../../../../../middleware/withAuthorization'
 import { withPrisma } from '../../../../../../../../../middleware/withPrisma'
-import { withAuthorization, withMethodHandler } from '../../../../../../../../../middleware/withAuthorization'
-/*
-  Student updated a code file during a ham session
 
+/*
+  Student update a database query during a jam session
 */
+
 const put = async (req, res, prisma) => {
   const session = await getSession({ req })
   const studentEmail = session.user.email
-  const { jamSessionId, questionId, fileId } = req.query
+  const { jamSessionId, questionId, queryId } = req.query
 
-  const { file } = req.body
+  const { content } = req.body
 
   if (!(await isInProgress(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Exam session is not in progress' })
@@ -37,11 +42,9 @@ const put = async (req, res, prisma) => {
     return
   }
 
-  const transaction = [] // to do in single transaction, queries are done in order
-
-  // update the status of the student answers
-  transaction.push(
-    prisma.studentAnswer.update({
+  await prisma.$transaction(async (prisma) => {
+    // update the status of the users answers
+    await prisma.studentAnswer.update({
       where: {
         userEmail_questionId: {
           userEmail: studentEmail,
@@ -52,31 +55,26 @@ const put = async (req, res, prisma) => {
         status: StudentAnswerStatus.SUBMITTED
       },
     })
-  )
 
-  // update the student answers file for code question
-  transaction.push(
-    prisma.studentAnswerCodeToFile.update({
-      where: {
-        userEmail_questionId_fileId: {
+    // update the users answers query for database question
+    await prisma.studentAnswerDatabaseToQuery.update({
+      where:{
+        userEmail_questionId_queryId: {
           userEmail: studentEmail,
           questionId: questionId,
-          fileId: fileId,
-        },
+          queryId: queryId
+        }
       },
-      data: {
-        file: {
+      data:{
+        query:{
           update: {
-            content: file.content,
-          },
-        },
-      },
-    })
-  )
+            content: content
+          }
+        }
+      }
+    });
 
-  // grade question
-  transaction.push(
-    prisma.studentQuestionGrading.upsert({
+    await prisma.studentQuestionGrading.upsert({
       where: {
         userEmail_questionId: {
           userEmail: studentEmail,
@@ -90,10 +88,7 @@ const put = async (req, res, prisma) => {
       },
       update: grading(jamSessionToQuestion.question, jamSessionToQuestion.points, undefined),
     })
-  )
-
-  // prisma transaction
-  await prisma.$transaction(transaction)
+  });
 
   const updatedAnswer = await prisma.studentAnswer.findUnique({
     where: {
@@ -104,22 +99,23 @@ const put = async (req, res, prisma) => {
     },
     select: {
       status: true,
-      code: {
+      database: {
         select: {
-          files: {
+          queries: {
             select: {
-              file: true,
+              query: true,
             },
           },
         },
       },
     },
   })
+
   res.status(200).json(updatedAnswer)
 }
 
 export default withMethodHandler({
   PUT: withAuthorization(
     withPrisma(put), [Role.PROFESSOR, Role.STUDENT]
-  )
+  ),
 })

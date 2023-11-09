@@ -21,7 +21,7 @@ const PageConsult = () => {
   const { jamSessionId, questionPage } = router.query
 
   const { data: jamSessionPhase, error: errorJamSessionPhase } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/phase`,
+    `/api/users/jam-sessions/${jamSessionId}/phase`,
     jamSessionId ? fetcher : null,
     { refreshInterval: 1000 }
   )
@@ -51,7 +51,7 @@ const PageConsult = () => {
     }
   }, [questionPage, jamSessionToQuestions])
 
-  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id: 
+  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id:
     jstq.question.id,
     tooltip: `${jstq.question.title} - ${jstq.points} points`,
     isFilled: jstq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
@@ -72,7 +72,7 @@ const PageConsult = () => {
                             items={questionPages}
                             active={selected.question}
                             link={(_, questionIndex) =>
-                              `/student/jam-sessions/${jamSessionId}/consult/${
+                              `/users/jam-sessions/${jamSessionId}/consult/${
                                 questionIndex + 1
                               }`
                             }

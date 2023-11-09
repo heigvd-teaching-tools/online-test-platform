@@ -2,31 +2,31 @@ import { useRouter } from 'next/router'
 import { JamSessionPhase } from '@prisma/client'
 
 const phasePageRelationship = {
-  NEW: '/jam-sessions/new',
-  DRAFT: '/jam-sessions/[jamSessionId]/draft',
-  IN_PROGRESS: '/jam-sessions/[jamSessionId]/in-progress',
-  GRADING: '/jam-sessions/[jamSessionId]/grading/[activeQuestion]',
-  FINISHED: '/jam-sessions/[jamSessionId]/finished',
+  NEW: '/[groupScope]/jam-sessions/new',
+  DRAFT: '/[groupScope]/jam-sessions/[jamSessionId]/draft',
+  IN_PROGRESS: '/[groupScope]/jam-sessions/[jamSessionId]/in-progress',
+  GRADING: '/[groupScope]/jam-sessions/[jamSessionId]/grading/[activeQuestion]',
+  FINISHED: '/[groupScope]/jam-sessions/[jamSessionId]/finished',
 }
 
 const redirectToPhasePage = (phase, router) => {
-  const { jamSessionId } = router.query
+  const { groupScope, jamSessionId } = router.query
   if (router.pathname === phasePageRelationship[phase]) return
   switch (phase) {
     case JamSessionPhase.NEW:
-      router.push(`/jam-sessions/new`)
+      router.push(`/${groupScope}/jam-sessions/new`)
       return
     case JamSessionPhase.DRAFT:
-      router.push(`/jam-sessions/${jamSessionId}/draft`)
+      router.push(`/${groupScope}/jam-sessions/${jamSessionId}/draft`)
       return
     case JamSessionPhase.IN_PROGRESS:
-      router.push(`/jam-sessions/${jamSessionId}/in-progress`)
+      router.push(`/${groupScope}/jam-sessions/${jamSessionId}/in-progress`)
       return
     case JamSessionPhase.GRADING:
-      router.push(`/jam-sessions/${jamSessionId}/grading/1`)
+      router.push(`/${groupScope}/jam-sessions/${jamSessionId}/grading/1`)
       return
     case JamSessionPhase.FINISHED:
-      router.push(`/jam-sessions/${jamSessionId}/finished`)
+      router.push(`/${groupScope}/jam-sessions/${jamSessionId}/finished`)
       return
   }
 }

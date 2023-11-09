@@ -4,12 +4,12 @@ import { Box, Stack } from '@mui/material'
 
 
 /*
-  
-  Possible cases: 
-  - isCorrect = true, isFilled = false - The option is correct but the student didn't select it
-  - isCorrect = false, isFilled = true - The option is incorrect but the student selected it
-  - isCorrect = false, isFilled = false - The option is incorrect and the student didn't select it - ok
-  - isCorrect = true, isFilled = true - The option is correct and the student selected it - ok
+
+  Possible cases:
+  - isCorrect = true, isFilled = false - The option is correct but the users didn't select it
+  - isCorrect = false, isFilled = true - The option is incorrect but the users selected it
+  - isCorrect = false, isFilled = false - The option is incorrect and the users didn't select it - ok
+  - isCorrect = true, isFilled = true - The option is correct and the users selected it - ok
 
 */
 
@@ -22,7 +22,7 @@ const RadioViewer = ({ mode, isCorrect, isFilled }) => {
       return <CheckIcon sx={{ color: `success.main`, width: 24, height: 24 }} />
     if (isFilled && !isCorrect)
       return <ClearIcon sx={{ color: `error.main`, width: 24, height: 24 }} />
-   
+
   }
 
   const getBorderColor = (mode, isFilled, isCorrect) => {
