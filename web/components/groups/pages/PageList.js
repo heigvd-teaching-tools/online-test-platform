@@ -17,12 +17,19 @@ import GroupMembersGrid from '../list/GroupMembersGrid'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import {useGroup} from "../../../context/GroupContext";
+import {useSession} from "next-auth/react";
 
 const PageList = () => {
 
+  const {data: session} = useSession()
+
+  const currentGroup = session?.user?.selected_group;
+
   const { groups, mutate:mutateGroups } = useGroup()
 
-  const [selectedGroup, setSelectedGroup] = useState()
+  const [ selectedGroup, setSelectedGroup ] = useState()
+  const [ updatingCurrentGroup, setUpdatingCurrentGroup ] = useState(false)
+  const [ backUrl, setBackUrl ] = useState("/" + currentGroup + "/questions")
 
   const [addGroupDialogOpen, setAddGroupDialogOpen] = useState(false)
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false)
@@ -37,15 +44,19 @@ const PageList = () => {
   )
 
   useEffect(() => {
-    if (groups && groups.length > 0) {
+    if (!selectedGroup && groups && groups.length > 0) {
+      console.log("Select group index 0")
       setSelectedGroup(groups[0].group)
+      setUpdatingCurrentGroup(groups[0].group.scope === currentGroup)
     }
-  }, [groups])
+  }, [groups, currentGroup])
 
   const onGroupsLeaveOrDelete = useCallback(
     async (groupId) => {
       if (selectedGroup && selectedGroup.id === groupId) {
+        console.log("onGroupsLeaveOrDelete unselect group")
         setSelectedGroup(null)
+        setUpdatingCurrentGroup(false)
       }
     },
     [selectedGroup, setSelectedGroup]
@@ -57,7 +68,7 @@ const PageList = () => {
         <LayoutMain
           header={
             <Box>
-              <Link href="/">
+              <Link href={backUrl}>
                 <Button startIcon={<ArrowBackIosIcon />}>Back</Button>
               </Link>
             </Box>
@@ -79,7 +90,10 @@ const PageList = () => {
                 </Stack>
                 <MyGroupsGrid
                   groups={groups}
-                  onSelected={(group) => setSelectedGroup(group)}
+                  onSelected={(group) => {
+                      setSelectedGroup(group)
+                      setUpdatingCurrentGroup(group.scope === currentGroup)
+                  }}
                   onLeave={async (groupId) => {
                     await onGroupsLeaveOrDelete(groupId)
                     await mutateGroups()
@@ -111,9 +125,12 @@ const PageList = () => {
                   <GroupMembersGrid
                     group={group}
                     onUpdate={
-                      async () => {
+                      async (scope) => {
                         await mutate()
                         await mutateGroups()
+                        if (updatingCurrentGroup) {
+                          setBackUrl("/" + scope + "/questions")
+                        }
                       }
 
                     }

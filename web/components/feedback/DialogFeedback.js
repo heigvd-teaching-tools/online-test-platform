@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-const DialogFeedback = ({ open, title, content, onClose, onConfirm }) => {
+const DialogFeedback = ({ open, title, content, confirmButtonProps = {}, onClose, onConfirm }) => {
   const handleCancel = () => {
     onClose && onClose()
   }
@@ -31,6 +31,7 @@ const DialogFeedback = ({ open, title, content, onClose, onConfirm }) => {
               color="success"
               onClick={handleConfirm}
               autoFocus
+              {...confirmButtonProps}
             >
               Confirm
             </Button>

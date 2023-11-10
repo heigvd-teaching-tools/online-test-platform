@@ -16,7 +16,7 @@ export function withGroupScope(handler) {
         const user = await getUser(req)
 
         const isMember = user.groups.some(g => g === groupScope)
-        console.log("withGroupScope", req.method, req.url, "isMember", isMember, "groupScope", groupScope,  "userGroups [", user.groups.join(", "), "]")
+        // console.log("withGroupScope", req.method, req.url, "isMember", isMember, "groupScope", groupScope,  "userGroups [", user.groups.join(", "), "]")
         if (!isMember) {
             return res.status(401).json({ message: 'You are not authorized to access this group' });
         }

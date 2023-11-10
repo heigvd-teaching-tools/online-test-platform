@@ -3,8 +3,8 @@ import DataGrid from '../../ui/DataGrid'
 import UserAvatar from '../../layout/UserAvatar'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import { useCallback, useEffect, useState } from 'react'
-import { useDebouncedCallback } from 'use-debounce'
 import { useSnackbar } from '../../../context/SnackbarContext'
+import GroupScopeInput from "../../input/GroupScopeInput ";
 
 
 const GroupMembersGrid = ({ group, onUpdate }) => {
@@ -12,13 +12,15 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
   const { show: showSnackbar } = useSnackbar()
 
   const [label, setLabel] = useState(group.label)
+  const [scope, setScope] = useState(group.scope)
 
   useEffect(() => {
     setLabel(group.label)
+    setScope(group.scope)
   }, [group.id, group.label])
 
   const handleSaveGroup = useCallback(
-    async () => {
+    async (label, scope) => {
       const response = await fetch(`/api/groups/${group.id}`, {
         method: 'PUT',
         headers: {
@@ -26,39 +28,36 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
         },
         body: JSON.stringify({
           label,
+          scope,
         }),
       })
 
       if (response.status === 200) {
         showSnackbar('Group saved', 'success')
-        onUpdate && onUpdate()
+        onUpdate && onUpdate(scope)
       } else {
         const data = await response.json()
         showSnackbar(data.message, 'error')
       }
     },
-    [group, label, onUpdate, showSnackbar]
+    [group, onUpdate, showSnackbar]
   )
-
-  const debounceUpdate = useDebouncedCallback(
-    useCallback(async () => {
-      await handleSaveGroup()
-    }, [handleSaveGroup]),
-    500
-  )
-
 
   return (
     <Box minWidth={"100%"} pl={2} pr={2} pt={1}>
-      <TextField
-          label="Label"
-          value={label}
-          onChange={async (e) => {
-            setLabel(e.target.value)
-            debounceUpdate()
-          }}
-          fullWidth
-        />
+      <GroupScopeInput
+        groupId={group.id}
+        label={label}
+        scope={scope}
+        onChange={async (newLabel, newScope) => {
+            setLabel(newLabel);
+            setScope(newScope);
+            console.log("onChange", newLabel, newScope)
+            await handleSaveGroup(newLabel, newScope)
+        }}
+      />
+
+
       {group && group.members && group.members.length > 0 && (
         <DataGrid
           header={{

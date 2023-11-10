@@ -41,7 +41,7 @@ const del = async (req, res, prisma) => {
 const put = async (req, res, prisma) => {
   // update a group
   const { groupId } = req.query
-  const { label } = req.body
+  const { label, scope } = req.body
 
   const user = await getUser(req)
 
@@ -65,7 +65,13 @@ const put = async (req, res, prisma) => {
   // check if the label is not already taken
   const labelIsTaken = await prisma.group.findFirst({
     where: {
-      label: label,
+      OR: [
+        { label: label },
+        { scope: scope }
+      ],
+      id: {
+        not: groupId,
+      }
     },
   })
 
@@ -79,7 +85,8 @@ const put = async (req, res, prisma) => {
       id: groupId,
     },
     data: {
-      label: label,
+        label: label,
+        scope: scope,
     },
   })
 

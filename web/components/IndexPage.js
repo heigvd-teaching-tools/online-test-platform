@@ -19,8 +19,6 @@ const IndexPage = () => {
             selectedGroup = groups[0].group.scope
         }
 
-        console.log("IndexPage", "selectedGroup", selectedGroup, "groups", session?.user?.groups)
-
         if(selectedGroup) {
             (async () => {
                 await switchGroup(selectedGroup)

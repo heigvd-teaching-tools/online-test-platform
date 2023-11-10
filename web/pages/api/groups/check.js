@@ -10,26 +10,33 @@ import { withPrisma } from '../../../middleware/withPrisma'
  */
 
 const get = async (req, res, prisma) => {
-  // Check if a group with the given label exists
-  const { label, scope } = req.query
+  const { label, scope, groupId } = req.query;
+
+  let whereClause = {
+    OR: [
+      { label: label },
+      { scope: scope }
+    ]
+  };
+
+  if (groupId) { // update mode
+    whereClause = {
+      ...whereClause,
+      NOT: { id: groupId }
+    };
+  }
 
   const group = await prisma.group.findFirst({
-    where: {
-      OR: [
-        { label: label },
-        { scope: scope }
-      ]
-    }
+    where: whereClause
   });
 
-  console.log("group: ", group)
-
   if (group) {
-      res.status(200).json({ exists: true })
-  }else{
-      res.status(200).json({ exists: false })
+    res.status(200).json({ exists: true });
+  } else {
+    res.status(200).json({ exists: false });
   }
 }
+
 
 
 

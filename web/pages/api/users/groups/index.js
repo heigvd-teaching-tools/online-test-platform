@@ -15,7 +15,7 @@ const get = async (req, res, prisma) => {
     },
     orderBy: {
       group: {
-        label: 'asc',
+        createdAt: 'asc',
       },
     },
   })

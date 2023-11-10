@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
-import { Box, Button, Chip, Typography } from '@mui/material'
+import {Alert, Box, Button, Chip, Stack, Typography} from '@mui/material'
 import DataGrid from '../../ui/DataGrid'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import DialogFeedback from '../../feedback/DialogFeedback'
@@ -70,9 +70,9 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
             label: group.label,
             owner:
               group.createdById === session.user.id ? (
-                <Chip label="Owner" variant={'filled'} color={'warning'} />
+                <Chip size={"small"} label="Owner" variant={'filled'} color={'warning'} />
               ) : (
-                <Chip label="Member" variant={'filled'} color={'info'} />
+                <Chip size={"small"} label="Member" variant={'outlined'} color={'info'} />
               ),
             meta: {
               key: group.id,
@@ -98,8 +98,14 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
       <DialogFeedback
         open={deleteGroupId !== null}
         onClose={() => setDeleteGroupId(null)}
-        title="Delete Group"
-        content="Are you sure you want to delete this group?"
+        title="Are you sure you want to delete this group?"
+        content={
+          <Alert severity={'warning'}>
+            <Typography variant="body1">
+                This will delete all the related data, including questions, collections, and jam sessions.
+            </Typography>
+          </Alert>
+        }
         onConfirm={() => {
           deleteGroup(deleteGroupId)
           setDeleteGroupId(null)
