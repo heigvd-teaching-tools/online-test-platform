@@ -17,11 +17,14 @@ import { withPrisma } from '../../../../../middleware/withPrisma'
 
 const get = async (req, res, prisma) => {
   // get a question by id
-  const { questionId } = req.query
+  const { groupScope, questionId } = req.query
 
-  const question = await prisma.question.findUnique({
+  const question = await prisma.question.findFirst({
     where: {
       id: questionId,
+      group: {
+        scope: groupScope,
+      }
     },
     include: questionIncludeClause({
       includeTypeSpecific: true,
@@ -32,10 +35,38 @@ const get = async (req, res, prisma) => {
 }
 
 const put = async (req, res, prisma) => {
+  const { groupScope } = req.query
   const { question } = req.body
 
-  const updatedQuestion = await prisma.question.update({
+  /*
+    TODO : Think of how to refactor this and reuse across all group scoped endpoints
+    This is an example of checking the group scope for a question. The same mechanism can be used for:
+    - multiple choice options
+    - code files
+    - code tests
+    - database queries
+    - etc..
+    Other top level resources that are group scoped are:
+    - collections
+    - jam sessions
+  */
+  // Step 1: Retrieve the question
+  const questionToBeUpdated = await prisma.question.findUnique({
     where: { id: question.id },
+    include: { group: true },
+  });
+
+  // Step 2: Check if the user is authorized to update the question
+  if(questionToBeUpdated.group.scope !== groupScope) {
+    res.status(401).json({ message: 'Unauthorized' })
+    return
+  }
+
+  // Step 3: Update the question
+  const updatedQuestion = await prisma.question.update({
+    where: {
+      id: question.id,
+    },
     data: {
       title: question.title,
       content: question.content,
