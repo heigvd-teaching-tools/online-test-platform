@@ -40,6 +40,16 @@ const GroupScopeInput = ({ label: initialLabel, scope: initialScope, groupId = u
 
     const debounceChange = useDebouncedCallback(onChange, 500);
 
+    const getHelpText = useCallback(() => {
+        if (error) {
+            return error;
+        }
+        if (isLabelAvailable === false) {
+            return "This group label is already taken";
+        }
+        return undefined;
+    }, [error, isLabelAvailable]);
+
     const isAvailable = useCallback(async (label, scope) => {
         let url = `/api/groups/check?label=${label}&scope=${scope}`;
         if (groupId) {
@@ -85,8 +95,8 @@ const GroupScopeInput = ({ label: initialLabel, scope: initialScope, groupId = u
                 label="Label"
                 value={label}
                 onChange={handleLabelChange}
-                error={!!error}
-                helperText={error}
+                error={getHelpText() !== undefined}
+                helperText={getHelpText()}
                 InputProps={{
                     endAdornment: !error && (
                         <InputAdornment position="end">
