@@ -6,7 +6,7 @@ import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import QuestionFilter from '../../question/QuestionFilter'
 import MainMenu from '../../layout/MainMenu'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, IconButton, Stack, Toolbar, Tooltip, Typography } from '@mui/material'
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { useRouter } from 'next/router'
 import AddQuestionDialog from '../list/AddQuestionDialog'
@@ -17,6 +17,7 @@ import { fetcher } from '../../../code/utils'
 import ScrollContainer from '../../layout/ScrollContainer'
 import QuestionUpdate from '../../question/QuestionUpdate'
 import ResizableDrawer from '../../layout/utils/ResizableDrawer'
+import Image from 'next/image'
 
 const PageList = () => {
   const router = useRouter()
@@ -162,27 +163,25 @@ const QuestionListContainer = ({ questions, selected, setSelected }) => {
           selected={selected && selected.id === question.id}
           question={question}
           actions={[
-            <Button
-              key={`action-update-${question.id}`}
-              size='small'
-              onClick={async () => {
-                await router.push(`/${groupScope}/questions/${question.id}`)
-              }}
-              variant={'text'}
-            >
-              Update in new page
-            </Button>,
-            <Button
-              key={`action-select-${question.id}`}
-              size='small'
-              onClick={async () => {
-                setSelected(question)
-              }}
-              variant={'text'}
-              color={"secondary"}
-            >
-              Update in Side View (Overlay)
-            </Button>
+            <ButtonGroup variant="contained" color="info" size="small">
+              <Tooltip title="Update in new page">
+                <Button
+                  onClick={async () => {
+                    await router.push(`/${groupScope}/questions/${question.id}`);
+                  }}
+                  startIcon={<Image src={'/svg/icons/update-white.svg'} width={16} height={16} />}
+                >
+                  Update
+                </Button>
+              </Tooltip>
+              <Tooltip title="Update in overlay">
+                <IconButton
+                  onClick={() => setSelected(question)}
+                >
+                  <Image src={'/svg/icons/aside.svg'} width={16} height={16} />
+                </IconButton>
+              </Tooltip>
+            </ButtonGroup>
           ]}
         />
       ))
