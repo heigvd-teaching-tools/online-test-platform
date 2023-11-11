@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-const DialogFeedback = ({ open, title, content, confirmButtonProps = {}, onClose, onConfirm }) => {
+const DialogFeedback = ({ open, title, content, hideCancel = false, confirmButtonProps = {}, onClose, onConfirm }) => {
   const handleCancel = () => {
     onClose && onClose()
   }
@@ -24,7 +24,10 @@ const DialogFeedback = ({ open, title, content, confirmButtonProps = {}, onClose
         <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
         <DialogContent>{content}</DialogContent>
         <DialogActions>
-          <Button onClick={handleCancel}>Cancel</Button>
+          { !hideCancel && (
+            <Button onClick={handleCancel}>Cancel</Button>
+          )}
+          
           {onConfirm && (
             <Button
               variant="contained"
