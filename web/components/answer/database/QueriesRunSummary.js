@@ -1,5 +1,5 @@
 import {DatabaseQueryOutputStatus} from "@prisma/client";
-import {Box, Chip, Stack, Step, StepConnector, StepLabel, Stepper, Typography} from "@mui/material";
+import {Stack, Step, StepConnector, StepLabel, Stepper} from "@mui/material";
 import StatusDisplay from "../../feedback/StatusDisplay";
 import React from "react";
 

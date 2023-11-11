@@ -3,7 +3,7 @@ import { Typography, Chip, Box, Stack } from '@mui/material'
 import DateCountdown from '../../ui/DateCountdown'
 import PiePercent from '../../feedback/PiePercent'
 
-const JamSessionCountDown = ({ startDate, endDate, onFinish }) => {
+const JamSessionCountDown = ({ startDate, endDate, onFinish = undefined}) => {
   const [percentage, setPercentage] = useState(100)
 
   const updatePercentage = useCallback(() => {

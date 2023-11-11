@@ -5,7 +5,6 @@ import { Box, Button, Stack, Typography } from '@mui/material'
 
 import { Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
-import { useGroup } from '../../../context/GroupContext'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Link from 'next/link'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -17,15 +16,24 @@ import MyGroupsGrid from '../list/MyGroupsGrid'
 import GroupMembersGrid from '../list/GroupMembersGrid'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import {useGroup} from "../../../context/GroupContext";
+import {useSession} from "next-auth/react";
 
 const PageList = () => {
-  const { groups, mutate: mutateGroups } = useGroup()
 
-  const [selectedGroup, setSelectedGroup] = useState()
+  const {data: session} = useSession()
+
+  const currentGroup = session?.user?.selected_group;
+
+  const { groups, mutate:mutateGroups } = useGroup()
+
+  const [ selectedGroup, setSelectedGroup ] = useState()
+  const [ updatingCurrentGroup, setUpdatingCurrentGroup ] = useState(false)
+  const [ backUrl, setBackUrl ] = useState("/" + currentGroup + "/questions")
 
   const [addGroupDialogOpen, setAddGroupDialogOpen] = useState(false)
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false)
-  
+
   const {
     data: group,
     error,
@@ -36,19 +44,22 @@ const PageList = () => {
   )
 
   useEffect(() => {
-    if (groups && groups.length > 0) {
-      setSelectedGroup(groups[0])
+    if (!selectedGroup && groups && groups.length > 0) {
+      console.log("Select group index 0")
+      setSelectedGroup(groups[0].group)
+      setUpdatingCurrentGroup(groups[0].group.scope === currentGroup)
     }
-  }, [groups])
+  }, [groups, currentGroup])
 
   const onGroupsLeaveOrDelete = useCallback(
     async (groupId) => {
       if (selectedGroup && selectedGroup.id === groupId) {
+        console.log("onGroupsLeaveOrDelete unselect group")
         setSelectedGroup(null)
+        setUpdatingCurrentGroup(false)
       }
-      await mutateGroups()
     },
-    [selectedGroup, setSelectedGroup, mutateGroups]
+    [selectedGroup, setSelectedGroup]
   )
 
   return (
@@ -57,7 +68,7 @@ const PageList = () => {
         <LayoutMain
           header={
             <Box>
-              <Link href="/questions">
+              <Link href={backUrl}>
                 <Button startIcon={<ArrowBackIosIcon />}>Back</Button>
               </Link>
             </Box>
@@ -79,14 +90,19 @@ const PageList = () => {
                 </Stack>
                 <MyGroupsGrid
                   groups={groups}
-                  onSelected={(group) => setSelectedGroup(group)}
-                  onLeave={async (groupId) =>
+                  onSelected={(group) => {
+                      setSelectedGroup(group)
+                      setUpdatingCurrentGroup(group.scope === currentGroup)
+                  }}
+                  onLeave={async (groupId) => {
                     await onGroupsLeaveOrDelete(groupId)
-                  }
-                  onDelete={async (groupId) =>
+                    await mutateGroups()
+                  }}
+                  onDelete={async (groupId) => {
                     await onGroupsLeaveOrDelete(groupId)
-                  }
-                 
+                    await mutateGroups()
+                  }}
+
                 />
               </>
             }
@@ -106,14 +122,17 @@ const PageList = () => {
                       Add a new member
                     </Button>
                   </Stack>
-                  <GroupMembersGrid 
-                    group={group} 
+                  <GroupMembersGrid
+                    group={group}
                     onUpdate={
-                      async () => { 
+                      async (scope) => {
                         await mutate()
                         await mutateGroups()
+                        if (updatingCurrentGroup) {
+                          setBackUrl("/" + scope + "/questions")
+                        }
                       }
-  
+
                     }
                   />
                 </>
@@ -132,7 +151,6 @@ const PageList = () => {
           <AddGroupDialog
             open={addGroupDialogOpen}
             onClose={() => setAddGroupDialogOpen(false)}
-            onSuccess={async () => await mutateGroups()}
           />
 
           <AddMemberDialog

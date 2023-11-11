@@ -1,47 +1,31 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { hasRole } from '../../../../code/auth'
-import { getUser } from '../../../../code/auth'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../middleware/withPrisma'
+import {getUser} from "../../../../code/auth";
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-  switch (req.method) {
-    case 'PUT':
-      await put(req, res)
-      break
-    default:
-  }
-}
-
-const put = async (req, res) => {
-  // change the selected group of the user
-  const { groupId } = req.body
+const put = async (req, res, prisma) => {
+  // change the selected group of the users
+  const { groupScope } = req.body
 
   const user = await getUser(req)
 
-  const usersGroups = user.groups
+  const allUserGroups = await prisma.userOnGroup.findMany({
+    where: {
+        userId: user.id,
+    },
+    include: {
+        group: true
+    }
+  });
 
-  const currentUserToGroup = usersGroups.find(
-    (userToGroup) => userToGroup.selected
-  )
-
-  // check is the user is in the group he wants to select
-  const userInGroup = usersGroups.find(
-    (userToGroup) => userToGroup.group.id === groupId
-  )
+  const userInGroup = allUserGroups.find((userOnGroup) => userOnGroup.group.scope === groupScope)
 
   if (!userInGroup) {
     res.status(400).json({ message: 'You are not a member of this group' })
     return
   }
+
+  const currentUserToGroup = allUserGroups.find((userOnGroup) => userOnGroup.selected)
 
   if (currentUserToGroup) {
     // unselect the current group
@@ -63,7 +47,7 @@ const put = async (req, res) => {
     where: {
       userId_groupId: {
         userId: user.id,
-        groupId: groupId,
+        groupId: userInGroup.group.id,
       },
     },
     data: {
@@ -74,4 +58,9 @@ const put = async (req, res) => {
   res.status(200).json({ message: 'ok' })
 }
 
-export default handler
+
+export default withMethodHandler({
+  PUT: withAuthorization(
+    withPrisma(put), [Role.PROFESSOR]
+  ),
+})

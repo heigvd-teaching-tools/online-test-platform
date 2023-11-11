@@ -1,38 +1,13 @@
-import {PrismaClient, DatabaseQueryOutputTest, Role, Prisma} from '@prisma/client'
-import { hasRole } from '../../../../code/auth'
+import { Role, Prisma } from '@prisma/client'
 import {runSandboxDB} from "../../../../sandbox/runSandboxDB";
 import {runSQLFluffSandbox} from "../../../../sandbox/runSQLFluffSandbox";
-
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
-
-const prisma = global.prisma
-
-export default async function handler(req, res) {
-  let isProf = await hasRole(req, Role.PROFESSOR)
-
-  if (!isProf) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-
-
+import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization';
+import { withPrisma } from '../../../../middleware/withPrisma';
 
 /*
  endpoint to run the sandbox for a database question with queries recovered from the database
  */
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   const { questionId } = req.query
 
     const database = await prisma.database.findUnique({
@@ -180,3 +155,9 @@ const post = async (req, res) => {
 
     res.status(200).json(solutionQueries)
 }
+
+export default withMethodHandler({
+    POST: withAuthorization(
+        withPrisma(post), [Role.PROFESSOR]
+    ),
+})

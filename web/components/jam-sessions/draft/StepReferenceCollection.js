@@ -7,6 +7,7 @@ import { fetcher } from '../../../code/utils'
 import Loading from '../../feedback/Loading'
 
 const StepReferenceCollection = ({
+  groupScope,
   disabled,
   jamSession,
   onChangeCollection,
@@ -16,19 +17,19 @@ const StepReferenceCollection = ({
   const [input, setInput] = useState('')
 
   const { data: collections, error: errorCollection } = useSWR(
-    `/api/collections`,
-    fetcher
+    `/api/${groupScope}/collections`,
+      groupScope && fetcher
   )
 
   const { data: jamSessionQuestions, error: errorsJamSessionQuestions } =
     useSWR(
-      `/api/jam-sessions/${jamSession && jamSession.id}/questions`,
-      jamSession && jamSession.id ? fetcher : null
+      `/api/${groupScope}/jam-sessions/${jamSession && jamSession.id}/questions`,
+      jamSession && jamSession.id && groupScope ? fetcher : null
     )
 
   const { data: collectionQuestions, error: errorCollectionQuestions } = useSWR(
-    `/api/collections/${selectedCollection && selectedCollection.id}/questions`,
-    selectedCollection ? fetcher : null
+    `/api/${groupScope}/collections/${selectedCollection && selectedCollection.id}/questions`,
+      groupScope && selectedCollection ? fetcher : null
   )
 
   useEffect(() => {

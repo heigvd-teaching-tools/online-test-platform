@@ -19,15 +19,15 @@ import Loading from '../../../feedback/Loading'
 
 const environments = languages.environments
 
-const TestCases = ({ questionId, language }) => {
+const TestCases = ({ groupScope, questionId, language }) => {
   const { show: showSnackbar } = useSnackbar()
   const {
     data: tests,
     mutate,
     error,
   } = useSWR(
-    `/api/questions/${questionId}/code/tests`,
-    questionId ? fetcher : null,
+    `/api/${groupScope}/questions/${questionId}/code/tests`,
+      groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -41,7 +41,7 @@ const TestCases = ({ questionId, language }) => {
       tests.length === 0
         ? environments.find((env) => env.language === language).sandbox.exec
         : tests[tests.length - 1].exec
-    await fetch(`/api/questions/${questionId}/code/tests`, {
+    await fetch(`/api/${groupScope}/questions/${questionId}/code/tests`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,11 +54,11 @@ const TestCases = ({ questionId, language }) => {
       }),
     })
     await mutate()
-  }, [questionId, tests, mutate, language])
+  }, [groupScope, questionId, tests, mutate, language])
 
   const deleteTestCase = useCallback(
     async (index) => {
-      await fetch(`/api/questions/${questionId}/code/tests/${index}`, {
+      await fetch(`/api/${groupScope}/questions/${questionId}/code/tests/${index}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -81,12 +81,12 @@ const TestCases = ({ questionId, language }) => {
         }
       })
     },
-    [questionId, tests, mutate, showSnackbar]
+    [groupScope, questionId, tests, mutate, showSnackbar]
   )
 
   const updateTestCase = useCallback(
     async (test) => {
-      await fetch(`/api/questions/${questionId}/code/tests/${test.index}`, {
+      await fetch(`/api/${groupScope}/questions/${questionId}/code/tests/${test.index}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const TestCases = ({ questionId, language }) => {
       })
       await mutate()
     },
-    [questionId, mutate]
+    [groupScope, questionId, mutate]
   )
 
   const pullOutputs = useCallback(

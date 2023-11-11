@@ -27,7 +27,7 @@ const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
 
 const PageInProgress = () => {
   const router = useRouter()
-  const { jamSessionId } = router.query
+  const { groupScope, jamSessionId } = router.query
 
   const { show: showSnackbar } = useSnackbar()
 
@@ -38,20 +38,20 @@ const PageInProgress = () => {
     mutate,
     error,
   } = useSWR(
-      `/api/jam-sessions/${jamSessionId}`, 
-      jamSessionId ? fetcher : null
+      `/api/${groupScope}/jam-sessions/${jamSessionId}`,
+      groupScope && jamSessionId ? fetcher : null
       )
 
-  
+
   const {
     data: students,
     error: errorStudents,
   } = useSWR(
-      `/api/jam-sessions/${jamSessionId}/students`, 
-      jamSessionId ? fetcher : null,
+      `/api/${groupScope}/jam-sessions/${jamSessionId}/students`,
+      groupScope && jamSessionId ? fetcher : null,
       { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
       )
-    
+
 
   const [saving, setSaving] = useState(false)
 
@@ -61,24 +61,24 @@ const PageInProgress = () => {
 
   const moveToGradingPhase = useCallback(async () => {
     setSaving(true)
-    await update(jamSession.id, {
+    await update(groupScope, jamSession.id, {
       phase: JamSessionPhase.GRADING,
     })
       .then(async () => {
-        await router.push(`/jam-sessions/${jamSession.id}/grading/1`)
+        await router.push(`/${groupScope}/jam-sessions/${jamSession.id}/grading/1`)
       })
       .catch(() => {
         showSnackbar('Error', 'error')
       })
     setSaving(false)
-  }, [jamSession, router, showSnackbar])
+  }, [groupScope, jamSession, router, showSnackbar])
 
   const handleDurationChange = useCallback(
     async (newEndAt) => {
       // get time from newEndAt date
       const time = new Date(newEndAt).toLocaleTimeString()
       setSaving(true)
-      await update(jamSession.id, {
+      await update(groupScope, jamSession.id, {
         endAt: newEndAt,
       })
         .then(async (reponse) => {
@@ -96,26 +96,26 @@ const PageInProgress = () => {
         })
       setSaving(false)
     },
-    [jamSession, showSnackbar, mutate]
+    [groupScope, jamSession, showSnackbar, mutate]
   )
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!jamSession} errors={[error]}>
         <PhaseRedirect phase={jamSession?.phase}>
-            <LayoutMain 
-              hideLogo 
+            <LayoutMain
+              hideLogo
               header={
                 <Stack direction="row" alignItems="center">
-                  <BackButton backUrl={`/jam-sessions`} />
+                  <BackButton backUrl={`/${groupScope}/jam-sessions`} />
                   { jamSession?.id && (
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                       {jamSession.label}
                     </Typography>
                   )}
                 </Stack>
-              } 
-              padding={2} 
+              }
+              padding={2}
               spacing={2}
               >
 
@@ -135,9 +135,9 @@ const PageInProgress = () => {
 
               <Stack direction="row" justifyContent="center" spacing={1}>
 
-                <a href={`/jam-sessions/${jamSessionId}/analytics`} key="analytics" target="_blank">
+                <a href={`/${groupScope}/jam-sessions/${jamSessionId}/analytics`} key="analytics" target="_blank">
                   <Tooltip title="Open live analytics in a new tab">
-                      <Button 
+                      <Button
                         key={"analytics"}
                         component="span"
                         color="info"
@@ -175,23 +175,23 @@ const PageInProgress = () => {
                 >
                   End jam session
                 </LoadingButton>
-               
+
               </Stack>
 
               <Alert severity={'info'}>
                 <AlertTitle>Students submissions</AlertTitle>
                 <Typography variant="body1">
-                  The filled bullet point indicate the student has started working on the related question. 
+                  The filled bullet point indicate the student has started working on the related question.
                 </Typography>
               </Alert>
               <Loading loading={!students} errors={[errorStudents]}>
-                <StudentList 
+                <StudentList
                   title={"Students submissions"}
                   students={students?.students}
                   questions={students?.jamSessionToQuestions}
                 />
               </Loading>
-              
+
               <DialogFeedback
                 open={endSessionDialogOpen}
                 title="End of In-Progress phase"

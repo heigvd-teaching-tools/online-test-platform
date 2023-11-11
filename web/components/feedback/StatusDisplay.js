@@ -11,6 +11,8 @@ const StatusDisplay = ({ status }) => {
                 return <Image src="/svg/status/warning.svg" width={16} height={16} />
             case "RUNNING":
                 return <Image src="/svg/status/running.svg" width={16} height={16} />
+            case "LOADING":
+                return <Image src="/svg/status/running.svg" width={16} height={16} />
             case "NEUTRAL":
                 return <Image src="/svg/status/neutral.svg" width={16} height={16} />
             default:

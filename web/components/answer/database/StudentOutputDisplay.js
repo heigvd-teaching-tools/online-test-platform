@@ -22,10 +22,10 @@ const StudentOutputDisplay = ({ order, testQuery, queryOutputTests, lintResult, 
     }
 
     const getTestColor = (studentOutput) => {
-        if(!studentOutput) return "info"; // no student output yet -> we display solution output in blue
+        if(!studentOutput) return "info"; // no users output yet -> we display solution output in blue
         const testPassed = hasTestPassed(studentOutput);
-        if(testPassed === null) return "info"; // test is running -> we display student output in blue
-        // test is finished, we display student output in success if test passed, warning if fail and error if query failed to run
+        if(testPassed === null) return "info"; // test is running -> we display users output in blue
+        // test is finished, we display users output in success if test passed, warning if fail and error if query failed to run
         return testPassed ? "success" : studentOutput.status === DatabaseQueryOutputStatus.ERROR ? "error" : "warning";
     }
 

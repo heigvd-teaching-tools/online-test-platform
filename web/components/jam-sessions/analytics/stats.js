@@ -82,7 +82,7 @@ export const typeSpecificStats = (question) => {
   switch (question.type) {
     case QuestionType.multipleChoice:
       return question[question.type].options.map((option, index) => {
-        // number of times this option was selected in student answers
+        // number of times this option was selected in users answers
         let chosen = question.studentAnswer.reduce((acc, sa) => {
           if (sa.status === StudentAnswerStatus.SUBMITTED) {
             let isChosen = sa[question.type].options.some(
@@ -96,6 +96,7 @@ export const typeSpecificStats = (question) => {
         }, 0)
         return {
           label: `O${index + 1}`,
+          tooltip: option.text,
           chosen,
         }
       })
@@ -128,7 +129,7 @@ export const typeSpecificStats = (question) => {
       }
     case QuestionType.code:
       let success = question.studentAnswer.reduce((acc, sa) => {
-        // Check if the student's answer has been submitted, test cases have been run, and all test cases passed.
+        // Check if the users's answer has been submitted, test cases have been run, and all test cases passed.
         if (
           sa.status === StudentAnswerStatus.SUBMITTED &&
           sa[question.type]?.testCaseResults?.length > 0 &&
@@ -140,7 +141,7 @@ export const typeSpecificStats = (question) => {
       }, 0);
 
       let failure = question.studentAnswer.reduce((acc, sa) => {
-        // Check if the student's answer has been submitted, test cases have been run, and not all test cases passed.
+        // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
         if (
           sa.status === StudentAnswerStatus.SUBMITTED &&
           sa[question.type]?.testCaseResults?.length > 0 &&
@@ -182,7 +183,7 @@ export const typeSpecificStats = (question) => {
         },
       }
       case QuestionType.database:
-        
+
         const testQueries = question.database.solutionQueries.filter((sq) => sq.query.testQuery)
         const lintQueries = question.database.solutionQueries.filter((sq) => sq.query.lintRules)
 
@@ -191,13 +192,13 @@ export const typeSpecificStats = (question) => {
 
 
         for(const testQuery of testQueries) {
-          const testSuccesses =  question.studentAnswer.reduce((acc, sa) => {           
+          const testSuccesses =  question.studentAnswer.reduce((acc, sa) => {
             const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === testQuery.query.order);
             if(studentQuery.studentOutput?.output.testPassed) {
               return acc + 1
             }
             return acc
-            
+
           }, 0);
 
           const testFailures =  question.studentAnswer.reduce((acc, sa) => {

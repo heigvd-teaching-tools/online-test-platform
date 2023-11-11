@@ -11,19 +11,17 @@ import { useSnackbar } from '../../../context/SnackbarContext'
 import { useRouter } from 'next/router'
 import AddQuestionDialog from '../list/AddQuestionDialog'
 import QuestionListItem from '../list/QuestionListItem'
-import { useGroup } from '../../../context/GroupContext'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import ScrollContainer from '../../layout/ScrollContainer'
 import QuestionUpdate from '../../question/QuestionUpdate'
 import ResizableDrawer from '../../layout/utils/ResizableDrawer'
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 const PageList = () => {
   const router = useRouter()
 
-  const { group } = useGroup()
+  const { groupScope } = router.query
 
   const { show: showSnackbar } = useSnackbar()
 
@@ -34,27 +32,20 @@ const PageList = () => {
     error,
     mutate,
   } = useSWR(
-    `/api/questions${
+    `/api/${groupScope}/questions${
       queryString ? `?${new URLSearchParams(queryString).toString()}` : ''
     }`,
-    group ? fetcher : null
+      groupScope ? fetcher : null
   )
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
 
   const [ selected, setSelected ] = useState(undefined)
 
-  useEffect(() => {
-    // if group changes, re-fetch questions
-    if (group) {
-      ;(async () => await mutate())()
-    }
-  }, [group, mutate])
-
   const createQuestion = useCallback(
     async (type, language) => {
       // language only used for code questions
-      await fetch(`/api/questions`, {
+      await fetch(`/api/${groupScope}/questions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,13 +60,13 @@ const PageList = () => {
         .then(async (createdQuestion) => {
           showSnackbar('Question created', 'success')
           await mutate([...questions, createdQuestion])
-          await router.push(`/questions/${createdQuestion.id}`)
+          await router.push(`/${groupScope}/questions/${createdQuestion.id}`)
         })
         .catch(() => {
           showSnackbar('Error creating questions', 'error')
         })
     },
-    [router, showSnackbar, questions, mutate]
+    [groupScope, router, showSnackbar, questions, mutate]
   )
 
   return (
@@ -101,10 +92,10 @@ const PageList = () => {
                     </Button>
                   </Stack>
                   <ScrollContainer spacing={4} padding={1}>
-                      <QuestionListContainer 
-                        questions={questions} 
+                      <QuestionListContainer
+                        questions={questions}
                         selected={selected}
-                        setSelected={setSelected}                      
+                        setSelected={setSelected}
                       />
                       <ResizableDrawer
                         open={selected !== undefined}
@@ -113,6 +104,7 @@ const PageList = () => {
                         <Box pt={2} width={"100%"} height={"100%"}>
                           { selected && (
                               <QuestionUpdate
+                                groupScope={router.query.groupScope}
                                 questionId={selected.id}
                                 onUpdate={async (question) => {
                                   await mutate()
@@ -127,7 +119,7 @@ const PageList = () => {
                           }
                         </Box>
                       </ResizableDrawer>
-                  
+
                   </ScrollContainer>
                   {questions && questions.length === 0 && (
                     <AlertFeedback severity="info">
@@ -157,10 +149,12 @@ const PageList = () => {
 
 
 const QuestionListContainer = ({ questions, selected, setSelected }) => {
-  
-  const router = useRouter()
 
-  return (
+    const router = useRouter()
+
+    const { groupScope } = router.query
+
+    return (
     questions &&
       questions.map((question) => (
         <QuestionListItem
@@ -172,7 +166,7 @@ const QuestionListContainer = ({ questions, selected, setSelected }) => {
               key={`action-update-${question.id}`}
               size='small'
               onClick={async () => {
-                await router.push(`/questions/${question.id}`)
+                await router.push(`/${groupScope}/questions/${question.id}`)
               }}
               variant={'text'}
             >
@@ -188,11 +182,11 @@ const QuestionListContainer = ({ questions, selected, setSelected }) => {
               color={"secondary"}
             >
               Update in Side View (Overlay)
-            </Button>        
+            </Button>
           ]}
         />
       ))
-  )
+    )
 }
 
 export default PageList

@@ -2,7 +2,12 @@ import DialogFeedback from '../../feedback/DialogFeedback'
 import { Stack, TextField } from '@mui/material'
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { useInput } from '../../../code/useInput'
+import {useRouter} from "next/router";
 const AddCollectionDialog = ({ open, onClose, handleAddCollection }) => {
+  const { query } = useRouter()
+
+  const { groupScope } = query
+
   const { show: showSnackbar } = useSnackbar()
   const {
     value: label,
@@ -14,7 +19,7 @@ const AddCollectionDialog = ({ open, onClose, handleAddCollection }) => {
       setErrorLabel({ error: true, helperText: 'Label is required' })
       return
     }
-    await fetch('/api/collections', {
+    await fetch(`/api/${groupScope}/collections`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

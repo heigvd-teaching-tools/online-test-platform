@@ -5,14 +5,14 @@ import TagsSelector from '../../input/TagsSelector'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 
-const QuestionTagsSelector = ({ questionId, onChange }) => {
+const QuestionTagsSelector = ({ groupScope, questionId, onChange }) => {
   const { tags: allTags, upsert } = useTags()
 
   const {
     data: tags,
     mutate,
     error,
-  } = useSWR(`/api/questions/${questionId}/tags`, questionId ? fetcher : null, {
+  } = useSWR(`/api/${groupScope}/questions/${questionId}/tags`, questionId ? fetcher : null, {
     fallbackData: [],
   })
 

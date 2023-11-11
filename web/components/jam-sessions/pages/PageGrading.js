@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import {
@@ -6,23 +6,18 @@ import {
   JamSessionPhase,
   Role,
 } from '@prisma/client'
-import Image from 'next/image'
 
 import {
   Stack,
   Divider,
   Paper,
   Button,
-  Menu,
-  MenuList,
-  MenuItem,
   Typography,
   IconButton,
   Tooltip,
   Box,
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DialogFeedback from '../../feedback/DialogFeedback'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -52,14 +47,14 @@ import BackButton from '../../layout/BackButton'
 
 const PageGrading = () => {
   const router = useRouter()
-  const { jamSessionId, participantId, activeQuestion } = router.query
+  const { groupScope, jamSessionId, participantId, activeQuestion } = router.query
 
   const { data: session } = useSession()
   const { show: showSnackbar } = useSnackbar()
 
   const { data: jamSession, error: errorJamSession } = useSWR(
-    `/api/jam-sessions/${jamSessionId}`,
-    jamSessionId ? fetcher : null
+    `/api/${groupScope}/jam-sessions/${jamSessionId}`,
+      groupScope && jamSessionId ? fetcher : null
   )
 
   const {
@@ -67,8 +62,8 @@ const PageGrading = () => {
     mutate,
     error: errorQuestions,
   } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
-    jamSessionId ? fetcher : null,
+    `/api/${groupScope}/jam-sessions/${jamSessionId}/questions?withGradings=true`,
+      groupScope && jamSessionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -98,7 +93,7 @@ const PageGrading = () => {
       if (!jstq) {
         // goto first question and first participant
         router.push(
-          `/jam-sessions/${jamSessionId}/grading/1?participantId=${jamSessionToQuestions[0].question.studentAnswer[0].user.id}`
+          `/${groupScope}/jam-sessions/${jamSessionId}/grading/1?participantId=${jamSessionToQuestions[0].question.studentAnswer[0].user.id}`
         )
         return
       }
@@ -115,7 +110,7 @@ const PageGrading = () => {
       // goto first participant
       if (participantId === undefined) {
         router.push(
-          `/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`
+          `/${groupScope}/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`
         )
       }
     }
@@ -125,11 +120,12 @@ const PageGrading = () => {
     participantId,
     jamSessionToQuestions,
     router,
+    groupScope
   ])
 
-  const saveGrading = async (grading) => {
+  const saveGrading = useCallback(async (grading) => {
     setLoading(true)
-    let newGrading = await fetch(`/api/gradings`, {
+    let newGrading = await fetch(`/api/${groupScope}/gradings`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -140,7 +136,7 @@ const PageGrading = () => {
     }).then((res) => res.json())
     setLoading(false)
     return newGrading
-  }
+  }, [groupScope])
 
   const debouncedSaveGrading = useDebouncedCallback(saveGrading, 500)
 
@@ -189,29 +185,29 @@ const PageGrading = () => {
 
   const endGrading = useCallback(async () => {
     setSaving(true)
-    await update(jamSessionId, {
+    await update(groupScope, jamSessionId, {
       phase: JamSessionPhase.FINISHED,
     })
       .then(() => {
-        router.push(`/jam-sessions/${jamSessionId}/finished`)
+        router.push(`/${groupScope}/jam-sessions/${jamSessionId}/finished`)
       })
       .catch(() => {
         showSnackbar('Error', 'error')
       })
     setSaving(false)
-  }, [jamSessionId, router, showSnackbar])
+  }, [groupScope, jamSessionId, router, showSnackbar])
 
   const nextParticipantOrQuestion = useCallback(async () => {
     let nextParticipantIndex =
       participants.findIndex((p) => p.id === participantId) + 1
     if (nextParticipantIndex < participants.length) {
       await router.push(
-        `/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`
+        `/${groupScope}/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`
       )
     } else {
       if (activeQuestion < jamSessionToQuestions.length) {
         await router.push(
-          `/jam-sessions/${jamSessionId}/grading/${
+          `/${groupScope}/jam-sessions/${jamSessionId}/grading/${
             parseInt(activeQuestion) + 1
           }?participantId=${participants[0].id}`
         )
@@ -232,6 +228,7 @@ const PageGrading = () => {
     participants,
     router,
     jamSessionToQuestions,
+    groupScope
   ])
 
   const prevParticipantOrQuestion = useCallback(() => {
@@ -239,18 +236,18 @@ const PageGrading = () => {
       participants.findIndex((p) => p.id === participantId) - 1
     if (prevParticipantIndex >= 0) {
       router.push(
-        `/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`
+        `/${groupScope}/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`
       )
     } else {
       if (activeQuestion - 1 >= 1) {
         router.push(
-          `/jam-sessions/${jamSessionId}/grading/${
+          `/${groupScope}/jam-sessions/${jamSessionId}/grading/${
             activeQuestion - 1
           }?participantId=${participants[participants.length - 1].id}`
         )
       }
     }
-  }, [activeQuestion, jamSessionId, participantId, participants, router])
+  }, [groupScope, activeQuestion, jamSessionId, participantId, participants, router])
 
   const allGradingsSigned = useCallback((questionId) => {
     const jstq = jamSessionToQuestions.find(
@@ -291,7 +288,7 @@ const PageGrading = () => {
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/jam-sessions`} />
+                <BackButton backUrl={`/${groupScope}/jam-sessions`} />
                 { jamSession?.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {jamSession.label}
@@ -307,7 +304,7 @@ const PageGrading = () => {
                       items={questionPages}
                       active={jamSessionToQuestion.question}
                       link={(_, index) =>
-                        `/jam-sessions/${jamSessionId}/grading/${
+                        `/${groupScope}/jam-sessions/${jamSessionId}/grading/${
                           index + 1
                         }?participantId=${participantId}`
                       }
@@ -353,7 +350,7 @@ const PageGrading = () => {
                         )}
                         onParticipantClick={(participant) => {
                           router.push(
-                            `/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participant.id}`
+                            `/${groupScope}/jam-sessions/${jamSessionId}/grading/${activeQuestion}?participantId=${participant.id}`
                           )
                         }}
                         isParticipantFilled={(participant) => {
@@ -575,48 +572,5 @@ const GradingActions = ({
   </Paper>
   </Tooltip>
 )
-
-const GradingQuestionFilter = ({ onFilter }) => {
-  const [open, setOpen] = useState(false)
-  const buttonRef = useRef(null)
-  const [filter, setFilter] = useState(undefined)
-
-  useEffect(() => {
-    onFilter(filter)
-  }, [onFilter, filter])
-
-  return (
-    <Stack direction="row" sx={{ ml: 2 }}>
-      <Button
-        ref={buttonRef}
-        color="info"
-        startIcon={
-          <Image
-            src="/svg/grading/filter-inactive.svg"
-            alt="Filter inactive"
-            layout="fixed"
-            width={18}
-            height={18}
-          />
-        }
-        endIcon={<ExpandMoreIcon />}
-        onClick={() => setOpen(!open)}
-      >
-        {filter ? filter : 'none'}
-      </Button>
-      <Menu
-        anchorEl={buttonRef.current}
-        open={open}
-        keepMounted
-        onClose={() => setOpen(false)}
-      >
-        <MenuList onClick={() => setOpen(false)}>
-          <MenuItem onClick={() => setFilter(undefined)}>None</MenuItem>
-          <MenuItem onClick={() => setFilter('unsigned')}>Unsigned</MenuItem>
-        </MenuList>
-      </Menu>
-    </Stack>
-  )
-}
 
 export default PageGrading

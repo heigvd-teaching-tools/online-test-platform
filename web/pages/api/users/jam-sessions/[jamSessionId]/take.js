@@ -1,41 +1,29 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
-import { hasRole, getUser } from '../../../../../code/auth'
+import { getUser } from '../../../../../code/auth'
 import {
   IncludeStrategy,
   questionIncludeClause,
 } from '../../../../../code/questions'
-import { isInProgress } from '../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
+import { isInProgress } from './questions/[questionId]/answers/utils'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
+/*
+Get the details about thr jam session for a users
+get the list of questions of that jam session including points oprder and question
+Only shallow question is included (type, title,content ...) without type specific data (code, database, ...
+No official answers are included and no question type specific at all
+Each question has included the answer for that particular users only
 
-const prisma = global.prisma
+*/
 
-const handler = async (req, res) => {
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  const isStudent = await hasRole(req, Role.STUDENT)
-
-  if (!(isProf || isStudent)) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
+const get = async (req, res, prisma) => {
 
   const { jamSessionId } = req.query
   const { email } = await getUser(req)
 
-  if (!(await isInProgress(jamSessionId))) {
+  if (!(await isInProgress(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Jam Session is not in progress' })
     return
   }
@@ -79,7 +67,12 @@ const get = async (req, res) => {
       .json({ message: 'You are not allowed to access this jam session' })
     return
   }
+
   res.status(200).json(userOnJamSession.jamSession)
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR, Role.STUDENT]
+  ),
+})

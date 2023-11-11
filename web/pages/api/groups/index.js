@@ -1,37 +1,27 @@
-import { PrismaClient, Role } from '@prisma/client'
-import { getUser, hasRole } from '../../../code/auth'
+import { Role } from '@prisma/client'
+import { getUser } from '../../../code/auth'
+import { withAuthorization, withMethodHandler } from '../../../middleware/withAuthorization'
+import { withPrisma } from '../../../middleware/withPrisma'
+/**
+ * Managing groups
+ *
+ * post: create a new group
+ *
+ */
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
 
-const prisma = global.prisma
 
-const handler = async (req, res) => {
-  if (!(await hasRole(req, Role.PROFESSOR))) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
-
-  switch (req.method) {
-    case 'POST':
-      await post(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const post = async (req, res) => {
+const post = async (req, res, prisma) => {
   // create a new group
-  const { label, select } = req.body
+  const { label, scope, select } = req.body
 
   const user = await getUser(req)
 
   try {
     const group = await prisma.group.create({
       data: {
-        label,
+        label: label,
+        scope: scope,
         createdBy: {
           connect: {
             id: user.id,
@@ -76,4 +66,9 @@ const post = async (req, res) => {
   }
 }
 
-export default handler
+
+export default withMethodHandler({
+  POST: withAuthorization(
+    withPrisma(post), [Role.PROFESSOR]
+  ),
+})

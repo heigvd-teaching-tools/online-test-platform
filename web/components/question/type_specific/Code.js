@@ -12,10 +12,10 @@ import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import TabPanel from "../../layout/utils/TabPanel";
 
-const Code = ({ questionId }) => {
+const Code = ({ groupScope, questionId }) => {
   const { data: code, error } = useSWR(
-    `/api/questions/${questionId}/code`,
-    questionId ? fetcher : null,
+    `/api/${groupScope}/questions/${questionId}/code`,
+      groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -45,14 +45,23 @@ const Code = ({ questionId }) => {
           </Tabs>
           <TabPanel id="setup" value={tab} index={0}>
             <TabContent padding={2} spacing={4}>
-              <Sandbox questionId={questionId} language={code.language} />
+              <Sandbox
+                  groupScope={groupScope}
+                  questionId={questionId}
+                  language={code.language}
+              />
 
-              <TestCases questionId={questionId} language={code.language} />
+              <TestCases
+                  groupScope={groupScope}
+                  questionId={questionId}
+                  language={code.language}
+              />
             </TabContent>
           </TabPanel>
           <TabPanel id="solution" value={tab} index={1}>
             <TabContent>
               <SolutionFilesManager
+                groupScope={groupScope}
                 questionId={questionId}
                 language={code.language}
               />
@@ -60,7 +69,10 @@ const Code = ({ questionId }) => {
           </TabPanel>
           <TabPanel id="template" value={tab} index={2}>
             <TabContent>
-              <TemplateFilesManager questionId={questionId} />
+              <TemplateFilesManager
+                groupScope={groupScope}
+                questionId={questionId}
+              />
             </TabContent>
           </TabPanel>
         </Stack>

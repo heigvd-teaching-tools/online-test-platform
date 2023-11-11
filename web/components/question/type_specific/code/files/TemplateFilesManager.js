@@ -12,14 +12,14 @@ import ScrollContainer from '../../../../layout/ScrollContainer'
 import {useDebouncedCallback} from "use-debounce";
 import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
-const TemplateFilesManager = ({ questionId }) => {
+const TemplateFilesManager = ({ groupScope, questionId }) => {
   const {
     data: codeToTemplateFiles,
     mutate,
     error,
   } = useSWR(
-    `/api/questions/${questionId}/code/files/template`,
-    questionId ? fetcher : null,
+    `/api/${groupScope}/questions/${questionId}/code/files/template`,
+      groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -28,7 +28,7 @@ const TemplateFilesManager = ({ questionId }) => {
   const onFileUpdate = useCallback(
     async (codeToTemplateFile) => {
       setLockCodeCheck(true)
-      await update('template', questionId, codeToTemplateFile).then(
+      await update('template', groupScope, questionId, codeToTemplateFile).then(
         async (updatedFile) => {
           await mutate(
             codeToTemplateFiles.map((codeToFile) =>
@@ -41,14 +41,14 @@ const TemplateFilesManager = ({ questionId }) => {
       )
       setLockCodeCheck(false)
     },
-    [questionId, codeToTemplateFiles, mutate]
+    [groupScope, questionId, codeToTemplateFiles, mutate]
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
 
   const onPullSolution = useCallback(async () => {
-    await pull(questionId).then(async (data) => await mutate(data))
-  }, [questionId, mutate])
+    await pull(groupScope, questionId).then(async (data) => await mutate(data))
+  }, [groupScope, questionId, mutate])
 
   return (
     <Loading loading={!codeToTemplateFiles} errors={[error]}>
@@ -110,7 +110,7 @@ const TemplateFilesManager = ({ questionId }) => {
               />
             ))}
           </ScrollContainer>
-          
+
         </BottomCollapsiblePanel>
       )}
     </Loading>

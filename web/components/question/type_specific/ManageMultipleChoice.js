@@ -4,21 +4,21 @@ import MultipleChoice from './MultipleChoice'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 
-const ManageMultipleChoice = ({ questionId }) => {
+const ManageMultipleChoice = ({ groupScope, questionId }) => {
   const {
     data: options,
     mutate,
     error,
   } = useSWR(
-    `/api/questions/${questionId}/multiple-choice/options`,
-    questionId ? fetcher : null,
+    `/api/${groupScope}/questions/${questionId}/multiple-choice/options`,
+      groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
   const onChangeOptions = useCallback(
     async (index, options) => {
       const updatedOption = options[index]
-      await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
+      await fetch(`/api/${groupScope}/questions/${questionId}/multiple-choice/options`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -33,12 +33,12 @@ const ManageMultipleChoice = ({ questionId }) => {
         }
       })
     },
-    [questionId, mutate]
+    [groupScope, questionId, mutate]
   )
 
   const onDeleteOption = useCallback(
     async (_, deletedOption) => {
-      await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
+      await fetch(`/api/${groupScope}/questions/${questionId}/multiple-choice/options`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -53,11 +53,11 @@ const ManageMultipleChoice = ({ questionId }) => {
         }
       })
     },
-    [questionId, mutate]
+    [groupScope, questionId, mutate]
   )
 
   const onAddOption = useCallback(async () => {
-    await fetch(`/api/questions/${questionId}/multiple-choice/options`, {
+    await fetch(`/api/${groupScope}/questions/${questionId}/multiple-choice/options`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const ManageMultipleChoice = ({ questionId }) => {
         await mutate()
       }
     })
-  }, [questionId, mutate])
+  }, [groupScope, questionId, mutate])
 
   return (
     <Loading loading={!options} errors={[error]}>

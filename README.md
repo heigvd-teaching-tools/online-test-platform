@@ -130,3 +130,8 @@ bash pg_restore.sh <backup-file-name>
 - Line ending must be LF
 - Execute permissions: `chmod +x pg_backup.sh`
 
+
+
+## endpoint migrations done
+
+jam session

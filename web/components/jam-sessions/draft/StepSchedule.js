@@ -17,17 +17,17 @@ import Loading from '../../feedback/Loading'
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000;
 
-const StepSchedule = ({ jamSession, onChange }) => {
+const StepSchedule = ({ groupScope, jamSession, onChange }) => {
 
   const {
     data: students,
     error: errorStudents,
   } = useSWR(
-      `/api/jam-sessions/${jamSession.id}/students`, 
-      jamSession?.id ? fetcher : null,
+      `/api/${groupScope}/jam-sessions/${jamSession.id}/students`,
+      groupScope && jamSession?.id ? fetcher : null,
       { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
       )
-    
+
 
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
@@ -92,17 +92,17 @@ const StepSchedule = ({ jamSession, onChange }) => {
             }}
           />
         </>
-        
+
       )}
       { jamSession.id && (
         <Loading loading={!students} errors={[errorStudents]}>
-         <StudentList 
+         <StudentList
             title={`Registered students (${students?.students.length})`}
             students={students?.students}
          />
          </Loading>
       )}
-     
+
       </Stack>
   )
 }

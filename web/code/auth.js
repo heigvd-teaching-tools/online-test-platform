@@ -5,14 +5,14 @@ const hasRole = async (req, role) => {
   return session && session.user && session.user.role === role
 }
 
+const getRole = async (req) => {
+  const session = await getSession({ req })
+  return session && session.user && session.user.role
+}
+
 const getUser = async (req) => {
   const session = await getSession({ req })
   return session && session.user
 }
 
-const getUserSelectedGroup = async (req) => {
-  const session = await getSession({ req })
-  return session && session.user && session.user.selected_group
-}
-
-export { hasRole, getUser, getUserSelectedGroup }
+export { hasRole, getRole, getUser }

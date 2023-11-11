@@ -12,7 +12,7 @@ import BottomCollapsiblePanel from "../../layout/utils/BottomCollapsiblePanel";
 const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
-        `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
@@ -25,7 +25,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
             const currentFile = answer.code.files.find((f) => f.file.id === file.id)
             if (currentFile.file.content === file.content) return
             const updatedStudentAnswer = await fetch(
-                `/api/jam-sessions/${jamSessionId}/questions/${questionId}/answers/code/${file.id}`,
+                `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers/code/${file.id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -43,7 +43,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500)
 
     return (
-        <Loading errors={[error]} loading={!answer}> 
+        <Loading errors={[error]} loading={!answer}>
             {answer?.code && (
                 <BottomCollapsiblePanel
                     bottomPanel={
@@ -78,9 +78,9 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                             }}
                         />
                     ))}
-            </BottomCollapsiblePanel>   
-            )} 
-              
+            </BottomCollapsiblePanel>
+            )}
+
         </Loading>
     )
 }

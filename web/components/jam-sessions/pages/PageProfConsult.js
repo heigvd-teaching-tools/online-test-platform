@@ -10,7 +10,6 @@ import { Paper, Stack } from "@mui/material"
 import Paging from "../../layout/utils/Paging"
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
 import QuestionView from "../../question/QuestionView"
-import AnswerConsult from "../../answer/AnswerConsult"
 import GradingSigned from "../grading/GradingSigned"
 import GradingPointsComment from "../grading/GradingPointsComment"
 import AlertFeedback from "../../feedback/AlertFeedback"
@@ -21,12 +20,12 @@ import AnswerCompare from "../../answer/AnswerCompare"
 
 const PageProfConsult = () => {
   const router = useRouter()
-  
-  const { jamSessionId, userEmail, questionPage } = router.query
+
+  const { groupScope, jamSessionId, userEmail, questionPage } = router.query
 
   const { data: jamSession, error } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/consult/${userEmail}`,
-    jamSessionId && userEmail ? fetcher : null,
+    `/api/${groupScope}/jam-sessions/${jamSessionId}/consult/${userEmail}`,
+      groupScope && jamSessionId && userEmail ? fetcher : null,
     { revalidateOnFocus: false }
   )
   const [jamSessionToQuestions, setJamSessionToQuestions] = useState([])
@@ -49,13 +48,13 @@ const PageProfConsult = () => {
     }
   }, [questionPage, jamSessionToQuestions])
 
-  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id: 
+  const questionPages = useMemo(() => jamSessionToQuestions.map(jstq => ({ id:
     jstq.question.id,
     tooltip: `${jstq.question.title} - ${jstq.points} points`,
     isFilled: jstq.question.studentAnswer[0]?.status === StudentAnswerStatus.SUBMITTED
-  })), [jamSessionToQuestions])  
-  
-  const isDataReady = useMemo(() => jamSessionToQuestions.length > 0 && selected && selected.question.studentAnswer[0], [jamSessionToQuestions, selected])  
+  })), [jamSessionToQuestions])
+
+  const isDataReady = useMemo(() => jamSessionToQuestions.length > 0 && selected && selected.question.studentAnswer[0], [jamSessionToQuestions, selected])
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
@@ -65,7 +64,7 @@ const PageProfConsult = () => {
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/jam-sessions/${jamSessionId}/finished`} />
+                <BackButton backUrl={`/${groupScope}/jam-sessions/${jamSessionId}/finished`} />
                 { selected && (
                   <UserAvatar user={selected.question.studentAnswer[0].user} />
                 )}
@@ -74,7 +73,7 @@ const PageProfConsult = () => {
                     items={questionPages}
                     active={selected?.question}
                     link={(_, questionIndex) =>
-                      `/jam-sessions/${jamSessionId}/consult/student/${userEmail}/${questionIndex + 1}`
+                      `/${groupScope}/jam-sessions/${jamSessionId}/consult/${userEmail}/${questionIndex + 1}`
                     }
                   />
                 </Stack>
@@ -157,7 +156,7 @@ const PageProfConsult = () => {
                 />
           </LayoutMain>
         )}
-          
+
       </Loading>
     </Authorisation>
   )

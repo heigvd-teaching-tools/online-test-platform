@@ -1,43 +1,23 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
+import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
+import { withPrisma } from '../../../../../middleware/withPrisma'
 
-import { hasRole, getUser } from '../../../../../code/auth'
+import { getUser } from '../../../../../code/auth'
 import {
   questionIncludeClause,
   IncludeStrategy,
 } from '../../../../../code/questions'
 import {
   isFinished,
-} from '../../../jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils'
+} from './questions/[questionId]/answers/utils'
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient()
-}
 
-const prisma = global.prisma
-
-const handler = async (req, res) => {
-  switch (req.method) {
-    case 'GET':
-      await get(req, res)
-      break
-    default:
-      res.status(405).json({ message: 'Method not allowed' })
-  }
-}
-
-const get = async (req, res) => {
-  const isProf = await hasRole(req, Role.PROFESSOR)
-  const isStudent = await hasRole(req, Role.STUDENT)
-
-  if (!(isProf || isStudent)) {
-    res.status(401).json({ message: 'Unauthorized' })
-    return
-  }
+const get = async (req, res, prisma) => {
 
   const { jamSessionId } = req.query
   const { email } = await getUser(req)
 
-  if (!(await isFinished(jamSessionId))) {
+  if (!(await isFinished(jamSessionId, prisma))) {
     res.status(400).json({ message: 'Exam session is not yet finished' })
     return
   }
@@ -85,4 +65,8 @@ const get = async (req, res) => {
   res.status(200).json(userOnJamSession.jamSession)
 }
 
-export default handler
+export default withMethodHandler({
+  GET: withAuthorization(
+    withPrisma(get), [Role.PROFESSOR, Role.STUDENT]
+  ),
+})

@@ -1,15 +1,15 @@
 import {StudentQuestionGradingStatus, QuestionType, DatabaseQueryOutputStatus} from '@prisma/client'
 
 /*
-    This function is used to grade a student answers to a question.
-    argument "answers" is the student answers to the question.
-    argument "question" is the question to which the student answers is submitted.
+    This function is used to grade a users answers to a question.
+    argument "answers" is the users answers to the question.
+    argument "question" is the question to which the users answers is submitted.
 
     If called with answers = undefined, the function will return the default grading.
     Default grading is generally (pointsObtained = 0, status = AUTOGRADED),
 
     Grading differs for code questions (pointsObtained = 0, status = UNGRADED) because the grading cannot be determined
-    during answers editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/student.js).
+    during answers editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/users.js).
 
  */
 export const grading = (question, totalPoints, studentAnswer) => {
@@ -21,12 +21,12 @@ export const grading = (question, totalPoints, studentAnswer) => {
     case QuestionType.essay:
       return gradeEssay(studentAnswer)
     case QuestionType.code:
-      // student code submission is graded during student code sandbox run
+      // users code submission is graded during users code sandbox run
       return gradeCode(totalPoints, studentAnswer)
     case QuestionType.web:
       return gradeWeb(studentAnswer)
     case QuestionType.database:
-      // student database submission is graded during student database sandbox run
+      // users database submission is graded during users database sandbox run
         return gradeDatabase(totalPoints, studentAnswer)
     default:
       return undefined
@@ -98,7 +98,7 @@ const gradeTrueFalse = (question, totalPoints, studentAnswer) => {
 
 /*
     code grading call is done during answers submission and code test run
-    code test run : /api/sandbox/[questionId]/student
+    code test run : /api/sandbox/[questionId]/users
 */
 const gradeCode = (totalPoints, response) => {
   let grading = {

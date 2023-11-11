@@ -1,9 +1,11 @@
+import React from 'react'
 import { Box, Stack } from '@mui/material'
 
 import Header from './Header'
 import ScrollContainer from './ScrollContainer'
+
 const LayoutMain = ({
-  hideLogo,
+  hideLogo = undefined,
   children,
   header,
   subheader,

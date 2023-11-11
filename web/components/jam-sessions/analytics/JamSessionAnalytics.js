@@ -158,7 +158,13 @@ const QuestionAnalytics = ({ JamSessionToQuestion }) => {
               {questionData[questionData.type].map((option, index) => (
                 <AnalyticsRow
                   key={index}
-                  label={option.label}
+                  label={
+                    <Tooltip title={option.tooltip} key={index} placement="right">
+                      <Typography variant="body1">
+                        <b>{option.label}</b>
+                      </Typography>
+                    </Tooltip>
+                  }                  
                   percent={option.percentage}
                   amount={option.chosen}
                 />

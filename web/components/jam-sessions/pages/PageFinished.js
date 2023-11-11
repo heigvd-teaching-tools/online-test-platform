@@ -24,16 +24,16 @@ import Image from 'next/image'
 
 const PageFinished = () => {
   const router = useRouter()
-  const { jamSessionId } = router.query
+  const { groupScope, jamSessionId } = router.query
 
   const { data: jamSession, error: errorJamSession } = useSWR(
-    `/api/jam-sessions/${jamSessionId}`,
-    jamSessionId ? fetcher : null
+    `/api/${groupScope}/jam-sessions/${jamSessionId}`,
+      groupScope && jamSessionId ? fetcher : null
   )
 
   const { data, error: errorQuestions } = useSWR(
-    `/api/jam-sessions/${jamSessionId}/questions?withGradings=true`,
-    jamSessionId ? fetcher : null,
+    `/api/${groupScope}/jam-sessions/${jamSessionId}/questions?withGradings=true`,
+      groupScope && jamSessionId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -120,7 +120,7 @@ const PageFinished = () => {
         participant: <UserAvatar user={participant} />,
         actions: (
           <Tooltip title="View student's answers" key="view-student-answers">
-            <a href={`/jam-sessions/${jamSessionId}/consult/student/${participant.email}/1`} target="_blank">
+            <a href={`/jam-sessions/${jamSessionId}/consult/${participant.email}/1`} target="_blank">
               <IconButton size="small">
                 <Image
                   alt="View"
@@ -129,7 +129,7 @@ const PageFinished = () => {
                   width="18"
                   height="18"
                 />
-                
+
               </IconButton>
             </a>
           </Tooltip>
@@ -148,9 +148,9 @@ const PageFinished = () => {
           />
         ),
         ...questionColumnValues,
-        meta: { 
+        meta: {
           key: participant.email,
-          linkHref: `/jam-sessions/${jamSessionId}/consult/student/${participant.email}/1`,
+          linkHref: `/${groupScope}/jam-sessions/${jamSessionId}/consult/${participant.email}/1`,
         },
       }
     })
@@ -221,7 +221,7 @@ const PageFinished = () => {
                 hideLogo
                 header={
                   <Stack direction="row" alignItems="center">
-                    <BackButton backUrl={`/jam-sessions`} />
+                    <BackButton backUrl={`/${groupScope}/jam-sessions`} />
                     { jamSession?.id && (
                       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {jamSession.label}
