@@ -34,25 +34,28 @@ const LegacyQuestionPage = () => {
           hideCancel
           content={
             <Stack spacing={1}>
-              <Typography variant="body2">
-                The new version of the app introduce group scoping in the url. This page is not available anymore at this location.
-              </Typography>
-              <Typography variant="h6">
-                Please clear your browser cache so you dont get redirected to this page anymore. If you are
-                unsure how to do this, please{' '}
-                <a
-                  href="https://www.refreshyourcache.com/en/home/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  click here
-                </a>{' '}
-                for instructions.
-              </Typography>
-              <Typography variant="body2">
-                Clicking on "Confirm" below will redirect you to the new location.
-               </Typography>
+                <Typography variant="body2">
+                    We've updated our app to include group scoping in the URL. As a result, this page's location has changed.
+                </Typography>
+                <Typography variant="body2">
+                    To ensure a smooth transition and avoid unnecessary redirections, <b>please clear your browser cache</b>. 
+                </Typography>
+                <Typography variant="body2">
+                 If you need guidance on how to do this:  
+                    <a
+                        href="https://www.refreshyourcache.com/en/home/"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                    click here for step-by-step instructions.
+                    </a>
+                    
+                </Typography>
+                <Typography variant="body2">
+                    Once you click "Confirm" below, you'll be redirected to the new page location.
+                </Typography>
             </Stack>
+
           }
           onConfirm={handleConfirm}
         />
