@@ -7,6 +7,7 @@ import ScrollContainer from '@/components/layout/ScrollContainer'
 import QueryEditor from "@/components/question/type_specific/database/QueryEditor";
 import QueryOutput from "@/components/question/type_specific/database/QueryOutput";
 import ResizePanel from '@/components/layout/utils/ResizePanel';
+
 import QueriesRunSummary from './database/QueriesRunSummary';
 
 const ConsultQuery = ({ header, query, output }) => {
