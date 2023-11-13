@@ -24,11 +24,10 @@ const ConnectionIndicator = () => {
       
     return (  
         <Stack display={isOnline ? 'none' : 'flex'} direction="row" alignItems="center" spacing={1}>
-            <Tooltip title="You are offline">
-                <Typography>
-                    <StatusDisplay size={18} status={isOnline ? 'WIFI-ON' : 'WIFI-OFF'} />
-                </Typography>
-            </Tooltip>
+            <StatusDisplay size={18} status={isOnline ? 'WIFI-ON' : 'WIFI-OFF'} />
+            <Typography variant="caption" color={isOnline ? 'success' : 'error'} noWrap>
+                {isOnline ? 'Online' : 'Connection lost'}
+            </Typography>
         </Stack>
     );
   };
