@@ -1,13 +1,14 @@
 import { StudentAnswerStatus } from "@prisma/client"
-import { Stack, Typography } from "@mui/material"
+import { IconButton, Stack, Tooltip, Typography } from "@mui/material"
 import UserAvatar from "../../layout/UserAvatar"
 import Datagrid from "../../ui/DataGrid"
 import FilledBullet from "../../feedback/FilledBullet"
 import PiePercent from "../../feedback/PiePercent"
 import { useCallback, useMemo } from "react"
 import DateTimeAgo from "../../feedback/DateTimeAgo"
+import Image from "next/image"
 
-const StudentList = ({ title, students, questions = [] }) => {
+const StudentList = ({ groupScope, jamSessionId, title, students, questions = [] }) => {
 
     const columns = [
         {
@@ -28,6 +29,10 @@ const StudentList = ({ title, students, questions = [] }) => {
     })), [questions]);
 
     if(questionColumns.length > 0) {
+        columns.push({
+            label: 'Actions',
+            column: { minWidth: 90, width: 90 },
+        })
         columns.push({
             label: 'Overall',
             column: { minWidth: 90, width: 90 },
@@ -68,6 +73,21 @@ const StudentList = ({ title, students, questions = [] }) => {
                                 <DateTimeAgo date={new Date(student.registeredAt)} />
                             </Typography>
                         </>,
+                        actions: <Tooltip title="Spy student" key="view-student-answers">
+                                <a href={`/${groupScope}/jam-sessions/${jamSessionId}/consult/${student.user.email}/1`} target="_blank">
+                                <IconButton size="small">
+                                    <Image
+                                        alt="View"
+                                        src="/svg/icons/view-user.svg"
+                                        layout="fixed"
+                                        width="18"
+                                        height="18"
+                                    />
+                    
+                                </IconButton>
+                                </a>
+                            </Tooltip>
+                            ,
                         submissionPercentage: <PiePercent value={getSubmissionPercentage(student.user.email) || 0} />,
                         ...questions.reduce((acc, q) => {
                             acc[`question${q.order}`] = <FilledBullet isFilled={getStudentAnswerStatus(student.user.email, q.question.id) === StudentAnswerStatus.SUBMITTED} />;

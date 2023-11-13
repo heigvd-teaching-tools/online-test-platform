@@ -13,7 +13,7 @@ import { fetcher } from '../../code/utils'
 import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
 import WebEditor from '../question/type_specific/web/WebEditor'
-import { Stack } from '@mui/material'
+import { Stack, Toolbar } from '@mui/material'
 import ResizePanel from '../layout/utils/ResizePanel'
 import PreviewPanel from '../question/type_specific/web/PreviewPanel'
 import ScrollContainer from '../layout/ScrollContainer'
@@ -37,8 +37,9 @@ const AnswerEditor = ({ question, onAnswer }) => {
     [question, onAnswer]
   )
   return (
-    <Loading errors={[error]} loading={!answer}>{
-      question &&
+    <Loading errors={[error]} loading={!answer}>
+     
+      {question &&
       ((question.type === QuestionType.trueFalse && (
         <AnswerTrueFalse
           answer={answer}

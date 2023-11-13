@@ -5,7 +5,6 @@ import { Button, IconButton, Stack, Tooltip } from '@mui/material'
 import DisplayPhase from '../DisplayPhase'
 import { JamSessionPhase } from '@prisma/client'
 import Image from 'next/image'
-import { displayDateTime, linkPerPhase } from './utils'
 import { getStudentEntryLink } from '../../../code/utils'
 import React from 'react'
 
@@ -14,8 +13,8 @@ const ListJamSession = ({ groupScope, jamSessions, onStart, onDelete }) => (
     header={gridHeader}
     items={jamSessions?.map((jamSession) => ({
       label: jamSession.label,
-      createdAt: displayDateTime(jamSession.createdAt),
-      updatedAt: displayDateTime(jamSession.updatedAt),
+      createdAt: new Date(jamSession.createdAt).toLocaleString(),
+      updatedAt: new Date(jamSession.updatedAt).toLocaleString(),
       questions: jamSession.jamSessionToQuestions.length,
       students: jamSession.students.length,
       phase: (
@@ -43,7 +42,7 @@ const ListJamSession = ({ groupScope, jamSessions, onStart, onDelete }) => (
       ),
       meta: {
         key: `jam-session-${jamSession.id}`,
-        linkHref: linkPerPhase(groupScope, jamSession.phase, jamSession.id),
+        linkHref: `/${groupScope}/jam-sessions/${jamSession.id}`,
         actions: [
           <React.Fragment key="actions">
           <Tooltip title="Copy student link to clipboard" key="add-link-to-clipboard">

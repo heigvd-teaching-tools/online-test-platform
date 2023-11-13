@@ -9,7 +9,7 @@ import Authorisation from "../../security/Authorisation"
 import Loading from "../../feedback/Loading"
 import StudentPhaseRedirect from "./StudentPhaseRedirect"
 import LayoutMain from "../../layout/LayoutMain"
-import { Box, Stack } from "@mui/material"
+import { Box, Chip, Stack } from "@mui/material"
 import JamSessionCountDown from "../../jam-sessions/in-progress/JamSessionCountDown"
 import Paging from "../../layout/utils/Paging"
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
@@ -19,6 +19,7 @@ import { ResizeObserverProvider } from "../../../context/ResizeObserverContext"
 import ScrollContainer from "../../layout/ScrollContainer"
 import AnswerEditor from "../../answer/AnswerEditor"
 import React from "react"
+import ConnectionIndicator from "./take/ConnectionIndicator"
 
 const PageTakeJam = () => {
   const router = useRouter()
@@ -98,6 +99,7 @@ const PageTakeJam = () => {
                         message={"Loading jam session..."}
                       >
                       <Stack direction="row" alignItems="center">
+                        <ConnectionIndicator />
                         {userOnJamSession.startAt && userOnJamSession.endAt && (
                           <Box sx={{ ml: 2 }}>
                             <JamSessionCountDown
@@ -133,6 +135,7 @@ const PageTakeJam = () => {
                             totalPages={jamToQuestions.length}
                           />
                           <QuestionNav
+                            jamSessionId={jamSessionId}
                             page={page}
                             totalPages={jamToQuestions.length}
                           />

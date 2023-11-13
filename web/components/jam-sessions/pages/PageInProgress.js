@@ -186,6 +186,8 @@ const PageInProgress = () => {
               </Alert>
               <Loading loading={!students} errors={[errorStudents]}>
                 <StudentList
+                  groupScope={groupScope}
+                  jamSessionId={jamSessionId}
                   title={"Students submissions"}
                   students={students?.students}
                   questions={students?.jamSessionToQuestions}

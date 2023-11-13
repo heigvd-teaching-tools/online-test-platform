@@ -1,16 +1,17 @@
 import { useRouter } from 'next/router'
 import { Stack, Button, Typography } from '@mui/material'
-const QuestionNav = ({ page, totalPages }) => {
+
+const QuestionNav = ({ jamSessionId, page, totalPages }) => {
   const router = useRouter()
-  const { jamSessionId } = router.query
+  
   const nextPage = () => {
     if (page < totalPages) {
-      router.push(`/jam-sessions/${jamSessionId}/take/${page + 1}`)
+      router.push(`/users/jam-sessions/${jamSessionId}/take/${page + 1}`)
     }
   }
   const previousPage = () => {
     if (page > 1) {
-      router.push(`/jam-sessions/${jamSessionId}/take/${page - 1}`)
+      router.push(`/users/jam-sessions/${jamSessionId}/take/${page - 1}`)
     }
   }
   return (
