@@ -205,11 +205,10 @@ const PageCompose = () => {
                   <ReorderableList onChangeOrder={onChangeCollectionOrder}>
                     {collectionToQuestions &&
                       collectionToQuestions.map(
-                        (collectionToQuestion, index) => (
+                        (collectionToQuestion) => (
                           <CollectionToQuestion
                             groupScope={groupScope}
                             key={collectionToQuestion.question.id}
-                            index={index}
                             collectionToQuestion={collectionToQuestion}
                             onChange={(index, updates) =>
                               onCollectionToQuestionChange(index, updates)
