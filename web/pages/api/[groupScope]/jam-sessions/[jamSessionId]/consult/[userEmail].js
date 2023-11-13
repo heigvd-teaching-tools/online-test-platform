@@ -34,7 +34,6 @@ const get = async (req, res, prisma) => {
             },
         },
     });
-    console.log("get called")
     res.status(200).json(jamSession)
 
 }
