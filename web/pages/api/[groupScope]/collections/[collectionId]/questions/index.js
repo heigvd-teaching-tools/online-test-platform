@@ -44,17 +44,12 @@ const post = async (req, res, prisma) => {
   const { collectionId } = req.query
   const { questionId } = req.body
 
-  // find the latest order
-  const latestOrder = await prisma.collectionToQuestion.findFirst({
+  // get the order of the question in the collection
+  const order = await prisma.collectionToQuestion.count({
     where: {
       collectionId: collectionId,
     },
-    orderBy: {
-      order: 'desc',
-    },
-  })
-
-  const order = latestOrder ? latestOrder.order + 1 : 0
+  });
 
   // In case this question was already used in another collection, fine the last points assigned to it
   const latestPoints = await prisma.collectionToQuestion.findFirst({
@@ -106,14 +101,46 @@ const del = async (req, res, prisma) => {
   const { collectionId } = req.query
   const { questionId } = req.body
 
-  await prisma.collectionToQuestion.delete({
+  // get the order of this question in the collection
+  const order = await prisma.collectionToQuestion.findFirst({
     where: {
-      collectionId_questionId: {
-        collectionId: collectionId,
-        questionId: questionId,
-      },
+      AND: [
+        { collectionId: collectionId },
+        { questionId: questionId },
+      ],
+    },
+    orderBy: {
+      order: 'asc',
     },
   })
+
+  await prisma.$transaction(async (prisma) => {
+
+    // delete the collectionToQuestion
+    await prisma.collectionToQuestion.delete({
+      where: {
+        collectionId_questionId: {
+          collectionId: collectionId,
+          questionId: questionId,
+        },
+      },
+    })
+
+    // decrement the order of all questions that were after the deleted question
+    await prisma.collectionToQuestion.updateMany({
+      where: {
+        AND: [
+          { collectionId: collectionId },
+          { order: { gt: order.order } },
+        ],
+      },
+      data: {
+        order: {
+          decrement: 1,
+        },
+      },
+    })
+  });
 
   res.status(200).json({ message: 'OK' })
 }

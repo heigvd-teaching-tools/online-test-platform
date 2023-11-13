@@ -151,6 +151,24 @@ const PageCompose = () => {
     [collectionToQuestions, mutateCollection]
   )
 
+  
+  /* ORDERING DEBUG
+  
+    const arrayOfOrders = collectionToQuestions?.map(
+      (collectionToQuestion) => collectionToQuestion.order
+    )
+    
+    const isIncreasing = (arr = [])  => {
+      for (let i = 1; i < arr.length; i++) {
+        if (arr[i] <= arr[i - 1]) return false
+      }
+      return true
+    }
+
+    console.log(arrayOfOrders?.join(','), isIncreasing(arrayOfOrders))
+
+  */
+
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading
