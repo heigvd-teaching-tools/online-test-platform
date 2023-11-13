@@ -1,8 +1,8 @@
 import {useSession} from "next-auth/react";
-import Loading from "./feedback/Loading";
 import {useRouter} from "next/router";
 import { useEffect } from "react";
-import {useGroup} from "../context/GroupContext";
+import Loading from "@/components/feedback/Loading";
+import {useGroup} from "@/context/GroupContext";
 /*
 * This page is used to redirect the users to the correct group scope
 * */

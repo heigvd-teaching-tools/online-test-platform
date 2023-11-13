@@ -1,22 +1,21 @@
 import React, {useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
 import { QuestionType } from '@prisma/client'
-
-import TrueFalse from '../question/type_specific/TrueFalse'
-import MultipleChoice from '../question/type_specific/MultipleChoice'
-import Essay from '../question/type_specific/Essay'
-
 import { useDebouncedCallback } from 'use-debounce'
 import { useRouter } from 'next/router'
-import Loading from '../feedback/Loading'
-import { fetcher } from '../../code/utils'
+import { Stack } from '@mui/material'
+import { fetcher } from '@/code/utils'
+
+import TrueFalse from '@/components/question/type_specific/TrueFalse'
+import MultipleChoice from '@/components/question/type_specific/MultipleChoice'
+import Essay from '@/components/question/type_specific/Essay'
+import Loading from '@/components/feedback/Loading'
+import WebEditor from '@/components/question/type_specific/web/WebEditor'
+import ResizePanel from '@/components/layout/utils/ResizePanel'
+import PreviewPanel from '@/components/question/type_specific/web/PreviewPanel'
+import ScrollContainer from '@/components//layout/ScrollContainer'
 import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
-import WebEditor from '../question/type_specific/web/WebEditor'
-import { Stack, Toolbar } from '@mui/material'
-import ResizePanel from '../layout/utils/ResizePanel'
-import PreviewPanel from '../question/type_specific/web/PreviewPanel'
-import ScrollContainer from '../layout/ScrollContainer'
 
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()

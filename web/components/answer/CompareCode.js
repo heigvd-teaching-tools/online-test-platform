@@ -1,14 +1,15 @@
 import React from 'react'
 import { Alert, Box, Stack, Tab, Tabs, Typography } from '@mui/material'
-import ResizePanel from '../layout/utils/ResizePanel'
-import FileEditor from '../question/type_specific/code/files/FileEditor'
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
-import TestCaseResults from '../question/type_specific/code/TestCaseResults'
-import TabPanel from '../layout/utils/TabPanel'
-import TabContent from '../layout/utils/TabContent'
-import { useResizeObserver } from '../../context/ResizeObserverContext'
-import ScrollContainer from '../layout/ScrollContainer'
+
+import ResizePanel from '@/components/layout/utils/ResizePanel'
+import FileEditor from '@/components/question/type_specific/code/files/FileEditor'
+import TestCaseResults from '@/components/question/type_specific/code/TestCaseResults'
+import TabPanel from '@/components/layout/utils/TabPanel'
+import TabContent from '@/components/layout/utils/TabContent'
+import ScrollContainer from '@/components/layout/ScrollContainer'
+import { useResizeObserver } from '@/context/ResizeObserverContext'
 
 const PassIndicator = ({ passed }) => {
   return passed ? (

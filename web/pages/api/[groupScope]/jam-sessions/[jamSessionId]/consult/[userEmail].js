@@ -11,7 +11,6 @@ const get = async (req, res, prisma) => {
     const jamSession = await prisma.jamSession.findUnique({
         where: {
             id: jamSessionId,
-
         },
         include: {
             jamSessionToQuestions: {
