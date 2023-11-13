@@ -190,7 +190,7 @@ const put = async (req, res, prisma) => {
     answer: data,
     grading,
     model,
-  } = prepareAnswer(questionToJamSession, answer)
+  } = prepareAnswer(prisma, questionToJamSession, answer)
 
   transaction.push(
     model.update({
@@ -244,7 +244,7 @@ const put = async (req, res, prisma) => {
     prepare the answers and grading for the users answers and select the correct model to update
     this function also insures that no other fields or related entities are changed by the client
 */
-const prepareAnswer = (questionToJamSession, answer) => {
+const prepareAnswer = (prisma, questionToJamSession, answer) => {
   const { question } = questionToJamSession
   switch (question.type) {
     case QuestionType.trueFalse:
