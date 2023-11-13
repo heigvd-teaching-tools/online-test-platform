@@ -16,7 +16,6 @@ import DecimalInput from '../../input/DecimalInput'
 const CollectionToQuestion = ({
     groupScope,
   collectionToQuestion,
-  index,
   onChange,
   onDelete,
 }) => {
@@ -37,10 +36,10 @@ const CollectionToQuestion = ({
         }
       )
       if (response.ok) {
-        onDelete && onDelete(index)
+        onDelete && onDelete(collectionToQuestion.order)
       }
     },
-    [groupScope, index, onDelete]
+    [groupScope, collectionToQuestion, onDelete]
   )
 
   const saveCollectionToQuestion = useCallback(
@@ -94,7 +93,7 @@ const CollectionToQuestion = ({
           whiteSpace={'nowrap'}
         >
           <Typography variant="body1">
-            <b>Q{index + 1}</b>
+            <b>Q{collectionToQuestion.order + 1}</b>
           </Typography>
           <Typography variant="body2">
             {collectionToQuestion.question.title}

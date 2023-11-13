@@ -151,6 +151,24 @@ const PageCompose = () => {
     [collectionToQuestions, mutateCollection]
   )
 
+  
+  /* ORDERING DEBUG
+  
+    const arrayOfOrders = collectionToQuestions?.map(
+      (collectionToQuestion) => collectionToQuestion.order
+    )
+    
+    const isIncreasing = (arr = [])  => {
+      for (let i = 1; i < arr.length; i++) {
+        if (arr[i] <= arr[i - 1]) return false
+      }
+      return true
+    }
+
+    console.log(arrayOfOrders?.join(','), isIncreasing(arrayOfOrders))
+
+  */
+
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading
@@ -187,11 +205,10 @@ const PageCompose = () => {
                   <ReorderableList onChangeOrder={onChangeCollectionOrder}>
                     {collectionToQuestions &&
                       collectionToQuestions.map(
-                        (collectionToQuestion, index) => (
+                        (collectionToQuestion) => (
                           <CollectionToQuestion
                             groupScope={groupScope}
                             key={collectionToQuestion.question.id}
-                            index={index}
                             collectionToQuestion={collectionToQuestion}
                             onChange={(index, updates) =>
                               onCollectionToQuestionChange(index, updates)
