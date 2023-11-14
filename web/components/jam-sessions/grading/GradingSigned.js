@@ -1,7 +1,8 @@
 import { Button, Stack, Typography } from '@mui/material'
-import UserAvatar from '../../layout/UserAvatar'
 import Image from 'next/image'
 import ClearIcon from '@mui/icons-material/Clear'
+
+import UserAvatar from '@/components/layout/UserAvatar'
 
 const GradingSigned = ({ signedBy, readOnly, onUnsign }) => {
 

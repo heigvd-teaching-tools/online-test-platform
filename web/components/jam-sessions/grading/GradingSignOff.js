@@ -3,13 +3,14 @@ import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
 import { Box, Paper, Stack, TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
+import { useSession } from 'next-auth/react'
+
+import DecimalInput from '@/components/input/DecimalInput'
 
 import GradingStatus from './GradingStatus'
-
-import { useSession } from 'next-auth/react'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
-import DecimalInput from '../../input/DecimalInput'
+
 
 const GradingSignOff = ({
   loading,

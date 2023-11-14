@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client'
-import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../middleware/withPrisma'
-import {getUser} from "../../../../code/auth";
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
+import {getUser} from "@/code/auth";
 
 const put = async (req, res, prisma) => {
   // change the selected group of the users

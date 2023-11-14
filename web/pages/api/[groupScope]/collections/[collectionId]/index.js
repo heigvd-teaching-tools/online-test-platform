@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client'
-import { questionIncludeClause } from '../../../../../code/questions'
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../middleware/withPrisma'
+import { questionIncludeClause } from '@/code/questions'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /*
  collection compose - collection content (list of questions), delete collection, update collection label

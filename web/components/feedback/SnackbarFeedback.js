@@ -1,5 +1,5 @@
 import { Snackbar, Paper, Box, Stack, Typography } from '@mui/material'
-import { useSnackbar } from '../../context/SnackbarContext'
+import { useSnackbar } from '@/context/SnackbarContext'
 import { useTheme } from '@mui/material'
 
 const SnackbarFeedback = () => {

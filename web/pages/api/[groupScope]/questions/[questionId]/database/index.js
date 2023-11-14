@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client'
 
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../middleware/withPrisma'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /**
  * Managing the database part of a question

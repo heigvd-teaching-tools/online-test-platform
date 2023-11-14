@@ -1,9 +1,10 @@
-import { Tab, Tabs, Typography } from '@mui/material'
-import FileEditor from '../question/type_specific/code/files/FileEditor'
-import TestCaseResults from '../question/type_specific/code/TestCaseResults'
 import React, { useState } from 'react'
-import TabContent from '../layout/utils/TabContent'
-import TabPanel from '../layout/utils/TabPanel'
+import { Tab, Tabs, Typography } from '@mui/material'
+
+import FileEditor from '@/components/question/type_specific/code/files/FileEditor'
+import TestCaseResults from '@/components/question/type_specific/code/TestCaseResults'
+import TabContent from '@/components/layout/utils/TabContent'
+import TabPanel from '@/components/layout/utils/TabPanel'
 
 const ConsultCode = ({ files, tests }) => {
   const [tab, setTab] = useState(0)

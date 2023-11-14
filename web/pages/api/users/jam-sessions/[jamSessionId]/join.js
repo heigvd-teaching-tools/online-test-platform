@@ -1,10 +1,10 @@
-import { withPrisma } from '../../../../../middleware/withPrisma';
-import { withMethodHandler, withAuthorization } from '../../../../../middleware/withAuthorization';
+import { withPrisma } from '@/middleware/withPrisma';
+import { withMethodHandler, withAuthorization } from '@/middleware/withAuthorization';
 import { getSession } from 'next-auth/react';
 import { Role, JamSessionPhase, QuestionType, StudentPermission } from '@prisma/client';
-import { phaseGT } from '../../../../../code/phase';
-import { questionIncludeClause } from '../../../../../code/questions';
-import { grading } from '../../../../../code/grading';
+import { phaseGT } from '@/code/phase';
+import { questionIncludeClause } from '@/code/questions';
+import { grading } from '@/code/grading';
 
 const post = async (req, res, prisma) => {
 

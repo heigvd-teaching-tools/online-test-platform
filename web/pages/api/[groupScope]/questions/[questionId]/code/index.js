@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../middleware/withPrisma'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 const get = async (req, res, prisma) => {
   // get the code of the question

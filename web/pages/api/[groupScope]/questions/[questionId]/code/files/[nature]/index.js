@@ -4,8 +4,8 @@ import {
   withAuthorization,
   withGroupScope,
   withMethodHandler
-} from '../../../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../../../middleware/withPrisma'
+} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /**
  * Managing the code files depending on their nature (solution or template)

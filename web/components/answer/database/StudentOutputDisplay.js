@@ -1,10 +1,12 @@
 import React, {useEffect, useRef, useState} from "react";
-import LayoutSplitScreen from "../../layout/LayoutSplitScreen";
-import QueryOutput from "../../question/type_specific/database/QueryOutput";
-import {AlertTitle, Box, Breadcrumbs, Typography} from "@mui/material";
-import DateTimeAgo from "../../feedback/DateTimeAgo";
-import AlertFeedback from "../../feedback/AlertFeedback";
 import { DatabaseQueryOutputStatus, DatabaseQueryOutputTest } from "@prisma/client";
+import {AlertTitle, Box, Breadcrumbs, Typography} from "@mui/material";
+
+import LayoutSplitScreen from "@/components/layout/LayoutSplitScreen";
+import DateTimeAgo from "@/components/feedback/DateTimeAgo";
+import AlertFeedback from "@/components/feedback/AlertFeedback";
+
+import QueryOutput from "@/components/question/type_specific/database/QueryOutput";
 
 const StudentOutputDisplay = ({ order, testQuery, queryOutputTests, lintResult, studentOutput, solutionOutput}) => {
 

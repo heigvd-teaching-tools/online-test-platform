@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { Stack, TextField, Autocomplete, Typography } from '@mui/material'
 
-import AlertFeedback from '../../feedback/AlertFeedback'
-import { fetcher } from '../../../code/utils'
-import Loading from '../../feedback/Loading'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
+import { fetcher } from '@/code/utils'
+import Loading from '@/components/feedback/Loading'
 
 const StepReferenceCollection = ({
   groupScope,

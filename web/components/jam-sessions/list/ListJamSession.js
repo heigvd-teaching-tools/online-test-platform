@@ -1,12 +1,13 @@
-import Link from 'next/link'
-import { JamSessionStatus } from '@prisma/client'
-import DataGrid from '../../ui/DataGrid'
-import { Button, IconButton, Stack, Tooltip } from '@mui/material'
-import DisplayPhase from '../DisplayPhase'
-import { JamSessionPhase } from '@prisma/client'
-import Image from 'next/image'
-import { getStudentEntryLink } from '../../../code/utils'
 import React from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { JamSessionPhase } from '@prisma/client'
+import { JamSessionStatus } from '@prisma/client'
+import { Button, IconButton, Stack, Tooltip } from '@mui/material'
+
+import { getStudentEntryLink } from '@/code/utils'
+import DisplayPhase from '../DisplayPhase'
+import DataGrid from '@/components/ui/DataGrid'
 
 const ListJamSession = ({ groupScope, jamSessions, onStart, onDelete }) => (
   <DataGrid

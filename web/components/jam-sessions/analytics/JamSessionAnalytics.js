@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import { getQuestionSuccessRate, typeSpecificStats } from './stats'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 
-import PiePercent from '../../feedback/PiePercent'
-import QuestionTypeIcon from '../../question/QuestionTypeIcon'
+import PiePercent from '@/components/feedback/PiePercent'
+import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 
 const JamSessionAnalytics = ({ JamSessionToQuestions }) => {
   return (

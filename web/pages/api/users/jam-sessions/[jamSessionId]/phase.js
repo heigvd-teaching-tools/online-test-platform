@@ -1,5 +1,5 @@
-import {withAuthorization, withMethodHandler} from "../../../../../middleware/withAuthorization";
-import {withPrisma} from "../../../../../middleware/withPrisma";
+import {withAuthorization, withMethodHandler} from "@/middleware/withAuthorization";
+import {withPrisma} from "@/middleware/withPrisma";
 import {Role} from "@prisma/client";
 
 const get = async (req, res, prisma) => {

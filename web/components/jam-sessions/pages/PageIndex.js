@@ -2,11 +2,11 @@ import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { Role } from '@prisma/client'
 
+import Authorisation from '@/components/security/Authorisation'
+import Loading from '@/components/feedback/Loading'
+import { fetcher } from '@/code/utils'
 
 import PhaseRedirect from './PhaseRedirect'
-import Authorisation from '../../security/Authorisation'
-import Loading from '../../feedback/Loading'
-import { fetcher } from '../../../code/utils'
 
 const PageIndex = () => {
   const router = useRouter()

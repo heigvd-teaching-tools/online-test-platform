@@ -1,5 +1,5 @@
 import { Paper, Stack, Box, Typography, Button } from '@mui/material'
-import { getStudentEntryLink } from '../../code/utils'
+import { getStudentEntryLink } from '@/code/utils'
 const JoinClipboard = ({ jamSessionId }) => (
   <Paper>
     <Stack

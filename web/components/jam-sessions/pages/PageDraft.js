@@ -1,24 +1,25 @@
 import { useState, useCallback } from 'react'
 import { JamSessionPhase, Role } from '@prisma/client'
 import useSWR from 'swr'
-
-import { Stack, Typography } from '@mui/material'
-import LayoutMain from '../../layout/LayoutMain'
 import { useRouter } from 'next/router'
-import { useSnackbar } from '../../../context/SnackbarContext'
+import { Stack, Typography } from '@mui/material'
+import LayoutMain from '@/components/layout/LayoutMain'
 
+import { useSnackbar } from '@/context/SnackbarContext'
+
+import { LoadingButton } from '@mui/lab'
+
+import { fetcher } from '@/code/utils'
+import Authorisation from '@/components/security/Authorisation'
+import Loading from '@/components/feedback/Loading'
+import BackButton from '@/components/layout/BackButton'
+
+import { update, create } from './crud'
+import PhaseRedirect from './PhaseRedirect'
+import JoinClipboard from '../JoinClipboard'
 import StepReferenceCollection from '../draft/StepReferenceCollection'
 import StepGeneralInformation from '../draft/StepGeneralInformation'
 import StepSchedule from '../draft/StepSchedule'
-
-import JoinClipboard from '../JoinClipboard'
-import { LoadingButton } from '@mui/lab'
-import { update, create } from './crud'
-import PhaseRedirect from './PhaseRedirect'
-import Authorisation from '../../security/Authorisation'
-import { fetcher } from '../../../code/utils'
-import Loading from '../../feedback/Loading'
-import BackButton from '../../layout/BackButton'
 
 const PageDraft = () => {
   const router = useRouter()

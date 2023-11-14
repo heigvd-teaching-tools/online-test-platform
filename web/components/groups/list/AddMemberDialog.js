@@ -1,9 +1,12 @@
 import React, { useCallback, useState } from 'react'
-import DialogFeedback from '../../feedback/DialogFeedback'
 import { IconButton, Stack, TextField } from '@mui/material'
-import { useSnackbar } from '../../../context/SnackbarContext'
-import UserAvatar from '../../layout/UserAvatar'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
+
+import { useSnackbar } from '@/context/SnackbarContext'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+
+import UserAvatar from '@/components/layout/UserAvatar'
+
 
 const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
   const { show: showSnackbar } = useSnackbar()

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import Image from 'next/image'
 import { useDebouncedCallback } from 'use-debounce'
 import {
   Box,
@@ -8,10 +9,10 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import DragHandleSVG from '../../layout/utils/DragHandleSVG'
-import QuestionTypeIcon from '../../question/QuestionTypeIcon'
-import Image from 'next/image'
-import DecimalInput from '../../input/DecimalInput'
+
+import DragHandleSVG from '@/components/layout/utils/DragHandleSVG'
+import DecimalInput from '@/components/input/DecimalInput'
+import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 
 const CollectionToQuestion = ({
     groupScope,
@@ -106,7 +107,7 @@ const CollectionToQuestion = ({
               variant="standard"
               rightAdornement={'pts'}
               onChange={async (value) => {
-                await debounceSaveCollectionToQuestion(index, {
+                await debounceSaveCollectionToQuestion(collectionToQuestion.order, {
                   ...collectionToQuestion,
                   points: value
                 })

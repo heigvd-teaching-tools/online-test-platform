@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
-import {Alert, Box, Button, Chip, Stack, Typography} from '@mui/material'
-import DataGrid from '../../ui/DataGrid'
-import AlertFeedback from '../../feedback/AlertFeedback'
-import DialogFeedback from '../../feedback/DialogFeedback'
+import {Alert, Box, Button, Chip, Typography} from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
+
+import DataGrid from '@/components/ui/DataGrid'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+
 
 const myGroupsGridHeader = {
   actions: {

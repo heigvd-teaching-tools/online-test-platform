@@ -17,33 +17,39 @@ import {
   Tooltip,
   Box,
 } from '@mui/material'
-import { LoadingButton } from '@mui/lab'
-import DialogFeedback from '../../feedback/DialogFeedback'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import { LoadingButton } from '@mui/lab'
+import { useSession } from 'next-auth/react'
+import { useDebouncedCallback } from 'use-debounce'
 
-import PiePercent from '../../feedback/PiePercent'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+import PiePercent from '@/components/feedback/PiePercent'
+import { fetcher } from '@/code/utils'
+
+import LayoutMain from '@/components/layout/LayoutMain'
+import BackButton from '@/components/layout/BackButton'
+import Loading from '@/components/feedback/Loading'
+
+import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
+import Paging from '@/components/layout/utils/Paging'
+import MainMenu from '@/components/layout/MainMenu'
+import Authorisation from '@/components/security/Authorisation'
+
+import QuestionView from '@/components/question/QuestionView'
+import AnswerCompare from '@/components/answer/AnswerCompare'
+
+import { useSnackbar } from '@/context/SnackbarContext'
+
+
+import { update } from './crud'
+
 import PhaseRedirect from './PhaseRedirect'
+import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 
-import LayoutMain from '../../layout/LayoutMain'
-import Loading from '../../feedback/Loading'
 
-import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
-import Paging from '../../layout/utils/Paging'
-import MainMenu from '../../layout/MainMenu'
-import QuestionView from '../../question/QuestionView'
-import AnswerCompare from '../../answer/AnswerCompare'
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
-import { useSession } from 'next-auth/react'
-import { useSnackbar } from '../../../context/SnackbarContext'
-
-import Authorisation from '../../security/Authorisation'
-import { update } from './crud'
-import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
-import { fetcher } from '../../../code/utils'
-import { useDebouncedCallback } from 'use-debounce'
-import BackButton from '../../layout/BackButton'
 
 const PageGrading = () => {
   const router = useRouter()

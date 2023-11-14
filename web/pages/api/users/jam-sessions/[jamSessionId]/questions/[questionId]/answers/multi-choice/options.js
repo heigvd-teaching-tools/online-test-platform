@@ -2,13 +2,12 @@ import { Role, StudentAnswerStatus } from '@prisma/client'
 
 import { getSession } from 'next-auth/react'
 import { isInProgress } from '../utils'
-import { grading } from '../../../../../../../../../code/grading'
+import { grading } from '@/code/grading'
 import {
   withAuthorization,
-  withGroupScope,
   withMethodHandler
-} from '../../../../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../../../../middleware/withPrisma'
+} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 const addOrRemoveOption = async (req, res, prisma) => {
   const session = await getSession({ req })

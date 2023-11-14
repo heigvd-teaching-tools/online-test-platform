@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client'
-import { getUser } from '../../../../code/auth'
-import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../middleware/withPrisma'
+import { getUser } from '@/code/auth'
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 const get = async (req, res, prisma) => {
   const user = await getUser(req)

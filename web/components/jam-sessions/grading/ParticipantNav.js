@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Stack, Box, Button } from '@mui/material'
 import Image from 'next/image'
-import UserAvatar from '../../layout/UserAvatar'
-import FilledBullet from '../../feedback/FilledBullet'
+
+import UserAvatar from '@/components/layout/UserAvatar'
+import FilledBullet from '@/components/feedback/FilledBullet'
 
 const ParticipantItem = ({
   participant,

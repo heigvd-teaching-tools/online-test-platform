@@ -1,14 +1,17 @@
-import LayoutMain from '../../layout/LayoutMain'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import JamSessionAnalytics from '../analytics/JamSessionAnalytics'
 import { Autocomplete, Stack, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
-import { fetcher } from '../../../code/utils'
-import Loading from '../../feedback/Loading'
-import BackButton from '../../layout/BackButton'
+
+import { fetcher } from '@/code/utils'
+
+import BackButton from '@/components/layout/BackButton'
+import LayoutMain from '@/components/layout/LayoutMain'
+import Authorisation from '@/components/security/Authorisation'
+import Loading from '@/components/feedback/Loading'
+
+import JamSessionAnalytics from '../analytics/JamSessionAnalytics'
 
 const PageAnalytics = () => {
   const router = useRouter()

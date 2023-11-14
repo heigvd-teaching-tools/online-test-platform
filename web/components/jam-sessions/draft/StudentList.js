@@ -1,12 +1,15 @@
+import { useCallback, useMemo } from "react"
+import Image from "next/image"
 import { StudentAnswerStatus } from "@prisma/client"
 import { IconButton, Stack, Tooltip, Typography } from "@mui/material"
-import UserAvatar from "../../layout/UserAvatar"
-import Datagrid from "../../ui/DataGrid"
-import FilledBullet from "../../feedback/FilledBullet"
-import PiePercent from "../../feedback/PiePercent"
-import { useCallback, useMemo } from "react"
-import DateTimeAgo from "../../feedback/DateTimeAgo"
-import Image from "next/image"
+
+import UserAvatar from "@/components/layout/UserAvatar"
+import Datagrid from "@/components/ui/DataGrid"
+import FilledBullet from "@/components/feedback/FilledBullet"
+import PiePercent from "@/components/feedback/PiePercent"
+
+import DateTimeAgo from "@/components/feedback/DateTimeAgo"
+
 
 const StudentList = ({ groupScope, jamSessionId, title, students, questions = [] }) => {
 

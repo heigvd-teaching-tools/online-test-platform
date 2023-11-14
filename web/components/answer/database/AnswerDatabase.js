@@ -1,16 +1,18 @@
 import useSWR from "swr";
-import {fetcher} from "../../../code/utils";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
-import Loading from "../../feedback/Loading";
 import {Button, Stack} from "@mui/material";
+import {LoadingButton} from "@mui/lab";
+
+import {fetcher} from "@/code/utils";
+import Loading from "@/components/feedback/Loading";
+import BottomCollapsiblePanel from "@/components/layout/utils/BottomCollapsiblePanel";
+import ScrollContainer from "@/components/layout/ScrollContainer";
+
 import QueriesRunSummary from "./QueriesRunSummary";
-import ScrollContainer from "../../layout/ScrollContainer";
 import StudentQueryEditor from "./StudentQueryEditor";
 import StudentOutputDisplay from "./StudentOutputDisplay";
-import {LoadingButton} from "@mui/lab";
 import StudentQueryConsole from "./StudentQueryConsole";
-import BottomCollapsiblePanel from "../../layout/utils/BottomCollapsiblePanel";
 
 const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(

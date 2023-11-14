@@ -8,11 +8,13 @@ import {
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 
-import { useSnackbar } from '../../../../context/SnackbarContext'
+import { useSnackbar } from '@/context/SnackbarContext'
+import { useBottomPanel } from '@/context/BottomPanelContext'
+
+import BottomPanelHeader from '@/components/layout/utils/BottomPanelHeader'
+import BottomPanelContent from '@/components/layout/utils/BottomPanelContent'
+
 import TestCaseResults from './TestCaseResults'
-import BottomPanelHeader from '../../../layout/utils/BottomPanelHeader'
-import BottomPanelContent from '../../../layout/utils/BottomPanelContent'
-import { useBottomPanel } from '../../../../context/BottomPanelContext'
 
 const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
   const { show: showSnackbar } = useSnackbar()

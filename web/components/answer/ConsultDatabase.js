@@ -1,6 +1,6 @@
 import React from 'react'
-import QueryEditor from '../question/type_specific/database/QueryEditor'
-import QueryOutput from '../question/type_specific/database/QueryOutput'
+import QueryEditor from '@/components/question/type_specific/database/QueryEditor'
+import QueryOutput from '@/components/question/type_specific/database/QueryOutput'
 
 const ConsultDatabase = ({ queries }) => {
 

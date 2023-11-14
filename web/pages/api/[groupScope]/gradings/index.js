@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
-import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../middleware/withPrisma'
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /** Managing the grading of a qstudent answer
  *

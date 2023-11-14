@@ -1,8 +1,9 @@
 import { Stack, Typography } from '@mui/material'
-import WebEditor from '../question/type_specific/web/WebEditor'
-import PreviewPanel from '../question/type_specific/web/PreviewPanel'
-import ResizePanel from '../layout/utils/ResizePanel'
-import ScrollContainer from '../layout/ScrollContainer'
+
+import WebEditor from '@/components/question/type_specific/web/WebEditor'
+import PreviewPanel from '@/components/question/type_specific/web/PreviewPanel'
+import ResizePanel from '@/components/layout/utils/ResizePanel'
+import ScrollContainer from '@/components/layout/ScrollContainer'
 
 const ConsultWeb = ({ answer }) => {
   

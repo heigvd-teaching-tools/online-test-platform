@@ -1,9 +1,9 @@
 import { Role, JamSessionPhase } from '@prisma/client'
-import { withPrisma } from '../../../../../middleware/withPrisma';
-import { withMethodHandler, withAuthorization } from '../../../../../middleware/withAuthorization';
+import { withPrisma } from '@/middleware/withPrisma';
+import { withMethodHandler, withAuthorization } from '@/middleware/withAuthorization';
 
-import { phaseGT } from '../../../../../code/phase'
-import { getUser } from '../../../../../code/auth';
+import { phaseGT } from '@/code/phase'
+import { getUser } from '@/code/auth';
 
 /*
 fetch the informations necessary to decide where the users should be redirected
