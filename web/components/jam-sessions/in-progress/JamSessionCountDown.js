@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Typography, Chip, Box, Stack } from '@mui/material'
-import DateCountdown from '../../ui/DateCountdown'
-import PiePercent from '../../feedback/PiePercent'
+import { Typography, Chip, Stack } from '@mui/material'
+import DateCountdown from '@/components/ui/DateCountdown'
+import PiePercent from '@/components/feedback/PiePercent'
 
 const JamSessionCountDown = ({ startDate, endDate, onFinish = undefined}) => {
   const [percentage, setPercentage] = useState(100)

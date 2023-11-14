@@ -1,10 +1,10 @@
 import { Role } from '@prisma/client'
-import { runSandbox } from '../../../../../../../../sandbox/runSandboxTC'
+import { runSandbox } from '@/sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
-import { grading } from '../../../../../../../../code/grading'
-import {isInProgress} from "../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
-import { withAuthorization, withMethodHandler } from '../../../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../../../middleware/withPrisma'
+import { grading } from '@/code/grading'
+import {isInProgress} from "@/pages/api/users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /*
  endpoint to run the code sandbox for a users answers

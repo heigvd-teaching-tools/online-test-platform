@@ -1,12 +1,12 @@
 import { Role } from '@prisma/client'
-import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../middleware/withPrisma'
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
-import { getUser } from '../../../../../code/auth'
+import { getUser } from '@/code/auth'
 import {
   questionIncludeClause,
   IncludeStrategy,
-} from '../../../../../code/questions'
+} from '@/code/questions'
 import {
   isFinished,
 } from './questions/[questionId]/answers/utils'

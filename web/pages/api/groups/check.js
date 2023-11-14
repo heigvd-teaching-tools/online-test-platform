@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
-import { withAuthorization, withMethodHandler } from '../../../middleware/withAuthorization'
-import { withPrisma } from '../../../middleware/withPrisma'
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 /**
  * Check the group existence
  * Used by the group creation form to check if a group with the given label already exists

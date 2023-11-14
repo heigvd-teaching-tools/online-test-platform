@@ -1,8 +1,10 @@
-import DialogFeedback from '../../feedback/DialogFeedback'
-import { Stack, TextField } from '@mui/material'
-import { useSnackbar } from '../../../context/SnackbarContext'
-import { useInput } from '../../../code/useInput'
 import {useRouter} from "next/router";
+import { Stack, TextField } from '@mui/material'
+
+import { useInput } from '@/code/useInput'
+import { useSnackbar } from '@/context/SnackbarContext'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+
 const AddCollectionDialog = ({ open, onClose, handleAddCollection }) => {
   const { query } = useRouter()
 

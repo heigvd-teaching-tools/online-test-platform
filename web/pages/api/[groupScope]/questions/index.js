@@ -3,14 +3,14 @@ import {
   QuestionType,
   StudentPermission,
 } from '@prisma/client'
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../middleware/withPrisma'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 import {
   questionIncludeClause,
   questionTypeSpecific,
-} from '../../../../code/questions'
+} from '@/code/questions'
 
-import languages from '../../../../code/languages.json'
+import languages from '@/code/languages.json'
 
 const environments = languages.environments
 

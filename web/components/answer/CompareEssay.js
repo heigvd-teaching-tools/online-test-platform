@@ -1,6 +1,7 @@
 import { Box } from '@mui/material'
-import ContentEditor from '../input/ContentEditor'
-import ResizePanel from '../layout/utils/ResizePanel'
+import ContentEditor from '@/components/input/ContentEditor'
+import ResizePanel from '@/components/layout/utils/ResizePanel'
+
 const CompareEssay = ({ solution, answer }) => {
   return (
     <Box p={2} pt={0} height={"100%"}>

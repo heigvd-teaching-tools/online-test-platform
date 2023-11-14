@@ -3,7 +3,7 @@ import { StudentQuestionGradingStatus } from '@prisma/client'
 import { Chip, Stack, Typography } from '@mui/material'
 
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh'
-import PiePercent from '../../feedback/PiePercent'
+import PiePercent from '@/components/feedback/PiePercent'
 
 const GradingStatus = ({ grading, maxPoints }) => {
   return (

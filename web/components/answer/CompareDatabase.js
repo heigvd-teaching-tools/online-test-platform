@@ -1,13 +1,14 @@
 import React, {useCallback} from 'react'
 import {Alert, AlertTitle, Box, Stack, Typography} from '@mui/material'
-import { useResizeObserver } from '../../context/ResizeObserverContext'
-import ScrollContainer from '../layout/ScrollContainer'
-import QueryEditor from "../question/type_specific/database/QueryEditor";
-import QueryOutput from "../question/type_specific/database/QueryOutput";
-import LayoutSplitScreen from "../layout/LayoutSplitScreen";
-import QueriesRunSummary from './database/QueriesRunSummary';
 import { DatabaseQueryOutputStatus } from '@prisma/client';
-import ResizePanel from '../layout/utils/ResizePanel';
+
+import { useResizeObserver } from '@/context/ResizeObserverContext'
+import ScrollContainer from '@/components/layout/ScrollContainer'
+import QueryEditor from "@/components/question/type_specific/database/QueryEditor";
+import QueryOutput from "@/components/question/type_specific/database/QueryOutput";
+import ResizePanel from '@/components/layout/utils/ResizePanel';
+
+import QueriesRunSummary from './database/QueriesRunSummary';
 
 const ConsultQuery = ({ header, query, output }) => {
 

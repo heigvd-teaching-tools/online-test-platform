@@ -1,7 +1,7 @@
-import DropDown from '../../../input/DropDown'
-import { MenuItem, Stack, Typography } from '@mui/material'
 import React from 'react'
-import languages from '../../../../code/languages.json'
+import { MenuItem, Stack, Typography } from '@mui/material'
+import DropDown from '@/components/input/DropDown'
+import languages from '@/code/languages.json'
 import LanguageIcon from './LanguageIcon'
 
 const environments = languages.environments

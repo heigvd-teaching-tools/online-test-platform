@@ -9,7 +9,7 @@ import { Octokit } from "octokit";
 import { createAppAuth } from "@octokit/auth-app";
 import fetch from "node-fetch";
 import fs from 'fs';
-import { getPrisma } from "../../../middleware/withPrisma";
+import { getPrisma } from "@/middleware/withPrisma";
 
 const prisma = getPrisma();
 

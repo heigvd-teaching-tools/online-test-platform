@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
-import ContentEditor from '../input/ContentEditor'
+import ContentEditor from '@/components/input/ContentEditor'
+
 const ConsultEssay = ({ content }) => {
   return (
     <Box p={2} pt={1} height={"100%"}>

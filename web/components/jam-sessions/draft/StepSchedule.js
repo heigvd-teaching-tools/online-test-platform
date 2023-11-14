@@ -1,19 +1,19 @@
+import useSWR from 'swr'
 import { useState, useEffect } from 'react'
 import {
   Stack,
   Typography,
-  List,
   FormGroup,
   FormControlLabel,
   Switch,
   Alert,
   AlertTitle,
 } from '@mui/material'
-import DurationPicker from '../../input/DurationPicker'
+import DurationPicker from '@/components/input/DurationPicker'
 import StudentList from './StudentList'
-import useSWR from 'swr'
-import { fetcher } from '../../../code/utils'
-import Loading from '../../feedback/Loading'
+
+import { fetcher } from '@/code/utils'
+import Loading from '@/components/feedback/Loading'
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000;
 

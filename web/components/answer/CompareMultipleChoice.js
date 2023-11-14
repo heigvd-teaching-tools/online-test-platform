@@ -1,6 +1,6 @@
 import { Alert, Box, Stack, Typography } from '@mui/material'
-import RadioViewer from '../input/RadioViewer'
-import ResizePanel from '../layout/utils/ResizePanel'
+import RadioViewer from '@/components/input/RadioViewer'
+import ResizePanel from '@/components/layout/utils/ResizePanel'
 
 const StudentSelectionSummary = ({ options, answer }) => {
   const missedCorrect = options.filter(option => option.isCorrect && !answer.some(opt => opt.id === option.id)).length;

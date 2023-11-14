@@ -1,13 +1,13 @@
 import { QuestionType } from '@prisma/client'
 import { Paper } from '@mui/material'
+import { ResizeObserverProvider } from '@/context/ResizeObserverContext'
+
 import CompareCode from './CompareCode'
 import CompareWeb from './CompareWeb'
 import CompareEssay from './CompareEssay'
 import CompareMultipleChoice from './CompareMultipleChoice'
 import CompareTrueFalse from './CompareTrueFalse'
-import { ResizeObserverProvider } from '../../context/ResizeObserverContext'
 import CompareDatabase from "./CompareDatabase";
-
 
 const AnswerCompare = ({ questionType, solution, answer }) => {
   return (

@@ -7,13 +7,12 @@ import {
 
 import { getSession } from 'next-auth/react'
 import { isInProgress } from './utils'
-import { grading } from '../../../../../../../../code/grading'
+import { grading } from '@/code/grading'
 import {
   withAuthorization,
-  withGroupScope,
   withMethodHandler
-} from '../../../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../../../middleware/withPrisma'
+} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 
 /*

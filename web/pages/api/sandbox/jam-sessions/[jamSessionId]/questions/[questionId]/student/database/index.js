@@ -1,14 +1,14 @@
 import {DatabaseQueryOutputType, Prisma, Role} from '@prisma/client'
 import {getSession} from 'next-auth/react'
-import {grading} from '../../../../../../../../../code/grading'
+import {grading} from '@/code/grading'
 import {
   isInProgress
-} from "../../../../../../../users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
-import {runSandboxDB} from "../../../../../../../../../sandbox/runSandboxDB";
-import {runTestsOnDatasets} from "../../../../../../../../../code/database";
-import {runSQLFluffSandbox} from "../../../../../../../../../sandbox/runSQLFluffSandbox";
-import {withAuthorization, withMethodHandler} from '../../../../../../../../../middleware/withAuthorization';
-import {withPrisma} from '../../../../../../../../../middleware/withPrisma';
+} from "@/pages/api/users/jam-sessions/[jamSessionId]/questions/[questionId]/answers/utils";
+import {runSandboxDB} from "@/sandbox/runSandboxDB";
+import {runTestsOnDatasets} from "@/code/database";
+import {runSQLFluffSandbox} from "@/sandbox/runSQLFluffSandbox";
+import {withAuthorization, withMethodHandler} from '@/middleware/withAuthorization';
+import {withPrisma} from '@/middleware/withPrisma';
 
 /*
  endpoint to run the database sandbox for a users answers

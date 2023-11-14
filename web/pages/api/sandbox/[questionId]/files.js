@@ -1,7 +1,7 @@
 import { Role } from '@prisma/client'
-import { runSandbox } from '../../../../sandbox/runSandboxTC'
-import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../middleware/withPrisma'
+import { runSandbox } from '@/sandbox/runSandboxTC'
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /*
     endpoint to run the sandbox for a question with files from the request body

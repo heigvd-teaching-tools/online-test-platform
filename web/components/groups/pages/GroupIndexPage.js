@@ -1,8 +1,9 @@
 import {useRouter} from "next/router";
 import {useEffect, useState} from "react";
-import {useGroup} from "../../../context/GroupContext";
-import LoadingAnimation from "../../feedback/LoadingAnimation";
-import Unauthorized from "../../security/Unauthorized";
+import {useGroup} from "@/context/GroupContext";
+import Unauthorized from "@/components/security/Unauthorized";
+import LoadingAnimation from "@/components/feedback/LoadingAnimation";
+
 /*
 * Group scope index page
 * When user access /<groupScope> it will redirect to /<groupScope>/questions

@@ -1,7 +1,8 @@
-import LayoutMain from '../../layout/LayoutMain'
-import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
+import { useCallback, useEffect, useState } from 'react'
+import useSWR from 'swr'
+import { useRouter } from 'next/router'
 import { Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
+
 import {
   Box,
   Button,
@@ -9,19 +10,25 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import QuestionFilter from '../../question/QuestionFilter'
-import { useCallback, useEffect, useState } from 'react'
-import useSWR from 'swr'
-import QuestionListItem from '../../questions/list/QuestionListItem'
-import AddIcon from '@mui/icons-material/Add'
-import ReorderableList from '../../layout/utils/ReorderableList'
-import { useRouter } from 'next/router'
+
 import { useDebouncedCallback } from 'use-debounce'
+import AddIcon from '@mui/icons-material/Add'
+
+import { fetcher } from '@/code/utils'
+
+import Authorisation from '@/components/security/Authorisation'
+
+import LayoutMain from '@/components/layout/LayoutMain'
+import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
+import ReorderableList from '@/components/layout/utils/ReorderableList'
+import ScrollContainer from '@/components/layout/ScrollContainer'
+import BackButton from '@/components/layout/BackButton'
+import Loading from '@/components/feedback/Loading'
+
+import QuestionFilter from '@/components/question/QuestionFilter'
+import QuestionListItem from '@/components/questions/list/QuestionListItem'
+
 import CollectionToQuestion from '../compose/CollectionToQuestion'
-import Loading from '../../feedback/Loading'
-import { fetcher } from '../../../code/utils'
-import ScrollContainer from '../../layout/ScrollContainer'
-import BackButton from '../../layout/BackButton'
 
 const PageCompose = () => {
   const router = useRouter()

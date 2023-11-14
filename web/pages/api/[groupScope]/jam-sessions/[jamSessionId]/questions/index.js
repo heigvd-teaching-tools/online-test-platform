@@ -1,11 +1,11 @@
 import {  Role } from '@prisma/client'
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../middleware/withPrisma'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 import {
   IncludeStrategy,
   questionIncludeClause,
-} from '../../../../../../code/questions'
+} from '@/code/questions'
 
 /*
 used by the jam session pages grading, finished and analytics to fetch the questions of the jam session with official amswers

@@ -7,21 +7,23 @@ import { update } from './crud'
 
 import { Stack, Stepper, Step, StepLabel, Typography, Alert, AlertTitle, Tooltip, Button } from '@mui/material'
 
-import { useSnackbar } from '../../../context/SnackbarContext'
+import { useSnackbar } from '@/context/SnackbarContext'
+import { fetcher } from '@/code/utils'
+import LayoutMain from '@/components/layout/LayoutMain'
+import BackButton from '@/components/layout/BackButton'
+import Loading from '@/components/feedback/Loading'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+import Authorisation from '@/components/security/Authorisation'
+
+import { LoadingButton } from '@mui/lab'
 
 import JoinClipboard from '../JoinClipboard'
 import StepInProgress from '../in-progress/StepInProgress'
-import LayoutMain from '../../layout/LayoutMain'
-import { LoadingButton } from '@mui/lab'
-
 import DisplayPhase from '../DisplayPhase'
-import DialogFeedback from '../../feedback/DialogFeedback'
+
 import PhaseRedirect from './PhaseRedirect'
-import Authorisation from '../../security/Authorisation'
-import Loading from '../../feedback/Loading'
-import { fetcher } from '../../../code/utils'
 import StudentList from '../draft/StudentList'
-import BackButton from '../../layout/BackButton'
+
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
 
@@ -186,6 +188,8 @@ const PageInProgress = () => {
               </Alert>
               <Loading loading={!students} errors={[errorStudents]}>
                 <StudentList
+                  groupScope={groupScope}
+                  jamSessionId={jamSessionId}
                   title={"Students submissions"}
                   students={students?.students}
                   questions={students?.jamSessionToQuestions}

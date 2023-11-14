@@ -1,13 +1,13 @@
 import { Role } from '@prisma/client'
 
-import { getUser } from '../../../../../code/auth'
+import { getUser } from '@/code/auth'
 import {
   IncludeStrategy,
   questionIncludeClause,
-} from '../../../../../code/questions'
+} from '@/code/questions'
 import { isInProgress } from './questions/[questionId]/answers/utils'
-import { withAuthorization, withMethodHandler } from '../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../middleware/withPrisma'
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /*
 Get the details about thr jam session for a users

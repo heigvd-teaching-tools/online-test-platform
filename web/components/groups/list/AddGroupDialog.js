@@ -1,9 +1,11 @@
-import {useGroup} from "../../../context/GroupContext";
-import {useSnackbar} from "../../../context/SnackbarContext";
 import {useCallback, useState} from "react";
-import DialogFeedback from "../../feedback/DialogFeedback";
 import {Stack} from "@mui/material";
-import GroupScopeInput from "../../input/GroupScopeInput ";
+
+import {useGroup} from "@/context/GroupContext";
+import {useSnackbar} from "@/context/SnackbarContext";
+
+import DialogFeedback from "@/components/feedback/DialogFeedback";
+import GroupScopeInput from "@/components/input/GroupScopeInput ";
 
 const AddGroupDialog = ({ open, selectOnCreate, onClose, onSuccess }) => {
     const { mutate: mutateGroups } = useGroup();

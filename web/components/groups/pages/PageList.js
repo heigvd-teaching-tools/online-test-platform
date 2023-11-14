@@ -1,23 +1,30 @@
 import { useState, useEffect, useCallback } from 'react'
-import useSWR from 'swr'
-import LayoutMain from '../../layout/LayoutMain'
-import { Box, Button, Stack, Typography } from '@mui/material'
-
 import { Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
-import AlertFeedback from '../../feedback/AlertFeedback'
+import useSWR from 'swr'
+import {useSession} from "next-auth/react";
 import Link from 'next/link'
+
+import { Box, Button, Stack, Typography } from '@mui/material'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
+
+import { fetcher } from '@/code/utils'
+import {useGroup} from "@/context/GroupContext";
+
+import LayoutMain from '@/components/layout/LayoutMain'
+import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
+
+import Authorisation from '@/components/security/Authorisation'
+import Loading from '@/components/feedback/Loading'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
 
 import AddGroupDialog from '../list/AddGroupDialog'
 import AddMemberDialog from '../list/AddMemberDialog'
 import MyGroupsGrid from '../list/MyGroupsGrid'
 import GroupMembersGrid from '../list/GroupMembersGrid'
-import Loading from '../../feedback/Loading'
-import { fetcher } from '../../../code/utils'
-import {useGroup} from "../../../context/GroupContext";
-import {useSession} from "next-auth/react";
+
+
+
+
 
 const PageList = () => {
 

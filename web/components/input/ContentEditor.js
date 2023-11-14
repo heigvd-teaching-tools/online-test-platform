@@ -4,10 +4,10 @@ import ReactMarkdown from 'react-markdown'
 import gfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import copyToClipboard from 'clipboard-copy';
-import { useSnackbar } from '../../context/SnackbarContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ScrollContainer from '../layout/ScrollContainer';
-import ResizePanel from '../layout/utils/ResizePanel';
+import ScrollContainer from '@/components/layout/ScrollContainer';
+import ResizePanel from '@/components/layout/utils/ResizePanel';
 /*
         using Monaco Editor for editing content in markdown
         using ReactMarkdown for displaying content in markdown

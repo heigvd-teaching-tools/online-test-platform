@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react'
+import { Role } from '@prisma/client'
 import useSWR from 'swr'
 import Image from 'next/image'
-
-import LayoutMain from '../../layout/LayoutMain'
-import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { useSnackbar } from '../../../context/SnackbarContext'
-import DataGrid from '../../ui/DataGrid'
-import DialogFeedback from '../../feedback/DialogFeedback'
-
-import { Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
-import AddCollectionDialog from '../list/AddCollectionDialog'
-import MainMenu from '../../layout/MainMenu'
-import DateTimeAgo from '../../feedback/DateTimeAgo'
-import AlertFeedback from '../../feedback/AlertFeedback'
-import Loading from '../../feedback/Loading'
-import { fetcher } from '../../../code/utils'
 import {useRouter} from "next/router";
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
+
+
+import { fetcher } from '@/code/utils'
+import { useSnackbar } from '@/context/SnackbarContext'
+
+import Authorisation from '@/components/security/Authorisation'
+import LayoutMain from '@/components/layout/LayoutMain'
+import MainMenu from '@/components/layout/MainMenu'
+import DataGrid from '@/components/ui/DataGrid'
+
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+import DateTimeAgo from '@/components/feedback/DateTimeAgo'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
+import Loading from '@/components/feedback/Loading'
+
+import AddCollectionDialog from '../list/AddCollectionDialog'
 
 const gridHeader = {
   actions: {

@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {Stack} from "@mui/material";
-import QueryEditor from "../../question/type_specific/database/QueryEditor";
 import {StudentPermission} from "@prisma/client";
-import StudentPermissionIcon from "../../feedback/StudentPermissionIcon";
+import {Stack} from "@mui/material";
+
+import QueryEditor from "@/components/question/type_specific/database/QueryEditor";
+import StudentPermissionIcon from "@/components/feedback/StudentPermissionIcon";
 
 const StudentQueryEditor = ({ query:initial, onChange }) => {
 

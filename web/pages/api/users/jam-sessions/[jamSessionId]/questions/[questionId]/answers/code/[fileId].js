@@ -1,13 +1,12 @@
 import { Role, StudentAnswerStatus } from '@prisma/client'
 import { getSession } from 'next-auth/react'
 import { isInProgress } from '../utils'
-import { grading } from '../../../../../../../../../code/grading'
-import { withPrisma } from '../../../../../../../../../middleware/withPrisma'
+import { grading } from '@/code/grading'
+import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,
-  withGroupScope,
   withMethodHandler
-} from '../../../../../../../../../middleware/withAuthorization'
+} from '@/middleware/withAuthorization'
 /*
   Student updated a code file during a ham session
 

@@ -26,7 +26,7 @@ const PageProfConsult = () => {
   const { data: jamSession, error } = useSWR(
     `/api/${groupScope}/jam-sessions/${jamSessionId}/consult/${userEmail}`,
       groupScope && jamSessionId && userEmail ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: true, refreshInterval: 5000 }
   )
   const [jamSessionToQuestions, setJamSessionToQuestions] = useState([])
   const [selected, setSelected] = useState()
@@ -64,7 +64,7 @@ const PageProfConsult = () => {
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/${groupScope}/jam-sessions/${jamSessionId}/finished`} />
+                <BackButton backUrl={`/${groupScope}/jam-sessions/${jamSessionId}`} />
                 { selected && (
                   <UserAvatar user={selected.question.studentAnswer[0].user} />
                 )}
@@ -95,20 +95,20 @@ const PageProfConsult = () => {
                   rightPanel={
                     selected && (
                       <Stack pt={1} height={'100%'}>
-                      <AnswerCompare
-                        id={`answer-viewer-${selected.question.id}`}
-                        questionType={selected.question.type}
-                        solution={selected.question[selected.question.type]}
-                        answer={
-                          selected.question.studentAnswer[0][
-                            selected.question.type
-                          ]
-                        }
-                      />
+                        <AnswerCompare
+                          id={`answer-viewer-${selected.question.id}`}
+                          questionType={selected.question.type}
+                          solution={selected.question[selected.question.type]}
+                          answer={
+                            selected.question.studentAnswer[0][
+                              selected.question.type
+                            ]
+                          }
+                        />
                       </Stack>
                     )
                   }
-                  footer={
+                  footer={selected.question.studentAnswer[0].studentGrading.signedBy && 
                     <>
                       {' '}
                       {selected && (

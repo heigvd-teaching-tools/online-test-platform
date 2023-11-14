@@ -1,26 +1,34 @@
+
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Stack, Divider, Typography, Button, Tab, IconButton, Tooltip } from '@mui/material'
-
-import LayoutMain from '../../layout/LayoutMain'
-import DataGrid from '../../ui/DataGrid'
-import UserAvatar from '../../layout/UserAvatar'
-import PiePercent from '../../feedback/PiePercent'
-import PhaseRedirect from './PhaseRedirect'
-import { getObtainedPoints, getSignedSuccessRate } from '../analytics/stats'
+import { Stack, Divider, Typography, Button, Tab, IconButton, Tooltip} from '@mui/material'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import JamSessionAnalytics from '../analytics/JamSessionAnalytics'
+
 import { Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
+
+import { fetcher } from '@/code/utils'
+
+import BackButton from '@/components/layout/BackButton'
+import LayoutMain from '@/components/layout/LayoutMain'
+import DataGrid from '@/components/ui/DataGrid'
+import UserAvatar from '@/components/layout/UserAvatar'
+import PiePercent from '@/components/feedback/PiePercent'
+import Authorisation from '@/components/security/Authorisation'
+import Loading from '@/components/feedback/Loading'
+
+import PhaseRedirect from './PhaseRedirect'
+
+import { getObtainedPoints, getSignedSuccessRate } from '../analytics/stats'
+import JamSessionAnalytics from '../analytics/JamSessionAnalytics'
 import JoinClipboard from '../JoinClipboard'
-import Loading from '../../feedback/Loading'
-import { fetcher } from '../../../code/utils'
-import BackButton from '../../layout/BackButton'
-import Image from 'next/image'
+
+
+
 
 const PageFinished = () => {
   const router = useRouter()
@@ -120,7 +128,7 @@ const PageFinished = () => {
         participant: <UserAvatar user={participant} />,
         actions: (
           <Tooltip title="View student's answers" key="view-student-answers">
-            <a href={`/jam-sessions/${jamSessionId}/consult/${participant.email}/1`} target="_blank">
+            <a href={`/${groupScope}/jam-sessions/${jamSessionId}/consult/${participant.email}/1`} target="_blank">
               <IconButton size="small">
                 <Image
                   alt="View"

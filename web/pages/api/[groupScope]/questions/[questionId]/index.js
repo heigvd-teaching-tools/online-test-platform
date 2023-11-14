@@ -2,9 +2,9 @@ import { Role } from '@prisma/client'
 import {
   questionIncludeClause,
   questionTypeSpecific,
-} from '../../../../../code/questions'
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../middleware/withPrisma'
+} from '@/code/questions'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 /**
  * Managing a question

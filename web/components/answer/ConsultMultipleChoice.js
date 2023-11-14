@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material'
-import RadioViewer from '../input/RadioViewer'
+import RadioViewer from '@/components/input/RadioViewer'
 
 const ConsultMultipleChoice = ({ options, answer }) => {
   return (

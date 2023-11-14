@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
-import { withPrisma } from '../../../../../middleware/withPrisma';
-import {withMethodHandler, withAuthorization, withGroupScope} from '../../../../../middleware/withAuthorization';
+import { withPrisma } from '@/middleware/withPrisma';
+import {withMethodHandler, withAuthorization, withGroupScope} from '@/middleware/withAuthorization';
 
 const get = async (req, res, prisma) => {
   const { jamSessionId } = req.query

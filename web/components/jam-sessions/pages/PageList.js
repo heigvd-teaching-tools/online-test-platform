@@ -1,21 +1,24 @@
 import {useState, useEffect, useCallback} from 'react'
 import useSWR from 'swr'
 import Link from 'next/link'
-
+import { useRouter } from 'next/router'
 import { JamSessionPhase, JamSessionStatus, Role } from '@prisma/client'
 import { Button, Typography, Stack, Tab } from '@mui/material'
-import LayoutMain from '../../layout/LayoutMain'
+import LayoutMain from '@/components/layout/LayoutMain'
 
-import { useSnackbar } from '../../../context/SnackbarContext'
-import ListJamSession from '../list/ListJamSession'
+import { useSnackbar } from '@/context/SnackbarContext'
+
+import { fetcher } from '@/code/utils'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
-import DialogFeedback from '../../feedback/DialogFeedback'
-import { useRouter } from 'next/router'
-import Authorisation from '../../security/Authorisation'
-import MainMenu from '../../layout/MainMenu'
-import { fetcher } from '../../../code/utils'
-import Loading from '../../feedback/Loading'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+import Authorisation from '@/components/security/Authorisation'
+
+import MainMenu from '@/components/layout/MainMenu'
+
+import Loading from '@/components/feedback/Loading'
+
+import ListJamSession from '../list/ListJamSession'
 
 const JamSessions = () => {
   const router = useRouter()

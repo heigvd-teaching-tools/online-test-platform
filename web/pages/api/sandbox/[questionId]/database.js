@@ -1,8 +1,8 @@
 import { Role, Prisma } from '@prisma/client'
-import {runSandboxDB} from "../../../../sandbox/runSandboxDB";
-import {runSQLFluffSandbox} from "../../../../sandbox/runSQLFluffSandbox";
-import { withAuthorization, withMethodHandler } from '../../../../middleware/withAuthorization';
-import { withPrisma } from '../../../../middleware/withPrisma';
+import {runSandboxDB} from "@/sandbox/runSandboxDB";
+import {runSQLFluffSandbox} from "@/sandbox/runSQLFluffSandbox";
+import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization';
+import { withPrisma } from '@/middleware/withPrisma';
 
 /*
  endpoint to run the sandbox for a database question with queries recovered from the database

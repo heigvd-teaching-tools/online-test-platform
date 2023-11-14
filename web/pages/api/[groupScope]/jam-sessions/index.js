@@ -3,12 +3,12 @@ import {
   JamSessionPhase,
   QuestionType,
 } from '@prisma/client'
-import { withPrisma } from '../../../../middleware/withPrisma'
-import {withAuthorization, withGroupScope, withMethodHandler} from '../../../../middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
+import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
 import {
   questionIncludeClause,
   questionTypeSpecific,
-} from '../../../../code/questions'
+} from '@/code/questions'
 
 
 const get = async (req, res, prisma) => {

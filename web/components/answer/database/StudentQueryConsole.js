@@ -1,16 +1,11 @@
 import React, {useCallback, useState} from "react";
-import {DatabaseQueryOutputStatus} from "@prisma/client";
-import InlineMonacoEditor from "../../input/InlineMonacoEditor";
+import { DatabaseQueryOutputStatus } from "@prisma/client";
+import { Button, MenuItem, Stack, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import { Button, MenuItem, Stack} from "@mui/material";
-import DropDown from "../../input/DropDown";
-import QueryOutput from "../../question/type_specific/database/QueryOutput";
-import {LoadingButton} from "@mui/lab";
-
+import InlineMonacoEditor from "@/components/input/InlineMonacoEditor";
+import DropDown from "@/components/input/DropDown";
+import QueryOutput from "@/components/question/type_specific/database/QueryOutput";
 
 const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , onClose }) => {
 

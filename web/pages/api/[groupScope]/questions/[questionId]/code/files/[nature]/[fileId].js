@@ -3,8 +3,8 @@ import {
   withAuthorization,
   withGroupScope,
   withMethodHandler
-} from '../../../../../../../../middleware/withAuthorization'
-import { withPrisma } from '../../../../../../../../middleware/withPrisma'
+} from '@/middleware/withAuthorization'
+import { withPrisma } from '@/middleware/withPrisma'
 
 const put = async (req, res, prisma) => {
   // update a file for a code question

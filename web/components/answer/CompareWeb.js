@@ -1,9 +1,10 @@
-import { FormControlLabel, FormGroup, Stack, Switch } from '@mui/material'
-import ResizePanel from '../layout/utils/ResizePanel'
-import WebEditor from '../question/type_specific/web/WebEditor'
 import { useState } from 'react'
-import PreviewPanel from '../question/type_specific/web/PreviewPanel'
-import ScrollContainer from '../layout/ScrollContainer'
+import { FormControlLabel, FormGroup, Stack, Switch } from '@mui/material'
+
+import ResizePanel from '@/components/layout/utils/ResizePanel'
+import WebEditor from '@/components/question/type_specific/web/WebEditor'
+import PreviewPanel from '@/components/question/type_specific/web/PreviewPanel'
+import ScrollContainer from '@/components/layout/ScrollContainer'
 
 const CompareWeb = ({ solution, answer }) => {
   

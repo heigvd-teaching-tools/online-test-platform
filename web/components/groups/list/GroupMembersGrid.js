@@ -1,11 +1,12 @@
-import { Box, TextField, Typography } from '@mui/material'
-import DataGrid from '../../ui/DataGrid'
-import UserAvatar from '../../layout/UserAvatar'
-import AlertFeedback from '../../feedback/AlertFeedback'
+import { Box, Typography } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
-import { useSnackbar } from '../../../context/SnackbarContext'
-import GroupScopeInput from "../../input/GroupScopeInput ";
+import { useSnackbar } from '@/context/SnackbarContext'
 
+import DataGrid from '@/components/ui/DataGrid'
+import UserAvatar from '@/components/layout/UserAvatar'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
+
+import GroupScopeInput from "@/components/input/GroupScopeInput ";
 
 const GroupMembersGrid = ({ group, onUpdate }) => {
 

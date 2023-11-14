@@ -1,13 +1,15 @@
 import useSWR from "swr";
-import {fetcher} from "../../../code/utils";
 import React, {useCallback, useState} from "react";
-import {useDebouncedCallback} from "use-debounce";
-import Loading from "../../feedback/Loading";
-import FileEditor from "../../question/type_specific/code/files/FileEditor";
 import {StudentPermission} from "@prisma/client";
-import CodeCheck from "../../question/type_specific/code/CodeCheck";
-import StudentPermissionIcon from "../../feedback/StudentPermissionIcon";
-import BottomCollapsiblePanel from "../../layout/utils/BottomCollapsiblePanel";
+import {useDebouncedCallback} from "use-debounce";
+
+import {fetcher} from "@/code/utils";
+import BottomCollapsiblePanel from "@/components/layout/utils/BottomCollapsiblePanel";
+import Loading from "@/components/feedback/Loading";
+import StudentPermissionIcon from "@/components/feedback/StudentPermissionIcon";
+
+import FileEditor from "@/components/question/type_specific/code/files/FileEditor";
+import CodeCheck from "@/components/question/type_specific/code/CodeCheck";
 
 const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
 

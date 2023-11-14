@@ -1,7 +1,8 @@
+import React from "react";
 import {DatabaseQueryOutputStatus} from "@prisma/client";
 import {Stack, Step, StepConnector, StepLabel, Stepper} from "@mui/material";
-import StatusDisplay from "../../feedback/StatusDisplay";
-import React from "react";
+
+import StatusDisplay from "@/components/feedback/StatusDisplay";
 
 const QueriesRunSummary = ({ queries, studentOutputs }) => {
 
