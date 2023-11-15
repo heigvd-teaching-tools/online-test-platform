@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import { Autocomplete, Stack, TextField, Typography } from '@mui/material'
+import { Autocomplete, FormControlLabel, FormGroup, Stack, Switch, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { Role } from '@prisma/client'
+import { Role, EvaluationPhase } from '@prisma/client'
 
 import { fetcher } from '@/code/utils'
 
@@ -12,12 +12,13 @@ import Authorisation from '@/components/security/Authorisation'
 import Loading from '@/components/feedback/Loading'
 
 import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
+import { set } from 'lodash'
 
 const PageAnalytics = () => {
   const router = useRouter()
   const { groupScope, evaluationId } = router.query
 
-    console.log("PageAnalytics")
+  
 
   const { data: evaluations, error: errorEvaluations } = useSWR(
     `/api/${groupScope}/evaluations`,
@@ -34,6 +35,8 @@ const PageAnalytics = () => {
       groupScope && evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )
+  
+  const [ showSuccessRate, setShowSuccessRate ] = useState(false)
 
   const [value, setValue] = useState(null)
   const [inputValue, setInputValue] = useState('')
@@ -42,6 +45,7 @@ const PageAnalytics = () => {
     if (evaluation) {
       setValue(evaluation)
       setInputValue(evaluation.label)
+      setShowSuccessRate(evaluation.phase === EvaluationPhase.FINISHED)
     }
   }, [evaluation])
 
@@ -91,7 +95,20 @@ const PageAnalytics = () => {
                 }}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
               />
+               <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showSuccessRate}
+                      onChange={(event) => setShowSuccessRate(event.target.checked)}
+                    />
+                  }
+                  label="Show success rate"
+                />
+
+              </FormGroup>
               <EvaluationAnalytics
+                showSuccessRate={showSuccessRate}
                 evaluationToQuestions={evaluationToQuestions}
               />
             </Stack>

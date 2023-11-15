@@ -28,8 +28,6 @@ import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
 import JoinClipboard from '../JoinClipboard'
 
 
-
-
 const PageFinished = () => {
   const router = useRouter()
   const { groupScope, evaluationId } = router.query
@@ -46,28 +44,28 @@ const PageFinished = () => {
   )
 
   const [tab, setTab] = useState(1)
-  const [EvaluationToQuestions, setEvaluationToEvaluationToQuestions] =
+  const [evaluationToQuestions, setEvaluationToQuestions] =
     useState([])
   const [participants, setParticipants] = useState([])
 
   useEffect(() => {
     if (data) {
-      setEvaluationToEvaluationToQuestions(data)
+      setEvaluationToQuestions(data)
     }
   }, [data])
 
   useEffect(() => {
-    if (EvaluationToQuestions && EvaluationToQuestions.length > 0) {
+    if (evaluationToQuestions && evaluationToQuestions.length > 0) {
       setParticipants(
-        EvaluationToQuestions[0].question.studentAnswer
+        evaluationToQuestions[0].question.studentAnswer
           .map((sa) => sa.user)
           .sort((a, b) => a.name.localeCompare(b.name))
       )
     }
-  }, [EvaluationToQuestions])
+  }, [evaluationToQuestions])
 
   const gridHeaders = () => {
-    let q = EvaluationToQuestions.map((jstq) => ({
+    let q = evaluationToQuestions.map((jstq) => ({
       label: <b>{`Q${jstq.order + 1}`}</b>,
       tooltip: jstq.question.title,
       column: { width: '30px', align: 'center' },
@@ -94,8 +92,8 @@ const PageFinished = () => {
 
   const gridRows = () =>
     participants.map((participant) => {
-      let obtainedPoints = getObtainedPoints(EvaluationToQuestions, participant)
-      let totalPoints = EvaluationToQuestions.reduce(
+      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
+      let totalPoints = evaluationToQuestions.reduce(
         (acc, jstq) => acc + jstq.points,
         0
       )
@@ -104,7 +102,7 @@ const PageFinished = () => {
 
       const questionColumnValues = {}
 
-      EvaluationToQuestions.forEach((jstq) => {
+      evaluationToQuestions.forEach((jstq) => {
         const grading = jstq.question.studentAnswer.find(
           (sa) => sa.user.email === participant.email
         ).studentGrading
@@ -170,15 +168,15 @@ const PageFinished = () => {
     let LINE_SEPARATOR = '\r'
 
     let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`
-    EvaluationToQuestions.forEach(
+    evaluationToQuestions.forEach(
       (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`)
     )
     csv += LINE_SEPARATOR
 
     participants.forEach((participant) => {
-      let obtainedPoints = getObtainedPoints(EvaluationToQuestions, participant)
+      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
 
-      let totalPoints = EvaluationToQuestions.reduce(
+      let totalPoints = evaluationToQuestions.reduce(
         (acc, jstq) => acc + jstq.points,
         0
       )
@@ -187,7 +185,7 @@ const PageFinished = () => {
 
       csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${`${participantSuccessRate} %`}${COLUMN_SEPARATOR}${dotToComma(totalPoints)}${COLUMN_SEPARATOR}${dotToComma(obtainedPoints)}${COLUMN_SEPARATOR}`
 
-      EvaluationToQuestions.forEach((jstq) => {
+      evaluationToQuestions.forEach((jstq) => {
         const grading = jstq.question.studentAnswer.find(
           (sa) => sa.user.email === participant.email
         ).studentGrading
@@ -221,10 +219,10 @@ const PageFinished = () => {
       <PhaseRedirect phase={evaluation?.phase}>
         <Loading
           errors={[errorEvaluation, errorQuestions]}
-          loading={!evaluation || !EvaluationToQuestions}
+          loading={!evaluation || !evaluationToQuestions}
         >
           <TabContext value={tab}>
-            {EvaluationToQuestions && EvaluationToQuestions.length > 0 && (
+            {evaluationToQuestions && evaluationToQuestions.length > 0 && (
               <LayoutMain
                 hideLogo
                 header={
@@ -260,7 +258,7 @@ const PageFinished = () => {
                           Overall success rate
                         </Typography>
                         <PiePercent
-                          value={getSignedSuccessRate(EvaluationToQuestions)}
+                          value={getSignedSuccessRate(evaluationToQuestions)}
                         />
                       </Stack>
                       <Button onClick={exportAsCSV}>Export as csv</Button>
@@ -271,7 +269,8 @@ const PageFinished = () => {
                 </TabPanel>
                 <TabPanel value={2}>
                   <EvaluationAnalytics
-                    EvaluationToQuestions={EvaluationToQuestions}
+                    showSuccessRate
+                    evaluationToQuestions={evaluationToQuestions}
                   />
                 </TabPanel>
               </LayoutMain>

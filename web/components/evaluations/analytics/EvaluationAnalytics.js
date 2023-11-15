@@ -6,17 +6,17 @@ import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 import PiePercent from '@/components/feedback/PiePercent'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 
-const EvaluationAnalytics = ({ evaluationToQuestions }) => {
+const EvaluationAnalytics = ({ evaluationToQuestions, showSuccessRate = false }) => {
   return (
     <Stack spacing={8} alignItems="center" sx={{ width: '100%' }}>
       {evaluationToQuestions.map((jstq, index) => (
-        <QuestionAnalytics key={index} evaluationToQuestions={jstq} />
+        <QuestionAnalytics key={index} evaluationToQuestions={jstq} showSuccessRate={showSuccessRate} />
       ))}
     </Stack>
   )
 }
 
-const QuestionAnalytics = ({ evaluationToQuestions }) => {
+const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
   const { question } = evaluationToQuestions
 
   // student answer will correspond to the total number of students
@@ -295,18 +295,21 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
               </Typography>
             </Box>
           </Stack>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <PiePercent value={getQuestionSuccessRate(evaluationToQuestions)} />
-            <Box>
-              <Typography variant="body1">
-                <b>Success Rate</b>
-              </Typography>
-              <Typography variant="caption">
-                Based on obtained points after grading
-              </Typography>
-            </Box>
+          { showSuccessRate && (
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <PiePercent value={getQuestionSuccessRate(evaluationToQuestions)} />
+              <Box>
+                <Typography variant="body1">
+                  <b>Success Rate</b>
+                </Typography>
+                <Typography variant="caption">
+                  Based on obtained points after grading
+                </Typography>
+              </Box>
+            </Stack>
+          
+          )}
           </Stack>
-        </Stack>
       </Stack>
     </Paper>
   )
