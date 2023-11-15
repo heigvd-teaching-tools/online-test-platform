@@ -23,6 +23,9 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
   let maxValue = question.studentAnswer.length;
 
   const [questionData, setQuestionData] = useState(null)
+
+  console.log("evaluationToQuestions", evaluationToQuestions)
+
   useEffect(() => {
     if (evaluationToQuestions) {
       let data = {
@@ -59,6 +62,12 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
             maxValue > 0
               ? Math.round((data[question.type].failure.count / maxValue) * 100)
               : 0
+          data[question.type].noCodeCheckRuns.percentage =
+            maxValue > 0
+              ? Math.round((data[question.type].noCodeCheckRuns.count / maxValue) * 100)
+              : 0
+
+
           break
         }
         case QuestionType.essay:
@@ -155,7 +164,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                     </Tooltip>
                   }                  
                   segments={[
-                    { percent: option.percentage, color: 'info' },
+                    { percent: option.percentage, color: 'info', tooltip: `Students chosed ${option.label} [${option.chosen}]` },
                   ]}
                   amount={option.chosen}
                 />
@@ -167,16 +176,16 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 <AnalyticsRow
                   label={<b>True</b>}
                   segments={[
-                    { percent: questionData[questionData.type].true.percentage, color: 'info' },
+                    { percent: questionData[questionData.type].true.percentage, color: 'info', tooltip: 'Students chose true' },
                   ]}
-                  amount={questionData[questionData.type].true.chosen + questionData[questionData.type].true.chosen}
+                  amount={questionData[questionData.type].true.chosen}
                 />
                 <AnalyticsRow
                   label={<b>False</b>}
                   segments={[
-                    { percent: questionData[questionData.type].false.percentage, color: 'info' },
+                    { percent: questionData[questionData.type].false.percentage, color: 'info', tooltip: 'Students chose false' },
                   ]}
-                  amount={questionData[questionData.type].false.chosen + questionData[questionData.type].false.chosen}
+                  amount={questionData[questionData.type].false.chosen}
                 />
               </>
             )) ||
@@ -191,13 +200,12 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                     </Tooltip>
                   }
                   color="success"
-                  percent={questionData[questionData.type].success.percentage}
                   segments={[
-                    { percent: questionData[questionData.type].success.percentage, color: 'success' },
-                    { percent: questionData[questionData.type].failure.percentage, color: 'error' }
-
+                    { percent: questionData[questionData.type].success.percentage, color: 'success', tooltip: `All test cases passed [${questionData[questionData.type].success.count}]` },
+                    { percent: questionData[questionData.type].failure.percentage, color: 'error', tooltip: `Not all test cases passed [${questionData[questionData.type].failure.count}]` },
+                    { percent: questionData[questionData.type].noCodeCheckRuns.percentage, color: 'info', tooltip: `No code check runs [${questionData[questionData.type].noCodeCheckRuns.count}]` },
                   ]}
-                  amount={questionData[questionData.type].success.count}
+                  amount={submittedAnswers}
                 />
                 
               </>
@@ -208,9 +216,8 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 <AnalyticsRow
                   label="Submitted"
                   color="success"
-                  percent={questionData[questionData.type].submitted.percentage}
                   segments={[
-                    { percent: questionData[questionData.type].submitted.percentage, color: 'success' },
+                    { percent: questionData[questionData.type].submitted.percentage, color: 'success', tooltip: 'Submitted answers' },
                   ]}
                   amount={questionData[questionData.type].submitted.count}
                 />
@@ -228,15 +235,13 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                         <AnalyticsRow
                           label={testQueryStats.success.label}
                           color="success"
-                          percent={testQueryStats.success.percent}
-                          segments={[{ percent: testQueryStats.success.percent, color: 'success' }]}
+                          segments={[{ percent: testQueryStats.success.percent, color: 'success', tooltip: 'Evaluation passed' }]}
                           amount={testQueryStats.success.amount}
                         />
                         <AnalyticsRow
                           label={testQueryStats.failure.label}
                           color="error"
-                          percent={testQueryStats.failure.percent}
-                          segments={[{ percent: testQueryStats.failure.percent, color: 'error' }]}
+                          segments={[{ percent: testQueryStats.failure.percent, color: 'error', tooltip: 'Evaluation failed' }]}
                           amount={testQueryStats.failure.amount}
                         />
                       </Stack>
@@ -250,15 +255,13 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                         <AnalyticsRow
                           label={lintQueryStats.success.label}
                           color="success"
-                          percent={lintQueryStats.success.percent}
-                          segments={[{ percent: lintQueryStats.success.percent, color: 'success' }]}
+                          segments={[{ percent: lintQueryStats.success.percent, color: 'success', tooltip: 'Lint rules passed' }]}
                           amount={lintQueryStats.success.amount}
                         />
                         <AnalyticsRow
                           label={lintQueryStats.failure.label}
                           color="error"
-                          percent={lintQueryStats.failure.percent}
-                          segments={[{ percent: lintQueryStats.failure.percent, color: 'error' }]}
+                          segments={[{ percent: lintQueryStats.failure.percent, color: 'error', tooltip: 'Lint rules failed' }]}
                           amount={lintQueryStats.failure.amount}
                         />
                         </Stack>
@@ -317,33 +320,35 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
 
 const StackedLinearPercent = ({ segments, thickness = 10 }) => (
   <Stack sx={{ flex: 1 }}>
-    <Box
-      sx={{
-        display: 'flex',
-        width: '100%',
-        height: thickness,
-        backgroundColor: 'grey.200',
-        borderRadius: thickness,
-        overflow: 'hidden',
-      }}
+    <Grow
+      in={segments.length > 0}
+      timeout={1000}
+      style={{ transformOrigin: '0 0 0' }}
     >
-      {segments.map((segment, index) => (
-        <Grow
-          key={index}
-          in={segment.percent > 0}
-          timeout={500}
-          style={{ transformOrigin: '0 0 0' }}
-        >
-          <Box
-            sx={{
-              height: thickness,
-              width: `${segment.percent}%`,
-              bgcolor: `${segment.color}.main`,
-            }}
-          />
-        </Grow>
-      ))}
-    </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          height: thickness,
+          backgroundColor: 'grey.200',
+          borderRadius: thickness,
+          overflow: 'hidden',
+        }}
+      >
+        {segments.map((segment, index) => (
+          <Tooltip title={`${segment.tooltip}`} key={index}>
+            
+              <Box
+                sx={{
+                  height: thickness,
+                  width: `${segment.percent}%`,
+                  bgcolor: `${segment.color}.main`,
+                }}
+              />
+          </Tooltip>
+        ))}
+      </Box>
+    </Grow>
   </Stack>
 );
 

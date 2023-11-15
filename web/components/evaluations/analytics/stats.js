@@ -153,12 +153,26 @@ export const typeSpecificStats = (question) => {
         return acc;
       }, 0);
 
+      let noCodeCheckRuns = question.studentAnswer.reduce((acc, sa) => {
+        // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
+        if (
+          sa.status === StudentAnswerStatus.SUBMITTED &&
+          !sa[question.type]?.testCaseResults?.length
+        ) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+
       return {
         success: {
           count: success,
         },
         failure: {
           count: failure,
+        },
+        noCodeCheckRuns: {
+          count: noCodeCheckRuns,
         },
       };
     case QuestionType.essay:
