@@ -12,7 +12,6 @@ import Authorisation from '@/components/security/Authorisation'
 import Loading from '@/components/feedback/Loading'
 
 import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
-import { set } from 'lodash'
 
 const PageAnalytics = () => {
   const router = useRouter()
