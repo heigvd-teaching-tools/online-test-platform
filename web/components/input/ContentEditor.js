@@ -37,6 +37,16 @@ const ContentEditor = ({
     
 }
 
+const editorOptions = {
+  suggestOnTriggerCharacters: false,
+  quickSuggestions: false,
+  wordBasedSuggestions: false,
+  parameterHints: {
+    enabled: false, // Disables parameter hints
+  },
+
+}
+
 const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial, height, onChange }) => {
 
   const ref = useRef(null)
@@ -106,6 +116,7 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
                 language={"markdown"}
                 readOnly={readOnly}
                 onChange={onChangeContent}
+                editorOptions={editorOptions}
               />
               )
           ) || (
@@ -118,6 +129,7 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
                         language={"markdown"}
                         readOnly={readOnly}
                         onChange={onChangeContent}
+                        editorOptions={editorOptions}
                       /> 
                     </ScrollContainer>
                   }

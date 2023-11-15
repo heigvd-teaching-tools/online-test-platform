@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Stack, TextField, Button, Typography } from '@mui/material'
 import ContentEditor from '../input/ContentEditor'
@@ -30,20 +30,14 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
 
   const [ deleteQuestionDialogOpen, setDeleteQuestionDialogOpen ] = useState(false)
 
-  useEffect(() => {
-    // if group changes, re-fetch questions
-    if (questionId) {
-      ;(async () => await mutate())()
-    }
-  }, [questionId])
 
-  const [ title, setTitle ] = useState("")
+  const [ title, setTitle ] = useState(question?.title || "")
 
   useEffect(() => {
     if (question) {
       setTitle(question.title)
     }
-  }, [question])
+  }, [question?.title, questionId])
 
   const saveQuestion = useCallback(
     async (question) => {
