@@ -1,3 +1,4 @@
+import React from "react"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { useSnackbar } from "../../../context/SnackbarContext"
@@ -9,7 +10,7 @@ import Authorisation from "../../security/Authorisation"
 import Loading from "../../feedback/Loading"
 import StudentPhaseRedirect from "./StudentPhaseRedirect"
 import LayoutMain from "../../layout/LayoutMain"
-import { Box, Chip, Stack } from "@mui/material"
+import { Box, Button, Chip, IconButton, Stack, Tab, Tabs } from "@mui/material"
 import JamSessionCountDown from "../../jam-sessions/in-progress/JamSessionCountDown"
 import Paging from "../../layout/utils/Paging"
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
@@ -18,8 +19,8 @@ import QuestionNav from "./take/QuestionNav"
 import { ResizeObserverProvider } from "../../../context/ResizeObserverContext"
 import ScrollContainer from "../../layout/ScrollContainer"
 import AnswerEditor from "../../answer/AnswerEditor"
-import React from "react"
 import ConnectionIndicator from "./take/ConnectionIndicator"
+import Image from "next/image"
 
 const PageTakeJam = () => {
   const router = useRouter()
@@ -80,6 +81,7 @@ const PageTakeJam = () => {
     setPage(parseInt(pageId))
   }, [pageId])
 
+  const HomeSvgIcon = () => <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 16 16"><g transform="translate(0, 0)"><path d="M6,14H2V2H12V5.5L14,7V1a1,1,0,0,0-1-1H1A1,1,0,0,0,0,1V15a1,1,0,0,0,1,1H6Z" fill="#2196f3"></path><polygon points="12 8 8 11 8 16 11 16 11 13 13.035 13 13.035 16 16 16 16 11 12 8" fill="#2196f3" data-color="color-2"></polygon><rect x="4" y="4" width="6" height="1" fill="#2196f3"></rect><rect x="4" y="7" width="6" height="1" fill="#2196f3"></rect><rect x="4" y="10" width="3" height="1" fill="#2196f3"></rect></g></svg>
 
   const jamToQuestions = userOnJamSession?.jamSessionToQuestions;
 
@@ -108,6 +110,23 @@ const PageTakeJam = () => {
                             />
                           </Box>
                         )}
+                        { /**
+                         <Tabs value={1}>
+                          <Tab
+                            iconPosition="start"
+                            label="Home"
+                            icon={
+                              <Box mr={1} mt={.4}>
+                                <HomeSvgIcon />
+                              </Box>
+                            }
+                            sx={{ minHeight: '50px', minWidth: 0, mb: 1, mt: 1 }}
+                            value={2}
+                          />
+                        </Tabs>
+                         * 
+                         */}
+                        
                         {jamToQuestions && jamToQuestions.length > 0 && (
                           <Paging
                             items={pages}
