@@ -101,6 +101,7 @@ export const typeSpecificStats = (question) => {
         }
       })
     case QuestionType.trueFalse:
+      
       let trueChosen = question.studentAnswer.reduce((acc, sa) => {
         if (
           sa.status === StudentAnswerStatus.SUBMITTED &&

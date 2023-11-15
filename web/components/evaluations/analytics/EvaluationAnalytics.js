@@ -143,7 +143,7 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
         </Stack>
         {questionData &&
           ((questionData.type === QuestionType.multipleChoice && (
-            <Stack direction="column" alignItems="flex-start" spacing={2}>
+            <Stack direction="column" alignItems="flex-start" spacing={1}>
               {questionData[questionData.type].map((option, index) => (
                 <AnalyticsRow
                   key={index}
@@ -154,7 +154,9 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
                       </Typography>
                     </Tooltip>
                   }                  
-                  percent={option.percentage}
+                  segments={[
+                    { percent: option.percentage, color: 'info' },
+                  ]}
                   amount={option.chosen}
                 />
               ))}
@@ -163,14 +165,18 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
             (questionData.type === QuestionType.trueFalse && (
               <>
                 <AnalyticsRow
-                  label="True"
-                  percent={questionData[questionData.type].true.percentage}
-                  amount={questionData[questionData.type].true.chosen}
+                  label={<b>True</b>}
+                  segments={[
+                    { percent: questionData[questionData.type].true.percentage, color: 'info' },
+                  ]}
+                  amount={questionData[questionData.type].true.chosen + questionData[questionData.type].true.chosen}
                 />
                 <AnalyticsRow
-                  label="False"
-                  percent={questionData[questionData.type].false.percentage}
-                  amount={questionData[questionData.type].false.chosen}
+                  label={<b>False</b>}
+                  segments={[
+                    { percent: questionData[questionData.type].false.percentage, color: 'info' },
+                  ]}
+                  amount={questionData[questionData.type].false.chosen + questionData[questionData.type].false.chosen}
                 />
               </>
             )) ||
@@ -186,20 +192,14 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
                   }
                   color="success"
                   percent={questionData[questionData.type].success.percentage}
+                  segments={[
+                    { percent: questionData[questionData.type].success.percentage, color: 'success' },
+                    { percent: questionData[questionData.type].failure.percentage, color: 'error' }
+
+                  ]}
                   amount={questionData[questionData.type].success.count}
                 />
-                <AnalyticsRow
-                  label={
-                    <Tooltip title="For the last code check run, at least one test case failed">
-                      <Typography variant="body1">
-                        <b>Failure</b>
-                      </Typography>
-                    </Tooltip>
-                  }
-                  color="error"
-                  percent={questionData[questionData.type].failure.percentage}
-                  amount={questionData[questionData.type].failure.count}
-                />
+                
               </>
             )) ||
             ((questionData.type === QuestionType.essay ||
@@ -209,14 +209,12 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
                   label="Submitted"
                   color="success"
                   percent={questionData[questionData.type].submitted.percentage}
+                  segments={[
+                    { percent: questionData[questionData.type].submitted.percentage, color: 'success' },
+                  ]}
                   amount={questionData[questionData.type].submitted.count}
                 />
-                <AnalyticsRow
-                  label="Missing"
-                  color="error"
-                  percent={questionData[questionData.type].missing.percentage}
-                  amount={questionData[questionData.type].missing.count}
-                />
+                
               </>
             )) ||
             (questionData.type === QuestionType.database && (
@@ -231,12 +229,14 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
                           label={testQueryStats.success.label}
                           color="success"
                           percent={testQueryStats.success.percent}
+                          segments={[{ percent: testQueryStats.success.percent, color: 'success' }]}
                           amount={testQueryStats.success.amount}
                         />
                         <AnalyticsRow
                           label={testQueryStats.failure.label}
                           color="error"
                           percent={testQueryStats.failure.percent}
+                          segments={[{ percent: testQueryStats.failure.percent, color: 'error' }]}
                           amount={testQueryStats.failure.amount}
                         />
                       </Stack>
@@ -251,12 +251,14 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
                           label={lintQueryStats.success.label}
                           color="success"
                           percent={lintQueryStats.success.percent}
+                          segments={[{ percent: lintQueryStats.success.percent, color: 'success' }]}
                           amount={lintQueryStats.success.amount}
                         />
                         <AnalyticsRow
                           label={lintQueryStats.failure.label}
                           color="error"
                           percent={lintQueryStats.failure.percent}
+                          segments={[{ percent: lintQueryStats.failure.percent, color: 'error' }]}
                           amount={lintQueryStats.failure.amount}
                         />
                         </Stack>
@@ -310,27 +312,11 @@ const QuestionAnalytics = ({ evaluationToQuestions }) => {
   )
 }
 
-
-const AnalyticsRow = ({ label, percent, amount, color = 'info' }) => (
-  <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%' }}>
-    <Box sx={{ width: 60, maxWidth: 60 }}>
-      <Typography variant="body1">{label}</Typography>
-    </Box>
-    <Stack sx={{ flex: 1 }} direction="row" spacing={2} alignItems="center">
-      <LinearPercent percent={percent} thickness={15} color={color} />
-      <Box sx={{ minWidth: 35, width: 35 }}>
-        <Typography variant="caption" sx={{ textAlign: 'center' }}>
-          <b>{amount}</b>
-        </Typography>
-      </Box>
-    </Stack>
-  </Stack>
-)
-
-const LinearPercent = ({ percent, thickness = 10, color = 'info' }) => (
+const StackedLinearPercent = ({ segments, thickness = 10 }) => (
   <Stack sx={{ flex: 1 }}>
     <Box
       sx={{
+        display: 'flex',
         width: '100%',
         height: thickness,
         backgroundColor: 'grey.200',
@@ -338,18 +324,40 @@ const LinearPercent = ({ percent, thickness = 10, color = 'info' }) => (
         overflow: 'hidden',
       }}
     >
-      <Grow in={percent > 0} timeout={500} style={{ transformOrigin: '0 0 0' }}>
-        <Box
-          sx={{
-            height: thickness,
-            width: `${percent}%`,
-            bgcolor: `${color}.main`,
-          }}
-          color={color}
-        />
-      </Grow>
+      {segments.map((segment, index) => (
+        <Grow
+          key={index}
+          in={segment.percent > 0}
+          timeout={500}
+          style={{ transformOrigin: '0 0 0' }}
+        >
+          <Box
+            sx={{
+              height: thickness,
+              width: `${segment.percent}%`,
+              bgcolor: `${segment.color}.main`,
+            }}
+          />
+        </Grow>
+      ))}
     </Box>
   </Stack>
-)
+);
+
+const AnalyticsRow = ({ label, segments, amount }) => (
+  <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%' }}>
+    <Box sx={{ width: 60, maxWidth: 60 }}>
+      <Typography variant="body1">{label}</Typography>
+    </Box>
+    <Stack sx={{ flex: 1 }} direction="row" spacing={2} alignItems="center">
+      <StackedLinearPercent segments={segments} thickness={15} />
+      <Box sx={{ minWidth: 35, width: 35 }}>
+        <Typography variant="caption" sx={{ textAlign: 'center' }}>
+          <b>{amount}</b>
+        </Typography>
+      </Box>
+    </Stack>
+  </Stack>
+);
 
 export default EvaluationAnalytics
