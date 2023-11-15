@@ -6,31 +6,32 @@ import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 import PiePercent from '@/components/feedback/PiePercent'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 
-const EvaluationAnalytics = ({ EvaluationToQuestions }) => {
+const EvaluationAnalytics = ({ evaluationToQuestions }) => {
   return (
     <Stack spacing={8} alignItems="center" sx={{ width: '100%' }}>
-      {EvaluationToQuestions.map((jstq, index) => (
-        <QuestionAnalytics key={index} EvaluationToQuestion={jstq} />
+      {evaluationToQuestions.map((jstq, index) => (
+        <QuestionAnalytics key={index} evaluationToQuestions={jstq} />
       ))}
     </Stack>
   )
 }
 
-const QuestionAnalytics = ({ EvaluationToQuestion }) => {
-  const { question } = EvaluationToQuestion
+const QuestionAnalytics = ({ evaluationToQuestions }) => {
+  const { question } = evaluationToQuestions
+
+  // student answer will correspond to the total number of students
+  let maxValue = question.studentAnswer.length;
+
   const [questionData, setQuestionData] = useState(null)
   useEffect(() => {
-    if (EvaluationToQuestion) {
+    if (evaluationToQuestions) {
       let data = {
-        label: `Q${EvaluationToQuestion.order + 1}`,
+        label: `Q${evaluationToQuestions.order + 1}`,
         type: question.type,
         [question.type]: typeSpecificStats(question),
       }
       switch (question.type) {
         case QuestionType.multipleChoice: {
-          let maxValue = Math.max(
-            ...data[question.type].map((option) => option.chosen)
-          )
           data[question.type] = data[question.type].map((option) => ({
             ...option,
             percentage:
@@ -39,10 +40,6 @@ const QuestionAnalytics = ({ EvaluationToQuestion }) => {
           break
         }
         case QuestionType.trueFalse: {
-          let maxValue = Math.max(
-            data[question.type].true.chosen,
-            data[question.type].false.chosen
-          )
           data[question.type].true.percentage =
             maxValue > 0
               ? Math.round((data[question.type].true.chosen / maxValue) * 100)
@@ -54,10 +51,6 @@ const QuestionAnalytics = ({ EvaluationToQuestion }) => {
           break
         }
         case QuestionType.code: {
-          let maxValue = Math.max(
-            data[question.type].success.count,
-            data[question.type].failure.count
-          )
           data[question.type].success.percentage =
             maxValue > 0
               ? Math.round((data[question.type].success.count / maxValue) * 100)
@@ -70,10 +63,6 @@ const QuestionAnalytics = ({ EvaluationToQuestion }) => {
         }
         case QuestionType.essay:
         case QuestionType.web: {
-          let maxValue = Math.max(
-            data[question.type].submitted.count,
-            data[question.type].missing.count
-          )
           data[question.type].submitted.percentage =
             maxValue > 0
               ? Math.round(
@@ -130,7 +119,7 @@ const QuestionAnalytics = ({ EvaluationToQuestion }) => {
       }
       setQuestionData(data)
     }
-  }, [question, EvaluationToQuestion])
+  }, [question, evaluationToQuestions])
 
   const submittedAnswers = question.studentAnswer.filter((sa) => sa.status === StudentAnswerStatus.SUBMITTED).length;
   const totalAnswers = question.studentAnswer.length;
@@ -147,7 +136,7 @@ const QuestionAnalytics = ({ EvaluationToQuestion }) => {
           <Stack direction="row" alignItems="center" spacing={1}>
             <QuestionTypeIcon type={question.type} withLabel />
             <Typography variant="h6">
-              <b>{`Q${EvaluationToQuestion.order + 1}`}</b>
+              <b>{`Q${evaluationToQuestions.order + 1}`}</b>
             </Typography>
             <Typography variant="body1">{question.title}</Typography>
           </Stack>
@@ -305,7 +294,7 @@ const QuestionAnalytics = ({ EvaluationToQuestion }) => {
             </Box>
           </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <PiePercent value={getQuestionSuccessRate(EvaluationToQuestion)} />
+            <PiePercent value={getQuestionSuccessRate(evaluationToQuestions)} />
             <Box>
               <Typography variant="body1">
                 <b>Success Rate</b>

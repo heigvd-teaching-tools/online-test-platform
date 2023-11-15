@@ -29,7 +29,7 @@ const PageAnalytics = () => {
       groupScope && evaluationId ? fetcher : null
   )
 
-  const { data: EvaluationToQuestions, error: errorQuestions } = useSWR(
+  const { data: evaluationToQuestions, error: errorQuestions } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
       groupScope && evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
@@ -49,7 +49,7 @@ const PageAnalytics = () => {
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading
         error={[errorEvaluations, errorEvaluation, errorQuestions]}
-        loading={!evaluation || !evaluations || !EvaluationToQuestions}
+        loading={!evaluation || !evaluations || !evaluationToQuestions}
       >
         <LayoutMain
             header={
@@ -65,7 +65,7 @@ const PageAnalytics = () => {
             padding={2}
             spacing={2}
           >
-          {evaluation && evaluations && EvaluationToQuestions && (
+          {evaluation && evaluations && evaluationToQuestions && (
             <Stack alignItems="center" spacing={2} padding={2}>
               <Autocomplete
                 id="chose-evaluation"
@@ -92,7 +92,7 @@ const PageAnalytics = () => {
                 isOptionEqualToValue={(option, value) => option.id === value.id}
               />
               <EvaluationAnalytics
-                EvaluationToQuestions={EvaluationToQuestions}
+                evaluationToQuestions={evaluationToQuestions}
               />
             </Stack>
           )}

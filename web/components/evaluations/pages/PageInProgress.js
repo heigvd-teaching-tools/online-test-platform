@@ -120,102 +120,95 @@ const PageInProgress = () => {
               padding={2}
               spacing={2}
               >
-
-              <JoinClipboard evaluationId={evaluationId} />
-              <Stepper activeStep={0} orientation="vertical">
-                <Step key="in-progress">
-                  <StepInProgress
-                    evaluation={evaluation}
-                    onDurationChange={handleDurationChange}
-                    onEvaluationEnd={() => {}}
-                  />
-                </Step>
-                <Step key="grading">
-                  <StepLabel>Grading</StepLabel>
-                </Step>
-              </Stepper>
-
-              <Stack direction="row" justifyContent="center" spacing={1}>
-
-                <a href={`/${groupScope}/evaluations/${evaluationId}/analytics`} key="analytics" target="_blank">
-                  <Tooltip title="Open live analytics in a new tab">
-                      <Button
-                        key={"analytics"}
-                        component="span"
-                        color="info"
-                        startIcon={
-                          <Image
-                            alt="Analytics"
-                            src="/svg/icons/analytics.svg"
-                            layout="fixed"
-                            width="18"
-                            height="18"
-                          />
-                        }
-                      >
-                        Live Analytics
-                      </Button>
-                  </Tooltip>
-                </a>
-
-                <DisplayPhase phase={EvaluationPhase.IN_PROGRESS} />
-
-                <LoadingButton
-                  key="promote-to-grading"
-                  onClick={handleEndInProgress}
-                  loading={saving}
-                  color="info"
-                  startIcon={
-                    <Image
-                      alt="Promote"
-                      src="/svg/icons/finish.svg"
-                      layout="fixed"
-                      width="18"
-                      height="18"
-                    />
-                  }
-                >
-                  End evaluation
-                </LoadingButton>
-
-              </Stack>
-
-              <Alert severity={'info'}>
-                <AlertTitle>Students submissions</AlertTitle>
-                <Typography variant="body1">
-                  The filled bullet point indicate the student has started working on the related question.
-                </Typography>
-              </Alert>
-              <Loading loading={!students} errors={[errorStudents]}>
-                <StudentList
-                  groupScope={groupScope}
-                  evaluationId={evaluationId}
-                  title={"Students submissions"}
-                  students={students?.students}
-                  questions={students?.evaluationToQuestions}
+                <JoinClipboard evaluationId={evaluationId} />
+                  
+                <StepInProgress
+                  evaluation={evaluation}
+                  onDurationChange={handleDurationChange}
+                  onEvaluationEnd={() => {}}
                 />
-              </Loading>
+              
+                <Stack direction="row" justifyContent="center" spacing={1}>
 
-              <DialogFeedback
-                open={endSessionDialogOpen}
-                title="End of In-Progress phase"
-                content={
-                  <>
-                    <Typography variant="body1">
-                      You are about to promote this evaluation to the grading
-                      phase.
-                    </Typography>
-                    <Typography variant="body1">
-                      Students will not be able to submit their answers anymore.
-                    </Typography>
-                    <Typography variant="button" gutterBottom>
-                      Are you sure you want to continue?
-                    </Typography>
-                  </>
-                }
-                onClose={() => setEndSessionDialogOpen(false)}
-                onConfirm={moveToGradingPhase}
-              />
+                  <a href={`/${groupScope}/evaluations/${evaluationId}/analytics`} key="analytics" target="_blank">
+                    <Tooltip title="Open live analytics in a new tab">
+                        <Button
+                          key={"analytics"}
+                          component="span"
+                          color="info"
+                          startIcon={
+                            <Image
+                              alt="Analytics"
+                              src="/svg/icons/analytics.svg"
+                              layout="fixed"
+                              width="18"
+                              height="18"
+                            />
+                          }
+                        >
+                          Live Analytics
+                        </Button>
+                    </Tooltip>
+                  </a>
+
+                  <DisplayPhase phase={EvaluationPhase.IN_PROGRESS} />
+
+                  <LoadingButton
+                    key="promote-to-grading"
+                    onClick={handleEndInProgress}
+                    loading={saving}
+                    color="info"
+                    startIcon={
+                      <Image
+                        alt="Promote"
+                        src="/svg/icons/finish.svg"
+                        layout="fixed"
+                        width="18"
+                        height="18"
+                      />
+                    }
+                  >
+                    End evaluation
+                  </LoadingButton>
+
+                </Stack>
+
+                <Alert severity={'info'}>
+                  <AlertTitle>Students submissions</AlertTitle>
+                  <Typography variant="body1">
+                    The filled bullet point indicate the student has started working on the related question.
+                  </Typography>
+                </Alert>
+                <Loading loading={!students} errors={[errorStudents]}>
+                  <StudentList
+                    groupScope={groupScope}
+                    evaluationId={evaluationId}
+                    title={"Students submissions"}
+                    students={students?.students}
+                    questions={students?.evaluationToQuestions}
+                  />
+                </Loading>
+
+                <DialogFeedback
+                  open={endSessionDialogOpen}
+                  title="End of In-Progress phase"
+                  content={
+                    <>
+                      <Typography variant="body1">
+                        You are about to promote this evaluation to the grading
+                        phase.
+                      </Typography>
+                      <Typography variant="body1">
+                        Students will not be able to submit their answers anymore.
+                      </Typography>
+                      <Typography variant="button" gutterBottom>
+                        Are you sure you want to continue?
+                      </Typography>
+                    </>
+                  }
+                  onClose={() => setEndSessionDialogOpen(false)}
+                  onConfirm={moveToGradingPhase}
+                />
             </LayoutMain>
         </PhaseRedirect>
       </Loading>

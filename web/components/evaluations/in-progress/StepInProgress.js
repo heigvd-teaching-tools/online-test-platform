@@ -1,42 +1,39 @@
-import { StepLabel, StepContent, Typography, Stack, Box, Alert } from '@mui/material'
+import { Typography, Stack, Alert, AlertTitle } from '@mui/material'
 import MinutesSelector from '../in-progress/MinutesSelector'
 import EvaluationCountDown from './EvaluationCountDown'
 const StepInProgress = ({ evaluation, onDurationChange, onEvaluationEnd }) => {
   return (
     <>
-      <StepLabel>In progress</StepLabel>
-      <StepContent>
-        {evaluation.startAt && evaluation.endAt ? (
+        <Stack
+          spacing={2}
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Stack alignContent={'center'} spacing={1} textAlign={'center'}>
+            <Typography variant="h6">
+              The evaluation is in progress.
+            </Typography>
+            <Typography variant="body1">
+              To end the evaluation click the button below.
+            </Typography>
+          </Stack>
+        </Stack>
+        { evaluation.startAt && evaluation.endAt && (
           <DurationManager
             evaluation={evaluation}
             onChange={onDurationChange}
             onEvaluationEnd={onEvaluationEnd}
           />
-        ) : (
-          <Stack
-            spacing={4}
-            direction="row"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Box>
-              <Typography variant="h6">
-                The exam session is in progress.
-              </Typography>
-              <Typography variant="body1">
-                To end the evaluation click the button below.
-              </Typography>
-            </Box>
-          </Stack>
         )}
-      </StepContent>
-    </>
+      </>
   )
 }
 
 const DurationManager = ({ evaluation, onChange, onEvaluationEnd }) => {
   return (
     <Stack pt={4} pb={4} spacing={2}>
+     
       <Stack
         spacing={4}
         direction="row"
@@ -54,6 +51,7 @@ const DurationManager = ({ evaluation, onChange, onEvaluationEnd }) => {
             onChange(newEndAt)
           }}
         />
+        <Stack direction={'row'} alignItems={'center'} spacing={2}>
         <Typography variant="body1">
           {`Started at ${new Date(evaluation.startAt).toLocaleTimeString()}`}
         </Typography>
@@ -65,6 +63,7 @@ const DurationManager = ({ evaluation, onChange, onEvaluationEnd }) => {
         <Typography variant="body1">
           {`Ends at ${new Date(evaluation.endAt).toLocaleTimeString()}`}
         </Typography>
+        </Stack>
         <MinutesSelector
           label={'Extend for'}
           color="info"
@@ -79,7 +78,7 @@ const DurationManager = ({ evaluation, onChange, onEvaluationEnd }) => {
       </Stack>
       <Alert severity={'info'}>
         <Typography variant="body1">
-          The evaluation will <b>not end automatically</b> after the contdown.
+          The evaluation will <b>not end automatically</b> after the countdown.
         </Typography>
       </Alert>
     </Stack>
