@@ -16,7 +16,7 @@ fi
 
 # Generate a timestamp for the backup filename
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
-BACKUP_FILENAME="manual_backup_${DB_NAME}_${TIMESTAMP}.sql"
+BACKUP_FILENAME="pg_manual_backup_${TIMESTAMP}.sql"
 
 # Generate a backup of the database
 docker exec "${CONTAINER_DB_ID}" pg_dump -U "${DB_USER}" -d "${DB_NAME}" -F c > "${BACKUP_DIR}${BACKUP_FILENAME}"
