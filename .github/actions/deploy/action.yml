@@ -99,7 +99,7 @@ runs:
         mkdir -p /home/heiguser/db_dumps
         cd /home/heiguser/db_dumps
         backup_date=$(date +"%Y-%m-%d_%H-%M-%S")
-        backup_filename="pg_backup_$backup_date.sql"
+        backup_filename="pg_workflow_backup_$backup_date.sql"
         
         # Connect to the 'db' service container and run pg_dump to create a dump
         container_db_id=$(docker ps -qf "name=onlinetest-db-")
