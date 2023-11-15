@@ -50,18 +50,10 @@ const SolutionFilesManager = ({ groupScope, questionId, language }) => {
   const onFileUpdate = useCallback(
     async (file) => {
       setLockCodeCheck(true)
-      await update('solution', groupScope, questionId, file).then(async (updatedFile) => {
-        await mutate(
-          codeToSolutionFiles.map((codeToFile) =>
-            codeToFile.file.id === updatedFile.id
-              ? { ...codeToFile, file: updatedFile }
-              : codeToFile
-          )
-        )
-      })
+      await update('solution', groupScope, questionId, file);
       setLockCodeCheck(false)
     },
-    [groupScope, questionId, codeToSolutionFiles, mutate]
+    [groupScope, questionId, codeToSolutionFiles]
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
