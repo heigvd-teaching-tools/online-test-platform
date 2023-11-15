@@ -28,17 +28,7 @@ const TemplateFilesManager = ({ groupScope, questionId }) => {
   const onFileUpdate = useCallback(
     async (codeToTemplateFile) => {
       setLockCodeCheck(true)
-      await update('template', groupScope, questionId, codeToTemplateFile).then(
-        async (updatedFile) => {
-          await mutate(
-            codeToTemplateFiles.map((codeToFile) =>
-              codeToFile.file.id === updatedFile.id
-                ? { ...codeToFile, file: updatedFile }
-                : codeToFile
-            )
-          )
-        }
-      )
+      await update('template', groupScope, questionId, codeToTemplateFile)
       setLockCodeCheck(false)
     },
     [groupScope, questionId, codeToTemplateFiles, mutate]
