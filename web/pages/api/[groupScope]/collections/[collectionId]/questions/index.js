@@ -10,7 +10,7 @@ import { withPrisma } from '@/middleware/withPrisma'
   put: update the points of a question in a collection
   delete: remove a question from a collection
  endpoint used by the autocomplete collection selector
-  get: get all shallow questions in a collection -> used by autocomplete when creating a jam session (s collection selector)
+  get: get all shallow questions in a collection -> used by autocomplete when creating a evaluation (s collection selector)
 */
 
 const get = async (req, res, prisma) => {

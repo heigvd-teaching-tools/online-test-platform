@@ -166,11 +166,3 @@ ALTER TABLE "UserOnEvaluation" ADD CONSTRAINT "UserOnEvaluation_userEmail_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "UserOnEvaluation" ADD CONSTRAINT "UserOnEvaluation_evaluationId_fkey" FOREIGN KEY ("evaluationId") REFERENCES "Evaluation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
-
-
-
-
-
-
-

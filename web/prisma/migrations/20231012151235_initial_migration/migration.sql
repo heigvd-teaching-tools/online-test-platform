@@ -20,10 +20,10 @@ CREATE TYPE "DatabaseDBMS" AS ENUM ('POSTGRES', 'MYSQL', 'MARIADB', 'MSSQL', 'SQ
 CREATE TYPE "DatabaseQueryOutputTest" AS ENUM ('IGNORE_COLUMN_ORDER', 'IGNORE_ROW_ORDER', 'IGNORE_EXTRA_COLUMNS', 'INGORE_COLUMN_TYPES');
 
 -- CreateEnum
-CREATE TYPE "JamSessionPhase" AS ENUM ('NEW', 'DRAFT', 'IN_PROGRESS', 'GRADING', 'FINISHED');
+CREATE TYPE "EvaluationPhase" AS ENUM ('NEW', 'DRAFT', 'IN_PROGRESS', 'GRADING', 'FINISHED');
 
 -- CreateEnum
-CREATE TYPE "JamSessionStatus" AS ENUM ('ACTIVE', 'ARCHIVED');
+CREATE TYPE "EvaluationStatus" AS ENUM ('ACTIVE', 'ARCHIVED');
 
 -- CreateEnum
 CREATE TYPE "StudentAnswerStatus" AS ENUM ('MISSING', 'SUBMITTED');
@@ -331,12 +331,12 @@ CREATE TABLE "QuestionToTag" (
 );
 
 -- CreateTable
-CREATE TABLE "JamSession" (
+CREATE TABLE "Evaluation" (
     "id" TEXT NOT NULL,
     "label" TEXT,
     "conditions" TEXT,
-    "status" "JamSessionStatus" NOT NULL DEFAULT 'ACTIVE',
-    "phase" "JamSessionPhase" NOT NULL DEFAULT 'DRAFT',
+    "status" "EvaluationStatus" NOT NULL DEFAULT 'ACTIVE',
+    "phase" "EvaluationPhase" NOT NULL DEFAULT 'DRAFT',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "durationHours" INTEGER DEFAULT 0,
@@ -345,27 +345,27 @@ CREATE TABLE "JamSession" (
     "endAt" TIMESTAMP(3),
     "groupId" TEXT NOT NULL,
 
-    CONSTRAINT "JamSession_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Evaluation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "JamSessionToQuestion" (
-    "jamSessionId" TEXT NOT NULL,
+CREATE TABLE "EvaluationToQuestion" (
+    "evaluationId" TEXT NOT NULL,
     "questionId" TEXT NOT NULL,
     "points" INTEGER NOT NULL DEFAULT 0,
     "order" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "JamSessionToQuestion_pkey" PRIMARY KEY ("jamSessionId","questionId")
+    CONSTRAINT "EvaluationToQuestion_pkey" PRIMARY KEY ("evaluationId","questionId")
 );
 
 -- CreateTable
-CREATE TABLE "UserOnJamSession" (
+CREATE TABLE "UserOnEvaluation" (
     "userEmail" TEXT NOT NULL,
-    "jamSessionId" TEXT NOT NULL,
+    "evaluationId" TEXT NOT NULL,
     "registeredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "score" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "UserOnJamSession_pkey" PRIMARY KEY ("userEmail","jamSessionId")
+    CONSTRAINT "UserOnEvaluation_pkey" PRIMARY KEY ("userEmail","evaluationId")
 );
 
 -- CreateTable
@@ -533,10 +533,10 @@ CREATE UNIQUE INDEX "CodeToTemplateFile_fileId_key" ON "CodeToTemplateFile"("fil
 CREATE UNIQUE INDEX "Tag_label_key" ON "Tag"("label");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "JamSession_label_key" ON "JamSession"("label");
+CREATE UNIQUE INDEX "Evaluation_label_key" ON "Evaluation"("label");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "JamSessionToQuestion_questionId_key" ON "JamSessionToQuestion"("questionId");
+CREATE UNIQUE INDEX "EvaluationToQuestion_questionId_key" ON "EvaluationToQuestion"("questionId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "StudentAnswerMultipleChoice_userEmail_questionId_key" ON "StudentAnswerMultipleChoice"("userEmail", "questionId");
@@ -659,19 +659,19 @@ ALTER TABLE "QuestionToTag" ADD CONSTRAINT "QuestionToTag_questionId_fkey" FOREI
 ALTER TABLE "QuestionToTag" ADD CONSTRAINT "QuestionToTag_label_fkey" FOREIGN KEY ("label") REFERENCES "Tag"("label") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JamSession" ADD CONSTRAINT "JamSession_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Evaluation" ADD CONSTRAINT "Evaluation_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JamSessionToQuestion" ADD CONSTRAINT "JamSessionToQuestion_jamSessionId_fkey" FOREIGN KEY ("jamSessionId") REFERENCES "JamSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "EvaluationToQuestion" ADD CONSTRAINT "EvaluationToQuestion_evaluationId_fkey" FOREIGN KEY ("evaluationId") REFERENCES "Evaluation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JamSessionToQuestion" ADD CONSTRAINT "JamSessionToQuestion_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "EvaluationToQuestion" ADD CONSTRAINT "EvaluationToQuestion_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserOnJamSession" ADD CONSTRAINT "UserOnJamSession_userEmail_fkey" FOREIGN KEY ("userEmail") REFERENCES "User"("email") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "UserOnEvaluation" ADD CONSTRAINT "UserOnEvaluation_userEmail_fkey" FOREIGN KEY ("userEmail") REFERENCES "User"("email") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserOnJamSession" ADD CONSTRAINT "UserOnJamSession_jamSessionId_fkey" FOREIGN KEY ("jamSessionId") REFERENCES "JamSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "UserOnEvaluation" ADD CONSTRAINT "UserOnEvaluation_evaluationId_fkey" FOREIGN KEY ("evaluationId") REFERENCES "Evaluation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StudentAnswer" ADD CONSTRAINT "StudentAnswer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE CASCADE ON UPDATE CASCADE;

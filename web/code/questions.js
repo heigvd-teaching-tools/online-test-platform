@@ -247,7 +247,7 @@ export const questionTypeSpecific = (
               mode === 'update'
                 ? // multi choice options are no longer managed on the question level, they are managed by individual endpoints : api/questions/:id/multiple-choice/options
                   {}
-                : // the only use case for mode === "create" is when we are copying questions for a jam session, see api/jam-sessions [POST]
+                : // the only use case for mode === "create" is when we are copying questions for a evaluation, see api/evaluation [POST]
                   {
                     create: question.multipleChoice.options.map((o) => ({
                       text: o.text,

@@ -19,11 +19,11 @@ import AnswerCode from "./code/AnswerCode";
 
 const AnswerEditor = ({ question, onAnswer }) => {
   const router = useRouter()
-  const { jamSessionId } = router.query
+  const { evaluationId } = router.query
 
   const { data: answer, error } = useSWR(
-    `/api/users/jam-sessions/${jamSessionId}/questions/${question.id}/answers`,
-    jamSessionId && question ? fetcher : null,
+    `/api/users/evaluation/${evaluationId}/questions/${question.id}/answers`,
+    evaluationId && question ? fetcher : null,
       { revalidateOnFocus: false }
   )
 
@@ -42,7 +42,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
       ((question.type === QuestionType.trueFalse && (
         <AnswerTrueFalse
           answer={answer}
-          jamSessionId={jamSessionId}
+          evaluationId={evaluationId}
           questionId={question.id}
           onAnswerChange={onAnswerChange}
         />
@@ -50,7 +50,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
         (question.type === QuestionType.multipleChoice && (
           <AnswerMultipleChoice
             answer={answer}
-            jamSessionId={jamSessionId}
+            evaluationId={evaluationId}
             questionId={question.id}
             onAnswerChange={onAnswerChange}
           />
@@ -58,14 +58,14 @@ const AnswerEditor = ({ question, onAnswer }) => {
         (question.type === QuestionType.essay && (
           <AnswerEssay
             answer={answer}
-            jamSessionId={jamSessionId}
+            evaluationId={evaluationId}
             questionId={question.id}
             onAnswerChange={onAnswerChange}
           />
         )) ||
         (question.type === QuestionType.code && (
           <AnswerCode
-            jamSessionId={jamSessionId}
+            evaluationId={evaluationId}
             questionId={question.id}
             onAnswerChange={onAnswerChange}
           />
@@ -73,7 +73,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
         (question.type === QuestionType.web && (
           <AnswerWeb
             answer={answer}
-            jamSessionId={jamSessionId}
+            evaluationId={evaluationId}
             questionId={question.id}
             onAnswerChange={onAnswerChange}
           />
@@ -81,7 +81,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
       (question.type === QuestionType.database && (
           <AnswerDatabase
               answer={answer}
-              jamSessionId={jamSessionId}
+              evaluationId={evaluationId}
               questionId={question.id}
               onAnswerChange={onAnswerChange}
           />
@@ -92,7 +92,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
 
 
 
-const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+const AnswerMultipleChoice = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 
   const [options, setOptions] = useState(undefined)
 
@@ -123,7 +123,7 @@ const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange
       const changedOption = options[index]
       const method = changedOption.isCorrect ? 'POST' : 'DELETE'
       const updatedStudentAnswer = await fetch(
-        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers/multi-choice/options`,
+        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
         {
           method: method,
           headers: { 'Content-Type': 'application/json' },
@@ -132,7 +132,7 @@ const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange
       ).then((res) => res.json())
       onAnswerChange && onAnswerChange(updatedStudentAnswer)
     },
-    [jamSessionId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange]
   )
 
   return (
@@ -147,7 +147,7 @@ const AnswerMultipleChoice = ({ answer, jamSessionId, questionId, onAnswerChange
   )
 }
 
-const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+const AnswerTrueFalse = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 
   const onTrueFalseChange = useCallback(
     async (isTrue) => {
@@ -161,7 +161,7 @@ const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) =
       }
 
       const updatedStudentAnswer = await fetch(
-        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -170,7 +170,7 @@ const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) =
       ).then((res) => res.json())
       onAnswerChange && onAnswerChange(updatedStudentAnswer)
     },
-    [jamSessionId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange]
   )
 
   return (
@@ -185,13 +185,13 @@ const AnswerTrueFalse = ({ answer, jamSessionId, questionId, onAnswerChange }) =
   )
 }
 
-const AnswerEssay = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 
   const onEssayChange = useCallback(
     async (content) => {
       if (answer.essay.content === content) return
       const updatedStudentAnswer = await fetch(
-        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -206,7 +206,7 @@ const AnswerEssay = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
       ).then((res) => res.json())
       onAnswerChange && onAnswerChange(updatedStudentAnswer)
     },
-    [jamSessionId, questionId, answer, onAnswerChange]
+    [evaluationId, questionId, answer, onAnswerChange]
   )
 
   const debouncedOnChange = useDebouncedCallback(onEssayChange, 500)
@@ -223,7 +223,7 @@ const AnswerEssay = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
   )
 }
 
-const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
+const AnswerWeb = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 
   const [ web, setWeb ] = useState(answer?.web)
 
@@ -245,7 +245,7 @@ const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
       }
 
       const updatedStudentAnswer = await fetch(
-        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -254,7 +254,7 @@ const AnswerWeb = ({ answer, jamSessionId, questionId, onAnswerChange }) => {
       ).then((res) => res.json())
       onAnswerChange && onAnswerChange(updatedStudentAnswer)
     },
-    [jamSessionId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange]
   )
 
   const debouncedOnChange = useDebouncedCallback(onWebChange, 500)

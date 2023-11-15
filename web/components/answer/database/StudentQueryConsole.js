@@ -7,7 +7,7 @@ import InlineMonacoEditor from "@/components/input/InlineMonacoEditor";
 import DropDown from "@/components/input/DropDown";
 import QueryOutput from "@/components/question/type_specific/database/QueryOutput";
 
-const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , onClose }) => {
+const StudentQueryConsole = ({ evaluationId, questionId, open, studentQueries , onClose }) => {
 
     const [ sql, setSql ] = useState("");
     const [ order, setOrder ] = useState(0)
@@ -20,7 +20,7 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
         setResult({
             status: DatabaseQueryOutputStatus.RUNNING
         });
-        const response = await fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/database/console`, {
+        const response = await fetch(`/api/sandbox/evaluation/${evaluationId}/questions/${questionId}/student/database/console`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ const StudentQueryConsole = ({ jamSessionId, questionId, open, studentQueries , 
         }).then(res => res.json());
         setResult(response);
         setRunning(false);
-    }, [jamSessionId, questionId, sql, order, studentQueries]);
+    }, [evaluationId, questionId, sql, order, studentQueries]);
 
     return (
         <Dialog

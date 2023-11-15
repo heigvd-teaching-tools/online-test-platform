@@ -162,7 +162,7 @@ model Question {
 
   studentAnswer StudentAnswer[]
   questionToTag QuestionToTag[]
-  evluation     EvaluationToQuestion?
+  evaluation     EvaluationToQuestion?
 }
 
 model MultipleChoice {

@@ -11,10 +11,10 @@ import StudentPermissionIcon from "@/components/feedback/StudentPermissionIcon";
 import FileEditor from "@/components/question/type_specific/code/files/FileEditor";
 import CodeCheck from "@/components/question/type_specific/code/CodeCheck";
 
-const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
+const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
-        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
@@ -27,7 +27,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
             const currentFile = answer.code.files.find((f) => f.file.id === file.id)
             if (currentFile.file.content === file.content) return
             const updatedStudentAnswer = await fetch(
-                `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers/code/${file.id}`,
+                `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers/code/${file.id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -39,7 +39,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
             setLockCodeCheck(false)
             onAnswerChange && onAnswerChange(updatedStudentAnswer)
         },
-        [jamSessionId, questionId, answer, onAnswerChange]
+        [evaluationId, questionId, answer, onAnswerChange]
     )
 
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500)
@@ -53,7 +53,7 @@ const AnswerCode = ({ jamSessionId, questionId, onAnswerChange }) => {
                             lockCodeCheck={lockCodeCheck}
                             codeCheckAction={() =>
                                 fetch(
-                                    `/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/code`,
+                                    `/api/sandbox/evaluation/${evaluationId}/questions/${questionId}/student/code`,
                                     {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },

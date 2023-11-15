@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 import { getSession } from 'next-auth/react'
  
 const pathAccessControl = {
-    '/api/jam-sessions/(.*)/students': {
+    '/api/evaluation/(.*)/students': {
         'GET': [Role.PROFESSOR]
     }
 }

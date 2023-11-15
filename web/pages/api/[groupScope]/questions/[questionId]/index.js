@@ -48,7 +48,7 @@ const put = async (req, res, prisma) => {
     - etc..
     Other top level resources that are group scoped are:
     - collections
-    - jam sessions
+    - evaluation
   */
   // Step 1: Retrieve the question
   const questionToBeUpdated = await prisma.question.findUnique({
