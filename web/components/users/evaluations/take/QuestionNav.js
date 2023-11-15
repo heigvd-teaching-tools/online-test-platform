@@ -6,12 +6,12 @@ const QuestionNav = ({ evaluationId, page, totalPages }) => {
   
   const nextPage = () => {
     if (page < totalPages) {
-      router.push(`/users/evaluation/${evaluationId}/take/${page + 1}`)
+      router.push(`/users/evaluations/${evaluationId}/take/${page + 1}`)
     }
   }
   const previousPage = () => {
     if (page > 1) {
-      router.push(`/users/evaluation/${evaluationId}/take/${page - 1}`)
+      router.push(`/users/evaluations/${evaluationId}/take/${page - 1}`)
     }
   }
   return (

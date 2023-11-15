@@ -43,7 +43,7 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
       ),
       meta: {
         key: `evaluation-${evaluation.id}`,
-        linkHref: `/${groupScope}/evaluation/${evaluation.id}`,
+        linkHref: `/${groupScope}/evaluations/${evaluation.id}`,
         actions: [
           <React.Fragment key="actions">
           <Tooltip title="Copy student link to clipboard" key="add-link-to-clipboard">
@@ -67,7 +67,7 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
               />
             </IconButton>
             </Tooltip>
-            <Link href={`/${groupScope}/evaluation/${evaluation.id}/analytics`} passHref key="analytics">
+            <Link href={`/${groupScope}/evaluations/${evaluation.id}/analytics`} passHref key="analytics">
               <Tooltip title="Open Analytics Page">
                 <IconButton component="span">
                   <Image

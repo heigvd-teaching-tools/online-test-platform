@@ -24,7 +24,7 @@ const PageProfConsult = () => {
   const { groupScope, evaluationId, userEmail, questionPage } = router.query
 
   const { data: evaluation, error } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}/consult/${userEmail}`,
+    `/api/${groupScope}/evaluations/${evaluationId}/consult/${userEmail}`,
       groupScope && evaluationId && userEmail ? fetcher : null,
     { revalidateOnFocus: true, refreshInterval: 5000 }
   )
@@ -64,7 +64,7 @@ const PageProfConsult = () => {
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/${groupScope}/evaluation/${evaluationId}`} />
+                <BackButton backUrl={`/${groupScope}/evaluations/${evaluationId}`} />
                 { selected && (
                   <UserAvatar user={selected.question.studentAnswer[0].user} />
                 )}
@@ -73,7 +73,7 @@ const PageProfConsult = () => {
                     items={questionPages}
                     active={selected?.question}
                     link={(_, questionIndex) =>
-                      `/${groupScope}/evaluation/${evaluationId}/consult/${userEmail}/${questionIndex + 1}`
+                      `/${groupScope}/evaluations/${evaluationId}/consult/${userEmail}/${questionIndex + 1}`
                     }
                   />
                 </Stack>

@@ -14,7 +14,7 @@ import CodeCheck from "@/components/question/type_specific/code/CodeCheck";
 const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
 
     const { data: answer, error } = useSWR(
-        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
@@ -27,7 +27,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
             const currentFile = answer.code.files.find((f) => f.file.id === file.id)
             if (currentFile.file.content === file.content) return
             const updatedStudentAnswer = await fetch(
-                `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers/code/${file.id}`,
+                `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/code/${file.id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -53,7 +53,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
                             lockCodeCheck={lockCodeCheck}
                             codeCheckAction={() =>
                                 fetch(
-                                    `/api/sandbox/evaluation/${evaluationId}/questions/${questionId}/student/code`,
+                                    `/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/code`,
                                     {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },

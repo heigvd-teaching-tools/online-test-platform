@@ -40,7 +40,7 @@ const PageInProgress = () => {
     mutate,
     error,
   } = useSWR(
-      `/api/${groupScope}/evaluation/${evaluationId}`,
+      `/api/${groupScope}/evaluations/${evaluationId}`,
       groupScope && evaluationId ? fetcher : null
       )
 
@@ -49,7 +49,7 @@ const PageInProgress = () => {
     data: students,
     error: errorStudents,
   } = useSWR(
-      `/api/${groupScope}/evaluation/${evaluationId}/students`,
+      `/api/${groupScope}/evaluations/${evaluationId}/students`,
       groupScope && evaluationId ? fetcher : null,
       { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
       )
@@ -67,7 +67,7 @@ const PageInProgress = () => {
       phase: EvaluationPhase.GRADING,
     })
       .then(async () => {
-        await router.push(`/${groupScope}/evaluation/${evaluation.id}/grading/1`)
+        await router.push(`/${groupScope}/evaluations/${evaluation.id}/grading/1`)
       })
       .catch(() => {
         showSnackbar('Error', 'error')
@@ -109,7 +109,7 @@ const PageInProgress = () => {
               hideLogo
               header={
                 <Stack direction="row" alignItems="center">
-                  <BackButton backUrl={`/${groupScope}/evaluation`} />
+                  <BackButton backUrl={`/${groupScope}/evaluations`} />
                   { evaluation?.id && (
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                       {evaluation.label}
@@ -137,7 +137,7 @@ const PageInProgress = () => {
 
               <Stack direction="row" justifyContent="center" spacing={1}>
 
-                <a href={`/${groupScope}/evaluation/${evaluationId}/analytics`} key="analytics" target="_blank">
+                <a href={`/${groupScope}/evaluations/${evaluationId}/analytics`} key="analytics" target="_blank">
                   <Tooltip title="Open live analytics in a new tab">
                       <Button
                         key={"analytics"}

@@ -1,10 +1,10 @@
 import { Suspense } from 'react'
-import PageTakeevaluation from '../../../../../components/users/evaluation/PageTakeEvaluation'
+import PageTakeEvaluation from '@/components/users/evaluations/PageTakeEvaluation'
 
 const TakeEvaluation = () => {
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <PageTakeevaluation />
+            <PageTakeEvaluation />
         </Suspense>
     )
 }

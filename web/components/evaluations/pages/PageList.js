@@ -29,7 +29,7 @@ const Evaluations = () => {
   const [selected, setSelected] = useState(null)
 
   const { data, error, mutate } = useSWR(
-      `/api/${groupScope}/evaluation`,
+      `/api/${groupScope}/evaluations`,
       groupScope ? fetcher : null
   )
 
@@ -48,7 +48,7 @@ const Evaluations = () => {
 
   const endDraftPhase = useCallback(async () => {
     setEndOfDraftDialogOpen(false)
-    await fetch(`/api/${groupScope}/evaluation/${selected.id}`, {
+    await fetch(`/api/${groupScope}/evaluations/${selected.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -56,11 +56,11 @@ const Evaluations = () => {
       },
       body: JSON.stringify({ phase: EvaluationPhase.IN_PROGRESS }),
     })
-    await router.push(`/${groupScope}/evaluation/${selected.id}/in-progress`)
+    await router.push(`/${groupScope}/evaluations/${selected.id}/in-progress`)
   }, [groupScope, router, selected])
 
   const archiveEvaluation = useCallback(async () => {
-    await fetch(`/api/${groupScope}/evaluation/${selected.id}`, {
+    await fetch(`/api/${groupScope}/evaluations/${selected.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status: EvaluationStatus.ARCHIVED }),
       headers: { 'Content-Type': 'application/json' },
@@ -83,7 +83,7 @@ const Evaluations = () => {
   }, [groupScope, evaluations, selected, showSnackbar])
 
   const deleteEvaluation = useCallback(async () => {
-    await fetch(`/api/${groupScope}/evaluation/${selected.id}`, {
+    await fetch(`/api/${groupScope}/evaluations/${selected.id}`, {
       method: 'DELETE',
     })
       .then((_) => {
@@ -119,7 +119,7 @@ const Evaluations = () => {
                   <Tab label="Archived" value={EvaluationStatus.ARCHIVED} />
                 </TabList>
                 {tab === EvaluationStatus.ACTIVE && (
-                  <Link href={`/${groupScope}/evaluation/new`}>
+                  <Link href={`/${groupScope}/evaluations/new`}>
                     <Button>Create a new evaluation</Button>
                   </Link>
                 )}

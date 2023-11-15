@@ -3,7 +3,7 @@ import {getSession} from 'next-auth/react'
 import {grading} from '@/code/grading'
 import {
   isInProgress
-} from "@/pages/api/users/evaluation/[evaluationId]/questions/[questionId]/answers/utils";
+} from "@/pages/api/users/evaluations/[evaluationId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "@/sandbox/runSandboxDB";
 import {runTestsOnDatasets} from "@/code/database";
 import {runSQLFluffSandbox} from "@/sandbox/runSQLFluffSandbox";

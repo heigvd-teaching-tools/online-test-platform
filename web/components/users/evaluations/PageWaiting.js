@@ -30,7 +30,7 @@ const PageWaiting = () => {
   const evaluationId = router.query.evaluationId
 
   const { data, error } = useSWR(
-    `/api/users/evaluation/${evaluationId}/dispatch`,
+    `/api/users/evaluations/${evaluationId}/dispatch`,
     evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )

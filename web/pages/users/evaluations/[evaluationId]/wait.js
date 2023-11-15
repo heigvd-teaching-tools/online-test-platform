@@ -1,4 +1,4 @@
-import PageWaiting from '../../../../components/users/evaluation/PageWaiting'
+import PageWaiting from '../../../../components/users/evaluations/PageWaiting'
 
 const WaitEvaluation = () => <PageWaiting />
 

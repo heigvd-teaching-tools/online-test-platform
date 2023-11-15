@@ -8,8 +8,8 @@ import Paging from '../../layout/utils/Paging'
 import { useEffect, useMemo, useState } from 'react'
 import StudentPhaseRedirect from './StudentPhaseRedirect'
 import QuestionView from '../../question/QuestionView'
-import GradingSigned from '../../evaluation/grading/GradingSigned'
-import GradingPointsComment from '../../evaluation/grading/GradingPointsComment'
+import GradingSigned from '../../evaluations/grading/GradingSigned'
+import GradingPointsComment from '../../evaluations/grading/GradingPointsComment'
 import LayoutMain from '../../layout/LayoutMain'
 import AnswerConsult from '../../answer/AnswerConsult'
 import AlertFeedback from '../../feedback/AlertFeedback'
@@ -21,13 +21,13 @@ const PageConsult = () => {
   const { evaluationId, questionPage } = router.query
 
   const { data: evaluationPhase, error: errorEvaluationPhase } = useSWR(
-    `/api/users/evaluation/${evaluationId}/phase`,
+    `/api/users/evaluations/${evaluationId}/phase`,
     evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )
 
   const { data: userOnEvaluation, error: errorUserOnEvaluation } = useSWR(
-    `/api/users/evaluation/${evaluationId}/consult`,
+    `/api/users/evaluations/${evaluationId}/consult`,
     evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
   )
@@ -72,7 +72,7 @@ const PageConsult = () => {
                             items={questionPages}
                             active={selected.question}
                             link={(_, questionIndex) =>
-                              `/users/evaluation/${evaluationId}/consult/${
+                              `/users/evaluations/${evaluationId}/consult/${
                                 questionIndex + 1
                               }`
                             }

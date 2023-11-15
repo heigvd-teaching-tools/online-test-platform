@@ -22,7 +22,7 @@ const AnswerEditor = ({ question, onAnswer }) => {
   const { evaluationId } = router.query
 
   const { data: answer, error } = useSWR(
-    `/api/users/evaluation/${evaluationId}/questions/${question.id}/answers`,
+    `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers`,
     evaluationId && question ? fetcher : null,
       { revalidateOnFocus: false }
   )
@@ -123,7 +123,7 @@ const AnswerMultipleChoice = ({ answer, evaluationId, questionId, onAnswerChange
       const changedOption = options[index]
       const method = changedOption.isCorrect ? 'POST' : 'DELETE'
       const updatedStudentAnswer = await fetch(
-        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
         {
           method: method,
           headers: { 'Content-Type': 'application/json' },
@@ -161,7 +161,7 @@ const AnswerTrueFalse = ({ answer, evaluationId, questionId, onAnswerChange }) =
       }
 
       const updatedStudentAnswer = await fetch(
-        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -191,7 +191,7 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
     async (content) => {
       if (answer.essay.content === content) return
       const updatedStudentAnswer = await fetch(
-        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -245,7 +245,7 @@ const AnswerWeb = ({ answer, evaluationId, questionId, onAnswerChange }) => {
       }
 
       const updatedStudentAnswer = await fetch(
-        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

@@ -510,7 +510,7 @@ model UserOnEvaluation {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
 
-  evluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
   evaluationId String
 
   registeredAt DateTime @default(now())

@@ -1,4 +1,4 @@
-import PageConsult from '../../../../../components/users/evaluation/PageConsult'
+import PageConsult from '../../../../../components/users/evaluations/PageConsult'
 
 const StudentConsultEvaluation = () => <PageConsult />
 

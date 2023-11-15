@@ -23,7 +23,7 @@ const StepSchedule = ({ groupScope, evaluation, onChange }) => {
     data: students,
     error: errorStudents,
   } = useSWR(
-      `/api/${groupScope}/evaluation/${evaluation.id}/students`,
+      `/api/${groupScope}/evaluations/${evaluation.id}/students`,
       groupScope && evaluation?.id ? fetcher : null,
       { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
       )

@@ -1,4 +1,4 @@
-import PageFinished from '../../../../../components/evaluation/pages/PageFinished'
+import PageFinished from '../../../../../components/evaluations/pages/PageFinished'
 
 const Finished = () => <PageFinished />
 

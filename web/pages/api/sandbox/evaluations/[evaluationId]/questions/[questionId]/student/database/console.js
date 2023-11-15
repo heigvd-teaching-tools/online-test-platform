@@ -1,6 +1,6 @@
 import { Role } from '@prisma/client'
 import { getSession } from 'next-auth/react'
-import {isInProgress} from "@/pages/api/users/evaluation/[evaluationId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "@/pages/api/users/evaluations/[evaluationId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "@/sandbox/runSandboxDB";
 import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization';
 import { withPrisma } from '@/middleware/withPrisma';

@@ -28,4 +28,4 @@ export const fetcher = async (url) => {
 this link send to users to the PageDispatch which decides (using api evaluation/id/dispatch endpoint) where the users should be directed
 * */
 export const getStudentEntryLink = (evaluationId) =>
-  `${window && window.location.origin}/users/evaluation/${evaluationId}`
+  `${window && window.location.origin}/users/evaluations/${evaluationId}`

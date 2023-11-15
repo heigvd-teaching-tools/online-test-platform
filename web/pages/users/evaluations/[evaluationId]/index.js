@@ -1,4 +1,4 @@
-import PageDispatch from "../../../../components/users/evaluation/PageDispatch"
+import PageDispatch from "../../../../components/users/evaluations/PageDispatch"
 
 const StudentDispatch = () => <PageDispatch />
 

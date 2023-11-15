@@ -1,28 +1,32 @@
-import React from "react"
-import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
-import { useSnackbar } from "../../../context/SnackbarContext"
-import { useSession } from "next-auth/react"
 import useSWR from "swr"
+import { useRouter } from "next/router"
+import { useSession } from "next-auth/react"
 import { Role, StudentAnswerStatus } from "@prisma/client"
-import { fetcher } from "../../../code/utils"
-import Authorisation from "../../security/Authorisation"
-import Loading from "../../feedback/Loading"
-import StudentPhaseRedirect from "./StudentPhaseRedirect"
-import LayoutMain from "../../layout/LayoutMain"
-import { Box, Button, Chip, IconButton, Stack, Tab, Tabs } from "@mui/material"
-import EvaluationCountDown from "../../evaluation/in-progress/EvaluationCountDown"
-import Paging from "../../layout/utils/Paging"
-import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
-import QuestionView from "../../question/QuestionView"
-import QuestionNav from "./take/QuestionNav"
-import { ResizeObserverProvider } from "../../../context/ResizeObserverContext"
-import ScrollContainer from "../../layout/ScrollContainer"
-import AnswerEditor from "../../answer/AnswerEditor"
-import ConnectionIndicator from "./take/ConnectionIndicator"
-import Image from "next/image"
+import { Box, Stack} from "@mui/material"
 
-const PageTakeevaluation = () => {
+import { fetcher } from "@/code/utils"
+import { useSnackbar } from "@/context/SnackbarContext"
+
+import { ResizeObserverProvider } from "@/context/ResizeObserverContext"
+import Authorisation from "@/components/security/Authorisation"
+import Loading from "@/components/feedback/Loading"
+import LayoutMain from "@/components/layout/LayoutMain"
+import Paging from "@/components/layout/utils/Paging"
+import LayoutSplitScreen from "@/components/layout/LayoutSplitScreen"
+import ScrollContainer from "@/components/layout/ScrollContainer"
+import AnswerEditor from "@/components/answer/AnswerEditor"
+
+import StudentPhaseRedirect from "./StudentPhaseRedirect"
+
+import EvaluationCountDown from "@/components/evaluations/in-progress/EvaluationCountDown"
+import QuestionView from "@/components/question/QuestionView"
+
+
+import QuestionNav from "./take/QuestionNav"
+import ConnectionIndicator from "./take/ConnectionIndicator"
+
+const PageTakeEvaluation = () => {
   const router = useRouter()
 
   const scrollContainerRef = useRef()
@@ -34,13 +38,13 @@ const PageTakeevaluation = () => {
   const { data: session } = useSession()
 
   const { data: evaluationPhase, error: errorEvaluationPhase } = useSWR(
-    `/api/users/evaluation/${evaluationId}/phase`,
+    `/api/users/evaluations/${evaluationId}/phase`,
     evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )
 
   const { data: userOnEvaluation, error: errorUserOnEvaluation } = useSWR(
-    `/api/users/evaluation/${evaluationId}/take`,
+    `/api/users/evaluations/${evaluationId}/take`,
     session && evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
   )
@@ -132,7 +136,7 @@ const PageTakeevaluation = () => {
                             items={pages}
                             active={pages[page - 1]}
                             link={(_, index) =>
-                              `/users/evaluation/${evaluationId}/take/${index + 1}`
+                              `/users/evaluations/${evaluationId}/take/${index + 1}`
                             }
                           />
                         )}

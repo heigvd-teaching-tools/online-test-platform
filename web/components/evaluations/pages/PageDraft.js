@@ -28,7 +28,7 @@ const PageDraft = () => {
   const { show: showSnackbar } = useSnackbar()
 
   const { data: evaluation, error } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}`,
+    `/api/${groupScope}/evaluations/${evaluationId}`,
       groupScope && evaluationId ? fetcher : null,
     {
       fallbackData: {
@@ -124,7 +124,7 @@ const PageDraft = () => {
         .then((response) => {
           if (response.ok) {
             response.json().then(async (data) => {
-              await router.push(`/${groupScope}/evaluation/${data.id}/draft`)
+              await router.push(`/${groupScope}/evaluations/${data.id}/draft`)
             })
           } else {
             response.json().then((data) => {
@@ -150,7 +150,7 @@ const PageDraft = () => {
 
   const handleFinalize = useCallback(async () => {
     if (await handleSave()) {
-      await router.push(`/${groupScope}/evaluation`)
+      await router.push(`/${groupScope}/evaluations`)
     }
   }, [groupScope, router, handleSave])
 
@@ -162,7 +162,7 @@ const PageDraft = () => {
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/${groupScope}/evaluation`} />
+                <BackButton backUrl={`/${groupScope}/evaluations`} />
                 { evaluation.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {evaluation.label}
@@ -209,15 +209,6 @@ const PageDraft = () => {
                   >
                     {evaluation.id ? 'Save' : 'Create'}
                   </LoadingButton>
-                  {evaluation.id && (
-                    <LoadingButton
-                      onClick={handleFinalize}
-                      loading={saving}
-                      variant="contained"
-                    >
-                      Finalize
-                    </LoadingButton>
-                  )}
                 </Stack>
               </Stack>
           </LayoutMain>

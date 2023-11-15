@@ -16,7 +16,7 @@ import StudentQueryConsole from "./StudentQueryConsole";
 
 const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
-        `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
@@ -62,7 +62,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
             lintResult: null,
         })) || []);
 
-        const studentAnswerQueries = await fetch(`/api/sandbox/evaluation/${evaluationId}/questions/${questionId}/student/database`, {
+        const studentAnswerQueries = await fetch(`/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/database`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
     const onQueryChange = useCallback(
         async (query) => {
             const updatedStudentAnswer = await fetch(
-                `/api/users/evaluation/${evaluationId}/questions/${questionId}/answers/database/${query.id}`,
+                `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/database/${query.id}`,
                 {
                     method: 'PUT',
                     headers: {

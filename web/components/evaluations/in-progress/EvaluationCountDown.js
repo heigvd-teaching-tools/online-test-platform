@@ -22,6 +22,7 @@ const EvaluationCountDown = ({ startDate, endDate, onFinish = undefined}) => {
     updatePercentage()
   }, [updatePercentage])
 
+
   return (
     <Chip
       avatar={

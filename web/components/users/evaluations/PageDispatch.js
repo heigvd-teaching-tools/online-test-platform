@@ -13,7 +13,7 @@ const PageDispatch = () => {
   const { evaluationId } = router.query
 
   const { data, error: dispatchError } = useSWR(
-    `/api/users/evaluation/${evaluationId}/dispatch`,
+    `/api/users/evaluations/${evaluationId}/dispatch`,
     evaluationId ? fetcher : null
   )
 
@@ -25,7 +25,7 @@ const PageDispatch = () => {
         // check if the current phase of the Evaluation allow the users to join
         if (!phaseGT(evaluation.phase, EvaluationPhase.IN_PROGRESS)) {
           ;(async () => {
-            await router.push(`/users/evaluation/${evaluationId}/join`)
+            await router.push(`/users/evaluations/${evaluationId}/join`)
           })()
         }
       } else {

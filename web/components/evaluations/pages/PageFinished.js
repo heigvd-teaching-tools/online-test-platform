@@ -35,12 +35,12 @@ const PageFinished = () => {
   const { groupScope, evaluationId } = router.query
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}`,
+    `/api/${groupScope}/evaluations/${evaluationId}`,
       groupScope && evaluationId ? fetcher : null
   )
 
   const { data, error: errorQuestions } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}/questions?withGradings=true`,
+    `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
       groupScope && evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
   )
@@ -128,7 +128,7 @@ const PageFinished = () => {
         participant: <UserAvatar user={participant} />,
         actions: (
           <Tooltip title="View student's answers" key="view-student-answers">
-            <a href={`/${groupScope}/evaluation/${evaluationId}/consult/${participant.email}/1`} target="_blank">
+            <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${participant.email}/1`} target="_blank">
               <IconButton size="small">
                 <Image
                   alt="View"
@@ -158,7 +158,7 @@ const PageFinished = () => {
         ...questionColumnValues,
         meta: {
           key: participant.email,
-          linkHref: `/${groupScope}/evaluation/${evaluationId}/consult/${participant.email}/1`,
+          linkHref: `/${groupScope}/evaluations/${evaluationId}/consult/${participant.email}/1`,
         },
       }
     })
@@ -229,7 +229,7 @@ const PageFinished = () => {
                 hideLogo
                 header={
                   <Stack direction="row" alignItems="center">
-                    <BackButton backUrl={`/${groupScope}/evaluation`} />
+                    <BackButton backUrl={`/${groupScope}/evaluations`} />
                     { evaluation?.id && (
                       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {evaluation.label}

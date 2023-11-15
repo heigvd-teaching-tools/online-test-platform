@@ -77,7 +77,7 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
                             </Typography>
                         </>,
                         actions: <Tooltip title="Spy student" key="view-student-answers">
-                                <a href={`/${groupScope}/evaluation/${evaluationId}/consult/${student.user.email}/1`} target="_blank">
+                                <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${student.user.email}/1`} target="_blank">
                                 <IconButton size="small">
                                     <Image
                                         alt="View"

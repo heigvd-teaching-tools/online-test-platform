@@ -2,7 +2,7 @@ import { Role } from '@prisma/client'
 import { runSandbox } from '@/sandbox/runSandboxTC'
 import { getSession } from 'next-auth/react'
 import { grading } from '@/code/grading'
-import {isInProgress} from "@/pages/api/users/evaluation/[evaluationId]/questions/[questionId]/answers/utils";
+import {isInProgress} from "@/pages/api/users/evaluations/[evaluationId]/questions/[questionId]/answers/utils";
 import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 

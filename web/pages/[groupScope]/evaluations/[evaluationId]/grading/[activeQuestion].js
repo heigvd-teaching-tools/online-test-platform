@@ -1,4 +1,4 @@
-import PageGrading from '../../../../../components/evaluation/pages/PageGrading'
+import PageGrading from '../../../../../components/evaluations/pages/PageGrading'
 
 const Grading = () => <PageGrading />
 

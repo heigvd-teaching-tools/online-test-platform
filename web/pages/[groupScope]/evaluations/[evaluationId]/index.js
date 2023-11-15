@@ -1,4 +1,4 @@
-import PageIndex from "../../../../components/evaluation/pages/PageIndex";
+import PageIndex from "../../../../components/evaluations/pages/PageIndex";
 
 const EvaluationIndex = () => <PageIndex />;
 

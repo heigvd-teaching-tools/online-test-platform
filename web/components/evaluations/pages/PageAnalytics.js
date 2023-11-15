@@ -20,17 +20,17 @@ const PageAnalytics = () => {
     console.log("PageAnalytics")
 
   const { data: evaluations, error: errorEvaluations } = useSWR(
-    `/api/${groupScope}/evaluation`,
+    `/api/${groupScope}/evaluations`,
       groupScope && evaluationId ? fetcher : null
   )
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}`,
+    `/api/${groupScope}/evaluations/${evaluationId}`,
       groupScope && evaluationId ? fetcher : null
   )
 
   const { data: EvaluationToQuestions, error: errorQuestions } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}/questions?withGradings=true`,
+    `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
       groupScope && evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )
@@ -54,7 +54,7 @@ const PageAnalytics = () => {
         <LayoutMain
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/${groupScope}/evaluation`} />
+                <BackButton backUrl={`/${groupScope}/evaluations`} />
                 { evaluation?.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {evaluation.label}
@@ -82,7 +82,7 @@ const PageAnalytics = () => {
                 value={value}
                 onChange={async (event, newValue) => {
                   if (newValue && newValue.id) {
-                    await router.push(`/${groupScope}/evaluation/${newValue.id}/analytics`)
+                    await router.push(`/${groupScope}/evaluations/${newValue.id}/analytics`)
                   }
                 }}
                 inputValue={inputValue}

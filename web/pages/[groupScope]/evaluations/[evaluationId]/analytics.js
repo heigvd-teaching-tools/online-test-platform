@@ -1,4 +1,4 @@
-import PageAnalytics from '../../../../components/evaluation/pages/PageAnalytics'
+import PageAnalytics from '../../../../components/evaluations/pages/PageAnalytics'
 
 const EvaluationAnalytics = () => <PageAnalytics />
 

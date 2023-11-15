@@ -1,4 +1,4 @@
-import PageJoin from "../../../../components/users/evaluation/PageJoin"
+import PageJoin from "../../../../components/users/evaluations/PageJoin"
 
 const JoinEvaluation = () => <PageJoin />
 

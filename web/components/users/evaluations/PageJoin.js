@@ -21,7 +21,7 @@ const PageJoin = () => {
     setError(null)
     if (evaluationId && session && status === 'authenticated') {
       ;(async () => {
-        await fetch(`/api/users/evaluation/${evaluationId}/join`, {
+        await fetch(`/api/users/evaluations/${evaluationId}/join`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

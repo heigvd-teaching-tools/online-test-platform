@@ -59,7 +59,7 @@ const PageGrading = () => {
   const { show: showSnackbar } = useSnackbar()
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}`,
+    `/api/${groupScope}/evaluations/${evaluationId}`,
       groupScope && evaluationId ? fetcher : null
   )
 
@@ -68,7 +68,7 @@ const PageGrading = () => {
     mutate,
     error: errorQuestions,
   } = useSWR(
-    `/api/${groupScope}/evaluation/${evaluationId}/questions?withGradings=true`,
+    `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
       groupScope && evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
   )
@@ -99,7 +99,7 @@ const PageGrading = () => {
       if (!jstq) {
         // goto first question and first participant
         router.push(
-          `/${groupScope}/evaluation/${evaluationId}/grading/1?participantId=${evaluationToQuestions[0].question.studentAnswer[0].user.id}`
+          `/${groupScope}/evaluations/${evaluationId}/grading/1?participantId=${evaluationToQuestions[0].question.studentAnswer[0].user.id}`
         )
         return
       }
@@ -116,7 +116,7 @@ const PageGrading = () => {
       // goto first participant
       if (participantId === undefined) {
         router.push(
-          `/${groupScope}/evaluation/${evaluationId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`
+          `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`
         )
       }
     }
@@ -195,7 +195,7 @@ const PageGrading = () => {
       phase: EvaluationPhase.FINISHED,
     })
       .then(() => {
-        router.push(`/${groupScope}/evaluation/${evaluationId}/finished`)
+        router.push(`/${groupScope}/evaluations/${evaluationId}/finished`)
       })
       .catch(() => {
         showSnackbar('Error', 'error')
@@ -208,12 +208,12 @@ const PageGrading = () => {
       participants.findIndex((p) => p.id === participantId) + 1
     if (nextParticipantIndex < participants.length) {
       await router.push(
-        `/${groupScope}/evaluation/${evaluationId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`
       )
     } else {
       if (activeQuestion < evaluationToQuestions.length) {
         await router.push(
-          `/${groupScope}/evaluation/${evaluationId}/grading/${
+          `/${groupScope}/evaluations/${evaluationId}/grading/${
             parseInt(activeQuestion) + 1
           }?participantId=${participants[0].id}`
         )
@@ -242,12 +242,12 @@ const PageGrading = () => {
       participants.findIndex((p) => p.id === participantId) - 1
     if (prevParticipantIndex >= 0) {
       router.push(
-        `/${groupScope}/evaluation/${evaluationId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`
       )
     } else {
       if (activeQuestion - 1 >= 1) {
         router.push(
-          `/${groupScope}/evaluation/${evaluationId}/grading/${
+          `/${groupScope}/evaluations/${evaluationId}/grading/${
             activeQuestion - 1
           }?participantId=${participants[participants.length - 1].id}`
         )
@@ -294,7 +294,7 @@ const PageGrading = () => {
             hideLogo
             header={
               <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/${groupScope}/evaluation`} />
+                <BackButton backUrl={`/${groupScope}/evaluations`} />
                 { evaluation?.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {evaluation.label}
@@ -310,7 +310,7 @@ const PageGrading = () => {
                       items={questionPages}
                       active={evaluationToQuestion.question}
                       link={(_, index) =>
-                        `/${groupScope}/evaluation/${evaluationId}/grading/${
+                        `/${groupScope}/evaluations/${evaluationId}/grading/${
                           index + 1
                         }?participantId=${participantId}`
                       }
@@ -356,7 +356,7 @@ const PageGrading = () => {
                         )}
                         onParticipantClick={(participant) => {
                           router.push(
-                            `/${groupScope}/evaluation/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`
+                            `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`
                           )
                         }}
                         isParticipantFilled={(participant) => {

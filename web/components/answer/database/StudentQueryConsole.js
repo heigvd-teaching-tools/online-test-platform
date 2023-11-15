@@ -20,7 +20,7 @@ const StudentQueryConsole = ({ evaluationId, questionId, open, studentQueries , 
         setResult({
             status: DatabaseQueryOutputStatus.RUNNING
         });
-        const response = await fetch(`/api/sandbox/evaluation/${evaluationId}/questions/${questionId}/student/database/console`, {
+        const response = await fetch(`/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/database/console`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

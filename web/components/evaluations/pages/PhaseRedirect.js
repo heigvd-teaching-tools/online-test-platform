@@ -2,11 +2,11 @@ import { useRouter } from 'next/router'
 import { EvaluationPhase } from '@prisma/client'
 
 const phasePageRelationship = {
-  NEW: '/[groupScope]/evaluation/new',
-  DRAFT: '/[groupScope]/evaluation/[evaluationId]/draft',
-  IN_PROGRESS: '/[groupScope]/evaluation/[evaluationId]/in-progress',
-  GRADING: '/[groupScope]/evaluation/[evaluationId]/grading/[activeQuestion]',
-  FINISHED: '/[groupScope]/evaluation/[evaluationId]/finished',
+  NEW: '/[groupScope]/evaluations/new',
+  DRAFT: '/[groupScope]/evaluations/[evaluationId]/draft',
+  IN_PROGRESS: '/[groupScope]/evaluations/[evaluationId]/in-progress',
+  GRADING: '/[groupScope]/evaluations/[evaluationId]/grading/[activeQuestion]',
+  FINISHED: '/[groupScope]/evaluations/[evaluationId]/finished',
 }
 
 const redirectToPhasePage = (phase, router) => {
@@ -14,19 +14,19 @@ const redirectToPhasePage = (phase, router) => {
   if (router.pathname === phasePageRelationship[phase]) return
   switch (phase) {
     case EvaluationPhase.NEW:
-      router.push(`/${groupScope}/evaluation/new`)
+      router.push(`/${groupScope}/evaluations/new`)
       return
     case EvaluationPhase.DRAFT:
-      router.push(`/${groupScope}/evaluation/${evaluationId}/draft`)
+      router.push(`/${groupScope}/evaluations/${evaluationId}/draft`)
       return
     case EvaluationPhase.IN_PROGRESS:
-      router.push(`/${groupScope}/evaluation/${evaluationId}/in-progress`)
+      router.push(`/${groupScope}/evaluations/${evaluationId}/in-progress`)
       return
     case EvaluationPhase.GRADING:
-      router.push(`/${groupScope}/evaluation/${evaluationId}/grading/1`)
+      router.push(`/${groupScope}/evaluations/${evaluationId}/grading/1`)
       return
     case EvaluationPhase.FINISHED:
-      router.push(`/${groupScope}/evaluation/${evaluationId}/finished`)
+      router.push(`/${groupScope}/evaluations/${evaluationId}/finished`)
       return
   }
 }

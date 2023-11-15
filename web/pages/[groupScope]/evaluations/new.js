@@ -1,4 +1,4 @@
-import PageDraft from '../../../components/evaluation/pages/PageDraft'
+import PageDraft from '../../../components/evaluations/pages/PageDraft'
 
 const NewEvaluation = () => <PageDraft />
 

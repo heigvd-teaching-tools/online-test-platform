@@ -1,5 +1,5 @@
 export const update = async (groupScope, evaluationId, data) => {
-  return fetch(`/api/${groupScope}/evaluation/${evaluationId}`, {
+  return fetch(`/api/${groupScope}/evaluations/${evaluationId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -10,7 +10,7 @@ export const update = async (groupScope, evaluationId, data) => {
 }
 
 export const create = async (groupScope, data) => {
-  return fetch(`/api/${groupScope}/evaluation`, {
+  return fetch(`/api/${groupScope}/evaluations`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

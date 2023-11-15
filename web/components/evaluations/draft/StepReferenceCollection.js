@@ -23,7 +23,7 @@ const StepReferenceCollection = ({
 
   const { data: evaluationQuestions, error: errorsEvaluationQuestions } =
     useSWR(
-      `/api/${groupScope}/evaluation/${evaluation && evaluation.id}/questions`,
+      `/api/${groupScope}/evaluations/${evaluation && evaluation.id}/questions`,
       evaluation && evaluation.id && groupScope ? fetcher : null
     )
 

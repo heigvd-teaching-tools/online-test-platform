@@ -1,4 +1,4 @@
-import PageList from '../../../components/evaluation/pages/PageList'
+import PageList from '../../../components/evaluations/pages/PageList'
 
 const Evaluations = () => <PageList />
 
