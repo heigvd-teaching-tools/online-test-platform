@@ -3,7 +3,7 @@ const Row = ({
   children,
   align = 'center',
   spacing = 1,
-  padding = 1,
+  padding = 0,
   onClick,
 }) => {
   return (
