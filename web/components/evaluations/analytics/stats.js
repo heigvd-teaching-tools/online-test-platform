@@ -96,6 +96,7 @@ export const typeSpecificStats = (question) => {
         }, 0)
         return {
           label: `O${index + 1}`,
+          text: option.text,
           tooltip: option.text,
           chosen,
         }

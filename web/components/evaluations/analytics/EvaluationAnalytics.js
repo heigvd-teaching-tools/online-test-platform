@@ -164,7 +164,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                     </Tooltip>
                   }                  
                   segments={[
-                    { percent: option.percentage, color: 'info', tooltip: `Students chosed ${option.label} [${option.chosen}]` },
+                    { percent: option.percentage, color: 'info', tooltip: `${option.text} [${option.chosen}]` },
                   ]}
                   amount={option.chosen}
                 />
