@@ -145,11 +145,9 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
     ],
     [QuestionType.essay]: [
       { color: 'success', tooltip: 'Submitted answers' },
-      { color: 'error', tooltip: 'Missing answers' },
     ],
     [QuestionType.web]: [
       { color: 'success', tooltip: 'Submitted answers' },
-      { color: 'error', tooltip: 'Missing answers' },
     ],
     [QuestionType.database]: [
       { color: 'success', tooltip: 'Test passed' },
