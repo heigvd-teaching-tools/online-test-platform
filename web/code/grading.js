@@ -34,8 +34,8 @@ export const grading = (question, totalPoints, studentAnswer) => {
 }
 
 /*
-  jamSessionToQuestion.points,
-  jamSessionToQuestion.question - for official solution
+  evaluationToQuestion.points,
+  evaluationToQuestion.question - for official solution
  */
 
 const defaultGrading = {

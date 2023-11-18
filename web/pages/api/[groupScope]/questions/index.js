@@ -39,7 +39,7 @@ const get = async (req, res, prisma) => {
       group: {
         scope: groupScope,
       },
-      jamSession: null, // only get questions that are not part of a jam session
+      evaluation: null, // only get questions that are not part of a evaluation
     },
   }
 
@@ -115,7 +115,7 @@ const get = async (req, res, prisma) => {
         includeTypeSpecific: true,
         includeOfficialAnswers: true,
       }),
-      jamSession: true,
+      evaluation: true,
     },
     orderBy: {
       updatedAt: 'desc',

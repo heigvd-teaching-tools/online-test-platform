@@ -14,9 +14,9 @@ import StudentQueryEditor from "./StudentQueryEditor";
 import StudentOutputDisplay from "./StudentOutputDisplay";
 import StudentQueryConsole from "./StudentQueryConsole";
 
-const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
+const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
-        `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         questionId ? fetcher : null,
         { revalidateOnFocus: false }
     )
@@ -62,7 +62,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
             lintResult: null,
         })) || []);
 
-        const studentAnswerQueries = await fetch(`/api/sandbox/jam-sessions/${jamSessionId}/questions/${questionId}/student/database`, {
+        const studentAnswerQueries = await fetch(`/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/database`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -75,12 +75,12 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
             lintResult: studentAnswerQueries[index].query.lintResult,
         })) || []);
         setSaving(false);
-    }, [jamSessionId, questionId, queries, studentOutputs]);
+    }, [evaluationId, questionId, queries, studentOutputs]);
 
     const onQueryChange = useCallback(
         async (query) => {
             const updatedStudentAnswer = await fetch(
-                `/api/users/jam-sessions/${jamSessionId}/questions/${questionId}/answers/database/${query.id}`,
+                `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/database/${query.id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -92,7 +92,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
             setSaveLock(false);
             onAnswerChange && onAnswerChange(updatedStudentAnswer)
         },
-        [jamSessionId, questionId, onAnswerChange]
+        [evaluationId, questionId, onAnswerChange]
     )
 
     const debouncedOnChange = useDebouncedCallback(onQueryChange, 500)
@@ -155,7 +155,7 @@ const AnswerDatabase = ({ jamSessionId, questionId, onAnswerChange }) => {
 
                     </BottomCollapsiblePanel>
                     <StudentQueryConsole
-                        jamSessionId={jamSessionId}
+                        evaluationId={evaluationId}
                         questionId={questionId}
                         open={openConsole}
                         studentQueries={queries}

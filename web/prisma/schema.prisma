@@ -53,7 +53,7 @@ model User {
   sessions      Session[]
   role          Role      @default(STUDENT)
 
-  userOnJamSession UserOnJamSession[]
+  userOnEvaluation UserOnEvaluation[]
   studentAnswer    StudentAnswer[]
   gradingSignedBy  StudentQuestionGrading[]
   groups           UserOnGroup[]
@@ -99,7 +99,7 @@ model Group {
   questions   Question[]
   collections Collection[]
   tags        Tag[]
-  JamSession  JamSession[]
+  evaluations  Evaluation[]
 }
 
 model UserOnGroup {
@@ -162,7 +162,7 @@ model Question {
 
   studentAnswer StudentAnswer[]
   questionToTag QuestionToTag[]
-  jamSession    JamSessionToQuestion?
+  evaluation     EvaluationToQuestion?
 }
 
 model MultipleChoice {
@@ -453,7 +453,7 @@ model QuestionToTag {
 }
 
 // Order is important here
-enum JamSessionPhase {
+enum EvaluationPhase {
   NEW
   DRAFT
   IN_PROGRESS
@@ -461,18 +461,18 @@ enum JamSessionPhase {
   FINISHED
 }
 
-enum JamSessionStatus {
+enum EvaluationStatus {
   ACTIVE
   ARCHIVED
 }
 
-model JamSession {
+model Evaluation {
   id String @id @default(cuid())
 
   label      String?
   conditions String?
-  status     JamSessionStatus @default(ACTIVE)
-  phase      JamSessionPhase  @default(DRAFT)
+  status     EvaluationStatus @default(ACTIVE)
+  phase      EvaluationPhase  @default(DRAFT)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
@@ -482,18 +482,19 @@ model JamSession {
   startAt DateTime?
   endAt   DateTime?
 
-  students              UserOnJamSession[]
-  jamSessionToQuestions JamSessionToQuestion[]
+  students              UserOnEvaluation[]
+  evaluationToQuestions EvaluationToQuestion[]
 
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
 
   @@unique([groupId, label])
+	@@map("Evaluation")
 }
 
-model JamSessionToQuestion {
-  jamSession   JamSession @relation(fields: [jamSessionId], references: [id], onDelete: Cascade)
-  jamSessionId String
+model EvaluationToQuestion {
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  evaluationId String
 
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String   @unique
@@ -501,21 +502,23 @@ model JamSessionToQuestion {
   points Float @default(0)
   order  Int   @default(0)
 
-  @@id([jamSessionId, questionId])
+  @@id([evaluationId, questionId])
+	@@map("EvaluationToQuestion")
 }
 
-model UserOnJamSession {
+model UserOnEvaluation {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
 
-  jamSession   JamSession @relation(fields: [jamSessionId], references: [id], onDelete: Cascade)
-  jamSessionId String
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  evaluationId String
 
   registeredAt DateTime @default(now())
 
   score Int @default(0)
 
-  @@id([userEmail, jamSessionId])
+  @@id([userEmail, evaluationId])
+	@@map("UserOnEvaluation")
 }
 
 enum StudentAnswerStatus {

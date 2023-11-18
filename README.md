@@ -134,4 +134,4 @@ bash pg_restore.sh <backup-file-name>
 
 ## endpoint migrations done
 
-jam session
+evaluation

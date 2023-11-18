@@ -104,7 +104,7 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
         content={
           <Alert severity={'warning'}>
             <Typography variant="body1">
-                This will delete all the related data, including questions, collections, and jam sessions.
+                This will delete all the related data, including questions, collections, and evaluation.
             </Typography>
           </Alert>
         }

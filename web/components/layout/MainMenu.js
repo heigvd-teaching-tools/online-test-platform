@@ -47,8 +47,8 @@ const mainPaths = [
     label: 'Collections',
   },
   {
-    path: 'jam-sessions',
-    label: 'Jam Sessions',
+    path: 'evaluations',
+    label: 'Evaluations',
   },
 ]
 

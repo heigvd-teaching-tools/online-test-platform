@@ -4,7 +4,7 @@ import IndexPage from "../components/IndexPage";
 import Authorisation from "../components/security/Authorisation";
 /*
 Needs to be keept for some time for the user to clear the cache
-
+TODO : REMOVE THIS PAGE in february 2024
 */
 
 import DialogFeedback from "../components/feedback/DialogFeedback";

@@ -5,12 +5,24 @@ import { Stack } from '@mui/material';
 const getContentHeight = (editor, minHeight = 100) =>
   Math.max(minHeight, editor.getModel().getLineCount() * 19 + 21);
 
+const defaultOptions = {
+  readOnly: false,
+  minimap: { enabled: false },
+  hideCursorInOverviewRuler: true,
+  overviewRulerLanes: 0,
+  scrollbar: {
+    vertical: 'hidden',
+    handleMouseWheel: false,
+  },
+}
+
 const InlineMonacoEditor = ({
   code,
   language = 'javascript',
   readOnly = false,
   onChange,
   minHeight = 100,
+  editorOptions = {},
 }) => {
   const [editor, setEditor] = useState(null)
   const [contentHeight, setContentHeight] = useState(100)
@@ -44,16 +56,7 @@ const InlineMonacoEditor = ({
         width="100%"
         language={language}
         value={code}
-        options={{
-          readOnly: readOnly,
-          minimap: { enabled: false },
-          hideCursorInOverviewRuler: true,
-          overviewRulerLanes: 0,
-          scrollbar: {
-            vertical: 'hidden',
-            handleMouseWheel: false,
-          },
-        }}
+        options={{ ...defaultOptions, ...editorOptions, readOnly }}
         onChange={onContentChange}
         onMount={editorMount}
       />

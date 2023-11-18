@@ -4,7 +4,7 @@ import { withPrisma } from '@/middleware/withPrisma'
 
 /** Managing the grading of a qstudent answer
  *
- * Used by the page JamSession Grading
+ * Used by the page Evaluation Grading
 */
 
 const patch = async (req, res, prisma) => {
