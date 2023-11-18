@@ -1,10 +1,11 @@
+import React, {useCallback, useState} from 'react'
 import useSWR from 'swr'
 import { Button, MenuItem, Stack } from '@mui/material'
 import FileEditor from './FileEditor'
 import { update, pull } from './crud'
 import DropDown from '../../../../input/DropDown'
 import { StudentPermission } from '@prisma/client'
-import React, {useCallback, useState} from 'react'
+
 import CodeCheck from '../CodeCheck'
 import Loading from '../../../../feedback/Loading'
 import { fetcher } from '../../../../../code/utils'
@@ -13,6 +14,7 @@ import {useDebouncedCallback} from "use-debounce";
 import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
 const TemplateFilesManager = ({ groupScope, questionId }) => {
+
   const {
     data: codeToTemplateFiles,
     mutate,
@@ -48,12 +50,9 @@ const TemplateFilesManager = ({ groupScope, questionId }) => {
             <CodeCheck
               lockCodeCheck={lockCodeCheck}
               codeCheckAction={() =>
-                fetch(`/api/sandbox/${questionId}/files`, {
+                fetch(`/api/sandbox/${questionId}/template`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    files: codeToTemplateFiles.map((file) => file.file),
-                  }),
                 })
               }
             />
