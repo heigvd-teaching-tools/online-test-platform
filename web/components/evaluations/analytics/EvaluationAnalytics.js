@@ -5,6 +5,7 @@ import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 
 import PiePercent from '@/components/feedback/PiePercent'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
+import FilledBullet from '@/components/feedback/FilledBullet'
 
 const EvaluationAnalytics = ({ evaluationToQuestions, showSuccessRate = false }) => {
   return (
@@ -130,6 +131,33 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
     }
   }, [question, evaluationToQuestions])
 
+  const questionTypeToLegend = {
+    [QuestionType.multipleChoice]: [
+      { color: 'info', tooltip: 'Students chose this option' },
+    ],
+    [QuestionType.trueFalse]: [
+      { color: 'info', tooltip: 'Students chose this option' },
+    ],
+    [QuestionType.code]: [
+      { color: 'success', tooltip: 'All test cases passed' },
+      { color: 'error', tooltip: 'Not all test cases passed' },
+      { color: 'info', tooltip: 'No code check runs' },
+    ],
+    [QuestionType.essay]: [
+      { color: 'success', tooltip: 'Submitted answers' },
+      { color: 'error', tooltip: 'Missing answers' },
+    ],
+    [QuestionType.web]: [
+      { color: 'success', tooltip: 'Submitted answers' },
+      { color: 'error', tooltip: 'Missing answers' },
+    ],
+    [QuestionType.database]: [
+      { color: 'success', tooltip: 'Test passed' },
+      { color: 'error', tooltip: 'Test failed' },
+    ],
+
+  }
+
   const submittedAnswers = question.studentAnswer.filter((sa) => sa.status === StudentAnswerStatus.SUBMITTED).length;
   const totalAnswers = question.studentAnswer.length;
 
@@ -148,7 +176,12 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
               <b>{`Q${evaluationToQuestions.order + 1}`}</b>
             </Typography>
             <Typography variant="body1">{question.title}</Typography>
+            
+
           </Stack>
+          <ColorLegend 
+            items={questionTypeToLegend[question.type]}
+          />
         </Stack>
         {questionData &&
           ((questionData.type === QuestionType.multipleChoice && (
@@ -367,5 +400,20 @@ const AnalyticsRow = ({ label, segments, amount }) => (
     </Stack>
   </Stack>
 );
+
+const ColorLegend = ({ items }) => {
+  return (
+    <Stack direction="row" spacing={2} alignItems="center">
+      {items.map((item, index) => (
+        <Tooltip title={item.tooltip} key={index}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <FilledBullet isFilled={true} color={item.color} size={14} />
+            <Typography variant="caption">{item.tooltip}</Typography>
+          </Stack>
+        </Tooltip>
+      ))}
+    </Stack>
+  );
+};
 
 export default EvaluationAnalytics
