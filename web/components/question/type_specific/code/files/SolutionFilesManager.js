@@ -81,12 +81,9 @@ const SolutionFilesManager = ({ groupScope, questionId, language }) => {
               <CodeCheck
                 lockCodeCheck={lockCodeCheck}
                 codeCheckAction={() =>
-                  fetch(`/api/sandbox/${questionId}/files`, {
+                  fetch(`/api/sandbox/${questionId}/solution`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      files: codeToSolutionFiles.map((file) => file.file),
-                    }),
                   })
                 }
               />

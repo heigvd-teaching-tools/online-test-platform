@@ -7,7 +7,7 @@ import { withAuthorization, withMethodHandler } from '@/middleware/withAuthoriza
 import { withPrisma } from '@/middleware/withPrisma'
 
 /*
- endpoint to run the code sandbox for a users answers
+ endpoint to run the code sandbox for a users (generally students) answers
  Only uses files stored in the database
  */
 const post = async (req, res, prisma) => {
@@ -20,7 +20,6 @@ const post = async (req, res, prisma) => {
     res.status(400).json({ message: 'evaluation is not in progress' })
     return
   }
-
 
   const code = await prisma.code.findUnique({
     where: {
@@ -38,7 +37,6 @@ const post = async (req, res, prisma) => {
     return
   }
 
-
   const studentAnswerCodeFiles = await prisma.studentAnswerCode.findUnique({
     where: {
       userEmail_questionId: {
@@ -54,7 +52,6 @@ const post = async (req, res, prisma) => {
       },
     },
   })
-
 
   if (!studentAnswerCodeFiles || !studentAnswerCodeFiles.files) {
     res.status(404).json({ message: 'Student files not found' })
