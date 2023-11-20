@@ -96,7 +96,6 @@ const runTestsOnDatasets = (d1, d2, outputTests) => {
     return _.isEqual(d1, d2);
 }
 
-
 /*
     PostgreSQL output to dataset
     Used to transform the output of a PostgreSQL query to a dataset that can be used for testing
@@ -125,7 +124,17 @@ const postgresOutputToToDataset = (pgData) => {
     for (const row of pgData.rows) {
         const dataRow = [];
         for (const column of dataset.columns) {
-            dataRow.push(row[column.name]);
+            const valueType = row[column.name].constructor.name;
+            switch(valueType){
+                case "Date":
+                    dataRow.push(row[column.name].toISOString())
+                    break;
+                case "Boolean":
+                    dataRow.push(row[column.name] ? "true" : "false");
+                    break;
+                default:
+                    dataRow.push(row[column.name]);
+            }
         }
         dataset.rows.push(dataRow);
     }
