@@ -153,7 +153,7 @@ const PageList = () => {
                             option: 'Last Update',
                             type: 'date',
                             renderLabel: (row) => {              
-                              return <Typography variant={'h3'}>{weeksAgo(row.label)}</Typography>;
+                              return <Typography variant={'h4'}>{weeksAgo(row.label)}</Typography>;
                             },
                           },
                           {
@@ -245,10 +245,12 @@ const GridGrouping = ({ header, items, groupings, actions }) => {
 
     const elementGroupBy = (items, grouping) => {
         return items.reduce((acc, item) => {
-            const key = item[grouping.groupBy];
+            const key = `key_${item[grouping.groupBy]}`;
             if (!acc[key]) {
-                acc[key] = { label: key };
-                acc[key].items = []; 
+                acc[key] = { 
+                  label: key.replace('key_', ''),
+                  items: [],
+                };
             }
             acc[key].items.push(item);
             return acc;
@@ -258,10 +260,12 @@ const GridGrouping = ({ header, items, groupings, actions }) => {
     const arrayGroupBy = (items, grouping) => {
       return items.reduce((acc, item) => {
           item[grouping.groupBy].forEach(arrayItem => {
-              const key = arrayItem[grouping.property];
+              const key = `key_${arrayItem[grouping.property]}`
               if (!acc[key]) {
-                  acc[key] = { label: key };
-                  acc[key].items = []; 
+                  acc[key] = { 
+                    label: key.replace('key_', ''),
+                    items: [],
+                  };
               }
               acc[key].items.push(item);
           });
@@ -284,7 +288,10 @@ const GridGrouping = ({ header, items, groupings, actions }) => {
         const key = `year_${year}_week_${weekNumber}`;
     
         if (!acc[key]) {
-          acc[key] = { label: key, items: [] };
+          acc[key] = { 
+            label: key, 
+            items: [] 
+          };
         }
     
         acc[key].items.push(item);
@@ -319,13 +326,10 @@ const GridGrouping = ({ header, items, groupings, actions }) => {
       <Stack spacing={2}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <DropdownSelector
-            label={`${items.length} questions grouped by`}
+            label={`${items.length} items grouped by`}
             color="info"
             value={selectedGrouping.option}
-            options={[
-              ...groupings.map((g) => ({ label: g.option, value: g.option })),
-              // ... more options
-            ]}
+            options={groupings.map((g) => ({ label: g.option, value: g.option }))}
             onSelect={(value) => handleGroupingChange(value)}
           />
           {actions}
@@ -333,9 +337,7 @@ const GridGrouping = ({ header, items, groupings, actions }) => {
 
         {Object.keys(groups).map((groupKey) => (
           <>
-            {
-              selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])
-            }
+            {selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])}
             <Datagrid 
               items={groups[groupKey].items} 
               header={header} 

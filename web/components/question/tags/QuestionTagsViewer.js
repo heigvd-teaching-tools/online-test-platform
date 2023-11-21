@@ -32,7 +32,7 @@ const QuestionTagsViewer = ({ tags = [], size = 'medium', collapseAfter = Infini
           size={size}
           key="more"
           variant="outlined"
-          label={<Typography variant={'caption'}>{`+${tags.length - collapseAfter} more`}</Typography>}
+          label={<Typography variant={'caption'}>{`+${tags.length - collapseAfter}`}</Typography>}
           sx={{ mr: 1 }}
         />
       )}
