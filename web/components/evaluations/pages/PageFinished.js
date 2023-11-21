@@ -69,6 +69,19 @@ const PageFinished = () => {
       label: <b>{`Q${jstq.order + 1}`}</b>,
       tooltip: jstq.question.title,
       column: { width: '30px', align: 'center' },
+      renderCell: (row) =>  {
+        const data = row[`Q${jstq.order + 1}`]
+        const color = data.color;
+        const pointsObtained = data.pointsObtained;
+        const totalPoints = data.totalPoints;
+          return (
+            <Stack display="inline-flex" alignItems="center" justifyContent="center" spacing={0.1}>
+              <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${pointsObtained}`}</Typography>
+              <Divider sx={{ width:"100%" }} />
+              <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${totalPoints}`}</Typography>
+            </Stack>
+          )
+      }
     }))
 
     return {
@@ -76,14 +89,42 @@ const PageFinished = () => {
         {
           label: 'Participant',
           column: { flexGrow: 1 },
+          renderCell: (row) => <UserAvatar user={row.participant} />
         },
         {
           label: 'Actions',
           column: { width: '80px' },
+          renderCell: (row) => (
+            <Tooltip title="View student's answers" key="view-student-answers">
+              <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.email}/1`} target="_blank">
+                <IconButton size="small">
+                  <Image
+                    alt="View"
+                    src="/svg/icons/view-user.svg"
+                    layout="fixed"
+                    width="18"
+                    height="18"
+                  />
+
+                </IconButton>
+              </a>
+            </Tooltip>
+          ),
         },
         {
           label: 'Success',
           column: { width: '80px' },
+          renderCell: (row) => <PiePercent
+            size={60}
+            value={row.participantSuccessRate}
+            label={
+              <Stack alignItems="center" justifyContent="center" spacing={0}>
+                <Typography variant="body2">{`${row.obtainedPoints}`}</Typography>
+                <Divider sx={{ width: '100%' }} />
+                <Typography variant="caption">{`${row.totalPoints}`}</Typography>
+              </Stack>
+            }
+          />,
         },
         ...q,
       ],
@@ -108,22 +149,19 @@ const PageFinished = () => {
         ).studentGrading
         let pointsObtained = grading ? grading.pointsObtained : 0
         let totalPoints = jstq.points
-        let successRate =
-          totalPoints > 0 ? Math.round((pointsObtained / totalPoints) * 100) : 0
+        let successRate = totalPoints > 0 ? Math.round((pointsObtained / totalPoints) * 100) : 0
 
-        let color =
-          successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error'
-        questionColumnValues[`Q${jstq.order + 1}`] = (
-          <Stack display="inline-flex" alignItems="center" justifyContent="center" spacing={0.1}>
-            <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${pointsObtained}`}</Typography>
-            <Divider sx={{ width:"100%" }} />
-            <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${totalPoints}`}</Typography>
-          </Stack>
-        )
+        let color = successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error'
+        questionColumnValues[`Q${jstq.order + 1}`] = {
+          pointsObtained: pointsObtained,
+          totalPoints: totalPoints,
+          successRate: successRate,
+          color: color,
+        }
       })
 
       return {
-        participant: <UserAvatar user={participant} />,
+        participant: participant,
         actions: (
           <Tooltip title="View student's answers" key="view-student-answers">
             <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${participant.email}/1`} target="_blank">
@@ -140,19 +178,9 @@ const PageFinished = () => {
             </a>
           </Tooltip>
         ),
-        successRate: (
-          <PiePercent
-            size={60}
-            value={participantSuccessRate}
-            label={
-              <Stack alignItems="center" justifyContent="center" spacing={0}>
-                <Typography variant="body2">{`${obtainedPoints}`}</Typography>
-                <Divider sx={{ width: '100%' }} />
-                <Typography variant="caption">{`${totalPoints}`}</Typography>
-              </Stack>
-            }
-          />
-        ),
+        participantSuccessRate:participantSuccessRate,
+        obtainedPoints: obtainedPoints,
+        totalPoints: totalPoints,
         ...questionColumnValues,
         meta: {
           key: participant.email,

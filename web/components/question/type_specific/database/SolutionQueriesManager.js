@@ -19,7 +19,7 @@ import StudentPermissionIcon from "../../../feedback/StudentPermissionIcon";
 import BottomCollapsiblePanel from "../../../layout/utils/BottomCollapsiblePanel";
 
 
-const SolutionQueriesManager = ({ groupScope, questionId }) => {
+const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
     const theme = useTheme()
 
     const ref = useRef()
@@ -55,8 +55,10 @@ const SolutionQueriesManager = ({ groupScope, questionId }) => {
         }).then(async () => {
             await mutate();
             ref.current.scrollTop = ref.current.scrollHeight
+        }).finally(() => {
+            onUpdate && onUpdate()
         });
-    }, [groupScope, queries, mutate])
+    }, [groupScope, queries, mutate, onUpdate])
 
     const onQueryUpdate = useCallback( async (query, doMutate = false) => {
         await fetch(`/api/${groupScope}/questions/${questionId}/database/queries/${query.id}`, {
@@ -83,8 +85,10 @@ const SolutionQueriesManager = ({ groupScope, questionId }) => {
                 await mutate();
             }
 
+        }).finally(() => {
+            onUpdate && onUpdate()
         });
-    }, [groupScope, queries, questionId, mutate]);
+    }, [groupScope, queries, questionId, mutate, onUpdate]);
 
     const debouncedOnQueryUpdate = useDebouncedCallback((q, m) => onQueryUpdate(q, m), 500)
 
@@ -97,8 +101,10 @@ const SolutionQueriesManager = ({ groupScope, questionId }) => {
             },
         }).then(async () => {
             await mutate();
+        }).finally(() => {
+            onUpdate && onUpdate()
         });
-    }, [groupScope, queries, mutate, questionId]);
+    }, [groupScope, queries, mutate, questionId, onUpdate]);
 
     const runAllQueries = useCallback(async () => {
         // erase eventual previous outputs
@@ -134,7 +140,9 @@ const SolutionQueriesManager = ({ groupScope, questionId }) => {
         // set all query outputs
         setOutputs(newSolutionQueries.map(q => q.output));
 
-    }, [questionId, outputs, queries]);
+        onUpdate && onUpdate()
+
+    }, [questionId, outputs, queries, onUpdate]);
 
 
 

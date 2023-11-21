@@ -96,7 +96,7 @@ export default withMethodHandler({
   ),
   PUT: withAuthorization(
       withGroupScope(
-        withPrisma(put)
+          withPrisma(put)
       ), [Role.PROFESSOR]
   ),
 })

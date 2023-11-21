@@ -66,11 +66,12 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
               {
                 label: 'Member',
                 column: { flexGrow: 1 },
+                renderCell: (row) => <UserAvatar user={row.user} />,
               },
             ],
           }}
           items={group.members.map((member) => ({
-            member: <UserAvatar user={member.user} />,
+            ...member,
             meta: {
               key: member.userId,
             },

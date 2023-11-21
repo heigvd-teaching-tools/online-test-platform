@@ -3,6 +3,7 @@ import {runSandboxDB} from "@/sandbox/runSandboxDB";
 import {runSQLFluffSandbox} from "@/sandbox/runSQLFluffSandbox";
 import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization';
 import { withPrisma } from '@/middleware/withPrisma';
+import { withQuestionUpdate } from '@/middleware/withQuestionUpdate';
 
 /*
  endpoint to run the sandbox for a database question with queries recovered from the database
@@ -158,6 +159,6 @@ const post = async (req, res, prisma) => {
 
 export default withMethodHandler({
     POST: withAuthorization(
-        withPrisma(post), [Role.PROFESSOR]
+        withQuestionUpdate(withPrisma(post)), [Role.PROFESSOR]
     ),
 })

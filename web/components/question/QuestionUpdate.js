@@ -167,9 +167,12 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
             <QuestionTypeSpecific
                 groupScope={groupScope}
                 question={question}
-                onTypeSpecificChange={(type, value) =>
+                onUpdate={() => {
+                  onUpdate && onUpdate(question)
+                }}
+                onTypeSpecificChange={(type, value) => {
                     onPropertyChange(type, value)
-                }
+                }}
             />
           )
         }

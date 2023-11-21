@@ -1,4 +1,4 @@
-import { Box, Paper, Stack, Typography } from '@mui/material'
+import { Box, Paper, Stack, Tooltip, Typography } from '@mui/material'
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 import LanguageIcon from '../../question/type_specific/code/LanguageIcon'
 import DateTimeAgo from '../../feedback/DateTimeAgo'
@@ -38,14 +38,11 @@ const QuestionListItem = ({ question, selected, actions = [] }) => {
           {actions}
           </Stack>
           <Box>
-            <Stack
-              direction={'row'}
-              alignItems={'center'}
-              sx={{ color: 'info.main' }}
-            >
-              <Typography variant={'caption'}>Updated:</Typography>
-              <DateTimeAgo date={new Date(question.createdAt)} />
-            </Stack>
+            <Tooltip title="Last updated" placement="top">
+              <Typography variant="body2" color="textSecondary">
+                <DateTimeAgo date={new Date(question.updatedAt)} />
+              </Typography>
+            </Tooltip>
           </Box>
         </Stack>
       </Stack>

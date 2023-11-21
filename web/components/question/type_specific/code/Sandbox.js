@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { Stack, TextField, Typography } from '@mui/material'
 import useSWR from 'swr'
 import Loading from '../../../feedback/Loading'
 import { fetcher } from '../../../../code/utils'
-const Sandbox = ({ groupScope, questionId, language }) => {
+const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
   const {
     data: sandbox,
     mutate,
@@ -27,7 +27,7 @@ const Sandbox = ({ groupScope, questionId, language }) => {
     ;(async () => await mutate())()
   }, [language, mutate])
 
-  const onChange = async (sandbox) => {
+  const onChange = useCallback(async (sandbox) => {
     await fetch(`/api/${groupScope}/questions/${questionId}/code/sandbox`, {
       method: 'PUT',
       headers: {
@@ -41,8 +41,10 @@ const Sandbox = ({ groupScope, questionId, language }) => {
       if (res.status === 200) {
         await mutate()
       }
+    }).finally(() => {
+      onUpdate && onUpdate()
     })
-  }
+  }, [groupScope, questionId, mutate, onUpdate])
 
   const debouncedOnChange = useDebouncedCallback(onChange, 500)
 

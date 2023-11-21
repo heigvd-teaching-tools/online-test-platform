@@ -12,7 +12,7 @@ import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import TabPanel from "../../layout/utils/TabPanel";
 
-const Code = ({ groupScope, questionId }) => {
+const Code = ({ groupScope, questionId, onUpdate }) => {
   const { data: code, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code`,
       groupScope && questionId ? fetcher : null,
@@ -49,12 +49,14 @@ const Code = ({ groupScope, questionId }) => {
                   groupScope={groupScope}
                   questionId={questionId}
                   language={code.language}
+                  onUpdate={onUpdate}
               />
 
               <TestCases
                   groupScope={groupScope}
                   questionId={questionId}
                   language={code.language}
+                  onUpdate={onUpdate}
               />
             </TabContent>
           </TabPanel>
@@ -64,6 +66,7 @@ const Code = ({ groupScope, questionId }) => {
                 groupScope={groupScope}
                 questionId={questionId}
                 language={code.language}
+                onUpdate={onUpdate}
               />
             </TabContent>
           </TabPanel>
@@ -72,6 +75,7 @@ const Code = ({ groupScope, questionId }) => {
               <TemplateFilesManager
                 groupScope={groupScope}
                 questionId={questionId}
+                onUpdate={onUpdate}
               />
             </TabContent>
           </TabPanel>

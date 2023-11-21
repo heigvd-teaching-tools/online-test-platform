@@ -14,9 +14,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
-
 const Datagrid = ({ header, items }) => {
-
   return (
     <List>
       <ListItem divider>
@@ -38,50 +36,55 @@ const Datagrid = ({ header, items }) => {
       </ListItem>
       {items &&
         items.length > 0 &&
-        items.map((item, index) =>
-          item.meta ? (
-            // list item is a link
-            (item.meta.linkHref && (
-              <Link
-                component="button"
-                key={item.meta.key}
-                href={item.meta.linkHref}
-              >
-                <a>
-                  <ListItemContent item={item} header={header} />
-                </a>
-              </Link>
-            )) ||
-            // list item is a clickable
-            (item.meta.onClick && (
-              <Box key={item.meta.key} onClick={item.meta.onClick}>
-                <ListItemContent item={item} header={header} />
-              </Box>
-            )) || (
-              <ListItemContent
-                key={item.meta.key}
-                item={item}
-                header={header}
-              />
-            )
-          ) : (
-            <ListItemContent key={item.meta.key} item={item} header={header} />
-          )
-        )}
+        items.map((item, index) => (
+          <ChosenListItemContent item={item} header={header} key={index} />
+        ))}
     </List>
-  )
+  );
+};
+
+
+const ChosenListItemContent = ({ item, header }) => {
+  if (item.meta?.onClick) {
+    return (
+      <ClickableListItemContent item={item} header={header} onClick={item.meta.onClick} key={item.meta.key} />
+    )
+  } else if (item.meta?.linkHref) {
+    return (
+      <LinkHrefListItemContent item={item} header={header} href={item.meta.linkHref} key={item.meta.key} />
+    )
+  } else {
+    return (
+      <ListItemContent item={item} header={header} key={item.meta.key} />
+    )
+  }
 }
+
+
+const LinkHrefListItemContent = ({ item, header, href }) => (
+  <Link component="button" href={href}>
+    <a>
+      <ListItemContent item={item} header={header} />
+    </a>
+  </Link>
+);
+
+const ClickableListItemContent = ({ item, header, onClick }) => (
+  <Box onClick={onClick}>
+    <ListItemContent item={item} header={header} />
+  </Box>
+);
 
 const ListItemContent = ({ item, header }) => (
   <ListItem divider>
     <Row>
-      {Object.keys(item).map((key, index) => {
-        if (index < header.columns.length && key !== 'meta') {
+      {header.columns.map(({ renderCell, column }, index) => {
+        if (renderCell && item) {
           return (
-            <Column key={key} {...header.columns[index].column}>
-              {item[key] || ''}
+            <Column key={index} {...column}>
+              {renderCell(item)}
             </Column>
-          )
+          );
         }
       })}
       {item.meta && item.meta.actions && header.actions && (
@@ -91,7 +94,8 @@ const ListItemContent = ({ item, header }) => (
       )}
     </Row>
   </ListItem>
-)
+);
+
 
 const ActionsColumn = ({ meta, actions }) => {
   const [anchorEl, setAnchorEl] = useState(null)

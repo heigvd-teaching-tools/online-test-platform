@@ -4,7 +4,7 @@ import MultipleChoice from './MultipleChoice'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 
-const ManageMultipleChoice = ({ groupScope, questionId }) => {
+const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   const {
     data: options,
     mutate,
@@ -31,9 +31,11 @@ const ManageMultipleChoice = ({ groupScope, questionId }) => {
         if (res.status === 200) {
           await mutate(options)
         }
+      }).finally(() => {
+        onUpdate && onUpdate()
       })
     },
-    [groupScope, questionId, mutate]
+    [groupScope, questionId, mutate, onUpdate]
   )
 
   const onDeleteOption = useCallback(
@@ -51,9 +53,11 @@ const ManageMultipleChoice = ({ groupScope, questionId }) => {
         if (res.status === 200) {
           await mutate()
         }
+      }).finally(() => {
+        onUpdate && onUpdate()
       })
     },
-    [groupScope, questionId, mutate]
+    [groupScope, questionId, mutate, onUpdate]
   )
 
   const onAddOption = useCallback(async () => {
@@ -70,8 +74,10 @@ const ManageMultipleChoice = ({ groupScope, questionId }) => {
       if (res.status === 200) {
         await mutate()
       }
+    }).finally(() => {
+      onUpdate && onUpdate()
     })
-  }, [groupScope, questionId, mutate])
+  }, [groupScope, questionId, mutate, onUpdate])
 
   return (
     <Loading loading={!options} errors={[error]}>

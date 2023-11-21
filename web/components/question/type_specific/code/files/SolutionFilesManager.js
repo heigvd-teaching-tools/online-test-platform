@@ -14,7 +14,7 @@ import {useDebouncedCallback} from "use-debounce";
 import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
 const environments = languages.environments
-const SolutionFilesManager = ({ groupScope, questionId, language }) => {
+const SolutionFilesManager = ({ groupScope, questionId, language, onUpdate }) => {
   const filesRef = useRef()
 
   const {
@@ -44,16 +44,19 @@ const SolutionFilesManager = ({ groupScope, questionId, language }) => {
       await mutate([...codeToSolutionFiles, newFile])
       // scroll to the bottom of the files list
       filesRef.current.scrollTop = filesRef.current.scrollHeight
+    }).finally(() => {
+      onUpdate && onUpdate()
     })
-  }, [groupScope, questionId, codeToSolutionFiles, mutate, language])
+  }, [groupScope, questionId, codeToSolutionFiles, mutate, language, onUpdate])
 
   const onFileUpdate = useCallback(
     async (file) => {
       setLockCodeCheck(true)
       await update('solution', groupScope, questionId, file);
       setLockCodeCheck(false)
+      onUpdate && onUpdate()
     },
-    [groupScope, questionId, codeToSolutionFiles]
+    [groupScope, questionId, codeToSolutionFiles, onUpdate]
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
@@ -68,9 +71,11 @@ const SolutionFilesManager = ({ groupScope, questionId, language }) => {
             )
           )
         }
-      )
+      ).finally(() => {
+        onUpdate && onUpdate()
+      })
     },
-    [groupScope, questionId, mutate, codeToSolutionFiles]
+    [groupScope, questionId, mutate, codeToSolutionFiles, onUpdate]
   )
 
   return (
