@@ -87,6 +87,7 @@ const PageList = () => {
                 <Stack spacing={2} padding={2} height={'100%'}>
                   <ScrollContainer spacing={4} padding={1}>
                     <GridGrouping
+                        label="Questions"
                         actions={
                           <Button onClick={() => setAddDialogOpen(true)}>
                             Create a new question
@@ -239,7 +240,7 @@ const PageList = () => {
 }
 
 
-const GridGrouping = ({ header, items, groupings, actions }) => {
+const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
     const [selectedGrouping, setSelectedGrouping] = useState(groupings[0]); // Default to first grouping
 
@@ -326,7 +327,7 @@ const GridGrouping = ({ header, items, groupings, actions }) => {
       <Stack spacing={2}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <DropdownSelector
-            label={`${items.length} items grouped by`}
+            label={`${items.length} ${label} grouped by`}
             color="info"
             value={selectedGrouping.option}
             options={groupings.map((g) => ({ label: g.option, value: g.option }))}
