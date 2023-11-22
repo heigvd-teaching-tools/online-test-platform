@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Stack, TextField, Typography } from '@mui/material'
+import ContentEditor from '@/components/input/ContentEditor'
 
 const StepGeneralInformation = ({ evaluation, onChange }) => {
   const [label, setLabel] = useState(
@@ -7,7 +8,7 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
   )
   const [errorLabel, setErrorLabel] = useState(false)
   const [conditions, setConditions] = useState(
-    evaluation && evaluation.conditions ? evaluation.conditions : ''
+    evaluation ? evaluation.conditions : ''
   )
 
   useEffect(() => {
@@ -16,7 +17,7 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
       setErrorLabel({ error: false })
       setConditions(evaluation.conditions)
     }
-  }, [evaluation, setLabel, setErrorLabel, setConditions, label, conditions])
+  }, [evaluation, setLabel, setErrorLabel, setConditions])
 
   useEffect(() => {
     onChange({
@@ -45,15 +46,14 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
         error={errorLabel}
         helperText={errorLabel ? 'Label is required' : ''}
       />
-
-      <TextField
-        label="Conditions"
-        id="evaluation-conditions"
-        fullWidth
-        multiline
-        rows={4}
-        value={conditions || ''}
-        onChange={(e) => setConditions(e.target.value)}
+      <ContentEditor
+        id={`conditions`}
+        title="Conditions"
+        mode="split"
+        fill={false}
+        rawContent={conditions}
+        readOnly={false}
+        onChange={(content) => setConditions(content)}
       />
     </Stack>
   )

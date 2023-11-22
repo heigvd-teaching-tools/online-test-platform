@@ -156,7 +156,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
 
   }
 
-  const submittedAnswers = question.studentAnswer.filter((sa) => sa.status === StudentAnswerStatus.SUBMITTED).length;
+  const submittedAnswers = question.studentAnswer.filter((sa) => sa.status !== StudentAnswerStatus.MISSING).length;
   const totalAnswers = question.studentAnswer.length;
 
   return (

@@ -6,10 +6,11 @@ import { SessionProvider } from 'next-auth/react'
 import { SnackbarProvider } from '../context/SnackbarContext'
 
 import '../styles/normalize.css'
-import '@fontsource/roboto/300.css'
-import '@fontsource/roboto/400.css'
-import '@fontsource/roboto/500.css'
-import '@fontsource/roboto/700.css'
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 
 import Authentication from '../components/security/Authentication'
 import { TagsProvider } from '../context/TagContext'

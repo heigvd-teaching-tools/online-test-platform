@@ -164,7 +164,7 @@ const put = async (req, res, prisma) => {
   const status =
     answer === undefined
       ? StudentAnswerStatus.MISSING
-      : StudentAnswerStatus.SUBMITTED
+      : StudentAnswerStatus.IN_PROGRESS
 
   const transaction = [] // to do in single transaction, queries are done in order
 

@@ -15,7 +15,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
-const Datagrid = ({ header, items }) => {
+
+const DataGrid = ({ header, items }) => {
   return (
     <List>
       <ListItem divider>
@@ -172,4 +173,4 @@ const ActionsContextMenu = ({ actions, anchorEl, handleCloseContextMenu }) => {
   )
 }
 
-export default Datagrid
+export default DataGrid

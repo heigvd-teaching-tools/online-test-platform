@@ -51,7 +51,7 @@ const put = async (req, res, prisma) => {
         },
       },
       data: {
-        status: StudentAnswerStatus.SUBMITTED
+        status: StudentAnswerStatus.IN_PROGRESS
       },
     })
 

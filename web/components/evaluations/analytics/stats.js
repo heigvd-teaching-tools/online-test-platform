@@ -84,7 +84,7 @@ export const typeSpecificStats = (question) => {
       return question[question.type].options.map((option, index) => {
         // number of times this option was selected in users answers
         let chosen = question.studentAnswer.reduce((acc, sa) => {
-          if (sa.status === StudentAnswerStatus.SUBMITTED) {
+          if (sa.status !== StudentAnswerStatus.MISSING) {
             let isChosen = sa[question.type].options.some(
               (o) => o.id === option.id
             )
@@ -105,7 +105,7 @@ export const typeSpecificStats = (question) => {
       
       let trueChosen = question.studentAnswer.reduce((acc, sa) => {
         if (
-          sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa.status !== StudentAnswerStatus.MISSING &&
           sa[question.type].isTrue
         ) {
           return acc + 1
@@ -114,7 +114,7 @@ export const typeSpecificStats = (question) => {
       }, 0)
       let falseChosen = question.studentAnswer.reduce((acc, sa) => {
         if (
-          sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa.status !== StudentAnswerStatus.MISSING &&
           !sa[question.type].isTrue
         ) {
           return acc + 1
@@ -133,7 +133,7 @@ export const typeSpecificStats = (question) => {
       let success = question.studentAnswer.reduce((acc, sa) => {
         // Check if the users's answer has been submitted, test cases have been run, and all test cases passed.
         if (
-          sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa.status !== StudentAnswerStatus.MISSING &&
           sa[question.type]?.testCaseResults?.length > 0 &&
           sa[question.type].allTestCasesPassed
         ) {
@@ -145,7 +145,7 @@ export const typeSpecificStats = (question) => {
       let failure = question.studentAnswer.reduce((acc, sa) => {
         // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
         if (
-          sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa.status !== StudentAnswerStatus.MISSING &&
           sa[question.type]?.testCaseResults?.length > 0 &&
           !sa[question.type].allTestCasesPassed
         ) {
@@ -157,7 +157,7 @@ export const typeSpecificStats = (question) => {
       let noCodeCheckRuns = question.studentAnswer.reduce((acc, sa) => {
         // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
         if (
-          sa.status === StudentAnswerStatus.SUBMITTED &&
+          sa.status !== StudentAnswerStatus.MISSING &&
           !sa[question.type]?.testCaseResults?.length
         ) {
           return acc + 1;
@@ -179,7 +179,7 @@ export const typeSpecificStats = (question) => {
     case QuestionType.essay:
     case QuestionType.web:
       let submitted = question.studentAnswer.reduce((acc, sa) => {
-        if (sa.status === StudentAnswerStatus.SUBMITTED) {
+        if (sa.status !== StudentAnswerStatus.MISSING) {
           return acc + 1
         }
         return acc
