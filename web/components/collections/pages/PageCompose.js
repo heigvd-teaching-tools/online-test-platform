@@ -79,7 +79,7 @@ const PageCompose = () => {
     async (question) => {
       // add question to collection
       // mutate collection
-      const response = await fetch(
+      await fetch(
         `/api/${groupScope}/collections/${collectionId}/questions`,
         {
           method: 'POST',
@@ -90,32 +90,17 @@ const PageCompose = () => {
             questionId: question.id
           }),
         }
-      )
-      if (response.ok) {
-        await mutateCollection()
-      }
+      ).then((res) => res.json())
+      .then(async (createdCollectionToQuestion) => {
+        setCollectionToQuestions([
+          ...collectionToQuestions,
+          createdCollectionToQuestion
+        ])
+      })
+    
     },
-    [groupScope, collectionId, mutateCollection]
+    [groupScope, collectionId, collectionToQuestions]
   )
-
-  const saveReOrder = useCallback(async () => {
-    // save question order
-    const response = await fetch(
-      `/api/${groupScope}/collections/${collectionId}/order`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          collectionToQuestions: collectionToQuestions,
-        }),
-      }
-    )
-    if (response.ok) {
-      await mutateCollection()
-    }
-  }, [groupScope, collectionToQuestions, collectionId, mutateCollection])
 
   const saveCollection = useCallback(
     async (updated) => {
@@ -133,37 +118,59 @@ const PageCompose = () => {
     [groupScope, collectionId]
   )
 
+  const saveReOrder = useCallback(async (reordered) => {
+    // save question order
+    await fetch(
+      `/api/${groupScope}/collections/${collectionId}/order`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          collectionToQuestions: reordered,
+        }),
+      }
+    )
+  }, [groupScope, collectionId])
+
   const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300)
   const debounceSaveCollection = useDebouncedCallback(saveCollection, 300)
 
   const onChangeCollectionOrder = useCallback(
     async (sourceIndex, targetIndex) => {
-      const reordered = [...collectionToQuestions]
-      const moved = reordered[sourceIndex]
-      moved.order = targetIndex
-      reordered[targetIndex].order = sourceIndex
-      reordered[sourceIndex] = reordered[targetIndex]
-      reordered[targetIndex] = moved
-      setCollectionToQuestions(reordered)
-      await debounceSaveOrdering()
+      const reordered = [...collectionToQuestions];
+  
+      // Swap the elements
+      const temp = reordered[targetIndex];
+      reordered[targetIndex] = reordered[sourceIndex];
+      reordered[sourceIndex] = temp;
+  
+      // Update the order properties for all elements
+      reordered.forEach((item, index) => {
+        item.order = index;
+      });
+  
+      setCollectionToQuestions(reordered);
+      await debounceSaveOrdering(reordered);
     },
     [collectionToQuestions, setCollectionToQuestions, debounceSaveOrdering]
-  )
-
-  const onCollectionToQuestionChange = useCallback(
-    async (index, collectionToQuestion) => {
-      collectionToQuestions[index] = collectionToQuestion
-    },
-    [collectionToQuestions]
-  )
+  );
+  
+  
 
   const onDeleteCollectionToQuestion = useCallback(
     async (index) => {
+     
       const updated = [...collectionToQuestions]
       updated.splice(index, 1)
-      await mutateCollection(updated)
+      setCollectionToQuestions(updated.map((collectionToQuestion, index) => ({
+        ...collectionToQuestion,
+        order: index
+      })))
+
     },
-    [collectionToQuestions, mutateCollection]
+    [collectionToQuestions, setCollectionToQuestions]
   )
 
   
@@ -220,15 +227,12 @@ const PageCompose = () => {
                   <ReorderableList onChangeOrder={onChangeCollectionOrder}>
                     {collectionToQuestions &&
                       collectionToQuestions.map(
-                        (collectionToQuestion) => (
+                        (collectionToQuestion, index) => (
                           <CollectionToQuestion
                             groupScope={groupScope}
                             key={collectionToQuestion.question.id}
                             collectionToQuestion={collectionToQuestion}
-                            onChange={(index, updates) =>
-                              onCollectionToQuestionChange(index, updates)
-                            }
-                            onDelete={(index) =>
+                            onDelete={() =>
                               onDeleteCollectionToQuestion(index)
                             }
                           />

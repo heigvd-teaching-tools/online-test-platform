@@ -5,6 +5,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   Menu,
   Stack,
   Tooltip,
@@ -47,36 +48,45 @@ const Datagrid = ({ header, items }) => {
 const ChosenListItemContent = ({ item, header }) => {
   if (item.meta?.onClick) {
     return (
-      <ClickableListItemContent item={item} header={header} onClick={item.meta.onClick} key={item.meta.key} />
+      <ClickableListItem item={item} header={header} onClick={item.meta.onClick} key={item.meta.key} />
     )
   } else if (item.meta?.linkHref) {
     return (
-      <LinkHrefListItemContent item={item} header={header} href={item.meta.linkHref} key={item.meta.key} />
+      <LinkHrefListItem item={item} header={header} href={item.meta.linkHref} key={item.meta.key} />
     )
   } else {
     return (
-      <ListItemContent item={item} header={header} key={item.meta.key} />
+      <NormalListItem item={item} header={header} key={item.meta.key} />
     )
   }
 }
 
 
-const LinkHrefListItemContent = ({ item, header, href }) => (
+const LinkHrefListItem = ({ item, header, href }) => (
   <Link component="button" href={href}>
     <a>
-      <ListItemContent item={item} header={header} />
+      <ListItemButton divider>
+        <ListItemContent item={item} header={header} />
+      </ListItemButton>
     </a>
   </Link>
 );
 
-const ClickableListItemContent = ({ item, header, onClick }) => (
+const ClickableListItem = ({ item, header, onClick }) => (
   <Box onClick={onClick}>
-    <ListItemContent item={item} header={header} />
+    <ListItemButton divider sx={{ cursor: 'pointer' }}>
+      <ListItemContent item={item} header={header} />
+    </ListItemButton>
   </Box>
 );
 
-const ListItemContent = ({ item, header }) => (
+const NormalListItem = ({ item, header }) => (
   <ListItem divider>
+    <ListItemContent item={item} header={header} />
+  </ListItem>
+);
+
+const ListItemContent = ({ item, header }) => (
     <Row>
       {header.columns.map(({ renderCell, column }, index) => {
         if (renderCell && item) {
@@ -93,7 +103,6 @@ const ListItemContent = ({ item, header }) => (
         </Column>
       )}
     </Row>
-  </ListItem>
 );
 
 

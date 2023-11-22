@@ -22,8 +22,11 @@ const DropdownSelector = ({ label, color, options, onSelect, value }) => {
     const index = options.findIndex(option => option.value === value);
     if (index !== -1) {
       setSelectedIndex(index);
+    }else if(options.length > 0){
+      setSelectedIndex(0);
+      onSelect(options[0].value);
     }
-  }, [value, options]);
+  }, [value, options, onSelect]);
 
   const handleClick = () => {
     onSelect(options[selectedIndex].value);
@@ -55,7 +58,7 @@ const DropdownSelector = ({ label, color, options, onSelect, value }) => {
         aria-label="split button"
       >
         <Button onClick={handleClick}>
-          {label} {options[selectedIndex].label}
+          {label} {options[selectedIndex]?.label || ''}
         </Button>
         <Button
           size="small"

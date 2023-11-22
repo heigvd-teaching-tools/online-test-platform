@@ -70,6 +70,9 @@ const post = async (req, res, prisma) => {
       points: points,
       order: order,
     },
+    include: {
+      question: true,
+    },
   })
 
   // using default value for points
