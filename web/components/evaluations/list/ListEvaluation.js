@@ -3,14 +3,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { EvaluationPhase } from '@prisma/client'
 import { EvaluationStatus } from '@prisma/client'
-import { Button, IconButton, Stack, Tooltip } from '@mui/material'
+import { Box, Button, IconButton, Stack, Tooltip } from '@mui/material'
 
 import { getStudentEntryLink } from '@/code/utils'
 import DisplayPhase from '../DisplayPhase'
 import DataGrid from '@/components/ui/DataGrid'
+import GridGrouping from '@/components/ui/GridGrouping'
+import { weeksAgo } from '@/components/questions/list/utils'
+import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
-  <DataGrid
+  <GridGrouping
+    label={"Evaluations"}
     header={{
       actions: {
         label: 'Actions',
@@ -23,14 +27,9 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
           renderCell: (row) => row.label,
         },
         {
-          label: 'Created At',
-          column: { width: '160px' },
-          renderCell: (row) => new Date(row.createdAt).toLocaleString(),
-        },
-        {
-          label: 'Updated At',
-          column: { width: '160px' },
-          renderCell: (row) => new Date(row.updatedAt).toLocaleString(),
+          label: 'Updated',
+          column: { width: '120px' },
+          renderCell: (row) => <DateTimeAgo date={new Date(row.updatedAt)} />,
         },
         {
           label: 'Questions',
@@ -44,7 +43,7 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
         },
         {
           label: 'Phase',
-          column: { width: '100px' },
+          column: { width: '130px' },
           renderCell: (row) => (
             <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
               <DisplayPhase phase={row.phase} />
@@ -150,6 +149,21 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
         ],
       },
     }))}
+    groupings={[
+      {
+        groupBy: 'phase',
+        option: 'Phase',
+        type: 'element',
+        renderLabel: (row) => <Box><DisplayPhase phase={row.label} /></Box>,
+      },
+      {
+        groupBy: 'updatedAt',
+        option: 'Last Update',
+        type: 'date',
+        renderLabel: (row) => weeksAgo(row.label),
+        
+      },
+    ]}
   />
 )
 

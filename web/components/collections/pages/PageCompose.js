@@ -363,12 +363,6 @@ const QuestionsGrid = ({ questions, addCollectionToQuestion }) => {
           option: 'Question Type',
           type: 'element',
           renderLabel: (row) => getTextByType(row.label)
-        },
-        {
-          groupBy: 'createdAt',
-          option: 'Created At',
-          type: 'date',
-          renderLabel: (row) => weeksAgo(row.label)
         }
       ]}
     />
