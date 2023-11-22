@@ -15,7 +15,6 @@ const QuestionTypeIcon = ({ type, size = 32, withLabel = false }) => {
           <Image
             alt="Question Type Icon"
             src={`/svg/questions/${type}.svg`}
-            layout="responsive"
             width={size}
             height={size}
             priority="1"

@@ -12,9 +12,8 @@ const LoadingAnimation = ({ content, failed }) => (
       <Image
         alt="Loading..."
         src={failed ? '/svg/exclamation-mark.svg' : '/svg/loading.svg'}
-        layout="fixed"
-        width="80px"
-        height="80px"
+        width={80}
+        height={80}
         priority="1"
       />
       <Stack alignItems="center">{content}</Stack>

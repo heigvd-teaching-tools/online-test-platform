@@ -51,7 +51,6 @@ const ParticipantNav = ({
           <Image
             src={`/svg/grading/expand.svg`}
             alt="Arrow"
-            layout="fixed"
             width={16}
             height={16}
           />
@@ -59,7 +58,6 @@ const ParticipantNav = ({
           <Image
             src={`/svg/grading/collapse.svg`}
             alt="Arrow"
-            layout="fixed"
             width={16}
             height={16}
           />
@@ -109,7 +107,6 @@ const Arrow = ({ orientation }) => {
     <Image
       src={`/svg/grading/ctrl-${orientation}.svg`}
       alt="Arrow"
-      layout="fixed"
       width={16}
       height={16}
     />

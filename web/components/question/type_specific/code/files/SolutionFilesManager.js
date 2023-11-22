@@ -118,7 +118,6 @@ const SolutionFilesManager = ({ groupScope, questionId, language, onUpdate }) =>
                         <Image
                           alt="Delete"
                           src="/svg/icons/delete.svg"
-                          layout="fixed"
                           width="18"
                           height="18"
                         />

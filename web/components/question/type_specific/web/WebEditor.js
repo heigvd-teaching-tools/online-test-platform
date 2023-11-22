@@ -60,7 +60,7 @@ const WebEditorInput = ({ language, code:initial, readOnly, onChange }) => {
   
   const theme = useTheme()
 
-  const [ code, setCode ] = useState(code)
+  const [ code, setCode ] = useState(initial)
 
   useEffect(() => setCode(initial || ''), [initial])
 

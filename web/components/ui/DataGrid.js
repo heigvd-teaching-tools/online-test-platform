@@ -64,11 +64,9 @@ const ChosenListItemContent = ({ item, header }) => {
 
 const LinkHrefListItem = ({ item, header, href }) => (
   <Link component="button" href={href}>
-    <a>
       <ListItemButton divider>
         <ListItemContent item={item} header={header} />
       </ListItemButton>
-    </a>
   </Link>
 );
 

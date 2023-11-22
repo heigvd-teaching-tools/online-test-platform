@@ -149,7 +149,6 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
                     <Image
                       alt="Delete"
                       src="/svg/icons/delete.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />

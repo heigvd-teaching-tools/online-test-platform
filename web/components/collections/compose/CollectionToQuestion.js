@@ -125,7 +125,6 @@ const CollectionToQuestion = ({
             <Image
               alt="Remove From Collection"
               src="/svg/icons/cross.svg"
-              layout="fixed"
               width="24"
               height="24"
             />

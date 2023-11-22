@@ -10,7 +10,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
   const { groups } = useGroup()
   const { data: session } = useSession()
 
-  const [isAuthorized, setIsAuthorized] = useState(false)
+  const [isAuthorized, setIsAuthorized] = useState(undefined)
   const [hasRequiredGroups, setHasRequiredGroups] = useState(true) // Default to true
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
     setHasRequiredGroups(isProfessor ? professorHasGroups : true)
   }, [groups, session, allowRoles])
 
-  if (!isAuthorized) {
+  if (isAuthorized === false) {
     return (
         <Unauthorized>
           <Typography variant="h6">

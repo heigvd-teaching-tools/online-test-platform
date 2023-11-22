@@ -9,7 +9,12 @@ const Unauthorized = ({ children }) => {
       width={'100vw'}
     >
       <Box sx={{ width: '20%', height: '20%', position: 'relative' }}>
-        <Image src="/svg/401.svg" alt="Unauthorized" layout="fill" />
+        <Image 
+          src="/svg/401.svg" 
+          alt="Unauthorized" 
+          fill
+          priority="1"
+        />
       </Box>
       <Stack spacing={1} padding={2} alignItems="center">
         {children}

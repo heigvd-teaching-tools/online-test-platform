@@ -18,7 +18,6 @@ const GradingSigned = ({ signedBy, readOnly, onUnsign }) => {
         <Image
           src="/svg/grading/signed-off.svg"
           alt="Signed Off"
-          layout="fixed"
           width={32}
           height={32}
         />

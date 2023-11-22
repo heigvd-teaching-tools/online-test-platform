@@ -49,7 +49,6 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
                     <Image
                         alt="View"
                         src="/svg/icons/view-user.svg"
-                        layout="fixed"
                         width="18"
                         height="18"
                     />

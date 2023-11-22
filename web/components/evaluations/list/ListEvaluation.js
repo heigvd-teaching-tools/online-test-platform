@@ -56,7 +56,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                     <Image
                       alt="Promote"
                       src="/svg/icons/finish.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />
@@ -92,7 +91,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
               <Image
                 alt="Copy link"
                 src="/svg/icons/link.svg"
-                layout="fixed"
                 width="18"
                 height="18"
               />
@@ -104,7 +102,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                   <Image
                     alt="Analytics"
                     src="/svg/icons/analytics.svg"
-                    layout="fixed"
                     width="18"
                     height="18"
                   />
@@ -120,7 +117,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                     <Image
                       alt="Add to archive"
                       src="/svg/icons/archive.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />
@@ -136,7 +132,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                     <Image
                       alt="Delete definitively"
                       src="/svg/icons/delete.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />

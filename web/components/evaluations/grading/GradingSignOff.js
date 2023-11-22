@@ -94,7 +94,6 @@ const GradingSignOff = ({
                   <Image
                     src="/svg/grading/sign-off.svg"
                     alt="Sign Off"
-                    layout="fixed"
                     width={16}
                     height={16}
                   />

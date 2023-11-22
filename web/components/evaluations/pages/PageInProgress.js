@@ -140,7 +140,6 @@ const PageInProgress = () => {
                             <Image
                               alt="Analytics"
                               src="/svg/icons/analytics.svg"
-                              layout="fixed"
                               width="18"
                               height="18"
                             />
@@ -162,7 +161,6 @@ const PageInProgress = () => {
                       <Image
                         alt="Promote"
                         src="/svg/icons/finish.svg"
-                        layout="fixed"
                         width="18"
                         height="18"
                       />

@@ -101,7 +101,6 @@ const PageFinished = () => {
                   <Image
                     alt="View"
                     src="/svg/icons/view-user.svg"
-                    layout="fixed"
                     width="18"
                     height="18"
                   />
@@ -169,7 +168,6 @@ const PageFinished = () => {
                 <Image
                   alt="View"
                   src="/svg/icons/view-user.svg"
-                  layout="fixed"
                   width="18"
                   height="18"
                 />
