@@ -17,6 +17,7 @@ import ScrollContainer from '@/components//layout/ScrollContainer'
 import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
 import AlertFeedback from '../feedback/AlertFeedback'
+import { LoadingButton } from '@mui/lab'
 
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
@@ -175,21 +176,22 @@ const SubmittionToolbar = ({ lock, answer, onSubmit, onUnsubmit }) => {
   return (
     <Stack position={"absolute"} bottom={0} right={0} m={1} zIndex={200}>
       {status ===  StudentAnswerStatus.SUBMITTED ? (
-        <Button 
-          disabled={lock}
+        <LoadingButton 
+          loading={lock}
           onClick={onUnsubmit} 
           variant={"contained"} 
         >
           Unsubmit
-        </Button>
+        </LoadingButton>
       ) : (
-        <Button 
-          disabled={lock}
+        <LoadingButton 
+          loading={lock}
           onClick={onSubmit} 
           variant={"contained"} 
+          color={"info"}
         >
           Submit
-        </Button>
+        </LoadingButton>
       )}
     </Stack>
   )
