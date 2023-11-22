@@ -124,22 +124,19 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
           {actions}
         </Stack>
         <Stack flex={1}>
-        <ScrollContainer>
+        <ScrollContainer  spacing={2}>
             {Object.keys(groups).map((groupKey) => (
             navigation === "all" || navigation === groupKey ? (
-                <>
-                <Stack bgcolor={theme.palette.background.default} p={1} position={"sticky"} top={0} zIndex={1}>
-                    {selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])}
-                </Stack>
-                <Stack flex={1} mb={2}>
+                <Stack>
+                    <Stack bgcolor={theme.palette.background.default} p={1} position={"sticky"} top={0} zIndex={1}>
+                        {selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])}
+                    </Stack>
                 
                     <Datagrid 
                         items={groups[groupKey].items} 
                         header={header} 
                     />
-                
                 </Stack>
-                </>
             ) : null
             ))}
         </ScrollContainer>

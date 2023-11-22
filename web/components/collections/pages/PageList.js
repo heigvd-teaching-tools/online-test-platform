@@ -90,15 +90,8 @@ const PageList = () => {
                       renderCell: (row) => row.label,
                     },
                     {
-                      label: 'Created At',
-                      column: { width: '160px' },
-                      renderCell: (row) => (
-                        <DateTimeAgo date={new Date(row.createdAt)} />
-                      ),
-                    },
-                    {
-                      label: 'Updated At',
-                      column: { width: '160px' },
+                      label: 'Updated',
+                      column: { width: '140px' },
                       renderCell: (row) => (
                         <DateTimeAgo date={new Date(row.updatedAt)} />
                       ),
