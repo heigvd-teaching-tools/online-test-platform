@@ -85,39 +85,36 @@ const PageList = () => {
             rightWidth={80}
             rightPanel={
               questions && (
-                <Stack spacing={2} padding={2} height={'100%'}>
-                  <ScrollContainer spacing={4} padding={1}>
-                      <QuestionsGrid 
-                        questions={questions} 
-                        setAddDialogOpen={setAddDialogOpen}
-                        setSelected={setSelected}
-                        groupScope={groupScope}
-                      />
+                <Stack height={'100%'} p={1} pt={2}>
+                    <QuestionsGrid 
+                      questions={questions} 
+                      setAddDialogOpen={setAddDialogOpen}
+                      setSelected={setSelected}
+                      groupScope={groupScope}
+                    />
+                  <ResizableDrawer
+                    open={selected !== undefined}
+                    onClose={() => setSelected(undefined)}
+                  >
+                    <Box pt={2} width={"100%"} height={"100%"}>
+                      { selected && (
+                          <QuestionUpdate
+                            groupScope={router.query.groupScope}
+                            questionId={selected.id}
+                            onUpdate={async (question) => {
+                              await mutate()
+                              setSelected(question)
+                            }}
+                            onDelete={async () => {
+                              await mutate()
+                              setSelected(undefined)
+                            }}
+                          />
+                        )
+                      }
+                    </Box>
+                  </ResizableDrawer>
 
-                      <ResizableDrawer
-                        open={selected !== undefined}
-                        onClose={() => setSelected(undefined)}
-                      >
-                        <Box pt={2} width={"100%"} height={"100%"}>
-                          { selected && (
-                              <QuestionUpdate
-                                groupScope={router.query.groupScope}
-                                questionId={selected.id}
-                                onUpdate={async (question) => {
-                                  await mutate()
-                                  setSelected(question)
-                                }}
-                                onDelete={async () => {
-                                  await mutate()
-                                  setSelected(undefined)
-                                }}
-                              />
-                            )
-                          }
-                        </Box>
-                      </ResizableDrawer>
-
-                  </ScrollContainer>
                   {questions && questions.length === 0 && (
                     <AlertFeedback severity="info">
                       <Typography variant="body1">

@@ -247,8 +247,6 @@ const PageCompose = () => {
                 </Box>
                 {collectionToQuestions && searchQuestions && (
                   <Stack spacing={2} padding={2} width={'100%'}>
-                    <ScrollContainer spacing={4} padding={1} pb={12}>
-
                       <QuestionsGrid 
                         questions={searchQuestions
                           .filter(
@@ -260,7 +258,6 @@ const PageCompose = () => {
                           )}
                           addCollectionToQuestion={addCollectionToQuestion}
                       />
-                    </ScrollContainer>
                   </Stack>
                 )}
               </Stack>

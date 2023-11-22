@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import DropdownSelector from "../input/DropdownSelector";
 import Datagrid from "./DataGrid";
 import { useTheme } from "@emotion/react";
+import ScrollContainer from "../layout/ScrollContainer";
 
 const elementGroupBy = (items, grouping) => {
     return items.reduce((acc, item) => {
@@ -60,8 +61,6 @@ const dateGroupBy = (items, grouping) => {
   }, {});
 };
 
-
-
 const groupByType = (items, grouping) => {
   switch (grouping.type) {
     case 'element':
@@ -103,8 +102,8 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
     const navigationOptions = [{ label: '/', value: 'all' }, ...Object.keys(groups).map(key => ({ label: selectedGrouping.renderLabel(groups[key]), value: key }))];
 
     return (
-      <Stack spacing={2}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Stack spacing={2} height={"100%"} position="relative">
+        <Stack direction="row" alignItems="center" justifyContent="space-between" zIndex={2}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <DropdownSelector
                 label={`${items.length} ${label} grouped by`}
@@ -124,23 +123,27 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
           {actions}
         </Stack>
-
-        {Object.keys(groups).map((groupKey) => (
-          navigation === "all" || navigation === groupKey ? (
-            <>
-              <Stack
-                bgcolor={theme.palette.background.default}
-                p={1}
-              >
-                {selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])}
-              </Stack>
-              <Datagrid 
-                items={groups[groupKey].items} 
-                header={header} 
-              />
-            </>
-          ) : null
-        ))}
+        <Stack flex={1}>
+        <ScrollContainer>
+            {Object.keys(groups).map((groupKey) => (
+            navigation === "all" || navigation === groupKey ? (
+                <>
+                <Stack bgcolor={theme.palette.background.default} p={1} position={"sticky"} top={0} zIndex={1}>
+                    {selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])}
+                </Stack>
+                <Stack flex={1} mb={2}>
+                
+                    <Datagrid 
+                        items={groups[groupKey].items} 
+                        header={header} 
+                    />
+                
+                </Stack>
+                </>
+            ) : null
+            ))}
+        </ScrollContainer>
+        </Stack>
       </Stack>
     );
 }
