@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import { Role } from '@prisma/client'
@@ -6,8 +6,10 @@ import { Role } from '@prisma/client'
 import {
   Box,
   Button,
+  IconButton,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
 
@@ -29,6 +31,12 @@ import QuestionFilter from '@/components/question/QuestionFilter'
 import QuestionListItem from '@/components/questions/list/QuestionListItem'
 
 import CollectionToQuestion from '../compose/CollectionToQuestion'
+import GridGrouping from '@/components/ui/GridGrouping'
+import { weeksAgo } from '@/components/questions/list/utils'
+import { getTextByType } from '@/components/question/types'
+import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
+import QuestionTagsViewer from '@/components/question/tags/QuestionTagsViewer'
+import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 
 const PageCompose = () => {
   const router = useRouter()
@@ -239,40 +247,19 @@ const PageCompose = () => {
                 </Box>
                 {collectionToQuestions && searchQuestions && (
                   <Stack spacing={2} padding={2} width={'100%'}>
-                    <Stack
-                      alignItems="center"
-                      direction={'row'}
-                      justifyContent={'space-between'}
-                    >
-                      <Typography variant="h6">Available questions</Typography>
-                    </Stack>
-
                     <ScrollContainer spacing={4} padding={1} pb={12}>
-                      {searchQuestions
-                        .filter(
-                          (question) =>
-                            !collectionToQuestions.find(
-                              (collectionToQuestion) =>
-                                collectionToQuestion.question.id === question.id
-                            )
-                        )
-                        .map((question) => (
-                          <QuestionListItem
-                            key={question.id}
-                            question={question}
-                            actions={[
-                              <Button
-                                key={'add'}
-                                startIcon={<AddIcon />}
-                                onClick={async () =>
-                                  await addCollectionToQuestion(question)
-                                }
-                              >
-                                Add to collection
-                              </Button>,
-                            ]}
-                          />
-                        ))}
+
+                      <QuestionsGrid 
+                        questions={searchQuestions
+                          .filter(
+                            (question) =>
+                              !collectionToQuestions.find(
+                                (collectionToQuestion) =>
+                                  collectionToQuestion.question.id === question.id
+                              )
+                          )}
+                          addCollectionToQuestion={addCollectionToQuestion}
+                      />
                     </ScrollContainer>
                   </Stack>
                 )}
@@ -284,4 +271,112 @@ const PageCompose = () => {
     </Authorisation>
   )
 }
+
+
+const QuestionsGrid = ({ questions, addCollectionToQuestion }) => {
+
+  return (
+    <GridGrouping
+      label="Available Questions"
+      header={{
+        columns: [
+          {
+            label: '',
+            column: { width: '40px' },
+            renderCell: (row) => {
+              return (
+                <Tooltip title="Add to collection">
+                  <IconButton
+                    key={'add'}
+                    onClick={async () =>
+                      await addCollectionToQuestion(row)
+                    }
+                  >
+                    <AddIcon />
+                  </IconButton>
+              </Tooltip>
+              );
+            } ,
+          },
+          {
+            label: 'Type',
+            column: { width: '140px' },
+            renderCell: (row) => <QuestionTypeIcon type={row.type} size={24} withLabel />,
+          },
+          {
+            label: 'Title',
+            column: { flexGrow: 1 },
+            renderCell: (row) => <Typography variant={"body2"}>{row.title}</Typography>
+          },
+          {
+            label: 'Tags',
+            column: { width: '200px' },
+            renderCell: (row) => <QuestionTagsViewer size={'small'} tags={row.questionToTag} collapseAfter={2} />
+          },
+          {
+            label: 'Updated',
+            column: { width: '90px' },
+            renderCell: (row) => <DateTimeAgo date={new Date(row.updatedAt)} />
+          },
+        ],
+      }}
+
+      items={questions.map((question) => ({
+        ...question,
+        meta:{
+          key: question.id,
+          actions: [
+            <React.Fragment key="actions">
+              <Tooltip title="Update in new page">
+                <IconButton
+                  onClick={async () => {
+                    await router.push(`/${groupScope}/questions/${question.id}`);
+                  }}
+                >
+                  <Image src={'/svg/icons/update.svg'} width={16} height={16} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Update in overlay">
+                <IconButton
+                  onClick={() => setSelected(question)}
+                >
+                  <Image src={'/svg/icons/aside.svg'} width={16} height={16} />
+                </IconButton>
+              </Tooltip>
+            </React.Fragment>
+        ]
+        }
+      }))}
+      groupings={[
+        {
+          groupBy: 'updatedAt',
+          option: 'Last Update',
+          type: 'date',
+          renderLabel: (row) => weeksAgo(row.label)
+        },
+        {
+          groupBy: 'questionToTag',
+          option: 'Tags',
+          type: 'array',
+          property: 'label',
+          renderLabel: (row) => row.label,
+        },
+        {
+          groupBy: 'type',
+          option: 'Question Type',
+          type: 'element',
+          renderLabel: (row) => getTextByType(row.label)
+        },
+        {
+          groupBy: 'createdAt',
+          option: 'Created At',
+          type: 'date',
+          renderLabel: (row) => weeksAgo(row.label)
+        }
+      ]}
+    />
+  )
+}
+
+
 export default PageCompose
