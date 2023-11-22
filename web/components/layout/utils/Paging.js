@@ -30,6 +30,7 @@ const Paging = ({ items, active, link }) => {
               item.fillable &&
               <FilledBullet
                 index={index}
+                color={item.color}
                 isFilled={item.isFilled}
               />
             )            
