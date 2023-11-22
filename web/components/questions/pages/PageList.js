@@ -206,6 +206,7 @@ const QuestionsGrid = ({ groupScope, questions, setAddDialogOpen, setSelected })
         ...question,
         meta:{
           key: question.id,
+          onClick: () => setSelected(question),
           actions: [
             <React.Fragment key="actions">
               <Tooltip title="Update in new page">

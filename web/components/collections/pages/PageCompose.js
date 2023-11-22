@@ -48,7 +48,6 @@ const PageCompose = () => {
   const {
     data: searchQuestions,
     error: errorSearch,
-    mutate: mutateSearch,
   } = useSWR(
     `/api/${groupScope}/questions${
       queryString ? `?${new URLSearchParams(queryString).toString()}` : ''
