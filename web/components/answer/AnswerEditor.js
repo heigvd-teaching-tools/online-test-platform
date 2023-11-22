@@ -82,26 +82,24 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
     await fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
       method: 'PUT',
     })
-    .then((res) => res.json())
-    .finally(() => {
-      mutate({ ...answer, status: StudentAnswerStatus.SUBMITTED }, false)
+    .finally(async () => {
       onSubmit && onSubmit(question)
+      await mutate()
     })
     setSubmitLock(false)
-  }, [answer, mutate, onSubmit, question])
+  }, [answer, onSubmit, question])
 
   const onUnsubmitClick = useCallback(() => {
     setSubmitLock(true)
     fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
       method: 'DELETE',
     })
-    .then((res) => res.json())
-    .finally(() => {
-      mutate({ ...answer, status: StudentAnswerStatus.IN_PROGRESS }, false)
+    .finally(async () => {
       onUnsubmit && onUnsubmit(question)
+      await mutate()
     })
     setSubmitLock(false)
-  }, [answer, mutate, onUnsubmit, question])
+  }, [answer, onUnsubmit, question])
 
 
   const isReadOnly = answer?.status === StudentAnswerStatus.SUBMITTED

@@ -28,11 +28,11 @@ const Paging = ({ items, active, link }) => {
               item.icon && item.icon 
             ) || (
               item.fillable &&
-              <FilledBullet
-                index={index}
-                color={item.color}
-                isFilled={item.isFilled}
-              />
+                <FilledBullet
+                  index={index}
+                  color={item.color}
+                  isFilled={item.isFilled}
+                />
             )            
           }
         />

@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import useSWR from "swr"
 import { useRouter } from "next/router"
 import { useSession } from "next-auth/react"
 import { Role, StudentAnswerStatus } from "@prisma/client"
-import { Box, Card, Chip, Paper, Stack, Typography} from "@mui/material"
+import { Box,  Chip, Stack, Typography} from "@mui/material"
 
 import { fetcher } from "@/code/utils"
 import { useSnackbar } from "@/context/SnackbarContext"
@@ -20,19 +20,18 @@ import StudentPhaseRedirect from "./StudentPhaseRedirect"
 
 import QuestionView from "@/components/question/QuestionView"
 
-
 import QuestionNav from "./take/QuestionNav"
 import StudentMainMenu from "./take/StudentMainMenu"
 import ContentEditor from "@/components/input/ContentEditor"
 import QuestionTypeIcon from "@/components/question/QuestionTypeIcon"
 import DataGrid from "@/components/ui/DataGrid"
 import { useTheme } from "@emotion/react"
+import ResizableDrawer from "@/components/layout/utils/ResizableDrawer"
 
 const HomeSvgIcon = () => <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 16 16"><g transform="translate(0, 0)"><path d="M6,14H2V2H12V5.5L14,7V1a1,1,0,0,0-1-1H1A1,1,0,0,0,0,1V15a1,1,0,0,0,1,1H6Z" fill="#2196f3"></path><polygon points="12 8 8 11 8 16 11 16 11 13 13.035 13 13.035 16 16 16 16 11 12 8" fill="#2196f3" data-color="color-2"></polygon><rect x="4" y="4" width="6" height="1" fill="#2196f3"></rect><rect x="4" y="7" width="6" height="1" fill="#2196f3"></rect><rect x="4" y="10" width="3" height="1" fill="#2196f3"></rect></g></svg>
 
 const PageTakeEvaluation = () => {
   const router = useRouter()
-
 
   const { showTopCenter: showSnackbar } = useSnackbar()
 
@@ -52,6 +51,12 @@ const PageTakeEvaluation = () => {
     { revalidateOnFocus: false }
   )
 
+  const [page, setPage] = useState(parseInt(pageIndex))
+
+  const [ pages, setPages ] = useState([])
+
+  const [summaryOpen, setSummaryOpen] = useState(false)
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       // Check if Ctrl or Cmd key is pressed along with 'S'
@@ -67,10 +72,6 @@ const PageTakeEvaluation = () => {
       document.removeEventListener('keydown', handleKeyDown) // Clean up the event listener
     }
   }, [showSnackbar])
-
-  const [page, setPage] = useState(parseInt(pageIndex))
-
-  const [ pages, setPages ] = useState([])
 
   useEffect(() => {
     if (userOnEvaluation) {
@@ -104,6 +105,7 @@ const PageTakeEvaluation = () => {
           <StudentPhaseRedirect phase={evaluationPhase.phase}>
 
             { userOnEvaluation && (
+              <>
                 <LayoutMain
                     header={
                       <Loading
@@ -116,6 +118,7 @@ const PageTakeEvaluation = () => {
                           evaluationPhase={evaluationPhase}
                           pages={pages}
                           page={page}
+                          openSummary={() => setSummaryOpen(true)}
                         />
                       </Loading>
                     }
@@ -143,7 +146,13 @@ const PageTakeEvaluation = () => {
                   />
 
                 </LayoutMain>
-
+                <SummaryGrid
+                  summaryOpen={summaryOpen}
+                  setSummaryOpen={setSummaryOpen}
+                  evaluationId={evaluationId}
+                  evaluationToQuestion={evaluationToQuestion}
+                />
+               </>
             )}
 
           </StudentPhaseRedirect>
@@ -155,6 +164,24 @@ const PageTakeEvaluation = () => {
   )
 }
 
+const SummaryGrid = ({ summaryOpen, setSummaryOpen, evaluationId, evaluationToQuestion }) => {
+  return (
+    <ResizableDrawer
+      open={summaryOpen}
+      width={50}
+      onClose={() => setSummaryOpen(false)}
+    >
+      <Box p={2} width={"100%"} height={"100%"}>
+      <ScrollContainer>
+        <QuestionsGrid
+          evaluationId={evaluationId}
+          evaluationToQuestion={evaluationToQuestion}
+        />
+        </ScrollContainer>
+      </Box>
+    </ResizableDrawer>
+  )
+}
 
 const LeftPanel = ({ evaluationId, page, pages, conditions, activeQuestion }) => {
   if (page === 0) {
@@ -190,24 +217,7 @@ const LeftPanel = ({ evaluationId, page, pages, conditions, activeQuestion }) =>
 
 
 const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
-  const theme = useTheme();
-
-
-  const statusMap = {
-    [StudentAnswerStatus.SUBMITTED]: {
-      color: theme.palette.success.main,
-      label: 'submitted',
-    },
-    [StudentAnswerStatus.IN_PROGRESS]: {
-      color: theme.palette.info.main,
-      label: 'in progress',
-    },
-    [StudentAnswerStatus.MISSING]: {
-      color: theme.palette.error.main,
-      label: 'missing',
-    },
-  }
-
+   
   if(page === 0) {
     return (
       <Stack p={2}>
@@ -215,65 +225,10 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
         <Typography variant="h5">Evaluation is composed of <b>{evaluationToQuestion.length}</b> questions having a total of <b>{evaluationToQuestion.reduce((acc, jtq) => acc + jtq.points, 0)}</b> pts.</Typography>
 
         <Stack spacing={1}>
-          <DataGrid
-            header={
-              {
-                columns: [
-                  {
-                    label: 'Label',
-                    column: { flexGrow: 1 },
-                    renderCell: (row) => {
-                      return (
-                          <Stack direction="row" alignItems="center" spacing={1} p={1}>
-                            <Typography variant="body1"><b>Q{row.order + 1}</b></Typography>
-                            <QuestionTypeIcon type={row.question.type} withLabel size={22} />
-                            <Stack
-                              direction={'row'}
-                              alignItems={'center'}
-                              spacing={1}
-                              flexGrow={1}
-                              overflow={'hidden'}
-                            >
-                              <Typography variant="body2">
-                                {row.question.title}
-                              </Typography>
-                            </Stack>
-                          </Stack>
-                      )
-                    },
-                  },
-                  {
-                    label: 'Points',
-                    column: { width: '120px' },
-                    renderCell: (row) =>
-                     <Chip color="info" label={`${row.points} pts`} />,
-                  },
-                  {
-                    label: 'Status',
-                    column: { width: '120px' },
-                    renderCell: (row) => {
-                      const studentAsnwerStatus = row.question.studentAnswer[0].status;   
-
-                      const statusColor = (status) => statusMap[status].color
-                      const statusLabel = (status) => statusMap[status].label
-                      return (
-                        <Typography variant="body2" color={statusColor(studentAsnwerStatus)}>
-                          <b>{statusLabel(studentAsnwerStatus)}</b>
-                        </Typography>
-                      )
-                    },
-                  }
-                ]
-              }
-            }
-            items={evaluationToQuestion.map((jtq) => ({
-              ...jtq,
-              meta: {
-                key: jtq.id,
-                linkHref: `/users/evaluations/${evaluationId}/take/${jtq.order + 1}`,
-              },
-            }))}
-          />
+            <QuestionsGrid
+              evaluationId={evaluationId}
+              evaluationToQuestion={evaluationToQuestion}
+            />
         </Stack>
       </Stack>
     );
@@ -322,5 +277,86 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
   }
 }
 
+
+const QuestionsGrid = ({ evaluationId, evaluationToQuestion }) => {
+  const theme = useTheme();
+
+  const statusMap = {
+    [StudentAnswerStatus.SUBMITTED]: {
+      color: theme.palette.success.main,
+      label: 'submitted',
+    },
+    [StudentAnswerStatus.IN_PROGRESS]: {
+      color: theme.palette.info.main,
+      label: 'in progress',
+    },
+    [StudentAnswerStatus.MISSING]: {
+      color: theme.palette.error.main,
+      label: 'missing',
+    },
+  }
+
+  return (
+    <DataGrid
+      header={
+        {
+          columns: [
+            {
+              label: 'Question',
+              column: { flexGrow: 1 },
+              renderCell: (row) => {
+                return (
+                    <Stack direction="row" alignItems="center" spacing={1} p={1}>
+                      <Typography variant="body1"><b>Q{row.order + 1}</b></Typography>
+                      <QuestionTypeIcon type={row.question.type} withLabel size={22} />
+                      <Stack
+                        direction={'row'}
+                        alignItems={'center'}
+                        spacing={1}
+                        flexGrow={1}
+                        overflow={'hidden'}
+                      >
+                        <Typography variant="body2">
+                          {row.question.title}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                )
+              },
+            },
+            {
+              label: 'Points',
+              column: { width: '120px' },
+              renderCell: (row) =>
+                <Chip color="info" label={`${row.points} pts`} />,
+            },
+            {
+              label: 'Status',
+              column: { width: '120px' },
+              renderCell: (row) => {
+                const studentAsnwerStatus = row.question.studentAnswer[0].status;   
+
+                const statusColor = (status) => statusMap[status].color
+                const statusLabel = (status) => statusMap[status].label
+                return (
+                  <Typography variant="body2" color={statusColor(studentAsnwerStatus)}>
+                    <b>{statusLabel(studentAsnwerStatus)}</b>
+                  </Typography>
+                )
+              },
+            }
+          ]
+        }
+      }
+      items={evaluationToQuestion.map((jtq) => ({
+        ...jtq,
+        meta: {
+          key: jtq.id,
+          linkHref: `/users/evaluations/${evaluationId}/take/${jtq.order + 1}`,
+        },
+      }))}
+    />
+  )
+}
 
 export default PageTakeEvaluation

@@ -245,7 +245,7 @@ const QuestionsGrid = ({ groupScope, questions, setAddDialogOpen, setSelected })
         },
         {
           groupBy: 'type',  
-          option: 'Question Type',
+          option: 'Type',
           type: 'element',
           renderLabel: (row) => getTextByType(row.label),
         }
