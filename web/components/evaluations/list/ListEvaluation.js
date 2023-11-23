@@ -1,13 +1,11 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { EvaluationPhase } from '@prisma/client'
-import { EvaluationStatus } from '@prisma/client'
+import { EvaluationPhase, EvaluationStatus } from '@prisma/client'
 import { Box, Button, IconButton, Stack, Tooltip } from '@mui/material'
 
 import { getStudentEntryLink } from '@/code/utils'
 import DisplayPhase from '../DisplayPhase'
-import DataGrid from '@/components/ui/DataGrid'
 import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '@/components/questions/list/utils'
 import DateTimeAgo from '@/components/feedback/DateTimeAgo'
@@ -15,6 +13,11 @@ import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
   <GridGrouping
     label={"Evaluations"}
+    actions={
+        <Link href={`/${groupScope}/evaluations/new`}>
+          <Button>Create a new evaluation</Button>
+        </Link>
+    }
     header={{
       actions: {
         label: 'Actions',

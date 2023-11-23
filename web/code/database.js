@@ -124,7 +124,7 @@ const postgresOutputToToDataset = (pgData) => {
     for (const row of pgData.rows) {
         const dataRow = [];
         for (const column of dataset.columns) {
-            const valueType = row[column.name].constructor.name;
+            const valueType = row[column.name]?.constructor?.name || "String";
             switch(valueType){
                 case "Date":
                     dataRow.push(row[column.name].toISOString())
