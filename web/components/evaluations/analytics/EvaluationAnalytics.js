@@ -405,7 +405,7 @@ const ColorLegend = ({ items }) => {
       {items.map((item, index) => (
         <Tooltip title={item.tooltip} key={index}>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <FilledBullet isFilled={true} color={item.color} size={14} />
+            <FilledBullet state={"filled"} color={item.color} size={14} />
             <Typography variant="caption">{item.tooltip}</Typography>
           </Stack>
         </Tooltip>

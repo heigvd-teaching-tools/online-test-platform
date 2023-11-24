@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import useSWR from "swr"
 import { useRouter } from "next/router"
 import { useSession } from "next-auth/react"
@@ -26,9 +26,20 @@ import ContentEditor from "@/components/input/ContentEditor"
 import QuestionTypeIcon from "@/components/question/QuestionTypeIcon"
 import DataGrid from "@/components/ui/DataGrid"
 import { useTheme } from "@emotion/react"
-import ResizableDrawer from "@/components/layout/utils/ResizableDrawer"
+import { LoadingButton } from "@mui/lab"
 
-const HomeSvgIcon = () => <svg x="0px" y="0px" width="16px" height="16px" viewBox="0 0 16 16"><g transform="translate(0, 0)"><path d="M6,14H2V2H12V5.5L14,7V1a1,1,0,0,0-1-1H1A1,1,0,0,0,0,1V15a1,1,0,0,0,1,1H6Z" fill="#2196f3"></path><polygon points="12 8 8 11 8 16 11 16 11 13 13.035 13 13.035 16 16 16 16 11 12 8" fill="#2196f3" data-color="color-2"></polygon><rect x="4" y="4" width="6" height="1" fill="#2196f3"></rect><rect x="4" y="7" width="6" height="1" fill="#2196f3"></rect><rect x="4" y="10" width="3" height="1" fill="#2196f3"></rect></g></svg>
+const getFilledStatus = (studentAnswerStatus) => {
+  switch (studentAnswerStatus) {
+    case StudentAnswerStatus.MISSING:
+      return 'empty'
+    case StudentAnswerStatus.IN_PROGRESS:
+      return 'half'
+    case StudentAnswerStatus.SUBMITTED:
+      return 'filled'
+    default:
+      return 'empty'
+  }
+}
 
 const PageTakeEvaluation = () => {
   const router = useRouter()
@@ -45,7 +56,7 @@ const PageTakeEvaluation = () => {
     { refreshInterval: 1000 }
   )
 
-  const { data: userOnEvaluation, error: errorUserOnEvaluation } = useSWR(
+  const { data: userOnEvaluation, error: errorUserOnEvaluation, mutate } = useSWR(
     `/api/users/evaluations/${evaluationId}/take`,
     session && evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
@@ -54,8 +65,6 @@ const PageTakeEvaluation = () => {
   const [page, setPage] = useState(parseInt(pageIndex))
 
   const [ pages, setPages ] = useState([])
-
-  const [summaryOpen, setSummaryOpen] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -73,20 +82,19 @@ const PageTakeEvaluation = () => {
     }
   }, [showSnackbar])
 
+  
+
   useEffect(() => {
     if (userOnEvaluation) {
+
       const pages = userOnEvaluation.evaluationToQuestions.map((jtq) => ({
         id: jtq.question.id,
         label: `Q${jtq.order + 1}`,
         tooltip: `${jtq.question.type} "${jtq.question.title}" - ${jtq.points} points`,
         fillable: true,
-        isFilled: jtq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
+        state: getFilledStatus(jtq.question.studentAnswer[0].status)
       }))
-      setPages([{ 
-        id: 'home', 
-        label: 'Home',
-        icon: <Box mr={1}><HomeSvgIcon /></Box>,
-      }, ...pages]);
+      setPages(pages)
     }
   }, [userOnEvaluation])
 
@@ -97,6 +105,15 @@ const PageTakeEvaluation = () => {
   const evaluationToQuestion = userOnEvaluation?.evaluationToQuestions;
 
   const activeQuestion = evaluationToQuestion && evaluationToQuestion[page -1] || null;
+
+  const rightPenelWidth = (page, conditions) => {
+    if(page !== 0) return 70;
+    if(page === 0 && conditions?.length > 0) {
+      return 60
+    } else {
+      return 100
+    }
+  }
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
@@ -118,7 +135,6 @@ const PageTakeEvaluation = () => {
                           evaluationPhase={evaluationPhase}
                           pages={pages}
                           page={page}
-                          openSummary={() => setSummaryOpen(true)}
                         />
                       </Loading>
                     }
@@ -140,18 +156,24 @@ const PageTakeEvaluation = () => {
                         conditions={userOnEvaluation.conditions}
                         evaluationToQuestion={evaluationToQuestion}
                         setPages={setPages}
+                        onSubmit={(questionId) => {
+                          const questionPage = pages.findIndex((page) => page.id === questionId)
+                          console.log("onSubmit", questionId, questionPage);
+                          if (questionPage !== -1) {
+                            setPages((prevPages) => {
+                              const newPages = [...prevPages]
+                              newPages[questionPage].state = 'filled'
+                              return newPages
+                            })
+                          }
+                          mutate()
+                        }}
                       />
                     }
-                    rightWidth={70}
+                    rightWidth={rightPenelWidth(page, userOnEvaluation.conditions)}
                   />
 
                 </LayoutMain>
-                <SummaryGrid
-                  summaryOpen={summaryOpen}
-                  setSummaryOpen={setSummaryOpen}
-                  evaluationId={evaluationId}
-                  evaluationToQuestion={evaluationToQuestion}
-                />
                </>
             )}
 
@@ -161,25 +183,6 @@ const PageTakeEvaluation = () => {
 
 
     </Authorisation>
-  )
-}
-
-const SummaryGrid = ({ summaryOpen, setSummaryOpen, evaluationId, evaluationToQuestion }) => {
-  return (
-    <ResizableDrawer
-      open={summaryOpen}
-      width={50}
-      onClose={() => setSummaryOpen(false)}
-    >
-      <Box p={2} width={"100%"} height={"100%"}>
-      <ScrollContainer>
-        <QuestionsGrid
-          evaluationId={evaluationId}
-          evaluationToQuestion={evaluationToQuestion}
-        />
-        </ScrollContainer>
-      </Box>
-    </ResizableDrawer>
   )
 }
 
@@ -216,7 +219,7 @@ const LeftPanel = ({ evaluationId, page, pages, conditions, activeQuestion }) =>
 
 
 
-const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
+const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubmit }) => {
    
   if(page === 0) {
     return (
@@ -228,6 +231,7 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
             <QuestionsGrid
               evaluationId={evaluationId}
               evaluationToQuestion={evaluationToQuestion}
+              onSubmit={onSubmit}
             />
         </Stack>
       </Stack>
@@ -238,7 +242,7 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
         <Box
           key={q.question.id}
           height="100%"
-          display={index + 1 === page ? 'block' : 'none'}
+          display={index === page - 1 ? 'block' : 'none'}
         >
           <ResizeObserverProvider>
             <ScrollContainer>
@@ -247,6 +251,11 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
                 onAnswer={(question, updatedStudentAnswer) => {
                   /* update the users answers status in memory */
                   question.studentAnswer[0].status = updatedStudentAnswer.status                  
+                  setPages((prevPages) => {
+                    const newPages = [...prevPages]
+                    newPages[index].state = getFilledStatus(updatedStudentAnswer.status)
+                    return newPages
+                  })
                 }}
                 onSubmit={(question) => {
                   /* update the users answers status in memory */
@@ -254,7 +263,7 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
                   /* change the state to trigger a re-render */
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
-                    newPages[index + 1].isFilled = true
+                    newPages[index].state = 'filled'
                     return newPages
                   })
                 }}
@@ -264,7 +273,7 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
                   /* change the state to trigger a re-render */
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
-                    newPages[index + 1].isFilled = false
+                    newPages[index].state = 'half'
                     return newPages
                   })
                 }}
@@ -277,8 +286,43 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages }) => {
   }
 }
 
+const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
+  const [submitLock, setSubmitLock] = useState(false)
 
-const QuestionsGrid = ({ evaluationId, evaluationToQuestion }) => {
+  const onSubmitClick = useCallback(async (questionId) => {
+    setSubmitLock(true)
+    await fetch(`/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/submit`, {
+      method: 'PUT',
+    })
+    .finally(async () => {
+      onSubmit && onSubmit()
+    })
+    setSubmitLock(false)
+  }, [onSubmit])
+
+  return (
+    answerStatus !== StudentAnswerStatus.MISSING &&
+        <LoadingButton
+          key="submit"
+          loading={submitLock}
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={(ev) => {
+            ev.stopPropagation();
+            console.log("onSubmitClick", questionId);
+            onSubmitClick(questionId);
+            
+          }}
+          disabled={answerStatus === StudentAnswerStatus.SUBMITTED}
+        >
+          Submit
+        </LoadingButton>
+  )
+}
+
+
+const QuestionsGrid = ({ evaluationId, evaluationToQuestion, onSubmit }) => {
   const theme = useTheme();
 
   const statusMap = {
@@ -300,6 +344,11 @@ const QuestionsGrid = ({ evaluationId, evaluationToQuestion }) => {
     <DataGrid
       header={
         {
+          actions: {
+            label: 'Actions',
+            width: '80px',
+          },
+
           columns: [
             {
               label: 'Question',
@@ -353,6 +402,15 @@ const QuestionsGrid = ({ evaluationId, evaluationToQuestion }) => {
         meta: {
           key: jtq.id,
           linkHref: `/users/evaluations/${evaluationId}/take/${jtq.order + 1}`,
+          actions: [
+            <SubmitButton
+              key="submit"
+              evaluationId={evaluationId}
+              questionId={jtq.question.id}
+              answerStatus={jtq.question.studentAnswer[0].status}
+              onSubmit={() => onSubmit(jtq.question.id)}
+            />,
+          ],
         },
       }))}
     />

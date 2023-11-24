@@ -29,7 +29,7 @@ const ParticipantItem = ({
         )}
         <UserAvatar collapsed={collapsed} user={participant} />
       </Stack>
-      <FilledBullet isFilled={isFilled} />
+      <FilledBullet state={isFilled ? 'filled' : 'empty'} />
     </Stack>
   )
 }

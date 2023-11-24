@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 import { useDebouncedCallback } from 'use-debounce'
 import { useRouter } from 'next/router'
-import { Fab, Alert, Button, Chip, Stack, Typography } from '@mui/material'
+import { Button, Stack, Typography } from '@mui/material'
 import { fetcher } from '@/code/utils'
 
 import TrueFalse from '@/components/question/type_specific/TrueFalse'
@@ -54,8 +54,6 @@ const SubmittedOverlay = ({ onUnsubmit }) => {
   )
 }
      
-
-
 const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
   const router = useRouter()
   const { evaluationId } = router.query
@@ -65,6 +63,10 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
     evaluationId && question ? fetcher : null,
       { revalidateOnFocus: false }
   )
+
+  useEffect(() => {
+    mutate()
+  }, [question])
 
   const [ submitLock, setSubmitLock ] = useState(false)
 
@@ -87,7 +89,7 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       await mutate()
     })
     setSubmitLock(false)
-  }, [answer, onSubmit, question])
+  }, [onSubmit, question])
 
   const onUnsubmitClick = useCallback(() => {
     setSubmitLock(true)
@@ -99,7 +101,7 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       await mutate()
     })
     setSubmitLock(false)
-  }, [answer, onUnsubmit, question])
+  }, [onUnsubmit, question])
 
 
   const isReadOnly = answer?.status === StudentAnswerStatus.SUBMITTED

@@ -31,12 +31,25 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
         },
     ]
 
+    const getBulletState = (studentAnswerStatus) => {
+        switch (studentAnswerStatus) {
+            case StudentAnswerStatus.MISSING:
+                return 'empty'
+            case StudentAnswerStatus.IN_PROGRESS:
+                return 'half'
+            case StudentAnswerStatus.SUBMITTED:
+                return 'filled'
+            default:
+                return 'empty'
+        }
+    }
+
     // Create dynamic columns for each question
     const questionColumns = useMemo( () => questions.map(q => ({
         label: `Q${q.order + 1}`, // Assuming questions order starts at 0
         tooltip: q.question.title,
         column: { width: 40 },
-        renderCell: (row) => <FilledBullet isFilled={getStudentAnswerStatus(row.user.email, q.question.id) === StudentAnswerStatus.SUBMITTED} />,
+        renderCell: (row) => <FilledBullet state={getBulletState(getStudentAnswerStatus(row.user.email, q.question.id))} />,
     })), [questions]);
 
     if(questionColumns.length > 0) {

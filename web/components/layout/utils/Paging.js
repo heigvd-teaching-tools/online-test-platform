@@ -31,7 +31,7 @@ const Paging = ({ items, active, link }) => {
                 <FilledBullet
                   index={index}
                   color={item.color}
-                  isFilled={item.isFilled}
+                  state={item.state}
                 />
             )            
           }

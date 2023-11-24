@@ -15,6 +15,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
+import { useRouter } from 'next/router'
 
 const DataGrid = ({ header, items }) => {
   return (
@@ -63,13 +64,17 @@ const ChosenListItemContent = ({ item, header }) => {
 }
 
 
-const LinkHrefListItem = ({ item, header, href }) => (
-  <Link component="button" href={href}>
-      <ListItemButton divider>
-        <ListItemContent item={item} header={header} />
-      </ListItemButton>
-  </Link>
-);
+const LinkHrefListItem = ({ item, header, href }) => {
+
+  const router = useRouter()
+
+  return (
+    <ListItemButton divider onClick={async () => await router.push(href)}>
+      <ListItemContent item={item} header={header} />
+    </ListItemButton>
+  );
+
+}
 
 const ClickableListItem = ({ item, header, onClick }) => (
   <Box onClick={onClick}>
