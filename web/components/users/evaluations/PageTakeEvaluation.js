@@ -158,7 +158,6 @@ const PageTakeEvaluation = () => {
                         setPages={setPages}
                         onSubmit={(questionId) => {
                           const questionPage = pages.findIndex((page) => page.id === questionId)
-                          console.log("onSubmit", questionId, questionPage);
                           if (questionPage !== -1) {
                             setPages((prevPages) => {
                               const newPages = [...prevPages]

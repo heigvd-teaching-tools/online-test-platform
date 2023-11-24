@@ -17,6 +17,18 @@ import BackButton from "../../layout/BackButton"
 import UserAvatar from "../../layout/UserAvatar"
 import AnswerCompare from "../../answer/AnswerCompare"
 
+const getFilledStatus = (studentAnswerStatus) => {
+  switch (studentAnswerStatus) {
+    case StudentAnswerStatus.MISSING:
+      return 'empty'
+    case StudentAnswerStatus.IN_PROGRESS:
+      return 'half'
+    case StudentAnswerStatus.SUBMITTED:
+      return 'filled'
+    default:
+      return 'empty'
+  }
+}
 
 const PageProfConsult = () => {
   const router = useRouter()
@@ -50,8 +62,10 @@ const PageProfConsult = () => {
 
   const questionPages = useMemo(() => evaluationToQuestions.map(jstq => ({ id:
     jstq.question.id,
+    label: `Q${jstq.order + 1}`,
     tooltip: `${jstq.question.title} - ${jstq.points} points`,
-    isFilled: jstq.question.studentAnswer[0]?.status === StudentAnswerStatus.SUBMITTED
+    fillable: true,
+    state: getFilledStatus(jstq.question.studentAnswer[0].status),
   })), [evaluationToQuestions])
 
   const isDataReady = useMemo(() => evaluationToQuestions.length > 0 && selected && selected.question.studentAnswer[0], [evaluationToQuestions, selected])

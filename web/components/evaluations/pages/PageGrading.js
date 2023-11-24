@@ -272,8 +272,9 @@ const PageGrading = () => {
       (jstq) => jstq.question
     ).map((q) => ({
       id: q.id,
-      tooltip: q.title,
-      isFilled: allGradingsSigned(q.id),
+      label: `Q${q.order + 1}`,
+      fillable: true,
+      state: allGradingsSigned(q.id) ? 'filled' : 'empty',
     }));
   }, [evaluationToQuestions, allGradingsSigned])
 

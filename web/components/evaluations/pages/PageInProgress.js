@@ -23,6 +23,7 @@ import DisplayPhase from '../DisplayPhase'
 
 import PhaseRedirect from './PhaseRedirect'
 import StudentList from '../draft/StudentList'
+import FilledBullet from '@/components/feedback/FilledBullet'
 
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
@@ -171,12 +172,14 @@ const PageInProgress = () => {
 
                 </Stack>
 
-                <Alert severity={'info'}>
-                  <AlertTitle>Students submissions</AlertTitle>
-                  <Typography variant="body1">
-                    The filled bullet point indicate the student has started working on the related question.
-                  </Typography>
-                </Alert>
+                <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                  <FilledBullet state={'filled'} />
+                  <Typography variant="body2">Submitted answer</Typography>
+                  <FilledBullet state={'half'} />
+                  <Typography variant="body2">In-progress answer</Typography>
+                  <FilledBullet state={'empty'} />
+                  <Typography variant="body2">Missing answer</Typography>
+                </Stack>
                 <Loading loading={!students} errors={[errorStudents]}>
                   <StudentList
                     groupScope={groupScope}

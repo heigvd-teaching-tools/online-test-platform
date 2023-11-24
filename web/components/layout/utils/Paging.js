@@ -4,7 +4,7 @@ import FilledBullet from '../../feedback/FilledBullet'
 
 const Paging = ({ items, active, link }) => {
   const router = useRouter()
-
+  
   return (
     <Tabs
       value={items.map(({ id }) => id).indexOf(active?.id || 0)}
