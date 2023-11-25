@@ -96,7 +96,7 @@ const PageFinished = () => {
           column: { width: '80px' },
           renderCell: (row) => (
             <Tooltip title="View student's answers" key="view-student-answers">
-              <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.email}/1`} target="_blank">
+              <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.participant.email}/1`} target="_blank">
                 <IconButton size="small">
                   <Image
                     alt="View"
@@ -161,21 +161,7 @@ const PageFinished = () => {
 
       return {
         participant: participant,
-        actions: (
-          <Tooltip title="View student's answers" key="view-student-answers">
-            <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${participant.email}/1`} target="_blank">
-              <IconButton size="small">
-                <Image
-                  alt="View"
-                  src="/svg/icons/view-user.svg"
-                  width="18"
-                  height="18"
-                />
-
-              </IconButton>
-            </a>
-          </Tooltip>
-        ),
+        email: participant.email,
         participantSuccessRate:participantSuccessRate,
         obtainedPoints: obtainedPoints,
         totalPoints: totalPoints,
