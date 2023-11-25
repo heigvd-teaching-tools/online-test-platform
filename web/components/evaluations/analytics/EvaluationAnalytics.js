@@ -25,8 +25,6 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
 
   const [questionData, setQuestionData] = useState(null)
 
-  console.log("evaluationToQuestions", evaluationToQuestions)
-
   useEffect(() => {
     if (evaluationToQuestions) {
       let data = {
@@ -325,7 +323,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 <b>Submitted Answers</b>
               </Typography>
               <Typography variant="caption">
-                Based on total number of students
+                Both in-progress or submitted
               </Typography>
             </Box>
           </Stack>

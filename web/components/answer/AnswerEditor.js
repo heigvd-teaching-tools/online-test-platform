@@ -18,6 +18,7 @@ import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
 import AlertFeedback from '../feedback/AlertFeedback'
 import { LoadingButton } from '@mui/lab'
+import { set } from 'lodash'
 
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
@@ -64,14 +65,21 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       { revalidateOnFocus: false }
   )
 
+  const [ status, setStatus ] = useState()
+
   useEffect(() => {
     mutate()
   }, [question])
+
+  useEffect(() => {
+    setStatus(answer?.status)
+  }, [answer])
 
   const [ submitLock, setSubmitLock ] = useState(false)
 
   const onAnswerChange = useCallback(
     (updatedStudentAnswer) => {
+      setStatus(updatedStudentAnswer.status)
       if (onAnswer) {
         onAnswer(question, updatedStudentAnswer)
       }
@@ -159,8 +167,9 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
             />
             ))
       }
-      <SubmittionToolbar 
+      <SubmissionToolbar 
         lock={submitLock}
+        status={status}
         answer={answer}
         onSubmit={onSubmitClick}
         onUnsubmit={onUnsubmitClick}
@@ -170,16 +179,17 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
     )
 }
 
-const SubmittionToolbar = ({ lock, answer, onSubmit, onUnsubmit }) => {
-  const status = answer?.status;
+const SubmissionToolbar = ({ lock, status, answer, onSubmit, onUnsubmit }) => {
 
   return (
-    <Stack position={"absolute"} bottom={0} right={0} m={1} zIndex={200}>
+    status !== StudentAnswerStatus.MISSING && (
+    <Stack position={"absolute"} bottom={0} right={0} mb={2} mr={1} zIndex={200}>
       {status ===  StudentAnswerStatus.SUBMITTED ? (
         <LoadingButton 
           loading={lock}
           onClick={onUnsubmit} 
           variant={"contained"} 
+          size='small'
         >
           Unsubmit
         </LoadingButton>
@@ -189,11 +199,13 @@ const SubmittionToolbar = ({ lock, answer, onSubmit, onUnsubmit }) => {
           onClick={onSubmit} 
           variant={"contained"} 
           color={"info"}
+          size='small'
         >
           Submit
         </LoadingButton>
       )}
     </Stack>
+    )
   )
 };
 

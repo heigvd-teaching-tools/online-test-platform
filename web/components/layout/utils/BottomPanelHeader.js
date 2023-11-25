@@ -17,13 +17,16 @@ const BottomPanelHeader = ({ children, ...props }) => {
                     {children}
                 </Stack>
             </Box>
-            <Button
+            {isPanelOpen && (
+                <Button
                 size={"small"}
                 onClick={toggleOpen}
                 endIcon={isPanelOpen ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
             >
-                {isPanelOpen ? 'Hide' : 'Show'}
+                Hide
             </Button>
+            )}
+            
         </Stack>
     )
 }

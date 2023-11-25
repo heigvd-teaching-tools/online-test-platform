@@ -13,6 +13,7 @@ import QueriesRunSummary from "./QueriesRunSummary";
 import StudentQueryEditor from "./StudentQueryEditor";
 import StudentOutputDisplay from "./StudentOutputDisplay";
 import StudentQueryConsole from "./StudentQueryConsole";
+import BottomPanelHeader from "@/components/layout/utils/BottomPanelHeader";
 
 const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
     const { data:answer, error } = useSWR(
@@ -108,23 +109,12 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
                 <>
                     <BottomCollapsiblePanel
                         bottomPanel={
-                            <Stack direction="row" spacing={1} p={1}>
-                                <LoadingButton
-                                    loading={saving}
-                                    disabled={saveLock}
-                                    variant={"contained"}
-                                    onClick={() => saveAndTest()}
-                                >
-                                    Save and test
-                                </LoadingButton>
-
-                                <Button
-                                    variant={"outlined"}
-                                    onClick={() => setOpenConsole(true)}
-                                >
-                                    Console
-                                </Button>
-                            </Stack>
+                            <BottomToolbar
+                                saving={saving}
+                                saveLock={saveLock}
+                                saveAndTest={saveAndTest}
+                                openConsole={() => setOpenConsole(true)}
+                            />
                         }
                         >
                         <Stack pt={1}>
@@ -169,6 +159,29 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
 }
 
 
+const BottomToolbar = ({ saving, saveLock, saveAndTest, openConsole }) => (
+    <BottomPanelHeader>
+        <Stack direction="row" spacing={1}>
+            <LoadingButton
+                loading={saving}
+                disabled={saveLock}
+                variant={"contained"}
+                onClick={() => saveAndTest()}
+                size="small"
+            >
+                Save and test
+            </LoadingButton>
+
+            <Button
+                variant={"outlined"}
+                onClick={() => openConsole()}
+                size="small"
+            >
+                Console
+            </Button>
+        </Stack>
+    </BottomPanelHeader>
+)
 
 
 export default AnswerDatabase;

@@ -76,7 +76,6 @@ const PageGrading = () => {
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [participants, setParticipants] = useState([])
 
-  const [filter, setFilter] = useState()
   const [evaluationToQuestion, setEvaluationEvaluationToQuestion] = useState()
 
   const [saving, setSaving] = useState(false)
@@ -255,28 +254,35 @@ const PageGrading = () => {
     }
   }, [groupScope, activeQuestion, evaluationId, participantId, participants, router])
 
-  const allGradingsSigned = useCallback((questionId) => {
+  const gradingState = useCallback((questionId) => {
     const jstq = evaluationToQuestions.find(
       (jstq) => jstq.question.id === questionId
-    )
-    return (
-      jstq &&
-      jstq.question.studentAnswer.every(
-        (sa) => sa.studentGrading.signedBy
-      )
-    )
-  }, [evaluationToQuestions])
+    );
+    if (!jstq) {
+      return 'empty';
+    }
+    
+    const signedCount = jstq.question.studentAnswer.filter(
+      (sa) => sa.studentGrading.signedBy
+    ).length;
+  
+    if (signedCount === 0) {
+      return 'empty';
+    } else if (signedCount === jstq.question.studentAnswer.length) {
+      return 'filled';
+    } else {
+      return 'half';
+    }
+  }, [evaluationToQuestions]);
 
   const questionPages = useMemo(() => {
-    return evaluationToQuestions.map(
-      (jstq) => jstq.question
-    ).map((q) => ({
-      id: q.id,
-      label: `Q${q.order + 1}`,
+    return evaluationToQuestions.map((jstq) => ({
+      id: jstq.question.id,
+      label: `Q${jstq.order + 1}`,
       fillable: true,
-      state: allGradingsSigned(q.id) ? 'filled' : 'empty',
+      state: gradingState(jstq.question.id),
     }));
-  }, [evaluationToQuestions, allGradingsSigned])
+  }, [evaluationToQuestions, gradingState]);
 
   const ready =
     evaluationToQuestions &&
