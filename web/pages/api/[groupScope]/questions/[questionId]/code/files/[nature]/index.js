@@ -6,6 +6,7 @@ import {
   withMethodHandler
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
 
 /**
  * Managing the code files depending on their nature (solution or template)
@@ -85,6 +86,6 @@ export default withMethodHandler({
       withGroupScope(withPrisma(get)), [Role.PROFESSOR]
   ),
   POST: withAuthorization(
-      withGroupScope(withPrisma(post)), [Role.PROFESSOR]
+      withGroupScope(withQuestionUpdate(withPrisma(post))), [Role.PROFESSOR]
   )
 })

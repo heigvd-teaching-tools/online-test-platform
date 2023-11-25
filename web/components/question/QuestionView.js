@@ -20,9 +20,8 @@ const QuestionView = ({ order, points, question, totalPages }) => {
         <Column width="32px">
           <Image
             src={`/svg/questions/${question.type}.svg`}
-            layout="responsive"
-            width="32px"
-            height="32px"
+            width={32}
+            height={32}
             priority="1"
           />
         </Column>

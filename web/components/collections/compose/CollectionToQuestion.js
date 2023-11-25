@@ -20,11 +20,12 @@ const CollectionToQuestion = ({
   onChange,
   onDelete,
 }) => {
+
   const deleteCollectionToQuestion = useCallback(
     async (toDelete) => {
       // delete collectionToQuestion
       // mutate collection
-      const response = await fetch(
+      await fetch(
         `/api/${groupScope}/collections/${toDelete.collectionId}/questions`,
         {
           method: 'DELETE',
@@ -36,11 +37,8 @@ const CollectionToQuestion = ({
           }),
         }
       )
-      if (response.ok) {
-        onDelete && onDelete(collectionToQuestion.order)
-      }
     },
-    [groupScope, collectionToQuestion, onDelete]
+    [groupScope, collectionToQuestion]
   )
 
   const saveCollectionToQuestion = useCallback(
@@ -127,7 +125,6 @@ const CollectionToQuestion = ({
             <Image
               alt="Remove From Collection"
               src="/svg/icons/cross.svg"
-              layout="fixed"
               width="24"
               height="24"
             />

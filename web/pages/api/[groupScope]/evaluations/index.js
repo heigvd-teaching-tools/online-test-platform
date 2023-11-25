@@ -25,6 +25,9 @@ const get = async (req, res, prisma) => {
       evaluationToQuestions: true,
       students: true,
     },
+    orderBy: {
+      updatedAt: 'desc',
+    },
   })
   res.status(200).json(evaluations)
 }

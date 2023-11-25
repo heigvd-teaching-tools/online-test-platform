@@ -6,6 +6,7 @@ import {
   withMethodHandler
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
 
 /**
  *
@@ -93,6 +94,6 @@ const post = async (req, res, prisma) => {
 
 export default withMethodHandler({
   POST: withAuthorization(
-      withGroupScope(withPrisma(post)), [Role.PROFESSOR]
+      withGroupScope(withQuestionUpdate(withPrisma(post))), [Role.PROFESSOR]
   )
 })

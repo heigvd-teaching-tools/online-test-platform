@@ -1,33 +1,6 @@
 import Image from 'next/image'
 import { Box, Stack, Tooltip, Typography } from '@mui/material'
-import { toArray as typesToArray } from './types.js'
-import { QuestionType } from '@prisma/client'
-
-const types = typesToArray()
-
-const getTooltipByType = (type) => {
-  const typeObject = types.find(({ value }) => value === type)
-  return typeObject?.label
-}
-
-const getTextByType = (type) => {
-  switch (type) {
-    case QuestionType.multipleChoice:
-      return 'Multiple Choice'
-    case QuestionType.trueFalse:
-      return 'True/False'
-    case QuestionType.code:
-      return 'Code'
-    case QuestionType.essay:
-      return 'Essay'
-    case QuestionType.web:
-      return 'Web'
-    case QuestionType.database:
-      return 'Database'
-    default:
-      return 'Unknown'
-  }
-}
+import { getTextByType, getTooltipByType, toArray as typesToArray } from './types.js'
 
 const QuestionTypeIcon = ({ type, size = 32, withLabel = false }) => {
   return (
@@ -42,7 +15,6 @@ const QuestionTypeIcon = ({ type, size = 32, withLabel = false }) => {
           <Image
             alt="Question Type Icon"
             src={`/svg/questions/${type}.svg`}
-            layout="responsive"
             width={size}
             height={size}
             priority="1"

@@ -21,35 +21,6 @@ import Loading from '@/components/feedback/Loading'
 
 import AddCollectionDialog from '../list/AddCollectionDialog'
 
-const gridHeader = {
-  actions: {
-    label: 'Actions',
-    width: '80px',
-  },
-  columns: [
-    {
-      label: 'Label',
-      column: { flexGrow: 1 },
-    },
-    {
-      label: 'Created At',
-      column: { width: '160px' },
-    },
-    {
-      label: 'Updated At',
-      column: { width: '160px' },
-    },
-    {
-      label: 'Questions',
-      column: { width: '120px' },
-    },
-    {
-      label: 'Points',
-      column: { width: '120px' },
-    },
-  ],
-}
-
 const PageList = () => {
 
   const router = useRouter()
@@ -107,23 +78,44 @@ const PageList = () => {
           <Box sx={{ minWidth: '100%', pl: 2, pr: 2 }}>
             {collections && collections.length > 0 && (
               <DataGrid
-                header={gridHeader}
+                header={{
+                  actions: {
+                    label: 'Actions',
+                    width: '80px',
+                  },
+                  columns: [
+                    {
+                      label: 'Label',
+                      column: { flexGrow: 1 },
+                      renderCell: (row) => row.label,
+                    },
+                    {
+                      label: 'Updated',
+                      column: { width: '140px' },
+                      renderCell: (row) => (
+                        <DateTimeAgo date={new Date(row.updatedAt)} />
+                      ),
+                    },
+                    {
+                      label: 'Questions',
+                      column: { width: '120px' },
+                      renderCell: (row) => row.collectionToQuestions?.length || '0',
+                    },
+                    {
+                      label: 'Points',
+                      column: { width: '120px' },
+                      renderCell: (row) =>
+                        `${
+                          row.collectionToQuestions?.reduce(
+                            (acc, question) => acc + question.points,
+                            0
+                          ) || 0
+                        } pts` || '0',
+                    },
+                  ],
+                }}
                 items={collections.map((collection) => ({
-                  label: collection.label,
-                  createdAt: (
-                    <DateTimeAgo date={new Date(collection.createdAt)} />
-                  ),
-                  updatedAt: (
-                    <DateTimeAgo date={new Date(collection.updatedAt)} />
-                  ),
-                  questions: collection.collectionToQuestions?.length || '0',
-                  points:
-                    `${
-                      collection.collectionToQuestions?.reduce(
-                        (acc, question) => acc + question.points,
-                        0
-                      ) || 0
-                    } pts` || '0',
+                  ...collection,
                   meta: {
                     key: collection.id,
                     linkHref: `/${groupScope}/collections/${collection.id}`,
@@ -140,7 +132,6 @@ const PageList = () => {
                         <Image
                           alt="Delete"
                           src="/svg/icons/delete.svg"
-                          layout="fixed"
                           width="18"
                           height="18"
                         />

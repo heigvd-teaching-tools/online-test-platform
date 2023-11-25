@@ -8,7 +8,7 @@ import {fetcher} from "../../../code/utils";
 import SolutionQueriesManager from "./database/SolutionQueriesManager";
 import Loading from "../../feedback/Loading";
 
-const Database = ({ groupScope, questionId }) => {
+const Database = ({ groupScope, questionId, onUpdate }) => {
 
     const { data: database, error } = useSWR(
         `/api/${groupScope}/questions/${questionId}/database`,
@@ -42,6 +42,7 @@ const Database = ({ groupScope, questionId }) => {
                         database={database}
                         onChange={(data) => {
                             database.image = data.image
+                            onUpdate && onUpdate();
                         }}
                     />
                 </TabContent>
@@ -51,6 +52,7 @@ const Database = ({ groupScope, questionId }) => {
                     <SolutionQueriesManager
                         groupScope={groupScope}
                         questionId={questionId}
+                        onUpdate={onUpdate}
                     />
                 </TabContent>
             </TabPanel>

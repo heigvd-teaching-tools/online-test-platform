@@ -10,7 +10,7 @@ export const phaseGT = (a, b) => {
 export const phasePageRelationship = {
   NEW: '/users/evaluations/[evaluationId]/wait',
   DRAFT: '/users/evaluations/[evaluationId]/wait',
-  IN_PROGRESS: '/users/evaluations/[evaluationId]/take/[pageId]',
+  IN_PROGRESS: '/users/evaluations/[evaluationId]/take/[pageIndex]',
   GRADING: '/users/evaluations/[evaluationId]/wait',
   FINISHED: '/users/evaluations/[evaluationId]/consult/[questionPage]',
 }
@@ -25,7 +25,7 @@ export const studentPhaseRedirect = async (evaluationId, phase, router) => {
       await router.push(`/users/evaluations/${evaluationId}/wait`)
       return
     case EvaluationPhase.IN_PROGRESS:
-      await router.push(`/users/evaluations/${evaluationId}/take/1`)
+      await router.push(`/users/evaluations/${evaluationId}/take/0`)
       return
     case EvaluationPhase.FINISHED:
       await router.push(`/users/evaluations/${evaluationId}/consult/1`)

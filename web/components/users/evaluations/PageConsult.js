@@ -16,6 +16,19 @@ import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 
+const getFilledStatus = (studentAnswerStatus) => {
+  switch (studentAnswerStatus) {
+    case StudentAnswerStatus.MISSING:
+      return 'empty'
+    case StudentAnswerStatus.IN_PROGRESS:
+      return 'half'
+    case StudentAnswerStatus.SUBMITTED:
+      return 'filled'
+    default:
+      return 'empty'
+  }
+}
+
 const PageConsult = () => {
   const router = useRouter()
   const { evaluationId, questionPage } = router.query
@@ -53,8 +66,10 @@ const PageConsult = () => {
 
   const questionPages = useMemo(() => evaluationToQuestions.map(jstq => ({ id:
     jstq.question.id,
+    label: `Q${jstq.order + 1}`,
+    fillable: true,
     tooltip: `${jstq.question.title} - ${jstq.points} points`,
-    isFilled: jstq.question.studentAnswer[0].status === StudentAnswerStatus.SUBMITTED
+    state: getFilledStatus(jstq.question.studentAnswer[0].status),
   })), [evaluationToQuestions])
 
   return (

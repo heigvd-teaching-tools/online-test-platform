@@ -25,8 +25,6 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
 
   const [questionData, setQuestionData] = useState(null)
 
-  console.log("evaluationToQuestions", evaluationToQuestions)
-
   useEffect(() => {
     if (evaluationToQuestions) {
       let data = {
@@ -156,7 +154,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
 
   }
 
-  const submittedAnswers = question.studentAnswer.filter((sa) => sa.status === StudentAnswerStatus.SUBMITTED).length;
+  const submittedAnswers = question.studentAnswer.filter((sa) => sa.status !== StudentAnswerStatus.MISSING).length;
   const totalAnswers = question.studentAnswer.length;
 
   return (
@@ -325,7 +323,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 <b>Submitted Answers</b>
               </Typography>
               <Typography variant="caption">
-                Based on total number of students
+                Both in-progress or submitted
               </Typography>
             </Box>
           </Stack>
@@ -405,7 +403,7 @@ const ColorLegend = ({ items }) => {
       {items.map((item, index) => (
         <Tooltip title={item.tooltip} key={index}>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <FilledBullet isFilled={true} color={item.color} size={14} />
+            <FilledBullet state={"filled"} color={item.color} size={14} />
             <Typography variant="caption">{item.tooltip}</Typography>
           </Stack>
         </Tooltip>

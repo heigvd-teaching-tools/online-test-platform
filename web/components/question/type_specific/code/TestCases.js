@@ -19,7 +19,7 @@ import Loading from '../../../feedback/Loading'
 
 const environments = languages.environments
 
-const TestCases = ({ groupScope, questionId, language }) => {
+const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
   const { show: showSnackbar } = useSnackbar()
   const {
     data: tests,
@@ -52,9 +52,16 @@ const TestCases = ({ groupScope, questionId, language }) => {
         expectedOutput: '',
         exec: exec,
       }),
+    }).then(async (res) => {
+      if (res.status === 200) {
+        await mutate()
+      } else {
+        showSnackbar('error', 'Failed to add test case')
+      }
+    }).finally(() => {
+      onUpdate && onUpdate()
     })
-    await mutate()
-  }, [groupScope, questionId, tests, mutate, language])
+  }, [groupScope, questionId, tests, mutate, language, onUpdate])
 
   const deleteTestCase = useCallback(
     async (index) => {
@@ -79,9 +86,11 @@ const TestCases = ({ groupScope, questionId, language }) => {
         } else {
           showSnackbar('error', 'Failed to delete test case')
         }
+      }).finally(() => {
+        onUpdate && onUpdate()
       })
     },
-    [groupScope, questionId, tests, mutate, showSnackbar]
+    [groupScope, questionId, tests, mutate, showSnackbar, onUpdate]
   )
 
   const updateTestCase = useCallback(
@@ -97,10 +106,17 @@ const TestCases = ({ groupScope, questionId, language }) => {
           input: test.input,
           expectedOutput: test.expectedOutput,
         }),
+      }).then(async (res) => {
+        if (res.status === 200) {
+          await mutate()
+        } else {
+          showSnackbar('error', 'Failed to update test case')
+        }
+      }).finally(() => {
+        onUpdate && onUpdate()
       })
-      await mutate()
     },
-    [groupScope, questionId, mutate]
+    [groupScope, questionId, mutate, onUpdate]
   )
 
   const pullOutputs = useCallback(
@@ -217,7 +233,6 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
         <Image
           alt="Delete"
           src="/svg/icons/delete.svg"
-          layout="fixed"
           width="18"
           height="18"
         />

@@ -1,46 +1,79 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { EvaluationPhase } from '@prisma/client'
-import { EvaluationStatus } from '@prisma/client'
-import { Button, IconButton, Stack, Tooltip } from '@mui/material'
+import { EvaluationPhase, EvaluationStatus } from '@prisma/client'
+import { Box, Button, IconButton, Stack, Tooltip } from '@mui/material'
 
 import { getStudentEntryLink } from '@/code/utils'
 import DisplayPhase from '../DisplayPhase'
-import DataGrid from '@/components/ui/DataGrid'
+import GridGrouping from '@/components/ui/GridGrouping'
+import { weeksAgo } from '@/components/questions/list/utils'
+import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
-  <DataGrid
-    header={gridHeader}
+  <GridGrouping
+    label={"Evaluations"}
+    actions={
+        <Link href={`/${groupScope}/evaluations/new`}>
+          <Button>Create a new evaluation</Button>
+        </Link>
+    }
+    header={{
+      actions: {
+        label: 'Actions',
+        width: '110px',
+      },
+      columns: [
+        {
+          label: 'Label',
+          column: { flexGrow: 1 },
+          renderCell: (row) => row.label,
+        },
+        {
+          label: 'Updated',
+          column: { width: '120px' },
+          renderCell: (row) => <DateTimeAgo date={new Date(row.updatedAt)} />,
+        },
+        {
+          label: 'Questions',
+          column: { width: '80px' },
+          renderCell: (row) => row.evaluationToQuestions.length,
+        },
+        {
+          label: 'Students',
+          column: { width: '80px' },
+          renderCell: (row) => row.students.length,
+        },
+        {
+          label: 'Phase',
+          column: { width: '130px' },
+          renderCell: (row) => (
+            <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
+              <DisplayPhase phase={row.phase} />
+              {row.phase === EvaluationPhase.DRAFT && (
+                <Button
+                  key="promote-to-in-progress"
+                  color="info"
+                  onClick={(ev) => onStart(ev, row)}
+                  startIcon={
+                    <Image
+                      alt="Promote"
+                      src="/svg/icons/finish.svg"
+                      width="18"
+                      height="18"
+                    />
+                  }
+                >
+                  Start
+                </Button>
+              )}
+            </Stack>
+          ),
+        },
+      ],
+    }}
     items={evaluations?.map((evaluation) => ({
-      label: evaluation.label,
-      createdAt: new Date(evaluation.createdAt).toLocaleString(),
-      updatedAt: new Date(evaluation.updatedAt).toLocaleString(),
-      questions: evaluation.evaluationToQuestions.length,
-      students: evaluation.students.length,
-      phase: (
-        <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
-          <DisplayPhase phase={evaluation.phase} />
-          {evaluation.phase === EvaluationPhase.DRAFT && (
-            <Button
-              key="promote-to-in-progress"
-              color="info"
-              onClick={(ev) => onStart(ev, evaluation)}
-              startIcon={
-                <Image
-                  alt="Promote"
-                  src="/svg/icons/finish.svg"
-                  layout="fixed"
-                  width="18"
-                  height="18"
-                />
-              }
-            >
-              Start
-            </Button>
-          )}
-        </Stack>
-      ),
+      ...evaluation,
       meta: {
         key: `evaluation-${evaluation.id}`,
         linkHref: `/${groupScope}/evaluations/${evaluation.id}`,
@@ -61,7 +94,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
               <Image
                 alt="Copy link"
                 src="/svg/icons/link.svg"
-                layout="fixed"
                 width="18"
                 height="18"
               />
@@ -73,7 +105,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                   <Image
                     alt="Analytics"
                     src="/svg/icons/analytics.svg"
-                    layout="fixed"
                     width="18"
                     height="18"
                   />
@@ -89,7 +120,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                     <Image
                       alt="Add to archive"
                       src="/svg/icons/archive.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />
@@ -105,7 +135,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                     <Image
                       alt="Delete definitively"
                       src="/svg/icons/delete.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />
@@ -118,40 +147,22 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
         ],
       },
     }))}
+    groupings={[
+      {
+        groupBy: 'phase',
+        option: 'Phase',
+        type: 'element',
+        renderLabel: (row) => <Box><DisplayPhase phase={row.label} /></Box>,
+      },
+      {
+        groupBy: 'updatedAt',
+        option: 'Last Update',
+        type: 'date',
+        renderLabel: (row) => weeksAgo(row.label),
+        
+      },
+    ]}
   />
 )
-
-const gridHeader = {
-  actions: {
-    label: 'Actions',
-    width: '110px',
-  },
-  columns: [
-    {
-      label: 'Label',
-      column: { flexGrow: 1 },
-    },
-    {
-      label: 'Created At',
-      column: { width: '160px' },
-    },
-    {
-      label: 'Updated At',
-      column: { width: '160px' },
-    },
-    {
-      label: 'Questions',
-      column: { width: '80px' },
-    },
-    {
-      label: 'Students',
-      column: { width: '80px' },
-    },
-    {
-      label: 'Phase',
-      column: { width: '200px' },
-    },
-  ],
-}
 
 export default ListEvaluation

@@ -50,7 +50,6 @@ const Web = ({ id = 'web', web: initial, onChange }) => {
                       }}
                       onChange={(updatedWeb) => {
                         const newWeb = { ...web, solutionHtml: updatedWeb.html, solutionCss: updatedWeb.css, solutionJs: updatedWeb.js }
-                        console.log("newWeb", newWeb, "web", web)
                         setWeb(newWeb)
                         onChange(newWeb)
                       }}

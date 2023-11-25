@@ -118,11 +118,7 @@ const Evaluations = () => {
                   <Tab label="Active" value={EvaluationStatus.ACTIVE} />
                   <Tab label="Archived" value={EvaluationStatus.ARCHIVED} />
                 </TabList>
-                {tab === EvaluationStatus.ACTIVE && (
-                  <Link href={`/${groupScope}/evaluations/new`}>
-                    <Button>Create a new evaluation</Button>
-                  </Link>
-                )}
+                
               </Stack>
             }
             padding={2}

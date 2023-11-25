@@ -9,22 +9,6 @@ import AlertFeedback from '@/components/feedback/AlertFeedback'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 
 
-const myGroupsGridHeader = {
-  actions: {
-    label: '',
-    width: '40px',
-  },
-  columns: [
-    {
-      label: 'Group',
-      column: { flexGrow: 1 },
-    },
-    {
-      label: '',
-      column: { width: '80px' },
-    },
-  ],
-}
 const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
   const { data: session } = useSession()
 
@@ -67,15 +51,30 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
     <Box sx={{ minWidth: '100%', pl: 2, pr: 2 }}>
       {session && groups && groups.length > 0 && (
         <DataGrid
-          header={myGroupsGridHeader}
+          header={{
+            actions: {
+              label: '',
+              width: '40px',
+            },
+            columns: [
+              {
+                label: 'Group',
+                column: { flexGrow: 1 },
+                renderCell: (row) => row.label,
+              },
+              {
+                label: '',
+                column: { width: '80px' },
+                renderCell: (row) => row.createdById === session.user.id ? (
+                  <Chip size={"small"} label="Owner" variant={'filled'} color={'warning'} />
+                ) : (
+                  <Chip size={"small"} label="Member" variant={'outlined'} color={'info'} />
+                )
+              },
+            ],
+          }}
           items={groups.map(({group}) => ({
-            label: group.label,
-            owner:
-              group.createdById === session.user.id ? (
-                <Chip size={"small"} label="Owner" variant={'filled'} color={'warning'} />
-              ) : (
-                <Chip size={"small"} label="Member" variant={'outlined'} color={'info'} />
-              ),
+            ...group,
             meta: {
               key: group.id,
               onClick: () => onSelected(group),
@@ -141,7 +140,6 @@ const getMyGroupsActions = (group, user, onLeave, onDelete) => {
           <Image
             alt="Delete"
             src="/svg/icons/delete.svg"
-            layout="fixed"
             width="18"
             height="18"
           />

@@ -1,16 +1,15 @@
 import useSWR from 'swr'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import LayoutMain from '../../layout/LayoutMain'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
-import { Role } from '@prisma/client'
+import { QuestionType, Role } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import QuestionFilter from '../../question/QuestionFilter'
 import MainMenu from '../../layout/MainMenu'
-import { Box, Button, ButtonGroup, IconButton, Stack, Toolbar, Tooltip, Typography } from '@mui/material'
+import { Box, Button, IconButton, Stack, Tooltip, Typography } from '@mui/material'
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { useRouter } from 'next/router'
 import AddQuestionDialog from '../list/AddQuestionDialog'
-import QuestionListItem from '../list/QuestionListItem'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
@@ -18,6 +17,13 @@ import ScrollContainer from '../../layout/ScrollContainer'
 import QuestionUpdate from '../../question/QuestionUpdate'
 import ResizableDrawer from '../../layout/utils/ResizableDrawer'
 import Image from 'next/image'
+import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
+import QuestionTagsViewer from '@/components/question/tags/QuestionTagsViewer'
+import DateTimeAgo from '@/components/feedback/DateTimeAgo'
+import GridGrouping from '@/components/ui/GridGrouping'
+import { weeksAgo } from '../list/utils'
+import { getTextByType } from '@/components/question/types'
+import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 
 const PageList = () => {
   const router = useRouter()
@@ -79,49 +85,36 @@ const PageList = () => {
             rightWidth={80}
             rightPanel={
               questions && (
-                <Stack spacing={2} padding={2} height={'100%'}>
-                  <Stack
-                    alignItems="center"
-                    direction={'row'}
-                    justifyContent={'space-between'}
+                <Stack height={'100%'} p={1} pt={2}>
+                    <QuestionsGrid 
+                      questions={questions} 
+                      setAddDialogOpen={setAddDialogOpen}
+                      setSelected={setSelected}
+                      groupScope={groupScope}
+                    />
+                  <ResizableDrawer
+                    open={selected !== undefined}
+                    onClose={() => setSelected(undefined)}
                   >
-                    <Typography variant="h6">
-                      {questions.length} questions
-                    </Typography>
-                    <Button onClick={() => setAddDialogOpen(true)}>
-                      Create a new question
-                    </Button>
-                  </Stack>
-                  <ScrollContainer spacing={4} padding={1}>
-                      <QuestionListContainer
-                        questions={questions}
-                        selected={selected}
-                        setSelected={setSelected}
-                      />
-                      <ResizableDrawer
-                        open={selected !== undefined}
-                        onClose={() => setSelected(undefined)}
-                      >
-                        <Box pt={2} width={"100%"} height={"100%"}>
-                          { selected && (
-                              <QuestionUpdate
-                                groupScope={router.query.groupScope}
-                                questionId={selected.id}
-                                onUpdate={async (question) => {
-                                  await mutate()
-                                  setSelected(question)
-                                }}
-                                onDelete={async () => {
-                                  await mutate()
-                                  setSelected(undefined)
-                                }}
-                              />
-                            )
-                          }
-                        </Box>
-                      </ResizableDrawer>
+                    <Box pt={2} width={"100%"} height={"100%"}>
+                      { selected && (
+                          <QuestionUpdate
+                            groupScope={router.query.groupScope}
+                            questionId={selected.id}
+                            onUpdate={async (question) => {
+                              await mutate()
+                              setSelected(question)
+                            }}
+                            onDelete={async () => {
+                              await mutate()
+                              setSelected(undefined)
+                            }}
+                          />
+                        )
+                      }
+                    </Box>
+                  </ResizableDrawer>
 
-                  </ScrollContainer>
                   {questions && questions.length === 0 && (
                     <AlertFeedback severity="info">
                       <Typography variant="body1">
@@ -148,31 +141,82 @@ const PageList = () => {
   )
 }
 
+const QuestionsGrid = ({ groupScope, questions, setAddDialogOpen, setSelected }) => {
 
-const QuestionListContainer = ({ questions, selected, setSelected }) => {
+  const router = useRouter()
 
-    const router = useRouter()
+  return (
+    <GridGrouping
+      label="Questions"
+      actions={
+        <Button onClick={() => setAddDialogOpen(true)}>
+          Create a new question
+        </Button>
+      }
+      header={{
+        actions: {
+          label: 'Actions',
+          width: '80px',
+        },
+        columns: [
+          {
+            label: 'Type',
+            column: { width: '140px' },
+            renderCell: (row) => {
+              if(row.type === QuestionType.code){
+                return (
+                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <QuestionTypeIcon 
+                      type={row.type} 
+                      size={24} 
+                      
+                    />
+                    <LanguageIcon language={row.code?.language} size={18} />
+                  </Stack>
+                )
+              }
+              return (
+                <QuestionTypeIcon 
+                  type={row.type} 
+                  size={24} 
+                  withLabel 
+                />,
+              )
+            }
+          },
+          {
+            label: 'Title',
+            column: { flexGrow: 1 },
+            renderCell: (row) => <Typography variant={"body2"}>{row.title}</Typography>
+          },
+          {
+            label: 'Tags',
+            column: { width: '200px' },
+            renderCell: (row) => <QuestionTagsViewer size={'small'} tags={row.questionToTag} collapseAfter={2} />
+          },
+          {
+            label: 'Updated',
+            column: { width: '90px' },
+            renderCell: (row) => <DateTimeAgo date={new Date(row.updatedAt)} />
+          },
+        ],
+      }}
 
-    const { groupScope } = router.query
-
-    return (
-    questions &&
-      questions.map((question) => (
-        <QuestionListItem
-          key={question.id}
-          selected={selected && selected.id === question.id}
-          question={question}
-          actions={[
-            <ButtonGroup variant="contained" color="info" size="small">
+      items={questions.map((question) => ({
+        ...question,
+        meta:{
+          key: question.id,
+          onClick: () => setSelected(question),
+          actions: [
+            <React.Fragment key="actions">
               <Tooltip title="Update in new page">
-                <Button
+                <IconButton
                   onClick={async () => {
                     await router.push(`/${groupScope}/questions/${question.id}`);
                   }}
-                  startIcon={<Image src={'/svg/icons/update-white.svg'} width={16} height={16} />}
                 >
-                  Update
-                </Button>
+                  <Image src={'/svg/icons/update.svg'} width={16} height={16} />
+                </IconButton>
               </Tooltip>
               <Tooltip title="Update in overlay">
                 <IconButton
@@ -181,11 +225,33 @@ const QuestionListContainer = ({ questions, selected, setSelected }) => {
                   <Image src={'/svg/icons/aside.svg'} width={16} height={16} />
                 </IconButton>
               </Tooltip>
-            </ButtonGroup>
-          ]}
-        />
-      ))
-    )
+            </React.Fragment>
+        ]
+        }
+      }))}
+      groupings={[
+        {
+          groupBy: 'updatedAt',
+          option: 'Last Update',
+          type: 'date',
+          renderLabel: (row) => weeksAgo(row.label),
+        },
+        {
+          groupBy: 'questionToTag',
+          option: 'Tags',
+          type: 'array',
+          property: 'label',
+          renderLabel: (row) => row.label,
+        },
+        {
+          groupBy: 'type',  
+          option: 'Type',
+          type: 'element',
+          renderLabel: (row) => getTextByType(row.label),
+        }
+      ]}
+    />
+  )
 }
 
 export default PageList

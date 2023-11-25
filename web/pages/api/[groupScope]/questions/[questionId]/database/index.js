@@ -2,6 +2,7 @@ import { Role } from '@prisma/client'
 
 import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
 
 /**
  * Managing the database part of a question
@@ -46,7 +47,7 @@ export default withMethodHandler({
       withGroupScope(withPrisma(get)), [Role.PROFESSOR]
   ),
   PUT: withAuthorization(
-      withGroupScope(withPrisma(put)), [Role.PROFESSOR]
+      withGroupScope(withQuestionUpdate(withPrisma(put))), [Role.PROFESSOR]
   )
 })
 

@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router'
 import { Tabs, Tab, Tooltip, Typography } from '@mui/material'
 import FilledBullet from '../../feedback/FilledBullet'
+
 const Paging = ({ items, active, link }) => {
   const router = useRouter()
-
+  
   return (
     <Tabs
       value={items.map(({ id }) => id).indexOf(active?.id || 0)}
@@ -11,22 +12,28 @@ const Paging = ({ items, active, link }) => {
       scrollButtons="auto"
       onChange={(e, index) => router.push(link(items[index].id, index))}
     >
-      {items.map(({ id, tooltip, isFilled }, index) => (
-        <Tooltip key={id} title={tooltip && 
+      {items.map((item, index) => (
+        <Tooltip key={item.id} title={item.tooltip && 
           <Typography variant="caption">
-            {tooltip}
+            {item.tooltip}
           </Typography>
         } placement="bottom">
         <Tab
-          label={`Q${index + 1}`}
+          label={item.label}
           iconPosition="start"
           sx={{ minHeight: '50px', minWidth: 0, mb: 1, mt: 1 }}
           value={index}
           icon={
-            <FilledBullet
-              index={index}
-              isFilled={isFilled}
-            />
+            ( 
+              item.icon && item.icon 
+            ) || (
+              item.fillable &&
+                <FilledBullet
+                  index={index}
+                  color={item.color}
+                  state={item.state}
+                />
+            )            
           }
         />
         </Tooltip>

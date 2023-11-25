@@ -1,9 +1,9 @@
 import React, {useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
-import { QuestionType } from '@prisma/client'
+import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 import { useDebouncedCallback } from 'use-debounce'
 import { useRouter } from 'next/router'
-import { Stack } from '@mui/material'
+import { Button, Stack, Typography } from '@mui/material'
 import { fetcher } from '@/code/utils'
 
 import TrueFalse from '@/components/question/type_specific/TrueFalse'
@@ -16,81 +16,198 @@ import PreviewPanel from '@/components/question/type_specific/web/PreviewPanel'
 import ScrollContainer from '@/components//layout/ScrollContainer'
 import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
+import AlertFeedback from '../feedback/AlertFeedback'
+import { LoadingButton } from '@mui/lab'
+import { set } from 'lodash'
 
-const AnswerEditor = ({ question, onAnswer }) => {
+
+const SubmittedOverlay = ({ onUnsubmit }) => {
+  return (
+    <Stack
+      sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(255,255,255,0.5)',
+        zIndex: 100,
+      }}
+      alignItems={'center'}
+      justifyContent={'center'}
+    >
+      <Stack spacing={2} alignItems={'center'}>
+        <AlertFeedback
+            severity={'success'}
+          >
+            <Typography variant={'body1'}>Your answer top this question has been submitted</Typography>
+            <Typography variant={'body2'}>You can unsubmit your answer if you want to make changes</Typography>
+
+          </AlertFeedback>
+          
+          <Button onClick={onUnsubmit} variant={'text'}>
+            Unsubmit
+          </Button>
+            
+      </Stack>
+        
+    </Stack>
+  )
+}
+     
+const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
   const router = useRouter()
   const { evaluationId } = router.query
 
-  const { data: answer, error } = useSWR(
+  const { data: answer, error, mutate } = useSWR(
     `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers`,
     evaluationId && question ? fetcher : null,
       { revalidateOnFocus: false }
   )
 
+  const [ status, setStatus ] = useState()
+
+  useEffect(() => {
+    mutate()
+  }, [question])
+
+  useEffect(() => {
+    setStatus(answer?.status)
+  }, [answer])
+
+  const [ submitLock, setSubmitLock ] = useState(false)
+
   const onAnswerChange = useCallback(
     (updatedStudentAnswer) => {
+      setStatus(updatedStudentAnswer.status)
       if (onAnswer) {
         onAnswer(question, updatedStudentAnswer)
       }
     },
     [question, onAnswer]
   )
+
+  const onSubmitClick = useCallback(async () => {
+    setSubmitLock(true)
+    await fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
+      method: 'PUT',
+    })
+    .finally(async () => {
+      onSubmit && onSubmit(question)
+      await mutate()
+    })
+    setSubmitLock(false)
+  }, [onSubmit, question])
+
+  const onUnsubmitClick = useCallback(() => {
+    setSubmitLock(true)
+    fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
+      method: 'DELETE',
+    })
+    .finally(async () => {
+      onUnsubmit && onUnsubmit(question)
+      await mutate()
+    })
+    setSubmitLock(false)
+  }, [onUnsubmit, question])
+
+
+  const isReadOnly = answer?.status === StudentAnswerStatus.SUBMITTED
+
   return (
     <Loading errors={[error]} loading={!answer}>
-     
-      {question &&
-      ((question.type === QuestionType.trueFalse && (
-        <AnswerTrueFalse
-          answer={answer}
-          evaluationId={evaluationId}
-          questionId={question.id}
-          onAnswerChange={onAnswerChange}
-        />
-      )) ||
-        (question.type === QuestionType.multipleChoice && (
-          <AnswerMultipleChoice
+     <Stack height={"100%"} position={"relative"}>
+      {isReadOnly && <SubmittedOverlay onUnsubmit={() => onUnsubmitClick()} />}
+        {question &&
+        ((question.type === QuestionType.trueFalse && (
+          <AnswerTrueFalse
             answer={answer}
             evaluationId={evaluationId}
             questionId={question.id}
             onAnswerChange={onAnswerChange}
           />
         )) ||
-        (question.type === QuestionType.essay && (
-          <AnswerEssay
-            answer={answer}
-            evaluationId={evaluationId}
-            questionId={question.id}
-            onAnswerChange={onAnswerChange}
-          />
-        )) ||
-        (question.type === QuestionType.code && (
-          <AnswerCode
-            evaluationId={evaluationId}
-            questionId={question.id}
-            onAnswerChange={onAnswerChange}
-          />
-        )) ||
-        (question.type === QuestionType.web && (
-          <AnswerWeb
-            answer={answer}
-            evaluationId={evaluationId}
-            questionId={question.id}
-            onAnswerChange={onAnswerChange}
-          />
-        ))) ||
-      (question.type === QuestionType.database && (
-          <AnswerDatabase
+          (question.type === QuestionType.multipleChoice && (
+            <AnswerMultipleChoice
               answer={answer}
               evaluationId={evaluationId}
               questionId={question.id}
               onAnswerChange={onAnswerChange}
-          />
-          ))
-    }</Loading>
+            />
+          )) ||
+          (question.type === QuestionType.essay && (
+            <AnswerEssay
+              answer={answer}
+              evaluationId={evaluationId}
+              questionId={question.id}
+              onAnswerChange={onAnswerChange}
+            />
+          )) ||
+          (question.type === QuestionType.code && (
+            <AnswerCode
+              evaluationId={evaluationId}
+              questionId={question.id}
+              onAnswerChange={onAnswerChange}
+            />
+          )) ||
+          (question.type === QuestionType.web && (
+            <AnswerWeb
+              answer={answer}
+              evaluationId={evaluationId}
+              questionId={question.id}
+              onAnswerChange={onAnswerChange}
+            />
+          ))) ||
+        (question.type === QuestionType.database && (
+            <AnswerDatabase
+                answer={answer}
+                evaluationId={evaluationId}
+                questionId={question.id}
+                onAnswerChange={onAnswerChange}
+            />
+            ))
+      }
+      <SubmissionToolbar 
+        lock={submitLock}
+        status={status}
+        answer={answer}
+        onSubmit={onSubmitClick}
+        onUnsubmit={onUnsubmitClick}
+      />
+    </Stack> 
+    </Loading>
     )
 }
 
+const SubmissionToolbar = ({ lock, status, answer, onSubmit, onUnsubmit }) => {
 
+  return (
+    status !== StudentAnswerStatus.MISSING && (
+    <Stack position={"absolute"} bottom={0} right={0} mb={2} mr={1} zIndex={200}>
+      {status ===  StudentAnswerStatus.SUBMITTED ? (
+        <LoadingButton 
+          loading={lock}
+          onClick={onUnsubmit} 
+          variant={"contained"} 
+          size='small'
+        >
+          Unsubmit
+        </LoadingButton>
+      ) : (
+        <LoadingButton 
+          loading={lock}
+          onClick={onSubmit} 
+          variant={"contained"} 
+          color={"info"}
+          size='small'
+        >
+          Submit
+        </LoadingButton>
+      )}
+    </Stack>
+    )
+  )
+};
 
 const AnswerMultipleChoice = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 

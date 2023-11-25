@@ -5,6 +5,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   Menu,
   Stack,
   Tooltip,
@@ -14,9 +15,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
+import { useRouter } from 'next/router'
 
-const Datagrid = ({ header, items }) => {
-
+const DataGrid = ({ header, items }) => {
   return (
     <List>
       <ListItem divider>
@@ -38,50 +39,66 @@ const Datagrid = ({ header, items }) => {
       </ListItem>
       {items &&
         items.length > 0 &&
-        items.map((item, index) =>
-          item.meta ? (
-            // list item is a link
-            (item.meta.linkHref && (
-              <Link
-                component="button"
-                key={item.meta.key}
-                href={item.meta.linkHref}
-              >
-                <a>
-                  <ListItemContent item={item} header={header} />
-                </a>
-              </Link>
-            )) ||
-            // list item is a clickable
-            (item.meta.onClick && (
-              <Box key={item.meta.key} onClick={item.meta.onClick}>
-                <ListItemContent item={item} header={header} />
-              </Box>
-            )) || (
-              <ListItemContent
-                key={item.meta.key}
-                item={item}
-                header={header}
-              />
-            )
-          ) : (
-            <ListItemContent key={item.meta.key} item={item} header={header} />
-          )
-        )}
+        items.map((item, index) => (
+          <ChosenListItemContent item={item} header={header} key={index} />
+        ))}
     </List>
-  )
+  );
+};
+
+
+const ChosenListItemContent = ({ item, header }) => {
+  if (item.meta?.onClick) {
+    return (
+      <ClickableListItem item={item} header={header} onClick={item.meta.onClick} key={item.meta.key} />
+    )
+  } else if (item.meta?.linkHref) {
+    return (
+      <LinkHrefListItem item={item} header={header} href={item.meta.linkHref} key={item.meta.key} />
+    )
+  } else {
+    return (
+      <NormalListItem item={item} header={header} key={item.meta.key} />
+    )
+  }
 }
 
-const ListItemContent = ({ item, header }) => (
+
+const LinkHrefListItem = ({ item, header, href }) => {
+
+  const router = useRouter()
+
+  return (
+    <ListItemButton divider onClick={async () => await router.push(href)}>
+      <ListItemContent item={item} header={header} />
+    </ListItemButton>
+  );
+
+}
+
+const ClickableListItem = ({ item, header, onClick }) => (
+  <Box onClick={onClick}>
+    <ListItemButton divider sx={{ cursor: 'pointer' }}>
+      <ListItemContent item={item} header={header} />
+    </ListItemButton>
+  </Box>
+);
+
+const NormalListItem = ({ item, header }) => (
   <ListItem divider>
+    <ListItemContent item={item} header={header} />
+  </ListItem>
+);
+
+const ListItemContent = ({ item, header }) => (
     <Row>
-      {Object.keys(item).map((key, index) => {
-        if (index < header.columns.length && key !== 'meta') {
+      {header.columns.map(({ renderCell, column }, index) => {
+        if (renderCell && item) {
           return (
-            <Column key={key} {...header.columns[index].column}>
-              {item[key] || ''}
+            <Column key={index} {...column}>
+              {renderCell(item)}
             </Column>
-          )
+          );
         }
       })}
       {item.meta && item.meta.actions && header.actions && (
@@ -90,8 +107,8 @@ const ListItemContent = ({ item, header }) => (
         </Column>
       )}
     </Row>
-  </ListItem>
-)
+);
+
 
 const ActionsColumn = ({ meta, actions }) => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -161,4 +178,4 @@ const ActionsContextMenu = ({ actions, anchorEl, handleCloseContextMenu }) => {
   )
 }
 
-export default Datagrid
+export default DataGrid

@@ -506,6 +506,7 @@ model EvaluationToQuestion {
 	@@map("EvaluationToQuestion")
 }
 
+
 model UserOnEvaluation {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String
@@ -515,14 +516,13 @@ model UserOnEvaluation {
 
   registeredAt DateTime @default(now())
 
-  score Int @default(0)
-
   @@id([userEmail, evaluationId])
 	@@map("UserOnEvaluation")
 }
 
 enum StudentAnswerStatus {
   MISSING
+  IN_PROGRESS
   SUBMITTED
 }
 

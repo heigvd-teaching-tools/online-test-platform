@@ -2,6 +2,7 @@ import { Role } from '@prisma/client'
 
 import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
 
 /**
  * Managing the test cases of a question
@@ -72,9 +73,9 @@ const del = async (req, res, prisma) => {
 
 export default withMethodHandler({
   PUT: withAuthorization(
-      withGroupScope(withPrisma(put)), [Role.PROFESSOR]
+      withGroupScope(withQuestionUpdate(withPrisma(put))), [Role.PROFESSOR]
   ),
   DELETE: withAuthorization(
-      withGroupScope(withPrisma(del)), [Role.PROFESSOR]
+      withGroupScope(withQuestionUpdate(withPrisma(del))), [Role.PROFESSOR]
   )
 })

@@ -13,7 +13,7 @@ import ScrollContainer from '../../../../layout/ScrollContainer'
 import {useDebouncedCallback} from "use-debounce";
 import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
 
-const TemplateFilesManager = ({ groupScope, questionId }) => {
+const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
 
   const {
     data: codeToTemplateFiles,
@@ -32,15 +32,18 @@ const TemplateFilesManager = ({ groupScope, questionId }) => {
       setLockCodeCheck(true)
       await update('template', groupScope, questionId, codeToTemplateFile)
       setLockCodeCheck(false)
+      onUpdate && onUpdate()
     },
-    [groupScope, questionId, codeToTemplateFiles, mutate]
+    [groupScope, questionId, codeToTemplateFiles, mutate, onUpdate]
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
 
   const onPullSolution = useCallback(async () => {
-    await pull(groupScope, questionId).then(async (data) => await mutate(data))
-  }, [groupScope, questionId, mutate])
+    await pull(groupScope, questionId).then(async (data) => await mutate(data)).finally(() => {
+      onUpdate && onUpdate()
+    })
+  }, [groupScope, questionId, mutate, onUpdate])
 
   return (
     <Loading loading={!codeToTemplateFiles} errors={[error]}>

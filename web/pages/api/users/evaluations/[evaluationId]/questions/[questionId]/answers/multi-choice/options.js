@@ -51,7 +51,7 @@ const addOrRemoveOption = async (req, res, prisma) => {
     return
   }
 
-  let status = StudentAnswerStatus.SUBMITTED
+  let status = StudentAnswerStatus.IN_PROGRESS
 
   if (!toAdd) {
     // toRemove

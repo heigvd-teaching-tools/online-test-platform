@@ -1,6 +1,7 @@
 import { Role } from '@prisma/client'
 import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization';
 import { withPrisma } from '@/middleware/withPrisma';
+import { withQuestionUpdate } from '@/middleware/withQuestionUpdate';
 
 const get = async (req, res, prisma) => {
     // get the solution queries for a database question
@@ -75,7 +76,7 @@ export default withMethodHandler({
         withGroupScope(withPrisma(get)), [Role.PROFESSOR]
     ),
     POST: withAuthorization(
-        withGroupScope(withPrisma(post)), [Role.PROFESSOR]
+        withGroupScope(withQuestionUpdate(withPrisma(post))), [Role.PROFESSOR]
     )
 })
 

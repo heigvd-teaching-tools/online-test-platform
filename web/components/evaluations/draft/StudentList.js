@@ -17,28 +17,63 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
         {
             label: 'Student',
             column: { minWidth: 230, flexGrow: 1 },
+            renderCell: (row) => <UserAvatar user={row.user} />,
         },
         {
             label: 'Registered at',
             column: { minWidth: 170, width: 170 },
+            renderCell: (row) => <>
+                <Typography variant="body2">{new Date(row.registeredAt).toLocaleString()}</Typography>
+                <Typography variant="caption">
+                    <DateTimeAgo date={new Date(row.registeredAt)} />
+                </Typography>
+            </>,
         },
     ]
+
+    const getBulletState = (studentAnswerStatus) => {
+        switch (studentAnswerStatus) {
+            case StudentAnswerStatus.MISSING:
+                return 'empty'
+            case StudentAnswerStatus.IN_PROGRESS:
+                return 'half'
+            case StudentAnswerStatus.SUBMITTED:
+                return 'filled'
+            default:
+                return 'empty'
+        }
+    }
 
     // Create dynamic columns for each question
     const questionColumns = useMemo( () => questions.map(q => ({
         label: `Q${q.order + 1}`, // Assuming questions order starts at 0
         tooltip: q.question.title,
         column: { width: 40 },
+        renderCell: (row) => <FilledBullet state={getBulletState(getStudentAnswerStatus(row.user.email, q.question.id))} />,
     })), [questions]);
 
     if(questionColumns.length > 0) {
         columns.push({
             label: 'Actions',
             column: { minWidth: 90, width: 90 },
+            renderCell: (row) => <Tooltip title="Spy student" key="view-student-answers">
+                <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.user.email}/1`} target="_blank">
+                <IconButton size="small">
+                    <Image
+                        alt="View"
+                        src="/svg/icons/view-user.svg"
+                        width="18"
+                        height="18"
+                    />
+    
+                </IconButton>
+                </a>
+            </Tooltip>
         })
         columns.push({
             label: 'Overall',
             column: { minWidth: 90, width: 90 },
+            renderCell: (row) => <PiePercent value={getSubmissionPercentage(row.user.email) || 0} />,
         })
         columns.push(...questionColumns)
     }
@@ -69,38 +104,12 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
                 header={{ columns: columns }}
                 items={
                     students?.map(student => ({
-                        student: <UserAvatar user={student.user} />,
-                        registeredAt: <>
-                            <Typography variant="body2">{new Date(student.registeredAt).toLocaleString()}</Typography>
-                            <Typography variant="caption">
-                                <DateTimeAgo date={new Date(student.registeredAt)} />
-                            </Typography>
-                        </>,
-                        actions: <Tooltip title="Spy student" key="view-student-answers">
-                                <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${student.user.email}/1`} target="_blank">
-                                <IconButton size="small">
-                                    <Image
-                                        alt="View"
-                                        src="/svg/icons/view-user.svg"
-                                        layout="fixed"
-                                        width="18"
-                                        height="18"
-                                    />
-                    
-                                </IconButton>
-                                </a>
-                            </Tooltip>
-                            ,
-                        submissionPercentage: <PiePercent value={getSubmissionPercentage(student.user.email) || 0} />,
-                        ...questions.reduce((acc, q) => {
-                            acc[`question${q.order}`] = <FilledBullet isFilled={getStudentAnswerStatus(student.user.email, q.question.id) === StudentAnswerStatus.SUBMITTED} />;
-                            return acc;
-                        }, {}
-                    ),
-                    meta: {
-                        key: student.user.id,
-                    }
-                }))}
+                        ...student,
+                        meta: {
+                            key: student.user.id,
+                        }
+                    }))
+                }
             />
         </Stack>
     )

@@ -149,7 +149,6 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
                     <Image
                       alt="Delete"
                       src="/svg/icons/delete.svg"
-                      layout="fixed"
                       width="18"
                       height="18"
                     />
@@ -167,9 +166,12 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
             <QuestionTypeSpecific
                 groupScope={groupScope}
                 question={question}
-                onTypeSpecificChange={(type, value) =>
+                onUpdate={() => {
+                  onUpdate && onUpdate(question)
+                }}
+                onTypeSpecificChange={(type, value) => {
                     onPropertyChange(type, value)
-                }
+                }}
             />
           )
         }

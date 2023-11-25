@@ -16,11 +16,13 @@ import ResizePanel from '@/components/layout/utils/ResizePanel';
 const ContentEditor = ({
   title,
   readOnly = false,
-  height = "100%",
+  fill = true, // When true, the editor will fill the available space
   rawContent = '',
   mode = 'source',
   onChange,
 }) => {
+
+  const editorStyle = fill ? { height: "100%" } : { minHeight: "140px" };
 
   return readOnly ? 
     <PreviewMarkdown 
@@ -31,10 +33,10 @@ const ContentEditor = ({
       title={title || ''} 
       mode={mode}
       rawContent={rawContent} 
-      height={height} 
+      style={editorStyle} // Apply conditional styling
       onChange={onChange} 
+      fill={fill} // Pass `fill` prop down to EditMarkdown
     />
-    
 }
 
 const editorOptions = {
@@ -47,7 +49,7 @@ const editorOptions = {
 
 }
 
-const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial, height, onChange }) => {
+const EditMarkdown = ({ title, mode: initialMode = "source", rawContent: initial, style, onChange, fill }) => {
 
   const ref = useRef(null)
 
@@ -68,7 +70,7 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
   }, [rawContent, onChange])
 
   return (
-    <Stack spacing={0} height={height} ref={ref}>
+    <Stack spacing={0} style={style} ref={ref}>
       <Stack direction="row" alignItems="center" spacing={1} justifyContent={"space-between"}>
         <Stack direction="row" alignItems="center" spacing={1}>
         <Typography variant="body1">{title}</Typography>
@@ -107,56 +109,78 @@ const EditMarkdown = ({ title, mode:initialMode = "source", rawContent: initial,
           </Tooltip>
         </Stack>
       </Stack>
-      <ScrollContainer>
-        {(
-          mode === 'source' && (
-            
-              <InlineMonacoEditor
-                code={rawContent}
-                language={"markdown"}
-                readOnly={readOnly}
-                onChange={onChangeContent}
-                editorOptions={editorOptions}
-              />
-              )
-          ) || (
-          mode === 'split' && (
-              <ResizePanel
-                  leftPanel={
-                    <ScrollContainer>
-                      <InlineMonacoEditor
-                        code={rawContent}
-                        language={"markdown"}
-                        readOnly={readOnly}
-                        onChange={onChangeContent}
-                        editorOptions={editorOptions}
-                      /> 
-                    </ScrollContainer>
-                  }
-                  rightPanel={
-                    <ScrollContainer>
-                      <PreviewMarkdown 
-                        rawContent={rawContent} 
-                      /> 
-                    </ScrollContainer>
-                  }
-              />
-              )
-            )
-          || (
-            mode === 'preview' && (
-              <PreviewMarkdown 
-                rawContent={rawContent} 
-              /> 
-            )
-          )
-        }
-        </ScrollContainer>
-        
+      <EditorMode
+        mode={mode}
+        rawContent={rawContent}
+        readOnly={readOnly}
+        onChangeContent={onChangeContent}
+        fill={fill}
+      />
     </Stack>
   )
 
 }
+
+
+const EditorMode = ({ mode, rawContent, readOnly, onChangeContent, fill }) => {
+  const ModeComponent = mode === 'source' ? SourceMode : mode === 'split' ? SplitMode : PreviewMode;
+  
+  const content = (
+    <ModeComponent
+      fill={fill}
+      rawContent={rawContent}
+      readOnly={readOnly}
+      onChangeContent={onChangeContent}
+    />
+  );
+
+  return fill ? <ScrollContainer>{content}</ScrollContainer> : content;
+};
+
+const SourceMode = ({ rawContent, readOnly, onChangeContent }) => (
+  <InlineMonacoEditor
+    code={rawContent}
+    language={"markdown"}
+    readOnly={readOnly}
+    onChange={onChangeContent}
+    editorOptions={editorOptions}
+  />
+);
+
+const SplitMode = ({ rawContent, readOnly, onChangeContent, fill }) => {
+  // Conditional rendering of ScrollContainer
+  const editorPart = (
+    <InlineMonacoEditor
+      code={rawContent}
+      language={"markdown"}
+      readOnly={readOnly}
+      onChange={onChangeContent}
+      editorOptions={editorOptions}
+    />
+  );
+
+  const previewPart = (
+    <PreviewMarkdown rawContent={rawContent} />
+  );
+
+  return (
+    <ResizePanel
+      leftPanel={
+        fill ? <ScrollContainer>{editorPart}</ScrollContainer> : editorPart
+      }
+      rightPanel={
+        fill ? <ScrollContainer>{previewPart}</ScrollContainer> : previewPart
+      }
+    />
+  );
+};
+
+const PreviewMode = ({ rawContent }) => (
+  <PreviewMarkdown rawContent={rawContent} />
+);
+
+
+
 
 const PreviewMarkdown = ({ rawContent }) => {
   return (

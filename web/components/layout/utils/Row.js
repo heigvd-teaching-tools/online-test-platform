@@ -10,7 +10,6 @@ const Row = ({
     <Stack
       direction="row"
       onClick={onClick}
-      sx={{ cursor: onClick ? 'pointer' : 'auto' }}
       spacing={spacing}
       p={padding}
       width="100%"
