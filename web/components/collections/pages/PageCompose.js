@@ -56,7 +56,6 @@ const PageCompose = () => {
   const {
     data: collection,
     error: errorCollection,
-    mutate: mutateCollection,
   } = useSWR(
     `/api/${groupScope}/collections/${collectionId}`,
       groupScope && collectionId ? fetcher : null
