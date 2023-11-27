@@ -19,6 +19,7 @@ const QuestionView = ({ order, points, question, totalPages }) => {
       <Stack direction="row" alignItems="center" spacing={1}>
         <Column width="32px">
           <Image
+            alt={`Question Type Icon`}
             src={`/svg/questions/${question.type}.svg`}
             width={32}
             height={32}

@@ -25,6 +25,7 @@ const StudentPermissionIcon = ({ permission, size=16 }) => {
         <Tooltip title={permissionToIcon[permission].tooltip} placement="bottom">
             <Stack>
                 <Image
+                    alt={"permission"}
                     src={permissionToIcon[permission].src}
                     width={size}
                     height={size}

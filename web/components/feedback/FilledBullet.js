@@ -23,7 +23,7 @@ const FilledBullet = ({ state = "empty", color = "info", size = 12 }) => {
 
 const EmptyBulletIcon = ({ color, size }) => (
   <svg  width={size} height={size} viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="10" fill="none" stroke={color} stroke-linecap="square" stroke-miterlimit="10" stroke-width="2" stroke-linejoin="miter" />
+    <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeLinecap="square" strokeMiterlimit="10" strokeWidth="2" strokeLinejoin="miter" />
   </svg>
 );
 
@@ -34,8 +34,8 @@ const HalfFilledBulletIcon = ({ color, size }) => (
         <rect x="0" y="0" width="12" height="24" />
       </clipPath>
     </defs>
-    <circle cx="12" cy="12" r="10" fill="none" stroke={color} stroke-linecap="square" stroke-miterlimit="10" stroke-width="2" stroke-linejoin="miter" />
-    <circle cx="12" cy="12" r="10" fill={color} clip-path="url(#halfClip)" />
+    <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeLinecap="square" strokeMiterlimit="10" strokeWidth="2" strokeLinejoin="miter" />
+    <circle cx="12" cy="12" r="10" fill={color} clipPath="url(#halfClip)" />
   </svg>
 );
 
