@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import LayoutMain from '../../layout/LayoutMain'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { QuestionType, Role } from '@prisma/client'
@@ -24,6 +24,7 @@ import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
+import { set } from 'lodash'
 
 const PageList = () => {
   const router = useRouter()
@@ -33,6 +34,10 @@ const PageList = () => {
   const { show: showSnackbar } = useSnackbar()
 
   const [queryString, setQueryString] = useState("")
+
+  useEffect(() => {
+    setQueryString("")
+  }, [groupScope])
 
   const {
     data: questions,

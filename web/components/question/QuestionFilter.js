@@ -107,6 +107,17 @@ const QuestionFilter = ({ filters:initial, onApplyFilter }) => {
     [filter]
   )
 
+  const isFilterApplied = useCallback(() => {
+    // Compare each filter field with its initial value
+    return (
+      filter.title !== initialFilters.title ||
+      filter.content !== initialFilters.content ||
+      JSON.stringify(filter.tags) !== JSON.stringify(initialFilters.tags) ||
+      JSON.stringify(filter.questionTypes) !== JSON.stringify(initialFilters.questionTypes) ||
+      JSON.stringify(filter.codeLanguages) !== JSON.stringify(initialFilters.codeLanguages)
+    );
+  }, [filter]);
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault(); // Prevent default form submission which reloads the page
     const newFilter = await applyFilter(filter);
@@ -124,7 +135,6 @@ const QuestionFilter = ({ filters:initial, onApplyFilter }) => {
           label={'Filter by title'}
           variant="outlined"
           fullWidth
-          autoFocus
           color="info"
           size="small"
           value={filter.title}
@@ -204,6 +214,7 @@ const QuestionFilter = ({ filters:initial, onApplyFilter }) => {
           </Button>
           <Button
             variant="outlined"
+            disabled={!isFilterApplied()}
             onClick={async () => {
               setFilter(initialFilters)
               onApplyFilter && onApplyFilter(await applyFilter(initialFilters))
