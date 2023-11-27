@@ -18,8 +18,6 @@ import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
 import AlertFeedback from '../feedback/AlertFeedback'
 import { LoadingButton } from '@mui/lab'
-import { set } from 'lodash'
-
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
   return (
@@ -55,7 +53,7 @@ const SubmittedOverlay = ({ onUnsubmit }) => {
   )
 }
      
-const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
+const AnswerEditor = ({ status:initial, question, onAnswer, onSubmit, onUnsubmit }) => {
   const router = useRouter()
   const { evaluationId } = router.query
 
@@ -65,11 +63,9 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       { revalidateOnFocus: false }
   )
 
-  const [ status, setStatus ] = useState()
+  const [ status, setStatus ] = useState(initial)
 
-  useEffect(() => {
-    mutate()
-  }, [question])
+  useEffect(() => setStatus(initial), [initial])
 
   useEffect(() => {
     setStatus(answer?.status)
@@ -93,6 +89,7 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       method: 'PUT',
     })
     .finally(async () => {
+      setStatus(StudentAnswerStatus.SUBMITTED)
       onSubmit && onSubmit(question)
       await mutate()
     })
@@ -105,6 +102,7 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       method: 'DELETE',
     })
     .finally(async () => {
+      setStatus(StudentAnswerStatus.IN_PROGRESS)
       onUnsubmit && onUnsubmit(question)
       await mutate()
     })
@@ -112,7 +110,7 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
   }, [onUnsubmit, question])
 
 
-  const isReadOnly = answer?.status === StudentAnswerStatus.SUBMITTED
+  const isReadOnly = status === StudentAnswerStatus.SUBMITTED
 
   return (
     <Loading errors={[error]} loading={!answer}>
@@ -170,7 +168,6 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
       <SubmissionToolbar 
         lock={submitLock}
         status={status}
-        answer={answer}
         onSubmit={onSubmitClick}
         onUnsubmit={onUnsubmitClick}
       />
@@ -179,7 +176,7 @@ const AnswerEditor = ({ question, onAnswer, onSubmit, onUnsubmit }) => {
     )
 }
 
-const SubmissionToolbar = ({ lock, status, answer, onSubmit, onUnsubmit }) => {
+const SubmissionToolbar = ({ lock, status, onSubmit, onUnsubmit }) => {
 
   return (
     status !== StudentAnswerStatus.MISSING && (

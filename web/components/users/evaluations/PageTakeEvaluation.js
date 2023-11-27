@@ -27,6 +27,7 @@ import QuestionTypeIcon from "@/components/question/QuestionTypeIcon"
 import DataGrid from "@/components/ui/DataGrid"
 import { useTheme } from "@emotion/react"
 import { LoadingButton } from "@mui/lab"
+import { useDebouncedCallback } from "use-debounce"
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -115,6 +116,11 @@ const PageTakeEvaluation = () => {
     }
   }
 
+  const debouncheMutate = useDebouncedCallback(() => {
+    console.log("mutate called")
+    mutate()
+  }, 500);
+
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading loading={!evaluationPhase} errors={[errorEvaluationPhase]}>
@@ -165,7 +171,10 @@ const PageTakeEvaluation = () => {
                               return newPages
                             })
                           }
-                          mutate()
+                          // Update in memory to reflect changes before the server responds (usefull under high latency conditions)
+                          const jstq = evaluationToQuestion.find((jtq) => jtq.question.id === questionId)
+                          jstq.question.studentAnswer[0].status = StudentAnswerStatus.SUBMITTED
+                          debouncheMutate()
                         }}
                       />
                     }
@@ -220,12 +229,10 @@ const LeftPanel = ({ evaluationId, page, pages, conditions, activeQuestion }) =>
 
 const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubmit }) => {
    
-  if(page === 0) {
     return (
-      <Stack p={2}>
-
+      <>
+      <Stack p={2} display={page === 0 ? 'block' : 'none'}>
         <Typography variant="h5">Evaluation is composed of <b>{evaluationToQuestion.length}</b> questions having a total of <b>{evaluationToQuestion.reduce((acc, jtq) => acc + jtq.points, 0)}</b> pts.</Typography>
-
         <Stack spacing={1}>
             <QuestionsGrid
               evaluationId={evaluationId}
@@ -234,10 +241,7 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubm
             />
         </Stack>
       </Stack>
-    );
-  } else {
-    return (
-      evaluationToQuestion.map((q, index) => (
+      { evaluationToQuestion.map((q, index) => (
         <Box
           key={q.question.id}
           height="100%"
@@ -247,6 +251,7 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubm
             <ScrollContainer>
               <AnswerEditor
                 question={q.question}
+                status={q.question.studentAnswer[0].status}
                 onAnswer={(question, updatedStudentAnswer) => {
                   /* update the users answers status in memory */
                   question.studentAnswer[0].status = updatedStudentAnswer.status                  
@@ -281,12 +286,17 @@ const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubm
           </ResizeObserverProvider>
         </Box>
       ))
+      }
+      </>
     )
-  }
 }
 
 const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
   const [submitLock, setSubmitLock] = useState(false)
+
+  const [ status, setStatus ] = useState(answerStatus)
+
+  useEffect(() => setStatus(answerStatus), [answerStatus])
 
   const onSubmitClick = useCallback(async (questionId) => {
     setSubmitLock(true)
@@ -294,13 +304,14 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
       method: 'PUT',
     })
     .finally(async () => {
+      setStatus(StudentAnswerStatus.SUBMITTED)
       onSubmit && onSubmit()
     })
     setSubmitLock(false)
   }, [onSubmit])
 
   return (
-    answerStatus !== StudentAnswerStatus.MISSING &&
+    status !== StudentAnswerStatus.MISSING &&
         <LoadingButton
           key="submit"
           loading={submitLock}
@@ -313,7 +324,7 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
             onSubmitClick(questionId);
             
           }}
-          disabled={answerStatus === StudentAnswerStatus.SUBMITTED}
+          disabled={status === StudentAnswerStatus.SUBMITTED}
         >
           Submit
         </LoadingButton>

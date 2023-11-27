@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { Box, Stack, Tooltip, Typography } from '@mui/material'
-import { getTextByType, getTooltipByType, toArray as typesToArray } from './types.js'
+import { getTextByType, getTooltipByType } from './types.js'
 
 const QuestionTypeIcon = ({ type, size = 32, withLabel = false }) => {
   return (

@@ -5,17 +5,17 @@ const StatusDisplay = ({ status, size = 16 }) => {
     const renderStatus = (status) => {
         switch (status) {
             case "SUCCESS":
-                return <Image src="/svg/status/success.svg" width={size} height={size} />
+                return <Image src="/svg/status/success.svg" width={size} height={size} alt="success" />
             case "ERROR":
-                return <Image src="/svg/status/error.svg" width={size} height={size} />
+                return <Image src="/svg/status/error.svg" width={size} height={size} alt="error" />
             case "WARNING":
-                return <Image src="/svg/status/warning.svg" width={size} height={size} />
+                return <Image src="/svg/status/warning.svg" width={size} height={size} alt="warning" />
             case "RUNNING":
-                return <Image src="/svg/status/running.svg" width={size} height={size} />
+                return <Image src="/svg/status/running.svg" width={size} height={size} alt="running" />
             case "LOADING":
-                return <Image src="/svg/status/running.svg" width={size} height={size} />
+                return <Image src="/svg/status/running.svg" width={size} height={size} alt="loading" />
             case "NEUTRAL":
-                return <Image src="/svg/status/neutral.svg" width={size} height={size} />
+                return <Image src="/svg/status/neutral.svg" width={size} height={size} alt="neutral" />
             case 'WIFI-ON':
                 return <WifiOnIcon width={size} height={size} />
             case 'WIFI-OFF':

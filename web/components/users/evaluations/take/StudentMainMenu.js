@@ -22,9 +22,7 @@ const StudentMainMenu = ({ evaluationId, evaluationPhase, pages = [], page }) =>
                 </Box>
             )}
             <Stack>
-                <Tabs
-                    value={page}
-                >
+                <Tabs value={page}>
                     <Tab 
                         label="Home" 
                         iconPosition="start"
