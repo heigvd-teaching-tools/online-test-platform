@@ -32,16 +32,14 @@ const PageList = () => {
 
   const { show: showSnackbar } = useSnackbar()
 
-  const [queryString, setQueryString] = useState(undefined)
+  const [queryString, setQueryString] = useState("")
 
   const {
     data: questions,
     error,
     mutate,
   } = useSWR(
-    `/api/${groupScope}/questions${
-      queryString ? `?${new URLSearchParams(queryString).toString()}` : ''
-    }`,
+    `/api/${groupScope}/questions?${queryString}`,
       groupScope ? fetcher : null
   )
 
@@ -81,7 +79,12 @@ const PageList = () => {
       <Loading loading={!questions} errors={[error]}>
         <LayoutMain header={<MainMenu />}>
           <LayoutSplitScreen
-            leftPanel={<QuestionFilter onApplyFilter={setQueryString} />}
+            leftPanel={
+              <QuestionFilter 
+                filters={queryString}
+                onApplyFilter={setQueryString} 
+              />
+            }
             rightWidth={80}
             rightPanel={
               questions && (

@@ -43,15 +43,13 @@ const PageCompose = () => {
 
   const { groupScope, collectionId } = router.query
 
-  const [queryString, setQueryString] = useState(undefined)
+  const [queryString, setQueryString] = useState('')
 
   const {
     data: searchQuestions,
     error: errorSearch,
   } = useSWR(
-    `/api/${groupScope}/questions${
-      queryString ? `?${new URLSearchParams(queryString).toString()}` : ''
-    }`,
+    `/api/${groupScope}/questions?${queryString}`,
       groupScope ? fetcher : null
   )
 
@@ -246,7 +244,10 @@ const PageCompose = () => {
             rightPanel={
               <Stack direction={'row'} height="100%">
                 <Box minWidth={'250px'}>
-                  <QuestionFilter onApplyFilter={setQueryString} />
+                  <QuestionFilter 
+                    filters={queryString}
+                    onApplyFilter={setQueryString} 
+                  />
                 </Box>
                 {collectionToQuestions && searchQuestions && (
                   <Stack spacing={2} padding={2} width={'100%'}>

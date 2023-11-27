@@ -47,12 +47,14 @@ const get = async (req, res, prisma) => {
   if (title) {
     where.where.title = {
       contains: title,
+      mode: 'insensitive',
     }
   }
 
   if (content) {
     where.where.content = {
       contains: content,
+      mode: 'insensitive',
     }
   }
 
@@ -61,6 +63,7 @@ const get = async (req, res, prisma) => {
       some: {
         label: {
           in: tags,
+          mode: 'insensitive',
         },
       },
     }
