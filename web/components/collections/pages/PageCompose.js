@@ -5,7 +5,6 @@ import { Role } from '@prisma/client'
 
 import {
   Box,
-  Button,
   IconButton,
   Stack,
   TextField,
@@ -135,12 +134,14 @@ const PageCompose = () => {
 
   const onChangeCollectionOrder = useCallback(
     async (sourceIndex, targetIndex) => {
+      // console.log("onChangeCollectionOrder", sourceIndex, "->", targetIndex);
       const reordered = [...collectionToQuestions];
   
-      // Swap the elements
-      const temp = reordered[targetIndex];
-      reordered[targetIndex] = reordered[sourceIndex];
-      reordered[sourceIndex] = temp;
+      // Remove the element from its original position
+      const [removedElement] = reordered.splice(sourceIndex, 1);
+  
+      // Insert the element at the target position
+      reordered.splice(targetIndex, 0, removedElement);
   
       // Update the order properties for all elements
       reordered.forEach((item, index) => {
@@ -152,6 +153,7 @@ const PageCompose = () => {
     },
     [collectionToQuestions, setCollectionToQuestions, debounceSaveOrdering]
   );
+  
   
   
 
