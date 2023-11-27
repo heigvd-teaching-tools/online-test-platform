@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import LayoutMain from '../../layout/LayoutMain'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { QuestionType, Role } from '@prisma/client'
@@ -24,6 +24,7 @@ import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
+import { set } from 'lodash'
 
 const PageList = () => {
   const router = useRouter()
@@ -32,16 +33,18 @@ const PageList = () => {
 
   const { show: showSnackbar } = useSnackbar()
 
-  const [queryString, setQueryString] = useState(undefined)
+  const [queryString, setQueryString] = useState("")
+
+  useEffect(() => {
+    setQueryString("")
+  }, [groupScope])
 
   const {
     data: questions,
     error,
     mutate,
   } = useSWR(
-    `/api/${groupScope}/questions${
-      queryString ? `?${new URLSearchParams(queryString).toString()}` : ''
-    }`,
+    `/api/${groupScope}/questions?${queryString}`,
       groupScope ? fetcher : null
   )
 
@@ -81,7 +84,12 @@ const PageList = () => {
       <Loading loading={!questions} errors={[error]}>
         <LayoutMain header={<MainMenu />}>
           <LayoutSplitScreen
-            leftPanel={<QuestionFilter onApplyFilter={setQueryString} />}
+            leftPanel={
+              <QuestionFilter 
+                filters={queryString}
+                onApplyFilter={setQueryString} 
+              />
+            }
             rightWidth={80}
             rightPanel={
               questions && (

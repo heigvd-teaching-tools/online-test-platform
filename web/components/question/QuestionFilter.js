@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -44,38 +44,87 @@ const applyFilter = async (toApply) => {
   return query
 }
 
-const QuestionFilter = ({ onApplyFilter }) => {
+const queryStringToFilter = (queryString) => {
+  const params = new URLSearchParams(queryString);
+
+   // Build the filter object based on the query string
+  const filter = {
+    title: params.get('title') || initialFilters.title,
+    content: params.get('content') || initialFilters.content,
+    tags: params.get('tags') ? params.get('tags').split(',') : initialFilters.tags,
+    questionTypes: { ...initialFilters.questionTypes },
+    codeLanguages: { ...initialFilters.codeLanguages },
+  };
+
+  if (params.get('questionTypes')) {
+    // set all questionTypes to false
+    Object.keys(filter.questionTypes).forEach(type => {
+      filter.questionTypes[type] = false;
+    });
+
+    // Update questionTypes and codeLanguages based on the query string
+    params.get('questionTypes').split(',').forEach(type => {
+      if (filter.questionTypes.hasOwnProperty(type)) {
+        filter.questionTypes[type] = true;
+      }
+    });
+  }
+
+  // Update codeLanguages based on the query string
+  if (params.get('codeLanguages')) {
+    // set all codeLanguages to false
+    Object.keys(filter.codeLanguages).forEach(language => {
+      filter.codeLanguages[language] = false;
+    });
+  
+    // Update codeLanguages based on the query string
+    params.get('codeLanguages')?.split(',').forEach(language => {
+      if (filter.codeLanguages.hasOwnProperty(language)) {
+        filter.codeLanguages[language] = true;
+      }
+    });
+  }
+
+  return filter;
+}
+
+
+
+const QuestionFilter = ({ filters:initial, onApplyFilter }) => {
   const { tags: allTags } = useTags()
 
-  const [filter, setFilter] = useState(() => {
-    // Load saved filter from local storage
-    let saved = localStorage.getItem('question-filter')
-    if (saved) {
-      saved = JSON.parse(saved)
-      ;(async () => {
-        onApplyFilter && onApplyFilter(await applyFilter(saved))
-      })()
-      return saved
-    }
-    return initialFilters
-  })
+  const [filter, setFilter] = useState(queryStringToFilter(initial))
+
+  useEffect(() => {
+    setFilter(queryStringToFilter(initial))
+  }, [initial])
 
   const updateFilter = useCallback(
     (key, value) => {
       const newFilter = { ...filter, [key]: value }
-      localStorage.setItem('question-filter', JSON.stringify(newFilter))
       setFilter(newFilter)
     },
     [filter]
   )
 
-  const handleSubmit = async (e) => {
+  const isFilterApplied = useCallback(() => {
+    // Compare each filter field with its initial value
+    return (
+      filter.title !== initialFilters.title ||
+      filter.content !== initialFilters.content ||
+      JSON.stringify(filter.tags) !== JSON.stringify(initialFilters.tags) ||
+      JSON.stringify(filter.questionTypes) !== JSON.stringify(initialFilters.questionTypes) ||
+      JSON.stringify(filter.codeLanguages) !== JSON.stringify(initialFilters.codeLanguages)
+    );
+  }, [filter]);
+
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault(); // Prevent default form submission which reloads the page
-    onApplyFilter && onApplyFilter(await applyFilter(filter));
-  };
+    const newFilter = await applyFilter(filter);
+    onApplyFilter && onApplyFilter(new URLSearchParams(newFilter).toString());
+  }, [filter, onApplyFilter]);
 
   return (
-    filter && (
       <form onSubmit={handleSubmit}>
       <Stack spacing={2} padding={2}>
         <Typography variant="body2" color="info">
@@ -86,7 +135,6 @@ const QuestionFilter = ({ onApplyFilter }) => {
           label={'Filter by title'}
           variant="outlined"
           fullWidth
-          autoFocus
           color="info"
           size="small"
           value={filter.title}
@@ -166,8 +214,8 @@ const QuestionFilter = ({ onApplyFilter }) => {
           </Button>
           <Button
             variant="outlined"
+            disabled={!isFilterApplied()}
             onClick={async () => {
-              localStorage.removeItem('question-filter')
               setFilter(initialFilters)
               onApplyFilter && onApplyFilter(await applyFilter(initialFilters))
             }}
@@ -179,7 +227,6 @@ const QuestionFilter = ({ onApplyFilter }) => {
       </Stack>
       </form>
     )
-  )
 }
 const CheckboxLabel = ({ label, checked, onChange }) => {
   const setToggleCheckBox = useCallback(
