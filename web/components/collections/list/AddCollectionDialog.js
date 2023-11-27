@@ -53,6 +53,7 @@ const AddCollectionDialog = ({ open, onClose, handleAddCollection }) => {
           <TextField
             label="Label"
             id="collection-label"
+            autoFocus={true}
             fullWidth
             value={label}
             {...bindLabel}
