@@ -123,31 +123,31 @@ const Evaluations = () => {
             }
             padding={2}
           >
-            {evaluations && evaluations.length > 0 && (
-              <ListEvaluation
-                groupScope={groupScope}
-                evaluations={evaluations.filter(
-                  (evaluation) =>
-                    evaluation.status === tab
-                )}
-                onStart={(ev, session) => {
-                  ev.stopPropagation()
-                  ev.preventDefault()
-                  setSelected(session)
-                  setEndOfDraftDialogOpen(true)
-                }}
-                onDelete={(ev, evaluation) => {
-                  ev.preventDefault()
-                  ev.stopPropagation()
-                  setSelected(evaluation)
-                  if (evaluation.status === EvaluationStatus.ARCHIVED) {
-                    setDeleteDialogOpen(true)
-                  } else {
-                    setArchiveDialogOpen(true)
-                  }
-                }}
-              />
-            )}
+            
+          <ListEvaluation
+            groupScope={groupScope}
+            evaluations={evaluations?.filter(
+              (evaluation) =>
+                evaluation.status === tab
+            ) || []}
+            onStart={(ev, session) => {
+              ev.stopPropagation()
+              ev.preventDefault()
+              setSelected(session)
+              setEndOfDraftDialogOpen(true)
+            }}
+            onDelete={(ev, evaluation) => {
+              ev.preventDefault()
+              ev.stopPropagation()
+              setSelected(evaluation)
+              if (evaluation.status === EvaluationStatus.ARCHIVED) {
+                setDeleteDialogOpen(true)
+              } else {
+                setArchiveDialogOpen(true)
+              }
+            }}
+          />
+            
           </LayoutMain>
           <DialogFeedback
             open={archiveDialogOpen}
