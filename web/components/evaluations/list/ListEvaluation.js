@@ -11,13 +11,12 @@ import { weeksAgo } from '@/components/questions/list/utils'
 import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
+  <Stack spacing={1} height={"100%"}>
+   <Link href={`/${groupScope}/evaluations/new`}>
+    <Button>Create a new evaluation</Button>
+  </Link>
   <GridGrouping
     label={"Evaluations"}
-    actions={
-        <Link href={`/${groupScope}/evaluations/new`}>
-          <Button>Create a new evaluation</Button>
-        </Link>
-    }
     header={{
       actions: {
         label: 'Actions',
@@ -163,6 +162,7 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
       },
     ]}
   />
+  </Stack>
 )
 
 export default ListEvaluation
