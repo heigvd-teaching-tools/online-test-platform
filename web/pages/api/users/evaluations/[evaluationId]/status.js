@@ -53,6 +53,7 @@ const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus
         },
         data: {
           status: UserOnEvaluationStatus.FINISHED,
+          finishedAt: new Date(),
         },
       })
 
