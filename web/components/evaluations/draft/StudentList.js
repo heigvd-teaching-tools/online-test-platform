@@ -1,6 +1,6 @@
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { StudentAnswerStatus } from "@prisma/client"
+import { StudentAnswerStatus, UserOnEvaluationStatus } from "@prisma/client"
 import { IconButton, Stack, Tooltip, Typography } from "@mui/material"
 
 import UserAvatar from "@/components/layout/UserAvatar"
@@ -8,10 +8,87 @@ import Datagrid from "@/components/ui/DataGrid"
 import FilledBullet from "@/components/feedback/FilledBullet"
 import PiePercent from "@/components/feedback/PiePercent"
 
-import DateTimeAgo from "@/components/feedback/DateTimeAgo"
+import DropdownSelector from "@/components/input/DropdownSelector"
 
 
-const StudentList = ({ groupScope, evaluationId, title, students, questions = [] }) => {
+const StudentStatusManager = ({ groupScope, evaluationId, userEmail, status:initial, onChange }) => {
+
+    const [ status, setStatus ] = useState(initial);
+
+    useEffect(() => {
+        setStatus(initial)
+    }, [initial]);
+
+    const statusToColor = {
+        [UserOnEvaluationStatus.IN_PROGRESS]: 'success',
+        [UserOnEvaluationStatus.FINISHED]: 'error'
+    }
+
+    const statusToText = {
+        [UserOnEvaluationStatus.IN_PROGRESS]: 'In progress',
+        [UserOnEvaluationStatus.FINISHED]: 'Finished'
+    }
+
+    const handleStatusChange = useCallback(async (status) => {
+        
+            await fetch(`/api/${groupScope}/evaluations/${evaluationId}/students/${userEmail}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                setStatus(res.status);
+                if (onChange) onChange(res.status);
+            });
+        
+        
+    }, [evaluationId, userEmail, status, onChange]);
+
+    const Option = ({ value }) => <Stack direction={"row"} spacing={1}>
+        <FilledBullet state={"filled"} color={statusToColor[value]} />
+        <Typography variant={"caption"} noWrap>{statusToText[value]}</Typography>
+    </Stack>
+
+    return (
+        <DropdownSelector
+            color={statusToColor[status]}
+            variant={"text"}
+            optionInLabel
+            label={(option) => <Option value={option.value} />}
+            value={status}
+            options={[
+                {
+                    label: <Option value={UserOnEvaluationStatus.IN_PROGRESS} />,
+                    value: UserOnEvaluationStatus.IN_PROGRESS
+                },
+                {
+                    label: <Option value={UserOnEvaluationStatus.FINISHED} />,
+                    value: UserOnEvaluationStatus.FINISHED
+                },
+            ]}
+            onSelect={async (value) => await handleStatusChange(value)}
+
+        />
+    )
+}
+
+const DateTimeCell = ( { dateTime }) => {
+    return (
+        <>
+            <Typography variant="caption">{new Date(dateTime).toLocaleDateString()}</Typography>
+            <Typography variant="body2">
+                {new Date(dateTime).toLocaleTimeString()}
+            </Typography>
+        </>
+    )
+}
+
+const StudentList = ({ groupScope, evaluationId, title, students, questions = [], onChange }) => {
 
     const columns = [
         {
@@ -19,16 +96,13 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
             column: { minWidth: 230, flexGrow: 1 },
             renderCell: (row) => <UserAvatar user={row.user} />,
         },
+       
         {
-            label: 'Registered at',
-            column: { minWidth: 170, width: 170 },
-            renderCell: (row) => <>
-                <Typography variant="body2">{new Date(row.registeredAt).toLocaleString()}</Typography>
-                <Typography variant="caption">
-                    <DateTimeAgo date={new Date(row.registeredAt)} />
-                </Typography>
-            </>,
+            label: 'Registered',
+            column: { minWidth: 90, width: 90 },
+            renderCell: (row) => <DateTimeCell dateTime={row.registeredAt} />,
         },
+       
     ]
 
     const getBulletState = (studentAnswerStatus) => {
@@ -48,31 +122,68 @@ const StudentList = ({ groupScope, evaluationId, title, students, questions = []
     const questionColumns = useMemo( () => questions.map(q => ({
         label: `Q${q.order + 1}`, // Assuming questions order starts at 0
         tooltip: q.question.title,
-        column: { width: 40 },
+        column: { width: 40, minWidth: 40 },
         renderCell: (row) => <FilledBullet state={getBulletState(getStudentAnswerStatus(row.user.email, q.question.id))} />,
     })), [questions]);
 
     if(questionColumns.length > 0) {
         columns.push({
-            label: 'Actions',
+            label:'Finished', 
             column: { minWidth: 90, width: 90 },
-            renderCell: (row) => <Tooltip title="Spy student" key="view-student-answers">
-                <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.user.email}/1`} target="_blank">
-                <IconButton size="small">
-                    <Image
-                        alt="View"
-                        src="/svg/icons/view-user.svg"
-                        width="18"
-                        height="18"
-                    />
-    
-                </IconButton>
-                </a>
-            </Tooltip>
+            renderCell: (row) => {
+                return (
+                    row.finishedAt ? (
+                        <DateTimeCell dateTime={row.finishedAt} />
+                    ) : (
+                        <Typography variant={"caption"}>/</Typography>
+                    )
+                )
+            },
+        });
+        columns.push({
+            label: 'Actions',
+            column: { minWidth: 150, width: 150 },
+            renderCell: (row) => {
+                return (
+                    <StudentStatusManager 
+                        groupScope={groupScope}
+                        evaluationId={evaluationId} 
+                        userEmail={row.user.email} 
+                        status={row.status} 
+                        onChange={() => {
+                            onChange && onChange();
+                        }}
+                    />,
+                )
+            }
+        });
+        columns.push({
+            label: '',
+            column: { minWidth: 40, width: 40 },
+            renderCell: (row) => {
+                return (
+                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                        <Tooltip title="Spy student" key="view-student-answers">
+                            <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.user.email}/1`} target="_blank">
+                            <IconButton size="small">
+                                <Image
+                                    alt="View"
+                                    src="/svg/icons/view-user.svg"
+                                    width="18"
+                                    height="18"
+                                />
+                
+                            </IconButton>
+                            </a>
+                        </Tooltip>
+                    </Stack>
+                )
+
+            }
         })
         columns.push({
-            label: 'Overall',
-            column: { minWidth: 90, width: 90 },
+            label: <Tooltip title="Percentage of Submitted answers" key="submission-percentage"> Overall </Tooltip>,
+            column: { minWidth: 70, width: 70 },
             renderCell: (row) => <PiePercent value={getSubmissionPercentage(row.user.email) || 0} />,
         })
         columns.push(...questionColumns)

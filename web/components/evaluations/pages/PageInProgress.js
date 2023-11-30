@@ -49,6 +49,7 @@ const PageInProgress = () => {
   const {
     data: students,
     error: errorStudents,
+    mutate: mutateStudents,
   } = useSWR(
       `/api/${groupScope}/evaluations/${evaluationId}/students`,
       groupScope && evaluationId ? fetcher : null,
@@ -187,6 +188,7 @@ const PageInProgress = () => {
                     title={"Students submissions"}
                     students={students?.students}
                     questions={students?.evaluationToQuestions}
+                    onChange={() => mutateStudents()}
                   />
                 </Loading>
 
