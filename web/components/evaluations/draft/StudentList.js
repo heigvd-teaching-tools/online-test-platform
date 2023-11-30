@@ -29,6 +29,11 @@ const StudentStatusManager = ({ groupScope, evaluationId, userEmail, status:init
         [UserOnEvaluationStatus.FINISHED]: 'Finished'
     }
 
+    const statusToTooltip = {
+        [UserOnEvaluationStatus.IN_PROGRESS]: 'The student is currently allowed to work on the evaluation',
+        [UserOnEvaluationStatus.FINISHED]: 'The student has finished and is no longer allowed to work on the evaluation',
+    }
+
     const handleStatusChange = useCallback(async (status) => {
         
             await fetch(`/api/${groupScope}/evaluations/${evaluationId}/students/${userEmail}/status`, {
@@ -49,10 +54,12 @@ const StudentStatusManager = ({ groupScope, evaluationId, userEmail, status:init
         
     }, [evaluationId, userEmail, status, onChange]);
 
-    const Option = ({ value }) => <Stack direction={"row"} spacing={1}>
-        <FilledBullet state={"filled"} color={statusToColor[value]} />
-        <Typography variant={"caption"} noWrap>{statusToText[value]}</Typography>
-    </Stack>
+    const Option = ({ value }) => <Tooltip title={statusToTooltip[value]} placement={"left"}>
+        <Stack direction={"row"} spacing={1}>
+            <FilledBullet state={"filled"} color={statusToColor[value]} />
+            <Typography variant={"caption"} noWrap>{statusToText[value]}</Typography>
+        </Stack>
+    </Tooltip>
 
     return (
         <DropdownSelector

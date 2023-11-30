@@ -53,7 +53,11 @@ const PageWaiting = () => {
                             : 'This session is not in progress.'}
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                          Please wait until the professor starts the evaluation.
+                          {
+                            data.evaluation.phase === EvaluationPhase.GRADING
+                              ? 'Please wait until the professor finishes grading.'
+                              : 'Please wait until the professor starts the evaluation.'
+                          }
                         </Typography>
                         <Button onClick={() => signOut()}>Sign out</Button>
                       </>

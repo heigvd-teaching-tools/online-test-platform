@@ -26,7 +26,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
             setLockCodeCheck(true)
             const currentFile = answer.code.files.find((f) => f.file.id === file.id)
             if (currentFile.file.content === file.content) return
-            const updatedStudentAnswer = await fetch(
+            const response = await fetch(
                 `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/code/${file.id}`,
                 {
                     method: 'PUT',
@@ -35,9 +35,12 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
                     },
                     body: JSON.stringify({ file }),
                 }
-            ).then((res) => res.json())
+            )
+
+            const ok = response.ok
+            const data = await response.json()
             setLockCodeCheck(false)
-            onAnswerChange && onAnswerChange(updatedStudentAnswer)
+            onAnswerChange && onAnswerChange(ok, data)
         },
         [evaluationId, questionId, answer, onAnswerChange]
     )
