@@ -13,6 +13,11 @@ const get = async (req, res, prisma) => {
         select: {
           user: true,
           registeredAt: true,
+          finishedAt: true,
+          status: true,
+        },
+        orderBy: {
+          registeredAt: 'asc',
         },
       },
       evaluationToQuestions: {

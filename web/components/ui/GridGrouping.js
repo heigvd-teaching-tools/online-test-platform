@@ -106,7 +106,8 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
         <Stack direction="row" alignItems="center" justifyContent="space-between" zIndex={2}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <DropdownSelector
-                label={`${items.length} ${label} grouped by`}
+                label={(option) => `${items.length} ${label} grouped by ${option.label}`}
+                optionInLabel
                 color="info"
                 value={selectedGrouping.option}
                 options={groupings.map((g) => ({ label: g.option, value: g.option }))}
@@ -115,6 +116,8 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
             <DropdownSelector
                 color="info"
+                label={(option) => option.label}
+                optionInLabel
                 value={navigation}
                 options={navigationOptions}
                 onSelect={handleNavigationChange}

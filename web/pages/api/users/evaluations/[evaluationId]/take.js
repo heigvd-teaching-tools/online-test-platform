@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client'
+import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
 import { getUser } from '@/code/auth'
 import {
@@ -8,6 +8,7 @@ import {
 import { isInProgress } from './questions/[questionId]/answers/utils'
 import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudentEvaluation'
 
 /*
 Get the details about thr evaluation for a users
@@ -18,58 +19,61 @@ Each question has included the answer for that particular users only
 
 */
 
-const get = async (req, res, prisma) => {
+const get = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
+  async (req, res, prisma) => {
 
-  const { evaluationId } = req.query
-  const { email } = await getUser(req)
+      const { evaluationId } = req.query
+      const { email } = await getUser(req)
 
-  if (!(await isInProgress(evaluationId, prisma))) {
-    res.status(400).json({ message: 'evaluation is not in progress' })
-    return
-  }
+      if (!(await isInProgress(evaluationId, prisma))) {
+        res.status(400).json({ message: 'evaluation is not in progress' })
+        return
+      }
 
-  let includeQuestions = questionIncludeClause({
-    includeTypeSpecific: false,
-    includeUserAnswers: {
-      strategy: IncludeStrategy.USER_SPECIFIC,
-      userEmail: email,
-    },
-  })
+      let includeQuestions = questionIncludeClause({
+        includeTypeSpecific: false,
+        includeUserAnswers: {
+          strategy: IncludeStrategy.USER_SPECIFIC,
+          userEmail: email,
+        },
+      })
 
-  const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
-    where: {
-      userEmail_evaluationId: {
-        userEmail: email,
-        evaluationId: evaluationId,
-      },
-    },
-    include: {
-      evaluation: {
+      const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
+        where: {
+          userEmail_evaluationId: {
+            userEmail: email,
+            evaluationId: evaluationId,
+          },
+        },
         include: {
-          evaluationToQuestions: {
+          evaluation: {
             include: {
-              question: {
-                include: includeQuestions,
+              evaluationToQuestions: {
+                include: {
+                  question: {
+                    include: includeQuestions,
+                  },
+                },
+                orderBy: {
+                  order: 'asc',
+                },
               },
-            },
-            orderBy: {
-              order: 'asc',
             },
           },
         },
-      },
-    },
-  })
+      })
 
-  if (!userOnEvaluation) {
-    res
-      .status(403)
-      .json({ message: 'You are not allowed to access this evaluation' })
-    return
-  }
+      if (!userOnEvaluation) {
+        res
+          .status(403)
+          .json({ message: 'You are not allowed to access this evaluation' })
+        return
+      }
 
-  res.status(200).json(userOnEvaluation.evaluation)
-}
+      res.status(200).json(userOnEvaluation.evaluation)
+    }
+  )
+)
 
 export default withMethodHandler({
   GET: withAuthorization(

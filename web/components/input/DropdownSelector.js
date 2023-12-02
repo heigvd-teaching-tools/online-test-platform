@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
-const DropdownSelector = ({ label, color, options, onSelect, value }) => {
+const DropdownSelector = ({ label, color, options, optionInLabel, variant = "outlined", onSelect, value }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0); // Default to first option
@@ -52,13 +52,13 @@ const DropdownSelector = ({ label, color, options, onSelect, value }) => {
   return (
     <Box>
       <ButtonGroup
-        variant="outlined"
+        variant={variant}
         color={color}
         ref={anchorRef}
         aria-label="split button"
       >
         <Button onClick={handleClick}>
-          {label} {options[selectedIndex]?.label || ''}
+          {label && label(options[selectedIndex])}
         </Button>
         <Button
           size="small"

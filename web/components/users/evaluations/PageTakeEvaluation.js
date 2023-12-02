@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import useSWR from "swr"
 import { useRouter } from "next/router"
-import { useSession } from "next-auth/react"
-import { Role, StudentAnswerStatus } from "@prisma/client"
+import { Role, StudentAnswerStatus, UserOnEvaluationStatus } from "@prisma/client"
 import { Box,  Chip, Stack, Typography} from "@mui/material"
 
 import { fetcher } from "@/code/utils"
@@ -28,6 +27,9 @@ import DataGrid from "@/components/ui/DataGrid"
 import { useTheme } from "@emotion/react"
 import { LoadingButton } from "@mui/lab"
 import { useDebouncedCallback } from "use-debounce"
+import AlertFeedback from "@/components/feedback/AlertFeedback"
+import Overlay from "@/components/ui/Overlay"
+import DialogFeedback from "@/components/feedback/DialogFeedback"
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -49,17 +51,23 @@ const PageTakeEvaluation = () => {
 
   const { evaluationId, pageIndex } = router.query
 
-  const { data: session } = useSession()
-
-  const { data: evaluationPhase, error: errorEvaluationPhase } = useSWR(
-    `/api/users/evaluations/${evaluationId}/phase`,
+  const { data: evaluationStatus, error: errorEvaluationStatus, mutate: mutateStatus } = useSWR(
+    `/api/users/evaluations/${evaluationId}/status`,
     evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )
 
+  const getEvaluationPhase = useCallback(() => {
+    return evaluationStatus?.evaluation?.phase;
+  }, [evaluationStatus])
+
+  const hasStudentFinished = useCallback(() => {
+    return evaluationStatus?.userOnEvaluation?.status === UserOnEvaluationStatus.FINISHED;
+  }, [evaluationStatus])
+
   const { data: userOnEvaluation, error: errorUserOnEvaluation, mutate } = useSWR(
     `/api/users/evaluations/${evaluationId}/take`,
-    session && evaluationId ? fetcher : null,
+    !hasStudentFinished() ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -68,8 +76,12 @@ const PageTakeEvaluation = () => {
   const [ pages, setPages ] = useState([])
 
   useEffect(() => {
+    mutate()
+  }, [evaluationStatus?.userOnEvaluation?.status])
+
+  useEffect(() => {
     const handleKeyDown = (event) => {
-      // Check if Ctrl or Cmd key is pressed along with 'S'
+      // Check if Ctrl + S is pressed
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 83) {
         event.preventDefault() // Prevent the default browser save action
         showSnackbar('Your answers are saved automatically', 'success')
@@ -84,7 +96,6 @@ const PageTakeEvaluation = () => {
   }, [showSnackbar])
 
   
-
   useEffect(() => {
     if (userOnEvaluation) {
 
@@ -119,77 +130,95 @@ const PageTakeEvaluation = () => {
   const debouncheMutate = useDebouncedCallback(() => {
     console.log("mutate called")
     mutate()
-  }, 500);
+  }, 500); 
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
-      <Loading loading={!evaluationPhase} errors={[errorEvaluationPhase]}>
-        {evaluationPhase && (
-          <StudentPhaseRedirect phase={evaluationPhase.phase}>
+      <StudentPhaseRedirect phase={getEvaluationPhase()}>
 
-            { userOnEvaluation && (
-              <>
-                <LayoutMain
-                    header={
-                      <Loading
-                        loading={!userOnEvaluation}
-                        errors={[errorUserOnEvaluation]}
-                        message={"Loading evaluation..."}
-                      >
-                        <StudentMainMenu
+      {hasStudentFinished() && (
+        <Overlay>
+          <AlertFeedback severity="info">
+              <Stack spacing={1}>
+                  <Typography variant="h5">Evaluation Completed</Typography>
+                  <Typography variant="body1">You have finished your evaluation. Submissions are now closed.</Typography>
+                  <Typography variant="body2">If you believe this is an error or if you have any questions, please reach out to your professor.</Typography>
+              </Stack>
+          </AlertFeedback>
+      </Overlay>
+      )}
+
+      {!hasStudentFinished() && (
+        <Loading loading={!userOnEvaluation || !evaluationStatus} errors={[errorEvaluationStatus]}>
+            
+              { userOnEvaluation && (
+                <>
+                  <LayoutMain
+                      header={
+                        <Loading
+                          loading={!userOnEvaluation}
+                          errors={[errorUserOnEvaluation]}
+                          message={"Loading evaluation..."}
+                        >
+                          <StudentMainMenu
+                            evaluationId={evaluationId}
+                            evaluation={evaluationStatus?.evaluation}
+                            pages={pages}
+                            page={page}
+                          />
+                        </Loading>
+                      }
+                  >
+                    <LayoutSplitScreen
+                      leftPanel={
+                        <LeftPanel
                           evaluationId={evaluationId}
-                          evaluationPhase={evaluationPhase}
-                          pages={pages}
                           page={page}
+                          pages={pages}
+                          conditions={userOnEvaluation.conditions}
+                          activeQuestion={activeQuestion}
                         />
-                      </Loading>
-                    }
-                >
-                  <LayoutSplitScreen
-                    leftPanel={
-                      <LeftPanel
-                        evaluationId={evaluationId}
-                        page={page}
-                        pages={pages}
-                        conditions={userOnEvaluation.conditions}
-                        activeQuestion={activeQuestion}
-                      />
-                    }
-                    rightPanel={
-                      <RightPanel
-                        evaluationId={evaluationId}
-                        page={page}
-                        conditions={userOnEvaluation.conditions}
-                        evaluationToQuestion={evaluationToQuestion}
-                        setPages={setPages}
-                        onSubmit={(questionId) => {
-                          const questionPage = pages.findIndex((page) => page.id === questionId)
-                          if (questionPage !== -1) {
-                            setPages((prevPages) => {
-                              const newPages = [...prevPages]
-                              newPages[questionPage].state = 'filled'
-                              return newPages
-                            })
-                          }
-                          // Update in memory to reflect changes before the server responds (usefull under high latency conditions)
-                          const jstq = evaluationToQuestion.find((jtq) => jtq.question.id === questionId)
-                          jstq.question.studentAnswer[0].status = StudentAnswerStatus.SUBMITTED
-                          debouncheMutate()
-                        }}
-                      />
-                    }
-                    rightWidth={rightPenelWidth(page, userOnEvaluation.conditions)}
-                  />
+                      }
+                      rightPanel={
+                        <RightPanel
+                          evaluationId={evaluationId}
+                          page={page}
+                          conditions={userOnEvaluation.conditions}
+                          evaluationToQuestion={evaluationToQuestion}
+                          setPages={setPages}
+                          onSubmit={(ok, questionId) => {
+                            if (!ok) {
+                              showSnackbar('Cannot submit answer', 'error')
+                              return
+                            }
+                            const questionPage = pages.findIndex((page) => page.id === questionId)
+                            if (questionPage !== -1) {
+                              setPages((prevPages) => {
+                                const newPages = [...prevPages]
+                                newPages[questionPage].state = 'filled'
+                                return newPages
+                              })
+                            }
+                            // Update in memory to reflect changes before the server responds (usefull under high latency conditions)
+                            const jstq = evaluationToQuestion.find((jtq) => jtq.question.id === questionId)
+                            jstq.question.studentAnswer[0].status = StudentAnswerStatus.SUBMITTED
+                            debouncheMutate()
+                          }}
+                          onEndEvaluation={() => {
+                            mutateStatus()
+                          }}
+                        />
+                      }
+                      rightWidth={rightPenelWidth(page, userOnEvaluation.conditions)}
+                    />
 
-                </LayoutMain>
-               </>
-            )}
+                  </LayoutMain>
+                </>
+              )}          
+        </Loading>
+      )}
 
-          </StudentPhaseRedirect>
-        )}
-      </Loading>
-
-
+      </StudentPhaseRedirect>
     </Authorisation>
   )
 }
@@ -225,14 +254,80 @@ const LeftPanel = ({ evaluationId, page, pages, conditions, activeQuestion }) =>
   }
 };
 
+const ButtonEndEvaliation = ({ evaluationId, onEndEvaluation }) => {
 
+  const [loading, setLoading] = useState(false)
 
-const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubmit }) => {
+  const [ endDialogOpen, setEndDialogOpen ] = useState(false)
+
+  const handleEndEvaluation = useCallback(async () => {
+    setLoading(true)
+    const response = await fetch(`/api/users/evaluations/${evaluationId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const ok = response.ok
+    const data = await response.json()
+    onEndEvaluation && onEndEvaluation(ok, data.message)
+   
+    setLoading(false)
+
+  }, [evaluationId, onEndEvaluation])
+
+  return (
+    <Box>
+    <LoadingButton
+      variant="contained"
+      color="primary"
+      size="small"
+      loading={loading}
+      onClick={(ev) => {
+        ev.stopPropagation();
+        setEndDialogOpen(true)
+      }}
+    >
+      End evaluation
+    </LoadingButton>
+    {endDialogOpen && (
+      <DialogFeedback
+        open={true}
+        title={"Confirm Evaluation Completion"}
+        content={
+          <>
+            <Typography variant="body1" gutterBottom>
+              You are about to end your evaluation.
+            </Typography>
+            <Typography variant="body2">
+              Please ensure that you have completed all necessary sections and reviewed your answers. Once you end the evaluation, you will not be able to make any further changes.
+            </Typography>
+            <Typography variant="body2" style={{ marginTop: '8px' }}>
+              Are you ready to end your evaluation?
+            </Typography>
+          </>
+        }
+        onClose={() => setEndDialogOpen(false)}
+        onConfirm={handleEndEvaluation}
+      />
+    )}
+    </Box>
+  )
+}
+
+const RightPanel = ({ evaluationId, page, evaluationToQuestion, setPages, onSubmit, onEndEvaluation }) => {
    
     return (
       <>
-      <Stack p={2} display={page === 0 ? 'block' : 'none'}>
-        <Typography variant="h5">Evaluation is composed of <b>{evaluationToQuestion.length}</b> questions having a total of <b>{evaluationToQuestion.reduce((acc, jtq) => acc + jtq.points, 0)}</b> pts.</Typography>
+      <Stack p={2} display={page === 0 ? 'flex' : 'none'}>
+        <Stack spacing={1} direction={'row'} alignItems={'center'} justifyContent={"space-between"} width={'100%'}>
+          <Typography variant="h5">Evaluation is composed of <b>{evaluationToQuestion.length}</b> questions having a total of <b>{evaluationToQuestion.reduce((acc, jtq) => acc + jtq.points, 0)}</b> pts.</Typography>
+          <ButtonEndEvaliation 
+            evaluationId={evaluationId}
+            onEndEvaluation={onEndEvaluation}
+          />
+        </Stack>
         <Stack spacing={1}>
             <QuestionsGrid
               evaluationId={evaluationId}
@@ -300,13 +395,19 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
 
   const onSubmitClick = useCallback(async (questionId) => {
     setSubmitLock(true)
-    await fetch(`/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/submit`, {
+    const response = await fetch(`/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/submit`, {
       method: 'PUT',
     })
-    .finally(async () => {
-      setStatus(StudentAnswerStatus.SUBMITTED)
-      onSubmit && onSubmit()
-    })
+
+    const ok = response.ok
+    const data = await response.json()
+
+    if (!ok) {
+      setStatus(StudentAnswerStatus.IN_PROGRESS)
+    }
+
+    onSubmit && onSubmit(ok)
+    
     setSubmitLock(false)
   }, [onSubmit])
 
@@ -418,7 +519,7 @@ const QuestionsGrid = ({ evaluationId, evaluationToQuestion, onSubmit }) => {
               evaluationId={evaluationId}
               questionId={jtq.question.id}
               answerStatus={jtq.question.studentAnswer[0].status}
-              onSubmit={() => onSubmit(jtq.question.id)}
+              onSubmit={(ok) => onSubmit(ok, jtq.question.id)}
             />,
           ],
         },

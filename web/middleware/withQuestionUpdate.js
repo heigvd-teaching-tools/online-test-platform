@@ -18,7 +18,6 @@ export function withQuestionUpdate(handler) {
 
                 // Update the updatedAt field of the related Question
                 try {
-                    console.log("withQuestionUpdate: updating question", questionId,  new Date())
                     await prisma.question.update({
                         where: { id: questionId },
                         data: { updatedAt: new Date() },

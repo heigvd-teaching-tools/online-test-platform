@@ -506,6 +506,10 @@ model EvaluationToQuestion {
 	@@map("EvaluationToQuestion")
 }
 
+enum UserOnEvaluationStatus {
+  IN_PROGRESS
+  FINISHED
+}
 
 model UserOnEvaluation {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
@@ -515,6 +519,9 @@ model UserOnEvaluation {
   evaluationId String
 
   registeredAt DateTime @default(now())
+  finishedAt DateTime?
+
+  status UserOnEvaluationStatus @default(IN_PROGRESS)
 
   @@id([userEmail, evaluationId])
 	@@map("UserOnEvaluation")

@@ -18,22 +18,12 @@ import AnswerDatabase from "./database/AnswerDatabase";
 import AnswerCode from "./code/AnswerCode";
 import AlertFeedback from '../feedback/AlertFeedback'
 import { LoadingButton } from '@mui/lab'
+import { useSnackbar } from '@/context/SnackbarContext'
+import Overlay from '../ui/Overlay'
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
   return (
-    <Stack
-      sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        bgcolor: 'rgba(255,255,255,0.5)',
-        zIndex: 100,
-      }}
-      alignItems={'center'}
-      justifyContent={'center'}
-    >
+    <Overlay>
       <Stack spacing={2} alignItems={'center'}>
         <AlertFeedback
             severity={'success'}
@@ -49,12 +39,15 @@ const SubmittedOverlay = ({ onUnsubmit }) => {
             
       </Stack>
         
-    </Stack>
+    </Overlay>
   )
 }
      
 const AnswerEditor = ({ status:initial, question, onAnswer, onSubmit, onUnsubmit }) => {
   const router = useRouter()
+
+  const { showBottomRight: showSnackbar } = useSnackbar()
+
   const { evaluationId } = router.query
 
   const { data: answer, error, mutate } = useSWR(
@@ -74,10 +67,14 @@ const AnswerEditor = ({ status:initial, question, onAnswer, onSubmit, onUnsubmit
   const [ submitLock, setSubmitLock ] = useState(false)
 
   const onAnswerChange = useCallback(
-    (updatedStudentAnswer) => {
-      setStatus(updatedStudentAnswer.status)
+    (ok, data) => {
+      if(!ok){
+        showSnackbar(data.message, 'error')
+        return
+      }
+      setStatus(data.status)
       if (onAnswer) {
-        onAnswer(question, updatedStudentAnswer)
+        onAnswer(question, data)
       }
     },
     [question, onAnswer]
@@ -85,28 +82,43 @@ const AnswerEditor = ({ status:initial, question, onAnswer, onSubmit, onUnsubmit
 
   const onSubmitClick = useCallback(async () => {
     setSubmitLock(true)
-    await fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
+    const response = await fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
       method: 'PUT',
     })
-    .finally(async () => {
+
+    const ok = response.ok;
+    const data = await response.json()
+
+    if(!ok){
+      showSnackbar(data.message, 'error')
+    }else{
       setStatus(StudentAnswerStatus.SUBMITTED)
       onSubmit && onSubmit(question)
       await mutate()
-    })
+    }
+
     setSubmitLock(false)
   }, [onSubmit, question])
 
-  const onUnsubmitClick = useCallback(() => {
+  const onUnsubmitClick = useCallback(async () => {
     setSubmitLock(true)
-    fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
+    const response = await fetch(`/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`, {
       method: 'DELETE',
     })
-    .finally(async () => {
+
+    const ok = response.ok;
+    const data = await response.json()
+
+    if(!ok){
+      showSnackbar(data.message, 'error')
+    }else{
       setStatus(StudentAnswerStatus.IN_PROGRESS)
       onUnsubmit && onUnsubmit(question)
       await mutate()
-    })
+    }
     setSubmitLock(false)
+    
+
   }, [onUnsubmit, question])
 
 
@@ -236,15 +248,18 @@ const AnswerMultipleChoice = ({ answer, evaluationId, questionId, onAnswerChange
     async (index, options) => {
       const changedOption = options[index]
       const method = changedOption.isCorrect ? 'POST' : 'DELETE'
-      const updatedStudentAnswer = await fetch(
+      const response = await fetch(
         `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
         {
           method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ option: changedOption }),
         }
-      ).then((res) => res.json())
-      onAnswerChange && onAnswerChange(updatedStudentAnswer)
+      )
+      const ok = response.ok;
+      const data = await response.json()
+
+      onAnswerChange && onAnswerChange(ok, data)
     },
     [evaluationId, questionId, onAnswerChange]
   )
@@ -274,15 +289,19 @@ const AnswerTrueFalse = ({ answer, evaluationId, questionId, onAnswerChange }) =
             : undefined,
       }
 
-      const updatedStudentAnswer = await fetch(
+      const response = await fetch(
         `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(answer),
         }
-      ).then((res) => res.json())
-      onAnswerChange && onAnswerChange(updatedStudentAnswer)
+      )
+
+      const ok = response.ok;
+      const data = await response.json()
+
+      onAnswerChange && onAnswerChange(ok, data)
     },
     [evaluationId, questionId, onAnswerChange]
   )
@@ -304,7 +323,7 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
   const onEssayChange = useCallback(
     async (content) => {
       if (answer.essay.content === content) return
-      const updatedStudentAnswer = await fetch(
+      const response  = await fetch(
         `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
@@ -317,8 +336,12 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
               : undefined,
           }),
         }
-      ).then((res) => res.json())
-      onAnswerChange && onAnswerChange(updatedStudentAnswer)
+      );
+
+      const ok = response.ok;
+      const data = await response.json()
+    
+      onAnswerChange && onAnswerChange(ok, data)
     },
     [evaluationId, questionId, answer, onAnswerChange]
   )
@@ -358,15 +381,19 @@ const AnswerWeb = ({ answer, evaluationId, questionId, onAnswerChange }) => {
           : undefined,
       }
 
-      const updatedStudentAnswer = await fetch(
+      const response = await fetch(
         `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(answer),
         }
-      ).then((res) => res.json())
-      onAnswerChange && onAnswerChange(updatedStudentAnswer)
+      )
+
+      const ok = response.ok;
+      const data = await response.json()
+
+      onAnswerChange && onAnswerChange(ok, data)
     },
     [evaluationId, questionId, onAnswerChange]
   )

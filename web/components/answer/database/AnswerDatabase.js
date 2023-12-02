@@ -47,6 +47,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
 
     const saveAndTest = useCallback(async () => {
         setSaving(true);
+        
         setStudentOutputs(queries.map((q, index) => ({
             ...studentOutputs[index],
             output:{
@@ -70,6 +71,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
                 'Accept': 'application/json',
             }
         }).then(res => res.json());
+
         setStudentOutputs(studentAnswerQueries.map((q) => q.studentOutput));
         setQueries(queries.map((q, index) => ({
             ...q,
@@ -80,7 +82,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
 
     const onQueryChange = useCallback(
         async (query) => {
-            const updatedStudentAnswer = await fetch(
+            const response = await fetch(
                 `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/database/${query.id}`,
                 {
                     method: 'PUT',
@@ -89,9 +91,13 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
                     },
                     body: JSON.stringify({ content: query.content }),
                 }
-            ).then((res) => res.json());
+            )
+
+            const ok = response.ok
+            const data = await response.json()
+
             setSaveLock(false);
-            onAnswerChange && onAnswerChange(updatedStudentAnswer)
+            onAnswerChange && onAnswerChange(ok, data)
         },
         [evaluationId, questionId, onAnswerChange]
     )
@@ -101,7 +107,6 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
         setSaveLock(true);
         debouncedOnChange(query);
     }
-
 
     return (
         <Loading errors={[error]} loading={!answer}>

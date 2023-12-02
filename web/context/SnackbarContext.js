@@ -57,6 +57,18 @@ export const SnackbarProvider = ({ children }) => {
     })
   }, [])
 
+  const showBottomRight = useCallback((message, severity) => {
+    setSnackbar({
+      position: {
+        vertical: 'bottom',
+        horizontal: 'right',
+      },
+      open: true,
+      message,
+      severity,
+    })
+  }, [])
+
   const hide = () => {
     setSnackbar({ ...snackbar, open: false, message: '', severity: 'success' })
   }
@@ -69,6 +81,7 @@ export const SnackbarProvider = ({ children }) => {
         showAt,
         showTopRight,
         showTopCenter,
+        showBottomRight,
         hide,
       }}
     >
