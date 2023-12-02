@@ -47,6 +47,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
 
     const saveAndTest = useCallback(async () => {
         setSaving(true);
+        
         setStudentOutputs(queries.map((q, index) => ({
             ...studentOutputs[index],
             output:{
@@ -63,13 +64,14 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
             lintResult: null,
         })) || []);
 
-        const response = await fetch(`/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/database`, {
+        const studentAnswerQueries = await fetch(`/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/database`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             }
         }).then(res => res.json());
+
         setStudentOutputs(studentAnswerQueries.map((q) => q.studentOutput));
         setQueries(queries.map((q, index) => ({
             ...q,
@@ -105,7 +107,6 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
         setSaveLock(true);
         debouncedOnChange(query);
     }
-
 
     return (
         <Loading errors={[error]} loading={!answer}>

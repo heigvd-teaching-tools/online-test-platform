@@ -162,7 +162,7 @@ const PageTakeEvaluation = () => {
                         >
                           <StudentMainMenu
                             evaluationId={evaluationId}
-                            evaluationPhase={getEvaluationPhase()}
+                            evaluation={evaluationStatus?.evaluation}
                             pages={pages}
                             page={page}
                           />

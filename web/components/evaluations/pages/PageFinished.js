@@ -27,7 +27,6 @@ import { getObtainedPoints, getSignedSuccessRate } from '../analytics/stats'
 import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
 import JoinClipboard from '../JoinClipboard'
 
-
 const PageFinished = () => {
   const router = useRouter()
   const { groupScope, evaluationId } = router.query
@@ -63,6 +62,7 @@ const PageFinished = () => {
       )
     }
   }, [evaluationToQuestions])
+
 
   const gridHeaders = () => {
     let q = evaluationToQuestions.map((jstq) => ({

@@ -33,8 +33,8 @@ const PageConsult = () => {
   const router = useRouter()
   const { evaluationId, questionPage } = router.query
 
-  const { data: evaluationPhase, error: errorEvaluationPhase } = useSWR(
-    `/api/users/evaluations/${evaluationId}/phase`,
+  const { data: evaluationStatus, error: errorEvaluationStatus } = useSWR(
+    `/api/users/evaluations/${evaluationId}/status`,
     evaluationId ? fetcher : null,
     { refreshInterval: 1000 }
   )
@@ -74,9 +74,9 @@ const PageConsult = () => {
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
-      <Loading loading={!evaluationPhase} errors={[errorEvaluationPhase]}>
-        { evaluationPhase && (
-            <StudentPhaseRedirect phase={evaluationPhase.phase}>
+      <Loading loading={!evaluationStatus} errors={[errorEvaluationStatus]}>
+        { evaluationStatus && (
+            <StudentPhaseRedirect phase={evaluationStatus.evaluation.phase}>
               <Loading loading={!userOnEvaluation} error={[errorUserOnEvaluation]}>
                 {evaluationToQuestions && selected && (
                   <LayoutMain
