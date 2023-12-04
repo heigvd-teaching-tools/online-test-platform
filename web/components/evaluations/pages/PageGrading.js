@@ -143,9 +143,10 @@ const PageGrading = () => {
         grading,
       }),
     }).then((res) => res.json())
+    .finally(() => mutate())
     setLoading(false)
     return newGrading
-  }, [groupScope])
+  }, [groupScope, mutate])
 
   const debouncedSaveGrading = useDebouncedCallback(saveGrading, 500)
 
@@ -166,9 +167,8 @@ const PageGrading = () => {
           }
           return sa
         })
-      debouncedSaveGrading(newGrading)
       setEvaluationToQuestions(newEvaluationToQuestions)
-      await mutate(newEvaluationToQuestions, false)
+      debouncedSaveGrading(newGrading)
     },
     [evaluationToQuestions, evaluationToQuestion, mutate]
   )

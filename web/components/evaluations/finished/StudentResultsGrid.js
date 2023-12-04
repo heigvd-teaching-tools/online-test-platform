@@ -1,9 +1,8 @@
 import PiePercent from '@/components/feedback/PiePercent';
 import UserAvatar from '@/components/layout/UserAvatar';
 import DataGrid from '@/components/ui/DataGrid';
-import { Button, ButtonBase, Divider, Stack, Typography } from '@mui/material';
+import { ButtonBase, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { getObtainedPoints } from '../analytics/stats';
 import { useTheme } from '@emotion/react';
 
 const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick }) => {
@@ -27,9 +26,7 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
       label: <b>{`Q${jstq.order + 1}`}</b>,
       tooltip: jstq.question.title,
       column: { width: '30px', align: 'center', minWidth: '30px' },
-      renderCell: (row) =>  {
-
-    
+      renderCell: (row) =>  {    
         const data = row[`Q${jstq.order + 1}`]
         const color = data.signed ? data.successRate > 70 ? theme.palette.success.main : data.successRate > 40 ? theme.palette.info.main : theme.palette.error.main : theme.palette.grey["300"];
         const pointsObtained = data.pointsObtained;
@@ -73,11 +70,13 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
           size={60}
           value={row.participantSuccessRate}
           label={
-            <Stack alignItems="center" justifyContent="center" spacing={0}>
-              <Typography variant="body2">{`${row.obtainedPoints}`}</Typography>
-              <Divider sx={{ width: '100%' }} />
-              <Typography variant="caption">{`${row.totalPoints}`}</Typography>
-            </Stack>
+            <Tooltip title={"Based on signed gradings"}>
+                <Stack alignItems="center" justifyContent="center" spacing={0}>
+                <Typography variant="body2">{`${row.obtainedPoints}`}</Typography>
+                <Divider sx={{ width: '100%' }} />
+                <Typography variant="caption">{`${row.totalPoints}`}</Typography>
+                </Stack>
+            </Tooltip>
           }
         />,
       })
@@ -91,15 +90,11 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
 
   const gridRows = () =>
     participants.map((participant) => {
-      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
-      let totalPoints = evaluationToQuestions.reduce(
-        (acc, jstq) => acc + jstq.points,
-        0
-      )
-      let participantSuccessRate =
-        totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
+      // Initialize variables for signed evaluations
+      let signedObtainedPoints = 0;
+      let signedTotalPoints = 0;
 
-      const questionColumnValues = {}
+      const questionColumnValues = {};
 
       evaluationToQuestions.forEach((jstq) => {
         const grading = jstq.question.studentAnswer.find(
@@ -107,6 +102,13 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
         ).studentGrading;
         let pointsObtained = grading ? grading.pointsObtained : 0;
         let totalPoints = jstq.points;
+
+        if (grading?.signedBy !== null) {
+          // Accumulate points only for signed evaluations
+          signedObtainedPoints += pointsObtained;
+          signedTotalPoints += totalPoints;
+        }
+
         let successRate = totalPoints > 0 ? Math.round((pointsObtained / totalPoints) * 100) : 0;
       
         questionColumnValues[`Q${jstq.order + 1}`] = {
@@ -117,18 +119,23 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
         };
       });
 
+      // Compute participant success rate based on signed evaluations
+      let participantSuccessRate =
+        signedTotalPoints > 0 ? Math.round((signedObtainedPoints / signedTotalPoints) * 100) : 0;
+
       return {
         participant: participant,
         email: participant.email,
-        participantSuccessRate:participantSuccessRate,
-        obtainedPoints: obtainedPoints,
-        totalPoints: totalPoints,
+        participantSuccessRate: participantSuccessRate,
+        obtainedPoints: signedObtainedPoints,
+        totalPoints: signedTotalPoints,
         ...questionColumnValues,
         meta: {
           key: participant.email,
         },
       }
-    })
+    });
+
 
   return (
     <DataGrid header={gridHeaders()} items={gridRows()} />
