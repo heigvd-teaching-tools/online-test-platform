@@ -34,7 +34,7 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick,
 
         const selected = selectedQuestionCell && selectedQuestionCell.questionId === jstq.question.id && selectedQuestionCell.participantId === row.participant.id;
           return (
-            <ButtonBase sx={{ padding: 1, border: selected ? "1px solid" : "none", borderColor: theme.palette.info.main }} onClick={(ev) => {
+            <ButtonBase sx={{ padding: 1, bgcolor: selected ? theme.palette.grey["200"] : "transparent" }} onClick={(ev) => {
                 ev.stopPropagation();
                 questionCellClick && questionCellClick(jstq.question.id, row.participant.id)
             }}>
