@@ -5,7 +5,7 @@ import { ButtonBase, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@emotion/react';
 
-const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick }) => {
+const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick, selectedQuestionCell }) => {
 
   const theme = useTheme();
 
@@ -31,8 +31,10 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
         const color = data.signed ? data.successRate > 70 ? theme.palette.success.main : data.successRate > 40 ? theme.palette.info.main : theme.palette.error.main : theme.palette.grey["300"];
         const pointsObtained = data.pointsObtained;
         const totalPoints = data.totalPoints;
+
+        const selected = selectedQuestionCell && selectedQuestionCell.questionId === jstq.question.id && selectedQuestionCell.participantId === row.participant.id;
           return (
-            <ButtonBase sx={{ padding: 1 }} onClick={(ev) => {
+            <ButtonBase sx={{ padding: 1, border: selected ? "1px solid" : "none", borderColor: theme.palette.info.main }} onClick={(ev) => {
                 ev.stopPropagation();
                 questionCellClick && questionCellClick(jstq.question.id, row.participant.id)
             }}>

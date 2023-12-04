@@ -506,12 +506,17 @@ const PageGrading = () => {
           >
             <StudentResultsGrid
               evaluationToQuestions={evaluationToQuestions}
+              selectedQuestionCell={{
+                questionId: evaluationToQuestion?.question.id,
+                participantId: participantId,
+              }}
               questionCellClick={async (questionId, participantId) => {
                 const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
+                setStudentGridOpen(false)
                 await router.push(
                   `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`
                 )
-                setStudentGridOpen(false)
+               
               }} 
             />
           </ResizableDrawer>
