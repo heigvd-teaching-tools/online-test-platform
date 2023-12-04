@@ -51,11 +51,13 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
                     justifyContent={"center"}
                     sx={{ cursor: "ew-resize" }}
                     onMouseDown={(e) => setDragging(true)}
+                    bgcolor={"background.default"}
                 >
                     <ResizeHandleIcon />
                 </Stack>
-
-                {children}
+                <Stack ml={1} flex={1} height={"100%"} overflow={"auto"}>
+                    {children}
+                </Stack>
             </Box>
         </Drawer>
     )

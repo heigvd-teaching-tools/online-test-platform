@@ -50,6 +50,9 @@ import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
+import Image from 'next/image'
+import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
+import StudentResultsGrid from '../finished/StudentResultsGrid'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -85,6 +88,7 @@ const PageGrading = () => {
     useState(false)
   const [endGradingDialogOpen, setEndGradingDialogOpen] = useState(false)
   const [someUnsignedDialogOpen, setSomeUnsignedDialogOpen] = useState(false)
+  const [ studentGridOpen, setStudentGridOpen ] = useState(false)
 
   useEffect(() => {
     if (data) {
@@ -310,7 +314,7 @@ const PageGrading = () => {
               </Stack>
             }
             subheader={
-              <Stack direction="row" alignItems="center">
+              <Stack direction="row" alignItems="center" pr={1}>
                 <Stack flex={1} sx={{ overflow: 'hidden' }}>
                   {ready && (
                     <Paging
@@ -324,6 +328,15 @@ const PageGrading = () => {
                     />
                   )}
                 </Stack>
+                <Tooltip title="Show student results grid">
+                <IconButton
+                  variant="contained"
+                  color="success"
+                  onClick={() => setStudentGridOpen(true)}
+                >
+                  <Image src="/svg/icons/checklist.svg" width={24} height={24} />
+                </IconButton>
+                </Tooltip>
               </Stack>
             }
             padding={0}
@@ -478,6 +491,22 @@ const PageGrading = () => {
               </Typography>
             }
           />
+          <ResizableDrawer
+            open={studentGridOpen}
+            width={80}
+            onClose={() => setStudentGridOpen(false)}
+          >
+            <StudentResultsGrid
+              evaluationToQuestions={evaluationToQuestions}
+              questionCellClick={async (questionId, participantId) => {
+                const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
+                await router.push(
+                  `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`
+                )
+                setStudentGridOpen(false)
+              }} 
+            />
+          </ResizableDrawer>
         </Loading>
       </PhaseRedirect>
     </Authorisation>
