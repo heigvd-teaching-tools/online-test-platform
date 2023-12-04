@@ -97,40 +97,32 @@ const PageGrading = () => {
   }, [data])
 
   useEffect(() => {
-    if (evaluationToQuestions && evaluationToQuestions.length > 0) {
-      let jstq = evaluationToQuestions[activeQuestion - 1]
-      if (!jstq) {
-        // goto first question and first participant
-        router.push(
-          `/${groupScope}/evaluations/${evaluationId}/grading/1?participantId=${evaluationToQuestions[0].question.studentAnswer[0].user.id}`
-        )
-        return
-      }
-      if (jstq.question.studentAnswer.length === 0) {
-        // no participants
-        return
-      }
-      setEvaluationEvaluationToQuestion(jstq)
-      setParticipants(
-        jstq.question.studentAnswer
-          .map((sg) => sg.user)
-          .sort((a, b) => a.name.localeCompare(b.name))
+    // 1) sedtup the participants list sorted by name
+    if (!evaluationToQuestions || evaluationToQuestions.length === 0) return;
+
+    const participants = evaluationToQuestions[0].question.studentAnswer
+      .map((sg) => sg.user)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    setParticipants(participants);
+  }, [evaluationToQuestions])
+
+  useEffect(() => {
+    // 2) setup the current active question and participant, redirect to the first participant if participantId is undefined
+    if (!evaluationToQuestions || evaluationToQuestions.length === 0 || participants.length === 0) return;
+  
+    const currentQuestion = evaluationToQuestions[activeQuestion - 1];
+    setEvaluationEvaluationToQuestion(currentQuestion);
+  
+    // Redirect to the first participant if participantId is undefined
+    if (!participantId) {
+      router.push(
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[0].id}`
       )
-      // goto first participant
-      if (participantId === undefined) {
-        router.push(
-          `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`
-        )
-      }
     }
-  }, [
-    activeQuestion,
-    evaluationId,
-    participantId,
-    evaluationToQuestions,
-    router,
-    groupScope
-  ])
+  }, [evaluationToQuestions, activeQuestion, participantId, participants, router, groupScope, evaluationId])
+
+ 
 
   const saveGrading = useCallback(async (grading) => {
     setLoading(true)
@@ -172,9 +164,6 @@ const PageGrading = () => {
           }
           return sa
         })
-      console.log("grading", grading)
-      console.log("evaluationToQuestion", evaluationToQuestion)
-      console.log("newEvaluationToQuestions", newEvaluationToQuestions)
       setEvaluationToQuestions(newEvaluationToQuestions)
       debouncedSaveGrading(grading)
     },
