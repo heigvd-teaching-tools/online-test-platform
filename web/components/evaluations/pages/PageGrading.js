@@ -16,6 +16,7 @@ import {
   IconButton,
   Tooltip,
   Box,
+  ButtonBase,
 } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -325,14 +326,16 @@ const PageGrading = () => {
                     />
                   )}
                 </Stack>
-                <Tooltip title="Show student results grid">
-                <IconButton
-                  variant="contained"
-                  color="success"
-                  onClick={() => setStudentGridOpen(true)}
-                >
-                  <Image src="/svg/icons/checklist.svg" width={24} height={24} />
-                </IconButton>
+                <Tooltip title="Click to view a detailed grid of student performance, including overall success and individual scores for each question.">
+                  <Button
+                    size={"small"}
+                    variant="text"
+                    color="info"
+                    onClick={() => setStudentGridOpen(true)}
+                    startIcon={<Image src="/svg/icons/checklist.svg" width={18} height={18} />}
+                  >
+                    Results
+                  </Button>
                 </Tooltip>
               </Stack>
             }
@@ -429,9 +432,11 @@ const PageGrading = () => {
                       maxPoints={evaluationToQuestion.points}
                       onChange={onChangeGrading}
                     />
+                    
                     <SuccessRate
                       value={getSignedSuccessRate(evaluationToQuestions)}
                     />
+                    
                     <GradingActions
                       stats={getGradingStats(evaluationToQuestions)}
                       loading={loading || saving}
@@ -540,7 +545,7 @@ const SuccessRate = ({ value }) => {
   return (
     <Tooltip
       title={<>
-        <Box>Displays the overall success rate based on all <b>signed</b> gradings up to this point.</Box>
+        <Box>Overall success rate based on all <b>signed</b> gradings up to this point.</Box>
         <Box>(total of all awarded points / total of all possible points) * 100</Box>
       </>}
     >
