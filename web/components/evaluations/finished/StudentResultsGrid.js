@@ -25,7 +25,7 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
     let q = evaluationToQuestions.map((jstq) => ({
       label: <b>{`Q${jstq.order + 1}`}</b>,
       tooltip: jstq.question.title,
-      column: { width: '30px', align: 'center', minWidth: '30px' },
+      column: { width: '35px', align: 'center', minWidth: '35px' },
       renderCell: (row) =>  {    
         const data = row[`Q${jstq.order + 1}`]
         const color = data.signed ? data.successRate > 70 ? theme.palette.success.main : data.successRate > 40 ? theme.palette.info.main : theme.palette.error.main : theme.palette.grey["300"];
@@ -109,11 +109,11 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
           signedTotalPoints += totalPoints;
         }
 
-        let successRate = totalPoints > 0 ? Math.round((pointsObtained / totalPoints) * 100) : 0;
+        let successRate = totalPoints > 0 ? parseFloat((pointsObtained / totalPoints * 100).toFixed(2)) : 0;
       
         questionColumnValues[`Q${jstq.order + 1}`] = {
-          pointsObtained: pointsObtained,
-          totalPoints: totalPoints,
+          pointsObtained: parseFloat(pointsObtained.toFixed(2)),
+          totalPoints: parseFloat(totalPoints.toFixed(2)),
           successRate: successRate,
           signed: grading?.signedBy !== null,
         };
@@ -121,20 +121,21 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
 
       // Compute participant success rate based on signed evaluations
       let participantSuccessRate =
-        signedTotalPoints > 0 ? Math.round((signedObtainedPoints / signedTotalPoints) * 100) : 0;
+        signedTotalPoints > 0 ? parseFloat((signedObtainedPoints / signedTotalPoints * 100).toFixed(2)) : 0;
 
       return {
         participant: participant,
         email: participant.email,
         participantSuccessRate: participantSuccessRate,
-        obtainedPoints: signedObtainedPoints,
-        totalPoints: signedTotalPoints,
+        obtainedPoints: parseFloat(signedObtainedPoints.toFixed(2)),
+        totalPoints: parseFloat(signedTotalPoints.toFixed(2)),
         ...questionColumnValues,
         meta: {
           key: participant.email,
         },
       }
     });
+
 
 
   return (
