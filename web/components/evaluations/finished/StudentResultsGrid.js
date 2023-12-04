@@ -115,7 +115,7 @@ const StudentResultsGrid = ({ evaluationToQuestions, actions, questionCellClick 
           pointsObtained: parseFloat(pointsObtained.toFixed(2)),
           totalPoints: parseFloat(totalPoints.toFixed(2)),
           successRate: successRate,
-          signed: grading?.signedBy !== null,
+          signed: grading?.signedBy,
         };
       });
 

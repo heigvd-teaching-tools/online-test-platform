@@ -143,7 +143,6 @@ const PageGrading = () => {
         grading,
       }),
     }).then((res) => res.json())
-    .finally(() => mutate())
     setLoading(false)
     return newGrading
   }, [groupScope, mutate])
@@ -153,7 +152,9 @@ const PageGrading = () => {
   const onChangeGrading = useCallback(
     async (grading) => {
       const newEvaluationToQuestions = [...evaluationToQuestions]
-      let newGrading = grading
+      const evaluationToQuestion = newEvaluationToQuestions.find(
+        (jstq) => jstq.question.id === grading.questionId
+      )
       evaluationToQuestion.question.studentAnswer =
         evaluationToQuestion.question.studentAnswer.map((sa) => {
           if (sa.user.email === grading.userEmail) {
@@ -161,16 +162,23 @@ const PageGrading = () => {
               ...sa,
               studentGrading: {
                 ...sa.studentGrading,
-                ...grading,
+                pointsObtained: grading.pointsObtained,
+                status: grading.status,
+                signedBy: grading.signedBy,
+                signedByUserEmail: grading.signedBy ? grading.signedBy.email : null,
+                comment: grading.comment,
               },
             }
           }
           return sa
         })
+      console.log("grading", grading)
+      console.log("evaluationToQuestion", evaluationToQuestion)
+      console.log("newEvaluationToQuestions", newEvaluationToQuestions)
       setEvaluationToQuestions(newEvaluationToQuestions)
-      debouncedSaveGrading(newGrading)
+      debouncedSaveGrading(grading)
     },
-    [evaluationToQuestions, evaluationToQuestion, mutate]
+    [evaluationToQuestions, mutate]
   )
 
   const signOffAllAutograded = useCallback(async () => {
