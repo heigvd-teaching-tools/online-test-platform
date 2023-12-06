@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Stack, Divider, Typography, Button, Tab, IconButton, Tooltip} from '@mui/material'
+import { Stack, Typography, Button, Tab, IconButton, Tooltip} from '@mui/material'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
@@ -15,18 +15,18 @@ import { fetcher } from '@/code/utils'
 
 import BackButton from '@/components/layout/BackButton'
 import LayoutMain from '@/components/layout/LayoutMain'
-import DataGrid from '@/components/ui/DataGrid'
-import UserAvatar from '@/components/layout/UserAvatar'
 import PiePercent from '@/components/feedback/PiePercent'
 import Authorisation from '@/components/security/Authorisation'
 import Loading from '@/components/feedback/Loading'
 
 import PhaseRedirect from './PhaseRedirect'
 
-import { getObtainedPoints, getSignedSuccessRate } from '../analytics/stats'
+import { getSignedSuccessRate } from '../analytics/stats'
 import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
 import JoinClipboard from '../JoinClipboard'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
+import ExportCSV from '../finished/ExportCSV'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
 
 const PageFinished = () => {
   const router = useRouter()
@@ -64,57 +64,16 @@ const PageFinished = () => {
     }
   }, [evaluationToQuestions])
 
-  const dotToComma = (value) => value.toString().replace('.', ',');
-
-  const exportAsCSV = () => {
-    let COLUMN_SEPARATOR = ';'
-    let LINE_SEPARATOR = '\r'
-
-    let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`
-    evaluationToQuestions.forEach(
-      (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`)
-    )
-    csv += LINE_SEPARATOR
-
-    participants.forEach((participant) => {
-      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
-
-      let totalPoints = evaluationToQuestions.reduce(
-        (acc, jstq) => acc + jstq.points,
-        0
-      )
-      let participantSuccessRate =
-        totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
-
-      csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${`${participantSuccessRate} %`}${COLUMN_SEPARATOR}${dotToComma(totalPoints)}${COLUMN_SEPARATOR}${dotToComma(obtainedPoints)}${COLUMN_SEPARATOR}`
-
-      evaluationToQuestions.forEach((jstq) => {
-        const grading = jstq.question.studentAnswer.find(
-          (sa) => sa.user.email === participant.email
-        ).studentGrading
-        let pointsObtained = grading ? grading.pointsObtained : 0
-        csv += `"${dotToComma(pointsObtained)}"${COLUMN_SEPARATOR}`
-      })
-
-      csv += LINE_SEPARATOR
-    })
-
-    let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    let url = URL.createObjectURL(blob)
-    let link = document.createElement('a')
-    link.setAttribute('href', url)
-
-    let sessionLabel = evaluation.label.replace(/ /g, '_').toLowerCase()
-
-    link.setAttribute(
-      'download',
-      `evaluation-${evaluation.id}-${sessionLabel}-results.csv`
-    )
-    link.click()
+  const handleTabChange = (_, newValue) => {
+    setTab(newValue)
   }
 
-  const handleTabChange = (event, newValue) => {
-    setTab(newValue)
+  const areAllGradingSigned = () => {
+    return evaluationToQuestions.every((eq) =>
+      eq.question.studentAnswer.every(
+        (sa) => sa.studentGrading.signedBy
+      )
+    )
   }
 
   return (
@@ -160,11 +119,21 @@ const PageFinished = () => {
                         <Typography variant="h6">
                           Overall success rate
                         </Typography>
-                        <PiePercent
-                          value={getSignedSuccessRate(evaluationToQuestions)}
-                        />
+                        <PiePercent value={getSignedSuccessRate(evaluationToQuestions)} />
+                        {
+                          !areAllGradingSigned() && (
+                            <AlertFeedback severity="warning">
+                              Some gradings are not signed yet.
+                            </AlertFeedback>
+                          )
+
+                        }
                       </Stack>
-                      <Button onClick={exportAsCSV}>Export as csv</Button>
+                      <ExportCSV
+                        evaluation={evaluation}
+                        evaluationToQuestions={evaluationToQuestions}
+                        participants={participants}
+                      />
                     </Stack>
 
                     <StudentResultsGrid 
@@ -185,6 +154,14 @@ const PageFinished = () => {
                             </a>
                           </Tooltip>
                       )}}
+                      questionCellClick={async (questionId, participantId) => {
+                        const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
+                        const participantEmail = participants.find((p) => p.id === participantId).email;
+                        await router.push(
+                          `/${groupScope}/evaluations/${evaluationId}/consult/${participantEmail}/${questionOrder}`
+                        )
+                      
+                      }} 
                     />
                   </Stack>
                 </TabPanel>

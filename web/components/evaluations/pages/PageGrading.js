@@ -54,6 +54,8 @@ import ParticipantNav from '../grading/ParticipantNav'
 import Image from 'next/image'
 import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
+import ExportCSV from '../finished/ExportCSV'
+import { saveGrading } from '../grading/utils'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -123,24 +125,11 @@ const PageGrading = () => {
     }
   }, [evaluationToQuestions, activeQuestion, participantId, participants, router, groupScope, evaluationId])
 
- 
-
-  const saveGrading = useCallback(async (grading) => {
+  const debouncedSaveGrading = useDebouncedCallback(useCallback(async (grading) => {
     setLoading(true)
-    let newGrading = await fetch(`/api/${groupScope}/gradings`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        grading,
-      }),
-    }).then((res) => res.json())
+    await saveGrading(groupScope, grading)
     setLoading(false)
-    return newGrading
-  }, [groupScope, mutate])
-
-  const debouncedSaveGrading = useDebouncedCallback(saveGrading, 500)
+  }, [groupScope]), 500)
 
   const onChangeGrading = useCallback(
     async (grading) => {
@@ -498,6 +487,13 @@ const PageGrading = () => {
             width={80}
             onClose={() => setStudentGridOpen(false)}
           >
+            <Box ml={1}>
+              <ExportCSV
+                evaluation={evaluation}
+                evaluationToQuestions={evaluationToQuestions}
+                participants={participants}
+              />
+            </Box>
             <StudentResultsGrid
               evaluationToQuestions={evaluationToQuestions}
               selectedQuestionCell={{
@@ -510,7 +506,7 @@ const PageGrading = () => {
                 await router.push(
                   `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`
                 )
-               
+              
               }} 
             />
           </ResizableDrawer>

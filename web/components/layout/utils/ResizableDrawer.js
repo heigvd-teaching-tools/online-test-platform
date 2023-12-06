@@ -39,12 +39,8 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
             onClose={() => onClose()}
             ref={ref}
         >
-            <Box pl={1} width={"100%"} height={"100%"} position={"relative"}>
+            <Stack direction={"row"} width={"100%"} height={"100%"}>
                 <Stack 
-                    position={"absolute"}
-                    top={0}
-                    left={0}
-                    bottom={0}
                     width={"24px"}
                     zIndex={2}
                     alignItems={"center"}
@@ -55,10 +51,10 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
                 >
                     <ResizeHandleIcon />
                 </Stack>
-                <Stack ml={1} flex={1} height={"100%"} overflow={"auto"}>
+                <Stack flex={1} height={"100%"} overflow={"auto"}>
                     {children}
                 </Stack>
-            </Box>
+            </Stack>
         </Drawer>
     )
 }
