@@ -16,6 +16,7 @@ import {
   IconButton,
   Tooltip,
   Box,
+  ButtonBase,
 } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -50,6 +51,11 @@ import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
+import Image from 'next/image'
+import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
+import StudentResultsGrid from '../finished/StudentResultsGrid'
+import ExportCSV from '../finished/ExportCSV'
+import { saveGrading } from '../grading/utils'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -85,6 +91,7 @@ const PageGrading = () => {
     useState(false)
   const [endGradingDialogOpen, setEndGradingDialogOpen] = useState(false)
   const [someUnsignedDialogOpen, setSomeUnsignedDialogOpen] = useState(false)
+  const [ studentGridOpen, setStudentGridOpen ] = useState(false)
 
   useEffect(() => {
     if (data) {
@@ -93,62 +100,43 @@ const PageGrading = () => {
   }, [data])
 
   useEffect(() => {
-    if (evaluationToQuestions && evaluationToQuestions.length > 0) {
-      let jstq = evaluationToQuestions[activeQuestion - 1]
-      if (!jstq) {
-        // goto first question and first participant
-        router.push(
-          `/${groupScope}/evaluations/${evaluationId}/grading/1?participantId=${evaluationToQuestions[0].question.studentAnswer[0].user.id}`
-        )
-        return
-      }
-      if (jstq.question.studentAnswer.length === 0) {
-        // no participants
-        return
-      }
-      setEvaluationEvaluationToQuestion(jstq)
-      setParticipants(
-        jstq.question.studentAnswer
-          .map((sg) => sg.user)
-          .sort((a, b) => a.name.localeCompare(b.name))
+    // 1) sedtup the participants list sorted by name
+    if (!evaluationToQuestions || evaluationToQuestions.length === 0) return;
+
+    const participants = evaluationToQuestions[0].question.studentAnswer
+      .map((sg) => sg.user)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    setParticipants(participants);
+  }, [evaluationToQuestions])
+
+  useEffect(() => {
+    // 2) setup the current active question and participant, redirect to the first participant if participantId is undefined
+    if (!evaluationToQuestions || evaluationToQuestions.length === 0 || participants.length === 0) return;
+  
+    const currentQuestion = evaluationToQuestions[activeQuestion - 1];
+    setEvaluationEvaluationToQuestion(currentQuestion);
+  
+    // Redirect to the first participant if participantId is undefined
+    if (!participantId) {
+      router.push(
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[0].id}`
       )
-      // goto first participant
-      if (participantId === undefined) {
-        router.push(
-          `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${jstq.question.studentAnswer[0].user.id}`
-        )
-      }
     }
-  }, [
-    activeQuestion,
-    evaluationId,
-    participantId,
-    evaluationToQuestions,
-    router,
-    groupScope
-  ])
+  }, [evaluationToQuestions, activeQuestion, participantId, participants, router, groupScope, evaluationId])
 
-  const saveGrading = useCallback(async (grading) => {
+  const debouncedSaveGrading = useDebouncedCallback(useCallback(async (grading) => {
     setLoading(true)
-    let newGrading = await fetch(`/api/${groupScope}/gradings`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        grading,
-      }),
-    }).then((res) => res.json())
+    await saveGrading(groupScope, grading)
     setLoading(false)
-    return newGrading
-  }, [groupScope])
-
-  const debouncedSaveGrading = useDebouncedCallback(saveGrading, 500)
+  }, [groupScope]), 500)
 
   const onChangeGrading = useCallback(
     async (grading) => {
       const newEvaluationToQuestions = [...evaluationToQuestions]
-      let newGrading = grading
+      const evaluationToQuestion = newEvaluationToQuestions.find(
+        (jstq) => jstq.question.id === grading.questionId
+      )
       evaluationToQuestion.question.studentAnswer =
         evaluationToQuestion.question.studentAnswer.map((sa) => {
           if (sa.user.email === grading.userEmail) {
@@ -156,17 +144,20 @@ const PageGrading = () => {
               ...sa,
               studentGrading: {
                 ...sa.studentGrading,
-                ...grading,
+                pointsObtained: grading.pointsObtained,
+                status: grading.status,
+                signedBy: grading.signedBy,
+                signedByUserEmail: grading.signedBy ? grading.signedBy.email : null,
+                comment: grading.comment,
               },
             }
           }
           return sa
         })
-      debouncedSaveGrading(newGrading)
       setEvaluationToQuestions(newEvaluationToQuestions)
-      await mutate(newEvaluationToQuestions, false)
+      debouncedSaveGrading(grading)
     },
-    [evaluationToQuestions, evaluationToQuestion, mutate]
+    [evaluationToQuestions, mutate]
   )
 
   const signOffAllAutograded = useCallback(async () => {
@@ -183,10 +174,10 @@ const PageGrading = () => {
         }
       }
     }
-    await Promise.all(updated.map((grading) => saveGrading(grading)))
+    await Promise.all(updated.map((grading) => saveGrading(groupScope, grading)))
     setEvaluationToQuestions(newEvaluationToQuestions)
     await mutate(newEvaluationToQuestions, false)
-  }, [evaluationToQuestions, mutate, session])
+  }, [groupScope, evaluationToQuestions, mutate, session])
 
   const endGrading = useCallback(async () => {
     setSaving(true)
@@ -310,7 +301,7 @@ const PageGrading = () => {
               </Stack>
             }
             subheader={
-              <Stack direction="row" alignItems="center">
+              <Stack direction="row" alignItems="center" pr={1}>
                 <Stack flex={1} sx={{ overflow: 'hidden' }}>
                   {ready && (
                     <Paging
@@ -324,6 +315,17 @@ const PageGrading = () => {
                     />
                   )}
                 </Stack>
+                <Tooltip title="Click to view a detailed grid of student performance, including overall success and individual scores for each question.">
+                  <Button
+                    size={"small"}
+                    variant="text"
+                    color="info"
+                    onClick={() => setStudentGridOpen(true)}
+                    startIcon={<Image src="/svg/icons/checklist.svg" width={18} height={18} />}
+                  >
+                    Results
+                  </Button>
+                </Tooltip>
               </Stack>
             }
             padding={0}
@@ -419,9 +421,11 @@ const PageGrading = () => {
                       maxPoints={evaluationToQuestion.points}
                       onChange={onChangeGrading}
                     />
+                    
                     <SuccessRate
                       value={getSignedSuccessRate(evaluationToQuestions)}
                     />
+                    
                     <GradingActions
                       stats={getGradingStats(evaluationToQuestions)}
                       loading={loading || saving}
@@ -478,6 +482,34 @@ const PageGrading = () => {
               </Typography>
             }
           />
+          <ResizableDrawer
+            open={studentGridOpen}
+            width={80}
+            onClose={() => setStudentGridOpen(false)}
+          >
+            <Box ml={1}>
+              <ExportCSV
+                evaluation={evaluation}
+                evaluationToQuestions={evaluationToQuestions}
+                participants={participants}
+              />
+            </Box>
+            <StudentResultsGrid
+              evaluationToQuestions={evaluationToQuestions}
+              selectedQuestionCell={{
+                questionId: evaluationToQuestion?.question.id,
+                participantId: participantId,
+              }}
+              questionCellClick={async (questionId, participantId) => {
+                const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
+                setStudentGridOpen(false)
+                await router.push(
+                  `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`
+                )
+              
+              }} 
+            />
+          </ResizableDrawer>
         </Loading>
       </PhaseRedirect>
     </Authorisation>
@@ -509,7 +541,7 @@ const SuccessRate = ({ value }) => {
   return (
     <Tooltip
       title={<>
-        <Box>Displays the overall success rate based on all <b>signed</b> gradings up to this point.</Box>
+        <Box>Overall success rate based on all <b>signed</b> gradings up to this point.</Box>
         <Box>(total of all awarded points / total of all possible points) * 100</Box>
       </>}
     >

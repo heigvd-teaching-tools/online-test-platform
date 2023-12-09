@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Stack, Divider, Typography, Button, Tab, IconButton, Tooltip} from '@mui/material'
+import { Stack, Typography, Tab, IconButton, Tooltip} from '@mui/material'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
@@ -15,17 +15,18 @@ import { fetcher } from '@/code/utils'
 
 import BackButton from '@/components/layout/BackButton'
 import LayoutMain from '@/components/layout/LayoutMain'
-import DataGrid from '@/components/ui/DataGrid'
-import UserAvatar from '@/components/layout/UserAvatar'
 import PiePercent from '@/components/feedback/PiePercent'
 import Authorisation from '@/components/security/Authorisation'
 import Loading from '@/components/feedback/Loading'
 
 import PhaseRedirect from './PhaseRedirect'
 
-import { getObtainedPoints, getSignedSuccessRate } from '../analytics/stats'
+import { getSignedSuccessRate } from '../analytics/stats'
 import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
 import JoinClipboard from '../JoinClipboard'
+import StudentResultsGrid from '../finished/StudentResultsGrid'
+import ExportCSV from '../finished/ExportCSV'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
 
 const PageFinished = () => {
   const router = useRouter()
@@ -63,167 +64,16 @@ const PageFinished = () => {
     }
   }, [evaluationToQuestions])
 
-
-  const gridHeaders = () => {
-    let q = evaluationToQuestions.map((jstq) => ({
-      label: <b>{`Q${jstq.order + 1}`}</b>,
-      tooltip: jstq.question.title,
-      column: { width: '30px', align: 'center' },
-      renderCell: (row) =>  {
-        const data = row[`Q${jstq.order + 1}`]
-        const color = data.color;
-        const pointsObtained = data.pointsObtained;
-        const totalPoints = data.totalPoints;
-          return (
-            <Stack display="inline-flex" alignItems="center" justifyContent="center" spacing={0.1}>
-              <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${pointsObtained}`}</Typography>
-              <Divider sx={{ width:"100%" }} />
-              <Typography variant="body2" sx={{ color: `${color}.main` }}>{`${totalPoints}`}</Typography>
-            </Stack>
-          )
-      }
-    }))
-
-    return {
-      columns: [
-        {
-          label: 'Participant',
-          column: { flexGrow: 1 },
-          renderCell: (row) => <UserAvatar user={row.participant} />
-        },
-        {
-          label: 'Actions',
-          column: { width: '80px' },
-          renderCell: (row) => (
-            <Tooltip title="View student's answers" key="view-student-answers">
-              <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.participant.email}/1`} target="_blank">
-                <IconButton size="small">
-                  <Image
-                    alt="View"
-                    src="/svg/icons/view-user.svg"
-                    width="18"
-                    height="18"
-                  />
-
-                </IconButton>
-              </a>
-            </Tooltip>
-          ),
-        },
-        {
-          label: 'Success',
-          column: { width: '80px' },
-          renderCell: (row) => <PiePercent
-            size={60}
-            value={row.participantSuccessRate}
-            label={
-              <Stack alignItems="center" justifyContent="center" spacing={0}>
-                <Typography variant="body2">{`${row.obtainedPoints}`}</Typography>
-                <Divider sx={{ width: '100%' }} />
-                <Typography variant="caption">{`${row.totalPoints}`}</Typography>
-              </Stack>
-            }
-          />,
-        },
-        ...q,
-      ],
-    }
-  }
-
-  const gridRows = () =>
-    participants.map((participant) => {
-      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
-      let totalPoints = evaluationToQuestions.reduce(
-        (acc, jstq) => acc + jstq.points,
-        0
-      )
-      let participantSuccessRate =
-        totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
-
-      const questionColumnValues = {}
-
-      evaluationToQuestions.forEach((jstq) => {
-        const grading = jstq.question.studentAnswer.find(
-          (sa) => sa.user.email === participant.email
-        ).studentGrading
-        let pointsObtained = grading ? grading.pointsObtained : 0
-        let totalPoints = jstq.points
-        let successRate = totalPoints > 0 ? Math.round((pointsObtained / totalPoints) * 100) : 0
-
-        let color = successRate > 70 ? 'success' : successRate > 40 ? 'info' : 'error'
-        questionColumnValues[`Q${jstq.order + 1}`] = {
-          pointsObtained: pointsObtained,
-          totalPoints: totalPoints,
-          successRate: successRate,
-          color: color,
-        }
-      })
-
-      return {
-        participant: participant,
-        email: participant.email,
-        participantSuccessRate:participantSuccessRate,
-        obtainedPoints: obtainedPoints,
-        totalPoints: totalPoints,
-        ...questionColumnValues,
-        meta: {
-          key: participant.email,
-          linkHref: `/${groupScope}/evaluations/${evaluationId}/consult/${participant.email}/1`,
-        },
-      }
-    })
-
-  const dotToComma = (value) => value.toString().replace('.', ',');
-
-  const exportAsCSV = () => {
-    let COLUMN_SEPARATOR = ';'
-    let LINE_SEPARATOR = '\r'
-
-    let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`
-    evaluationToQuestions.forEach(
-      (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`)
-    )
-    csv += LINE_SEPARATOR
-
-    participants.forEach((participant) => {
-      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
-
-      let totalPoints = evaluationToQuestions.reduce(
-        (acc, jstq) => acc + jstq.points,
-        0
-      )
-      let participantSuccessRate =
-        totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
-
-      csv += `${participant.name}${COLUMN_SEPARATOR}${participant.email}${COLUMN_SEPARATOR}${`${participantSuccessRate} %`}${COLUMN_SEPARATOR}${dotToComma(totalPoints)}${COLUMN_SEPARATOR}${dotToComma(obtainedPoints)}${COLUMN_SEPARATOR}`
-
-      evaluationToQuestions.forEach((jstq) => {
-        const grading = jstq.question.studentAnswer.find(
-          (sa) => sa.user.email === participant.email
-        ).studentGrading
-        let pointsObtained = grading ? grading.pointsObtained : 0
-        csv += `"${dotToComma(pointsObtained)}"${COLUMN_SEPARATOR}`
-      })
-
-      csv += LINE_SEPARATOR
-    })
-
-    let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    let url = URL.createObjectURL(blob)
-    let link = document.createElement('a')
-    link.setAttribute('href', url)
-
-    let sessionLabel = evaluation.label.replace(/ /g, '_').toLowerCase()
-
-    link.setAttribute(
-      'download',
-      `evaluation-${evaluation.id}-${sessionLabel}-results.csv`
-    )
-    link.click()
-  }
-
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (_, newValue) => {
     setTab(newValue)
+  }
+
+  const areAllGradingSigned = () => {
+    return evaluationToQuestions.every((eq) =>
+      eq.question.studentAnswer.every(
+        (sa) => sa.studentGrading.signedBy
+      )
+    )
   }
 
   return (
@@ -269,14 +119,50 @@ const PageFinished = () => {
                         <Typography variant="h6">
                           Overall success rate
                         </Typography>
-                        <PiePercent
-                          value={getSignedSuccessRate(evaluationToQuestions)}
-                        />
+                        <PiePercent value={getSignedSuccessRate(evaluationToQuestions)} />
+                        {
+                          !areAllGradingSigned() && (
+                            <AlertFeedback severity="warning">
+                              Some gradings are not signed yet.
+                            </AlertFeedback>
+                          )
+
+                        }
                       </Stack>
-                      <Button onClick={exportAsCSV}>Export as csv</Button>
+                      <ExportCSV
+                        evaluation={evaluation}
+                        evaluationToQuestions={evaluationToQuestions}
+                        participants={participants}
+                      />
                     </Stack>
 
-                    <DataGrid header={gridHeaders()} items={gridRows()} />
+                    <StudentResultsGrid 
+                      evaluationToQuestions={evaluationToQuestions}
+                      actions={(row) => {
+                        return (
+                          <Tooltip title="View student's answers" key="view-student-answers">
+                            <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.participant.email}/1`} target="_blank">
+                              <IconButton size="small">
+                                <Image
+                                  alt="View"
+                                  src="/svg/icons/view-user.svg"
+                                  width="18"
+                                  height="18"
+                                />
+
+                              </IconButton>
+                            </a>
+                          </Tooltip>
+                      )}}
+                      questionCellClick={async (questionId, participantId) => {
+                        const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
+                        const participantEmail = participants.find((p) => p.id === participantId).email;
+                        await router.push(
+                          `/${groupScope}/evaluations/${evaluationId}/consult/${participantEmail}/${questionOrder}`
+                        )
+                      
+                      }} 
+                    />
                   </Stack>
                 </TabPanel>
                 <TabPanel value={2}>

@@ -28,8 +28,6 @@ const CompareCode = ({ solution, answer }) => {
     */
   const { height: containerHeight } = useResizeObserver()
 
-  console.log("answer", answer)
-
   return (
     answer &&
     solution && (

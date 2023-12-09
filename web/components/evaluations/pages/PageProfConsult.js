@@ -1,21 +1,21 @@
 import { useRouter } from "next/router"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import useSWR from "swr"
 import Authorisation from "../../security/Authorisation"
 import Loading from "../../feedback/Loading"
-import { Role, StudentAnswerStatus } from "@prisma/client"
+import { EvaluationPhase, Role, StudentAnswerStatus } from "@prisma/client"
 import { fetcher } from "../../../code/utils"
 import LayoutMain from "../../layout/LayoutMain"
-import { Paper, Stack } from "@mui/material"
+import { Stack } from "@mui/material"
 import Paging from "../../layout/utils/Paging"
 import LayoutSplitScreen from "../../layout/LayoutSplitScreen"
 import QuestionView from "../../question/QuestionView"
-import GradingSigned from "../grading/GradingSigned"
-import GradingPointsComment from "../grading/GradingPointsComment"
-import AlertFeedback from "../../feedback/AlertFeedback"
 import BackButton from "../../layout/BackButton"
 import UserAvatar from "../../layout/UserAvatar"
 import AnswerCompare from "../../answer/AnswerCompare"
+import GradingSignOff from "../grading/GradingSignOff"
+import { saveGrading } from "../grading/utils"
+import { useDebouncedCallback } from "use-debounce"
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -35,13 +35,15 @@ const PageProfConsult = () => {
 
   const { groupScope, evaluationId, userEmail, questionPage } = router.query
 
-  const { data: evaluation, error } = useSWR(
+  const { data: evaluation, error, mutate } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/consult/${userEmail}`,
       groupScope && evaluationId && userEmail ? fetcher : null,
     { revalidateOnFocus: true, refreshInterval: 5000 }
   )
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [selected, setSelected] = useState()
+
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (
@@ -68,7 +70,44 @@ const PageProfConsult = () => {
     state: getFilledStatus(jstq.question.studentAnswer[0].status),
   })), [evaluationToQuestions])
 
+  const debouncedSaveGrading = useDebouncedCallback(useCallback(async (grading) => {
+    setLoading(true)
+    await saveGrading(groupScope, grading)
+    setLoading(false)
+  }, [groupScope]), 500)
+
+  const onChangeGrading = useCallback(
+    async (grading) => {
+      const newEvaluationToQuestions = [...evaluationToQuestions]
+      const evaluationToQuestion = newEvaluationToQuestions.find(
+        (jstq) => jstq.question.id === grading.questionId
+      )
+      evaluationToQuestion.question.studentAnswer =
+        evaluationToQuestion.question.studentAnswer.map((sa) => {
+          if (sa.user.email === grading.userEmail) {
+            return {
+              ...sa,
+              studentGrading: {
+                ...sa.studentGrading,
+                pointsObtained: grading.pointsObtained,
+                status: grading.status,
+                signedBy: grading.signedBy,
+                signedByUserEmail: grading.signedBy ? grading.signedBy.email : null,
+                comment: grading.comment,
+              },
+            }
+          }
+          return sa
+        })
+      setEvaluationToQuestions(newEvaluationToQuestions)
+      debouncedSaveGrading(grading)
+    },
+    [groupScope, evaluationToQuestions, mutate]
+  )
+
   const isDataReady = useMemo(() => evaluationToQuestions.length > 0 && selected && selected.question.studentAnswer[0], [evaluationToQuestions, selected])
+
+  console.log("evaluation", evaluation)
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
@@ -94,80 +133,54 @@ const PageProfConsult = () => {
               </Stack>
             }
           >
-             <LayoutSplitScreen
-                  leftPanel={
-                    selected && (
-                      <QuestionView
-                        order={selected.order}
-                        points={selected.points}
-                        question={selected.question}
-                        totalPages={evaluationToQuestions.length}
+            <LayoutSplitScreen
+                leftPanel={
+                  selected && (
+                    <QuestionView
+                      order={selected.order}
+                      points={selected.points}
+                      question={selected.question}
+                      totalPages={evaluationToQuestions.length}
+                    />
+                  )
+                }
+                rightWidth={65}
+                rightPanel={
+                  selected && (
+                    <Stack pt={1} height={'100%'}>
+                      <AnswerCompare
+                        id={`answer-viewer-${selected.question.id}`}
+                        questionType={selected.question.type}
+                        solution={selected.question[selected.question.type]}
+                        answer={
+                          selected.question.studentAnswer[0][
+                            selected.question.type
+                          ]
+                        }
                       />
-                    )
-                  }
-                  rightWidth={65}
-                  rightPanel={
-                    selected && (
-                      <Stack pt={1} height={'100%'}>
-                        <AnswerCompare
-                          id={`answer-viewer-${selected.question.id}`}
-                          questionType={selected.question.type}
-                          solution={selected.question[selected.question.type]}
-                          answer={
-                            selected.question.studentAnswer[0][
-                              selected.question.type
-                            ]
-                          }
-                        />
-                      </Stack>
-                    )
-                  }
-                  footer={selected.question.studentAnswer[0].studentGrading.signedBy && 
-                    <>
-                      {' '}
-                      {selected && (
-                        <Paper sx={{ height: '80px' }} square>
-                          <Stack
-                            spacing={2}
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="center"
-                            height="100%"
-                            pr={1}
-                          >
-                            {selected.question.studentAnswer[0].studentGrading
-                              .signedBy ? (
-                              <>
-                                <GradingSigned
-                                  signedBy={
-                                    selected.question.studentAnswer[0]
-                                      .studentGrading.signedBy
-                                  }
-                                  readOnly={true}
-                                />
-                                <GradingPointsComment
-                                  points={
-                                    selected.question.studentAnswer[0]
-                                      .studentGrading.pointsObtained
-                                  }
-                                  maxPoints={selected.points}
-                                  comment={
-                                    selected.question.studentAnswer[0]
-                                      .studentGrading.comment
-                                  }
-                                />
-                              </>
-                            ) : (
-                              <AlertFeedback severity="warning">
-                                This question has not been graded yet.
-                              </AlertFeedback>
-                            )}
-                          </Stack>
-                        </Paper>
-                      )}
-                    </>
-                  }
-                />
+                    </Stack>
+                  )
+                }
+                footer={
+                  isDataReady && evaluation?.phase !== EvaluationPhase.IN_PROGRESS &&
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    height="100px">
+                      <GradingSignOff
+                        loading={loading}
+                        grading={
+                          selected.question.studentAnswer.find(
+                            (ans) => ans.user.email === userEmail
+                          ).studentGrading
+                        }
+                        maxPoints={selected.points}
+                        onChange={onChangeGrading}
+                      />
+                  </Stack>
+
+                }
+              />
           </LayoutMain>
         )}
 

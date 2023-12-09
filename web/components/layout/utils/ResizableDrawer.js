@@ -39,24 +39,22 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
             onClose={() => onClose()}
             ref={ref}
         >
-            <Box pl={1} width={"100%"} height={"100%"} position={"relative"}>
+            <Stack direction={"row"} width={"100%"} height={"100%"}>
                 <Stack 
-                    position={"absolute"}
-                    top={0}
-                    left={0}
-                    bottom={0}
                     width={"24px"}
                     zIndex={2}
                     alignItems={"center"}
                     justifyContent={"center"}
                     sx={{ cursor: "ew-resize" }}
                     onMouseDown={(e) => setDragging(true)}
+                    bgcolor={"background.default"}
                 >
                     <ResizeHandleIcon />
                 </Stack>
-
-                {children}
-            </Box>
+                <Stack flex={1} height={"100%"} overflow={"auto"}>
+                    {children}
+                </Stack>
+            </Stack>
         </Drawer>
     )
 }

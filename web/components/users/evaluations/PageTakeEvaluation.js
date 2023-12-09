@@ -247,7 +247,7 @@ const LeftPanel = ({ evaluationId, page, pages, conditions, activeQuestion }) =>
           <QuestionNav
             evaluationId={evaluationId}
             page={page}
-            totalPages={pages.length - 1}
+            totalPages={pages.length}
           />
         </>
     );
