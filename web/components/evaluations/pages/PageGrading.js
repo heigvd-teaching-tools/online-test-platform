@@ -174,10 +174,10 @@ const PageGrading = () => {
         }
       }
     }
-    await Promise.all(updated.map((grading) => saveGrading(grading)))
+    await Promise.all(updated.map((grading) => saveGrading(groupScope, grading)))
     setEvaluationToQuestions(newEvaluationToQuestions)
     await mutate(newEvaluationToQuestions, false)
-  }, [evaluationToQuestions, mutate, session])
+  }, [groupScope, evaluationToQuestions, mutate, session])
 
   const endGrading = useCallback(async () => {
     setSaving(true)
