@@ -15,7 +15,7 @@ const get = async (req, res, prisma) => {
   const { groupId } = req.query
 
   // check if the users is a member of the group they are trying to get members of
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   if (!user) {
     res.status(401).json({ message: 'Unauthorized' })
@@ -60,7 +60,7 @@ const post = async (req, res, prisma) => {
   const { member } = req.body
 
   // check if the users is a member of the group they are trying to add a member to
-  const requester = await getUser(req)
+  const requester = await getUser(req, res)
 
   if (!requester) {
     res.status(401).json({ message: 'Unauthorized' })
@@ -110,7 +110,7 @@ const del = async (req, res, prisma) => {
   // remove member from group
   const { groupId } = req.query
 
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   // check if the users is a member of the group they are trying to remove a member from
   const userIsMemberOfGroup = await prisma.group.findFirst({

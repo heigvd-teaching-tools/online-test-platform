@@ -1,18 +1,19 @@
-import { getSession } from 'next-auth/react'
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 
-const hasRole = async (req, role) => {
-  const session = await getSession({ req })
-  return session && session.user && session.user.role === role
+const getSession = async (req, res) => {
+  const session = await getServerSession(req, res, authOptions)
+  return session
 }
 
-const getRole = async (req) => {
-  const session = await getSession({ req })
-  return session && session.user && session.user.role
+const getRoles = async (req, res) => {
+  const session = await getSession(req, res)
+  return session && session.user && session.user.roles
 }
 
-const getUser = async (req) => {
-  const session = await getSession({ req })
+const getUser = async (req, res) => {
+  const session = await getSession(req, res)
   return session && session.user
 }
 
-export { hasRole, getRole, getUser }
+export { getRoles, getUser }

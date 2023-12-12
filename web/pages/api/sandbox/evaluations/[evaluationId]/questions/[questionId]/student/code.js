@@ -1,10 +1,10 @@
 import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 import { runSandbox } from '@/sandbox/runSandboxTC'
-import { getSession } from 'next-auth/react'
 import { grading } from '@/code/grading'
 import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudentEvaluation';
+import { getUser } from '@/code/auth'
 
 /*
  endpoint to run the code sandbox for a users (generally students) answers
@@ -12,10 +12,9 @@ import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudent
  */
 const post = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
   async (req, res, prisma) => {
-      const session = await getSession({ req })
+      const user = await getUser(req, res)
 
       const { evaluationId, questionId } = req.query
-      const studentEmail = session.user.email
 
       const code = await prisma.code.findUnique({
         where: {
@@ -36,7 +35,7 @@ const post = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatu
       const studentAnswerCodeFiles = await prisma.studentAnswerCode.findUnique({
         where: {
           userEmail_questionId: {
-            userEmail: studentEmail,
+            userEmail: user.email,
             questionId: questionId,
           },
         },
@@ -68,7 +67,7 @@ const post = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatu
         await prisma.StudentAnswerCode.update({
           where: {
             userEmail_questionId: {
-              userEmail: studentEmail,
+              userEmail: user.email,
               questionId: questionId,
             },
           },
@@ -108,13 +107,13 @@ const post = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatu
         await prisma.studentQuestionGrading.upsert({
           where: {
             userEmail_questionId: {
-              userEmail: studentEmail,
+              userEmail: user.email,
               questionId: questionId,
             },
           },
           update: grading(evaluationToQuestion.question, evaluationToQuestion.points, response),
           create: {
-            userEmail: studentEmail,
+            userEmail: user.email,
             questionId: questionId,
             ...grading(evaluationToQuestion.question, evaluationToQuestion.points, response),
           },

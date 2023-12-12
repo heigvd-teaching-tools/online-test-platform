@@ -5,13 +5,13 @@ import {
   UserOnEvaluationStatus,
 } from '@prisma/client'
 
-import { getSession } from 'next-auth/react'
 import {
   withAuthorization,
   withMethodHandler
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudentEvaluation'
+import { getUser } from '@/code/auth'
 
 /*
  endpoint to handle users answers submission status
@@ -22,8 +22,8 @@ import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudent
 const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
     async (req, res, prisma) => {
       // update users answers
-      const session = await getSession({ req })
-      const studentEmail = session.user.email
+      const user = await getUser(req, res)
+      const studentEmail = user.email
       const { questionId } = req.query
 
       // Update the StudentAnswer status to SUBMITTED
@@ -47,8 +47,8 @@ const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus
 const del = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
     async (req, res, prisma) => {
       // update users answers
-      const session = await getSession({ req })
-      const studentEmail = session.user.email
+      const user = await getUser(req, res)
+      const studentEmail = user.email
       const { questionId } = req.query
 
       // Update the StudentAnswer status to IN_PROGRESS

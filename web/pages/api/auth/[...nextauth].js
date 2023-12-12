@@ -60,8 +60,7 @@ const MyAdapter = {
   },
 };
 
-
-export default NextAuth({
+export const authOptions = {
   adapter: MyAdapter,
   providers: [
     KeycloakProvider({
@@ -75,7 +74,6 @@ export default NextAuth({
   callbacks: {
 
     async session({ session, user }) {
-      console.log("session callback", user)
       if (user) {
         const userWithGroups = await prisma.user.findUnique({
           where: { email: user.email },
@@ -101,13 +99,11 @@ export default NextAuth({
         }
       }
       session.user.id = user.id
-      session.user.role = user.role
+      session.user.roles = user.roles
       return session
     },
 
-    async signIn({ user, account, profile }) {
-      console.log("sign in callback", user, account, profile);
-    
+    async signIn({ user, account, profile }) {    
       // Only proceed if the provider is Keycloak and an email is provided
       if (account.provider === 'keycloak') {
         if (!user.email) {
@@ -140,7 +136,7 @@ export default NextAuth({
             data: {
               email: user.email,
               name: profile.name,
-              role: Role.STUDENT,
+              roles: [Role.STUDENT],
             },
           });
 
@@ -191,4 +187,7 @@ export default NextAuth({
     }
     
   },
-})
+}
+
+
+export default NextAuth(authOptions)

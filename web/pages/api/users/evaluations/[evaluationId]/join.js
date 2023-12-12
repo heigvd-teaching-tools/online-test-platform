@@ -1,16 +1,16 @@
 import { withPrisma } from '@/middleware/withPrisma';
 import { withMethodHandler, withAuthorization } from '@/middleware/withAuthorization';
-import { getSession } from 'next-auth/react';
 import { Role, EvaluationPhase, QuestionType, StudentPermission } from '@prisma/client';
 import { phaseGT } from '@/code/phase';
 import { questionIncludeClause } from '@/code/questions';
 import { grading } from '@/code/grading';
+import { getUser } from '@/code/auth';
 
 const post = async (req, res, prisma) => {
 
     const { evaluationId } = req.query
-    const session = await getSession({ req })
-    const studentEmail = session.user.email
+    const user = await getUser(req, res)
+    const studentEmail = user.email
 
     const evaluation = await prisma.evaluation.findUnique({
         where: {

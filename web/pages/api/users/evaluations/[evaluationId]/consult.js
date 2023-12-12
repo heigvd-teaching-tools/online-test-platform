@@ -15,7 +15,7 @@ import {
 const get = async (req, res, prisma) => {
 
   const { evaluationId } = req.query
-  const { email } = await getUser(req)
+  const { email } = await getUser(req, res)
 
   if (!(await isFinished(evaluationId, prisma))) {
     res.status(400).json({ message: 'Exam session is not yet finished' })

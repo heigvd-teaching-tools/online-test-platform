@@ -6,6 +6,7 @@ import { useSnackbar } from '@/context/SnackbarContext'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 
 import UserAvatar from '@/components/layout/UserAvatar'
+import { Role } from '@prisma/client'
 
 
 const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
@@ -38,7 +39,11 @@ const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
   )
 
   const handleSearch = async (search) => {
-    const response = await fetch(`/api/users?search=${search}`, {
+    if(search.length < 2){
+      setMembers([])
+      return;
+    }
+    const response = await fetch(`/api/users?search=${search}&role=${Role.PROFESSOR}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

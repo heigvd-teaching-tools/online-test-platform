@@ -14,7 +14,8 @@ const Authorisation = ({ children, allowRoles = [] }) => {
   const [hasRequiredGroups, setHasRequiredGroups] = useState(true) // Default to true
 
   useEffect(() => {
-    const userHasAllowedRole = session?.user && allowRoles.includes(session.user.role)
+    const userHasAllowedRole = session?.user && session.user.roles.some(role => allowRoles.includes(role));
+
     const isProfessor = session?.user.role === Role.PROFESSOR
     const professorHasGroups = groups?.length > 0
 

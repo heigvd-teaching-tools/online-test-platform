@@ -1,6 +1,7 @@
 import { Menu, Button, Stack } from '@mui/material'
 import LockClosedIcon from '@mui/icons-material/Lock'
 import GroupIcon from '@mui/icons-material/Group'
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
@@ -16,6 +17,10 @@ const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
       onClose={handleCloseUserMenu}
     >
       <Stack padding={2} spacing={2} alignItems={'flex-start'}>
+        <Link href={`/admin`}>
+          <Button startIcon={<SupervisedUserCircleIcon />}>Manage Users</Button>
+        </Link>
+
         <Link href={`/groups`}>
           <Button startIcon={<GroupIcon />}>Manage Groups</Button>
         </Link>

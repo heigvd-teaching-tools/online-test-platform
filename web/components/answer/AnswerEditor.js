@@ -328,6 +328,7 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             answer: content
               ? {

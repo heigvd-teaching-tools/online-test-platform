@@ -1,5 +1,4 @@
 import { EvaluationPhase, Role, StudentAnswerStatus, UserOnEvaluationStatus } from '@prisma/client'
-import { getSession } from 'next-auth/react'
 import { isInProgress } from '../utils'
 import { grading } from '@/code/grading'
 import {
@@ -8,6 +7,7 @@ import {
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudentEvaluation'
+import { getUser } from '@/code/auth'
 
 /*
   Student update a database query during a evaluation
@@ -15,8 +15,8 @@ import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudent
 
 const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
   async (req, res, prisma) => {
-      const session = await getSession({ req })
-      const studentEmail = session.user.email
+      const user = await getUser(req, res)
+      const studentEmail = user.email
       const { evaluationId, questionId, queryId } = req.query
 
       const { content } = req.body

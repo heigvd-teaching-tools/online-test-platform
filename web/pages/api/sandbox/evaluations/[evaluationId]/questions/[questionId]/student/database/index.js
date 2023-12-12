@@ -1,5 +1,4 @@
 import {DatabaseQueryOutputType, Prisma, Role} from '@prisma/client'
-import {getSession} from 'next-auth/react'
 import {grading} from '@/code/grading'
 import {
   isInProgress
@@ -9,6 +8,7 @@ import {runTestsOnDatasets} from "@/code/database";
 import {runSQLFluffSandbox} from "@/sandbox/runSQLFluffSandbox";
 import {withAuthorization, withMethodHandler} from '@/middleware/withAuthorization';
 import {withPrisma} from '@/middleware/withPrisma';
+import { getUser } from '@/code/auth';
 
 /*
  endpoint to run the database sandbox for a users answers
@@ -66,10 +66,10 @@ const getStudentAnswer = async (prisma, studentEmail, questionId) => {
 
 
 const post = async (req, res, prisma) => {
-  const session = await getSession({ req })
+  const user = await getUser(req, res)
 
   const { evaluationId, questionId } = req.query
-  const studentEmail = session.user.email
+  const studentEmail = user.email
 
   if (!(await isInProgress(evaluationId, prisma))) {
     res.status(400).json({ message: 'evaluation is not in progress' })
