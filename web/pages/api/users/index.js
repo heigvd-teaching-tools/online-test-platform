@@ -14,9 +14,9 @@ const get = async (req, res, prisma) => {
   if (!role) {
     // only super admin can view all users
     const user = await getUser(req, res);
-    if (!user.roles.includes(Role.SUPER_ADMIN)) {
-      //res.status(403).json({ message: 'Forbidden' });
-      //return;
+    if ((!search || search.length < 2) && !user.roles.includes(Role.SUPER_ADMIN)) {
+      res.status(403).json({ message: 'Forbidden' });
+      return;
     }
   }
 
@@ -31,11 +31,13 @@ const get = async (req, res, prisma) => {
       {
         name: {
           contains: search,
+          mode: 'insensitive',
         },
       },
       {
         email: {
           contains: search,
+          mode: 'insensitive',
         },
       },
     ],
@@ -52,6 +54,9 @@ const get = async (req, res, prisma) => {
       email: true,
       image: true,
       roles: true,
+    },
+    orderBy: {
+      name: 'asc',
     },
   });
 

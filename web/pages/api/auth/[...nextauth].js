@@ -1,18 +1,16 @@
 import NextAuth from 'next-auth'
-import GithubProvider from 'next-auth/providers/github'
 import KeycloakProvider from "next-auth/providers/keycloak";
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Role } from '@prisma/client'
 
-import { Octokit } from "octokit";
-import { createAppAuth } from "@octokit/auth-app";
-import fetch from "node-fetch";
-import fs from 'fs';
 import { getPrisma } from "@/middleware/withPrisma";
 
 const prisma = getPrisma();
 
+/*
+
+// LEGACY CODE: GitHub provider 
 const octokit = new Octokit({
   authStrategy: createAppAuth,
   auth: {
@@ -45,6 +43,8 @@ const setProfessorIfMemberOfOrg = async (account, user) => {
   }
   return false;
 }
+
+*/
 
 
 // ISSUE with keycloak provider fixed with workaround:
@@ -104,7 +104,19 @@ export const authOptions = {
     },
 
     async signIn({ user, account, profile }) {    
+      /*
+      
+        As part of the migration from GitHub to Keycloak, we need to automatically link new accounts to existing users.
+        Default behaviour: 
+         - If the user is not existant (based on email) next auth will create and link the account to the new user.
+         - If the user is existant we will get the error when signin in with another provider : "Account not linked" 
+
+        We decided not to implement manual linking in the user interface, because we will keep the single provider. Moving from Github to Keycloak. 
+
+      */
+
       // Only proceed if the provider is Keycloak and an email is provided
+      console.log("sign in", user, account, profile);
       if (account.provider === 'keycloak') {
         if (!user.email) {
           return false;
@@ -178,6 +190,23 @@ export const authOptions = {
                 ...accountData
               },
             });
+
+            // unlink the github account 
+
+            const accountToDelete = await prisma.account.findFirst({
+              where: {
+                provider: 'github',
+                userId: existingUser.id,
+              },
+            });
+
+            if (accountToDelete) {
+              await prisma.account.delete({
+                where: {
+                  id: accountToDelete.id,
+                },
+              });
+            }
           }
           return true;
         }
