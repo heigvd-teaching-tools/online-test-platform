@@ -353,6 +353,7 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
     answer?.essay && (
         <Essay
           id={`answer-editor-${questionId}`}
+          mode="split"
           title={"Your Answer"}
           content={answer.essay.content}
           onChange={debouncedOnChange}
