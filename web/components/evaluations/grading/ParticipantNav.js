@@ -1,19 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Stack, Box, Button } from '@mui/material'
 import Image from 'next/image'
 
 import UserAvatar from '@/components/layout/UserAvatar'
 import FilledBullet from '@/components/feedback/FilledBullet'
+import { forwardRef } from 'react'
 
-const ParticipantItem = ({
+const ParticipantItem = forwardRef(({
   participant,
   active,
   collapsed,
   onClick,
   isFilled,
-}) => {
+}, ref) => {
   return (
     <Stack
+      ref={ref}
       direction="row"
       alignItems="center"
       justifyContent="space-between"
@@ -32,7 +34,7 @@ const ParticipantItem = ({
       <FilledBullet state={isFilled ? 'filled' : 'empty'} />
     </Stack>
   )
-}
+})
 
 const ParticipantNav = ({
   participants,
@@ -41,6 +43,15 @@ const ParticipantNav = ({
   isParticipantFilled,
 }) => {
   const [collapsed, setCollapsed] = useState(true)
+
+  const participantRefs = useRef({}); // for auto-scrolling
+
+  useEffect(() => {
+    if (active && participantRefs.current[active.id]) {
+      participantRefs.current[active.id].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [active, participantRefs]);
+
   return (
     <Stack
       spacing={0}
@@ -67,6 +78,7 @@ const ParticipantNav = ({
         {participants.map((participant) => (
           <ParticipantItem
             key={participant.id}
+            ref={(el) => participantRefs.current[participant.id] = el}
             active={active && active.id === participant.id}
             collapsed={collapsed}
             participant={participant}
