@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
-import { Box, Paper, Stack, TextField } from '@mui/material'
+import { Box, Paper, Stack, TextField, Toolbar, Tooltip } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { useSession } from 'next-auth/react'
 
@@ -65,18 +65,15 @@ const GradingSignOff = ({
   }, [grading, onChange])
 
   const handleKeyDown = useCallback((event) => {
-    if(document.activeElement !== commentInputRef.current){
-      if(event.key === 'Enter'){
-        // sign if not signed, unsign if signed
-        if(grading.signedBy){
-          unsignGrading()
-        }else{
-          signOffGrading()
-        }
+    if (event.ctrlKey && event.key === 'Enter') {
+      // If CTRL+Enter is pressed, either sign off or unsign
+      if (grading.signedBy) {
+        unsignGrading();
+      } else {
+        signOffGrading();
       }
-
     }
-  }, [signOffGrading, unsignGrading, grading.signedBy]);
+  }, [signOffGrading, unsignGrading, grading.signedBy]); 
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -108,23 +105,25 @@ const GradingSignOff = ({
                 onUnsign={unsignGrading}
               />
             ) : (
-              <LoadingButton
-                color="success"
-                variant="contained"
-                loading={loading}
-                loadingPosition="start"
-                startIcon={
-                  <Image
-                    src="/svg/grading/sign-off.svg"
-                    alt="Sign Off"
-                    width={16}
-                    height={16}
-                  />
-                }
-                onClick={signOffGrading}
-              >
-                Sign Off
-              </LoadingButton>
+              <Tooltip title="CTRL+Enter">
+                <LoadingButton
+                  color="success"
+                  variant="contained"
+                  loading={loading}
+                  loadingPosition="start"
+                  startIcon={
+                    <Image
+                      src="/svg/grading/sign-off.svg"
+                      alt="Sign Off"
+                      width={16}
+                      height={16}
+                    />
+                  }
+                  onClick={signOffGrading}
+                >
+                  Sign Off
+                </LoadingButton>
+              </Tooltip>
             )}
           </Stack>
 
@@ -149,6 +148,7 @@ const GradingSignOff = ({
                 />
               </Box>
               <TextField
+                ref={commentInputRef}
                 label="Comment"
                 fullWidth
                 multiline
