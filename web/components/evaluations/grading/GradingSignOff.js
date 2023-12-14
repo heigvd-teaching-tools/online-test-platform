@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
 import { Box, Paper, Stack, TextField } from '@mui/material'
@@ -20,6 +20,7 @@ const GradingSignOff = ({
 }) => {
   const [grading, setGrading] = useState(initial)
   const { data } = useSession()
+  const commentInputRef = useRef(null);
 
   useEffect(() => {
     setGrading(initial)
@@ -62,6 +63,28 @@ const GradingSignOff = ({
     setGrading(newGrading)
     onChange(newGrading)
   }, [grading, onChange])
+
+  const handleKeyDown = useCallback((event) => {
+    if(document.activeElement !== commentInputRef.current){
+      if(event.key === 'Enter'){
+        // sign if not signed, unsign if signed
+        if(grading.signedBy){
+          unsignGrading()
+        }else{
+          signOffGrading()
+        }
+      }
+
+    }
+  }, [signOffGrading, unsignGrading, grading.signedBy]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <Paper
@@ -109,6 +132,7 @@ const GradingSignOff = ({
             <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>
               <Box>
                 <DecimalInput
+                  autoFocus
                   label={'Awarded Points'}
                   value={grading.pointsObtained}
                   max={maxPoints}
