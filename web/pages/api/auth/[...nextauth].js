@@ -53,10 +53,6 @@ export default NextAuth({
       clientId: process.env.NEXTAUTH_GITHUB_ID,
       clientSecret: process.env.NEXTAUTH_GITHUB_SECRET,
     }),
-    KeycloakProvider({
-      clientId: process.env.KEYCLOAK_CLIENT_ID,
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
-    }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   events: {

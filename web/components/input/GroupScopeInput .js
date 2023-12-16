@@ -85,12 +85,12 @@ const GroupScopeInput = ({ label: initialLabel, scope: initialScope, groupId = u
         const available = await isAvailable(value, newScope);
         setIsLabelAvailable(available);
 
-        debounceChange(value, newScope);
+        debounceChange(value, newScope, available);
 
     }, [initialLabel, initialScope, error, isAvailable, debounceChange]);
 
     return (
-        <Stack spacing={1}>
+        <Stack spacing={1} flex={1}>
             <TextField
                 label="Label"
                 value={label}

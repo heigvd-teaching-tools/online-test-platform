@@ -56,7 +56,9 @@ const FileEditor = ({
               value={path}
               fullWidth
               onChange={(ev) => {
-                if (ev.target.value === file?.content) return
+                const path = ev.target.value
+                if(path === file.path) return
+                file.path = path
                 setPath(ev.target.value)
                   onChange({
                   ...file,
@@ -78,6 +80,7 @@ const FileEditor = ({
           minHeight={100}
           onChange={(code) => {
             if (code === file?.content) return
+            file.content = code
             setContent(code)
               onChange({
               ...file,

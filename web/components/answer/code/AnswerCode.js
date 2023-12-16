@@ -24,8 +24,6 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
     const onFileChange = useCallback(
         async (file) => {
             setLockCodeCheck(true)
-            const currentFile = answer.code.files.find((f) => f.file.id === file.id)
-            if (currentFile.file.content === file.content) return
             const response = await fetch(
                 `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/code/${file.id}`,
                 {
@@ -36,13 +34,12 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
                     body: JSON.stringify({ file }),
                 }
             )
-
             const ok = response.ok
             const data = await response.json()
             setLockCodeCheck(false)
             onAnswerChange && onAnswerChange(ok, data)
         },
-        [evaluationId, questionId, answer, onAnswerChange]
+        [evaluationId, questionId, onAnswerChange]
     )
 
     const debouncedOnChange = useDebouncedCallback(onFileChange, 500)
