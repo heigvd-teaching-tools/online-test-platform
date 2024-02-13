@@ -70,6 +70,7 @@ runs:
         
     - name: Build Custom Docker images
       run: |
+        # SQL Fluff is out custom images used for linting DB question queries, it is not published on Docker Hub
         cd /home/heiguser/onlinetest
         docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
       shell: bash
