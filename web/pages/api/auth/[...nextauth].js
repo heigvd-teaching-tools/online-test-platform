@@ -64,9 +64,9 @@ export const authOptions = {
   adapter: MyAdapter,
   providers: [
     KeycloakProvider({
-      clientId: process.env.KEYCLOAK_CLIENT_ID,
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
-      issuer: process.env.KEYCLOAK_ISSUER_BASE_URL
+      clientId: process.env.HEXTAUTH_KEYCLOAK_CLIENT_ID,
+      clientSecret: process.env.HEXTAUTH_KEYCLOAK_CLIENT_SECRET,
+      issuer: process.env.HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -105,18 +105,29 @@ export const authOptions = {
 
     async signIn({ user, account, profile }) {    
       /*
-      
-        As part of the migration from GitHub to Keycloak, we need to automatically link new accounts to existing users.
-        Default behaviour: 
+
+        OAuth (NextAuth) behaviour, when connecting with the same email from different providers:
          - If the user is not existant (based on email) next auth will create and link the account to the new user.
          - If the user is existant we will get the error when signin in with another provider : "Account not linked" 
 
+      
+        As part of the migration from GitHub to Keycloak, we need to automatically link new accounts to existing users.
+
+        Some students and professors use private emails in their github accounts. 
+        
+        The professors have been changed to use the heig-vd email by updating the email field of the User. 
+        
+        For students who use private emails will lose access to their historical data. 
+        
+        For students using heig-vd emails will be unlinked from github and linked to keycloak. Preserving their historical data.
+        
         We decided not to implement manual linking in the user interface, because we will keep the single provider. Moving from Github to Keycloak. 
+
+        TODO : The following procedure is temporal and should be removed after enough time has passed, ie. 1 semester starting from 13.02.2024.
 
       */
 
       // Only proceed if the provider is Keycloak and an email is provided
-      console.log("sign in", user, account, profile);
       if (account.provider === 'keycloak') {
         if (!user.email) {
           return false;
