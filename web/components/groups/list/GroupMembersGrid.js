@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 import { useSnackbar } from '@/context/SnackbarContext'
 
@@ -7,6 +7,7 @@ import UserAvatar from '@/components/layout/UserAvatar'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 
 import GroupScopeInput from "@/components/input/GroupScopeInput ";
+import { LoadingButton } from '@mui/lab'
 
 const GroupMembersGrid = ({ group, onUpdate }) => {
 
@@ -15,6 +16,8 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
   const [label, setLabel] = useState(group.label)
   const [scope, setScope] = useState(group.scope)
 
+  const [ loading, setLoading ] = useState(false)
+
   useEffect(() => {
     setLabel(group.label)
     setScope(group.scope)
@@ -22,6 +25,7 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
 
   const handleSaveGroup = useCallback(
     async (label, scope) => {
+      setLoading(true)
       const response = await fetch(`/api/groups/${group.id}`, {
         method: 'PUT',
         headers: {
@@ -40,24 +44,34 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
         const data = await response.json()
         showSnackbar(data.message, 'error')
       }
+      setLoading(false)
     },
     [group, onUpdate, showSnackbar]
   )
 
   return (
     <Box minWidth={"100%"} pl={2} pr={2} pt={1}>
-      <GroupScopeInput
-        groupId={group.id}
-        label={label}
-        scope={scope}
-        onChange={async (newLabel, newScope) => {
-            setLabel(newLabel);
-            setScope(newScope);
-            console.log("onChange", newLabel, newScope)
-            await handleSaveGroup(newLabel, newScope)
-        }}
-      />
-
+      <Stack direction="row" alignItems="flex-start" spacing={2} width={"100%"}>
+        <GroupScopeInput
+          groupId={group.id}
+          label={label}
+          scope={scope}
+          onChange={async (newLabel, newScope, available) => {
+              if(!available) return
+              setLabel(newLabel);
+              setScope(newScope);
+          }}
+        />
+        { group && group.label !== label && (
+          <LoadingButton 
+            variant="contained"
+            onClick={() => handleSaveGroup(label, scope)}
+            loading={loading}
+          >
+            Save
+          </LoadingButton>
+        )}
+      </Stack>
 
       {group && group.members && group.members.length > 0 && (
         <DataGrid
