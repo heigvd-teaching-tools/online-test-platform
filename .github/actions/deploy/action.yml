@@ -44,13 +44,18 @@ runs:
       run: |
         cd /home/heiguser/onlinetest
         echo "DATABASE_URL=postgresql://${{ inputs.POSTGRES_USER }}:${{ inputs.POSTGRES_PASSWORD }}@db:5432/${{ inputs.POSTGRES_DB }}" > web/.env
+        
         echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" >> web/.env
         echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> web/.env
         echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> web/.env
+        
         echo "NEXTAUTH_URL=${{inputs.NEXTAUTH_URL}}" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ inputs.NEXTAUTH_SECRET }}" >> web/.env.production
+        
         echo "NEXTAUTH_KEYCLOAK_ID=${{ inputs.NEXTAUTH_KEYCLOAK_ID }}" >> web/.env.production
         echo "NEXTAUTH_KEYCLOAK_SECRET=${{ inputs.NEXTAUTH_KEYCLOAK_SECRET }}" >> web/.env.production
+        echo "NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=${{ inputs.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL }}" >> web/.env.production
+
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
       shell: bash
 
