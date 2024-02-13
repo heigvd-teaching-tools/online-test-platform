@@ -54,8 +54,9 @@ runs:
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
       shell: bash
 
-    - name: Ssl certificates for https
+    - name: SSL certificates for https
       run: |
+        # The SSL certificate keys are provided by the infrastructure team
         cd /home/heiguser/onlinetest
         mkdir -p ssl
         echo "${{ inputs.SSL_FULLCHAIN }}" > ssl/fullchain.pem
