@@ -10,26 +10,20 @@ inputs:
   POSTGRES_DB:
     description: 'PostgreSQL database'
     required: true
-  GH_APP_ID:
-    description: 'GitHub App ID'
-    required: true
-  GH_APP_INSTALLATION_ID:
-    description: 'GitHub App Installation ID'
-    required: true
-  GH_APP_PRIVATE_KEY:
-    description: 'GitHub App Private Key'
-    required: true
   NEXTAUTH_URL:
     description: 'NextAuth URL'
     required: true
   NEXTAUTH_SECRET:
     description: 'NextAuth Secret'
     required: true
-  NEXTAUTH_GITHUB_ID:
-    description: 'NextAuth GitHub ID'
+  NEXTAUTH_KEYCLOAK_ID:
+    description: 'NextAuth Keycloak ID'
     required: true
-  NEXTAUTH_GITHUB_SECRET:
-    description: 'NextAuth GitHub Secret'
+  NEXTAUTH_KEYCLOAK_SECRET:
+    description: 'NextAuth Keycloak Secret'
+    required: true
+  HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL:
+    description: 'NextAuth Keycloak Issuer Base URL'
     required: true
   SSL_FULLCHAIN:
     description: 'SSL Fullchain'
@@ -53,15 +47,10 @@ runs:
         echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" >> web/.env
         echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> web/.env
         echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> web/.env
-        echo "GITHUB_ORG=heigvd-teaching-tools" >> web/.env
-        echo "GITHUB_APP_ID=${{ inputs.GH_APP_ID }}" >> web/.env
-        echo "GITHUB_APP_PRIVATE_KEY_PATH=eval-teaching-tools.private-key.pem" >> web/.env
-        echo "GITHUB_APP_INSTALLATION_ID=${{ inputs.GH_APP_INSTALLATION_ID }}" >> web/.env
-
         echo "NEXTAUTH_URL=${{inputs.NEXTAUTH_URL}}" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ inputs.NEXTAUTH_SECRET }}" >> web/.env.production
-        echo "NEXTAUTH_GITHUB_ID=${{ inputs.NEXTAUTH_GITHUB_ID }}" >> web/.env.production
-        echo "NEXTAUTH_GITHUB_SECRET=${{ inputs.NEXTAUTH_GITHUB_SECRET }}" >> web/.env.production
+        echo "NEXTAUTH_KEYCLOAK_ID=${{ inputs.NEXTAUTH_KEYCLOAK_ID }}" >> web/.env.production
+        echo "NEXTAUTH_KEYCLOAK_SECRET=${{ inputs.NEXTAUTH_KEYCLOAK_SECRET }}" >> web/.env.production
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
       shell: bash
 
