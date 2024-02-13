@@ -515,10 +515,30 @@ const PageGrading = () => {
     </Authorisation>
   )
 }
+
 const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
+  const handleKeyDown = useCallback((event) => {
+    if (event.ctrlKey) {
+      if (event.key === 'ArrowLeft') {
+        if (!isFirst) onPrev();
+      } else if (event.key === 'ArrowRight') {
+        onNext();
+      }
+    }
+  }, [onPrev, onNext, isFirst]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   return (
     <Paper>
       <Stack direction="row" justifyContent="space-between">
+        <Tooltip title="CTRL+Left">
         <IconButton
           onClick={onPrev}
           disabled={isFirst}
@@ -526,16 +546,20 @@ const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
         >
           <ArrowBackIosIcon />
         </IconButton>
+        </Tooltip>
+        <Tooltip title="CTRL+Right">
         <IconButton
           onClick={onNext}
           sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
         >
           <ArrowForwardIosIcon />
         </IconButton>
+        </Tooltip>
       </Stack>
     </Paper>
-  )
-}
+  );
+};
+
 
 const SuccessRate = ({ value }) => {
   return (

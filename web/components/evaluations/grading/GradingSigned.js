@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from '@mui/material'
+import { Button, Stack, Tooltip, Typography } from '@mui/material'
 import Image from 'next/image'
 import ClearIcon from '@mui/icons-material/Clear'
 
@@ -23,16 +23,18 @@ const GradingSigned = ({ signedBy, readOnly, onUnsign }) => {
         />
       </Stack>
        { !readOnly && (
-        <Button
-          size="small"
-          id="grading-sign-off-remove"
-          startIcon={
-            <ClearIcon sx={{ color: 'error.main', width: 24, height: 24 }} />
-          }
-          onClick={onUnsign}
-        >
-          <Typography variant="body1">Unsign</Typography>
-        </Button>
+        <Tooltip title="CTRL+Enter">
+          <Button
+            size="small"
+            id="grading-sign-off-remove"
+            startIcon={
+              <ClearIcon sx={{ color: 'error.main', width: 24, height: 24 }} />
+            }
+            onClick={onUnsign}
+          >
+            <Typography variant="body1">Unsign</Typography>
+          </Button>
+        </Tooltip>
        )}
       
     </Stack>
