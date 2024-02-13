@@ -12,7 +12,7 @@ const del = async (req, res, prisma) => {
   // delete a group
   const { groupId } = req.query
 
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   // check if the users is an owner of the group they are trying to delete
   const userIsOwnerOfGroup = await prisma.group.findFirst({
@@ -43,7 +43,7 @@ const put = async (req, res, prisma) => {
   const { groupId } = req.query
   const { label, scope } = req.body
 
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   // check if the users is a member of the group they are trying to update
   const userIsMemberOfGroup = await prisma.group.findFirst({

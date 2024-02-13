@@ -1,13 +1,13 @@
+import { getUser } from "@/code/auth";
 import {withAuthorization, withMethodHandler} from "@/middleware/withAuthorization";
 import {withPrisma} from "@/middleware/withPrisma";
 import { withEvaluationPhase, withStudentStatus } from "@/middleware/withStudentEvaluation";
 import {EvaluationPhase, Role, UserOnEvaluationStatus} from "@prisma/client";
-import { getSession } from "next-auth/react";
 
 const get = async (req, res, prisma) => {
 
-  const session = await getSession({ req })
-  const studentEmail = session.user.email
+  const user = await getUser(req, res)
+  const studentEmail = user.email
   
   const { evaluationId } = req.query
   
@@ -40,8 +40,8 @@ const get = async (req, res, prisma) => {
 // student ends his evaluation
 const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
     async (req, res, prisma) => {
-      const session = await getSession({ req })
-      const studentEmail = session.user.email
+      const user = await getUser(req, res)
+      const studentEmail = user.email
       const { evaluationId } = req.query
 
       await prisma.userOnEvaluation.update({

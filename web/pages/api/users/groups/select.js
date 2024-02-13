@@ -7,7 +7,7 @@ const put = async (req, res, prisma) => {
   // change the selected group of the users
   const { groupScope } = req.body
 
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   const allUserGroups = await prisma.userOnGroup.findMany({
     where: {

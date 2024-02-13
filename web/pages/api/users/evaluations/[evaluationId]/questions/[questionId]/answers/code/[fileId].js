@@ -1,5 +1,4 @@
 import { EvaluationPhase, Role, StudentAnswerStatus, UserOnEvaluationStatus } from '@prisma/client'
-import { getSession } from 'next-auth/react'
 import { grading } from '@/code/grading'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -7,14 +6,15 @@ import {
   withMethodHandler
 } from '@/middleware/withAuthorization'
 import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudentEvaluation'
+import { getUser } from '@/code/auth'
 /*
   Student updated a code file during a ham session
 
 */
 const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
   async (req, res, prisma) => {
-    const session = await getSession({ req })
-    const studentEmail = session.user.email
+    const user = await getUser(req, res)
+    const studentEmail = user.email
     const { evaluationId, questionId, fileId } = req.query
 
     const { file } = req.body

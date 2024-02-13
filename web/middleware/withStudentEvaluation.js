@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { getUser } from "@/code/auth";
 import { getPrisma } from "./withPrisma";
 
 export function withStudentStatus(allowedStatuses = [], handler) {
@@ -6,14 +6,16 @@ export function withStudentStatus(allowedStatuses = [], handler) {
 
     return async (req, res) => {
 
-        const session = await getSession({ req })
-        const studentEmail = session.user.email
-
+        const user = await getUser(req, res);
+        if(!user) {
+            console.log("Access denied due to missing user.");
+            return res.status(403).json({ message: "Access denied." });
+        }
         const { evaluationId } = req.query; // or get these from the session/user context
 
         const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
             where: { userEmail_evaluationId: { 
-                userEmail: studentEmail, 
+                userEmail: user.email, 
                 evaluationId 
             }},
         });

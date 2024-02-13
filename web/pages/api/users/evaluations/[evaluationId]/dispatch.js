@@ -13,7 +13,7 @@ Will respond with the Evaluation phase and the UserOnEvaluation object
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
 
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   const evaluation = await prisma.evaluation.findUnique({
     where: {

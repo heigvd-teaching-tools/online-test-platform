@@ -1,9 +1,13 @@
 import { Menu, Button, Stack } from '@mui/material'
 import LockClosedIcon from '@mui/icons-material/Lock'
 import GroupIcon from '@mui/icons-material/Group'
-import { signOut } from 'next-auth/react'
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { Role } from '@prisma/client';
+
 const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
+  const { data: session } = useSession()
   return (
     <Menu
       sx={{ mt: '40px' }}
@@ -16,6 +20,12 @@ const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
       onClose={handleCloseUserMenu}
     >
       <Stack padding={2} spacing={2} alignItems={'flex-start'}>
+        {session.user.roles.includes(Role.SUPER_ADMIN) && (
+          <Link href={`/admin`}>
+            <Button startIcon={<SupervisedUserCircleIcon />}>Manage Users</Button>
+          </Link>
+        )}
+
         <Link href={`/groups`}>
           <Button startIcon={<GroupIcon />}>Manage Groups</Button>
         </Link>

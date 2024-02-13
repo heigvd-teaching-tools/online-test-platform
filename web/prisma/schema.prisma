@@ -25,6 +25,8 @@ model Account {
   refresh_token     String? @db.Text
   access_token      String? @db.Text
   expires_at        Int?
+  refresh_expires_in Int?
+  not_before_policy Int? 
   token_type        String?
   scope             String?
   id_token          String? @db.Text
@@ -51,7 +53,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  role          Role      @default(STUDENT)
+  roles         Role[]      
 
   userOnEvaluation UserOnEvaluation[]
   studentAnswer    StudentAnswer[]
@@ -63,6 +65,7 @@ model User {
 enum Role {
   STUDENT
   PROFESSOR
+  SUPER_ADMIN
 }
 
 model VerificationToken {

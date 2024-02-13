@@ -15,7 +15,7 @@ const post = async (req, res, prisma) => {
   // create a new group
   const { label, scope, select } = req.body
 
-  const user = await getUser(req)
+  const user = await getUser(req, res)
 
   try {
     const group = await prisma.group.create({

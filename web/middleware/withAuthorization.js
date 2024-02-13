@@ -1,4 +1,4 @@
-import {getRole, getUser} from '../code/auth';
+import {getRoles, getUser} from '../code/auth';
 
 /*
     Function to check if a users is member of the group
@@ -13,7 +13,7 @@ export function withGroupScope(handler) {
             return res.status(400).json({ message: 'Group scope is required' });
         }
 
-        const user = await getUser(req)
+        const user = await getUser(req, res);
 
         const isMember = user.groups.some(g => g === groupScope)
         // console.log("withGroupScope", req.method, req.url, "isMember", isMember, "groupScope", groupScope,  "userGroups [", user.groups.join(", "), "]")
@@ -27,11 +27,14 @@ export function withGroupScope(handler) {
 
 export function withAuthorization(handler, allowedRoles) {
     return async (req, res) => {
-        const userRole = await getRole(req);
-        const isAuthorized = allowedRoles.includes(userRole);
+        const userRoles = await getRoles(req, res);
+        if (!userRoles) {
+            return res.status(401).json({ message: 'You must be logged in to access this page' });
+        }
+        const isAuthorized = userRoles.some(userRole => allowedRoles.includes(userRole));
 
         if (!isAuthorized) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ message: 'You must have one of the following roles: ' + allowedRoles.join(', ') });
         }
 
         return handler(req, res);

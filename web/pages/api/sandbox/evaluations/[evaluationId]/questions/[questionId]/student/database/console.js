@@ -1,19 +1,19 @@
 import { Role } from '@prisma/client'
-import { getSession } from 'next-auth/react'
 import {isInProgress} from "@/pages/api/users/evaluations/[evaluationId]/questions/[questionId]/answers/utils";
 import {runSandboxDB} from "@/sandbox/runSandboxDB";
 import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization';
 import { withPrisma } from '@/middleware/withPrisma';
+import { getUser } from '@/code/auth';
 
 /*
  endpoint to run the database console query sandbox for a users
  */
 const post = async (req, res, prisma) => {
-  const session = await getSession({ req })
+  const user = await getUser(req, res)
 
   const { evaluationId, questionId } = req.query
   const { query, at } = req.body
-  const studentEmail = session.user.email
+  const studentEmail = user.email
 
   if (at === undefined || at === null) {
     res.status(400).json({ message: 'At not provided' })
