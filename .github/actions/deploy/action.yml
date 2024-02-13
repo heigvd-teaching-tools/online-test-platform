@@ -54,12 +54,9 @@ runs:
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
       shell: bash
 
-    - name: Generate GitHub App private key and ssl certificates
+    - name: Ssl certificates for https
       run: |
         cd /home/heiguser/onlinetest
-        mkdir -p web
-        echo "${{ inputs.GH_APP_PRIVATE_KEY }}" > web/eval-teaching-tools.private-key.pem
-
         mkdir -p ssl
         echo "${{ inputs.SSL_FULLCHAIN }}" > ssl/fullchain.pem
         echo "${{ inputs.SSL_PRIVKEY }}" > ssl/privkey.pem
