@@ -16,10 +16,10 @@ inputs:
   NEXTAUTH_SECRET:
     description: 'NextAuth Secret'
     required: true
-  NEXTAUTH_KEYCLOAK_ID:
+  HEXTAUTH_KEYCLOAK_CLIENT_ID:
     description: 'NextAuth Keycloak ID'
     required: true
-  NEXTAUTH_KEYCLOAK_SECRET:
+  HEXTAUTH_KEYCLOAK_CLIENT_SECRET:
     description: 'NextAuth Keycloak Secret'
     required: true
   HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL:
@@ -52,8 +52,8 @@ runs:
         echo "NEXTAUTH_URL=${{inputs.NEXTAUTH_URL}}" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ inputs.NEXTAUTH_SECRET }}" >> web/.env.production
         
-        echo "NEXTAUTH_KEYCLOAK_ID=${{ inputs.NEXTAUTH_KEYCLOAK_ID }}" >> web/.env.production
-        echo "NEXTAUTH_KEYCLOAK_SECRET=${{ inputs.NEXTAUTH_KEYCLOAK_SECRET }}" >> web/.env.production
+        echo "HEXTAUTH_KEYCLOAK_CLIENT_ID=${{ inputs.HEXTAUTH_KEYCLOAK_CLIENT_ID }}" >> web/.env.production
+        echo "HEXTAUTH_KEYCLOAK_CLIENT_SECRET=${{ inputs.HEXTAUTH_KEYCLOAK_CLIENT_SECRET }}" >> web/.env.production
         echo "NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=${{ inputs.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL }}" >> web/.env.production
 
         echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
