@@ -23,17 +23,50 @@
         "solution": [
           {
             "path": "/src/main.cpp",
-            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
           }
         ],
         "template": [
           {
             "path": "/src/main.cpp",
-            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
           }
         ]
       }
     },
+    {
+      "language": "c",
+      "extension": "c",
+      "label": "C",
+      "icon": "/svg/languages/c.svg",
+      "sandbox": {
+        "image": "gcc:latest",
+        "defaultPath": "/src/main.c",
+        "exec": "/src/main",
+        "beforeAll": "gcc -std=c11 /src/main.c -o /src/main"
+      },
+      "testCases": [
+        {
+          "exec": "/src/main",
+          "input": "Hello World1",
+          "expectedOutput": "HELLO WORLD1\n"
+        }
+      ],
+      "files": {
+        "solution": [
+          {
+            "path": "/src/main.c",
+            "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
+          }
+        ],
+        "template": [
+          {
+            "path": "/src/main.c",
+            "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
+          }
+        ]
+      }
+    },    
     {
       "language": "java",
       "extension": "java",

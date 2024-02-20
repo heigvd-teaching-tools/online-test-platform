@@ -1,19 +1,32 @@
-import { Box, Drawer, Stack } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import {  Drawer, Stack } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
 const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
+
+    const [contentVisible, setContentVisible] = useState(false); // prevent content from rerendering when drawer animates open
+
     const [dragging, setDragging] = useState(false);
     const [width, setWidth] = useState(initial);
     const ref = useRef(null);
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = useCallback((e) => {
         if (!dragging || !window) return;
         const newWidth = (window.innerWidth - e.clientX) / window.innerWidth * 100;
         setWidth(newWidth);
-    };
+    }, [dragging]);
 
-    const handleMouseUp = () => {
+    const handleMouseUp = useCallback(() => {
         setDragging(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        // Delay content rendering when the drawer is opened and not dragging
+        if (open) {
+            const timer = setTimeout(() => setContentVisible(true), 300); // Adjust delay as needed
+            return () => clearTimeout(timer);
+        } else {
+            setContentVisible(false);
+        }
+    }, [open]);
 
     useEffect(() => {
 
@@ -29,7 +42,7 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
             
         };
 
-    }, [dragging, ref]);
+    }, [dragging, ref, handleMouseMove, handleMouseUp]);
 
     return (
         <Drawer
@@ -52,7 +65,7 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
                     <ResizeHandleIcon />
                 </Stack>
                 <Stack flex={1} height={"100%"} overflow={"auto"}>
-                    {children}
+                    {contentVisible  && children}
                 </Stack>
             </Stack>
         </Drawer>

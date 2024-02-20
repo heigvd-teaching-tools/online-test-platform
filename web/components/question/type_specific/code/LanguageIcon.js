@@ -10,7 +10,7 @@ const LanguageIcon = ({ language, size = 24 }) => {
     <Box minWidth={size} minHeight={size}>
       <Image
         src={environments[index].icon}
-        alt={environments[index].value}
+        alt={environments[index].language}
         width={size}
         height={size}
       />
