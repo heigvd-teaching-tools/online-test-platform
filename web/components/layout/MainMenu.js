@@ -15,7 +15,6 @@ const MainMenu = () => {
             variant="scrollable"
             value={asPath.split('/')[2] || 'questions'}
             aria-label="main-menu"
-            textColor="inherit"
             indicatorColor="secondary"
           >
             {mainPaths.map((path) => (

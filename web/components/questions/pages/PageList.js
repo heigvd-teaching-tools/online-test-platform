@@ -13,7 +13,6 @@ import AddQuestionDialog from '../list/AddQuestionDialog'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
-import ScrollContainer from '../../layout/ScrollContainer'
 import QuestionUpdate from '../../question/QuestionUpdate'
 import ResizableDrawer from '../../layout/utils/ResizableDrawer'
 import Image from 'next/image'
@@ -24,7 +23,6 @@ import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
-import { set } from 'lodash'
 
 const PageList = () => {
   const router = useRouter()
@@ -100,28 +98,28 @@ const PageList = () => {
                       setSelected={setSelected}
                       groupScope={groupScope}
                     />
-                  <ResizableDrawer
-                    open={selected !== undefined}
-                    onClose={() => setSelected(undefined)}
-                  >
-                    <Box pt={2} width={"100%"} height={"100%"}>
-                      { selected && (
-                          <QuestionUpdate
-                            groupScope={router.query.groupScope}
-                            questionId={selected.id}
-                            onUpdate={async (question) => {
-                              await mutate()
-                              setSelected(question)
-                            }}
-                            onDelete={async () => {
-                              await mutate()
-                              setSelected(undefined)
-                            }}
-                          />
-                        )
-                      }
-                    </Box>
-                  </ResizableDrawer>
+                      <ResizableDrawer
+                        open={selected !== undefined}
+                        onClose={() => setSelected(undefined)}
+                      >
+                        <Box pt={2} width={"100%"} height={"100%"}>
+                          { selected !== undefined && (
+                              <QuestionUpdate
+                                groupScope={router.query.groupScope}
+                                questionId={selected.id}
+                                onUpdate={async (question) => {
+                                  await mutate()
+                                  setSelected(question)
+                                }}
+                                onDelete={async () => {
+                                  await mutate()
+                                  setSelected(undefined)
+                                }}
+                              />
+                            )
+                          }
+                        </Box>
+                      </ResizableDrawer>
 
                   {questions && questions.length === 0 && (
                     <AlertFeedback severity="info">
@@ -177,19 +175,17 @@ const QuestionsGrid = ({ groupScope, questions, setAddDialogOpen, setSelected })
                     <QuestionTypeIcon 
                       type={row.type} 
                       size={24} 
-                      
                     />
                     <LanguageIcon language={row.code?.language} size={18} />
                   </Stack>
                 )
+              }else{
+                return <QuestionTypeIcon 
+                    type={row.type} 
+                    size={24} 
+                    withLabel 
+                  />
               }
-              return (
-                <QuestionTypeIcon 
-                  type={row.type} 
-                  size={24} 
-                  withLabel 
-                />,
-              )
             }
           },
           {
@@ -219,18 +215,24 @@ const QuestionsGrid = ({ groupScope, questions, setAddDialogOpen, setSelected })
             <React.Fragment key="actions">
               <Tooltip title="Update in new page">
                 <IconButton
-                  onClick={async () => {
+                  onClick={async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
                     await router.push(`/${groupScope}/questions/${question.id}`);
                   }}
                 >
-                  <Image src={'/svg/icons/update.svg'} width={16} height={16} />
+                  <Image alt={"Update in new page"} src={'/svg/icons/update.svg'} width={16} height={16} />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Update in overlay">
                 <IconButton
-                  onClick={() => setSelected(question)}
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    setSelected(question)
+                  }}
                 >
-                  <Image src={'/svg/icons/aside.svg'} width={16} height={16} />
+                  <Image alt={"Update in overlay"} src={'/svg/icons/aside.svg'} width={16} height={16} />
                 </IconButton>
               </Tooltip>
             </React.Fragment>

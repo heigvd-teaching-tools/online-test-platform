@@ -2,8 +2,6 @@ import DropDown from '../input/DropDown'
 import GroupIcon from '@mui/icons-material/Group'
 import {Button, MenuItem, Stack, Typography} from '@mui/material'
 import Link from 'next/link'
-import useSWR from "swr";
-import {fetcher} from "../../code/utils";
 import {useRouter} from "next/router";
 import {useEffect, useState} from "react";
 import Loading from "../feedback/Loading";

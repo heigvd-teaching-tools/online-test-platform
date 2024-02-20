@@ -130,7 +130,7 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
         <ScrollContainer  spacing={2}>
             {Object.keys(groups).map((groupKey) => (
             navigation === "all" || navigation === groupKey ? (
-                <Stack>
+                <Stack key={groupKey}>
                     <Stack bgcolor={theme.palette.background.default} p={1} position={"sticky"} top={0} zIndex={1}>
                         {selectedGrouping.renderLabel && selectedGrouping.renderLabel(groups[groupKey])}
                     </Stack>

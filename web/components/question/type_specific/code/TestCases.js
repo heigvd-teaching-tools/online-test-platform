@@ -28,13 +28,8 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/tests`,
       groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: true }
   )
-
-  // react on the language change, re-fetch the tests
-  useEffect(() => {
-    ;(async () => await mutate())()
-  }, [language, mutate])
 
   const addTestCase = useCallback(async () => {
     const exec =
@@ -61,7 +56,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
     }).finally(() => {
       onUpdate && onUpdate()
     })
-  }, [groupScope, questionId, tests, mutate, language, onUpdate])
+  }, [groupScope, questionId, tests, mutate, language, onUpdate, showSnackbar])
 
   const deleteTestCase = useCallback(
     async (index) => {
@@ -116,7 +111,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
         onUpdate && onUpdate()
       })
     },
-    [groupScope, questionId, mutate, onUpdate]
+    [groupScope, questionId, mutate, onUpdate, showSnackbar]
   )
 
   const pullOutputs = useCallback(
