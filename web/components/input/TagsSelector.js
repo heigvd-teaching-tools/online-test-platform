@@ -8,7 +8,6 @@ const filterOptions = createFilterOptions({
   ignoreAccents: true,
   limit: 20, // suggestions limit
   stringify: (option) => {
-    console.log('stringify', option)
     return option || ''
   }
 })
