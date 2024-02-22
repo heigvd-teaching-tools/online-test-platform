@@ -9,7 +9,6 @@ import {
 } from "../code/database";
 
 const { Client } = pkg;
-
 const docker = new Docker();
 
 const imageExists = async (name) => {
