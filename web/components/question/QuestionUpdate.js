@@ -80,7 +80,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
       .catch(() => {
         showSnackbar('Error deleting question', 'error')
       })
-  }, [question, showSnackbar, router, mutate, onDelete])
+  }, [question, showSnackbar, router, mutate, onDelete, groupScope])
 
   const onChangeQuestion = useCallback(
     async (question) => {
