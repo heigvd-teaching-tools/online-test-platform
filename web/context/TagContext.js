@@ -8,14 +8,13 @@ import {useRouter} from "next/router";
 const TagsContext = createContext()
 export const useTags = () => useContext(TagsContext)
 
-const isProfessor = (user) => user?.role === Role.PROFESSOR
+const isProfessor = (user) => user?.roles?.includes(Role.PROFESSOR) || false
 
 export const TagsProvider = ({ children }) => {
 
   const router = useRouter()
 
   const { groupScope } = router.query
-
 
   const { data: session } = useSession()
 
@@ -25,7 +24,7 @@ export const TagsProvider = ({ children }) => {
     error,
   } = useSWR(
       `/api/${groupScope}/questions/tags`,
-      groupScope && isProfessor(session?.user) && session.user.selected_group ? fetcher : null,
+      groupScope && isProfessor(session.user) ? fetcher : null,
     { fallbackData: [] }
   )
 

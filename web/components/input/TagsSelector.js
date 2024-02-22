@@ -7,7 +7,10 @@ const filterOptions = createFilterOptions({
   ignoreCase: true,
   ignoreAccents: true,
   limit: 20, // suggestions limit
-  stringify: (option) => option || '',
+  stringify: (option) => {
+    console.log('stringify', option)
+    return option || ''
+  }
 })
 const TagsSelector = ({
   options,
@@ -19,7 +22,6 @@ const TagsSelector = ({
 }) => {
   const onChangeValue = useCallback(
     (_, newValue) => {
-      console.log("newValue: ", newValue)
       if (onChange) {
         onChange(newValue)
       }
@@ -31,9 +33,9 @@ const TagsSelector = ({
     <Autocomplete
       multiple
       id="tags-outlined"
-      options={options || []}
-      getOptionLabel={(option) => option}
-      value={value || ""}
+      options={options}
+      getOptionLabel={(option) => option || ''}
+      value={value}
       filterSelectedOptions
       filterOptions={filterOptions}
       freeSolo
