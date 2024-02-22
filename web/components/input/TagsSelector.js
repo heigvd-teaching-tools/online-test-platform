@@ -1,13 +1,14 @@
 import { Autocomplete, Chip, TextField } from '@mui/material'
 import { useCallback } from 'react'
 import { createFilterOptions } from '@mui/material/Autocomplete'
+import { filter } from 'lodash'
 
 const filterOptions = createFilterOptions({
   matchFrom: 'start',
   ignoreCase: true,
   ignoreAccents: true,
   limit: 20, // suggestions limit
-  stringify: (option) => option,
+  stringify: (option) => option || '',
 })
 const TagsSelector = ({
   options,
@@ -19,20 +20,21 @@ const TagsSelector = ({
 }) => {
   const onChangeValue = useCallback(
     (_, newValue) => {
+      console.log("newValue: ", newValue)
       if (onChange) {
         onChange(newValue)
       }
     },
     [onChange]
   )
-
+  
   return (
     <Autocomplete
       multiple
       id="tags-outlined"
-      options={options}
+      options={options || []}
       getOptionLabel={(option) => option}
-      value={value}
+      value={value || ""}
       filterSelectedOptions
       filterOptions={filterOptions}
       freeSolo
@@ -43,7 +45,7 @@ const TagsSelector = ({
             size={size}
             key={index}
             variant="outlined"
-            label={option}
+            label={option || ''}
             {...getTagProps({ index })}
           />
         ))
