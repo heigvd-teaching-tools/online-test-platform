@@ -1,7 +1,6 @@
 import { Autocomplete, Chip, TextField } from '@mui/material'
 import { useCallback } from 'react'
 import { createFilterOptions } from '@mui/material/Autocomplete'
-import { filter } from 'lodash'
 
 const filterOptions = createFilterOptions({
   matchFrom: 'start',
@@ -27,7 +26,7 @@ const TagsSelector = ({
     },
     [onChange]
   )
-  
+
   return (
     <Autocomplete
       multiple
