@@ -117,9 +117,8 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
             <DropdownSelector
                 color="info"
                 label={(option) => option.label}
-                optionInLabel
                 value={navigation}
-                options={navigationOptions}
+                options={navigationOptions || []}
                 onSelect={handleNavigationChange}
             />
          </Stack>

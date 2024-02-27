@@ -31,7 +31,6 @@ export const runSandbox = async ({ image = 'node:latest', files = [], beforeAll 
 
       try {
           const testsResults = await execTests(container, tests);
-          console.log("testsResults", testsResults);
           clearTimeout(timeout);  // Clear the timeout if tests finish on time
           resolve({
               beforeAll: beforeAllOutput,
