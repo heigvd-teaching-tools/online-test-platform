@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
-const DropdownSelector = ({ label, color, options, optionInLabel, variant = "outlined", onSelect, value }) => {
+const DropdownSelector = ({ label, color, options, variant = "outlined", onSelect, value }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0); // Default to first option
