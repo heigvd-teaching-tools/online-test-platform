@@ -6,6 +6,14 @@ Instructions for setting up the development environment.
 
 - Node.js V20.1.0
 - Docker
+- Access to the eval related vault secrets
+
+## Vault secrets
+
+You can find the requires secrets at the following location:
+
+[eval vault secrets](https://vault.iict.ch/ui/vault/secrets/iict-eval/kv/list)
+
 
 ## 1) Clone the project
 
@@ -24,11 +32,9 @@ git clone git@github.com:heigvd-teaching-tools/online-test-platform.git
 DATABASE_URL="postgresql://onlinetest:onlinetest@localhost:5432/onlinetest"
 
 # used by the db and web service
-
 POSTGRES_USER=onlinetest
 POSTGRES_PASSWORD=onlinetest
 POSTGRES_DB=onlinetest
-
 ```
 `/web/.env.development` file with the following variables:
 
@@ -48,8 +54,6 @@ To generate a next auth secret, you can use the following command:
 ```bash
 openssl rand -base64 32
 ```
-
-No vault at this moment, the keycloak client secret can be found on production server in the `./web/.env.production` file.
 
 We use the same keycloak realm in dev and prod. 
 
