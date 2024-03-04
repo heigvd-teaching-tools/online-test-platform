@@ -103,14 +103,14 @@ You can go and signin with your keycloak account. When you make your first signi
 
 You should see a screen "You are not authorized to access this page". 
 
-### Add roles to your user
+### 7) Add roles to your user
 
 If you wish to start with an empty database you can manually add roles to your user. 
 
 You may eventually need to adapt the container name `postgresql` and the database name `onlinetest` in the following command:
 
 ```bash
-docker exec -it postgresql psql -U onlinetest -d onlinetest -c "UPDATE \"User\" SET roles = '{STUDENT,PROFESSOR}' WHERE email = 'your.email@heig-vd.ch';" 
+docker exec -it postgresql psql -U onlinetest -d onlinetest -c "UPDATE \"User\" SET roles = '{STUDENT,PROFESSOR,SUPER_ADMIN}' WHERE email = 'your.email@heig-vd.ch';" 
 ```
 
 To confirm the record has been updated you should see the following output:
@@ -119,8 +119,40 @@ To confirm the record has been updated you should see the following output:
 UPDATE 1
 ```
 
+Refresh the page and you should see "You are not a member of any groups.". 
 
+You can now create your own group and get started with the application.
 
+### 7) Get the database dump from the production server (Prefered option) 
+
+You can get the database dump from the production server and restore it in your local database. 
+
+Connect on the production server. You will find helper scripts in the `~/db_dumps` folder. 
+
+You will find 2 scripts that can be used to backup and restore the database.
+
+```bash
+cd ~/db_dumps
+bash pg_backup.sh
+```
+
+This will create a new backup file in the same folder. The naming pattern for the manually created dumps is `pg_manual_backup_date.sql`.
+
+Download the file to your local machine and restore it in your local database.
+
+If you are on windows, please use git bash to run the scripts. 
+
+```bash
+cd ~/your/local/db_dumps
+bash pg_restore.sh <backup-file-name>
+```
+
+Run the migrations to update the database schema.
+
+```bash
+cd /web
+npx prisma migrate dev
+```
 
 
 

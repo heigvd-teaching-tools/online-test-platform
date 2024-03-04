@@ -18,6 +18,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
 
     const isProfessor = session?.user.roles.includes(Role.PROFESSOR)
     const professorHasGroups = groups?.length > 0
+
     setIsAuthorized(userHasAllowedRole)
     setHasRequiredGroups(isProfessor ? professorHasGroups : true)
   }, [groups, session, allowRoles])
@@ -35,7 +36,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
     )
   }
 
-  if (!hasRequiredGroups && (groups !== undefined || groups.length === 0)) {
+  if (!hasRequiredGroups && groups !== undefined) {
     return <UnauthorizedMissingGroups />
   }
 
