@@ -127,9 +127,9 @@ You can now create your own group and get started with the application.
 
 You can get the database dump from the production server and restore it in your local database. 
 
-Connect on the production server. You will find helper scripts in the `~/db_dumps` folder. 
+Connect on the production server. You will find helper scripts and a bunch of previous demps in the `~/db_dumps` folder. 
 
-You will find 2 scripts that can be used to backup and restore the database.
+You have 2 scripts that can be used to backup and restore the database. pg_backup.sh and pg_restore.sh.
 
 The copy of these scripts can be found in the `scripts` folder of the repository.
 
