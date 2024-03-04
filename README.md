@@ -131,6 +131,8 @@ Connect on the production server. You will find helper scripts in the `~/db_dump
 
 You will find 2 scripts that can be used to backup and restore the database.
 
+The copy of these scripts can be found in the `scripts` folder of the repository.
+
 ```bash
 cd ~/db_dumps
 bash pg_backup.sh
