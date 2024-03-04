@@ -1,5 +1,151 @@
 # Development
 
+Instructions for setting up the development environment.
+
+## Prerequisites
+
+- Node.js V20.1.0
+- Docker
+
+## 1) Clone the project
+
+Prepare the project folder and clone the repository:
+
+```bash
+cd /path/to/your/projects
+git clone git@github.com:heigvd-teaching-tools/online-test-platform.git
+```
+
+## 2) Environement variables
+
+`/web/.env` file with the following variables:
+
+```bash
+DATABASE_URL="postgresql://onlinetest:onlinetest@localhost:5432/onlinetest"
+
+# used by the db and web service
+
+POSTGRES_USER=onlinetest
+POSTGRES_PASSWORD=onlinetest
+POSTGRES_DB=onlinetest
+
+```
+`/web/.env.development` file with the following variables:
+
+```bash
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=generate a secret
+HEXTAUTH_KEYCLOAK_CLIENT_ID=iict-eval
+HEXTAUTH_KEYCLOAK_CLIENT_SECRET=your-secret
+HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=https://idp.heig-vd.ch/realms/HEIG-VD
+DB_SANDBOX_CLIENT_HOST=172.17.0.1
+```
+
+You may eventually set all variables in the `.env` file.
+
+To generate a next auth secret, you can use the following command:
+
+```bash
+openssl rand -base64 32
+```
+
+No vault at this moment, the keycloak client secret can be found on production server in the `./web/.env.production` file.
+
+We use the same keycloak realm in dev and prod. 
+
+
+## 3) Postgres database container
+
+Having hardtime setting up the persisting volume for the postgres container in windows, i prepared a docker compose file that will create the database with the mounted volume.
+
+```bash
+cd /postgres
+docker-compose up
+```
+
+Or you can use the following command to create the database with the mounted volume:
+
+```bash
+docker pull postgres
+docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5432:5432 -v data:/var/lib/postgresql/data --name postgresql postgres
+```
+
+## 4) Install the dependencies
+
+```bash
+cd /web
+npm install
+```
+
+## 5) Initialize the database with prisma
+
+Do not use `npx prisma db push` if your attention is to contribute to the project. This will render the database schema out of sync with the migrations. 
+
+When clo
+
+```bash
+cd /web
+npx prisma migrate dev
+```
+
+## 6) Run the application
+
+Run the development server:
+
+```bash
+cd /web
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`. 
+
+You can go and signin with your keycloak account. When you make your first signin, the application will create your user in the database. Its default Role will be Student. 
+
+You should see a screen "You are not authorized to access this page". 
+
+### Add roles to your user
+
+If you wish to start with an empty database you can manually add roles to your user. 
+
+You may eventually need to adapt the container name `postgresql` and the database name `onlinetest` in the following command:
+
+```bash
+docker exec -it postgresql psql -U onlinetest -d onlinetest -c "UPDATE \"User\" SET roles = '{STUDENT,PROFESSOR}' WHERE email = 'your.email@heig-vd.ch';" 
+```
+
+To confirm the record has been updated you should see the following output:
+
+```bash
+UPDATE 1
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Database Schema Migrations
 
 *Important*: Do not use `npx prisma db push` to update the database schema. This will render the database schema out of sync with the migrations. 

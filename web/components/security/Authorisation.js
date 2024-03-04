@@ -16,9 +16,8 @@ const Authorisation = ({ children, allowRoles = [] }) => {
   useEffect(() => {
     const userHasAllowedRole = session?.user && session.user.roles.some(role => allowRoles.includes(role));
 
-    const isProfessor = session?.user.role === Role.PROFESSOR
+    const isProfessor = session?.user.roles.includes(Role.PROFESSOR)
     const professorHasGroups = groups?.length > 0
-
     setIsAuthorized(userHasAllowedRole)
     setHasRequiredGroups(isProfessor ? professorHasGroups : true)
   }, [groups, session, allowRoles])
@@ -36,7 +35,7 @@ const Authorisation = ({ children, allowRoles = [] }) => {
     )
   }
 
-  if (!hasRequiredGroups && groups !== undefined) {
+  if (!hasRequiredGroups && (groups !== undefined || groups.length === 0)) {
     return <UnauthorizedMissingGroups />
   }
 
