@@ -105,7 +105,7 @@ You should see a screen "You are not authorized to access this page".
 
 ### 7) Add roles to your user
 
-If you wish to start with an empty database you can manually add roles to your user. 
+If you wish to start with an empty database you can manually add roles to your user. Otherwise please check the section "Get the database dump from the production server".
 
 You may eventually need to adapt the container name `postgresql` and the database name `onlinetest` in the following command:
 
@@ -149,7 +149,7 @@ cd ~/your/local/db_dumps
 bash pg_restore.sh <backup-file-name>
 ```
 
-Run the migrations to update the database schema.
+Run the migrations to update the database schema. If the current version of the schema is more recent than the one in production.
 
 ```bash
 cd /web
