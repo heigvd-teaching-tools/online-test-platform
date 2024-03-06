@@ -5,14 +5,21 @@ Instructions for setting up the development environment.
 ## Prerequisites
 
 - Node.js V20.1.0
+```
+# If not already done make sure to use the correct node version.
+# Either use Node Version Manager (nvm) or an alternative.
+nvm use 20
+```
 - Docker
 - Access to the eval related vault secrets
 
 ## Vault secrets
 
-You can find the requires secrets at the following location:
+You can find the required secrets at the following location:
 
 [eval vault secrets](https://vault.iict.ch/ui/vault/secrets/iict-eval/kv/list)
+
+For development purposes only the Keycloak OIDC Client secret is allowed to be imported locally.
 
 
 ## 1) Clone the project
@@ -20,43 +27,18 @@ You can find the requires secrets at the following location:
 Prepare the project folder and clone the repository:
 
 ```bash
-cd /path/to/your/projects
 git clone git@github.com:heigvd-teaching-tools/online-test-platform.git
 ```
 
-## 2) Environement variables
+## 2) Environment variables
 
-`/web/.env` file with the following variables:
-
+`/web/.env.local` file with the following variable:
 ```bash
-DATABASE_URL="postgresql://onlinetest:onlinetest@localhost:5432/onlinetest"
-
-# used by the db and web service
-POSTGRES_USER=onlinetest
-POSTGRES_PASSWORD=onlinetest
-POSTGRES_DB=onlinetest
+HEXTAUTH_KEYCLOAK_CLIENT_SECRET=<secret-in-vault>
 ```
-`/web/.env.development` file with the following variables:
+The file is ignored by git and must not be commited.
 
-```bash
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=generate a secret
-HEXTAUTH_KEYCLOAK_CLIENT_ID=iict-eval
-HEXTAUTH_KEYCLOAK_CLIENT_SECRET=your-secret
-HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=https://idp.heig-vd.ch/realms/HEIG-VD
-DB_SANDBOX_CLIENT_HOST=172.17.0.1
-```
-
-You may eventually set all variables in the `.env` file.
-
-To generate a next auth secret, you can use the following command:
-
-```bash
-openssl rand -base64 32
-```
-
-We use the same keycloak realm in dev and prod. 
-
+At the moment, the same Keycloak OIDC client is used in dev and prod.
 
 ## 3) Postgres database container
 
@@ -78,18 +60,9 @@ docker run -itd -e POSTGRES_USER=onlinetest -e POSTGRES_PASSWORD=onlinetest -p 5
 
 ```bash
 cd /web
-npm install
-```
-
-## 5) Initialize the database with prisma
-
-Do not use `npx prisma db push` if your attention is to contribute to the project. This will render the database schema out of sync with the migrations. 
-
-When clo
-
-```bash
-cd /web
-npx prisma migrate dev
+# Use `npm ci` to install package according to package-lock.json
+# Only run `npm install` for updating node packages versions
+npm ci
 ```
 
 ## 6) Run the application
@@ -103,9 +76,10 @@ npm run dev
 
 The application will be available at `http://localhost:3000`. 
 
-You can go and signin with your keycloak account. When you make your first signin, the application will create your user in the database. Its default Role will be Student. 
+You can go and signin with your HEIG-VD account. When you make your first signin, the application will create your user in the database. Its default Role will be Student. 
 
 You should see a screen "You are not authorized to access this page". 
+Manually change the default role by connecting to the database and edit the user data in User table.
 
 ### 7) Add roles to your user
 

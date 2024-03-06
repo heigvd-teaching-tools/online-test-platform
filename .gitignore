@@ -114,3 +114,5 @@ ssl
 *.tar.gz
 
 *.pem
+
+.idea/
