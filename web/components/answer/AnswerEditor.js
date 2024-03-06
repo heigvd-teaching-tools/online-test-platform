@@ -28,7 +28,7 @@ const SubmittedOverlay = ({ onUnsubmit }) => {
         <AlertFeedback
             severity={'success'}
           >
-            <Typography variant={'body1'}>Your answer top this question has been submitted</Typography>
+            <Typography variant={'body1'}>Your answer to this question has been submitted</Typography>
             <Typography variant={'body2'}>You can unsubmit your answer if you want to make changes</Typography>
 
           </AlertFeedback>
