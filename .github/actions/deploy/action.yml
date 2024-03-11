@@ -77,13 +77,13 @@ runs:
 
     - name: Build Docker Compose Images
       run: |
-        cd /home/heiguser/onlinetest
+        cd /home/heiguser/onlinetest/deploy
         docker compose build
       shell: bash
 
     - name: Start Docker Compose Services
       run: |
-        cd /home/heiguser/onlinetest
+        cd /home/heiguser/onlinetest/deploy
         docker compose up -d
       shell: bash
 
