@@ -161,12 +161,11 @@ Instead, use the following command:
 
 ```bash
 # generate the migration
-npx prisma migrate dev --name <migration-name>
+npx prisma migrate dev --name <migration-name> --create-only
 ```
-
 This will generate a migration file in the `prisma/migrations` folder. 
 
-These migrations will be applied on production database by the docker compose during the deploy workflow.
+Check the migration file to make sure that it is correct. It is generally not correct excepted when some minor changes are involved.
 
 #### Useful Prisma Migration Commands
 
