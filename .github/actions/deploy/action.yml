@@ -63,7 +63,7 @@ runs:
       run: |
         # The SSL certificate keys are provided by the infrastructure team
         cd /home/heiguser/onlinetest
-        mkdir -p ssl
+        mkdir -p deploy/ssl
         echo "${{ inputs.SSL_FULLCHAIN }}" > deploy/ssl/fullchain.pem
         echo "${{ inputs.SSL_PRIVKEY }}" > deploy/ssl/privkey.pem
       shell: bash
