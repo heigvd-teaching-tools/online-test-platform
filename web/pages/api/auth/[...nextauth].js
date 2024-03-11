@@ -63,9 +63,9 @@ export const authOptions = {
   adapter: MyAdapter,
   providers: [
     KeycloakProvider({
-      clientId: process.env.HEXTAUTH_KEYCLOAK_CLIENT_ID,
-      clientSecret: process.env.HEXTAUTH_KEYCLOAK_CLIENT_SECRET,
-      issuer: process.env.HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL
+      clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
+      clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
+      issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,

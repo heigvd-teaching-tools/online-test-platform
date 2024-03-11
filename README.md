@@ -34,7 +34,7 @@ git clone git@github.com:heigvd-teaching-tools/online-test-platform.git
 
 `/web/.env.local` file with the following variable:
 ```bash
-HEXTAUTH_KEYCLOAK_CLIENT_SECRET=<secret-in-vault>
+NEXTAUTH_KEYCLOAK_CLIENT_SECRET=<secret-in-vault>
 ```
 The file is ignored by git and must not be commited.
 
