@@ -71,8 +71,6 @@ Run the migrations to update the database schema.
 
 ```bash
 cd /web
-npm run migrate:dev
-# or
 npx prisma migrate dev
 ```
 
@@ -83,6 +81,12 @@ Run the development server:
 ```bash
 cd /web
 npm run dev
+```
+
+Alternatively you can run the migrations and application in one-go:
+```bash
+cd /web
+npm run dev:migration
 ```
 
 The application will be available at `http://localhost:3000`. 
@@ -112,7 +116,7 @@ Refresh the page and you should see "You are not a member of any groups.".
 
 You can now create your own group and get started with the application.
 
-### 7) Get the database dump from the production server (Prefered option) 
+### 7) Get the database dump from the production server (Preferred option) 
 
 You can get the database dump from the production server and restore it in your local database. 
 
