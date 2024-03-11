@@ -6,7 +6,8 @@
     "seed": "node ./prisma/seed.js"
   },
   "scripts": {
-    "dev": " npx dotenv -e .env.development npx prisma migrate dev && next dev",
+    "dev": "next dev",
+    "dev:migration": " npx dotenv -e .env.development npx prisma migrate dev && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
