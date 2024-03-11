@@ -46,7 +46,6 @@ const setProfessorIfMemberOfOrg = async (account, user) => {
 
 */
 
-
 // ISSUE with keycloak provider fixed with workaround:
 // https://github.com/nextauthjs/next-auth/issues/3823
 const prismaAdapter = PrismaAdapter(prisma);
