@@ -150,27 +150,7 @@ npx prisma migrate dev
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Development Workflow
 
 
 ## Database Schema Migrations
@@ -191,14 +171,15 @@ These migrations will be applied on production database by the docker compose du
 #### Useful Prisma Migration Commands
 
 ```bash
-# generate the migration
+
+# (recommended) generate but do not apply the migration 
+# Generally we must make sure that the auto-generated migration is correct before applying it.
+npx prisma migrate dev --name <migration-name> --create-only
+
+# (not recommended) generate the migration and apply it 
+# Can be usefull for very small changes, but even in those cases i would recommend to check the migration before applying it. Keep in mind it must be applied on the production database.
 npx prisma migrate dev --name <migration-name>
 
-# generate but do not apply the migration
-# this can be usefull when its necessary to create a migration but you want first to change the migration file before applying it
-# For instance, when renaming a field prisma migration consider it to be a drop and create field. You can usee --create-only to avoid applying the migration and change the migration file to rename the field.
-# You will still get the warning about the data loss but you can ignore it and say yes
-npx prisma migrate dev --name <migration-name> --create-only
 
 # list the migrations
 npx prisma migrate status
@@ -304,8 +285,6 @@ bash pg_restore.sh <backup-file-name>
 ## Hints in case of issues with the scripts
 - Line ending must be LF
 - Execute permissions: `chmod +x pg_backup.sh`
-
-
 
 ## endpoint migrations done
 
