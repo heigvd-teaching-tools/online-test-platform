@@ -19,6 +19,8 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
 
+RUN echo $NODE_ENV
+
 # Set the working directory
 WORKDIR /app
 
@@ -26,10 +28,7 @@ WORKDIR /app
 COPY . .
 
 # Install Node.js dependencies
-RUN npm cache clean --force
-RUN npm install -g npm@latest
-RUN rm -rf node_modules package-lock.json
-RUN npm install
+RUN npm ci --loglevel verbose
 
 # Generate Prisma client for multiple platforms
 RUN npx prisma generate
@@ -41,4 +40,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Run the app
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "migrate-start" ]

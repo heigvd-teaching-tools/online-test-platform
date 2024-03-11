@@ -7,13 +7,20 @@ services:
       context: ./web
       dockerfile: Dockerfile
     restart: unless-stopped
+    platform: linux/amd64
     ports:
       - "3000:3000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+      - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.socdk
+      - DATABASE_URL=postgresql://onlinetest:onlinetest@db:5432/postgres
+      - NEXTAUTH_URL=http://localhost:3000/
+      - NEXTAUTH_SECRET=Dndv78IRun6dyLGddAYy4r4RPCsvRB1sF54JVI3m8/IDQ=
+      - HEXTAUTH_KEYCLOAK_CLIENT_ID=iict-eval
+      - HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=https://idp.heig-vd.ch/realms/HEIG-VD
+      - DB_SANDBOX_CLIENT_HOST=172.17.0.1
     depends_on:
       - db
     networks:
@@ -22,26 +29,13 @@ services:
   db:
     image: postgres:15.0
     restart: unless-stopped
-    env_file:
-      - ./web/.env
+    environment:
+      POSTGRES_USER: onlinetest
+      POSTGRES_PASSWORD: onlinetest
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-  nginx:
-    image: nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - web
     networks:
       - app-network
 
