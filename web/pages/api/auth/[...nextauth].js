@@ -46,9 +46,6 @@ const setProfessorIfMemberOfOrg = async (account, user) => {
 
 */
 
-console.log("HEXTAUTH_KEYCLOAK_CLIENT_ID", process.env.HEXTAUTH_KEYCLOAK_CLIENT_ID);
-console.log("HEXTAUTH_KEYCLOAK_CLIENT_SECRET", process.env.HEXTAUTH_KEYCLOAK_CLIENT_SECRET);
-console.log("HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL", process.env.HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL);
 // ISSUE with keycloak provider fixed with workaround:
 // https://github.com/nextauthjs/next-auth/issues/3823
 const prismaAdapter = PrismaAdapter(prisma);
