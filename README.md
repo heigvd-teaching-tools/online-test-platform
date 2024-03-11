@@ -254,15 +254,17 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 
 | Secret | Description |
 | --- | --- |
-| `POSTGRES_USER` | The postgres user |
-| `POSTGRES_PASSWORD` | The postgres password |
-| `POSTGRES_DB` | The postgres database |
-| ´GH_APP_ID´ | The github app id used to browse org members |
-| `GH_APP_INSTALLATION_ID` | The github app installation id used to browse org members |
-| `GH_APP_PRIVATE_KEY` | The github app private key used to browse org members |
-| `NEXTAUTH_SECRET` | The nextauth secret |
-| `NEXTAUTH_GITHUB_ID` | The nextauth github id |
-| `NEXTAUTH_GITHUB_SECRET` | The nextauth github secret |
+| HEXTAUTH_KEYCLOAK_CLIENT_ID | The Keycloak OIDC client id |
+| HEXTAUTH_KEYCLOAK_CLIENT_SECRET | The Keycloak OIDC client secret |
+| NEXTAUTH_SECRET | The secret used to encrypt the session |
+| POSTGRES_DB | The name of the database, used by docker compose to initialize the prod database |
+| POSTGRES_PASSWORD | The password of the database user |
+| POSTGRES_USER | The name of the database user |
+| REMOTE_HOST | The IP address of the server used by the runner to deploy the application |
+| REMOTE_SSH_KEY | The private key used by the runner to connect to the server |
+| REMOTE_USER | The user used by the runner to connect to the server |
+| SSL_FULLCHAIN | The fullchain certificate used by the server |
+| SSL_PRIVKEY | The private key used by the server |
 
 # Server configuration
 

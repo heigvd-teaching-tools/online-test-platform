@@ -4,7 +4,7 @@ services:
 
   web:
     build:
-      context: ./web
+      context: ../web
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
@@ -18,12 +18,12 @@ services:
       - db
     networks:
       - app-network
-
+      
   db:
     image: postgres:15.0
     restart: unless-stopped
     env_file:
-      - ./web/.env
+      - ./db/.env.db
     ports:
       - "5432:5432"
     volumes:
