@@ -150,27 +150,7 @@ npx prisma migrate dev
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Development Workflow
 
 
 ## Database Schema Migrations
@@ -191,14 +171,15 @@ These migrations will be applied on production database by the docker compose du
 #### Useful Prisma Migration Commands
 
 ```bash
-# generate the migration
+
+# (recommended) generate but do not apply the migration 
+# Generally we must make sure that the auto-generated migration is correct before applying it.
+npx prisma migrate dev --name <migration-name> --create-only
+
+# (not recommended) generate the migration and apply it 
+# Can be usefull for very small changes, but even in those cases i would recommend to check the migration before applying it. Keep in mind it must be applied on the production database.
 npx prisma migrate dev --name <migration-name>
 
-# generate but do not apply the migration
-# this can be usefull when its necessary to create a migration but you want first to change the migration file before applying it
-# For instance, when renaming a field prisma migration consider it to be a drop and create field. You can usee --create-only to avoid applying the migration and change the migration file to rename the field.
-# You will still get the warning about the data loss but you can ignore it and say yes
-npx prisma migrate dev --name <migration-name> --create-only
 
 # list the migrations
 npx prisma migrate status
@@ -254,15 +235,17 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 
 | Secret | Description |
 | --- | --- |
-| `POSTGRES_USER` | The postgres user |
-| `POSTGRES_PASSWORD` | The postgres password |
-| `POSTGRES_DB` | The postgres database |
-| ´GH_APP_ID´ | The github app id used to browse org members |
-| `GH_APP_INSTALLATION_ID` | The github app installation id used to browse org members |
-| `GH_APP_PRIVATE_KEY` | The github app private key used to browse org members |
-| `NEXTAUTH_SECRET` | The nextauth secret |
-| `NEXTAUTH_GITHUB_ID` | The nextauth github id |
-| `NEXTAUTH_GITHUB_SECRET` | The nextauth github secret |
+| HEXTAUTH_KEYCLOAK_CLIENT_ID | The Keycloak OIDC client id |
+| HEXTAUTH_KEYCLOAK_CLIENT_SECRET | The Keycloak OIDC client secret |
+| NEXTAUTH_SECRET | The secret used to encrypt the session |
+| POSTGRES_DB | The name of the database, used by docker compose to initialize the prod database |
+| POSTGRES_PASSWORD | The password of the database user |
+| POSTGRES_USER | The name of the database user |
+| REMOTE_HOST | The IP address of the server used by the runner to deploy the application |
+| REMOTE_SSH_KEY | The private key used by the runner to connect to the server |
+| REMOTE_USER | The user used by the runner to connect to the server |
+| SSL_FULLCHAIN | The fullchain certificate used by the server |
+| SSL_PRIVKEY | The private key used by the server |
 
 # Server configuration
 
@@ -302,8 +285,6 @@ bash pg_restore.sh <backup-file-name>
 ## Hints in case of issues with the scripts
 - Line ending must be LF
 - Execute permissions: `chmod +x pg_backup.sh`
-
-
 
 ## endpoint migrations done
 

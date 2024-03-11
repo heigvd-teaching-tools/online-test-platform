@@ -45,9 +45,9 @@ runs:
         cd /home/heiguser/onlinetest
         echo "DATABASE_URL=postgresql://${{ inputs.POSTGRES_USER }}:${{ inputs.POSTGRES_PASSWORD }}@db:5432/${{ inputs.POSTGRES_DB }}" > web/.env
         
-        echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" >> web/.env
-        echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> web/.env
-        echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> web/.env
+        echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" > deploy/db/.env.db
+        echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> deploy/db/.env.db
+        echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> deploy/db/.env.db
         
         echo "NEXTAUTH_URL=${{inputs.NEXTAUTH_URL}}" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ inputs.NEXTAUTH_SECRET }}" >> web/.env.production
@@ -55,8 +55,7 @@ runs:
         echo "NEXTAUTH_KEYCLOAK_CLIENT_ID=${{ inputs.NEXTAUTH_KEYCLOAK_CLIENT_ID }}" >> web/.env.production
         echo "NEXTAUTH_KEYCLOAK_CLIENT_SECRET=${{ inputs.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}" >> web/.env.production
         echo "NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=${{ inputs.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL }}" >> web/.env.production
-
-        echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
+        
       shell: bash
 
     - name: SSL certificates for https
@@ -64,15 +63,15 @@ runs:
         # The SSL certificate keys are provided by the infrastructure team
         cd /home/heiguser/onlinetest
         mkdir -p ssl
-        echo "${{ inputs.SSL_FULLCHAIN }}" > ssl/fullchain.pem
-        echo "${{ inputs.SSL_PRIVKEY }}" > ssl/privkey.pem
+        echo "${{ inputs.SSL_FULLCHAIN }}" > deploy/ssl/fullchain.pem
+        echo "${{ inputs.SSL_PRIVKEY }}" > deploy/ssl/privkey.pem
       shell: bash
         
     - name: Build Custom Docker images
       run: |
         # SQL Fluff is out custom images used for linting DB question queries, it is not published on Docker Hub
         cd /home/heiguser/onlinetest
-        docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
+        docker build -t custom-sqlfluff ./deploy/docker-images/custom-sqlfluff
       shell: bash
 
     - name: Build Docker Compose Images
