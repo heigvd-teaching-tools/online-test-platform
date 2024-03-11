@@ -65,6 +65,17 @@ cd /web
 npm ci
 ```
 
+## 5) Run the migrations
+
+Run the migrations to update the database schema. 
+
+```bash
+cd /web
+npm run migrate:dev
+# or
+npx prisma migrate dev
+```
+
 ## 6) Run the application
 
 Run the development server:
