@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "eslint --fix '**/*.js'",
     "format": "prettier --write .",
     "check": "prettier --check ."
   },
@@ -48,11 +49,12 @@
     "use-debounce": "^8.0.4"
   },
   "devDependencies": {
+    "dotenv-cli": "^7.3.0",
     "eslint": "8.22.0",
     "eslint-config-next": "^14.0.3",
     "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-header": "^3.1.1",
     "prettier": "^2.8.8",
-    "prisma": "4.13.0",
-    "dotenv-cli": "^7.3.0"
+    "prisma": "4.13.0"
   }
 }
