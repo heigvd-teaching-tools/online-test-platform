@@ -1,4 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { useState, useRef, useEffect } from 'react'
 import {
   ButtonGroup,
   Button,
@@ -9,45 +24,52 @@ import {
   MenuList,
   MenuItem,
   Box,
-} from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+} from '@mui/material'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
-const DropdownSelector = ({ label, color, options, variant = "outlined", onSelect, value }) => {
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0); // Default to first option
+const DropdownSelector = ({
+  label,
+  color,
+  options,
+  variant = 'outlined',
+  onSelect,
+  value,
+}) => {
+  const [open, setOpen] = useState(false)
+  const anchorRef = useRef(null)
+  const [selectedIndex, setSelectedIndex] = useState(0) // Default to first option
 
   // Effect to update selectedIndex when value prop changes
   useEffect(() => {
-    const index = options.findIndex(option => option.value === value);
+    const index = options.findIndex((option) => option.value === value)
     if (index !== -1) {
-      setSelectedIndex(index);
-    }else if(options.length > 0){
-      setSelectedIndex(0);
-      onSelect(options[0].value);
+      setSelectedIndex(index)
+    } else if (options.length > 0) {
+      setSelectedIndex(0)
+      onSelect(options[0].value)
     }
-  }, [value, options, onSelect]);
+  }, [value, options, onSelect])
 
   const handleClick = () => {
-    onSelect(options[selectedIndex].value);
-  };
+    onSelect(options[selectedIndex].value)
+  }
 
   const handleMenuItemClick = (event, index) => {
-    setSelectedIndex(index);
-    onSelect(options[index].value);
-    setOpen(false);
-  };
+    setSelectedIndex(index)
+    onSelect(options[index].value)
+    setOpen(false)
+  }
 
   const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen);
-  };
+    setOpen((prevOpen) => !prevOpen)
+  }
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
+      return
     }
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   return (
     <Box>
@@ -106,7 +128,7 @@ const DropdownSelector = ({ label, color, options, variant = "outlined", onSelec
         )}
       </Popper>
     </Box>
-  );
-};
+  )
+}
 
-export default DropdownSelector;
+export default DropdownSelector

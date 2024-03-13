@@ -1,6 +1,24 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Role } from '@prisma/client'
 import { getUser } from '@/code/auth'
-import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import {
+  withAuthorization,
+  withMethodHandler,
+} from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 
 /** Managing the members of a group
@@ -8,7 +26,7 @@ import { withPrisma } from '@/middleware/withPrisma'
  * get: list members of a group
  * post: add a member to a group
  * del: remove a member from a group
-*/
+ */
 
 const get = async (req, res, prisma) => {
   // get all members of group
@@ -141,15 +159,8 @@ const del = async (req, res, prisma) => {
   res.status(200).json({ message: 'Member removed' })
 }
 
-
 export default withMethodHandler({
-  GET: withAuthorization(
-    withPrisma(get), [Role.PROFESSOR]
-  ),
-  POST: withAuthorization(
-    withPrisma(post), [Role.PROFESSOR]
-  ),
-  DELETE: withAuthorization(
-    withPrisma(del), [Role.PROFESSOR]
-  ),
+  GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
+  POST: withAuthorization(withPrisma(post), [Role.PROFESSOR]),
+  DELETE: withAuthorization(withPrisma(del), [Role.PROFESSOR]),
 })

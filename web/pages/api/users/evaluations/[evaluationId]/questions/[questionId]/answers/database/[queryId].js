@@ -1,20 +1,46 @@
-import { EvaluationPhase, Role, StudentAnswerStatus, UserOnEvaluationStatus } from '@prisma/client'
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {
+  EvaluationPhase,
+  Role,
+  StudentAnswerStatus,
+  UserOnEvaluationStatus,
+} from '@prisma/client'
 import { isInProgress } from '../utils'
 import { grading } from '@/code/grading'
 import {
   withAuthorization,
-  withMethodHandler
+  withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { withEvaluationPhase, withStudentStatus } from '@/middleware/withStudentEvaluation'
+import {
+  withEvaluationPhase,
+  withStudentStatus,
+} from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
 
 /*
   Student update a database query during a evaluation
 */
 
-const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus([UserOnEvaluationStatus.IN_PROGRESS],
-  async (req, res, prisma) => {
+const put = withEvaluationPhase(
+  [EvaluationPhase.IN_PROGRESS],
+  withStudentStatus(
+    [UserOnEvaluationStatus.IN_PROGRESS],
+    async (req, res, prisma) => {
       const user = await getUser(req, res)
       const studentEmail = user.email
       const { evaluationId, questionId, queryId } = req.query
@@ -26,17 +52,19 @@ const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus
         return
       }
 
-      const evaluationToQuestion = await prisma.evaluationToQuestion.findUnique({
-        where: {
-          evaluationId_questionId: {
-            evaluationId: evaluationId,
-            questionId: questionId,
+      const evaluationToQuestion = await prisma.evaluationToQuestion.findUnique(
+        {
+          where: {
+            evaluationId_questionId: {
+              evaluationId: evaluationId,
+              questionId: questionId,
+            },
           },
-        },
-        include: {
-          question: true,
-        },
-      })
+          include: {
+            question: true,
+          },
+        }
+      )
 
       if (!evaluationToQuestion) {
         res.status(400).json({ message: 'Question not found' })
@@ -53,27 +81,27 @@ const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus
             },
           },
           data: {
-            status: StudentAnswerStatus.IN_PROGRESS
+            status: StudentAnswerStatus.IN_PROGRESS,
           },
         })
 
         // update the users answers query for database question
         await prisma.studentAnswerDatabaseToQuery.update({
-          where:{
+          where: {
             userEmail_questionId_queryId: {
               userEmail: studentEmail,
               questionId: questionId,
-              queryId: queryId
-            }
+              queryId: queryId,
+            },
           },
-          data:{
-            query:{
+          data: {
+            query: {
               update: {
-                content: content
-              }
-            }
-          }
-        });
+                content: content,
+              },
+            },
+          },
+        })
 
         await prisma.studentQuestionGrading.upsert({
           where: {
@@ -85,11 +113,19 @@ const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus
           create: {
             userEmail: studentEmail,
             questionId: questionId,
-            ...grading(evaluationToQuestion.question, evaluationToQuestion.points, undefined),
+            ...grading(
+              evaluationToQuestion.question,
+              evaluationToQuestion.points,
+              undefined
+            ),
           },
-          update: grading(evaluationToQuestion.question, evaluationToQuestion.points, undefined),
+          update: grading(
+            evaluationToQuestion.question,
+            evaluationToQuestion.points,
+            undefined
+          ),
         })
-      });
+      })
 
       const updatedAnswer = await prisma.studentAnswer.findUnique({
         where: {
@@ -118,7 +154,5 @@ const put = withEvaluationPhase([EvaluationPhase.IN_PROGRESS], withStudentStatus
 )
 
 export default withMethodHandler({
-  PUT: withAuthorization(
-    withPrisma(put), [Role.PROFESSOR, Role.STUDENT]
-  ),
+  PUT: withAuthorization(withPrisma(put), [Role.PROFESSOR, Role.STUDENT]),
 })

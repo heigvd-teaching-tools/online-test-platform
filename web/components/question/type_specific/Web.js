@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Stack, Box, Tab, Tabs, Typography } from '@mui/material'
 
@@ -9,10 +24,9 @@ import WebEditor from './web/WebEditor'
 import PreviewPanel from './web/PreviewPanel'
 
 const Web = ({ id = 'web', web: initial, onChange }) => {
-
   const [tab, setTab] = useState('solution')
 
-  const [ web, setWeb ] = useState(initial)
+  const [web, setWeb] = useState(initial)
 
   useEffect(() => {
     setWeb(initial)
@@ -49,7 +63,12 @@ const Web = ({ id = 'web', web: initial, onChange }) => {
                         js: web?.solutionJs,
                       }}
                       onChange={(updatedWeb) => {
-                        const newWeb = { ...web, solutionHtml: updatedWeb.html, solutionCss: updatedWeb.css, solutionJs: updatedWeb.js }
+                        const newWeb = {
+                          ...web,
+                          solutionHtml: updatedWeb.html,
+                          solutionCss: updatedWeb.css,
+                          solutionJs: updatedWeb.js,
+                        }
                         setWeb(newWeb)
                         onChange(newWeb)
                       }}
@@ -66,9 +85,14 @@ const Web = ({ id = 'web', web: initial, onChange }) => {
                         js: web?.templateJs,
                       }}
                       onChange={(updatedWeb) => {
-                        const newWeb = { ...web, templateHtml: updatedWeb.html, templateCss: updatedWeb.css, templateJs: updatedWeb.js }
+                        const newWeb = {
+                          ...web,
+                          templateHtml: updatedWeb.html,
+                          templateCss: updatedWeb.css,
+                          templateJs: updatedWeb.js,
+                        }
                         setWeb(newWeb)
-                        onChange(newWeb)          
+                        onChange(newWeb)
                       }}
                     />
                   </Stack>
@@ -77,16 +101,16 @@ const Web = ({ id = 'web', web: initial, onChange }) => {
             </Stack>
           }
           rightPanel={
-            <PreviewPanel 
-              id={`${id}-preview`} 
+            <PreviewPanel
+              id={`${id}-preview`}
               web={(() => {
-                switch(tab){
+                switch (tab) {
                   case 'solution':
-                      return {
-                        html: web?.solutionHtml,
-                        css: web?.solutionCss,
-                        js: web?.solutionJs,
-                      }
+                    return {
+                      html: web?.solutionHtml,
+                      css: web?.solutionCss,
+                      js: web?.solutionJs,
+                    }
                   case 'template':
                     return {
                       html: web?.templateHtml,
@@ -94,7 +118,7 @@ const Web = ({ id = 'web', web: initial, onChange }) => {
                       js: web?.templateJs,
                     }
                 }
-              })()} 
+              })()}
             />
           }
         />
@@ -102,7 +126,5 @@ const Web = ({ id = 'web', web: initial, onChange }) => {
     </Stack>
   )
 }
-
-
 
 export default Web

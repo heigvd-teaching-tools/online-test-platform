@@ -1,4 +1,27 @@
-import { Box, Divider, Grow, Paper, Stack, Tooltip, Typography } from '@mui/material'
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {
+  Box,
+  Divider,
+  Grow,
+  Paper,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import { getQuestionSuccessRate, typeSpecificStats } from './stats'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
@@ -7,11 +30,18 @@ import PiePercent from '@/components/feedback/PiePercent'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 import FilledBullet from '@/components/feedback/FilledBullet'
 
-const EvaluationAnalytics = ({ evaluationToQuestions, showSuccessRate = false }) => {
+const EvaluationAnalytics = ({
+  evaluationToQuestions,
+  showSuccessRate = false,
+}) => {
   return (
     <Stack spacing={8} alignItems="center" sx={{ width: '100%' }}>
       {evaluationToQuestions.map((jstq, index) => (
-        <QuestionAnalytics key={index} evaluationToQuestions={jstq} showSuccessRate={showSuccessRate} />
+        <QuestionAnalytics
+          key={index}
+          evaluationToQuestions={jstq}
+          showSuccessRate={showSuccessRate}
+        />
       ))}
     </Stack>
   )
@@ -21,7 +51,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
   const { question } = evaluationToQuestions
 
   // student answer will correspond to the total number of students
-  let maxValue = question.studentAnswer.length;
+  let maxValue = question.studentAnswer.length
 
   const [questionData, setQuestionData] = useState(null)
 
@@ -63,9 +93,10 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
               : 0
           data[question.type].noCodeCheckRuns.percentage =
             maxValue > 0
-              ? Math.round((data[question.type].noCodeCheckRuns.count / maxValue) * 100)
+              ? Math.round(
+                  (data[question.type].noCodeCheckRuns.count / maxValue) * 100
+                )
               : 0
-
 
           break
         }
@@ -83,45 +114,68 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
               : 0
           break
         }
-        case QuestionType.database: 
-        
-          data[question.type].testQueriesStats = data[question.type].testQueriesStats.map((testQueryStats) => {
-            const testSuccesses =  testQueryStats.testSuccesses;
-            const testFailures =  testQueryStats.testFailures;
+        case QuestionType.database:
+          data[question.type].testQueriesStats = data[
+            question.type
+          ].testQueriesStats.map((testQueryStats) => {
+            const testSuccesses = testQueryStats.testSuccesses
+            const testFailures = testQueryStats.testFailures
             return {
               label: `Test Query #${testQueryStats.order} - ${testQueryStats.title}`,
               success: {
-                label: "Success",
-                percent: testSuccesses + testFailures > 0 ? Math.round((testSuccesses / (testSuccesses + testFailures)) * 100) : 0,
+                label: 'Success',
+                percent:
+                  testSuccesses + testFailures > 0
+                    ? Math.round(
+                        (testSuccesses / (testSuccesses + testFailures)) * 100
+                      )
+                    : 0,
                 amount: testSuccesses,
               },
               failure: {
-                label: "Failure",
-                percent: testSuccesses + testFailures > 0 ? Math.round((testFailures / (testSuccesses + testFailures)) * 100) : 0,
+                label: 'Failure',
+                percent:
+                  testSuccesses + testFailures > 0
+                    ? Math.round(
+                        (testFailures / (testSuccesses + testFailures)) * 100
+                      )
+                    : 0,
                 amount: testFailures,
-              }
+              },
             }
-          });
+          })
 
-          data[question.type].lintQueriesStats = data[question.type].lintQueriesStats.map((lintQueryStats) => {
-            const lintSuccesses =  lintQueryStats.lintSuccesses;
-            const lintFailures =  lintQueryStats.lintFailures;
+          data[question.type].lintQueriesStats = data[
+            question.type
+          ].lintQueriesStats.map((lintQueryStats) => {
+            const lintSuccesses = lintQueryStats.lintSuccesses
+            const lintFailures = lintQueryStats.lintFailures
             return {
               label: `Lint Query #${lintQueryStats.order} - ${lintQueryStats.title}`,
               success: {
-                label: "Success",
-                percent: lintSuccesses + lintFailures > 0 ? Math.round((lintSuccesses / (lintSuccesses + lintFailures)) * 100) : 0,
+                label: 'Success',
+                percent:
+                  lintSuccesses + lintFailures > 0
+                    ? Math.round(
+                        (lintSuccesses / (lintSuccesses + lintFailures)) * 100
+                      )
+                    : 0,
                 amount: lintSuccesses,
               },
               failure: {
-                label: "Failure",
-                percent: lintSuccesses + lintFailures > 0 ? Math.round((lintFailures / (lintSuccesses + lintFailures)) * 100) : 0,
+                label: 'Failure',
+                percent:
+                  lintSuccesses + lintFailures > 0
+                    ? Math.round(
+                        (lintFailures / (lintSuccesses + lintFailures)) * 100
+                      )
+                    : 0,
                 amount: lintFailures,
-              }
+              },
             }
-          });
+          })
 
-        break;
+          break
         default:
           break
       }
@@ -141,21 +195,18 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
       { color: 'error', tooltip: 'Not all test cases passed' },
       { color: 'info', tooltip: 'No code check runs' },
     ],
-    [QuestionType.essay]: [
-      { color: 'success', tooltip: 'Submitted answers' },
-    ],
-    [QuestionType.web]: [
-      { color: 'success', tooltip: 'Submitted answers' },
-    ],
+    [QuestionType.essay]: [{ color: 'success', tooltip: 'Submitted answers' }],
+    [QuestionType.web]: [{ color: 'success', tooltip: 'Submitted answers' }],
     [QuestionType.database]: [
       { color: 'success', tooltip: 'Test passed' },
       { color: 'error', tooltip: 'Test failed' },
     ],
-
   }
 
-  const submittedAnswers = question.studentAnswer.filter((sa) => sa.status !== StudentAnswerStatus.MISSING).length;
-  const totalAnswers = question.studentAnswer.length;
+  const submittedAnswers = question.studentAnswer.filter(
+    (sa) => sa.status !== StudentAnswerStatus.MISSING
+  ).length
+  const totalAnswers = question.studentAnswer.length
 
   return (
     <Paper sx={{ p: 2, width: '100%' }}>
@@ -172,12 +223,8 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
               <b>{`Q${evaluationToQuestions.order + 1}`}</b>
             </Typography>
             <Typography variant="body1">{question.title}</Typography>
-            
-
           </Stack>
-          <ColorLegend 
-            items={questionTypeToLegend[question.type]}
-          />
+          <ColorLegend items={questionTypeToLegend[question.type]} />
         </Stack>
         {questionData &&
           ((questionData.type === QuestionType.multipleChoice && (
@@ -186,14 +233,22 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 <AnalyticsRow
                   key={index}
                   label={
-                    <Tooltip title={option.tooltip} key={index} placement="right">
+                    <Tooltip
+                      title={option.tooltip}
+                      key={index}
+                      placement="right"
+                    >
                       <Typography variant="body1">
                         <b>{option.label}</b>
                       </Typography>
                     </Tooltip>
-                  }                  
+                  }
                   segments={[
-                    { percent: option.percentage, color: 'info', tooltip: `${option.text} [${option.chosen}]` },
+                    {
+                      percent: option.percentage,
+                      color: 'info',
+                      tooltip: `${option.text} [${option.chosen}]`,
+                    },
                   ]}
                   amount={option.chosen}
                 />
@@ -205,14 +260,22 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 <AnalyticsRow
                   label={<b>True</b>}
                   segments={[
-                    { percent: questionData[questionData.type].true.percentage, color: 'info', tooltip: 'Students chose true' },
+                    {
+                      percent: questionData[questionData.type].true.percentage,
+                      color: 'info',
+                      tooltip: 'Students chose true',
+                    },
                   ]}
                   amount={questionData[questionData.type].true.chosen}
                 />
                 <AnalyticsRow
                   label={<b>False</b>}
                   segments={[
-                    { percent: questionData[questionData.type].false.percentage, color: 'info', tooltip: 'Students chose false' },
+                    {
+                      percent: questionData[questionData.type].false.percentage,
+                      color: 'info',
+                      tooltip: 'Students chose false',
+                    },
                   ]}
                   amount={questionData[questionData.type].false.chosen}
                 />
@@ -230,13 +293,34 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                   }
                   color="success"
                   segments={[
-                    { percent: questionData[questionData.type].success.percentage, color: 'success', tooltip: `All test cases passed [${questionData[questionData.type].success.count}]` },
-                    { percent: questionData[questionData.type].failure.percentage, color: 'error', tooltip: `Not all test cases passed [${questionData[questionData.type].failure.count}]` },
-                    { percent: questionData[questionData.type].noCodeCheckRuns.percentage, color: 'info', tooltip: `No code check runs [${questionData[questionData.type].noCodeCheckRuns.count}]` },
+                    {
+                      percent:
+                        questionData[questionData.type].success.percentage,
+                      color: 'success',
+                      tooltip: `All test cases passed [${
+                        questionData[questionData.type].success.count
+                      }]`,
+                    },
+                    {
+                      percent:
+                        questionData[questionData.type].failure.percentage,
+                      color: 'error',
+                      tooltip: `Not all test cases passed [${
+                        questionData[questionData.type].failure.count
+                      }]`,
+                    },
+                    {
+                      percent:
+                        questionData[questionData.type].noCodeCheckRuns
+                          .percentage,
+                      color: 'info',
+                      tooltip: `No code check runs [${
+                        questionData[questionData.type].noCodeCheckRuns.count
+                      }]`,
+                    },
                   ]}
                   amount={submittedAnswers}
                 />
-                
               </>
             )) ||
             ((questionData.type === QuestionType.essay ||
@@ -246,77 +330,121 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                   label="Submitted"
                   color="success"
                   segments={[
-                    { percent: questionData[questionData.type].submitted.percentage, color: 'success', tooltip: 'Submitted answers' },
+                    {
+                      percent:
+                        questionData[questionData.type].submitted.percentage,
+                      color: 'success',
+                      tooltip: 'Submitted answers',
+                    },
                   ]}
                   amount={questionData[questionData.type].submitted.count}
                 />
-                
               </>
             )) ||
             (questionData.type === QuestionType.database && (
               <>
-                <Stack direction="row" alignItems="flex-start" spacing={2} width={"100%"}>
+                <Stack
+                  direction="row"
+                  alignItems="flex-start"
+                  spacing={2}
+                  width={'100%'}
+                >
                   <Stack flex={1} spacing={1}>
                     <Typography variant="h5"> Output tests </Typography>
-                    {questionData[questionData.type].testQueriesStats.map((testQueryStats, index) => (
-                      <Stack key={index} direction="column" alignItems="flex-start" spacing={1}>
-                        <Typography variant="body1"><b>{testQueryStats.label}</b></Typography>
-                        <AnalyticsRow
-                          label={testQueryStats.success.label}
-                          color="success"
-                          segments={[{ percent: testQueryStats.success.percent, color: 'success', tooltip: 'Evaluation passed' }]}
-                          amount={testQueryStats.success.amount}
-                        />
-                        <AnalyticsRow
-                          label={testQueryStats.failure.label}
-                          color="error"
-                          segments={[{ percent: testQueryStats.failure.percent, color: 'error', tooltip: 'Evaluation failed' }]}
-                          amount={testQueryStats.failure.amount}
-                        />
-                      </Stack>
-                    ))}
+                    {questionData[questionData.type].testQueriesStats.map(
+                      (testQueryStats, index) => (
+                        <Stack
+                          key={index}
+                          direction="column"
+                          alignItems="flex-start"
+                          spacing={1}
+                        >
+                          <Typography variant="body1">
+                            <b>{testQueryStats.label}</b>
+                          </Typography>
+                          <AnalyticsRow
+                            label={testQueryStats.success.label}
+                            color="success"
+                            segments={[
+                              {
+                                percent: testQueryStats.success.percent,
+                                color: 'success',
+                                tooltip: 'Evaluation passed',
+                              },
+                            ]}
+                            amount={testQueryStats.success.amount}
+                          />
+                          <AnalyticsRow
+                            label={testQueryStats.failure.label}
+                            color="error"
+                            segments={[
+                              {
+                                percent: testQueryStats.failure.percent,
+                                color: 'error',
+                                tooltip: 'Evaluation failed',
+                              },
+                            ]}
+                            amount={testQueryStats.failure.amount}
+                          />
+                        </Stack>
+                      )
+                    )}
                   </Stack>
                   <Stack flex={1} spacing={1}>
                     <Typography variant="h5"> Lint tests </Typography>
-                    {questionData[questionData.type].lintQueriesStats.map((lintQueryStats, index) => (
-                      <Stack key={index} direction="column" alignItems="flex-start" spacing={1}>
-                        <Typography variant="body1"><b>{lintQueryStats.label}</b></Typography>
-                        <AnalyticsRow
-                          label={lintQueryStats.success.label}
-                          color="success"
-                          segments={[{ percent: lintQueryStats.success.percent, color: 'success', tooltip: 'Lint rules passed' }]}
-                          amount={lintQueryStats.success.amount}
-                        />
-                        <AnalyticsRow
-                          label={lintQueryStats.failure.label}
-                          color="error"
-                          segments={[{ percent: lintQueryStats.failure.percent, color: 'error', tooltip: 'Lint rules failed' }]}
-                          amount={lintQueryStats.failure.amount}
-                        />
+                    {questionData[questionData.type].lintQueriesStats.map(
+                      (lintQueryStats, index) => (
+                        <Stack
+                          key={index}
+                          direction="column"
+                          alignItems="flex-start"
+                          spacing={1}
+                        >
+                          <Typography variant="body1">
+                            <b>{lintQueryStats.label}</b>
+                          </Typography>
+                          <AnalyticsRow
+                            label={lintQueryStats.success.label}
+                            color="success"
+                            segments={[
+                              {
+                                percent: lintQueryStats.success.percent,
+                                color: 'success',
+                                tooltip: 'Lint rules passed',
+                              },
+                            ]}
+                            amount={lintQueryStats.success.amount}
+                          />
+                          <AnalyticsRow
+                            label={lintQueryStats.failure.label}
+                            color="error"
+                            segments={[
+                              {
+                                percent: lintQueryStats.failure.percent,
+                                color: 'error',
+                                tooltip: 'Lint rules failed',
+                              },
+                            ]}
+                            amount={lintQueryStats.failure.amount}
+                          />
                         </Stack>
-                    ))}
+                      )
+                    )}
                   </Stack>
                 </Stack>
-
               </>
-            ))
-            )
-            }
+            )))}
         <Stack direction="row" spacing={4} alignItems="center">
           <Stack direction="row" alignItems="center" spacing={1}>
-            <PiePercent 
+            <PiePercent
               label={
                 <Stack alignItems="center" justifyContent="center" spacing={0}>
-                  <Typography variant="caption">
-                    {submittedAnswers}
-                  </Typography>
+                  <Typography variant="caption">{submittedAnswers}</Typography>
                   <Divider sx={{ width: '100%' }} />
-                  <Typography variant="caption">
-                    {totalAnswers}
-                  </Typography>
+                  <Typography variant="caption">{totalAnswers}</Typography>
                 </Stack>
               }
-              value={submittedAnswers/totalAnswers * 100} 
+              value={(submittedAnswers / totalAnswers) * 100}
             />
             <Box>
               <Typography variant="body1">
@@ -327,9 +455,11 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
               </Typography>
             </Box>
           </Stack>
-          { showSuccessRate && (
+          {showSuccessRate && (
             <Stack direction="row" alignItems="center" spacing={1}>
-              <PiePercent value={getQuestionSuccessRate(evaluationToQuestions)} />
+              <PiePercent
+                value={getQuestionSuccessRate(evaluationToQuestions)}
+              />
               <Box>
                 <Typography variant="body1">
                   <b>Success Rate</b>
@@ -339,9 +469,8 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 </Typography>
               </Box>
             </Stack>
-          
           )}
-          </Stack>
+        </Stack>
       </Stack>
     </Paper>
   )
@@ -366,20 +495,19 @@ const StackedLinearPercent = ({ segments, thickness = 10 }) => (
       >
         {segments.map((segment, index) => (
           <Tooltip title={`${segment.tooltip}`} key={index}>
-            
-              <Box
-                sx={{
-                  height: thickness,
-                  width: `${segment.percent}%`,
-                  bgcolor: `${segment.color}.main`,
-                }}
-              />
+            <Box
+              sx={{
+                height: thickness,
+                width: `${segment.percent}%`,
+                bgcolor: `${segment.color}.main`,
+              }}
+            />
           </Tooltip>
         ))}
       </Box>
     </Grow>
   </Stack>
-);
+)
 
 const AnalyticsRow = ({ label, segments, amount }) => (
   <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%' }}>
@@ -395,7 +523,7 @@ const AnalyticsRow = ({ label, segments, amount }) => (
       </Box>
     </Stack>
   </Stack>
-);
+)
 
 const ColorLegend = ({ items }) => {
   return (
@@ -403,13 +531,13 @@ const ColorLegend = ({ items }) => {
       {items.map((item, index) => (
         <Tooltip title={item.tooltip} key={index}>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <FilledBullet state={"filled"} color={item.color} size={14} />
+            <FilledBullet state={'filled'} color={item.color} size={14} />
             <Typography variant="caption">{item.tooltip}</Typography>
           </Stack>
         </Tooltip>
       ))}
     </Stack>
-  );
-};
+  )
+}
 
 export default EvaluationAnalytics

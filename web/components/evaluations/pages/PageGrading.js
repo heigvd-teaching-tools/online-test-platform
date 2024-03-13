@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
@@ -42,12 +57,10 @@ import AnswerCompare from '@/components/answer/AnswerCompare'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 
-
 import { update } from './crud'
 
 import PhaseRedirect from './PhaseRedirect'
 import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
-
 
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
@@ -59,14 +72,15 @@ import { saveGrading } from '../grading/utils'
 
 const PageGrading = () => {
   const router = useRouter()
-  const { groupScope, evaluationId, participantId, activeQuestion } = router.query
+  const { groupScope, evaluationId, participantId, activeQuestion } =
+    router.query
 
   const { data: session } = useSession()
   const { show: showSnackbar } = useSnackbar()
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-      groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null
   )
 
   const {
@@ -75,7 +89,7 @@ const PageGrading = () => {
     error: errorQuestions,
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
-      groupScope && evaluationId ? fetcher : null,
+    groupScope && evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
@@ -91,7 +105,7 @@ const PageGrading = () => {
     useState(false)
   const [endGradingDialogOpen, setEndGradingDialogOpen] = useState(false)
   const [someUnsignedDialogOpen, setSomeUnsignedDialogOpen] = useState(false)
-  const [ studentGridOpen, setStudentGridOpen ] = useState(false)
+  const [studentGridOpen, setStudentGridOpen] = useState(false)
 
   useEffect(() => {
     if (data) {
@@ -101,35 +115,54 @@ const PageGrading = () => {
 
   useEffect(() => {
     // 1) sedtup the participants list sorted by name
-    if (!evaluationToQuestions || evaluationToQuestions.length === 0) return;
+    if (!evaluationToQuestions || evaluationToQuestions.length === 0) return
 
     const participants = evaluationToQuestions[0].question.studentAnswer
       .map((sg) => sg.user)
-      .sort((a, b) => a.name.localeCompare(b.name));
-    
-    setParticipants(participants);
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    setParticipants(participants)
   }, [evaluationToQuestions])
 
   useEffect(() => {
     // 2) setup the current active question and participant, redirect to the first participant if participantId is undefined
-    if (!evaluationToQuestions || evaluationToQuestions.length === 0 || participants.length === 0) return;
-  
-    const currentQuestion = evaluationToQuestions[activeQuestion - 1];
-    setEvaluationEvaluationToQuestion(currentQuestion);
-  
+    if (
+      !evaluationToQuestions ||
+      evaluationToQuestions.length === 0 ||
+      participants.length === 0
+    )
+      return
+
+    const currentQuestion = evaluationToQuestions[activeQuestion - 1]
+    setEvaluationEvaluationToQuestion(currentQuestion)
+
     // Redirect to the first participant if participantId is undefined
     if (!participantId) {
       router.push(
         `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[0].id}`
       )
     }
-  }, [evaluationToQuestions, activeQuestion, participantId, participants, router, groupScope, evaluationId])
+  }, [
+    evaluationToQuestions,
+    activeQuestion,
+    participantId,
+    participants,
+    router,
+    groupScope,
+    evaluationId,
+  ])
 
-  const debouncedSaveGrading = useDebouncedCallback(useCallback(async (grading) => {
-    setLoading(true)
-    await saveGrading(groupScope, grading)
-    setLoading(false)
-  }, [groupScope]), 500)
+  const debouncedSaveGrading = useDebouncedCallback(
+    useCallback(
+      async (grading) => {
+        setLoading(true)
+        await saveGrading(groupScope, grading)
+        setLoading(false)
+      },
+      [groupScope]
+    ),
+    500
+  )
 
   const onChangeGrading = useCallback(
     async (grading) => {
@@ -147,7 +180,9 @@ const PageGrading = () => {
                 pointsObtained: grading.pointsObtained,
                 status: grading.status,
                 signedBy: grading.signedBy,
-                signedByUserEmail: grading.signedBy ? grading.signedBy.email : null,
+                signedByUserEmail: grading.signedBy
+                  ? grading.signedBy.email
+                  : null,
                 comment: grading.comment,
               },
             }
@@ -174,7 +209,9 @@ const PageGrading = () => {
         }
       }
     }
-    await Promise.all(updated.map((grading) => saveGrading(groupScope, grading)))
+    await Promise.all(
+      updated.map((grading) => saveGrading(groupScope, grading))
+    )
     setEvaluationToQuestions(newEvaluationToQuestions)
     await mutate(newEvaluationToQuestions, false)
   }, [groupScope, evaluationToQuestions, mutate, session])
@@ -224,7 +261,7 @@ const PageGrading = () => {
     participants,
     router,
     evaluationToQuestions,
-    groupScope
+    groupScope,
   ])
 
   const prevParticipantOrQuestion = useCallback(() => {
@@ -243,28 +280,38 @@ const PageGrading = () => {
         )
       }
     }
-  }, [groupScope, activeQuestion, evaluationId, participantId, participants, router])
+  }, [
+    groupScope,
+    activeQuestion,
+    evaluationId,
+    participantId,
+    participants,
+    router,
+  ])
 
-  const gradingState = useCallback((questionId) => {
-    const jstq = evaluationToQuestions.find(
-      (jstq) => jstq.question.id === questionId
-    );
-    if (!jstq) {
-      return 'empty';
-    }
-    
-    const signedCount = jstq.question.studentAnswer.filter(
-      (sa) => sa.studentGrading.signedBy
-    ).length;
-  
-    if (signedCount === 0) {
-      return 'empty';
-    } else if (signedCount === jstq.question.studentAnswer.length) {
-      return 'filled';
-    } else {
-      return 'half';
-    }
-  }, [evaluationToQuestions]);
+  const gradingState = useCallback(
+    (questionId) => {
+      const jstq = evaluationToQuestions.find(
+        (jstq) => jstq.question.id === questionId
+      )
+      if (!jstq) {
+        return 'empty'
+      }
+
+      const signedCount = jstq.question.studentAnswer.filter(
+        (sa) => sa.studentGrading.signedBy
+      ).length
+
+      if (signedCount === 0) {
+        return 'empty'
+      } else if (signedCount === jstq.question.studentAnswer.length) {
+        return 'filled'
+      } else {
+        return 'half'
+      }
+    },
+    [evaluationToQuestions]
+  )
 
   const questionPages = useMemo(() => {
     return evaluationToQuestions.map((jstq) => ({
@@ -272,8 +319,8 @@ const PageGrading = () => {
       label: `Q${jstq.order + 1}`,
       fillable: true,
       state: gradingState(jstq.question.id),
-    }));
-  }, [evaluationToQuestions, gradingState]);
+    }))
+  }, [evaluationToQuestions, gradingState])
 
   const ready =
     evaluationToQuestions &&
@@ -293,7 +340,7 @@ const PageGrading = () => {
             header={
               <Stack direction="row" alignItems="center">
                 <BackButton backUrl={`/${groupScope}/evaluations`} />
-                { evaluation?.id && (
+                {evaluation?.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {evaluation.label}
                   </Typography>
@@ -317,11 +364,17 @@ const PageGrading = () => {
                 </Stack>
                 <Tooltip title="Click to view a detailed grid of student performance, including overall success and individual scores for each question.">
                   <Button
-                    size={"small"}
+                    size={'small'}
                     variant="text"
                     color="info"
                     onClick={() => setStudentGridOpen(true)}
-                    startIcon={<Image src="/svg/icons/checklist.svg" width={18} height={18} />}
+                    startIcon={
+                      <Image
+                        src="/svg/icons/checklist.svg"
+                        width={18}
+                        height={18}
+                      />
+                    }
                   >
                     Results
                   </Button>
@@ -421,11 +474,11 @@ const PageGrading = () => {
                       maxPoints={evaluationToQuestion.points}
                       onChange={onChangeGrading}
                     />
-                    
+
                     <SuccessRate
                       value={getSignedSuccessRate(evaluationToQuestions)}
                     />
-                    
+
                     <GradingActions
                       stats={getGradingStats(evaluationToQuestions)}
                       loading={loading || saving}
@@ -501,13 +554,15 @@ const PageGrading = () => {
                 participantId: participantId,
               }}
               questionCellClick={async (questionId, participantId) => {
-                const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
+                const questionOrder =
+                  evaluationToQuestions.findIndex(
+                    (jstq) => jstq.question.id === questionId
+                  ) + 1
                 setStudentGridOpen(false)
                 await router.push(
                   `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`
                 )
-              
-              }} 
+              }}
             />
           </ResizableDrawer>
         </Loading>
@@ -517,66 +572,75 @@ const PageGrading = () => {
 }
 
 const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
-  const handleKeyDown = useCallback((event) => {
-    if (event.ctrlKey) {
-      if (event.key === 'ArrowLeft') {
-        if (!isFirst) onPrev();
-      } else if (event.key === 'ArrowRight') {
-        onNext();
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.ctrlKey) {
+        if (event.key === 'ArrowLeft') {
+          if (!isFirst) onPrev()
+        } else if (event.key === 'ArrowRight') {
+          onNext()
+        }
       }
-    }
-  }, [onPrev, onNext, isFirst]);
+    },
+    [onPrev, onNext, isFirst]
+  )
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleKeyDown]);
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleKeyDown])
 
   return (
     <Paper>
       <Stack direction="row" justifyContent="space-between">
         <Tooltip title="CTRL+Left">
-        <IconButton
-          onClick={onPrev}
-          disabled={isFirst}
-          sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
-        >
-          <ArrowBackIosIcon />
-        </IconButton>
+          <IconButton
+            onClick={onPrev}
+            disabled={isFirst}
+            sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
+          >
+            <ArrowBackIosIcon />
+          </IconButton>
         </Tooltip>
         <Tooltip title="CTRL+Right">
-        <IconButton
-          onClick={onNext}
-          sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
-        >
-          <ArrowForwardIosIcon />
-        </IconButton>
+          <IconButton
+            onClick={onNext}
+            sx={{ width: 90, height: 90, borderRadius: 0, borderRight: 0 }}
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
         </Tooltip>
       </Stack>
     </Paper>
-  );
-};
-
+  )
+}
 
 const SuccessRate = ({ value }) => {
   return (
     <Tooltip
-      title={<>
-        <Box>Overall success rate based on all <b>signed</b> gradings up to this point.</Box>
-        <Box>(total of all awarded points / total of all possible points) * 100</Box>
-      </>}
+      title={
+        <>
+          <Box>
+            Overall success rate based on all <b>signed</b> gradings up to this
+            point.
+          </Box>
+          <Box>
+            (total of all awarded points / total of all possible points) * 100
+          </Box>
+        </>
+      }
     >
-    <Paper sx={{ p: 1 }}>
-      <Stack alignItems="center" justifyContent="center" spacing={1}>
-        <Typography variant="body2" sx={{ mr: 1 }}>
-          Success Rate
-        </Typography>
-        <PiePercent value={value} />
-      </Stack>
-    </Paper>
+      <Paper sx={{ p: 1 }}>
+        <Stack alignItems="center" justifyContent="center" spacing={1}>
+          <Typography variant="body2" sx={{ mr: 1 }}>
+            Success Rate
+          </Typography>
+          <PiePercent value={value} />
+        </Stack>
+      </Paper>
     </Tooltip>
   )
 }
@@ -594,51 +658,51 @@ const GradingActions = ({
         : `You have ${totalGradings - totalSigned} gradings to sign off`
     }
   >
-  <Paper sx={{ p: 1 }}>
-    <Stack justifyContent="center" spacing={1} sx={{ height: '100%' }}>
-      <Stack
-        flexGrow={1}
-        alignItems="start"
-        justifyContent="space-between"
-        direction="row"
-      >
-        <Stack direction="row" alignItems="center" sx={{ mr: 2 }}>
-          <Typography variant="body2" sx={{ mr: 1 }}>
-            Grading progress:
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-            {totalSigned} / {totalGradings}
-          </Typography>
+    <Paper sx={{ p: 1 }}>
+      <Stack justifyContent="center" spacing={1} sx={{ height: '100%' }}>
+        <Stack
+          flexGrow={1}
+          alignItems="start"
+          justifyContent="space-between"
+          direction="row"
+        >
+          <Stack direction="row" alignItems="center" sx={{ mr: 2 }}>
+            <Typography variant="body2" sx={{ mr: 1 }}>
+              Grading progress:
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {totalSigned} / {totalGradings}
+            </Typography>
+          </Stack>
+          {totalSigned < totalGradings && (
+            <PiePercent
+              size={39}
+              value={Math.round((totalSigned / totalGradings) * 100)}
+            />
+          )}
         </Stack>
-        {totalSigned < totalGradings && (
-          <PiePercent
-            size={39}
-            value={Math.round((totalSigned / totalGradings) * 100)}
-          />
+        {totalSigned === totalGradings && (
+          <Button
+            color="success"
+            fullWidth
+            variant="contained"
+            size="small"
+            onClick={endGrading}
+          >
+            End grading
+          </Button>
+        )}
+        {totalAutogradedUnsigned > 0 && (
+          <LoadingButton
+            loading={loading}
+            size="small"
+            onClick={signOffAllAutograded}
+          >
+            Sign off {totalAutogradedUnsigned} autograded unsigned
+          </LoadingButton>
         )}
       </Stack>
-      {totalSigned === totalGradings && (
-        <Button
-          color="success"
-          fullWidth
-          variant="contained"
-          size="small"
-          onClick={endGrading}
-        >
-          End grading
-        </Button>
-      )}
-      {totalAutogradedUnsigned > 0 && (
-        <LoadingButton
-          loading={loading}
-          size="small"
-          onClick={signOffAllAutograded}
-        >
-          Sign off {totalAutogradedUnsigned} autograded unsigned
-        </LoadingButton>
-      )}
-    </Stack>
-  </Paper>
+    </Paper>
   </Tooltip>
 )
 

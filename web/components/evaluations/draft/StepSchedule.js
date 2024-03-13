@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import useSWR from 'swr'
 import { useState, useEffect } from 'react'
 import {
@@ -15,19 +30,14 @@ import StudentList from './StudentList'
 import { fetcher } from '@/code/utils'
 import Loading from '@/components/feedback/Loading'
 
-const STUDENTS_ACTIVE_PULL_INTERVAL = 1000;
+const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
 
 const StepSchedule = ({ groupScope, evaluation, onChange }) => {
-
-  const {
-    data: students,
-    error: errorStudents,
-  } = useSWR(
-      `/api/${groupScope}/evaluations/${evaluation.id}/students`,
-      groupScope && evaluation?.id ? fetcher : null,
-      { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
-      )
-
+  const { data: students, error: errorStudents } = useSWR(
+    `/api/${groupScope}/evaluations/${evaluation.id}/students`,
+    groupScope && evaluation?.id ? fetcher : null,
+    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL }
+  )
 
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
@@ -79,33 +89,32 @@ const StepSchedule = ({ groupScope, evaluation, onChange }) => {
           <Alert severity="warning">
             <AlertTitle>Warning</AlertTitle>
             <Typography variant="body1">
-              The evaluation will not end automatically. You will have to end it manually in the in-progress phase.
+              The evaluation will not end automatically. You will have to end it
+              manually in the in-progress phase.
             </Typography>
             <Typography variant="body1">
-              The sole purpose of this feature is to give students an idea of the time they have to complete the evaluation.
+              The sole purpose of this feature is to give students an idea of
+              the time they have to complete the evaluation.
             </Typography>
           </Alert>
           <DurationPicker
             value={duration}
             onChange={(value) => {
-                setDuration(value)
+              setDuration(value)
             }}
           />
         </>
-
       )}
-      { evaluation.id && (
+      {evaluation.id && (
         <Loading loading={!students} errors={[errorStudents]}>
-         <StudentList
+          <StudentList
             title={`Registered students (${students?.students.length})`}
             students={students?.students}
-         />
-         </Loading>
+          />
+        </Loading>
       )}
-
-      </Stack>
+    </Stack>
   )
 }
-
 
 export default StepSchedule

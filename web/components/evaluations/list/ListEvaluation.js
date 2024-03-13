@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -12,11 +27,11 @@ import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
   <GridGrouping
-    label={"Evaluations"}
+    label={'Evaluations'}
     actions={
-        <Link href={`/${groupScope}/evaluations/new`}>
-          <Button>Create a new evaluation</Button>
-        </Link>
+      <Link href={`/${groupScope}/evaluations/new`}>
+        <Button>Create a new evaluation</Button>
+      </Link>
     }
     header={{
       actions: {
@@ -79,27 +94,34 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
         linkHref: `/${groupScope}/evaluations/${evaluation.id}`,
         actions: [
           <React.Fragment key="actions">
-          <Tooltip title="Copy student link to clipboard" key="add-link-to-clipboard">
-            <IconButton
-              onClick={(ev) => {
-                ev.preventDefault()
-                ev.stopPropagation()
-                ;(async () => {
-                  await navigator.clipboard.writeText(
-                    getStudentEntryLink(evaluation.id)
-                  )
-                })()
-              }}
+            <Tooltip
+              title="Copy student link to clipboard"
+              key="add-link-to-clipboard"
             >
-              <Image
-                alt="Copy link"
-                src="/svg/icons/link.svg"
-                width="18"
-                height="18"
-              />
-            </IconButton>
+              <IconButton
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+                  ;(async () => {
+                    await navigator.clipboard.writeText(
+                      getStudentEntryLink(evaluation.id)
+                    )
+                  })()
+                }}
+              >
+                <Image
+                  alt="Copy link"
+                  src="/svg/icons/link.svg"
+                  width="18"
+                  height="18"
+                />
+              </IconButton>
             </Tooltip>
-            <Link href={`/${groupScope}/evaluations/${evaluation.id}/analytics`} passHref key="analytics">
+            <Link
+              href={`/${groupScope}/evaluations/${evaluation.id}/analytics`}
+              passHref
+              key="analytics"
+            >
               <Tooltip title="Open Analytics Page">
                 <IconButton component="span">
                   <Image
@@ -111,38 +133,31 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
                 </IconButton>
               </Tooltip>
             </Link>
-            { evaluation.status === EvaluationStatus.ACTIVE && (
-                <Tooltip title="Add to archive" key="archive">
-                  <IconButton
-
-                    onClick={(ev) => onDelete(ev, evaluation)}
-                  >
-                    <Image
-                      alt="Add to archive"
-                      src="/svg/icons/archive.svg"
-                      width="18"
-                      height="18"
-                    />
+            {evaluation.status === EvaluationStatus.ACTIVE && (
+              <Tooltip title="Add to archive" key="archive">
+                <IconButton onClick={(ev) => onDelete(ev, evaluation)}>
+                  <Image
+                    alt="Add to archive"
+                    src="/svg/icons/archive.svg"
+                    width="18"
+                    height="18"
+                  />
                 </IconButton>
-                </Tooltip>
+              </Tooltip>
             )}
 
-            { evaluation.status === EvaluationStatus.ARCHIVED && (
-                <Tooltip title="Delete definitively" key="archive">
-                  <IconButton
-                    onClick={(ev) => onDelete(ev, evaluation)}
-                  >
-                    <Image
-                      alt="Delete definitively"
-                      src="/svg/icons/delete.svg"
-                      width="18"
-                      height="18"
-                    />
+            {evaluation.status === EvaluationStatus.ARCHIVED && (
+              <Tooltip title="Delete definitively" key="archive">
+                <IconButton onClick={(ev) => onDelete(ev, evaluation)}>
+                  <Image
+                    alt="Delete definitively"
+                    src="/svg/icons/delete.svg"
+                    width="18"
+                    height="18"
+                  />
                 </IconButton>
-                </Tooltip>
+              </Tooltip>
             )}
-
-
           </React.Fragment>,
         ],
       },
@@ -152,14 +167,17 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => (
         groupBy: 'phase',
         option: 'Phase',
         type: 'element',
-        renderLabel: (row) => <Box><DisplayPhase phase={row.label} /></Box>,
+        renderLabel: (row) => (
+          <Box>
+            <DisplayPhase phase={row.label} />
+          </Box>
+        ),
       },
       {
         groupBy: 'updatedAt',
         option: 'Last Update',
         type: 'date',
         renderLabel: (row) => weeksAgo(row.label),
-        
       },
     ]}
   />

@@ -1,13 +1,31 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Role } from '@prisma/client'
 import { getUser } from '@/code/auth'
-import { withAuthorization, withMethodHandler } from '@/middleware/withAuthorization'
+import {
+  withAuthorization,
+  withMethodHandler,
+} from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 /**
  * Managing group
  *
  * del: delete a group
  * put: update a group label
-*/
+ */
 const del = async (req, res, prisma) => {
   // delete a group
   const { groupId } = req.query
@@ -65,13 +83,10 @@ const put = async (req, res, prisma) => {
   // check if the label is not already taken
   const labelIsTaken = await prisma.group.findFirst({
     where: {
-      OR: [
-        { label: label },
-        { scope: scope }
-      ],
+      OR: [{ label: label }, { scope: scope }],
       id: {
         not: groupId,
-      }
+      },
     },
   })
 
@@ -85,8 +100,8 @@ const put = async (req, res, prisma) => {
       id: groupId,
     },
     data: {
-        label: label,
-        scope: scope,
+      label: label,
+      scope: scope,
     },
   })
 
@@ -94,11 +109,6 @@ const put = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  DELETE: withAuthorization(
-    withPrisma(del), [Role.PROFESSOR]
-  ),
-  PUT: withAuthorization(
-    withPrisma(put), [Role.PROFESSOR]
-  ),
+  DELETE: withAuthorization(withPrisma(del), [Role.PROFESSOR]),
+  PUT: withAuthorization(withPrisma(put), [Role.PROFESSOR]),
 })
-

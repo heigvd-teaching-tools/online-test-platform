@@ -1,12 +1,27 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import NextAuth from 'next-auth'
-import KeycloakProvider from "next-auth/providers/keycloak";
+import KeycloakProvider from 'next-auth/providers/keycloak'
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Role } from '@prisma/client'
 
-import { getPrisma } from "@/middleware/withPrisma";
+import { getPrisma } from '@/middleware/withPrisma'
 
-const prisma = getPrisma();
+const prisma = getPrisma()
 
 /*
 
@@ -48,16 +63,16 @@ const setProfessorIfMemberOfOrg = async (account, user) => {
 
 // ISSUE with keycloak provider fixed with workaround:
 // https://github.com/nextauthjs/next-auth/issues/3823
-const prismaAdapter = PrismaAdapter(prisma);
+const prismaAdapter = PrismaAdapter(prisma)
 
 const MyAdapter = {
   ...prismaAdapter,
   linkAccount: (account) => {
-    account["not_before_policy"] = account["not-before-policy"];
-    delete account["not-before-policy"];
-    return prismaAdapter.linkAccount(account);
+    account['not_before_policy'] = account['not-before-policy']
+    delete account['not-before-policy']
+    return prismaAdapter.linkAccount(account)
   },
-};
+}
 
 export const authOptions = {
   adapter: MyAdapter,
@@ -65,13 +80,12 @@ export const authOptions = {
     KeycloakProvider({
       clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
       clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
-      issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL
+      issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   // events: { },
   callbacks: {
-
     async session({ session, user }) {
       if (user) {
         const userWithGroups = await prisma.user.findUnique({
@@ -91,7 +105,7 @@ export const authOptions = {
         })
 
         if (userWithGroups) {
-          session.user.groups = userWithGroups.groups.map((g) => g.group.scope);
+          session.user.groups = userWithGroups.groups.map((g) => g.group.scope)
           session.user.selected_group = userWithGroups.groups.find(
             (g) => g.selected
           )?.group.scope
@@ -102,7 +116,7 @@ export const authOptions = {
       return session
     },
 
-    async signIn({ user, account, profile }) {    
+    async signIn({ user, account, profile }) {
       /*
 
         OAuth (NextAuth) behaviour, when connecting with the same email from different providers:
@@ -129,13 +143,13 @@ export const authOptions = {
       // Only proceed if the provider is Keycloak and an email is provided
       if (account.provider === 'keycloak') {
         if (!user.email) {
-          return false;
+          return false
         }
 
         // Check for an existing user with the same email
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
-        });
+        })
 
         const accountData = {
           type: account.type,
@@ -145,14 +159,14 @@ export const authOptions = {
           access_token: account.access_token,
           expires_at: account.expires_at,
           refresh_expires_in: account.refresh_expires_in,
-          not_before_policy: account["not-before-policy"],
+          not_before_policy: account['not-before-policy'],
           token_type: account.token_type,
           scope: account.scope,
           id_token: account.id_token,
           session_state: account.session_state,
         }
-        
-        if(!existingUser) {
+
+        if (!existingUser) {
           // Create a new user
           const newUser = await prisma.user.create({
             data: {
@@ -160,17 +174,17 @@ export const authOptions = {
               name: profile.name,
               roles: [Role.STUDENT],
             },
-          });
+          })
 
           // Link the account
           await prisma.account.create({
             data: {
               userId: newUser.id,
-              ...accountData
+              ...accountData,
             },
-          });
+          })
 
-          return true;
+          return true
         }
 
         if (existingUser) {
@@ -180,53 +194,49 @@ export const authOptions = {
               providerAccountId: account.providerAccountId,
               provider: account.provider,
             },
-          });
-    
-          if (!linkedAccount) {
+          })
 
+          if (!linkedAccount) {
             // update the user name with thrustworthy name from keycloak
             await prisma.user.update({
               where: { email: user.email },
               data: {
                 name: profile.name,
               },
-            });
-            
+            })
 
             // Link the account
             await prisma.account.create({
               data: {
                 userId: existingUser.id,
-                ...accountData
+                ...accountData,
               },
-            });
+            })
 
-            // unlink the github account 
+            // unlink the github account
 
             const accountToDelete = await prisma.account.findFirst({
               where: {
                 provider: 'github',
                 userId: existingUser.id,
               },
-            });
+            })
 
             if (accountToDelete) {
               await prisma.account.delete({
                 where: {
                   id: accountToDelete.id,
                 },
-              });
+              })
             }
           }
-          return true;
+          return true
         }
       }
-    
-      return false;
-    }
-    
+
+      return false
+    },
   },
 }
-
 
 export default NextAuth(authOptions)

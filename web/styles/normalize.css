@@ -135,7 +135,6 @@ Forms
 =====
 */
 
-
 /**
 Remove the inheritance of text transform in Edge and Firefox.
 1. Remove the inheritance of text transform in Firefox.
@@ -228,8 +227,6 @@ Remove the inner padding in Chrome and Safari on macOS.
   -webkit-appearance: button; /* 1 */
   font: inherit; /* 2 */
 }
-
-
 
 /* width */
 ::-webkit-scrollbar {

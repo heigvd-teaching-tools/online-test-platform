@@ -1,10 +1,18 @@
-/*
- useSWR fetcher function.
- When a api endpoint returns an error, It outputs a json object with a message property.
- In case of errors 500 we use the default message.
- When using the useSWR we can distinguish between a generic error and a managed (specific) error using the isGeneric property.
- - in case of error 500, the isGeneric property will be true.
-* */
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 export const fetcher = async (url) => {
   const res = await fetch(url)
 
