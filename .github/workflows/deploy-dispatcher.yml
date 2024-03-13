@@ -25,9 +25,9 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           NEXTAUTH_URL: https://eval.iict-heig-vd.in
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          HEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.HEXTAUTH_KEYCLOAK_CLIENT_ID }}
-          HEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.HEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
-          HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL: https://idp.heig-vd.ch/realms/HEIG-VD
+          NEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_ID }}
+          NEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
+          NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL: https://idp.heig-vd.ch/realms/HEIG-VD
           SSL_FULLCHAIN: ${{ secrets.SSL_FULLCHAIN }}
           SSL_PRIVKEY: ${{ secrets.SSL_PRIVKEY }}
 
@@ -46,9 +46,9 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           NEXTAUTH_URL: https://192.168.1.224
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          HEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.HEXTAUTH_KEYCLOAK_CLIENT_ID }}
-          HEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.HEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
-          HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL: https://idp.heig-vd.ch/realms/HEIG-VD
+          NEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_ID }}
+          NEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
+          NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL: https://idp.heig-vd.ch/realms/HEIG-VD
           SSL_FULLCHAIN: ${{ secrets.SSL_FULLCHAIN }}
           SSL_PRIVKEY: ${{ secrets.SSL_PRIVKEY }}
           

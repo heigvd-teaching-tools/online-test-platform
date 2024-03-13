@@ -34,7 +34,7 @@ git clone git@github.com:heigvd-teaching-tools/online-test-platform.git
 
 `/web/.env.local` file with the following variable:
 ```bash
-HEXTAUTH_KEYCLOAK_CLIENT_SECRET=<secret-in-vault>
+NEXTAUTH_KEYCLOAK_CLIENT_SECRET=<secret-in-vault>
 ```
 The file is ignored by git and must not be commited.
 
@@ -65,6 +65,15 @@ cd /web
 npm ci
 ```
 
+## 5) Run the migrations
+
+Run the migrations to update the database schema. 
+
+```bash
+cd /web
+npx prisma migrate dev
+```
+
 ## 6) Run the application
 
 Run the development server:
@@ -72,6 +81,12 @@ Run the development server:
 ```bash
 cd /web
 npm run dev
+```
+
+Alternatively you can run the migrations and application in one-go:
+```bash
+cd /web
+npm run dev:migration
 ```
 
 The application will be available at `http://localhost:3000`. 
@@ -101,7 +116,7 @@ Refresh the page and you should see "You are not a member of any groups.".
 
 You can now create your own group and get started with the application.
 
-### 7) Get the database dump from the production server (Prefered option) 
+### 7) Get the database dump from the production server (Preferred option) 
 
 You can get the database dump from the production server and restore it in your local database. 
 
@@ -135,27 +150,7 @@ npx prisma migrate dev
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Development Workflow
 
 
 ## Database Schema Migrations
@@ -166,24 +161,24 @@ Instead, use the following command:
 
 ```bash
 # generate the migration
-npx prisma migrate dev --name <migration-name>
+npx prisma migrate dev --name <migration-name> --create-only
 ```
-
 This will generate a migration file in the `prisma/migrations` folder. 
 
-These migrations will be applied on production database by the docker compose during the deploy workflow.
+Check the migration file to make sure that it is correct. It is generally not correct excepted when some minor changes are involved.
 
 #### Useful Prisma Migration Commands
 
 ```bash
-# generate the migration
+
+# (recommended) generate but do not apply the migration 
+# Generally we must make sure that the auto-generated migration is correct before applying it.
+npx prisma migrate dev --name <migration-name> --create-only
+
+# (not recommended) generate the migration and apply it 
+# Can be usefull for very small changes, but even in those cases i would recommend to check the migration before applying it. Keep in mind it must be applied on the production database.
 npx prisma migrate dev --name <migration-name>
 
-# generate but do not apply the migration
-# this can be usefull when its necessary to create a migration but you want first to change the migration file before applying it
-# For instance, when renaming a field prisma migration consider it to be a drop and create field. You can usee --create-only to avoid applying the migration and change the migration file to rename the field.
-# You will still get the warning about the data loss but you can ignore it and say yes
-npx prisma migrate dev --name <migration-name> --create-only
 
 # list the migrations
 npx prisma migrate status
@@ -239,15 +234,17 @@ https://github.com/heigvd-teaching-tools/online-test-platform/settings/secrets/a
 
 | Secret | Description |
 | --- | --- |
-| `POSTGRES_USER` | The postgres user |
-| `POSTGRES_PASSWORD` | The postgres password |
-| `POSTGRES_DB` | The postgres database |
-| ´GH_APP_ID´ | The github app id used to browse org members |
-| `GH_APP_INSTALLATION_ID` | The github app installation id used to browse org members |
-| `GH_APP_PRIVATE_KEY` | The github app private key used to browse org members |
-| `NEXTAUTH_SECRET` | The nextauth secret |
-| `NEXTAUTH_GITHUB_ID` | The nextauth github id |
-| `NEXTAUTH_GITHUB_SECRET` | The nextauth github secret |
+| HEXTAUTH_KEYCLOAK_CLIENT_ID | The Keycloak OIDC client id |
+| HEXTAUTH_KEYCLOAK_CLIENT_SECRET | The Keycloak OIDC client secret |
+| NEXTAUTH_SECRET | The secret used to encrypt the session |
+| POSTGRES_DB | The name of the database, used by docker compose to initialize the prod database |
+| POSTGRES_PASSWORD | The password of the database user |
+| POSTGRES_USER | The name of the database user |
+| REMOTE_HOST | The IP address of the server used by the runner to deploy the application |
+| REMOTE_SSH_KEY | The private key used by the runner to connect to the server |
+| REMOTE_USER | The user used by the runner to connect to the server |
+| SSL_FULLCHAIN | The fullchain certificate used by the server |
+| SSL_PRIVKEY | The private key used by the server |
 
 # Server configuration
 
@@ -287,8 +284,6 @@ bash pg_restore.sh <backup-file-name>
 ## Hints in case of issues with the scripts
 - Line ending must be LF
 - Execute permissions: `chmod +x pg_backup.sh`
-
-
 
 ## endpoint migrations done
 

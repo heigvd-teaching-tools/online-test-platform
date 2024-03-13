@@ -4,7 +4,7 @@ services:
 
   web:
     build:
-      context: ./web
+      context: ../web
       dockerfile: Dockerfile
     restart: unless-stopped
     platform: linux/amd64
@@ -25,13 +25,12 @@ services:
       - db
     networks:
       - app-network
-
+      
   db:
     image: postgres:15.0
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: onlinetest
-      POSTGRES_PASSWORD: onlinetest
+    env_file:
+      - ./db/.env.db
     ports:
       - "5432:5432"
     volumes:

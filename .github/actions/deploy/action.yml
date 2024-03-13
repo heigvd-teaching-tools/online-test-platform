@@ -16,13 +16,13 @@ inputs:
   NEXTAUTH_SECRET:
     description: 'NextAuth Secret'
     required: true
-  HEXTAUTH_KEYCLOAK_CLIENT_ID:
+  NEXTAUTH_KEYCLOAK_CLIENT_ID:
     description: 'NextAuth Keycloak ID'
     required: true
-  HEXTAUTH_KEYCLOAK_CLIENT_SECRET:
+  NEXTAUTH_KEYCLOAK_CLIENT_SECRET:
     description: 'NextAuth Keycloak Secret'
     required: true
-  HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL:
+  NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL:
     description: 'NextAuth Keycloak Issuer Base URL'
     required: true
   SSL_FULLCHAIN:
@@ -37,53 +37,53 @@ runs:
     
     - name: Move checked-out code to production folder
       run: |
-        rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/onlinetest/ --exclude .git
+        rsync -av --progress $GITHUB_WORKSPACE/ /home/heiguser/eval/ --exclude .git
       shell: bash
 
     - name: Generate environment files
       run: |
-        cd /home/heiguser/onlinetest
+        cd /home/heiguser/eval
         echo "DATABASE_URL=postgresql://${{ inputs.POSTGRES_USER }}:${{ inputs.POSTGRES_PASSWORD }}@db:5432/${{ inputs.POSTGRES_DB }}" > web/.env
         
-        echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" >> web/.env
-        echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> web/.env
-        echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> web/.env
+        mkdir -p deploy/db
+        echo "POSTGRES_USER=${{ inputs.POSTGRES_USER }}" > deploy/db/.env.db
+        echo "POSTGRES_PASSWORD=${{ inputs.POSTGRES_PASSWORD }}" >> deploy/db/.env.db
+        echo "POSTGRES_DB=${{ inputs.POSTGRES_DB }}" >> deploy/db/.env.db
         
         echo "NEXTAUTH_URL=${{inputs.NEXTAUTH_URL}}" > web/.env.production
         echo "NEXTAUTH_SECRET=${{ inputs.NEXTAUTH_SECRET }}" >> web/.env.production
         
-        echo "HEXTAUTH_KEYCLOAK_CLIENT_ID=${{ inputs.HEXTAUTH_KEYCLOAK_CLIENT_ID }}" >> web/.env.production
-        echo "HEXTAUTH_KEYCLOAK_CLIENT_SECRET=${{ inputs.HEXTAUTH_KEYCLOAK_CLIENT_SECRET }}" >> web/.env.production
-        echo "HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=${{ inputs.HEXTAUTH_KEYCLOAK_ISSUER_BASE_URL }}" >> web/.env.production
-
-        echo "DB_SANDBOX_CLIENT_HOST=172.17.0.1" >> web/.env.production
+        echo "NEXTAUTH_KEYCLOAK_CLIENT_ID=${{ inputs.NEXTAUTH_KEYCLOAK_CLIENT_ID }}" >> web/.env.production
+        echo "NEXTAUTH_KEYCLOAK_CLIENT_SECRET=${{ inputs.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}" >> web/.env.production
+        echo "NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=${{ inputs.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL }}" >> web/.env.production
+        
       shell: bash
 
     - name: SSL certificates for https
       run: |
         # The SSL certificate keys are provided by the infrastructure team
-        cd /home/heiguser/onlinetest
-        mkdir -p ssl
-        echo "${{ inputs.SSL_FULLCHAIN }}" > ssl/fullchain.pem
-        echo "${{ inputs.SSL_PRIVKEY }}" > ssl/privkey.pem
+        cd /home/heiguser/eval
+        mkdir -p deploy/ssl
+        echo "${{ inputs.SSL_FULLCHAIN }}" > deploy/ssl/fullchain.pem
+        echo "${{ inputs.SSL_PRIVKEY }}" > deploy/ssl/privkey.pem
       shell: bash
         
     - name: Build Custom Docker images
       run: |
         # SQL Fluff is out custom images used for linting DB question queries, it is not published on Docker Hub
-        cd /home/heiguser/onlinetest
-        docker build -t custom-sqlfluff ./docker-images/custom-sqlfluff
+        cd /home/heiguser/eval
+        docker build -t custom-sqlfluff ./deploy/docker-images/custom-sqlfluff
       shell: bash
 
     - name: Build Docker Compose Images
       run: |
-        cd /home/heiguser/onlinetest
+        cd /home/heiguser/eval/deploy
         docker compose build
       shell: bash
 
     - name: Start Docker Compose Services
       run: |
-        cd /home/heiguser/onlinetest
+        cd /home/heiguser/eval/deploy
         docker compose up -d
       shell: bash
 
@@ -95,13 +95,13 @@ runs:
         backup_filename="pg_workflow_backup_$backup_date.sql"
         
         # Connect to the 'db' service container and run pg_dump to create a dump
-        container_db_id=$(docker ps -qf "name=onlinetest-db-")
+        container_db_id=$(docker ps -qf "name=eval-db-")
         docker exec $container_db_id pg_dump -U ${{ inputs.POSTGRES_USER }} -d ${{ inputs.POSTGRES_DB }} -F c > $backup_filename
       shell: bash
 
     - name: Run Prisma Migrations
       run: |
-        container_id=$(docker ps -qf "name=onlinetest-web-")
+        container_id=$(docker ps -qf "name=eval-web-")
         docker exec $container_id npx prisma migrate deploy
       shell: bash
 

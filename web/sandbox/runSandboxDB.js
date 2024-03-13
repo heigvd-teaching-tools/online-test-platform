@@ -71,7 +71,6 @@ export const runSandboxDB = async ({
     const results = [];
     let container;
     let client;
-
     // First try to start the container, then pull the image if it doesn't exist
     // This approach is used to avoid sending check requests to the docker daemon unnecessarily on each run 
     try {
@@ -114,9 +113,9 @@ export const runSandboxDB = async ({
     return new Promise(async (resolve, _) => {
         // Container is running, try to connect to it and execute the queries
         try{
-
+            
             client = new Client({
-                host: process.env.DB_SANDBOX_CLIENT_HOST || "localhost",
+                host: container.getHost(),
                 port: container.getFirstMappedPort(),
                 ...databaseConfig,
             });
