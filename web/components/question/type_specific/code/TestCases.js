@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import useSWR from 'swr'
@@ -27,7 +42,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
     error,
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/tests`,
-      groupScope && questionId ? fetcher : null,
+    groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: true }
   )
 
@@ -47,69 +62,81 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
         expectedOutput: '',
         exec: exec,
       }),
-    }).then(async (res) => {
-      if (res.status === 200) {
-        await mutate()
-      } else {
-        showSnackbar('error', 'Failed to add test case')
-      }
-    }).finally(() => {
-      onUpdate && onUpdate()
     })
+      .then(async (res) => {
+        if (res.status === 200) {
+          await mutate()
+        } else {
+          showSnackbar('error', 'Failed to add test case')
+        }
+      })
+      .finally(() => {
+        onUpdate && onUpdate()
+      })
   }, [groupScope, questionId, tests, mutate, language, onUpdate, showSnackbar])
 
   const deleteTestCase = useCallback(
     async (index) => {
-      await fetch(`/api/${groupScope}/questions/${questionId}/code/tests/${index}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      }).then(async (res) => {
-        if (res.status === 200) {
-          // filter test cases and decrement all indexes after the deleted one
-          let newTests = tests
-            .filter((test) => test.index !== index)
-            .map((test) => {
-              if (test.index > index) {
-                test.index--
-              }
-              return test
-            })
-          await mutate(newTests)
-        } else {
-          showSnackbar('error', 'Failed to delete test case')
+      await fetch(
+        `/api/${groupScope}/questions/${questionId}/code/tests/${index}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
         }
-      }).finally(() => {
-        onUpdate && onUpdate()
-      })
+      )
+        .then(async (res) => {
+          if (res.status === 200) {
+            // filter test cases and decrement all indexes after the deleted one
+            let newTests = tests
+              .filter((test) => test.index !== index)
+              .map((test) => {
+                if (test.index > index) {
+                  test.index--
+                }
+                return test
+              })
+            await mutate(newTests)
+          } else {
+            showSnackbar('error', 'Failed to delete test case')
+          }
+        })
+        .finally(() => {
+          onUpdate && onUpdate()
+        })
     },
     [groupScope, questionId, tests, mutate, showSnackbar, onUpdate]
   )
 
   const updateTestCase = useCallback(
     async (test) => {
-      await fetch(`/api/${groupScope}/questions/${questionId}/code/tests/${test.index}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          exec: test.exec,
-          input: test.input,
-          expectedOutput: test.expectedOutput,
-        }),
-      }).then(async (res) => {
-        if (res.status === 200) {
-          await mutate()
-        } else {
-          showSnackbar('error', 'Failed to update test case')
+      await fetch(
+        `/api/${groupScope}/questions/${questionId}/code/tests/${test.index}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            exec: test.exec,
+            input: test.input,
+            expectedOutput: test.expectedOutput,
+          }),
         }
-      }).finally(() => {
-        onUpdate && onUpdate()
-      })
+      )
+        .then(async (res) => {
+          if (res.status === 200) {
+            await mutate()
+          } else {
+            showSnackbar('error', 'Failed to update test case')
+          }
+        })
+        .finally(() => {
+          onUpdate && onUpdate()
+        })
     },
     [groupScope, questionId, mutate, onUpdate, showSnackbar]
   )
@@ -163,7 +190,9 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
 const TestCaseUpdate = ({ test, onChange, onDelete }) => {
   const theme = useTheme()
   const [input, setInput] = useState(test.input || '')
-  const [expectedOutput, setExpectedOutput] = useState(test.expectedOutput || '')
+  const [expectedOutput, setExpectedOutput] = useState(
+    test.expectedOutput || ''
+  )
   const [exec, setExec] = useState(test.exec || '')
 
   useEffect(() => {

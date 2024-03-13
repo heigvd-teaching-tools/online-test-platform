@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useState, useCallback } from 'react'
 import { EvaluationPhase, Role } from '@prisma/client'
 import useSWR from 'swr'
@@ -29,7 +44,7 @@ const PageDraft = () => {
 
   const { data: evaluation, error } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-      groupScope && evaluationId ? fetcher : null,
+    groupScope && evaluationId ? fetcher : null,
     {
       fallbackData: {
         id: undefined,
@@ -163,7 +178,7 @@ const PageDraft = () => {
             header={
               <Stack direction="row" alignItems="center">
                 <BackButton backUrl={`/${groupScope}/evaluations`} />
-                { evaluation.id && (
+                {evaluation.id && (
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     {evaluation.label}
                   </Typography>
@@ -171,46 +186,43 @@ const PageDraft = () => {
               </Stack>
             }
             padding={2}
-            >
-              <Stack sx={{ width: '100%' }} spacing={4} pb={40}>
-                {evaluation.id && (
-                  <JoinClipboard evaluationId={evaluation.id} />
-                )}
+          >
+            <Stack sx={{ width: '100%' }} spacing={4} pb={40}>
+              {evaluation.id && <JoinClipboard evaluationId={evaluation.id} />}
 
-                <StepReferenceCollection
-                  groupScope={groupScope}
-                  disabled={evaluationQuestions.length > 0}
-                  evaluation={evaluation}
-                  onChangeCollection={onChangeReferenceCollection}
-                  onLoadQuestions={onLoadQuestions}
-                />
+              <StepReferenceCollection
+                groupScope={groupScope}
+                disabled={evaluationQuestions.length > 0}
+                evaluation={evaluation}
+                onChangeCollection={onChangeReferenceCollection}
+                onLoadQuestions={onLoadQuestions}
+              />
 
-                <StepGeneralInformation
-                  evaluation={evaluation}
-                  onChange={(data) => {
-                    evaluation.label = data.label
-                    evaluation.conditions = data.conditions
-                  }}
-                />
+              <StepGeneralInformation
+                evaluation={evaluation}
+                onChange={(data) => {
+                  evaluation.label = data.label
+                  evaluation.conditions = data.conditions
+                }}
+              />
 
-                <StepSchedule
-                  groupScope={groupScope}
-                  evaluation={evaluation}
-                  onChange={onDurationChange}
-                />
+              <StepSchedule
+                groupScope={groupScope}
+                evaluation={evaluation}
+                onChange={onDurationChange}
+              />
 
-
-                <Stack direction="row" justifyContent="space-between">
-                  <LoadingButton
-                    onClick={handleSave}
-                    loading={saving}
-                    variant="outlined"
-                    color="info"
-                  >
-                    {evaluation.id ? 'Save' : 'Create'}
-                  </LoadingButton>
-                </Stack>
+              <Stack direction="row" justifyContent="space-between">
+                <LoadingButton
+                  onClick={handleSave}
+                  loading={saving}
+                  variant="outlined"
+                  color="info"
+                >
+                  {evaluation.id ? 'Save' : 'Create'}
+                </LoadingButton>
               </Stack>
+            </Stack>
           </LayoutMain>
         </PhaseRedirect>
       </Loading>

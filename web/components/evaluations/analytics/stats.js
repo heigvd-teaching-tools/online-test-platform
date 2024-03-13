@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {
   QuestionType,
   StudentAnswerStatus,
@@ -102,7 +117,6 @@ export const typeSpecificStats = (question) => {
         }
       })
     case QuestionType.trueFalse:
-      
       let trueChosen = question.studentAnswer.reduce((acc, sa) => {
         if (
           sa.status !== StudentAnswerStatus.MISSING &&
@@ -137,10 +151,10 @@ export const typeSpecificStats = (question) => {
           sa[question.type]?.testCaseResults?.length > 0 &&
           sa[question.type].allTestCasesPassed
         ) {
-          return acc + 1;
+          return acc + 1
         }
-        return acc;
-      }, 0);
+        return acc
+      }, 0)
 
       let failure = question.studentAnswer.reduce((acc, sa) => {
         // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
@@ -149,10 +163,10 @@ export const typeSpecificStats = (question) => {
           sa[question.type]?.testCaseResults?.length > 0 &&
           !sa[question.type].allTestCasesPassed
         ) {
-          return acc + 1;
+          return acc + 1
         }
-        return acc;
-      }, 0);
+        return acc
+      }, 0)
 
       let noCodeCheckRuns = question.studentAnswer.reduce((acc, sa) => {
         // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
@@ -160,10 +174,10 @@ export const typeSpecificStats = (question) => {
           sa.status !== StudentAnswerStatus.MISSING &&
           !sa[question.type]?.testCaseResults?.length
         ) {
-          return acc + 1;
+          return acc + 1
         }
-        return acc;
-      }, 0);
+        return acc
+      }, 0)
 
       return {
         success: {
@@ -175,7 +189,7 @@ export const typeSpecificStats = (question) => {
         noCodeCheckRuns: {
           count: noCodeCheckRuns,
         },
-      };
+      }
     case QuestionType.essay:
     case QuestionType.web:
       let submitted = question.studentAnswer.reduce((acc, sa) => {
@@ -198,65 +212,77 @@ export const typeSpecificStats = (question) => {
           count: missing,
         },
       }
-      case QuestionType.database:
+    case QuestionType.database:
+      const testQueries = question.database.solutionQueries.filter(
+        (sq) => sq.query.testQuery
+      )
+      const lintQueries = question.database.solutionQueries.filter(
+        (sq) => sq.query.lintRules
+      )
 
-        const testQueries = question.database.solutionQueries.filter((sq) => sq.query.testQuery)
-        const lintQueries = question.database.solutionQueries.filter((sq) => sq.query.lintRules)
+      const testQueriesStats = []
+      const lintQueriesStats = []
 
-        const testQueriesStats = []
-        const lintQueriesStats = []
+      for (const testQuery of testQueries) {
+        const testSuccesses = question.studentAnswer.reduce((acc, sa) => {
+          const studentQuery = sa.database.queries.find(
+            (saQ) => saQ.query.order === testQuery.query.order
+          )
+          if (studentQuery.studentOutput?.output.testPassed) {
+            return acc + 1
+          }
+          return acc
+        }, 0)
 
+        const testFailures = question.studentAnswer.reduce((acc, sa) => {
+          const studentQuery = sa.database.queries.find(
+            (saQ) => saQ.query.order === testQuery.query.order
+          )
+          if (!studentQuery.studentOutput?.output.testPassed) {
+            return acc + 1
+          }
+          return acc
+        }, 0)
 
-        for(const testQuery of testQueries) {
-          const testSuccesses =  question.studentAnswer.reduce((acc, sa) => {
-            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === testQuery.query.order);
-            if(studentQuery.studentOutput?.output.testPassed) {
-              return acc + 1
-            }
-            return acc
+        testQueriesStats.push({
+          order: testQuery.query.order,
+          title: testQuery.query.title,
+          testSuccesses,
+          testFailures,
+        })
+      }
 
-          }, 0);
+      for (const lintQuery of lintQueries) {
+        const lintSuccesses = question.studentAnswer.reduce((acc, sa) => {
+          const studentQuery = sa.database.queries.find(
+            (saQ) => saQ.query.order === lintQuery.query.order
+          )
+          if (studentQuery.query.lintResult?.violations.length === 0) {
+            return acc + 1
+          }
+          return acc
+        }, 0)
 
-          const testFailures =  question.studentAnswer.reduce((acc, sa) => {
-            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === testQuery.query.order);
-            if(!studentQuery.studentOutput?.output.testPassed) {
-              return acc + 1
-            }
-            return acc
-          }, 0);
+        const lintFailures = question.studentAnswer.reduce((acc, sa) => {
+          const studentQuery = sa.database.queries.find(
+            (saQ) => saQ.query.order === lintQuery.query.order
+          )
+          if (
+            !studentQuery.query.lintResult ||
+            studentQuery.query.lintResult?.violations.length > 0
+          ) {
+            return acc + 1
+          }
+          return acc
+        }, 0)
 
-          testQueriesStats.push({
-            order: testQuery.query.order,
-            title: testQuery.query.title,
-            testSuccesses,
-            testFailures,
-          })
-        }
-
-        for(const lintQuery of lintQueries) {
-          const lintSuccesses =  question.studentAnswer.reduce((acc, sa) => {
-            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === lintQuery.query.order);
-            if(studentQuery.query.lintResult?.violations.length === 0) {
-              return acc + 1
-            }
-            return acc
-          }, 0);
-
-          const lintFailures =  question.studentAnswer.reduce((acc, sa) => {
-            const studentQuery = sa.database.queries.find((saQ) => saQ.query.order === lintQuery.query.order);
-            if(!studentQuery.query.lintResult || studentQuery.query.lintResult?.violations.length > 0) {
-              return acc + 1
-            }
-            return acc
-          }, 0);
-
-          lintQueriesStats.push({
-            order: lintQuery.query.order,
-            title: lintQuery.query.title,
-            lintSuccesses,
-            lintFailures,
-          })
-        }
+        lintQueriesStats.push({
+          order: lintQuery.query.order,
+          title: lintQuery.query.title,
+          lintSuccesses,
+          lintFailures,
+        })
+      }
 
       return {
         testQueriesStats,

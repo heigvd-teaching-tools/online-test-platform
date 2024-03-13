@@ -1,9 +1,25 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Role } from '@prisma/client'
+import { questionIncludeClause, questionTypeSpecific } from '@/code/questions'
 import {
-  questionIncludeClause,
-  questionTypeSpecific,
-} from '@/code/questions'
-import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+  withAuthorization,
+  withGroupScope,
+  withMethodHandler,
+} from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 
 /**
@@ -13,7 +29,7 @@ import { withPrisma } from '@/middleware/withPrisma'
  * put: update a question
  *  only handles true/false, multiple choice, essay, and web questions, see questionTypeSpecific for more info
  *  database and code question have separate endpoints
-*/
+ */
 
 const get = async (req, res, prisma) => {
   // get a question by id
@@ -24,7 +40,7 @@ const get = async (req, res, prisma) => {
       id: questionId,
       group: {
         scope: groupScope,
-      }
+      },
     },
     include: questionIncludeClause({
       includeTypeSpecific: true,
@@ -54,10 +70,10 @@ const put = async (req, res, prisma) => {
   const questionToBeUpdated = await prisma.question.findUnique({
     where: { id: question.id },
     include: { group: true },
-  });
+  })
 
   // Step 2: Check if the user is authorized to update the question
-  if(questionToBeUpdated.group.scope !== groupScope) {
+  if (questionToBeUpdated.group.scope !== groupScope) {
     res.status(401).json({ message: 'Unauthorized' })
     return
   }
@@ -89,15 +105,6 @@ const put = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  GET: withAuthorization(
-      withGroupScope(
-        withPrisma(get)
-      ), [Role.PROFESSOR]
-  ),
-  PUT: withAuthorization(
-      withGroupScope(
-          withPrisma(put)
-      ), [Role.PROFESSOR]
-  ),
+  GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withPrisma(put)), [Role.PROFESSOR]),
 })
-

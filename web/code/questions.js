@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { QuestionType, StudentPermission } from '@prisma/client'
 
 export const IncludeStrategy = {
@@ -36,7 +51,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                     include: {
                       file: true,
                     },
-                    orderBy: { order: 'asc' }
+                    orderBy: { order: 'asc' },
                   },
                 }
               : {}),
@@ -53,7 +68,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
               include: {
                 file: true,
               },
-              orderBy: { order: 'asc' }
+              orderBy: { order: 'asc' },
             },
             language: true,
             sandbox: true,
@@ -80,48 +95,53 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         essay: {
           select: {
             questionId: true,
-            ...(includeOfficialAnswers ? { solution: true } : {})
+            ...(includeOfficialAnswers ? { solution: true } : {}),
           },
         },
         web: {
-          select:{
+          select: {
             questionId: true,
             templateHtml: true,
             templateCss: true,
             templateJs: true,
-            ...(includeOfficialAnswers ? { solutionHtml: true, solutionCss: true, solutionJs: true } : {}),
+            ...(includeOfficialAnswers
+              ? { solutionHtml: true, solutionCss: true, solutionJs: true }
+              : {}),
           },
         },
         database: {
-            select: {
-                image: true,
-                ...(includeOfficialAnswers ? {
-                    solutionQueries: {
+          select: {
+            image: true,
+            ...(includeOfficialAnswers
+              ? {
+                  solutionQueries: {
+                    select: {
+                      query: {
                         select: {
-                            query: {
-                                select: {
-                                    id: true,
-                                    order: true,
-                                    title: true,
-                                    description: true,
-                                    content: true,
-                                    template: true,
-                                    lintActive: true,
-                                    lintRules: true,
-                                    studentPermission: true,
-                                    testQuery: true,
-                                    queryOutputTests: {
-                                        select: {
-                                            test: true,
-                                        }
-                                    }
-                                }
+                          id: true,
+                          order: true,
+                          title: true,
+                          description: true,
+                          content: true,
+                          template: true,
+                          lintActive: true,
+                          lintRules: true,
+                          studentPermission: true,
+                          testQuery: true,
+                          queryOutputTests: {
+                            select: {
+                              test: true,
                             },
-                            output: true,
-                        }
-                    }} : {}),
+                          },
+                        },
+                      },
+                      output: true,
+                    },
+                  },
                 }
-            }
+              : {}),
+          },
+        },
       }
     : {}
 
@@ -152,7 +172,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         code: {
           select: {
             files: {
-              where:{
+              where: {
                 studentPermission: {
                   not: StudentPermission.HIDDEN,
                 },
@@ -160,24 +180,24 @@ export const questionIncludeClause = (questionIncludeOptions) => {
               include: {
                 file: true,
               },
-              orderBy: { order: 'asc' }
+              orderBy: { order: 'asc' },
             },
             testCaseResults: true,
             allTestCasesPassed: true,
           },
         },
-        database:{
-            select:{
-                queries:{
-                    include:{
-                        query: true,
-                        studentOutput: true,
-                    },
-                    orderBy: {
-                        query: { order: 'asc' } ,
-                    }
-                }
-            }
+        database: {
+          select: {
+            queries: {
+              include: {
+                query: true,
+                studentOutput: true,
+              },
+              orderBy: {
+                query: { order: 'asc' },
+              },
+            },
+          },
         },
         multipleChoice: {
           select: { options: { select: { id: true, text: true } } },

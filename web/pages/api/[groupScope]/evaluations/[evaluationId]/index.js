@@ -1,6 +1,25 @@
-import { EvaluationPhase, Role } from '@prisma/client';
-import { withPrisma } from '@/middleware/withPrisma';
-import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization';
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { EvaluationPhase, Role } from '@prisma/client'
+import { withPrisma } from '@/middleware/withPrisma'
+import {
+  withAuthorization,
+  withGroupScope,
+  withMethodHandler,
+} from '@/middleware/withAuthorization'
 
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
@@ -11,7 +30,7 @@ const get = async (req, res, prisma) => {
   })
 
   res.status(200).json(evaluation)
-};
+}
 
 const patch = async (req, res, prisma) => {
   const { evaluationId } = req.query
@@ -132,8 +151,8 @@ const del = async (req, res, prisma) => {
           in: questionIds,
         },
         group: {
-            scope: groupScope
-        }
+          scope: groupScope,
+        },
       },
     })
     await prisma.evaluation.delete({
@@ -144,17 +163,10 @@ const del = async (req, res, prisma) => {
   })
 
   res.status(200).json({ message: 'evaluation deleted' })
-};
-
+}
 
 export default withMethodHandler({
-  GET: withAuthorization(
-      withGroupScope(withPrisma(get)), [Role.PROFESSOR]
-  ),
-  PATCH: withAuthorization(
-      withGroupScope(withPrisma(patch)), [Role.PROFESSOR]
-  ),
-  DELETE: withAuthorization(
-      withGroupScope(withPrisma(del)), [Role.PROFESSOR]
-  ),
-});
+  GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
+  PATCH: withAuthorization(withGroupScope(withPrisma(patch)), [Role.PROFESSOR]),
+  DELETE: withAuthorization(withGroupScope(withPrisma(del)), [Role.PROFESSOR]),
+})

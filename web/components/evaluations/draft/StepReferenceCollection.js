@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { Stack, TextField, Autocomplete, Typography } from '@mui/material'
@@ -18,7 +33,7 @@ const StepReferenceCollection = ({
 
   const { data: collections, error: errorCollection } = useSWR(
     `/api/${groupScope}/collections`,
-      groupScope && fetcher
+    groupScope && fetcher
   )
 
   const { data: evaluationQuestions, error: errorsEvaluationQuestions } =
@@ -28,8 +43,10 @@ const StepReferenceCollection = ({
     )
 
   const { data: collectionQuestions, error: errorCollectionQuestions } = useSWR(
-    `/api/${groupScope}/collections/${selectedCollection && selectedCollection.id}/questions`,
-      groupScope && selectedCollection ? fetcher : null
+    `/api/${groupScope}/collections/${
+      selectedCollection && selectedCollection.id
+    }/questions`,
+    groupScope && selectedCollection ? fetcher : null
   )
 
   useEffect(() => {

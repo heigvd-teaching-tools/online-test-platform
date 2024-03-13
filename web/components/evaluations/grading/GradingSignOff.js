@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
@@ -11,16 +26,10 @@ import GradingStatus from './GradingStatus'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
 
-
-const GradingSignOff = ({
-  loading,
-  grading: initial,
-  maxPoints,
-  onChange,
-}) => {
+const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
   const [grading, setGrading] = useState(initial)
   const { data } = useSession()
-  const commentInputRef = useRef(null);
+  const commentInputRef = useRef(null)
 
   useEffect(() => {
     setGrading(initial)
@@ -64,24 +73,27 @@ const GradingSignOff = ({
     onChange(newGrading)
   }, [grading, onChange])
 
-  const handleKeyDown = useCallback((event) => {
-    if (event.ctrlKey && event.key === 'Enter') {
-      // If CTRL+Enter is pressed, either sign off or unsign
-      if (grading.signedBy) {
-        unsignGrading();
-      } else {
-        signOffGrading();
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.ctrlKey && event.key === 'Enter') {
+        // If CTRL+Enter is pressed, either sign off or unsign
+        if (grading.signedBy) {
+          unsignGrading()
+        } else {
+          signOffGrading()
+        }
       }
-    }
-  }, [signOffGrading, unsignGrading, grading.signedBy]); 
+    },
+    [signOffGrading, unsignGrading, grading.signedBy]
+  )
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleKeyDown]);
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleKeyDown])
 
   return (
     <Paper

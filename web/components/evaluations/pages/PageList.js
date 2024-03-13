@@ -1,4 +1,19 @@
-import {useState, useEffect, useCallback} from 'react'
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -29,8 +44,8 @@ const Evaluations = () => {
   const [selected, setSelected] = useState(null)
 
   const { data, error, mutate } = useSWR(
-      `/api/${groupScope}/evaluations`,
-      groupScope ? fetcher : null
+    `/api/${groupScope}/evaluations`,
+    groupScope ? fetcher : null
   )
 
   const [tab, setTab] = useState(EvaluationStatus.ACTIVE)
@@ -118,36 +133,34 @@ const Evaluations = () => {
                   <Tab label="Active" value={EvaluationStatus.ACTIVE} />
                   <Tab label="Archived" value={EvaluationStatus.ARCHIVED} />
                 </TabList>
-                
               </Stack>
             }
             padding={2}
           >
-            
-          <ListEvaluation
-            groupScope={groupScope}
-            evaluations={evaluations?.filter(
-              (evaluation) =>
-                evaluation.status === tab
-            ) || []}
-            onStart={(ev, session) => {
-              ev.stopPropagation()
-              ev.preventDefault()
-              setSelected(session)
-              setEndOfDraftDialogOpen(true)
-            }}
-            onDelete={(ev, evaluation) => {
-              ev.preventDefault()
-              ev.stopPropagation()
-              setSelected(evaluation)
-              if (evaluation.status === EvaluationStatus.ARCHIVED) {
-                setDeleteDialogOpen(true)
-              } else {
-                setArchiveDialogOpen(true)
+            <ListEvaluation
+              groupScope={groupScope}
+              evaluations={
+                evaluations?.filter(
+                  (evaluation) => evaluation.status === tab
+                ) || []
               }
-            }}
-          />
-            
+              onStart={(ev, session) => {
+                ev.stopPropagation()
+                ev.preventDefault()
+                setSelected(session)
+                setEndOfDraftDialogOpen(true)
+              }}
+              onDelete={(ev, evaluation) => {
+                ev.preventDefault()
+                ev.stopPropagation()
+                setSelected(evaluation)
+                if (evaluation.status === EvaluationStatus.ARCHIVED) {
+                  setDeleteDialogOpen(true)
+                } else {
+                  setArchiveDialogOpen(true)
+                }
+              }}
+            />
           </LayoutMain>
           <DialogFeedback
             open={archiveDialogOpen}
@@ -173,7 +186,8 @@ const Evaluations = () => {
                   phase.
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  Registered students will be able to start with their evaluation.
+                  Registered students will be able to start with their
+                  evaluation.
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   Late student registrations will still be possible.

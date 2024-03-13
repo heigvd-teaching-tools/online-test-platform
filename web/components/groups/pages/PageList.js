@@ -1,14 +1,29 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useState, useEffect, useCallback } from 'react'
 import { Role } from '@prisma/client'
 import useSWR from 'swr'
-import {useSession} from "next-auth/react";
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 
 import { Box, Button, Stack, Typography } from '@mui/material'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
 import { fetcher } from '@/code/utils'
-import {useGroup} from "@/context/GroupContext";
+import { useGroup } from '@/context/GroupContext'
 
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
@@ -22,21 +37,16 @@ import AddMemberDialog from '../list/AddMemberDialog'
 import MyGroupsGrid from '../list/MyGroupsGrid'
 import GroupMembersGrid from '../list/GroupMembersGrid'
 
-
-
-
-
 const PageList = () => {
+  const { data: session } = useSession()
 
-  const {data: session} = useSession()
+  const currentGroup = session?.user?.selected_group
 
-  const currentGroup = session?.user?.selected_group;
+  const { groups, mutate: mutateGroups } = useGroup()
 
-  const { groups, mutate:mutateGroups } = useGroup()
-
-  const [ selectedGroup, setSelectedGroup ] = useState()
-  const [ updatingCurrentGroup, setUpdatingCurrentGroup ] = useState(false)
-  const [ backUrl, setBackUrl ] = useState("/" + currentGroup + "/questions")
+  const [selectedGroup, setSelectedGroup] = useState()
+  const [updatingCurrentGroup, setUpdatingCurrentGroup] = useState(false)
+  const [backUrl, setBackUrl] = useState('/' + currentGroup + '/questions')
 
   const [addGroupDialogOpen, setAddGroupDialogOpen] = useState(false)
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false)
@@ -52,7 +62,7 @@ const PageList = () => {
 
   useEffect(() => {
     if (!selectedGroup && groups && groups.length > 0) {
-      console.log("Select group index 0")
+      console.log('Select group index 0')
       setSelectedGroup(groups[0].group)
       setUpdatingCurrentGroup(groups[0].group.scope === currentGroup)
     }
@@ -61,7 +71,7 @@ const PageList = () => {
   const onGroupsLeaveOrDelete = useCallback(
     async (groupId) => {
       if (selectedGroup && selectedGroup.id === groupId) {
-        console.log("onGroupsLeaveOrDelete unselect group")
+        console.log('onGroupsLeaveOrDelete unselect group')
         setSelectedGroup(null)
         setUpdatingCurrentGroup(false)
       }
@@ -98,8 +108,8 @@ const PageList = () => {
                 <MyGroupsGrid
                   groups={groups}
                   onSelected={(group) => {
-                      setSelectedGroup(group)
-                      setUpdatingCurrentGroup(group.scope === currentGroup)
+                    setSelectedGroup(group)
+                    setUpdatingCurrentGroup(group.scope === currentGroup)
                   }}
                   onLeave={async (groupId) => {
                     await onGroupsLeaveOrDelete(groupId)
@@ -109,7 +119,6 @@ const PageList = () => {
                     await onGroupsLeaveOrDelete(groupId)
                     await mutateGroups()
                   }}
-
                 />
               </>
             }
@@ -131,16 +140,13 @@ const PageList = () => {
                   </Stack>
                   <GroupMembersGrid
                     group={group}
-                    onUpdate={
-                      async (scope) => {
-                        await mutate()
-                        await mutateGroups()
-                        if (updatingCurrentGroup) {
-                          setBackUrl("/" + scope + "/questions")
-                        }
+                    onUpdate={async (scope) => {
+                      await mutate()
+                      await mutateGroups()
+                      if (updatingCurrentGroup) {
+                        setBackUrl('/' + scope + '/questions')
                       }
-
-                    }
+                    }}
                   />
                 </>
               ) : (

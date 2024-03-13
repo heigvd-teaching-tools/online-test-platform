@@ -1,9 +1,23 @@
-
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Stack, Typography, Tab, IconButton, Tooltip} from '@mui/material'
+import { Stack, Typography, Tab, IconButton, Tooltip } from '@mui/material'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
@@ -34,18 +48,17 @@ const PageFinished = () => {
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-      groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null
   )
 
   const { data, error: errorQuestions } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
-      groupScope && evaluationId ? fetcher : null,
+    groupScope && evaluationId ? fetcher : null,
     { revalidateOnFocus: false }
   )
 
   const [tab, setTab] = useState(1)
-  const [evaluationToQuestions, setEvaluationToQuestions] =
-    useState([])
+  const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [participants, setParticipants] = useState([])
 
   useEffect(() => {
@@ -70,9 +83,7 @@ const PageFinished = () => {
 
   const areAllGradingSigned = () => {
     return evaluationToQuestions.every((eq) =>
-      eq.question.studentAnswer.every(
-        (sa) => sa.studentGrading.signedBy
-      )
+      eq.question.studentAnswer.every((sa) => sa.studentGrading.signedBy)
     )
   }
 
@@ -90,8 +101,12 @@ const PageFinished = () => {
                 header={
                   <Stack direction="row" alignItems="center">
                     <BackButton backUrl={`/${groupScope}/evaluations`} />
-                    { evaluation?.id && (
-                      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    {evaluation?.id && (
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{ flexGrow: 1 }}
+                      >
                         {evaluation.label}
                       </Typography>
                     )}
@@ -119,15 +134,14 @@ const PageFinished = () => {
                         <Typography variant="h6">
                           Overall success rate
                         </Typography>
-                        <PiePercent value={getSignedSuccessRate(evaluationToQuestions)} />
-                        {
-                          !areAllGradingSigned() && (
-                            <AlertFeedback severity="warning">
-                              Some gradings are not signed yet.
-                            </AlertFeedback>
-                          )
-
-                        }
+                        <PiePercent
+                          value={getSignedSuccessRate(evaluationToQuestions)}
+                        />
+                        {!areAllGradingSigned() && (
+                          <AlertFeedback severity="warning">
+                            Some gradings are not signed yet.
+                          </AlertFeedback>
+                        )}
                       </Stack>
                       <ExportCSV
                         evaluation={evaluation}
@@ -136,12 +150,18 @@ const PageFinished = () => {
                       />
                     </Stack>
 
-                    <StudentResultsGrid 
+                    <StudentResultsGrid
                       evaluationToQuestions={evaluationToQuestions}
                       actions={(row) => {
                         return (
-                          <Tooltip title="View student's answers" key="view-student-answers">
-                            <a href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.participant.email}/1`} target="_blank">
+                          <Tooltip
+                            title="View student's answers"
+                            key="view-student-answers"
+                          >
+                            <a
+                              href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.participant.email}/1`}
+                              target="_blank"
+                            >
                               <IconButton size="small">
                                 <Image
                                   alt="View"
@@ -149,19 +169,23 @@ const PageFinished = () => {
                                   width="18"
                                   height="18"
                                 />
-
                               </IconButton>
                             </a>
                           </Tooltip>
-                      )}}
+                        )
+                      }}
                       questionCellClick={async (questionId, participantId) => {
-                        const questionOrder = evaluationToQuestions.findIndex((jstq) => jstq.question.id === questionId) + 1;
-                        const participantEmail = participants.find((p) => p.id === participantId).email;
+                        const questionOrder =
+                          evaluationToQuestions.findIndex(
+                            (jstq) => jstq.question.id === questionId
+                          ) + 1
+                        const participantEmail = participants.find(
+                          (p) => p.id === participantId
+                        ).email
                         await router.push(
                           `/${groupScope}/evaluations/${evaluationId}/consult/${participantEmail}/${questionOrder}`
                         )
-                      
-                      }} 
+                      }}
                     />
                   </Stack>
                 </TabPanel>

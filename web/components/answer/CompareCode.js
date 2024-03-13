@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React from 'react'
 import { Alert, Box, Stack, Tab, Tabs, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
@@ -70,48 +85,46 @@ const CompareCode = ({ solution, answer }) => {
                       No code-check runs
                     </Typography>
                   )}
-                  
                 </Stack>
               }
               value={1}
             />
-            {answer.files.some((ansToFile) => ansToFile.file.updatedAt > answer.testCaseResults[0]?.createdAt) && (
-              <Alert severity="warning">
-                Post code-check modifications
-              </Alert>
+            {answer.files.some(
+              (ansToFile) =>
+                ansToFile.file.updatedAt > answer.testCaseResults[0]?.createdAt
+            ) && (
+              <Alert severity="warning">Post code-check modifications</Alert>
             )}
           </Tabs>
           <TabPanel value={tab} index={0}>
             <TabContent>
-                <ResizePanel
-                  leftPanel={
-                    <ScrollContainer>{
-                      answer.files?.map((answerToFile, index) => (
-                        <FileEditor
-                          key={index}
-                          file={answerToFile.file}
-                          readonlyPath
-                          readonlyContent
-                        />
-                      ))}
-                      </ScrollContainer>
-                    }
-                  
-                  rightPanel={
-                    <ScrollContainer>{
-                    solution.solutionFiles?.map(
-                    (solutionToFile, index) => (
+              <ResizePanel
+                leftPanel={
+                  <ScrollContainer>
+                    {answer.files?.map((answerToFile, index) => (
+                      <FileEditor
+                        key={index}
+                        file={answerToFile.file}
+                        readonlyPath
+                        readonlyContent
+                      />
+                    ))}
+                  </ScrollContainer>
+                }
+                rightPanel={
+                  <ScrollContainer>
+                    {solution.solutionFiles?.map((solutionToFile, index) => (
                       <FileEditor
                         key={index}
                         file={solutionToFile.file}
                         readonlyPath
                         readonlyContent
                       />
-                    ))
-                    }</ScrollContainer>
-                  }
-                  rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
-                />
+                    ))}
+                  </ScrollContainer>
+                }
+                rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
+              />
             </TabContent>
           </TabPanel>
           <TabPanel value={tab} index={1}>

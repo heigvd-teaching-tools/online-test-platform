@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useCallback, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -5,7 +20,17 @@ import useSWR from 'swr'
 import { EvaluationPhase, Role } from '@prisma/client'
 import { update } from './crud'
 
-import { Stack, Stepper, Step, StepLabel, Typography, Alert, AlertTitle, Tooltip, Button } from '@mui/material'
+import {
+  Stack,
+  Stepper,
+  Step,
+  StepLabel,
+  Typography,
+  Alert,
+  AlertTitle,
+  Tooltip,
+  Button,
+} from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 import { fetcher } from '@/code/utils'
@@ -25,8 +50,7 @@ import PhaseRedirect from './PhaseRedirect'
 import StudentList from '../draft/StudentList'
 import FilledBullet from '@/components/feedback/FilledBullet'
 
-
-const STUDENTS_ACTIVE_PULL_INTERVAL = 10000;
+const STUDENTS_ACTIVE_PULL_INTERVAL = 10000
 
 const PageInProgress = () => {
   const router = useRouter()
@@ -41,21 +65,19 @@ const PageInProgress = () => {
     mutate,
     error,
   } = useSWR(
-      `/api/${groupScope}/evaluations/${evaluationId}`,
-      groupScope && evaluationId ? fetcher : null
-      )
-
+    `/api/${groupScope}/evaluations/${evaluationId}`,
+    groupScope && evaluationId ? fetcher : null
+  )
 
   const {
     data: students,
     error: errorStudents,
     mutate: mutateStudents,
   } = useSWR(
-      `/api/${groupScope}/evaluations/${evaluationId}/students`,
-      groupScope && evaluationId ? fetcher : null,
-      { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL}
-      )
-
+    `/api/${groupScope}/evaluations/${evaluationId}/students`,
+    groupScope && evaluationId ? fetcher : null,
+    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL }
+  )
 
   const [saving, setSaving] = useState(false)
 
@@ -69,7 +91,9 @@ const PageInProgress = () => {
       phase: EvaluationPhase.GRADING,
     })
       .then(async () => {
-        await router.push(`/${groupScope}/evaluations/${evaluation.id}/grading/1`)
+        await router.push(
+          `/${groupScope}/evaluations/${evaluation.id}/grading/1`
+        )
       })
       .catch(() => {
         showSnackbar('Error', 'error')
@@ -107,112 +131,114 @@ const PageInProgress = () => {
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} errors={[error]}>
         <PhaseRedirect phase={evaluation?.phase}>
-            <LayoutMain
-              hideLogo
-              header={
-                <Stack direction="row" alignItems="center">
-                  <BackButton backUrl={`/${groupScope}/evaluations`} />
-                  { evaluation?.id && (
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                      {evaluation.label}
-                    </Typography>
-                  )}
-                </Stack>
-              }
-              padding={2}
-              spacing={2}
+          <LayoutMain
+            hideLogo
+            header={
+              <Stack direction="row" alignItems="center">
+                <BackButton backUrl={`/${groupScope}/evaluations`} />
+                {evaluation?.id && (
+                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    {evaluation.label}
+                  </Typography>
+                )}
+              </Stack>
+            }
+            padding={2}
+            spacing={2}
+          >
+            <JoinClipboard evaluationId={evaluationId} />
+
+            <StepInProgress
+              evaluation={evaluation}
+              onDurationChange={handleDurationChange}
+              onEvaluationEnd={() => {}}
+            />
+
+            <Stack direction="row" justifyContent="center" spacing={1}>
+              <a
+                href={`/${groupScope}/evaluations/${evaluationId}/analytics`}
+                key="analytics"
+                target="_blank"
               >
-                <JoinClipboard evaluationId={evaluationId} />
-                  
-                <StepInProgress
-                  evaluation={evaluation}
-                  onDurationChange={handleDurationChange}
-                  onEvaluationEnd={() => {}}
-                />
-              
-                <Stack direction="row" justifyContent="center" spacing={1}>
-
-                  <a href={`/${groupScope}/evaluations/${evaluationId}/analytics`} key="analytics" target="_blank">
-                    <Tooltip title="Open live analytics in a new tab">
-                        <Button
-                          key={"analytics"}
-                          component="span"
-                          color="info"
-                          startIcon={
-                            <Image
-                              alt="Analytics"
-                              src="/svg/icons/analytics.svg"
-                              width="18"
-                              height="18"
-                            />
-                          }
-                        >
-                          Live Analytics
-                        </Button>
-                    </Tooltip>
-                  </a>
-
-                  <DisplayPhase phase={EvaluationPhase.IN_PROGRESS} />
-
-                  <LoadingButton
-                    key="promote-to-grading"
-                    onClick={handleEndInProgress}
-                    loading={saving}
+                <Tooltip title="Open live analytics in a new tab">
+                  <Button
+                    key={'analytics'}
+                    component="span"
                     color="info"
                     startIcon={
                       <Image
-                        alt="Promote"
-                        src="/svg/icons/finish.svg"
+                        alt="Analytics"
+                        src="/svg/icons/analytics.svg"
                         width="18"
                         height="18"
                       />
                     }
                   >
-                    End evaluation
-                  </LoadingButton>
+                    Live Analytics
+                  </Button>
+                </Tooltip>
+              </a>
 
-                </Stack>
+              <DisplayPhase phase={EvaluationPhase.IN_PROGRESS} />
 
-                <Stack direction="row" justifyContent="flex-end" spacing={1}>
-                  <FilledBullet state={'filled'} />
-                  <Typography variant="body2">Submitted answer</Typography>
-                  <FilledBullet state={'half'} />
-                  <Typography variant="body2">In-progress answer</Typography>
-                  <FilledBullet state={'empty'} />
-                  <Typography variant="body2">Missing answer</Typography>
-                </Stack>
-                <Loading loading={!students} errors={[errorStudents]}>
-                  <StudentList
-                    groupScope={groupScope}
-                    evaluationId={evaluationId}
-                    title={"Students submissions"}
-                    students={students?.students}
-                    questions={students?.evaluationToQuestions}
-                    onChange={() => mutateStudents()}
+              <LoadingButton
+                key="promote-to-grading"
+                onClick={handleEndInProgress}
+                loading={saving}
+                color="info"
+                startIcon={
+                  <Image
+                    alt="Promote"
+                    src="/svg/icons/finish.svg"
+                    width="18"
+                    height="18"
                   />
-                </Loading>
+                }
+              >
+                End evaluation
+              </LoadingButton>
+            </Stack>
 
-                <DialogFeedback
-                  open={endSessionDialogOpen}
-                  title="End of In-Progress phase"
-                  content={
-                    <>
-                      <Typography variant="body1">
-                        You are about to promote this evaluation to the grading
-                        phase.
-                      </Typography>
-                      <Typography variant="body1">
-                        Students will not be able to submit their answers anymore.
-                      </Typography>
-                      <Typography variant="button" gutterBottom>
-                        Are you sure you want to continue?
-                      </Typography>
-                    </>
-                  }
-                  onClose={() => setEndSessionDialogOpen(false)}
-                  onConfirm={moveToGradingPhase}
-                />
-            </LayoutMain>
+            <Stack direction="row" justifyContent="flex-end" spacing={1}>
+              <FilledBullet state={'filled'} />
+              <Typography variant="body2">Submitted answer</Typography>
+              <FilledBullet state={'half'} />
+              <Typography variant="body2">In-progress answer</Typography>
+              <FilledBullet state={'empty'} />
+              <Typography variant="body2">Missing answer</Typography>
+            </Stack>
+            <Loading loading={!students} errors={[errorStudents]}>
+              <StudentList
+                groupScope={groupScope}
+                evaluationId={evaluationId}
+                title={'Students submissions'}
+                students={students?.students}
+                questions={students?.evaluationToQuestions}
+                onChange={() => mutateStudents()}
+              />
+            </Loading>
+
+            <DialogFeedback
+              open={endSessionDialogOpen}
+              title="End of In-Progress phase"
+              content={
+                <>
+                  <Typography variant="body1">
+                    You are about to promote this evaluation to the grading
+                    phase.
+                  </Typography>
+                  <Typography variant="body1">
+                    Students will not be able to submit their answers anymore.
+                  </Typography>
+                  <Typography variant="button" gutterBottom>
+                    Are you sure you want to continue?
+                  </Typography>
+                </>
+              }
+              onClose={() => setEndSessionDialogOpen(false)}
+              onConfirm={moveToGradingPhase}
+            />
+          </LayoutMain>
         </PhaseRedirect>
       </Loading>
     </Authorisation>

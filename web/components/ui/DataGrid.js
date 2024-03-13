@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useState } from 'react'
 import Link from 'next/link'
 import {
@@ -43,37 +58,41 @@ const DataGrid = ({ header, items }) => {
           <ChosenListItemContent item={item} header={header} key={index} />
         ))}
     </List>
-  );
-};
-
+  )
+}
 
 const ChosenListItemContent = ({ item, header }) => {
   if (item.meta?.onClick) {
     return (
-      <ClickableListItem item={item} header={header} onClick={item.meta.onClick} key={item.meta.key} />
+      <ClickableListItem
+        item={item}
+        header={header}
+        onClick={item.meta.onClick}
+        key={item.meta.key}
+      />
     )
   } else if (item.meta?.linkHref) {
     return (
-      <LinkHrefListItem item={item} header={header} href={item.meta.linkHref} key={item.meta.key} />
+      <LinkHrefListItem
+        item={item}
+        header={header}
+        href={item.meta.linkHref}
+        key={item.meta.key}
+      />
     )
   } else {
-    return (
-      <NormalListItem item={item} header={header} key={item.meta.key} />
-    )
+    return <NormalListItem item={item} header={header} key={item.meta.key} />
   }
 }
 
-
 const LinkHrefListItem = ({ item, header, href }) => {
-
   const router = useRouter()
 
   return (
     <ListItemButton divider onClick={async () => await router.push(href)}>
       <ListItemContent item={item} header={header} />
     </ListItemButton>
-  );
-
+  )
 }
 
 const ClickableListItem = ({ item, header, onClick }) => (
@@ -82,33 +101,32 @@ const ClickableListItem = ({ item, header, onClick }) => (
       <ListItemContent item={item} header={header} />
     </ListItemButton>
   </Box>
-);
+)
 
 const NormalListItem = ({ item, header }) => (
   <ListItem divider>
     <ListItemContent item={item} header={header} />
   </ListItem>
-);
+)
 
 const ListItemContent = ({ item, header }) => (
-    <Row>
-      {header.columns.map(({ renderCell, column }, index) => {
-        if (renderCell && item) {
-          return (
-            <Column key={index} {...column}>
-              {renderCell(item)}
-            </Column>
-          );
-        }
-      })}
-      {item.meta && item.meta.actions && header.actions && (
-        <Column key="actions" width={header.actions.width} right>
-          <ActionsColumn meta={item.meta} actions={item.meta.actions} />
-        </Column>
-      )}
-    </Row>
-);
-
+  <Row>
+    {header.columns.map(({ renderCell, column }, index) => {
+      if (renderCell && item) {
+        return (
+          <Column key={index} {...column}>
+            {renderCell(item)}
+          </Column>
+        )
+      }
+    })}
+    {item.meta && item.meta.actions && header.actions && (
+      <Column key="actions" width={header.actions.width} right>
+        <ActionsColumn meta={item.meta} actions={item.meta.actions} />
+      </Column>
+    )}
+  </Row>
+)
 
 const ActionsColumn = ({ meta, actions }) => {
   const [anchorEl, setAnchorEl] = useState(null)

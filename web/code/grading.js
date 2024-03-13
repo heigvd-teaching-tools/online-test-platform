@@ -1,4 +1,23 @@
-import {StudentQuestionGradingStatus, QuestionType, DatabaseQueryOutputStatus} from '@prisma/client'
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {
+  StudentQuestionGradingStatus,
+  QuestionType,
+  DatabaseQueryOutputStatus,
+} from '@prisma/client'
 
 /*
     This function is used to grade a users answers to a question.
@@ -27,7 +46,7 @@ export const grading = (question, totalPoints, studentAnswer) => {
       return gradeWeb(studentAnswer)
     case QuestionType.database:
       // users database submission is graded during users database sandbox run
-        return gradeDatabase(totalPoints, studentAnswer)
+      return gradeDatabase(totalPoints, studentAnswer)
     default:
       return undefined
   }
@@ -44,31 +63,42 @@ const defaultGrading = {
 }
 
 const gradeDatabase = (totalPoints, studentAnswer) => {
-    let grading = defaultGrading
+  let grading = defaultGrading
 
-    if(studentAnswer) {
-        const studentQueries = studentAnswer.database.queries;
-        const studentTestQueries = studentQueries.filter((studentQuery) => studentQuery.query.testQuery);
-        const allQueriesExecuted = studentQueries.every((studentQuery) => studentQuery.studentOutput !== null && studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS);
-        const allTestQueriesPassed = studentTestQueries.every((studentQuery) => studentQuery.studentOutput !== null && studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS && studentQuery.studentOutput.output.testPassed);
-        if (allQueriesExecuted && allTestQueriesPassed) {
-          grading = {
-            status: StudentQuestionGradingStatus.AUTOGRADED,
-            pointsObtained: totalPoints,
-          }
-        }
+  if (studentAnswer) {
+    const studentQueries = studentAnswer.database.queries
+    const studentTestQueries = studentQueries.filter(
+      (studentQuery) => studentQuery.query.testQuery
+    )
+    const allQueriesExecuted = studentQueries.every(
+      (studentQuery) =>
+        studentQuery.studentOutput !== null &&
+        studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS
+    )
+    const allTestQueriesPassed = studentTestQueries.every(
+      (studentQuery) =>
+        studentQuery.studentOutput !== null &&
+        studentQuery.studentOutput.status ===
+          DatabaseQueryOutputStatus.SUCCESS &&
+        studentQuery.studentOutput.output.testPassed
+    )
+    if (allQueriesExecuted && allTestQueriesPassed) {
+      grading = {
+        status: StudentQuestionGradingStatus.AUTOGRADED,
+        pointsObtained: totalPoints,
+      }
     }
+  }
 
-    return grading;
+  return grading
 }
 const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
   let grading = defaultGrading
 
   if (studentAnswer !== undefined) {
-    let correctOptions =
-      question.multipleChoice.options.filter(
-        (opt) => opt.isCorrect
-      )
+    let correctOptions = question.multipleChoice.options.filter(
+      (opt) => opt.isCorrect
+    )
     let answerOptions = studentAnswer.options
     let isCorrect =
       correctOptions.length === answerOptions.length &&
@@ -86,8 +116,7 @@ const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
 const gradeTrueFalse = (question, totalPoints, studentAnswer) => {
   let grading = defaultGrading
   if (studentAnswer !== undefined) {
-    let isCorrect =
-      question.trueFalse.isTrue === studentAnswer.isTrue
+    let isCorrect = question.trueFalse.isTrue === studentAnswer.isTrue
     grading = {
       ...grading,
       pointsObtained: isCorrect ? totalPoints : 0,

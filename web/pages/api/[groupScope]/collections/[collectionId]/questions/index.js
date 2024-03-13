@@ -1,7 +1,25 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Role } from '@prisma/client'
-import {withAuthorization, withGroupScope, withMethodHandler} from '@/middleware/withAuthorization'
+import {
+  withAuthorization,
+  withGroupScope,
+  withMethodHandler,
+} from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-
 
 /*
 
@@ -24,8 +42,8 @@ const get = async (req, res, prisma) => {
       collectionId: collectionId,
       collection: {
         group: {
-            scope: groupScope
-        }
+          scope: groupScope,
+        },
       },
     },
     include: {
@@ -49,7 +67,7 @@ const post = async (req, res, prisma) => {
     where: {
       collectionId: collectionId,
     },
-  });
+  })
 
   // In case this question was already used in another collection, fine the last points assigned to it
   const latestPoints = await prisma.collectionToQuestion.findFirst({
@@ -107,10 +125,7 @@ const del = async (req, res, prisma) => {
   // get the order of this question in the collection
   const order = await prisma.collectionToQuestion.findFirst({
     where: {
-      AND: [
-        { collectionId: collectionId },
-        { questionId: questionId },
-      ],
+      AND: [{ collectionId: collectionId }, { questionId: questionId }],
     },
     orderBy: {
       order: 'asc',
@@ -118,7 +133,6 @@ const del = async (req, res, prisma) => {
   })
 
   await prisma.$transaction(async (prisma) => {
-
     // delete the collectionToQuestion
     await prisma.collectionToQuestion.delete({
       where: {
@@ -132,10 +146,7 @@ const del = async (req, res, prisma) => {
     // decrement the order of all questions that were after the deleted question
     await prisma.collectionToQuestion.updateMany({
       where: {
-        AND: [
-          { collectionId: collectionId },
-          { order: { gt: order.order } },
-        ],
+        AND: [{ collectionId: collectionId }, { order: { gt: order.order } }],
       },
       data: {
         order: {
@@ -143,21 +154,13 @@ const del = async (req, res, prisma) => {
         },
       },
     })
-  });
+  })
 
   res.status(200).json({ message: 'OK' })
 }
 export default withMethodHandler({
-  GET: withAuthorization(
-      withGroupScope(withPrisma(get)), [Role.PROFESSOR]
-  ),
-  POST: withAuthorization(
-      withGroupScope(withPrisma(post)), [Role.PROFESSOR]
-  ),
-  PUT: withAuthorization(
-      withGroupScope(withPrisma(put)), [Role.PROFESSOR]
-  ),
-  DELETE: withAuthorization(
-      withGroupScope(withPrisma(del)), [Role.PROFESSOR]
-  ),
+  GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
+  POST: withAuthorization(withGroupScope(withPrisma(post)), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withPrisma(put)), [Role.PROFESSOR]),
+  DELETE: withAuthorization(withGroupScope(withPrisma(del)), [Role.PROFESSOR]),
 })

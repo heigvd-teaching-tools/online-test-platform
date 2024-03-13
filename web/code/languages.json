@@ -66,7 +66,7 @@
           }
         ]
       }
-    },    
+    },
     {
       "language": "java",
       "extension": "java",
@@ -207,8 +207,6 @@
         ]
       }
     }
-    
-    
   ],
   "monacoExtensionToLanguage": {
     "abap": "abap",
