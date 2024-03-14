@@ -14,7 +14,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.socdk
+      - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
       - DATABASE_URL=postgresql://onlinetest:onlinetest@db:5432/postgres
       - NEXTAUTH_URL=http://localhost:3000/
       - NEXTAUTH_SECRET=Dndv78IRun6dyLGddAYy4r4RPCsvRB1sF54JVI3m8/IDQ=

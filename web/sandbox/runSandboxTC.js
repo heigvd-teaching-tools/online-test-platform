@@ -77,7 +77,7 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
       
     })
     .withWorkingDir('/')
-    .withEnvironment('NODE_NO_WARNINGS', '1')
+    .withEnvironment({ NODE_NO_WARNINGS: "1" })
     .withCopyFilesToContainer([
       { source: `${filesDirectory}/code.tar.gz`, target: '/code.tar.gz' },
     ])
