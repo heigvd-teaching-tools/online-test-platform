@@ -87,7 +87,7 @@ The sandbox service:
 Technical alternatives: 
 * docker daemon exposed remotely
     * load-balance of docker daemon requests (one sandbox lifecycle will likely trigger several requests, docker cp|start|logs)
-* Owm sandbox service
+* Own sandbox service
     * own implementation wrapping a lifecycle of one sandbox in one request
 
 Own sandbox service:
