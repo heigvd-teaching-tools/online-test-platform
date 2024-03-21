@@ -83,7 +83,9 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 text: true,
                 ...(includeOfficialAnswers ? { isCorrect: true } : {}),
               },
+              orderBy: { order: 'asc' },
             },
+            
           },
         },
         trueFalse: {
@@ -200,7 +202,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
           },
         },
         multipleChoice: {
-          select: { options: { select: { id: true, text: true } } },
+          select: { options: { select: { id: true, text: true }, orderBy: { order: 'asc' } } },
         },
         essay: { select: { content: true } },
         trueFalse: true,
@@ -270,6 +272,7 @@ export const questionTypeSpecific = (
                 : // the only use case for mode === "create" is when we are copying questions for a evaluation, see api/evaluation [POST]
                   {
                     create: question.multipleChoice.options.map((o) => ({
+                      order: o.order,
                       text: o.text,
                       isCorrect: o.isCorrect,
                     })),
