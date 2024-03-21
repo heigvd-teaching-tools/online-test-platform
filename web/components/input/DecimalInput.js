@@ -77,7 +77,7 @@ const DecimalInput = ({
 
       onChange(floatValue)
     },
-    [min, max, onChange]
+    [min, max, onChange],
   )
 
   return (

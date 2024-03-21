@@ -34,7 +34,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
   const { data: answer, error } = useSWR(
     `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
     questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const ref = useRef()
@@ -59,12 +59,12 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
         order: solQ.query.order,
         output: solQ.output?.output,
       })),
-    [answer]
+    [answer],
   )
 
   const getSolutionOutput = useCallback(
     (order) => solutionOutputs.find((q) => q.order === order),
-    [solutionOutputs]
+    [solutionOutputs],
   )
 
   const saveAndTest = useCallback(async () => {
@@ -79,7 +79,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
           status: 'RUNNING',
           testPassed: null,
         },
-      })) || []
+      })) || [],
     )
 
     // remove any lintResult from queries
@@ -87,7 +87,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
       queries.map((q) => ({
         ...q,
         lintResult: null,
-      })) || []
+      })) || [],
     )
 
     const studentAnswerQueries = await fetch(
@@ -98,7 +98,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-      }
+      },
     ).then((res) => res.json())
 
     setStudentOutputs(studentAnswerQueries.map((q) => q.studentOutput))
@@ -106,7 +106,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
       queries.map((q, index) => ({
         ...q,
         lintResult: studentAnswerQueries[index].query.lintResult,
-      })) || []
+      })) || [],
     )
     setSaving(false)
   }, [evaluationId, questionId, queries, studentOutputs])
@@ -121,7 +121,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ content: query.content }),
-        }
+        },
       )
 
       const ok = response.ok
@@ -130,7 +130,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
       setSaveLock(false)
       onAnswerChange && onAnswerChange(ok, data)
     },
-    [evaluationId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange],
   )
 
   const debouncedOnChange = useDebouncedCallback(onQueryChange, 500)

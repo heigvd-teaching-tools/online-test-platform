@@ -19,13 +19,13 @@ import ResizePanel from '@/components/layout/utils/ResizePanel'
 
 const StudentSelectionSummary = ({ options, answer }) => {
   const missedCorrect = options.filter(
-    (option) => option.isCorrect && !answer.some((opt) => opt.id === option.id)
+    (option) => option.isCorrect && !answer.some((opt) => opt.id === option.id),
   ).length
   const incorrectSelection = options.filter(
-    (option) => !option.isCorrect && answer.some((opt) => opt.id === option.id)
+    (option) => !option.isCorrect && answer.some((opt) => opt.id === option.id),
   ).length
   const correctSelection = options.filter(
-    (option) => option.isCorrect && answer.some((opt) => opt.id === option.id)
+    (option) => option.isCorrect && answer.some((opt) => opt.id === option.id),
   ).length
 
   return (

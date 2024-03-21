@@ -60,12 +60,12 @@ const PageCompose = () => {
 
   const { data: searchQuestions, error: errorSearch } = useSWR(
     `/api/${groupScope}/questions?${queryString}`,
-    groupScope ? fetcher : null
+    groupScope ? fetcher : null,
   )
 
   const { data: collection, error: errorCollection } = useSWR(
     `/api/${groupScope}/collections/${collectionId}`,
-    groupScope && collectionId ? fetcher : null
+    groupScope && collectionId ? fetcher : null,
   )
 
   const [label, setLabel] = useState('')
@@ -99,7 +99,7 @@ const PageCompose = () => {
           ])
         })
     },
-    [groupScope, collectionId, collectionToQuestions]
+    [groupScope, collectionId, collectionToQuestions],
   )
 
   const saveCollection = useCallback(
@@ -115,7 +115,7 @@ const PageCompose = () => {
         }),
       })
     },
-    [groupScope, collectionId]
+    [groupScope, collectionId],
   )
 
   const saveReOrder = useCallback(
@@ -131,7 +131,7 @@ const PageCompose = () => {
         }),
       })
     },
-    [groupScope, collectionId]
+    [groupScope, collectionId],
   )
 
   const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300)
@@ -156,7 +156,7 @@ const PageCompose = () => {
       setCollectionToQuestions(reordered)
       await debounceSaveOrdering(reordered)
     },
-    [collectionToQuestions, setCollectionToQuestions, debounceSaveOrdering]
+    [collectionToQuestions, setCollectionToQuestions, debounceSaveOrdering],
   )
 
   const onDeleteCollectionToQuestion = useCallback(
@@ -167,10 +167,10 @@ const PageCompose = () => {
         updated.map((collectionToQuestion, index) => ({
           ...collectionToQuestion,
           order: index,
-        }))
+        })),
       )
     },
-    [collectionToQuestions, setCollectionToQuestions]
+    [collectionToQuestions, setCollectionToQuestions],
   )
 
   /* ORDERING DEBUG
@@ -230,7 +230,7 @@ const PageCompose = () => {
                                   onDeleteCollectionToQuestion(index)
                                 }
                               />
-                            )
+                            ),
                           )}
                       </ReorderableList>
                     </ScrollContainer>
@@ -253,8 +253,8 @@ const PageCompose = () => {
                         (question) =>
                           !collectionToQuestions.find(
                             (collectionToQuestion) =>
-                              collectionToQuestion.question.id === question.id
-                          )
+                              collectionToQuestion.question.id === question.id,
+                          ),
                       )}
                       addCollectionToQuestion={addCollectionToQuestion}
                     />

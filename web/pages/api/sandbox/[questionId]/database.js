@@ -48,7 +48,7 @@ const post = async (req, res, prisma) => {
   })
 
   const queries = database.solutionQueries.map(
-    (dbToSolQuery) => dbToSolQuery.query.content
+    (dbToSolQuery) => dbToSolQuery.query.content,
   )
 
   const result = await runSandboxDB({

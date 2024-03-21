@@ -114,7 +114,7 @@ const post = async (req, res, prisma) => {
       for (const collectionToQuestion of collectionToQuestions.filter(
         (ctq) =>
           ctq.question.type !== QuestionType.code &&
-          ctq.question.type !== QuestionType.database
+          ctq.question.type !== QuestionType.database,
       )) {
         // create question
         const question = await prisma.question.create({
@@ -131,7 +131,7 @@ const post = async (req, res, prisma) => {
               create: questionTypeSpecific(
                 collectionToQuestion.question.type,
                 collectionToQuestion.question,
-                'create'
+                'create',
               ),
             },
           },
@@ -158,7 +158,7 @@ const post = async (req, res, prisma) => {
       // CODE
       // create the copy of code questions for the evaluation
       for (const collectionToQuestion of collectionToQuestions.filter(
-        (ctq) => ctq.question.type === QuestionType.code
+        (ctq) => ctq.question.type === QuestionType.code,
       )) {
         // create code question, without files
         const newCodeQuestion = await prisma.question.create({
@@ -188,7 +188,7 @@ const post = async (req, res, prisma) => {
                       exec: testCase.exec,
                       input: testCase.input,
                       expectedOutput: testCase.expectedOutput,
-                    })
+                    }),
                   ),
                 },
               },
@@ -267,7 +267,7 @@ const post = async (req, res, prisma) => {
       // DATABASE
       // create the copy of database questions for the evaluation
       for (const collectionToQuestion of collectionToQuestions.filter(
-        (ctq) => ctq.question.type === QuestionType.database
+        (ctq) => ctq.question.type === QuestionType.database,
       )) {
         // create database question for evaluation
         const newDatabaseQuestion = await prisma.question.create({

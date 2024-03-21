@@ -37,7 +37,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
   const { data, mutate, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/database/queries`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [queries, setQueries] = useState()
@@ -79,7 +79,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
             Accept: 'application/json',
           },
           body: JSON.stringify(query),
-        }
+        },
       )
         .then(async () => {
           if (!doMutate) {
@@ -102,12 +102,12 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, queries, questionId, mutate, onUpdate]
+    [groupScope, queries, questionId, mutate, onUpdate],
   )
 
   const debouncedOnQueryUpdate = useDebouncedCallback(
     (q, m) => onQueryUpdate(q, m),
-    500
+    500,
   )
 
   const onQueryDelete = useCallback(
@@ -120,7 +120,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
             'Content-Type': 'application/json',
             Accept: 'application/json',
           },
-        }
+        },
       )
         .then(async () => {
           await mutate()
@@ -129,7 +129,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, queries, mutate, questionId, onUpdate]
+    [groupScope, queries, mutate, questionId, onUpdate],
   )
 
   const runAllQueries = useCallback(async () => {
@@ -142,7 +142,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
           result: null,
           status: 'RUNNING',
         },
-      })) || []
+      })) || [],
     )
 
     // erase eventual lintResults
@@ -150,7 +150,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
       queries.map((q, index) => ({
         ...q,
         lintResult: null,
-      })) || []
+      })) || [],
     )
 
     const newSolutionQueries = await fetch(
@@ -161,7 +161,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-      }
+      },
     ).then((res) => res.json())
 
     // update the queries with the new lint results
@@ -169,7 +169,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
       queries.map((q, index) => ({
         ...q,
         lintResult: newSolutionQueries[index].query.lintResult,
-      })) || []
+      })) || [],
     )
 
     // set all query outputs
@@ -182,7 +182,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
     (index) => {
       return index === activeQuery ? theme.palette.primary.dark : 'transparent'
     },
-    [activeQuery, theme]
+    [activeQuery, theme],
   )
 
   return (

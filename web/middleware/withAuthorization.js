@@ -51,7 +51,7 @@ export function withAuthorization(handler, allowedRoles) {
         .json({ message: 'You must be logged in to access this page' })
     }
     const isAuthorized = userRoles.some((userRole) =>
-      allowedRoles.includes(userRole)
+      allowedRoles.includes(userRole),
     )
 
     if (!isAuthorized) {

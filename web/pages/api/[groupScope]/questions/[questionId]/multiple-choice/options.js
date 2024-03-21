@@ -139,10 +139,10 @@ export default withMethodHandler({
   ]),
   POST: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(post))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
   DELETE: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(del))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
 })

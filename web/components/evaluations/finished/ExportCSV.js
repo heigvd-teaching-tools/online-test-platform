@@ -27,7 +27,7 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
   const exportAsCSV = useCallback(() => {
     let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`
     evaluationToQuestions.forEach(
-      (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`)
+      (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`),
     )
     csv += LINE_SEPARATOR
 
@@ -36,7 +36,7 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
 
       let totalPoints = evaluationToQuestions.reduce(
         (acc, jstq) => acc + jstq.points,
-        0
+        0,
       )
       let participantSuccessRate =
         totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
@@ -44,12 +44,12 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
       csv += `${participant.name}${COLUMN_SEPARATOR}${
         participant.email
       }${COLUMN_SEPARATOR}${`${participantSuccessRate} %`}${COLUMN_SEPARATOR}${dotToComma(
-        totalPoints
+        totalPoints,
       )}${COLUMN_SEPARATOR}${dotToComma(obtainedPoints)}${COLUMN_SEPARATOR}`
 
       evaluationToQuestions.forEach((jstq) => {
         const studentAnswer = jstq.question.studentAnswer.find(
-          (sa) => sa.user.email === participant.email
+          (sa) => sa.user.email === participant.email,
         )
 
         let pointsObtained = '-'
@@ -58,7 +58,7 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
           studentAnswer.studentGrading.signedBy
         ) {
           pointsObtained = dotToComma(
-            studentAnswer.studentGrading.pointsObtained
+            studentAnswer.studentGrading.pointsObtained,
           )
         }
 
@@ -78,7 +78,7 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
 
     link.setAttribute(
       'download',
-      `evaluation-${evaluation.id}-${sessionLabel}-results.csv`
+      `evaluation-${evaluation.id}-${sessionLabel}-results.csv`,
     )
     link.click()
   }, [evaluation, evaluationToQuestions, participants])

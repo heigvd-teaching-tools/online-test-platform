@@ -29,7 +29,7 @@ const PageDispatch = () => {
 
   const { data, error: dispatchError } = useSWR(
     `/api/users/evaluations/${evaluationId}/dispatch`,
-    evaluationId ? fetcher : null
+    evaluationId ? fetcher : null,
   )
 
   useEffect(() => {

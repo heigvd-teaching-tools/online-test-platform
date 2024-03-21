@@ -31,7 +31,7 @@ const Code = ({ groupScope, questionId, onUpdate }) => {
   const { data: code, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [tab, setTab] = useState(1)

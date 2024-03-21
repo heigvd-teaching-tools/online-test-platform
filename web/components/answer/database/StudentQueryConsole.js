@@ -60,7 +60,7 @@ const StudentQueryConsole = ({
           query: sql,
           at: order,
         }),
-      }
+      },
     ).then((res) => res.json())
     setResult(response)
     setRunning(false)

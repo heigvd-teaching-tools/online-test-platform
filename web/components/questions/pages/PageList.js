@@ -65,7 +65,7 @@ const PageList = () => {
     mutate,
   } = useSWR(
     `/api/${groupScope}/questions?${queryString}`,
-    groupScope ? fetcher : null
+    groupScope ? fetcher : null,
   )
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
@@ -96,7 +96,7 @@ const PageList = () => {
           showSnackbar('Error creating questions', 'error')
         })
     },
-    [groupScope, router, showSnackbar, questions, mutate]
+    [groupScope, router, showSnackbar, questions, mutate],
   )
 
   return (

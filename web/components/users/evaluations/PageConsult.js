@@ -51,13 +51,13 @@ const PageConsult = () => {
   const { data: evaluationStatus, error: errorEvaluationStatus } = useSWR(
     `/api/users/evaluations/${evaluationId}/status`,
     evaluationId ? fetcher : null,
-    { refreshInterval: 1000 }
+    { refreshInterval: 1000 },
   )
 
   const { data: userOnEvaluation, error: errorUserOnEvaluation } = useSWR(
     `/api/users/evaluations/${evaluationId}/consult`,
     evaluationId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [selected, setSelected] = useState()
@@ -88,7 +88,7 @@ const PageConsult = () => {
         tooltip: `${jstq.question.title} - ${jstq.points} points`,
         state: getFilledStatus(jstq.question.studentAnswer[0].status),
       })),
-    [evaluationToQuestions]
+    [evaluationToQuestions],
   )
 
   return (

@@ -183,8 +183,8 @@ const PageAdmin = () => {
         onChange={(updatedUser) => {
           mutate(
             users.map((user) =>
-              user.id === updatedUser.id ? updatedUser : user
-            )
+              user.id === updatedUser.id ? updatedUser : user,
+            ),
           )
         }}
       />

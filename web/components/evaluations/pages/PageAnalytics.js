@@ -42,18 +42,18 @@ const PageAnalytics = () => {
 
   const { data: evaluations, error: errorEvaluations } = useSWR(
     `/api/${groupScope}/evaluations`,
-    groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null,
   )
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-    groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null,
   )
 
   const { data: evaluationToQuestions, error: errorQuestions } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
     groupScope && evaluationId ? fetcher : null,
-    { refreshInterval: 1000 }
+    { refreshInterval: 1000 },
   )
 
   const [showSuccessRate, setShowSuccessRate] = useState(false)
@@ -107,7 +107,7 @@ const PageAnalytics = () => {
                 onChange={async (event, newValue) => {
                   if (newValue && newValue.id) {
                     await router.push(
-                      `/${groupScope}/evaluations/${newValue.id}/analytics`
+                      `/${groupScope}/evaluations/${newValue.id}/analytics`,
                     )
                   }
                 }}

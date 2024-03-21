@@ -67,7 +67,7 @@ const addOrRemoveOption = withEvaluationPhase(
               },
             },
           },
-        }
+        },
       )
 
       if (!evaluationToQuestion) {
@@ -117,7 +117,7 @@ const addOrRemoveOption = withEvaluationPhase(
           data: {
             status,
           },
-        })
+        }),
       )
 
       // add option to users multi-choice answers
@@ -136,7 +136,7 @@ const addOrRemoveOption = withEvaluationPhase(
               },
             },
           },
-        })
+        }),
       )
 
       // prisma transaction
@@ -159,7 +159,7 @@ const addOrRemoveOption = withEvaluationPhase(
               },
             },
           },
-        }
+        },
       )
 
       // grade the users answers
@@ -176,13 +176,13 @@ const addOrRemoveOption = withEvaluationPhase(
           ...grading(
             evaluationToQuestion.question,
             evaluationToQuestion.points,
-            studentAnswer
+            studentAnswer,
           ),
         },
         update: grading(
           evaluationToQuestion.question,
           evaluationToQuestion.points,
-          studentAnswer
+          studentAnswer,
         ),
       })
 
@@ -210,8 +210,8 @@ const addOrRemoveOption = withEvaluationPhase(
       })
 
       res.status(200).json(updatedStudentAnswer)
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

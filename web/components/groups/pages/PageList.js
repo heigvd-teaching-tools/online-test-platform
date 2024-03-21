@@ -57,7 +57,7 @@ const PageList = () => {
     mutate,
   } = useSWR(
     `/api/groups/${selectedGroup && selectedGroup.id}/members`,
-    selectedGroup ? fetcher : null
+    selectedGroup ? fetcher : null,
   )
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const PageList = () => {
         setUpdatingCurrentGroup(false)
       }
     },
-    [selectedGroup, setSelectedGroup]
+    [selectedGroup, setSelectedGroup],
   )
 
   return (

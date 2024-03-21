@@ -29,7 +29,7 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
         ((window.innerWidth - e.clientX) / window.innerWidth) * 100
       setWidth(newWidth)
     },
-    [dragging]
+    [dragging],
   )
 
   const handleMouseUp = useCallback(() => {

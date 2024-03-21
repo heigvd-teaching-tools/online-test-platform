@@ -44,7 +44,7 @@ const ParticipantItem = forwardRef(
         <FilledBullet state={isFilled ? 'filled' : 'empty'} />
       </Stack>
     )
-  }
+  },
 )
 
 const ParticipantNav = ({
@@ -78,7 +78,7 @@ const ParticipantNav = ({
         onParticipantClick(participants[index + 1])
       }
     },
-    [participants, active, onParticipantClick]
+    [participants, active, onParticipantClick],
   )
 
   useEffect(() => {

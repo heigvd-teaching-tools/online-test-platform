@@ -77,7 +77,7 @@ const PageTakeEvaluation = () => {
   } = useSWR(
     `/api/users/evaluations/${evaluationId}/status`,
     evaluationId ? fetcher : null,
-    { refreshInterval: 1000 }
+    { refreshInterval: 1000 },
   )
 
   const getEvaluationPhase = useCallback(() => {
@@ -98,7 +98,7 @@ const PageTakeEvaluation = () => {
   } = useSWR(
     `/api/users/evaluations/${evaluationId}/take`,
     !hasStudentFinished() ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [page, setPage] = useState(parseInt(pageIndex))
@@ -227,7 +227,7 @@ const PageTakeEvaluation = () => {
                             return
                           }
                           const questionPage = pages.findIndex(
-                            (page) => page.id === questionId
+                            (page) => page.id === questionId,
                           )
                           if (questionPage !== -1) {
                             setPages((prevPages) => {
@@ -238,7 +238,7 @@ const PageTakeEvaluation = () => {
                           }
                           // Update in memory to reflect changes before the server responds (usefull under high latency conditions)
                           const jstq = evaluationToQuestion.find(
-                            (jtq) => jtq.question.id === questionId
+                            (jtq) => jtq.question.id === questionId,
                           )
                           jstq.question.studentAnswer[0].status =
                             StudentAnswerStatus.SUBMITTED
@@ -251,7 +251,7 @@ const PageTakeEvaluation = () => {
                     }
                     rightWidth={rightPenelWidth(
                       page,
-                      userOnEvaluation.conditions
+                      userOnEvaluation.conditions,
                     )}
                   />
                 </LayoutMain>
@@ -317,7 +317,7 @@ const ButtonEndEvaliation = ({ evaluationId, onEndEvaluation }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     )
 
     const ok = response.ok
@@ -424,7 +424,7 @@ const RightPanel = ({
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
                     newPages[index].state = getFilledStatus(
-                      updatedStudentAnswer.status
+                      updatedStudentAnswer.status,
                     )
                     return newPages
                   })
@@ -474,7 +474,7 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
         `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/submit`,
         {
           method: 'PUT',
-        }
+        },
       )
 
       const ok = response.ok
@@ -488,7 +488,7 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
 
       setSubmitLock(false)
     },
-    [onSubmit]
+    [onSubmit],
   )
 
   return (

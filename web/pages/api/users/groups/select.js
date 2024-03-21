@@ -37,7 +37,7 @@ const put = async (req, res, prisma) => {
   })
 
   const userInGroup = allUserGroups.find(
-    (userOnGroup) => userOnGroup.group.scope === groupScope
+    (userOnGroup) => userOnGroup.group.scope === groupScope,
   )
 
   if (!userInGroup) {
@@ -46,7 +46,7 @@ const put = async (req, res, prisma) => {
   }
 
   const currentUserToGroup = allUserGroups.find(
-    (userOnGroup) => userOnGroup.selected
+    (userOnGroup) => userOnGroup.selected,
   )
 
   if (currentUserToGroup) {

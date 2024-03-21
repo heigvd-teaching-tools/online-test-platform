@@ -27,7 +27,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/multiple-choice/options`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const onChangeOptions = useCallback(
@@ -44,7 +44,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           body: JSON.stringify({
             option: updatedOption,
           }),
-        }
+        },
       )
         .then(async (res) => {
           if (res.status === 200) {
@@ -55,7 +55,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, onUpdate]
+    [groupScope, questionId, mutate, onUpdate],
   )
 
   const onDeleteOption = useCallback(
@@ -71,7 +71,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           body: JSON.stringify({
             option: deletedOption,
           }),
-        }
+        },
       )
         .then(async (res) => {
           if (res.status === 200) {
@@ -82,7 +82,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, onUpdate]
+    [groupScope, questionId, mutate, onUpdate],
   )
 
   const onAddOption = useCallback(async () => {
@@ -97,7 +97,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
         body: JSON.stringify({
           option: { text: '', isCorrect: false },
         }),
-      }
+      },
     )
       .then(async (res) => {
         if (res.status === 200) {

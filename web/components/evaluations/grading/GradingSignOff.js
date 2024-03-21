@@ -84,7 +84,7 @@ const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
         }
       }
     },
-    [signOffGrading, unsignGrading, grading.signedBy]
+    [signOffGrading, unsignGrading, grading.signedBy],
   )
 
   useEffect(() => {

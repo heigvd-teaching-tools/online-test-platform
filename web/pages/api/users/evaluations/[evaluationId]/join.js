@@ -191,7 +191,7 @@ const createCodeTypeSpecificData = (question) => {
 const createDatabaseTypeSpecificData = async (
   prisma,
   studentAnswer,
-  question
+  question,
 ) => {
   // Create DatabaseQuery and StudentAnswerDatabaseToQuery instances and related outputs
   for (const solQuery of question.database.solutionQueries) {

@@ -65,12 +65,12 @@ const CompareDatabase = ({ solution, answer }) => {
   const allQueries = answer.queries
   const allTestQueries = answer.queries.filter((saQ) => saQ.query.testQuery)
   const passedTestQueries = allQueries.filter(
-    (saQ) => saQ.studentOutput?.output.testPassed
+    (saQ) => saQ.studentOutput?.output.testPassed,
   )
 
   const allLintQueries = answer.queries.filter((saQ) => saQ.query.lintRules)
   const passedLintQueries = allLintQueries.filter(
-    (saQ) => saQ.query.lintResult?.violations.length === 0
+    (saQ) => saQ.query.lintResult?.violations.length === 0,
   )
 
   const solutionQueries = solution.solutionQueries
@@ -79,7 +79,7 @@ const CompareDatabase = ({ solution, answer }) => {
     (order) => {
       return solutionQueries.find((sq) => sq.query.order === order)
     },
-    [solutionQueries]
+    [solutionQueries],
   )
 
   return (
@@ -147,7 +147,7 @@ const CompareDatabase = ({ solution, answer }) => {
                         Last run:{' '}
                         {saQ.studentOutput?.updatedAt &&
                           new Date(
-                            saQ.studentOutput?.updatedAt
+                            saQ.studentOutput?.updatedAt,
                           ).toLocaleString()}
                       </Typography>
                     </>

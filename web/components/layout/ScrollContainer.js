@@ -51,7 +51,7 @@ const ScrollContainer = forwardRef(
         </Stack>
       </Stack>
     )
-  }
+  },
 )
 
 ScrollContainer.displayName = 'ScrollContainer'

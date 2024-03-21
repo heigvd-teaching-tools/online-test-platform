@@ -57,7 +57,7 @@ const PageProfConsult = () => {
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/consult/${userEmail}`,
     groupScope && evaluationId && userEmail ? fetcher : null,
-    { revalidateOnFocus: true, refreshInterval: 5000 }
+    { revalidateOnFocus: true, refreshInterval: 5000 },
   )
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [selected, setSelected] = useState()
@@ -90,7 +90,7 @@ const PageProfConsult = () => {
         fillable: true,
         state: getFilledStatus(jstq.question.studentAnswer[0].status),
       })),
-    [evaluationToQuestions]
+    [evaluationToQuestions],
   )
 
   const debouncedSaveGrading = useDebouncedCallback(
@@ -100,16 +100,16 @@ const PageProfConsult = () => {
         await saveGrading(groupScope, grading)
         setLoading(false)
       },
-      [groupScope]
+      [groupScope],
     ),
-    500
+    500,
   )
 
   const onChangeGrading = useCallback(
     async (grading) => {
       const newEvaluationToQuestions = [...evaluationToQuestions]
       const evaluationToQuestion = newEvaluationToQuestions.find(
-        (jstq) => jstq.question.id === grading.questionId
+        (jstq) => jstq.question.id === grading.questionId,
       )
       evaluationToQuestion.question.studentAnswer =
         evaluationToQuestion.question.studentAnswer.map((sa) => {
@@ -133,7 +133,7 @@ const PageProfConsult = () => {
       setEvaluationToQuestions(newEvaluationToQuestions)
       debouncedSaveGrading(grading)
     },
-    [groupScope, evaluationToQuestions, mutate]
+    [groupScope, evaluationToQuestions, mutate],
   )
 
   const isDataReady = useMemo(
@@ -141,7 +141,7 @@ const PageProfConsult = () => {
       evaluationToQuestions.length > 0 &&
       selected &&
       selected.question.studentAnswer[0],
-    [evaluationToQuestions, selected]
+    [evaluationToQuestions, selected],
   )
 
   console.log('evaluation', evaluation)
@@ -214,7 +214,7 @@ const PageProfConsult = () => {
                       loading={loading}
                       grading={
                         selected.question.studentAnswer.find(
-                          (ans) => ans.user.email === userEmail
+                          (ans) => ans.user.email === userEmail,
                         ).studentGrading
                       }
                       maxPoints={selected.points}

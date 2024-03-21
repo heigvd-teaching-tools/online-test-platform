@@ -87,6 +87,6 @@ export default withMethodHandler({
   ]),
   POST: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(post))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
 })

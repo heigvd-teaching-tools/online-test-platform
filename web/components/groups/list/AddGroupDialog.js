@@ -58,7 +58,7 @@ const AddGroupDialog = ({ open, selectOnCreate, onClose, onSuccess }) => {
       showSnackbarAt(
         { vertical: 'bottom', horizontal: 'center' },
         data.message,
-        'error'
+        'error',
       )
     }
   }, [label, scope, selectOnCreate, showSnackbarAt, mutateGroups, onSuccess])

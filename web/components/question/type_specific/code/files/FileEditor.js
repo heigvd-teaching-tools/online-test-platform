@@ -36,7 +36,7 @@ const FileEditor = ({
   const theme = useTheme()
   // automatically set language based on path extension
   const [language, setLanguage] = useState(
-    languageBasedOnPathExtension(file?.path)
+    languageBasedOnPathExtension(file?.path),
   )
 
   const [path, setPath] = useState(file?.path)

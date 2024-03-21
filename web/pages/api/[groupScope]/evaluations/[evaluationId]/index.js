@@ -72,7 +72,7 @@ const patch = async (req, res, prisma) => {
       if (durationHours > 0 || durationMins > 0) {
         data.startAt = new Date()
         data.endAt = new Date(
-          Date.now() + durationHours * 3600000 + durationMins * 60000
+          Date.now() + durationHours * 3600000 + durationMins * 60000,
         )
       } else {
         data.startAt = null

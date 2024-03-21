@@ -44,7 +44,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
     questionId ? fetcher : null,
     {
       revalidateOnFocus: false,
-    }
+    },
   )
 
   const [deleteQuestionDialogOpen, setDeleteQuestionDialogOpen] =
@@ -77,7 +77,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
           showSnackbar('Error saving questions', 'error')
         })
     },
-    [groupScope, showSnackbar, onUpdate]
+    [groupScope, showSnackbar, onUpdate],
   )
 
   const deleteQuestion = useCallback(async () => {
@@ -105,14 +105,14 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
     async (question) => {
       await saveQuestion(question)
     },
-    [saveQuestion]
+    [saveQuestion],
   )
 
   const debounceChange = useDebouncedCallback(
     useCallback(async () => {
       await onChangeQuestion(question)
     }, [question, onChangeQuestion]),
-    500
+    500,
   )
 
   const onPropertyChange = useCallback(
@@ -122,7 +122,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
       // debounce the change to the api
       await debounceChange()
     },
-    [question, debounceChange]
+    [question, debounceChange],
   )
 
   return (

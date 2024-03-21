@@ -33,7 +33,7 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
         }
       }
     },
-    [sourceIndex, onChangeOrder]
+    [sourceIndex, onChangeOrder],
   )
 
   const handleDragStart = useCallback((e, index) => {
@@ -46,7 +46,7 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
       e.preventDefault()
       handleOrderChange(targetIndex)
     },
-    [handleOrderChange]
+    [handleOrderChange],
   )
 
   const handleDragEnd = useCallback(() => {

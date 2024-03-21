@@ -60,7 +60,7 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
       }
       setLoading(false)
     },
-    [group, onUpdate, showSnackbar]
+    [group, onUpdate, showSnackbar],
   )
 
   return (

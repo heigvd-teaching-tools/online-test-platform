@@ -172,7 +172,7 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
                 <Datagrid items={groups[groupKey].items} header={header} />
               </Stack>
-            ) : null
+            ) : null,
           )}
         </ScrollContainer>
       </Stack>

@@ -107,6 +107,6 @@ const post = async (req, res, prisma) => {
 export default withMethodHandler({
   POST: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(post))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
 })

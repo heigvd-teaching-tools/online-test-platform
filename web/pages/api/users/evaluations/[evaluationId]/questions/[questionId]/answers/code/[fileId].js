@@ -56,7 +56,7 @@ const put = withEvaluationPhase(
           include: {
             question: true,
           },
-        }
+        },
       )
 
       if (!evaluationToQuestion) {
@@ -78,7 +78,7 @@ const put = withEvaluationPhase(
           data: {
             status: StudentAnswerStatus.IN_PROGRESS,
           },
-        })
+        }),
       )
 
       // update the users answers file for code question
@@ -98,7 +98,7 @@ const put = withEvaluationPhase(
               },
             },
           },
-        })
+        }),
       )
 
       // grade question
@@ -116,15 +116,15 @@ const put = withEvaluationPhase(
             ...grading(
               evaluationToQuestion.question,
               evaluationToQuestion.points,
-              undefined
+              undefined,
             ),
           },
           update: grading(
             evaluationToQuestion.question,
             evaluationToQuestion.points,
-            undefined
+            undefined,
           ),
-        })
+        }),
       )
 
       // prisma transaction
@@ -151,8 +151,8 @@ const put = withEvaluationPhase(
         },
       })
       res.status(200).json(updatedAnswer)
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

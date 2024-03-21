@@ -32,7 +32,7 @@ const QuestionTagsSelector = ({ groupScope, questionId, onChange }) => {
     questionId ? fetcher : null,
     {
       fallbackData: [],
-    }
+    },
   )
 
   const onTagsChange = useCallback(
@@ -41,7 +41,7 @@ const QuestionTagsSelector = ({ groupScope, questionId, onChange }) => {
       await mutate(newTags)
       onChange && onChange(newTags)
     },
-    [questionId, mutate, upsert, onChange]
+    [questionId, mutate, upsert, onChange],
   )
 
   return (

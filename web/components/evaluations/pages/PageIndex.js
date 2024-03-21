@@ -29,7 +29,7 @@ const PageIndex = () => {
 
   const { data: evaluation, error } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-    groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null,
   )
 
   return (

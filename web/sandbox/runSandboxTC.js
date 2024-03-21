@@ -38,7 +38,7 @@ export const runSandbox = async ({
   const { container, beforeAllOutput } = await startContainer(
     image,
     directory,
-    beforeAll
+    beforeAll,
   )
 
   return new Promise(async (resolve, reject) => {
@@ -151,7 +151,7 @@ const execTests = async (container, tests) => {
           else exit;
       }'`,
       ],
-      { tty: false }
+      { tty: false },
     )
     // time after execution
     const endTime = new Date().getTime()

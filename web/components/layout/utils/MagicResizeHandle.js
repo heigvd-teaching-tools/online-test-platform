@@ -51,7 +51,7 @@ const MagicResizeHandle = ({ width = 50 }) => {
       const deltaPercentage = (deltaX / parentWidth) * 100
       const newPercentage = Math.max(
         0,
-        initialRightPercentage + deltaPercentage
+        initialRightPercentage + deltaPercentage,
       )
 
       if (rightSibling) {

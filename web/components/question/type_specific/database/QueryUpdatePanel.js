@@ -240,7 +240,7 @@ const OutputTestToggle = ({ toggled, label, testKey, onToggle }) => {
 
 const QuerySettingsTab = ({ query, onChange }) => {
   const [studentPermission, setStudentPermission] = useState(
-    query.studentPermission
+    query.studentPermission,
   )
   const [title, setTitle] = useState(query.title)
   const [description, setDescription] = useState(query.description)

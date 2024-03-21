@@ -231,7 +231,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
 export const questionTypeSpecific = (
   questionType,
   question,
-  mode = 'update'
+  mode = 'update',
 ) => {
   switch (questionType) {
     case QuestionType.trueFalse:

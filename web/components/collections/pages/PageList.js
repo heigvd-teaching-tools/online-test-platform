@@ -47,7 +47,7 @@ const PageList = () => {
 
   const { data, error } = useSWR(
     `/api/${groupScope}/collections`,
-    groupScope ? fetcher : null
+    groupScope ? fetcher : null,
   )
 
   const [collections, setCollections] = useState(data)
@@ -63,8 +63,8 @@ const PageList = () => {
       .then((_) => {
         setCollections(
           collections.filter(
-            (collection) => collection.id !== collectionToDelete
-          )
+            (collection) => collection.id !== collectionToDelete,
+          ),
         )
         showSnackbar('Collection deleted', 'success')
       })
@@ -122,7 +122,7 @@ const PageList = () => {
                         `${
                           row.collectionToQuestions?.reduce(
                             (acc, question) => acc + question.points,
-                            0
+                            0,
                           ) || 0
                         } pts` || '0',
                     },

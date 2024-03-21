@@ -94,7 +94,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
           data[question.type].noCodeCheckRuns.percentage =
             maxValue > 0
               ? Math.round(
-                  (data[question.type].noCodeCheckRuns.count / maxValue) * 100
+                  (data[question.type].noCodeCheckRuns.count / maxValue) * 100,
                 )
               : 0
 
@@ -105,7 +105,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
           data[question.type].submitted.percentage =
             maxValue > 0
               ? Math.round(
-                  (data[question.type].submitted.count / maxValue) * 100
+                  (data[question.type].submitted.count / maxValue) * 100,
                 )
               : 0
           data[question.type].missing.percentage =
@@ -127,7 +127,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 percent:
                   testSuccesses + testFailures > 0
                     ? Math.round(
-                        (testSuccesses / (testSuccesses + testFailures)) * 100
+                        (testSuccesses / (testSuccesses + testFailures)) * 100,
                       )
                     : 0,
                 amount: testSuccesses,
@@ -137,7 +137,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 percent:
                   testSuccesses + testFailures > 0
                     ? Math.round(
-                        (testFailures / (testSuccesses + testFailures)) * 100
+                        (testFailures / (testSuccesses + testFailures)) * 100,
                       )
                     : 0,
                 amount: testFailures,
@@ -157,7 +157,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 percent:
                   lintSuccesses + lintFailures > 0
                     ? Math.round(
-                        (lintSuccesses / (lintSuccesses + lintFailures)) * 100
+                        (lintSuccesses / (lintSuccesses + lintFailures)) * 100,
                       )
                     : 0,
                 amount: lintSuccesses,
@@ -167,7 +167,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                 percent:
                   lintSuccesses + lintFailures > 0
                     ? Math.round(
-                        (lintFailures / (lintSuccesses + lintFailures)) * 100
+                        (lintFailures / (lintSuccesses + lintFailures)) * 100,
                       )
                     : 0,
                 amount: lintFailures,
@@ -204,7 +204,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
   }
 
   const submittedAnswers = question.studentAnswer.filter(
-    (sa) => sa.status !== StudentAnswerStatus.MISSING
+    (sa) => sa.status !== StudentAnswerStatus.MISSING,
   ).length
   const totalAnswers = question.studentAnswer.length
 
@@ -387,7 +387,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                             amount={testQueryStats.failure.amount}
                           />
                         </Stack>
-                      )
+                      ),
                     )}
                   </Stack>
                   <Stack flex={1} spacing={1}>
@@ -428,7 +428,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
                             amount={lintQueryStats.failure.amount}
                           />
                         </Stack>
-                      )
+                      ),
                     )}
                   </Stack>
                 </Stack>

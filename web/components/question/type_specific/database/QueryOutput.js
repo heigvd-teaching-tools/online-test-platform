@@ -54,14 +54,14 @@ const QueryOutput = ({ header, color, result, lintResult, onHeightChange }) => {
 
   const debouncedHeightChange = useDebouncedCallback(
     (h) => onHeightChange(h),
-    100
+    100,
   )
 
   useEffect(() => {
     if (onHeightChange && containerRef.current) {
       const observer = new ResizeObserver(() => {
         debouncedHeightChange(
-          containerRef.current?.getBoundingClientRect().height
+          containerRef.current?.getBoundingClientRect().height,
         )
       })
       observer.observe(containerRef.current)

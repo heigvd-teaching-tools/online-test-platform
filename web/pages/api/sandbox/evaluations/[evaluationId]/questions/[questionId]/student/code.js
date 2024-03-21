@@ -78,7 +78,7 @@ const post = withEvaluationPhase(
       }
 
       const files = studentAnswerCodeFiles.files.map(
-        (codeToFile) => codeToFile.file
+        (codeToFile) => codeToFile.file,
       )
 
       await runSandbox({
@@ -140,7 +140,7 @@ const post = withEvaluationPhase(
             update: grading(
               evaluationToQuestion.question,
               evaluationToQuestion.points,
-              response
+              response,
             ),
             create: {
               userEmail: user.email,
@@ -148,7 +148,7 @@ const post = withEvaluationPhase(
               ...grading(
                 evaluationToQuestion.question,
                 evaluationToQuestion.points,
-                response
+                response,
               ),
             },
           })
@@ -159,8 +159,8 @@ const post = withEvaluationPhase(
           console.log(error)
           res.status(500).json({ message: 'Internal server error' })
         })
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

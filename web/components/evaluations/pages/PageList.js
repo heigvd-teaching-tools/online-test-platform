@@ -45,7 +45,7 @@ const Evaluations = () => {
 
   const { data, error, mutate } = useSWR(
     `/api/${groupScope}/evaluations`,
-    groupScope ? fetcher : null
+    groupScope ? fetcher : null,
   )
 
   const [tab, setTab] = useState(EvaluationStatus.ACTIVE)
@@ -87,7 +87,7 @@ const Evaluations = () => {
               evaluation.status = EvaluationStatus.ARCHIVED
             }
             return evaluation
-          })
+          }),
         )
         showSnackbar('evaluation archived', 'success')
       })
@@ -103,7 +103,7 @@ const Evaluations = () => {
     })
       .then((_) => {
         setEvaluations(
-          evaluations.filter((evaluation) => evaluation.id !== selected.id)
+          evaluations.filter((evaluation) => evaluation.id !== selected.id),
         )
         showSnackbar('evaluation deleted', 'success')
       })
@@ -141,7 +141,7 @@ const Evaluations = () => {
               groupScope={groupScope}
               evaluations={
                 evaluations?.filter(
-                  (evaluation) => evaluation.status === tab
+                  (evaluation) => evaluation.status === tab,
                 ) || []
               }
               onStart={(ev, session) => {
@@ -200,7 +200,7 @@ const Evaluations = () => {
                         {new Date(
                           Date.now() +
                             selected.durationHours * 3600000 +
-                            selected.durationMins * 60000
+                            selected.durationMins * 60000,
                         ).toLocaleTimeString()}
                       </b>
                       .

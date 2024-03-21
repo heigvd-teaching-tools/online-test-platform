@@ -80,7 +80,7 @@ const PageGrading = () => {
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-    groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null,
   )
 
   const {
@@ -90,7 +90,7 @@ const PageGrading = () => {
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
     groupScope && evaluationId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
@@ -139,7 +139,7 @@ const PageGrading = () => {
     // Redirect to the first participant if participantId is undefined
     if (!participantId) {
       router.push(
-        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[0].id}`
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[0].id}`,
       )
     }
   }, [
@@ -159,16 +159,16 @@ const PageGrading = () => {
         await saveGrading(groupScope, grading)
         setLoading(false)
       },
-      [groupScope]
+      [groupScope],
     ),
-    500
+    500,
   )
 
   const onChangeGrading = useCallback(
     async (grading) => {
       const newEvaluationToQuestions = [...evaluationToQuestions]
       const evaluationToQuestion = newEvaluationToQuestions.find(
-        (jstq) => jstq.question.id === grading.questionId
+        (jstq) => jstq.question.id === grading.questionId,
       )
       evaluationToQuestion.question.studentAnswer =
         evaluationToQuestion.question.studentAnswer.map((sa) => {
@@ -192,7 +192,7 @@ const PageGrading = () => {
       setEvaluationToQuestions(newEvaluationToQuestions)
       debouncedSaveGrading(grading)
     },
-    [evaluationToQuestions, mutate]
+    [evaluationToQuestions, mutate],
   )
 
   const signOffAllAutograded = useCallback(async () => {
@@ -210,7 +210,7 @@ const PageGrading = () => {
       }
     }
     await Promise.all(
-      updated.map((grading) => saveGrading(groupScope, grading))
+      updated.map((grading) => saveGrading(groupScope, grading)),
     )
     setEvaluationToQuestions(newEvaluationToQuestions)
     await mutate(newEvaluationToQuestions, false)
@@ -235,14 +235,14 @@ const PageGrading = () => {
       participants.findIndex((p) => p.id === participantId) + 1
     if (nextParticipantIndex < participants.length) {
       await router.push(
-        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[nextParticipantIndex].id}`,
       )
     } else {
       if (activeQuestion < evaluationToQuestions.length) {
         await router.push(
           `/${groupScope}/evaluations/${evaluationId}/grading/${
             parseInt(activeQuestion) + 1
-          }?participantId=${participants[0].id}`
+          }?participantId=${participants[0].id}`,
         )
       } else {
         // count signed gradings vs total gradings
@@ -269,14 +269,14 @@ const PageGrading = () => {
       participants.findIndex((p) => p.id === participantId) - 1
     if (prevParticipantIndex >= 0) {
       router.push(
-        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`
+        `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participants[prevParticipantIndex].id}`,
       )
     } else {
       if (activeQuestion - 1 >= 1) {
         router.push(
           `/${groupScope}/evaluations/${evaluationId}/grading/${
             activeQuestion - 1
-          }?participantId=${participants[participants.length - 1].id}`
+          }?participantId=${participants[participants.length - 1].id}`,
         )
       }
     }
@@ -292,14 +292,14 @@ const PageGrading = () => {
   const gradingState = useCallback(
     (questionId) => {
       const jstq = evaluationToQuestions.find(
-        (jstq) => jstq.question.id === questionId
+        (jstq) => jstq.question.id === questionId,
       )
       if (!jstq) {
         return 'empty'
       }
 
       const signedCount = jstq.question.studentAnswer.filter(
-        (sa) => sa.studentGrading.signedBy
+        (sa) => sa.studentGrading.signedBy,
       ).length
 
       if (signedCount === 0) {
@@ -310,7 +310,7 @@ const PageGrading = () => {
         return 'half'
       }
     },
-    [evaluationToQuestions]
+    [evaluationToQuestions],
   )
 
   const questionPages = useMemo(() => {
@@ -414,18 +414,18 @@ const PageGrading = () => {
                       <ParticipantNav
                         participants={participants}
                         active={participants.find(
-                          (participant) => participant.id === participantId
+                          (participant) => participant.id === participantId,
                         )}
                         onParticipantClick={(participant) => {
                           router.push(
-                            `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`
+                            `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`,
                           )
                         }}
                         isParticipantFilled={(participant) => {
                           const grading =
                             evaluationToQuestion &&
                             evaluationToQuestion.question.studentAnswer.find(
-                              (sa) => sa.user.id === participant.id
+                              (sa) => sa.user.id === participant.id,
                             ).studentGrading
                           return grading && grading.signedBy
                         }}
@@ -440,7 +440,7 @@ const PageGrading = () => {
                         }
                         answer={
                           evaluationToQuestion.question.studentAnswer.find(
-                            (answer) => answer.user.id === participantId
+                            (answer) => answer.user.id === participantId,
                           )[evaluationToQuestion.question.type]
                         }
                       />
@@ -458,7 +458,7 @@ const PageGrading = () => {
                     <GradingNextBack
                       isFirst={
                         participants.findIndex(
-                          (p) => p.id === participantId
+                          (p) => p.id === participantId,
                         ) === 0 && parseInt(activeQuestion) === 0
                       }
                       onPrev={prevParticipantOrQuestion}
@@ -468,7 +468,7 @@ const PageGrading = () => {
                       loading={loading}
                       grading={
                         evaluationToQuestion.question.studentAnswer.find(
-                          (ans) => ans.user.id === participantId
+                          (ans) => ans.user.id === participantId,
                         ).studentGrading
                       }
                       maxPoints={evaluationToQuestion.points}
@@ -556,11 +556,11 @@ const PageGrading = () => {
               questionCellClick={async (questionId, participantId) => {
                 const questionOrder =
                   evaluationToQuestions.findIndex(
-                    (jstq) => jstq.question.id === questionId
+                    (jstq) => jstq.question.id === questionId,
                   ) + 1
                 setStudentGridOpen(false)
                 await router.push(
-                  `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`
+                  `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`,
                 )
               }}
             />
@@ -582,7 +582,7 @@ const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
         }
       }
     },
-    [onPrev, onNext, isFirst]
+    [onPrev, onNext, isFirst],
   )
 
   useEffect(() => {
