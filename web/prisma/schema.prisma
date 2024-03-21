@@ -142,9 +142,16 @@ model CollectionToQuestion {
   @@id([collectionId, questionId])
 }
 
+enum QuestionSource {
+  BANK
+  EVAL
+}
+
 model Question {
   id      String       @id @default(cuid())
   type    QuestionType
+  source  QuestionSource @default(BANK)
+
   title   String
   content String?
 
@@ -160,12 +167,16 @@ model Question {
 
   collection CollectionToQuestion[]
 
+  sourceQuestionId String?           // Field indicating the ID of the source question if this is a copy
+  sourceQuestion   Question?         @relation("SourceQuestion", fields: [sourceQuestionId], references: [id])
+  copiedQuestions  Question[]        @relation("SourceQuestion")
+
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
 
   studentAnswer StudentAnswer[]
   questionToTag QuestionToTag[]
-  evaluation     EvaluationToQuestion?
+  evaluation    EvaluationToQuestion?
 }
 
 model MultipleChoice {
@@ -177,6 +188,7 @@ model MultipleChoice {
 
 model Option {
   id               String         @id @default(cuid())
+  order            Int            @default(0)
   multipleChoice   MultipleChoice @relation(fields: [multipleChoiceId], references: [id], onDelete: Cascade)
   multipleChoiceId String
   text             String?

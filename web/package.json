@@ -25,7 +25,7 @@
     "@mui/material": "^5.15.10",
     "@next-auth/prisma-adapter": "1.0.7",
     "@octokit/auth-app": "^6.0.0",
-    "@prisma/client": "^4.13.0",
+    "@prisma/client": "^4.16.0",
     "clipboard-copy": "^4.0.1",
     "dockerode": "^3.3.5",
     "javascript-time-ago": "^2.5.9",
@@ -55,6 +55,6 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-header": "^3.1.1",
     "prettier": "^2.8.8",
-    "prisma": "4.13.0"
+    "prisma": "^4.16.0"
   }
 }

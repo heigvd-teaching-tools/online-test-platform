@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, QuestionType, StudentPermission } from '@prisma/client'
+import { Role, QuestionType, StudentPermission, QuestionSource } from '@prisma/client'
 import {
   withAuthorization,
   withGroupScope,
@@ -51,7 +51,7 @@ const get = async (req, res, prisma) => {
       group: {
         scope: groupScope,
       },
-      evaluation: null, // only get questions that are not part of a evaluation
+      source: QuestionSource.BANK
     },
   }
 
