@@ -60,7 +60,7 @@ const ParticipantNav = ({
   const participantRefs = useRef({}) // for auto-scrolling
 
   useEffect(() => {
-    if (active && participantRefs.current[active.id]) {
+    if (active && participantRefs && participantRefs.current[active.id]) {
       // Wrap the scrollIntoView call in a microtask
       setTimeout(() => {
         participantRefs.current[active.id].scrollIntoView({

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box, Stack, Tab, Tabs } from '@mui/material'
+import { Box, IconButton, Stack, Tab, Tabs } from '@mui/material'
 import ConnectionIndicator from './ConnectionIndicator'
 import EvaluationCountDown from '@/components/evaluations/in-progress/EvaluationCountDown'
 import Paging from '@/components/layout/utils/Paging'
@@ -53,22 +53,13 @@ const StudentMainMenu = ({ evaluationId, evaluation, pages = [], page }) => {
         </Box>
       )}
       <Stack>
-        <Tabs value={page}>
-          <Tab
-            label="Home"
-            iconPosition="start"
-            sx={{ minHeight: '50px', minWidth: 0, mb: 1, mt: 1 }}
-            value={0}
-            icon={
-              <Box mr={1}>
-                <HomeSvgIcon />
-              </Box>
-            }
-            onClick={() =>
-              router.push(`/users/evaluations/${evaluationId}/take/0`)
-            }
-          />
-        </Tabs>
+        <IconButton
+          size="small"
+          sx={{ ml: 2 }}
+          onClick={() => router.push(`/users/evaluations/${evaluationId}/take/0`)}
+        >
+          <HomeSvgIcon />
+        </IconButton>
       </Stack>
       <Stack direction="row" flex={1} overflow={'auto'}>
         {pages.length > 0 && (

@@ -1,0 +1,28 @@
+name: Code Quality Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14' # Use the Node.js version your project requires
+
+      - name: Install dependencies
+        run: npm install # Or 'yarn install', if you use Yarn
+
+      - name: Run ESLint
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx # Adjust the file extensions according to your project
+
+      - name: Run Prettier Check
+        run: npx prettier --check . # This checks if files are formatted without writing changes
+
