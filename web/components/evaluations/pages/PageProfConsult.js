@@ -133,7 +133,7 @@ const PageProfConsult = () => {
       setEvaluationToQuestions(newEvaluationToQuestions)
       debouncedSaveGrading(grading)
     },
-    [groupScope, evaluationToQuestions, mutate],
+    [evaluationToQuestions, debouncedSaveGrading],
   )
 
   const isDataReady = useMemo(

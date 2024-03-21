@@ -181,7 +181,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
       }
       setQuestionData(data)
     }
-  }, [question, evaluationToQuestions])
+  }, [question, evaluationToQuestions, maxValue])
 
   const questionTypeToLegend = {
     [QuestionType.multipleChoice]: [

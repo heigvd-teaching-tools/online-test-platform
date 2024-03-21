@@ -66,7 +66,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
       .finally(() => {
         onUpdate && onUpdate()
       })
-  }, [groupScope, queries, mutate, onUpdate])
+  }, [groupScope, mutate, onUpdate, questionId])
 
   const onQueryUpdate = useCallback(
     async (query, doMutate = false) => {
@@ -129,7 +129,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, queries, mutate, questionId, onUpdate],
+    [groupScope, mutate, questionId, onUpdate],
   )
 
   const runAllQueries = useCallback(async () => {
@@ -219,6 +219,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
         <ScrollContainer ref={ref} pb={24}>
           {queries?.map((query, index) => (
             <Stack
+              key={query.id}
               position="relative"
               onClick={() => setActiveQuery(index)}
               sx={{

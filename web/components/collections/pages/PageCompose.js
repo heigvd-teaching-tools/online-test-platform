@@ -18,6 +18,8 @@ import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import { Role } from '@prisma/client'
 
+import Image from 'next/image'
+
 import {
   Box,
   IconButton,
@@ -335,12 +337,12 @@ const QuestionsGrid = ({ questions, addCollectionToQuestion }) => {
                     await router.push(`/${groupScope}/questions/${question.id}`)
                   }}
                 >
-                  <Image src={'/svg/icons/update.svg'} width={16} height={16} />
+                  <Image src={'/svg/icons/update.svg'} width={16} height={16} alt={'Update'} />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Update in overlay">
                 <IconButton onClick={() => setSelected(question)}>
-                  <Image src={'/svg/icons/aside.svg'} width={16} height={16} />
+                  <Image src={'/svg/icons/aside.svg'} width={16} height={16} alt={'Update'} />
                 </IconButton>
               </Tooltip>
             </React.Fragment>,

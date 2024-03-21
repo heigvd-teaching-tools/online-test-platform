@@ -119,7 +119,7 @@ const GroupScopeInput = ({
 
       debounceChange(value, newScope, available)
     },
-    [initialLabel, initialScope, error, isAvailable, debounceChange],
+    [debounceChange, isAvailable],
   )
 
   return (

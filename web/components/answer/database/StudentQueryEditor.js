@@ -23,7 +23,7 @@ import StudentPermissionIcon from '@/components/feedback/StudentPermissionIcon'
 const StudentQueryEditor = ({ query: initial, onChange }) => {
   const [query, setQuery] = useState(initial)
 
-  useEffect(() => setQuery(initial), [initial.id])
+  useEffect(() => setQuery(initial), [initial])
 
   return (
     <Stack>

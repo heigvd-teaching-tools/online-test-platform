@@ -94,7 +94,7 @@ const EditMarkdown = ({
       setRawContent(newContent)
       onChange(newContent === '' ? undefined : newContent)
     },
-    [rawContent, onChange],
+    [onChange],
   )
 
   return (

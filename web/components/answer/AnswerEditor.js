@@ -101,7 +101,7 @@ const AnswerEditor = ({
         onAnswer(question, data)
       }
     },
-    [question, onAnswer],
+    [question, onAnswer, showSnackbar],
   )
 
   const onSubmitClick = useCallback(async () => {
@@ -125,7 +125,7 @@ const AnswerEditor = ({
     }
 
     setSubmitLock(false)
-  }, [onSubmit, question])
+  }, [onSubmit, question, evaluationId, mutate, showSnackbar])
 
   const onUnsubmitClick = useCallback(async () => {
     setSubmitLock(true)
@@ -147,7 +147,7 @@ const AnswerEditor = ({
       await mutate()
     }
     setSubmitLock(false)
-  }, [onUnsubmit, question])
+  }, [onUnsubmit, question, evaluationId, mutate, showSnackbar])
 
   const isReadOnly = status === StudentAnswerStatus.SUBMITTED
 

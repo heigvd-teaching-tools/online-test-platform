@@ -32,7 +32,7 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
       setErrorLabel({ error: false })
       setConditions(evaluation.conditions)
     }
-  }, [evaluation, setLabel, setErrorLabel, setConditions])
+  }, [evaluation, setLabel, setErrorLabel, setConditions, label])
 
   useEffect(() => {
     onChange({

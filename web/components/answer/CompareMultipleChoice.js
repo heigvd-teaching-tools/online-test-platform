@@ -43,7 +43,7 @@ const StudentSelectionSummary = ({ options, answer }) => {
       )}
       {missedCorrect === 0 && incorrectSelection === 0 && (
         <Alert severity="success">
-          Student selected all the correct options and didn't select any
+          Student selected all the correct options and didn&apos;t select any
           incorrect option.
         </Alert>
       )}
@@ -58,7 +58,7 @@ const CompareMultipleChoice = ({ options, answer }) => {
       <ResizePanel
         leftPanel={
           <Stack spacing={2} padding={2}>
-            <Typography variant="h6">Student's options</Typography>
+            <Typography variant="h6">Student&apos;s options</Typography>
             {options?.map((option, index) => (
               <Stack
                 key={index}

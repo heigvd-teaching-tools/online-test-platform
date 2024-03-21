@@ -56,7 +56,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
     if (question) {
       setTitle(question.title)
     }
-  }, [question?.title, questionId])
+  }, [question])
 
   const saveQuestion = useCallback(
     async (question) => {

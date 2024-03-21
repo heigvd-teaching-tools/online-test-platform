@@ -40,7 +40,7 @@ const IndexPage = () => {
         await router.push(`/${selectedGroup}/questions`)
       })()
     }
-  }, [switchGroup, groups, session])
+  }, [switchGroup, groups, session, router])
 
   return <Loading />
 }

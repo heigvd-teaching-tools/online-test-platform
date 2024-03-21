@@ -52,7 +52,7 @@ const CollectionToQuestion = ({
         },
       )
     },
-    [groupScope, collectionToQuestion],
+    [groupScope],
   )
 
   const saveCollectionToQuestion = useCallback(

@@ -192,7 +192,7 @@ const PageGrading = () => {
       setEvaluationToQuestions(newEvaluationToQuestions)
       debouncedSaveGrading(grading)
     },
-    [evaluationToQuestions, mutate],
+    [evaluationToQuestions, debouncedSaveGrading],
   )
 
   const signOffAllAutograded = useCallback(async () => {
@@ -373,6 +373,7 @@ const PageGrading = () => {
                         src="/svg/icons/checklist.svg"
                         width={18}
                         height={18}
+                        alt="Student Grid"
                       />
                     }
                   >

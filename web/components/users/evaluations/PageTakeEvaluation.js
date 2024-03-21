@@ -107,7 +107,7 @@ const PageTakeEvaluation = () => {
 
   useEffect(() => {
     mutate()
-  }, [evaluationStatus?.userOnEvaluation?.status])
+  }, [evaluationStatus?.userOnEvaluation?.status, mutate])
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -488,7 +488,7 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
 
       setSubmitLock(false)
     },
-    [onSubmit],
+    [onSubmit, evaluationId],
   )
 
   return (

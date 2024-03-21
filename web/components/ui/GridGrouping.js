@@ -99,7 +99,7 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
   useEffect(() => {
     setGroups(groupByType(items, selectedGrouping))
-  }, [items])
+  }, [items, selectedGrouping])
 
   const handleGroupingChange = (option) => {
     const grouping = groupings.find((g) => g.option === option)

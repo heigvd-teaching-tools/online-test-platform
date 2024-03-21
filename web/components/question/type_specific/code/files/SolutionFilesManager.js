@@ -78,7 +78,7 @@ const SolutionFilesManager = ({
       setLockCodeCheck(false)
       onUpdate && onUpdate()
     },
-    [groupScope, questionId, codeToSolutionFiles, onUpdate],
+    [groupScope, questionId, onUpdate],
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)

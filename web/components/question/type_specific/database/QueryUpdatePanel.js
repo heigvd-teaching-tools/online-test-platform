@@ -162,7 +162,7 @@ const QueryOutputTab = ({ query, queryOutput, onChange }) => {
   useEffect(() => {
     setEnableOutputTest(query.testQuery)
     setActiveTests(query.queryOutputTests)
-  }, [query.id, query.testQuery])
+  }, [query.id, query.testQuery, query.queryOutputTests])
 
   return (
     <Stack spacing={3} width={'100%'} pb={1}>
@@ -191,6 +191,7 @@ const QueryOutputTab = ({ query, queryOutput, onChange }) => {
                 const { label } = InputDatabaseQueryOutputTest[key]
                 return (
                   <OutputTestToggle
+                    key={key}
                     toggled={activeTests.some((test) => test.test === key)}
                     label={label}
                     testKey={key}
@@ -253,7 +254,7 @@ const QuerySettingsTab = ({ query, onChange }) => {
     setDescription(query.description || '')
     setLintActive(query.lintActive)
     setLintRules(query.lintRules || '')
-  }, [query.id])
+  }, [query.id, query.studentPermission, query.title, query.description, query.lintActive, query.lintRules])
 
   return (
     <Stack spacing={3} width={'100%'}>
@@ -345,7 +346,7 @@ const QueryTemplateTab = ({ query, onChange }) => {
 
   useEffect(() => {
     setTemplate(query.template)
-  }, [query.id])
+  }, [query.id, query.template])
 
   return (
     <InlineMonacoEditor

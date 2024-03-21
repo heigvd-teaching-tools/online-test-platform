@@ -18,7 +18,7 @@ import GroupIcon from '@mui/icons-material/Group'
 import { Button, MenuItem, Stack, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Loading from '../feedback/Loading'
 import { useGroup } from '../../context/GroupContext'
 
@@ -29,9 +29,9 @@ const GroupSelector = () => {
 
   const { groups, switchGroup, error: errorGroups } = useGroup()
 
-  const findGroupBy = (what, value) =>
+  const findGroupBy = useCallback((what, value) =>
     groups?.map((uOg) => uOg.group).find((group) => group[what] === value) ||
-    undefined
+    undefined, [groups])
 
   const switchGroupLink = (group) => {
     // replaces the root part of the path by the new group scope
@@ -51,7 +51,7 @@ const GroupSelector = () => {
       const group = findGroupBy('scope', groupScope)
       setSelected(group)
     }
-  }, [groupScope, groups])
+  }, [groupScope, groups, findGroupBy])
 
   return (
     <Loading loading={!groups} error={errorGroups}>

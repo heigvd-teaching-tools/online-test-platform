@@ -75,7 +75,7 @@ const StudentStatusManager = ({
           if (onChange) onChange(res.status)
         })
     },
-    [evaluationId, userEmail, status, onChange],
+    [evaluationId, userEmail, onChange, groupScope],
   )
 
   const Option = ({ value }) => (
@@ -174,7 +174,7 @@ const StudentList = ({
           />
         ),
       })),
-    [questions],
+    [questions, getStudentAnswerStatus],
   )
 
   if (questionColumns.length > 0) {

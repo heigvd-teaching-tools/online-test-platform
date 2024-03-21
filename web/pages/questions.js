@@ -49,8 +49,8 @@ const LegacyQuestionPage = () => {
         content={
           <Stack spacing={1}>
             <Typography variant="body2">
-              We've updated our app to include group scoping in the URL. As a
-              result, this page's location has changed.
+              We&apos;ve updated our app to include group scoping in the URL. As a
+              result, this page&apos;s location has changed.
             </Typography>
             <Typography variant="body2">
               To ensure a smooth transition and avoid unnecessary redirections,{' '}
@@ -67,7 +67,7 @@ const LegacyQuestionPage = () => {
               </a>
             </Typography>
             <Typography variant="body2">
-              Once you click "Confirm" below, you'll be redirected to the new
+              Once you click &quot;Confirm&quot; below, you&apos;ll be redirected to the new
               page location.
             </Typography>
           </Stack>

@@ -88,13 +88,15 @@ const MagicResizeHandle = ({ width = 50 }) => {
       document.removeEventListener('mouseup', handleMouseUp)
     }
 
+    const handleRefCurrent = handleRef.current
+
     // Add the mousedown listener to the handle
-    handleRef.current.addEventListener('mousedown', handleMouseDown)
+    handleRefCurrent.addEventListener('mousedown', handleMouseDown)
 
     return () => {
       // Clean up all the listeners on unmount
-      if (handleRef.current) {
-        handleRef.current.removeEventListener('mousedown', handleMouseDown)
+      if (handleRefCurrent) {
+        handleRefCurrent.removeEventListener('mousedown', handleMouseDown)
       }
       if (document) {
         document.removeEventListener('mousemove', handleMouseMove)
