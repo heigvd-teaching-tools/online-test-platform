@@ -51,7 +51,9 @@ const get = async (req, res, prisma) => {
       group: {
         scope: groupScope,
       },
-      source: QuestionSource.BANK
+      source: {
+        in: [QuestionSource.BANK, QuestionSource.COPY],
+      }
     },
   }
 

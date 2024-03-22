@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuestionType, StudentPermission } from '@prisma/client'
+import { QuestionType, StudentPermission, QuestionSource } from '@prisma/client'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -281,4 +281,221 @@ export const questionTypeSpecific = (
     default:
       return {}
   }
+}
+
+
+/**
+ * Deep copy a question and its type-specific data.
+ * @param {PrismaClient} prisma
+ * @param {Object} question
+ * @param {string} source
+ */
+export const copyQuestion = async (prisma, question, source = QuestionSource.EVAL, appendCopyInTitle = false) => {
+
+  const data = {
+    title: appendCopyInTitle ? `Copy of ${question.title}` : question.title,
+    content: question.content,
+    type: question.type,
+    group: {
+      connect: {
+        id: question.groupId,
+      },
+    },
+    questionToTag: {
+      create: question.questionToTag.map((qTag) => ({
+        tag: {
+          connect: {
+            label: qTag.tag.label,
+          },
+        },
+      })),
+    },
+    source: source,
+    sourceQuestion:{
+      connect:{
+        id: question.id
+      }
+    }
+  }
+
+  const copyGenericQuestion = async (prisma, question) => {
+    const newQuestion = await prisma.question.create({
+      data: {
+       ...data,
+        [question.type]: {
+          create: questionTypeSpecific(
+            question.type,
+            question,
+            'create',
+          ),
+        },
+      },
+    })
+    return newQuestion
+  }
+
+  const copyCodeQuestion = async (prisma, question) => {
+    const newCodeQuestion = await prisma.question.create({
+      data: {
+        ...data,
+        code: {
+          create: {
+            language: question.code.language,
+            sandbox: {
+              create: {
+                image: question.code.sandbox.image,
+                beforeAll: question.code.sandbox.beforeAll,
+              },
+            },
+            testCases: {
+              create: question.code.testCases.map((testCase) => ({
+                index: testCase.index,
+                exec: testCase.exec,
+                input: testCase.input,
+                expectedOutput: testCase.expectedOutput,
+              })),
+            },
+          },
+        },
+      },
+    })
+
+    // create the copy of template and solution files and link them to the new code questions
+
+    for (const codeToFile of question.code.templateFiles) {
+      const newFile = await prisma.file.create({
+        data: {
+          path: codeToFile.file.path,
+          content: codeToFile.file.content,
+          createdAt: codeToFile.file.createdAt, // for deterministic ordering
+          code: {
+            connect: {
+              questionId: newCodeQuestion.id,
+            },
+          },
+        },
+      })
+      await prisma.codeToTemplateFile.create({
+        data: {
+          questionId: newCodeQuestion.id,
+          fileId: newFile.id,
+          order: codeToFile.order,
+          studentPermission: codeToFile.studentPermission,
+        },
+      })
+    }
+
+    for (const codeToFile of question.code.solutionFiles) {
+      const newFile = await prisma.file.create({
+        data: {
+          path: codeToFile.file.path,
+          content: codeToFile.file.content,
+          createdAt: codeToFile.file.createdAt, // for deterministic ordering
+          code: {
+            connect: {
+              questionId: newCodeQuestion.id,
+            },
+          },
+        },
+      })
+      await prisma.codeToSolutionFile.create({
+        data: {
+          questionId: newCodeQuestion.id,
+          fileId: newFile.id,
+          order: codeToFile.order,
+          studentPermission: codeToFile.studentPermission,
+        },
+      })
+    }
+
+    return newCodeQuestion
+  }
+
+  const copyDatabaseQuestion = async (prisma, question) => {
+    const newDatabaseQuestion = await prisma.question.create({
+      data: {
+        ...data,
+        database: {
+          create: {
+            image: question.database.image,
+          },
+        },
+      },
+    })
+
+    for (const solQuery of question.database.solutionQueries) {
+      const query = solQuery.query
+      const output = solQuery.output
+
+      const newQuery = await prisma.databaseQuery.create({
+        data: {
+          order: query.order,
+          title: query.title,
+          description: query.description,
+          content: query.content,
+          template: query.template,
+          lintActive: query.lintActive,
+          lintRules: query.lintRules,
+          studentPermission: query.studentPermission,
+          testQuery: query.testQuery,
+          queryOutputTests: {
+            create: query.queryOutputTests.map((test) => ({
+              test: test.test,
+            })),
+          },
+          database: {
+            connect: {
+              questionId: newDatabaseQuestion.id,
+            },
+          },
+        },
+      })
+
+      let newQueryOutput = undefined
+
+      if (output) {
+        newQueryOutput = await prisma.databaseQueryOutput.create({
+          data: {
+            output: output.output,
+            status: output.status,
+            type: output.type,
+            dbms: output.dbms,
+            query: {
+              connect: {
+                id: newQuery.id,
+              },
+            },
+          },
+        })
+      }
+
+      await prisma.databaseToSolutionQuery.create({
+        data: {
+          questionId: newDatabaseQuestion.id,
+          queryId: newQuery.id,
+          outputId: newQueryOutput?.id,
+        },
+      })
+
+    }
+
+    return newDatabaseQuestion
+  }
+    
+    
+
+  switch (question.type) {
+    case QuestionType.essay:
+    case QuestionType.multipleChoice:
+    case QuestionType.trueFalse:
+    case QuestionType.web:
+      return copyGenericQuestion(prisma, question)
+    case QuestionType.code:
+      return copyCodeQuestion(prisma, question)
+    case QuestionType.database:
+      return copyDatabaseQuestion(prisma, question)
+    default:
+      return null
+  }
+  
 }

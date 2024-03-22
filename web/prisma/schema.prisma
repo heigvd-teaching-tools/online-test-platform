@@ -143,8 +143,9 @@ model CollectionToQuestion {
 }
 
 enum QuestionSource {
-  BANK
-  EVAL
+  BANK // Question bank
+  EVAL // Question is part of an evaluation
+  COPY // Question is a copy of another question
 }
 
 model Question {
@@ -168,7 +169,7 @@ model Question {
   collection CollectionToQuestion[]
 
   sourceQuestionId String?           // Field indicating the ID of the source question if this is a copy
-  sourceQuestion   Question?         @relation("SourceQuestion", fields: [sourceQuestionId], references: [id])
+  sourceQuestion   Question?         @relation("SourceQuestion", fields: [sourceQuestionId], references: [id], onDelete: SetNull)
   copiedQuestions  Question[]        @relation("SourceQuestion")
 
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
