@@ -498,6 +498,8 @@ model Evaluation {
   startAt DateTime?
   endAt   DateTime?
 
+  showSolutionsWhenFinished Boolean @default(false)
+
   students              UserOnEvaluation[]
   evaluationToQuestions EvaluationToQuestion[]
 

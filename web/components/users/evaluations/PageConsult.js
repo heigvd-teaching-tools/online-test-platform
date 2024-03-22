@@ -18,7 +18,7 @@ import useSWR from 'swr'
 import { Role, StudentAnswerStatus } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
-import { Paper, Stack } from '@mui/material'
+import { Box, Paper, Stack } from '@mui/material'
 import Paging from '../../layout/utils/Paging'
 import { useEffect, useMemo, useState } from 'react'
 import StudentPhaseRedirect from './StudentPhaseRedirect'
@@ -30,6 +30,7 @@ import AnswerConsult from '../../answer/AnswerConsult'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import AnswerCompare from '@/components/answer/AnswerCompare'
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -132,17 +133,34 @@ const PageConsult = () => {
                     rightWidth={65}
                     rightPanel={
                       selected && (
-                        <AnswerConsult
-                          id={`answer-viewer-${selected.question.id}`}
-                          questionType={selected.question.type}
-                          question={selected.question}
-                          answer={
-                            selected.question.studentAnswer[0][
-                              selected.question.type
-                            ]
-                          }
-                        />
+                        userOnEvaluation.showSolutionsWhenFinished ? (
+                          <Box mt={1} height={'100%'}>
+                          <AnswerCompare
+                            id={`answer-viewer-${selected.question.id}`}
+                            questionType={selected.question.type}
+                            solution={selected.question[selected.question.type]}
+                            answer={
+                              selected.question.studentAnswer[0][selected.question.type]
+                            }
+                          />
+                          </Box>
+                        )
+                        :
+                        (
+                          <AnswerConsult
+                            id={`answer-viewer-${selected.question.id}`}
+                            questionType={selected.question.type}
+                            question={selected.question}
+                            answer={
+                              selected.question.studentAnswer[0][
+                                selected.question.type
+                              ]
+                            }
+                          />
+                        )
                       )
+
+
                     }
                     footer={
                       <>

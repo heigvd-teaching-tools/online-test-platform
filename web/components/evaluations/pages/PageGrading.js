@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo, use } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import {
@@ -32,6 +32,9 @@ import {
   Tooltip,
   Box,
   ButtonBase,
+  FormControlLabel,
+  Switch,
+  FormGroup,
 } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -69,6 +72,7 @@ import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import { saveGrading } from '../grading/utils'
+import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -431,7 +435,7 @@ const PageGrading = () => {
                           return grading && grading.signedBy
                         }}
                       />
-                      <Divider orientation="vertical" light flexItem />
+                      <Divider orientation="vertical" flexItem />
                       <AnswerCompare
                         questionType={evaluationToQuestion.question.type}
                         solution={
@@ -510,20 +514,11 @@ const PageGrading = () => {
             }
             onConfirm={signOffAllAutograded}
           />
-          <DialogFeedback
+          <EndGradingDialog
+            groupScope={groupScope}
+            evaluation={evaluation}
             open={endGradingDialogOpen}
             onClose={() => setEndGradingDialogOpen(false)}
-            title="End grading"
-            content={
-              <>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  You wont be able to get back to the grading phase.
-                </Typography>
-                <Typography variant="button" gutterBottom>
-                  Are you sure you want to end grading?
-                </Typography>
-              </>
-            }
             onConfirm={endGrading}
           />
           <DialogFeedback
@@ -571,6 +566,36 @@ const PageGrading = () => {
     </Authorisation>
   )
 }
+
+
+const EndGradingDialog = ({ groupScope, evaluation, open, onClose, onConfirm }) => {
+
+  return (
+    <DialogFeedback
+        open={open}
+        onClose={() => onClose()}
+        title="End grading"
+        content={
+          <>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              You wont be able to get back to the grading phase.
+            </Typography>
+            <Typography variant="button" gutterBottom>
+              Are you sure you want to end grading?
+            </Typography>
+            <ToggleStudentViewSolution 
+              groupScope={groupScope}
+              evaluation={evaluation} 
+            />
+          </>
+        }
+        onConfirm={onConfirm}
+      />
+  )
+}
+
+
+
 
 const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
   const handleKeyDown = useCallback(

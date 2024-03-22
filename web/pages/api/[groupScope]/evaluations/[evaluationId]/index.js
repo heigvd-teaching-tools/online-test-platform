@@ -44,6 +44,7 @@ const patch = async (req, res, prisma) => {
       startAt: true,
       durationHours: true,
       durationMins: true,
+
     },
   })
 
@@ -59,6 +60,7 @@ const patch = async (req, res, prisma) => {
     duration,
     endAt,
     status,
+    showSolutionsWhenFinished,
   } = req.body
 
   let data = {}
@@ -107,6 +109,11 @@ const patch = async (req, res, prisma) => {
     }
     data.endAt = endAt
   }
+
+  if (showSolutionsWhenFinished !== undefined) {
+    data.showSolutionsWhenFinished = showSolutionsWhenFinished
+  }
+
 
   try {
     const evaluationAfterUpdate = await prisma.evaluation.update({

@@ -41,6 +41,7 @@ import JoinClipboard from '../JoinClipboard'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
+import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
 
 const PageFinished = () => {
   const router = useRouter()
@@ -143,11 +144,17 @@ const PageFinished = () => {
                           </AlertFeedback>
                         )}
                       </Stack>
+                      <Stack direction="row" spacing={2}>
+                      <ToggleStudentViewSolution
+                          groupScope={groupScope}
+                          evaluation={evaluation}
+                        />
                       <ExportCSV
                         evaluation={evaluation}
                         evaluationToQuestions={evaluationToQuestions}
                         participants={participants}
                       />
+                      </Stack>
                     </Stack>
 
                     <StudentResultsGrid
