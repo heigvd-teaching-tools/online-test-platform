@@ -27,7 +27,7 @@ const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/sandbox`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [image, setImage] = useState(sandbox?.image || '')
@@ -63,7 +63,7 @@ const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, onUpdate]
+    [groupScope, questionId, mutate, onUpdate],
   )
 
   const debouncedOnChange = useDebouncedCallback(onChange, 500)

@@ -33,8 +33,20 @@ const get = async (req, res, prisma) => {
     return
   }
 
+  const evaluation = await prisma.evaluation.findUnique({
+    where: {
+      id: evaluationId,
+    },
+  })
+
+  if (!evaluation) {
+    res.status(404).json({ message: 'Evaluation not found' })
+    return
+  }
+
   let includeQuestions = questionIncludeClause({
     includeTypeSpecific: true,
+    includeOfficialAnswers: evaluation.showSolutionsWhenFinished,
     includeUserAnswers: {
       strategy: IncludeStrategy.USER_SPECIFIC,
       userEmail: email,

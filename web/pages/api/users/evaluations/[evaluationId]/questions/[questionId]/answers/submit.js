@@ -61,8 +61,8 @@ const put = withEvaluationPhase(
       })
 
       res.status(200).json({ message: 'Answer submitted' })
-    }
-  )
+    },
+  ),
 )
 
 const del = withEvaluationPhase(
@@ -89,8 +89,8 @@ const del = withEvaluationPhase(
       })
 
       res.status(200).json({ message: 'Answer status updated' })
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

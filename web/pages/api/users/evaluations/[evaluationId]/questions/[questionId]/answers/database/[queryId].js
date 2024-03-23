@@ -63,7 +63,7 @@ const put = withEvaluationPhase(
           include: {
             question: true,
           },
-        }
+        },
       )
 
       if (!evaluationToQuestion) {
@@ -116,13 +116,13 @@ const put = withEvaluationPhase(
             ...grading(
               evaluationToQuestion.question,
               evaluationToQuestion.points,
-              undefined
+              undefined,
             ),
           },
           update: grading(
             evaluationToQuestion.question,
             evaluationToQuestion.points,
-            undefined
+            undefined,
           ),
         })
       })
@@ -149,8 +149,8 @@ const put = withEvaluationPhase(
       })
 
       res.status(200).json(updatedAnswer)
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

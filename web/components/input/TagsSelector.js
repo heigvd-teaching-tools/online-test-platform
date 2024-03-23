@@ -40,7 +40,7 @@ const TagsSelector = ({
         onChange(newValue)
       }
     },
-    [onChange]
+    [onChange],
   )
 
   return (

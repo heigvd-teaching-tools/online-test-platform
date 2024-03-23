@@ -43,6 +43,9 @@ const CompareCode = ({ solution, answer }) => {
     */
   const { height: containerHeight } = useResizeObserver()
 
+  console.log('answer', answer)
+  console.log('solution', solution)
+
   return (
     answer &&
     solution && (
@@ -70,7 +73,7 @@ const CompareCode = ({ solution, answer }) => {
                     <>
                       <PassIndicator
                         passed={answer.testCaseResults.every(
-                          (test) => test.passed
+                          (test) => test.passed,
                         )}
                       />
                       <Typography variant="caption">
@@ -91,7 +94,7 @@ const CompareCode = ({ solution, answer }) => {
             />
             {answer.files.some(
               (ansToFile) =>
-                ansToFile.file.updatedAt > answer.testCaseResults[0]?.createdAt
+                ansToFile.file.updatedAt > answer.testCaseResults[0]?.createdAt,
             ) && (
               <Alert severity="warning">Post code-check modifications</Alert>
             )}

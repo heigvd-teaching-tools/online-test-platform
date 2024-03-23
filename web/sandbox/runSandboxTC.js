@@ -38,7 +38,7 @@ export const runSandbox = async ({
   const { container, beforeAllOutput } = await startContainer(
     image,
     directory,
-    beforeAll
+    beforeAll,
   )
 
   return new Promise(async (resolve, reject) => {
@@ -142,13 +142,17 @@ const execTests = async (container, tests) => {
     */
 
     let { output } = await container.exec(
-      ['sh', '-c', `echo "${input}" | ${exec} 2>&1 | awk -v max_bytes=$((${MAX_OUTPUT_SIZE_PER_EXEC_KB} * 1024)) '{
+      [
+        'sh',
+        '-c',
+        `echo "${input}" | ${exec} 2>&1 | awk -v max_bytes=$((${MAX_OUTPUT_SIZE_PER_EXEC_KB} * 1024)) '{
           bytes += length($0) + 1; # +1 for newline character
           if (bytes <= max_bytes) print;
           else exit;
-      }'`],
-      { tty: false }
-    );
+      }'`,
+      ],
+      { tty: false },
+    )
     // time after execution
     const endTime = new Date().getTime()
     // time difference

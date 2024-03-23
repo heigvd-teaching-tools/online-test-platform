@@ -45,6 +45,8 @@ import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
+import CopyQuestionDialog from '../list/CopyQuestionDialog'
+import { set } from 'lodash'
 
 const PageList = () => {
   const router = useRouter()
@@ -65,10 +67,12 @@ const PageList = () => {
     mutate,
   } = useSWR(
     `/api/${groupScope}/questions?${queryString}`,
-    groupScope ? fetcher : null
+    groupScope ? fetcher : null,
   )
 
+  const [openSideUpdate, setOpenSideUpdate] = useState(false)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false)
 
   const [selected, setSelected] = useState(undefined)
 
@@ -96,7 +100,24 @@ const PageList = () => {
           showSnackbar('Error creating questions', 'error')
         })
     },
-    [groupScope, router, showSnackbar, questions, mutate]
+    [groupScope, router, showSnackbar, questions, mutate],
+  )
+
+  const copyQuestion = useCallback(
+    async (questionId) => {
+      await fetch(`/api/${groupScope}/questions/${questionId}/copy`, {
+        method: 'POST',
+      })
+        .then((res) => res.json())
+        .then(async () => {
+          showSnackbar('Question copied', 'success')
+          await mutate()
+        })
+        .catch(() => {
+          showSnackbar('Error copying question', 'error')
+        })
+    },
+    [groupScope, showSnackbar, mutate],
   )
 
   return (
@@ -118,14 +139,19 @@ const PageList = () => {
                     questions={questions}
                     setAddDialogOpen={setAddDialogOpen}
                     setSelected={setSelected}
+                    setOpenSideUpdate={setOpenSideUpdate}
                     groupScope={groupScope}
+                    setCopyDialogOpen={setCopyDialogOpen}
                   />
                   <ResizableDrawer
-                    open={selected !== undefined}
-                    onClose={() => setSelected(undefined)}
+                    open={openSideUpdate}
+                    onClose={() => {
+                      setSelected(undefined)
+                      setOpenSideUpdate(false)
+                    }}
                   >
                     <Box pt={2} width={'100%'} height={'100%'}>
-                      {selected !== undefined && (
+                      {openSideUpdate && selected && (
                         <QuestionUpdate
                           groupScope={router.query.groupScope}
                           questionId={selected.id}
@@ -136,6 +162,7 @@ const PageList = () => {
                           onDelete={async () => {
                             await mutate()
                             setSelected(undefined)
+                            setOpenSideUpdate(false)
                           }}
                         />
                       )}
@@ -162,6 +189,14 @@ const PageList = () => {
               setAddDialogOpen(false)
             }}
           />
+          <CopyQuestionDialog
+            open={copyDialogOpen}
+            onClose={() => setCopyDialogOpen(false)}
+            handleCopyQuestion={async () => {
+              await copyQuestion(selected.id)
+              setCopyDialogOpen(false)
+            }}
+          />
         </LayoutMain>
       </Loading>
     </Authorisation>
@@ -173,6 +208,8 @@ const QuestionsGrid = ({
   questions,
   setAddDialogOpen,
   setSelected,
+  setOpenSideUpdate,
+  setCopyDialogOpen,
 }) => {
   const router = useRouter()
 
@@ -187,7 +224,7 @@ const QuestionsGrid = ({
       header={{
         actions: {
           label: 'Actions',
-          width: '80px',
+          width: '100px',
         },
         columns: [
           {
@@ -235,9 +272,29 @@ const QuestionsGrid = ({
         ...question,
         meta: {
           key: question.id,
-          onClick: () => setSelected(question),
+          onClick: () => {
+            setSelected(question)
+            setOpenSideUpdate(true)
+          },
           actions: [
             <React.Fragment key="actions">
+              <Tooltip title="Make a copy">
+                <IconButton
+                  onClick={(ev) => {
+                    ev.preventDefault()
+                    ev.stopPropagation()
+                    setSelected(question)
+                    setCopyDialogOpen(true)
+                  }}
+                >
+                  <Image
+                    alt={'Make a copy'}
+                    src={'/svg/icons/copy.svg'}
+                    width={16}
+                    height={16}
+                  />
+                </IconButton>
+              </Tooltip>
               <Tooltip title="Update in new page">
                 <IconButton
                   onClick={async (ev) => {
@@ -260,6 +317,7 @@ const QuestionsGrid = ({
                     ev.preventDefault()
                     ev.stopPropagation()
                     setSelected(question)
+                    setOpenSideUpdate(true)
                   }}
                 >
                   <Image

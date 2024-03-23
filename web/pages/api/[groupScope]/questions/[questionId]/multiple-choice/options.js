@@ -43,7 +43,7 @@ const get = async (req, res, prisma) => {
     include: {
       options: {
         orderBy: {
-          id: 'asc',
+          order: 'asc',
         },
       },
     },
@@ -92,6 +92,7 @@ const post = async (req, res, prisma) => {
     data: {
       text: option.text,
       isCorrect: option.isCorrect,
+      order: option.order,
       multipleChoice: {
         connect: {
           questionId: questionId,
@@ -139,10 +140,10 @@ export default withMethodHandler({
   ]),
   POST: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(post))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
   DELETE: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(del))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
 })

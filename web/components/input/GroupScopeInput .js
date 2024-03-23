@@ -58,7 +58,7 @@ const GroupScopeInput = ({
   const [error, setError] = useState()
   // if groupId is set, we assume his own label is available
   const [isLabelAvailable, setIsLabelAvailable] = useState(
-    groupId !== undefined
+    groupId !== undefined,
   )
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const GroupScopeInput = ({
       const data = await response.json()
       return !data.exists
     },
-    [groupId]
+    [groupId],
   )
 
   const handleLabelChange = useCallback(
@@ -119,7 +119,7 @@ const GroupScopeInput = ({
 
       debounceChange(value, newScope, available)
     },
-    [initialLabel, initialScope, error, isAvailable, debounceChange]
+    [debounceChange, isAvailable],
   )
 
   return (

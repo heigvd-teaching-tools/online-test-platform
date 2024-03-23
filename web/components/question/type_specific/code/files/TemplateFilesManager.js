@@ -36,7 +36,7 @@ const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/files/template`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [lockCodeCheck, setLockCodeCheck] = useState(false)
@@ -48,7 +48,7 @@ const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
       setLockCodeCheck(false)
       onUpdate && onUpdate()
     },
-    [groupScope, questionId, codeToTemplateFiles, mutate, onUpdate]
+    [groupScope, questionId, onUpdate],
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)

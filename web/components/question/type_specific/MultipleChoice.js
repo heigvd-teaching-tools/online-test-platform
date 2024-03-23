@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Stack,
   TextField,
@@ -28,11 +28,14 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
 import AddIcon from '@mui/icons-material/Add'
+import DragHandleSVG from '@/components/layout/utils/DragHandleSVG'
+import ReorderableList from '@/components/layout/utils/ReorderableList'
 
 const MultipleChoice = ({
   id = 'multi_choice',
   options: initial,
   onChange,
+  onChangeOrder,
   onAdd,
   onDelete,
   selectOnly = false,
@@ -57,6 +60,29 @@ const MultipleChoice = ({
     setOptions(newOptions)
     onChange(index, newOptions)
   }
+
+  const onReorder = useCallback(
+    async (sourceIndex, targetIndex) => {
+      // console.log("onChangeCollectionOrder", sourceIndex, "->", targetIndex);
+      const reordered = [...options]
+
+      // Remove the element from its original position
+      const [removedElement] = reordered.splice(sourceIndex, 1)
+
+      // Insert the element at the target position
+      reordered.splice(targetIndex, 0, removedElement)
+
+      // Update the order properties for all elements
+      reordered.forEach((item, index) => {
+        item.order = index
+      })
+
+      setOptions(reordered)
+      onChangeOrder(reordered)
+    },
+    [options, onChangeOrder],
+  )
+
   return (
     <Stack id={id} direction="column" spacing={2} padding={2}>
       {!selectOnly && (
@@ -70,58 +96,66 @@ const MultipleChoice = ({
           </Button>
         </Box>
       )}
-
-      {options?.map((option, index) => (
-        <Stack
-          key={index}
-          direction="row"
-          alignItems="center"
-          spacing={2}
-          sx={{ flex: 1 }}
-        >
-          <ToggleButton
-            value="correct"
-            selected={option.isCorrect}
-            color="success"
-            onChange={(e) => selectOption(index)}
+      <ReorderableList onChangeOrder={onReorder}>
+        {options?.map((option, index) => (
+          <Stack
+            key={index}
+            direction="row"
+            alignItems="center"
+            spacing={2}
+            sx={{ flex: 1 }}
           >
-            {option.isCorrect ? <CheckIcon /> : <ClearIcon />}
-          </ToggleButton>
-          {!selectOnly && (
-            <>
-              <TextField
-                id="outlined-text"
-                label={`Option ${index + 1}`}
-                variant="outlined"
-                value={option.text}
-                fullWidth
-                error={option.text.length === 0}
-                onChange={(e) => {
-                  const newOptions = [...options]
-                  newOptions[index].text = e.target.value
-                  setOptions(newOptions)
-                  onChange(index, newOptions)
-                }}
-              />
-              <IconButton
-                variant="small"
-                color="error"
-                onClick={() => {
-                  let newOptions = [...options]
-                  const deleted = options[index]
-                  newOptions.splice(index, 1)
-                  setOptions(newOptions)
-                  onDelete(index, deleted)
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </>
-          )}
+            {!selectOnly && (
+              <Stack justifyContent={'center'} sx={{ cursor: 'move' }}>
+                <DragHandleSVG />
+              </Stack>
+            )}
+            <ToggleButton
+              value="correct"
+              selected={option.isCorrect}
+              color="success"
+              onChange={(e) => selectOption(index)}
+            >
+              {option.isCorrect ? <CheckIcon /> : <ClearIcon />}
+            </ToggleButton>
+            {!selectOnly && (
+              <>
+                <TextField
+                  id="outlined-text"
+                  label={`Option ${index + 1}`}
+                  variant="outlined"
+                  value={option.text}
+                  fullWidth
+                  error={option.text.length === 0}
+                  onChange={(e) => {
+                    const newOptions = [...options]
+                    newOptions[index].text = e.target.value
+                    setOptions(newOptions)
+                    onChange(index, newOptions)
+                  }}
+                />
+                <IconButton
+                  variant="small"
+                  color="error"
+                  onClick={() => {
+                    let newOptions = [...options]
+                    const deleted = options[index]
+                    newOptions.splice(index, 1)
+                    setOptions(newOptions)
+                    onDelete(index, deleted)
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            )}
 
-          {selectOnly && <Typography variant="body1">{option.text}</Typography>}
-        </Stack>
-      ))}
+            {selectOnly && (
+              <Typography variant="body1">{option.text}</Typography>
+            )}
+          </Stack>
+        ))}
+      </ReorderableList>
     </Stack>
   )
 }

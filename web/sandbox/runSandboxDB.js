@@ -81,7 +81,7 @@ const startContainer = async (image) => {
     })
     .withExposedPorts(5432)
     .withWaitStrategy(
-      Wait.forLogMessage('database system is ready to accept connections')
+      Wait.forLogMessage('database system is ready to accept connections'),
     )
     .start()
   return container
@@ -175,7 +175,7 @@ export const runSandboxDB = async ({
           const type = postgresDetermineOutputType(result)
           const feedback = postgresGenerateFeedbackMessage(
             result.command,
-            result
+            result,
           )
           results.push({
             order: order++,

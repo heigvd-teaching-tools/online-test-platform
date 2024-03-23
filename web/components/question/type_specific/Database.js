@@ -27,7 +27,7 @@ const Database = ({ groupScope, questionId, onUpdate }) => {
   const { data: database, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/database`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [tab, setTab] = useState(0)

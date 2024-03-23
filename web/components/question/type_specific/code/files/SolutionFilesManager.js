@@ -44,14 +44,14 @@ const SolutionFilesManager = ({
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/files/solution`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [lockCodeCheck, setLockCodeCheck] = useState(false)
 
   const onAddFile = useCallback(async () => {
     const extension = environments.find(
-      (env) => env.language === language
+      (env) => env.language === language,
     ).extension
     const path = `/src/file${codeToSolutionFiles?.length || ''}.${extension}`
 
@@ -78,7 +78,7 @@ const SolutionFilesManager = ({
       setLockCodeCheck(false)
       onUpdate && onUpdate()
     },
-    [groupScope, questionId, codeToSolutionFiles, onUpdate]
+    [groupScope, questionId, onUpdate],
   )
 
   const debouncedOnFileChange = useDebouncedCallback(onFileUpdate, 500)
@@ -89,15 +89,15 @@ const SolutionFilesManager = ({
         .then(async (msg) => {
           await mutate(
             codeToSolutionFiles.filter(
-              (file) => file.id !== codeToSolutionFile.id
-            )
+              (file) => file.id !== codeToSolutionFile.id,
+            ),
           )
         })
         .finally(() => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, codeToSolutionFiles, onUpdate]
+    [groupScope, questionId, mutate, codeToSolutionFiles, onUpdate],
   )
 
   return (

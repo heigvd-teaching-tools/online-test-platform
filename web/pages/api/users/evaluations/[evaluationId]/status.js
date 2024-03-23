@@ -81,8 +81,8 @@ const put = withEvaluationPhase(
       })
 
       res.status(200).json({ message: 'Evaluation completed' })
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

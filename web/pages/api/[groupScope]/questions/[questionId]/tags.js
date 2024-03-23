@@ -73,7 +73,7 @@ const put = async (req, res, prisma) => {
             },
           },
         },
-      })
+      }),
     ),
     // link all tags to this question
     ...tags.map((tag) =>
@@ -82,7 +82,7 @@ const put = async (req, res, prisma) => {
           questionId: questionId,
           label: tag,
         },
-      })
+      }),
     ),
     // delete tags that are not linked to any question
     prisma.tag.deleteMany({

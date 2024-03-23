@@ -59,6 +59,7 @@ const patch = async (req, res, prisma) => {
     duration,
     endAt,
     status,
+    showSolutionsWhenFinished,
   } = req.body
 
   let data = {}
@@ -72,7 +73,7 @@ const patch = async (req, res, prisma) => {
       if (durationHours > 0 || durationMins > 0) {
         data.startAt = new Date()
         data.endAt = new Date(
-          Date.now() + durationHours * 3600000 + durationMins * 60000
+          Date.now() + durationHours * 3600000 + durationMins * 60000,
         )
       } else {
         data.startAt = null
@@ -106,6 +107,10 @@ const patch = async (req, res, prisma) => {
       return
     }
     data.endAt = endAt
+  }
+
+  if (showSolutionsWhenFinished !== undefined) {
+    data.showSolutionsWhenFinished = showSolutionsWhenFinished
   }
 
   try {

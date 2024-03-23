@@ -30,7 +30,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
   const { data: answer, error } = useSWR(
     `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
     questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [lockCodeCheck, setLockCodeCheck] = useState(false)
@@ -46,14 +46,14 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ file }),
-        }
+        },
       )
       const ok = response.ok
       const data = await response.json()
       setLockCodeCheck(false)
       onAnswerChange && onAnswerChange(ok, data)
     },
-    [evaluationId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange],
   )
 
   const debouncedOnChange = useDebouncedCallback(onFileChange, 500)
@@ -71,7 +71,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
                   {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                  }
+                  },
                 )
               }
             />

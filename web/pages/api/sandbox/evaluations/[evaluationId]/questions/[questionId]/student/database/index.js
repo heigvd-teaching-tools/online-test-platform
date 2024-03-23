@@ -175,7 +175,7 @@ const post = async (req, res, prisma) => {
         if (query.testQuery) {
           let testPassed = false
           const solutionOutput = solutionQueryOutputs.find(
-            (solQ) => solQ.query.order === query.order
+            (solQ) => solQ.query.order === query.order,
           ).output.output
           if (currentOutput.type === solutionOutput.type) {
             switch (currentOutput.type) {
@@ -188,7 +188,7 @@ const post = async (req, res, prisma) => {
                 testPassed = runTestsOnDatasets(
                   solutionOutput.result,
                   currentOutput.result,
-                  tests
+                  tests,
                 )
                 break
             }
@@ -252,7 +252,7 @@ const post = async (req, res, prisma) => {
     const updatedStudentAnswer = await getStudentAnswer(
       prisma,
       studentEmail,
-      questionId
+      questionId,
     )
 
     // code questions grading
@@ -266,7 +266,7 @@ const post = async (req, res, prisma) => {
       update: grading(
         studentAnswer.question,
         studentAnswer.question.evaluation.points,
-        updatedStudentAnswer
+        updatedStudentAnswer,
       ),
       create: {
         userEmail: studentEmail,
@@ -274,7 +274,7 @@ const post = async (req, res, prisma) => {
         ...grading(
           studentAnswer.question,
           studentAnswer.question.evaluation.points,
-          updatedStudentAnswer
+          updatedStudentAnswer,
         ),
       },
     })

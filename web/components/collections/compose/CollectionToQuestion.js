@@ -49,10 +49,10 @@ const CollectionToQuestion = ({
           body: JSON.stringify({
             questionId: toDelete.questionId,
           }),
-        }
+        },
       )
     },
-    [groupScope, collectionToQuestion]
+    [groupScope],
   )
 
   const saveCollectionToQuestion = useCallback(
@@ -68,18 +68,18 @@ const CollectionToQuestion = ({
           body: JSON.stringify({
             collectionToQuestion: updated,
           }),
-        }
+        },
       )
       if (response.ok) {
         onChange && onChange(index, updated)
       }
     },
-    [groupScope, onChange]
+    [groupScope, onChange],
   )
 
   const debounceSaveCollectionToQuestion = useDebouncedCallback(
     saveCollectionToQuestion,
-    300
+    300,
   )
 
   // display question icon, title, assign points and remove buttons
@@ -124,7 +124,7 @@ const CollectionToQuestion = ({
                 {
                   ...collectionToQuestion,
                   points: value,
-                }
+                },
               )
             }}
           />

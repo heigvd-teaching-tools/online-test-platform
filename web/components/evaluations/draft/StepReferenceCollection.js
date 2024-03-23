@@ -33,20 +33,20 @@ const StepReferenceCollection = ({
 
   const { data: collections, error: errorCollection } = useSWR(
     `/api/${groupScope}/collections`,
-    groupScope && fetcher
+    groupScope && fetcher,
   )
 
   const { data: evaluationQuestions, error: errorsEvaluationQuestions } =
     useSWR(
       `/api/${groupScope}/evaluations/${evaluation && evaluation.id}/questions`,
-      evaluation && evaluation.id && groupScope ? fetcher : null
+      evaluation && evaluation.id && groupScope ? fetcher : null,
     )
 
   const { data: collectionQuestions, error: errorCollectionQuestions } = useSWR(
     `/api/${groupScope}/collections/${
       selectedCollection && selectedCollection.id
     }/questions`,
-    groupScope && selectedCollection ? fetcher : null
+    groupScope && selectedCollection ? fetcher : null,
   )
 
   useEffect(() => {

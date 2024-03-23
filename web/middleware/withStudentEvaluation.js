@@ -43,7 +43,7 @@ export function withStudentStatus(allowedStatuses = [], handler) {
       console.log(
         'Access denied due to student status.',
         userOnEvaluation,
-        allowedStatuses
+        allowedStatuses,
       )
       return res.status(403).json({ message: 'Access denied.' })
     }

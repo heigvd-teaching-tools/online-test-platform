@@ -57,7 +57,7 @@ const PageList = () => {
     mutate,
   } = useSWR(
     `/api/groups/${selectedGroup && selectedGroup.id}/members`,
-    selectedGroup ? fetcher : null
+    selectedGroup ? fetcher : null,
   )
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const PageList = () => {
       setSelectedGroup(groups[0].group)
       setUpdatingCurrentGroup(groups[0].group.scope === currentGroup)
     }
-  }, [groups, currentGroup])
+  }, [groups, currentGroup, selectedGroup])
 
   const onGroupsLeaveOrDelete = useCallback(
     async (groupId) => {
@@ -76,7 +76,7 @@ const PageList = () => {
         setUpdatingCurrentGroup(false)
       }
     },
-    [selectedGroup, setSelectedGroup]
+    [selectedGroup, setSelectedGroup],
   )
 
   return (

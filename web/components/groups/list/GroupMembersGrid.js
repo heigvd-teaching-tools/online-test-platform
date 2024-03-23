@@ -35,7 +35,7 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
   useEffect(() => {
     setLabel(group.label)
     setScope(group.scope)
-  }, [group.id, group.label])
+  }, [group.id, group.label, group.scope])
 
   const handleSaveGroup = useCallback(
     async (label, scope) => {
@@ -60,7 +60,7 @@ const GroupMembersGrid = ({ group, onUpdate }) => {
       }
       setLoading(false)
     },
-    [group, onUpdate, showSnackbar]
+    [group, onUpdate, showSnackbar],
   )
 
   return (

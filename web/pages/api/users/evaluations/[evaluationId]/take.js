@@ -91,8 +91,8 @@ const get = withEvaluationPhase(
       }
 
       res.status(200).json(userOnEvaluation.evaluation)
-    }
-  )
+    },
+  ),
 )
 
 export default withMethodHandler({

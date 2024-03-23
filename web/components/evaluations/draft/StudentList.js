@@ -67,7 +67,7 @@ const StudentStatusManager = ({
           body: JSON.stringify({
             status,
           }),
-        }
+        },
       )
         .then((res) => res.json())
         .then((res) => {
@@ -75,7 +75,7 @@ const StudentStatusManager = ({
           if (onChange) onChange(res.status)
         })
     },
-    [evaluationId, userEmail, status, onChange]
+    [evaluationId, userEmail, onChange, groupScope],
   )
 
   const Option = ({ value }) => (
@@ -159,6 +159,39 @@ const StudentList = ({
     }
   }
 
+  // Utility function to get users's answer status by question id and users email
+  const getStudentAnswerStatus = useCallback(
+    (studentEmail, questionId) => {
+      const relevantQuestion = questions.find(
+        (q) => q.question.id === questionId,
+      )
+      if (!relevantQuestion) return StudentAnswerStatus.MISSING
+
+      const answer = relevantQuestion.question.studentAnswer.find(
+        (sa) => sa.userEmail === studentEmail,
+      )
+      return answer ? answer.status : StudentAnswerStatus.MISSING
+    },
+    [questions],
+  )
+
+  // Utility function to calculate the percentage of submitted answers for a users
+  const getSubmissionPercentage = useCallback(
+    (studentEmail) => {
+      const submittedAnswersCount = questions.reduce((count, q) => {
+        const answer = q.question.studentAnswer.find(
+          (sa) =>
+            sa.userEmail === studentEmail &&
+            sa.status === StudentAnswerStatus.SUBMITTED,
+        )
+        return answer ? count + 1 : count
+      }, 0)
+
+      return Math.round((submittedAnswersCount / questions.length) * 100)
+    },
+    [questions],
+  )
+
   // Create dynamic columns for each question
   const questionColumns = useMemo(
     () =>
@@ -169,12 +202,12 @@ const StudentList = ({
         renderCell: (row) => (
           <FilledBullet
             state={getBulletState(
-              getStudentAnswerStatus(row.user.email, q.question.id)
+              getStudentAnswerStatus(row.user.email, q.question.id),
             )}
           />
         ),
       })),
-    [questions]
+    [questions, getStudentAnswerStatus],
   )
 
   if (questionColumns.length > 0) {
@@ -248,39 +281,6 @@ const StudentList = ({
     })
     columns.push(...questionColumns)
   }
-
-  // Utility function to get users's answer status by question id and users email
-  const getStudentAnswerStatus = useCallback(
-    (studentEmail, questionId) => {
-      const relevantQuestion = questions.find(
-        (q) => q.question.id === questionId
-      )
-      if (!relevantQuestion) return StudentAnswerStatus.MISSING
-
-      const answer = relevantQuestion.question.studentAnswer.find(
-        (sa) => sa.userEmail === studentEmail
-      )
-      return answer ? answer.status : StudentAnswerStatus.MISSING
-    },
-    [questions]
-  )
-
-  // Utility function to calculate the percentage of submitted answers for a users
-  const getSubmissionPercentage = useCallback(
-    (studentEmail) => {
-      const submittedAnswersCount = questions.reduce((count, q) => {
-        const answer = q.question.studentAnswer.find(
-          (sa) =>
-            sa.userEmail === studentEmail &&
-            sa.status === StudentAnswerStatus.SUBMITTED
-        )
-        return answer ? count + 1 : count
-      }, 0)
-
-      return Math.round((submittedAnswersCount / questions.length) * 100)
-    },
-    [questions]
-  )
 
   return (
     <Stack>

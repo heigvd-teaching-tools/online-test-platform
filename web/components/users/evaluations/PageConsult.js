@@ -18,7 +18,7 @@ import useSWR from 'swr'
 import { Role, StudentAnswerStatus } from '@prisma/client'
 import Authorisation from '../../security/Authorisation'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
-import { Paper, Stack } from '@mui/material'
+import { Box, Paper, Stack } from '@mui/material'
 import Paging from '../../layout/utils/Paging'
 import { useEffect, useMemo, useState } from 'react'
 import StudentPhaseRedirect from './StudentPhaseRedirect'
@@ -30,6 +30,7 @@ import AnswerConsult from '../../answer/AnswerConsult'
 import AlertFeedback from '../../feedback/AlertFeedback'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import AnswerCompare from '@/components/answer/AnswerCompare'
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -51,13 +52,13 @@ const PageConsult = () => {
   const { data: evaluationStatus, error: errorEvaluationStatus } = useSWR(
     `/api/users/evaluations/${evaluationId}/status`,
     evaluationId ? fetcher : null,
-    { refreshInterval: 1000 }
+    { refreshInterval: 1000 },
   )
 
   const { data: userOnEvaluation, error: errorUserOnEvaluation } = useSWR(
     `/api/users/evaluations/${evaluationId}/consult`,
     evaluationId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [selected, setSelected] = useState()
@@ -88,7 +89,7 @@ const PageConsult = () => {
         tooltip: `${jstq.question.title} - ${jstq.points} points`,
         state: getFilledStatus(jstq.question.studentAnswer[0].status),
       })),
-    [evaluationToQuestions]
+    [evaluationToQuestions],
   )
 
   return (
@@ -131,7 +132,21 @@ const PageConsult = () => {
                     }
                     rightWidth={65}
                     rightPanel={
-                      selected && (
+                      selected &&
+                      (userOnEvaluation.showSolutionsWhenFinished ? (
+                        <Box mt={1} height={'100%'}>
+                          <AnswerCompare
+                            id={`answer-viewer-${selected.question.id}`}
+                            questionType={selected.question.type}
+                            solution={selected.question[selected.question.type]}
+                            answer={
+                              selected.question.studentAnswer[0][
+                                selected.question.type
+                              ]
+                            }
+                          />
+                        </Box>
+                      ) : (
                         <AnswerConsult
                           id={`answer-viewer-${selected.question.id}`}
                           questionType={selected.question.type}
@@ -142,7 +157,7 @@ const PageConsult = () => {
                             ]
                           }
                         />
-                      )
+                      ))
                     }
                     footer={
                       <>

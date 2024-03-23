@@ -43,7 +43,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/tests`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: true }
+    { revalidateOnFocus: true },
   )
 
   const addTestCase = useCallback(async () => {
@@ -85,7 +85,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
             'Content-Type': 'application/json',
             Accept: 'application/json',
           },
-        }
+        },
       )
         .then(async (res) => {
           if (res.status === 200) {
@@ -107,7 +107,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, tests, mutate, showSnackbar, onUpdate]
+    [groupScope, questionId, tests, mutate, showSnackbar, onUpdate],
   )
 
   const updateTestCase = useCallback(
@@ -125,7 +125,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
             input: test.input,
             expectedOutput: test.expectedOutput,
           }),
-        }
+        },
       )
         .then(async (res) => {
           if (res.status === 200) {
@@ -138,7 +138,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, onUpdate, showSnackbar]
+    [groupScope, questionId, mutate, onUpdate, showSnackbar],
   )
 
   const pullOutputs = useCallback(
@@ -155,7 +155,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
         })
       }
     },
-    [questionId, tests, updateTestCase]
+    [questionId, tests, updateTestCase],
   )
   return (
     <Loading loading={!tests} errors={[error]}>
@@ -191,7 +191,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
   const theme = useTheme()
   const [input, setInput] = useState(test.input || '')
   const [expectedOutput, setExpectedOutput] = useState(
-    test.expectedOutput || ''
+    test.expectedOutput || '',
   )
   const [exec, setExec] = useState(test.exec || '')
 

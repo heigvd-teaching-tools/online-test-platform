@@ -68,19 +68,19 @@ const gradeDatabase = (totalPoints, studentAnswer) => {
   if (studentAnswer) {
     const studentQueries = studentAnswer.database.queries
     const studentTestQueries = studentQueries.filter(
-      (studentQuery) => studentQuery.query.testQuery
+      (studentQuery) => studentQuery.query.testQuery,
     )
     const allQueriesExecuted = studentQueries.every(
       (studentQuery) =>
         studentQuery.studentOutput !== null &&
-        studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS
+        studentQuery.studentOutput.status === DatabaseQueryOutputStatus.SUCCESS,
     )
     const allTestQueriesPassed = studentTestQueries.every(
       (studentQuery) =>
         studentQuery.studentOutput !== null &&
         studentQuery.studentOutput.status ===
           DatabaseQueryOutputStatus.SUCCESS &&
-        studentQuery.studentOutput.output.testPassed
+        studentQuery.studentOutput.output.testPassed,
     )
     if (allQueriesExecuted && allTestQueriesPassed) {
       grading = {
@@ -97,13 +97,13 @@ const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
 
   if (studentAnswer !== undefined) {
     let correctOptions = question.multipleChoice.options.filter(
-      (opt) => opt.isCorrect
+      (opt) => opt.isCorrect,
     )
     let answerOptions = studentAnswer.options
     let isCorrect =
       correctOptions.length === answerOptions.length &&
       correctOptions.every((opt) =>
-        answerOptions.some((aOpt) => aOpt.id === opt.id)
+        answerOptions.some((aOpt) => aOpt.id === opt.id),
       )
     grading = {
       status: StudentQuestionGradingStatus.AUTOGRADED,

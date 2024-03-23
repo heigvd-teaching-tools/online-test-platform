@@ -48,12 +48,12 @@ const removeExtraColumns = (dataset1, dataset2) => {
   })
 
   const prunedColumns = dataset2.columns.filter(
-    (col, index) => !dataset2ColumnIndexesToRemove.includes(index)
+    (col, index) => !dataset2ColumnIndexesToRemove.includes(index),
   )
 
   const prunedRows = dataset2.rows.map((row) => {
     return row.filter(
-      (cell, index) => !dataset2ColumnIndexesToRemove.includes(index)
+      (cell, index) => !dataset2ColumnIndexesToRemove.includes(index),
     )
   })
 
@@ -66,13 +66,13 @@ const removeExtraColumns = (dataset1, dataset2) => {
 // Sort columns and rearrange columns in each row
 const sortDatasetColumns = (dataset) => {
   const sortedColumns = [...dataset.columns].sort((a, b) =>
-    a.name.localeCompare(b.name)
+    a.name.localeCompare(b.name),
   )
   const colIndexMapping = {}
 
   for (let i = 0; i < sortedColumns.length; i++) {
     colIndexMapping[sortedColumns[i].name] = dataset.columns.findIndex(
-      (col) => col.name === sortedColumns[i].name
+      (col) => col.name === sortedColumns[i].name,
     )
   }
 
@@ -93,7 +93,7 @@ const sortDatasetColumns = (dataset) => {
 // Sort rows based on the values in the rows
 const sortDatasetRows = (dataset) => {
   const sortedRows = [...dataset.rows].sort((a, b) =>
-    JSON.stringify(a).localeCompare(JSON.stringify(b))
+    JSON.stringify(a).localeCompare(JSON.stringify(b)),
   )
   return {
     columns: dataset.columns,

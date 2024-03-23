@@ -15,14 +15,14 @@
  */
 import { useTheme } from '@emotion/react'
 import { Box } from '@mui/material'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 const PreviewPanel = ({ id, web }) => {
   const theme = useTheme()
 
   const frame = useRef()
 
-  const updateIframeContent = () => {
+  const updateIframeContent = useCallback(() => {
     if (web && frame.current) {
       let iframe = frame.current
 
@@ -55,14 +55,14 @@ const PreviewPanel = ({ id, web }) => {
 
       iframe.src = blobUrl // Update the iframe's content
     }
-  }
+  }, [web])
 
   useEffect(() => {
     if (frame.current) {
       frame.current.src = 'about:blank' // Reset iframe content
       updateIframeContent()
     }
-  }, [id, web])
+  }, [id, web, updateIframeContent])
 
   return (
     <Box height="100%" padding={2} position={'relative'}>

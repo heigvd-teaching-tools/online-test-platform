@@ -66,7 +66,7 @@ const PageInProgress = () => {
     error,
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-    groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null,
   )
 
   const {
@@ -76,7 +76,7 @@ const PageInProgress = () => {
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/students`,
     groupScope && evaluationId ? fetcher : null,
-    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL }
+    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
   )
 
   const [saving, setSaving] = useState(false)
@@ -92,7 +92,7 @@ const PageInProgress = () => {
     })
       .then(async () => {
         await router.push(
-          `/${groupScope}/evaluations/${evaluation.id}/grading/1`
+          `/${groupScope}/evaluations/${evaluation.id}/grading/1`,
         )
       })
       .catch(() => {
@@ -124,7 +124,7 @@ const PageInProgress = () => {
         })
       setSaving(false)
     },
-    [groupScope, evaluation, showSnackbar, mutate]
+    [groupScope, evaluation, showSnackbar, mutate],
   )
 
   return (

@@ -47,7 +47,7 @@ const PageWaiting = () => {
   const { data, error } = useSWR(
     `/api/users/evaluations/${evaluationId}/dispatch`,
     evaluationId ? fetcher : null,
-    { refreshInterval: 1000 }
+    { refreshInterval: 1000 },
   )
 
   return (
@@ -62,7 +62,7 @@ const PageWaiting = () => {
                     <Typography variant="body1" gutterBottom>
                       {data.evaluation.label
                         ? `${data.evaluation.label} is ${phaseToPhrase(
-                            data.evaluation.phase
+                            data.evaluation.phase,
                           )}.`
                         : 'This session is not in progress.'}
                     </Typography>

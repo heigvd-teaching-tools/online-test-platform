@@ -107,7 +107,7 @@ export const authOptions = {
         if (userWithGroups) {
           session.user.groups = userWithGroups.groups.map((g) => g.group.scope)
           session.user.selected_group = userWithGroups.groups.find(
-            (g) => g.selected
+            (g) => g.selected,
           )?.group.scope
         }
       }

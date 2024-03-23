@@ -60,11 +60,11 @@ const StudentQueryConsole = ({
           query: sql,
           at: order,
         }),
-      }
+      },
     ).then((res) => res.json())
     setResult(response)
     setRunning(false)
-  }, [evaluationId, questionId, sql, order, studentQueries])
+  }, [evaluationId, questionId, sql, order])
 
   return (
     <Dialog

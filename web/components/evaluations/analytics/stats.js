@@ -23,7 +23,7 @@ export const getSignedSuccessRate = (evaluationToQuestions) => {
   // total signed points
   let totalSignedPoints = evaluationToQuestions.reduce((acc, jstq) => {
     let signedGradings = jstq.question.studentAnswer.filter(
-      (sa) => sa.studentGrading.signedBy
+      (sa) => sa.studentGrading.signedBy,
     ).length
     return acc + signedGradings * jstq.points
   }, 0)
@@ -34,7 +34,7 @@ export const getSignedSuccessRate = (evaluationToQuestions) => {
       jstq.question.studentAnswer
         .filter((sa) => sa.studentGrading.signedBy)
         .reduce((acc, sa) => acc + sa.studentGrading.pointsObtained, 0),
-    0
+    0,
   )
   return totalSignedPoints > 0
     ? Math.round((totalSignedObtainedPoints / totalSignedPoints) * 100)
@@ -44,7 +44,7 @@ export const getSignedSuccessRate = (evaluationToQuestions) => {
 export const getObtainedPoints = (evaluationToQuestions, participant) =>
   evaluationToQuestions.reduce((acc, { question }) => {
     let studentGrading = question.studentAnswer.find(
-      (sa) => sa.user.id === participant.id
+      (sa) => sa.user.id === participant.id,
     ).studentGrading
     return acc + (studentGrading ? studentGrading.pointsObtained : 0)
   }, 0)
@@ -52,14 +52,14 @@ export const getObtainedPoints = (evaluationToQuestions, participant) =>
 export const getGradingStats = (evaluationToQuestions) => {
   let totalGradings = evaluationToQuestions.reduce(
     (acc, jstq) => acc + jstq.question.studentAnswer.length,
-    0
+    0,
   )
   let totalSigned = evaluationToQuestions.reduce(
     (acc, jstq) =>
       acc +
       jstq.question.studentAnswer.filter((sa) => sa.studentGrading.signedBy)
         .length,
-    0
+    0,
   )
   let totalAutogradedUnsigned = evaluationToQuestions.reduce(
     (acc, jstq) =>
@@ -68,9 +68,9 @@ export const getGradingStats = (evaluationToQuestions) => {
         (sa) =>
           sa.studentGrading.status ===
             StudentQuestionGradingStatus.AUTOGRADED &&
-          !sa.studentGrading.signedBy
+          !sa.studentGrading.signedBy,
       ).length,
-    0
+    0,
   )
 
   return {
@@ -85,7 +85,7 @@ export const getQuestionSuccessRate = (evaluationToQuestions) => {
   let totalPoints = evaluationToQuestions.points * question.studentAnswer.length
   let totalObtainedPoints = question.studentAnswer.reduce(
     (acc, sa) => acc + sa.studentGrading.pointsObtained,
-    0
+    0,
   )
 
   return totalPoints > 0
@@ -101,7 +101,7 @@ export const typeSpecificStats = (question) => {
         let chosen = question.studentAnswer.reduce((acc, sa) => {
           if (sa.status !== StudentAnswerStatus.MISSING) {
             let isChosen = sa[question.type].options.some(
-              (o) => o.id === option.id
+              (o) => o.id === option.id,
             )
             if (isChosen) {
               return acc + 1
@@ -214,10 +214,10 @@ export const typeSpecificStats = (question) => {
       }
     case QuestionType.database:
       const testQueries = question.database.solutionQueries.filter(
-        (sq) => sq.query.testQuery
+        (sq) => sq.query.testQuery,
       )
       const lintQueries = question.database.solutionQueries.filter(
-        (sq) => sq.query.lintRules
+        (sq) => sq.query.lintRules,
       )
 
       const testQueriesStats = []
@@ -226,7 +226,7 @@ export const typeSpecificStats = (question) => {
       for (const testQuery of testQueries) {
         const testSuccesses = question.studentAnswer.reduce((acc, sa) => {
           const studentQuery = sa.database.queries.find(
-            (saQ) => saQ.query.order === testQuery.query.order
+            (saQ) => saQ.query.order === testQuery.query.order,
           )
           if (studentQuery.studentOutput?.output.testPassed) {
             return acc + 1
@@ -236,7 +236,7 @@ export const typeSpecificStats = (question) => {
 
         const testFailures = question.studentAnswer.reduce((acc, sa) => {
           const studentQuery = sa.database.queries.find(
-            (saQ) => saQ.query.order === testQuery.query.order
+            (saQ) => saQ.query.order === testQuery.query.order,
           )
           if (!studentQuery.studentOutput?.output.testPassed) {
             return acc + 1
@@ -255,7 +255,7 @@ export const typeSpecificStats = (question) => {
       for (const lintQuery of lintQueries) {
         const lintSuccesses = question.studentAnswer.reduce((acc, sa) => {
           const studentQuery = sa.database.queries.find(
-            (saQ) => saQ.query.order === lintQuery.query.order
+            (saQ) => saQ.query.order === lintQuery.query.order,
           )
           if (studentQuery.query.lintResult?.violations.length === 0) {
             return acc + 1
@@ -265,7 +265,7 @@ export const typeSpecificStats = (question) => {
 
         const lintFailures = question.studentAnswer.reduce((acc, sa) => {
           const studentQuery = sa.database.queries.find(
-            (saQ) => saQ.query.order === lintQuery.query.order
+            (saQ) => saQ.query.order === lintQuery.query.order,
           )
           if (
             !studentQuery.query.lintResult ||

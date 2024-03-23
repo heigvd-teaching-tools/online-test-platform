@@ -23,7 +23,7 @@ export const update = (nature, groupScope, questionId, codeToFile) =>
         Accept: 'application/json',
       },
       body: JSON.stringify(codeToFile),
-    }
+    },
   ).then((data) => data.json())
 
 export const create = (nature, groupScope, questionId, codeToFile) =>
@@ -45,7 +45,7 @@ export const del = (nature, groupScope, questionId, codeToFile) =>
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-    }
+    },
   ).then((data) => data.json())
 
 export const pull = (groupScope, questionId) =>

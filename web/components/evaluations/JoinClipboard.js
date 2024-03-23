@@ -30,7 +30,7 @@ const JoinClipboard = ({ evaluationId }) => (
             color="secondary"
             onClick={async () => {
               await navigator.clipboard.writeText(
-                getStudentEntryLink(evaluationId)
+                getStudentEntryLink(evaluationId),
               )
             }}
           >

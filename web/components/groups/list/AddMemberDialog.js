@@ -49,7 +49,7 @@ const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
         showSnackbar(data.message, 'error')
       }
     },
-    [group, onSuccess, showSnackbar]
+    [group, onSuccess, showSnackbar],
   )
 
   const handleSearch = async (search) => {
@@ -64,7 +64,7 @@ const AddMemberDialog = ({ group, open, onClose, onSuccess }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     )
 
     if (response.status === 200) {

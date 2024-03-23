@@ -46,14 +46,14 @@ const initialFilters = {
 const applyFilter = async (toApply) => {
   const query = { ...toApply }
   query.questionTypes = Object.keys(query.questionTypes).filter(
-    (key) => query.questionTypes[key]
+    (key) => query.questionTypes[key],
   )
   if (!toApply.questionTypes.code) {
     delete query.codeLanguages
   }
   if (query.codeLanguages) {
     query.codeLanguages = Object.keys(query.codeLanguages).filter(
-      (key) => query.codeLanguages[key]
+      (key) => query.codeLanguages[key],
     )
   }
   return query
@@ -125,7 +125,7 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
       const newFilter = { ...filter, [key]: value }
       setFilter(newFilter)
     },
-    [filter]
+    [filter],
   )
 
   const isFilterApplied = useCallback(() => {
@@ -147,7 +147,7 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
       const newFilter = await applyFilter(filter)
       onApplyFilter && onApplyFilter(new URLSearchParams(newFilter).toString())
     },
-    [filter, onApplyFilter]
+    [filter, onApplyFilter],
   )
 
   return (
@@ -252,7 +252,7 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
 const CheckboxLabel = ({ label, checked, onChange }) => {
   const setToggleCheckBox = useCallback(
     () => onChange && onChange(!checked),
-    [onChange, checked]
+    [onChange, checked],
   )
   return (
     <Stack

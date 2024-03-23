@@ -38,7 +38,7 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
         onLeave && onLeave(groupId)
       }
     },
-    [onLeave]
+    [onLeave],
   )
 
   const deleteGroup = useCallback(
@@ -51,14 +51,14 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
         onDelete && onDelete(groupId)
       }
     },
-    [onDelete]
+    [onDelete],
   )
 
   const onDeleteGroup = useCallback(
     (groupId) => {
       setDeleteGroupId(groupId)
     },
-    [setDeleteGroupId]
+    [setDeleteGroupId],
   )
 
   return (
@@ -108,7 +108,7 @@ const MyGroupsGrid = ({ groups, onSelected, onLeave, onDelete }) => {
                 group,
                 session.user,
                 leaveGroup,
-                onDeleteGroup
+                onDeleteGroup,
               ),
             },
           }))}
@@ -176,7 +176,7 @@ const getMyGroupsActions = (group, user, onLeave, onDelete) => {
         }}
       >
         Delete this group
-      </Button>
+      </Button>,
     )
   }
 

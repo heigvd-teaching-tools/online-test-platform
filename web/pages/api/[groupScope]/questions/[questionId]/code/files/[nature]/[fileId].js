@@ -134,6 +134,6 @@ export default withMethodHandler({
   ]),
   DELETE: withAuthorization(
     withGroupScope(withQuestionUpdate(withPrisma(del))),
-    [Role.PROFESSOR]
+    [Role.PROFESSOR],
   ),
 })

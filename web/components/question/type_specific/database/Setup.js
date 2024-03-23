@@ -35,7 +35,7 @@ const Setup = ({ groupScope, questionId, database, onChange }) => {
         body: JSON.stringify(database),
       }).then((res) => res.json())
     },
-    [groupScope, questionId]
+    [groupScope, questionId],
   )
 
   const debouncedOnChange = useDebouncedCallback(onChangeImage, 500)

@@ -44,8 +44,10 @@ const ParticipantItem = forwardRef(
         <FilledBullet state={isFilled ? 'filled' : 'empty'} />
       </Stack>
     )
-  }
+  },
 )
+
+ParticipantItem.displayName = 'ParticipantItem'
 
 const ParticipantNav = ({
   participants,
@@ -58,7 +60,7 @@ const ParticipantNav = ({
   const participantRefs = useRef({}) // for auto-scrolling
 
   useEffect(() => {
-    if (active && participantRefs.current[active.id]) {
+    if (active && participantRefs && participantRefs.current[active.id]) {
       // Wrap the scrollIntoView call in a microtask
       setTimeout(() => {
         participantRefs.current[active.id].scrollIntoView({
@@ -78,7 +80,7 @@ const ParticipantNav = ({
         onParticipantClick(participants[index + 1])
       }
     },
-    [participants, active, onParticipantClick]
+    [participants, active, onParticipantClick],
   )
 
   useEffect(() => {

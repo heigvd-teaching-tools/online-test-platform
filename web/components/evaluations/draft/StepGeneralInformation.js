@@ -19,11 +19,11 @@ import ContentEditor from '@/components/input/ContentEditor'
 
 const StepGeneralInformation = ({ evaluation, onChange }) => {
   const [label, setLabel] = useState(
-    evaluation && evaluation.label ? evaluation.label : ''
+    evaluation && evaluation.label ? evaluation.label : '',
   )
   const [errorLabel, setErrorLabel] = useState(false)
   const [conditions, setConditions] = useState(
-    evaluation ? evaluation.conditions : ''
+    evaluation ? evaluation.conditions : '',
   )
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
       setErrorLabel({ error: false })
       setConditions(evaluation.conditions)
     }
-  }, [evaluation, setLabel, setErrorLabel, setConditions])
+  }, [evaluation, setLabel, setErrorLabel, setConditions, label])
 
   useEffect(() => {
     onChange({

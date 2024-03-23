@@ -99,7 +99,7 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
   useEffect(() => {
     setGroups(groupByType(items, selectedGrouping))
-  }, [items])
+  }, [items, selectedGrouping])
 
   const handleGroupingChange = (option) => {
     const grouping = groupings.find((g) => g.option === option)
@@ -172,7 +172,7 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
 
                 <Datagrid items={groups[groupKey].items} header={header} />
               </Stack>
-            ) : null
+            ) : null,
           )}
         </ScrollContainer>
       </Stack>

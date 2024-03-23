@@ -41,6 +41,7 @@ import JoinClipboard from '../JoinClipboard'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
+import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
 
 const PageFinished = () => {
   const router = useRouter()
@@ -48,13 +49,13 @@ const PageFinished = () => {
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-    groupScope && evaluationId ? fetcher : null
+    groupScope && evaluationId ? fetcher : null,
   )
 
   const { data, error: errorQuestions } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
     groupScope && evaluationId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [tab, setTab] = useState(1)
@@ -72,7 +73,7 @@ const PageFinished = () => {
       setParticipants(
         evaluationToQuestions[0].question.studentAnswer
           .map((sa) => sa.user)
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => a.name.localeCompare(b.name)),
       )
     }
   }, [evaluationToQuestions])
@@ -83,7 +84,7 @@ const PageFinished = () => {
 
   const areAllGradingSigned = () => {
     return evaluationToQuestions.every((eq) =>
-      eq.question.studentAnswer.every((sa) => sa.studentGrading.signedBy)
+      eq.question.studentAnswer.every((sa) => sa.studentGrading.signedBy),
     )
   }
 
@@ -143,11 +144,17 @@ const PageFinished = () => {
                           </AlertFeedback>
                         )}
                       </Stack>
-                      <ExportCSV
-                        evaluation={evaluation}
-                        evaluationToQuestions={evaluationToQuestions}
-                        participants={participants}
-                      />
+                      <Stack direction="row" spacing={2}>
+                        <ToggleStudentViewSolution
+                          groupScope={groupScope}
+                          evaluation={evaluation}
+                        />
+                        <ExportCSV
+                          evaluation={evaluation}
+                          evaluationToQuestions={evaluationToQuestions}
+                          participants={participants}
+                        />
+                      </Stack>
                     </Stack>
 
                     <StudentResultsGrid
@@ -177,13 +184,13 @@ const PageFinished = () => {
                       questionCellClick={async (questionId, participantId) => {
                         const questionOrder =
                           evaluationToQuestions.findIndex(
-                            (jstq) => jstq.question.id === questionId
+                            (jstq) => jstq.question.id === questionId,
                           ) + 1
                         const participantEmail = participants.find(
-                          (p) => p.id === participantId
+                          (p) => p.id === participantId,
                         ).email
                         await router.push(
-                          `/${groupScope}/evaluations/${evaluationId}/consult/${participantEmail}/${questionOrder}`
+                          `/${groupScope}/evaluations/${evaluationId}/consult/${participantEmail}/${questionOrder}`,
                         )
                       }}
                     />

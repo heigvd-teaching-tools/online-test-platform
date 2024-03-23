@@ -45,9 +45,9 @@ const StudentOutputDisplay = ({
     () =>
       setHeight(
         Math.max(leftHeight, rightHeight) +
-          subheaderRef.current?.getBoundingClientRect().height
+          subheaderRef.current?.getBoundingClientRect().height,
       ),
-    [leftHeight, rightHeight]
+    [leftHeight, rightHeight],
   )
 
   const hasTestPassed = (studentOutput) => {

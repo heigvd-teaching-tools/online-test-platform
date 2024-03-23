@@ -1,0 +1,38 @@
+name: Code Quality Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_ENV: development
+
+jobs:
+  lint-and-format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20' 
+      
+      - name: Install dependencies
+        run: |
+          cd web
+          npm install
+
+      - name: Run ESLint
+        run: |
+          cd web 
+          npx eslint . --ext .js,.jsx,.ts,.tsx
+
+
+      - name: Run Prettier Check
+        run: |
+          cd web
+          npx prettier --check .
+

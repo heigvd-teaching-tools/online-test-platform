@@ -33,7 +33,7 @@ const ConnectionIndicator = () => {
       window.removeEventListener('online', setOnline)
       window.removeEventListener('offline', setOffline)
     }
-  }, [navigator.onLine])
+  }, [])
 
   return (
     <Stack

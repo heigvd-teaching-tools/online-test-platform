@@ -77,7 +77,7 @@ const AnswerEditor = ({
   } = useSWR(
     `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers`,
     evaluationId && question ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const [status, setStatus] = useState(initial)
@@ -101,7 +101,7 @@ const AnswerEditor = ({
         onAnswer(question, data)
       }
     },
-    [question, onAnswer]
+    [question, onAnswer, showSnackbar],
   )
 
   const onSubmitClick = useCallback(async () => {
@@ -110,7 +110,7 @@ const AnswerEditor = ({
       `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`,
       {
         method: 'PUT',
-      }
+      },
     )
 
     const ok = response.ok
@@ -125,7 +125,7 @@ const AnswerEditor = ({
     }
 
     setSubmitLock(false)
-  }, [onSubmit, question])
+  }, [onSubmit, question, evaluationId, mutate, showSnackbar])
 
   const onUnsubmitClick = useCallback(async () => {
     setSubmitLock(true)
@@ -133,7 +133,7 @@ const AnswerEditor = ({
       `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers/submit`,
       {
         method: 'DELETE',
-      }
+      },
     )
 
     const ok = response.ok
@@ -147,7 +147,7 @@ const AnswerEditor = ({
       await mutate()
     }
     setSubmitLock(false)
-  }, [onUnsubmit, question])
+  }, [onUnsubmit, question, evaluationId, mutate, showSnackbar])
 
   const isReadOnly = status === StudentAnswerStatus.SUBMITTED
 
@@ -274,10 +274,10 @@ const AnswerMultipleChoice = ({
             isCorrect:
               studentOptions &&
               studentOptions.some(
-                (studentOption) => studentOption.id === option.id
+                (studentOption) => studentOption.id === option.id,
               ),
           }
-        })
+        }),
       )
     }
   }, [answer])
@@ -292,14 +292,14 @@ const AnswerMultipleChoice = ({
           method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ option: changedOption }),
-        }
+        },
       )
       const ok = response.ok
       const data = await response.json()
 
       onAnswerChange && onAnswerChange(ok, data)
     },
-    [evaluationId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange],
   )
 
   return (
@@ -338,7 +338,7 @@ const AnswerTrueFalse = ({
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(answer),
-        }
+        },
       )
 
       const ok = response.ok
@@ -346,7 +346,7 @@ const AnswerTrueFalse = ({
 
       onAnswerChange && onAnswerChange(ok, data)
     },
-    [evaluationId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange],
   )
 
   return (
@@ -378,7 +378,7 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
                 }
               : undefined,
           }),
-        }
+        },
       )
 
       const ok = response.ok
@@ -386,7 +386,7 @@ const AnswerEssay = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 
       onAnswerChange && onAnswerChange(ok, data)
     },
-    [evaluationId, questionId, answer, onAnswerChange]
+    [evaluationId, questionId, answer, onAnswerChange],
   )
 
   const debouncedOnChange = useDebouncedCallback(onEssayChange, 500)
@@ -430,7 +430,7 @@ const AnswerWeb = ({ answer, evaluationId, questionId, onAnswerChange }) => {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(answer),
-        }
+        },
       )
 
       const ok = response.ok
@@ -438,7 +438,7 @@ const AnswerWeb = ({ answer, evaluationId, questionId, onAnswerChange }) => {
 
       onAnswerChange && onAnswerChange(ok, data)
     },
-    [evaluationId, questionId, onAnswerChange]
+    [evaluationId, questionId, onAnswerChange],
   )
 
   const debouncedOnChange = useDebouncedCallback(onWebChange, 500)

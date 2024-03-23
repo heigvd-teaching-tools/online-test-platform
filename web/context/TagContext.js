@@ -39,7 +39,7 @@ export const TagsProvider = ({ children }) => {
   } = useSWR(
     `/api/${groupScope}/questions/tags`,
     groupScope && isProfessor(session.user) ? fetcher : null,
-    { fallbackData: [] }
+    { fallbackData: [] },
   )
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export const TagsProvider = ({ children }) => {
           await mutate(updated)
         })
     },
-    [groupScope, mutate]
+    [groupScope, mutate],
   )
 
   if (error) return children // they wont have access to tags

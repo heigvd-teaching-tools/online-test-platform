@@ -24,7 +24,7 @@ export const ResizeObserverProvider = ({ children }) => {
     new ResizeObserver((entries) => {
       const { height, width } = entries[0].contentRect
       setDimensions({ height, width })
-    })
+    }),
   )
 
   useEffect(() => {

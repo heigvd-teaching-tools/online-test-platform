@@ -94,7 +94,7 @@ const EditMarkdown = ({
       setRawContent(newContent)
       onChange(newContent === '' ? undefined : newContent)
     },
-    [rawContent, onChange]
+    [onChange],
   )
 
   return (
@@ -226,7 +226,7 @@ const CodeBlock = ({ language, value }) => {
       // Optional: Show a notification or tooltip saying "Copied!"
       showSnackbar('Copied!', 'success')
     },
-    [showSnackbar]
+    [showSnackbar],
   )
 
   return (

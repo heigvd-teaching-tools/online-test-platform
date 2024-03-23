@@ -18,6 +18,7 @@ import { useCallback } from 'react'
 import MultipleChoice from './MultipleChoice'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
+import { useDebouncedCallback } from 'use-debounce'
 
 const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   const {
@@ -27,7 +28,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/multiple-choice/options`,
     groupScope && questionId ? fetcher : null,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   )
 
   const onChangeOptions = useCallback(
@@ -44,7 +45,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           body: JSON.stringify({
             option: updatedOption,
           }),
-        }
+        },
       )
         .then(async (res) => {
           if (res.status === 200) {
@@ -55,7 +56,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, onUpdate]
+    [groupScope, questionId, mutate, onUpdate],
   )
 
   const onDeleteOption = useCallback(
@@ -71,7 +72,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           body: JSON.stringify({
             option: deletedOption,
           }),
-        }
+        },
       )
         .then(async (res) => {
           if (res.status === 200) {
@@ -82,7 +83,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           onUpdate && onUpdate()
         })
     },
-    [groupScope, questionId, mutate, onUpdate]
+    [groupScope, questionId, mutate, onUpdate],
   )
 
   const onAddOption = useCallback(async () => {
@@ -95,9 +96,9 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          option: { text: '', isCorrect: false },
+          option: { text: '', isCorrect: false, order: options.length },
         }),
-      }
+      },
     )
       .then(async (res) => {
         if (res.status === 200) {
@@ -107,7 +108,28 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
       .finally(() => {
         onUpdate && onUpdate()
       })
-  }, [groupScope, questionId, mutate, onUpdate])
+  }, [groupScope, questionId, mutate, onUpdate, options])
+
+  const saveReOrder = useCallback(
+    async (reordered) => {
+      // save question order
+      await fetch(
+        `/api/${groupScope}/questions/${questionId}/multiple-choice/order`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            options: reordered,
+          }),
+        },
+      )
+    },
+    [groupScope, questionId],
+  )
+
+  const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300)
 
   return (
     <Loading loading={!options} errors={[error]}>
@@ -116,6 +138,9 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
         onAdd={onAddOption}
         onChange={async (changedIndex, newOptions) => {
           await onChangeOptions(changedIndex, newOptions)
+        }}
+        onChangeOrder={async (reordered) => {
+          await debounceSaveOrdering(reordered)
         }}
         onDelete={async (deletedIndex, deletedOption) => {
           await onDeleteOption(deletedIndex, deletedOption)

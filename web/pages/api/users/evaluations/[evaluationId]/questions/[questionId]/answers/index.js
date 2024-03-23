@@ -152,13 +152,13 @@ const get = withEvaluationPhase(
                   ? null
                   : saTq.query.content,
             },
-          })
+          }),
         )
       }
 
       res.status(200).json(studentAnswer)
-    }
-  )
+    },
+  ),
 )
 
 /*
@@ -195,7 +195,7 @@ const put = withEvaluationPhase(
               },
             },
           },
-        }
+        },
       )
 
       if (!(await isInProgress(evaluationId, prisma))) {
@@ -222,7 +222,7 @@ const put = withEvaluationPhase(
           data: {
             status,
           },
-        })
+        }),
       )
 
       // update the typeSpecific users answers
@@ -242,7 +242,7 @@ const put = withEvaluationPhase(
             },
           },
           data: data,
-        })
+        }),
       )
 
       // update the grading
@@ -260,7 +260,7 @@ const put = withEvaluationPhase(
             ...grading,
           },
           update: grading,
-        })
+        }),
       )
 
       await prisma.$transaction(transaction)
@@ -279,8 +279,8 @@ const put = withEvaluationPhase(
       })
 
       res.status(200).json(updatedStudentAnswer)
-    }
-  )
+    },
+  ),
 )
 
 /*

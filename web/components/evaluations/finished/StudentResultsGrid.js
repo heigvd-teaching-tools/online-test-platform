@@ -35,7 +35,7 @@ const StudentResultsGrid = ({
       setParticipants(
         evaluationToQuestions[0].question.studentAnswer
           .map((sa) => sa.user)
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => a.name.localeCompare(b.name)),
       )
     }
   }, [evaluationToQuestions])
@@ -153,7 +153,7 @@ const StudentResultsGrid = ({
 
       evaluationToQuestions.forEach((jstq) => {
         const grading = jstq.question.studentAnswer.find(
-          (sa) => sa.user.email === participant.email
+          (sa) => sa.user.email === participant.email,
         ).studentGrading
         let pointsObtained = grading ? grading.pointsObtained : 0
         let totalPoints = jstq.points
@@ -181,7 +181,7 @@ const StudentResultsGrid = ({
       let participantSuccessRate =
         signedTotalPoints > 0
           ? parseFloat(
-              ((signedObtainedPoints / signedTotalPoints) * 100).toFixed(2)
+              ((signedObtainedPoints / signedTotalPoints) * 100).toFixed(2),
             )
           : 0
 

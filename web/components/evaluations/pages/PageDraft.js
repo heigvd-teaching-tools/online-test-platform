@@ -51,7 +51,7 @@ const PageDraft = () => {
         label: '',
         conditions: '',
       },
-    }
+    },
   )
 
   const [saving, setSaving] = useState(false)
@@ -63,14 +63,14 @@ const PageDraft = () => {
     (collection) => {
       setSelectedCollection(collection)
     },
-    [setSelectedCollection]
+    [setSelectedCollection],
   )
 
   const onLoadQuestions = useCallback(
     (questions) => {
       setEvaluationQuestions(questions)
     },
-    [setEvaluationQuestions]
+    [setEvaluationQuestions],
   )
 
   const [duration, setDuration] = useState(undefined)
@@ -78,7 +78,7 @@ const PageDraft = () => {
     (duration) => {
       setDuration(duration)
     },
-    [setDuration]
+    [setDuration],
   )
 
   const handleSave = useCallback(async () => {
@@ -105,7 +105,7 @@ const PageDraft = () => {
     if (!hasQuestions) {
       showSnackbar(
         'Your evaluation has no questions. Please select the reference collection.',
-        'error'
+        'error',
       )
       setSaving(false)
       return false
@@ -114,7 +114,7 @@ const PageDraft = () => {
     if (data.label.length === 0) {
       showSnackbar(
         'You collections session has no label. Please enter a label.',
-        'error'
+        'error',
       )
       setSaving(false)
       return false
