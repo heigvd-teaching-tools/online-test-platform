@@ -19,14 +19,20 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20' 
+      
+      - name: Install dependencies
+        run: |
+          cd web
+          npm install
 
       - name: Run ESLint
         run: |
-          cd web
-          npm install 
+          cd web 
           npx eslint . --ext .js,.jsx,.ts,.tsx --config eslintrc.json 
 
 
       - name: Run Prettier Check
-        run: npx prettier --check . # This checks if files are formatted without writing changes
+        run: |
+          cd web
+          npx prettier --check .
 
