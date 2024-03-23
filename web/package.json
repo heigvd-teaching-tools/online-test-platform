@@ -32,7 +32,7 @@
     "lodash": "^4.17.21",
     "next": "^14.1.4",
     "next-auth": "4.24.5",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^3.3.2", 
     "octokit": "^3.1.0",
     "pg": "^8.11.2",
     "prop-types": "^15.8.1",
