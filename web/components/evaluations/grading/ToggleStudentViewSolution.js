@@ -39,7 +39,9 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
 
   useEffect(() => {
     save()
-  }, [showSolutionsWhenFinished, save])
+    // we dont want to run save each time the reference to save changes:
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSolutionsWhenFinished])
 
   return (
     <FormControlLabel
