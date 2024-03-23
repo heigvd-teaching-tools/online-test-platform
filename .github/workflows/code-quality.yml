@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  NODE_ENV: development
+
 jobs:
   lint-and-format-check:
     runs-on: ubuntu-latest
@@ -15,13 +18,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14' # Use the Node.js version your project requires
+          node-version: '20' 
 
       - name: Install dependencies
-        run: npm install # Or 'yarn install', if you use Yarn
+        run: npm install 
 
       - name: Run ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx # Adjust the file extensions according to your project
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx --config ./web/.eslintrc.json 
 
       - name: Run Prettier Check
         run: npx prettier --check . # This checks if files are formatted without writing changes
