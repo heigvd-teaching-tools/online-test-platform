@@ -83,7 +83,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 text: true,
                 ...(includeOfficialAnswers ? { isCorrect: true } : {}),
               },
-              orderBy: { order: 'asc' },
+              orderBy: [{ order: 'asc' }, { id: 'asc' }],
             },
           },
         },
@@ -204,7 +204,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
           select: {
             options: {
               select: { id: true, text: true },
-              orderBy: { order: 'asc' },
+              orderBy: [{ order: 'asc' }, { id: 'asc' }],
             },
           },
         },

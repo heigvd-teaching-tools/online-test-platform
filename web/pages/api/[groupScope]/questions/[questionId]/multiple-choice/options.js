@@ -42,9 +42,11 @@ const get = async (req, res, prisma) => {
     },
     include: {
       options: {
-        orderBy: {
+        orderBy: [{
           order: 'asc',
-        },
+        },{
+          id: 'asc', // For historical options before the order was added
+        }]
       },
     },
   })
