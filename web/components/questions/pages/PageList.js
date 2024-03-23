@@ -117,7 +117,7 @@ const PageList = () => {
           showSnackbar('Error copying question', 'error')
         })
     },
-    [groupScope, showSnackbar, questions, mutate],
+    [groupScope, showSnackbar, mutate],
   )
 
   return (
