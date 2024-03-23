@@ -24,7 +24,10 @@ jobs:
         run: npm install 
 
       - name: Run ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx --config ./web/.eslintrc.json 
+        run: |
+          cd web
+          npx eslint . --ext .js,.jsx,.ts,.tsx --config eslintrc.json 
+
 
       - name: Run Prettier Check
         run: npx prettier --check . # This checks if files are formatted without writing changes
