@@ -13,46 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useEffect, useState } from "react"
-import { update } from "../pages/crud"
-import { FormControlLabel, Switch } from "@mui/material"
+import { useCallback, useEffect, useState } from 'react'
+import { update } from '../pages/crud'
+import { FormControlLabel, Switch } from '@mui/material'
 
 const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
-  
-    const [ saving, setSaving ] = useState(false)
-    const [ showSolutionsWhenFinished, setShowSolutionsWhenFinished ] = useState(evaluation.showSolutionsWhenFinished)
+  const [saving, setSaving] = useState(false)
+  const [showSolutionsWhenFinished, setShowSolutionsWhenFinished] = useState(
+    evaluation.showSolutionsWhenFinished,
+  )
 
-    const save = useCallback(async () => {
-        if (saving) return
-        if(!evaluation) return
-        setSaving(true)
-        await update(groupScope, evaluation.id, {
-        showSolutionsWhenFinished: showSolutionsWhenFinished,
-        })
-        setSaving(false)
-    }, [groupScope, evaluation, showSolutionsWhenFinished, saving])
+  const save = useCallback(async () => {
+    if (saving) return
+    if (!evaluation) return
+    setSaving(true)
+    await update(groupScope, evaluation.id, {
+      showSolutionsWhenFinished: showSolutionsWhenFinished,
+    })
+    setSaving(false)
+  }, [groupScope, evaluation, showSolutionsWhenFinished, saving])
 
-    useEffect(() => {
-        setShowSolutionsWhenFinished(evaluation.showSolutionsWhenFinished)
-    }, [evaluation.showSolutionsWhenFinished])
+  useEffect(() => {
+    setShowSolutionsWhenFinished(evaluation.showSolutionsWhenFinished)
+  }, [evaluation.showSolutionsWhenFinished])
 
-    useEffect(() => {
-        save()
-    }, [showSolutionsWhenFinished, save])
+  useEffect(() => {
+    save()
+  }, [showSolutionsWhenFinished, save])
 
-    return (
-        <FormControlLabel
-            control={
-                <Switch
-                    checked={showSolutionsWhenFinished}
-                    onChange={(e) => {
-                        setShowSolutionsWhenFinished(e.target.checked)
-                    }}
-                />
-            }
-            label="Allow student to view official solutions"
+  return (
+    <FormControlLabel
+      control={
+        <Switch
+          checked={showSolutionsWhenFinished}
+          onChange={(e) => {
+            setShowSolutionsWhenFinished(e.target.checked)
+          }}
         />
-    )
+      }
+      label="Allow student to view official solutions"
+    />
+  )
 }
 
 export default ToggleStudentViewSolution

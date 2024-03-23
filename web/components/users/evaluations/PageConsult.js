@@ -132,35 +132,32 @@ const PageConsult = () => {
                     }
                     rightWidth={65}
                     rightPanel={
-                      selected && (
-                        userOnEvaluation.showSolutionsWhenFinished ? (
-                          <Box mt={1} height={'100%'}>
+                      selected &&
+                      (userOnEvaluation.showSolutionsWhenFinished ? (
+                        <Box mt={1} height={'100%'}>
                           <AnswerCompare
                             id={`answer-viewer-${selected.question.id}`}
                             questionType={selected.question.type}
                             solution={selected.question[selected.question.type]}
-                            answer={
-                              selected.question.studentAnswer[0][selected.question.type]
-                            }
-                          />
-                          </Box>
-                        )
-                        :
-                        (
-                          <AnswerConsult
-                            id={`answer-viewer-${selected.question.id}`}
-                            questionType={selected.question.type}
-                            question={selected.question}
                             answer={
                               selected.question.studentAnswer[0][
                                 selected.question.type
                               ]
                             }
                           />
-                        )
-                      )
-
-
+                        </Box>
+                      ) : (
+                        <AnswerConsult
+                          id={`answer-viewer-${selected.question.id}`}
+                          questionType={selected.question.type}
+                          question={selected.question}
+                          answer={
+                            selected.question.studentAnswer[0][
+                              selected.question.type
+                            ]
+                          }
+                        />
+                      ))
                     }
                     footer={
                       <>

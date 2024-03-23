@@ -83,10 +83,8 @@ const MultipleChoice = ({
     [options, onChangeOrder],
   )
 
-
   return (
     <Stack id={id} direction="column" spacing={2} padding={2}>
-
       {!selectOnly && (
         <Box>
           <Button
@@ -107,16 +105,11 @@ const MultipleChoice = ({
             spacing={2}
             sx={{ flex: 1 }}
           >
-            {
-              !selectOnly && (
-                <Stack
-                  justifyContent={'center'}
-                  sx={{ cursor: 'move' }}
-                >
-                  <DragHandleSVG />
-                </Stack>
-              )
-            }
+            {!selectOnly && (
+              <Stack justifyContent={'center'} sx={{ cursor: 'move' }}>
+                <DragHandleSVG />
+              </Stack>
+            )}
             <ToggleButton
               value="correct"
               selected={option.isCorrect}
@@ -157,7 +150,9 @@ const MultipleChoice = ({
               </>
             )}
 
-            {selectOnly && <Typography variant="body1">{option.text}</Typography>}
+            {selectOnly && (
+              <Typography variant="body1">{option.text}</Typography>
+            )}
           </Stack>
         ))}
       </ReorderableList>

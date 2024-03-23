@@ -145,15 +145,15 @@ const PageFinished = () => {
                         )}
                       </Stack>
                       <Stack direction="row" spacing={2}>
-                      <ToggleStudentViewSolution
+                        <ToggleStudentViewSolution
                           groupScope={groupScope}
                           evaluation={evaluation}
                         />
-                      <ExportCSV
-                        evaluation={evaluation}
-                        evaluationToQuestions={evaluationToQuestions}
-                        participants={participants}
-                      />
+                        <ExportCSV
+                          evaluation={evaluation}
+                          evaluationToQuestions={evaluationToQuestions}
+                          participants={participants}
+                        />
                       </Stack>
                     </Stack>
 

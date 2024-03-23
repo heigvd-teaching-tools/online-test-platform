@@ -56,7 +56,9 @@ const StudentMainMenu = ({ evaluationId, evaluation, pages = [], page }) => {
         <IconButton
           size="small"
           sx={{ ml: 2 }}
-          onClick={() => router.push(`/users/evaluations/${evaluationId}/take/0`)}
+          onClick={() =>
+            router.push(`/users/evaluations/${evaluationId}/take/0`)
+          }
         >
           <HomeSvgIcon />
         </IconButton>

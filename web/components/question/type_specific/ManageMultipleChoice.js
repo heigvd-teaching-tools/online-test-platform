@@ -113,21 +113,23 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   const saveReOrder = useCallback(
     async (reordered) => {
       // save question order
-      await fetch(`/api/${groupScope}/questions/${questionId}/multiple-choice/order`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      await fetch(
+        `/api/${groupScope}/questions/${questionId}/multiple-choice/order`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            options: reordered,
+          }),
         },
-        body: JSON.stringify({
-          options: reordered,
-        }),
-      })
+      )
     },
     [groupScope, questionId],
   )
 
   const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300)
-
 
   return (
     <Loading loading={!options} errors={[error]}>

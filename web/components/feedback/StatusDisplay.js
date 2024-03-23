@@ -84,7 +84,14 @@ const StatusDisplay = ({ status, size = 16 }) => {
       case 'WIFI-FULL':
         return <WifiFullIcon width={size} height={size} />
       default:
-        return <Image src="/svg/status/empty.svg" width={size} height={size} alt="empty" />
+        return (
+          <Image
+            src="/svg/status/empty.svg"
+            width={size}
+            height={size}
+            alt="empty"
+          />
+        )
     }
   }
   return (

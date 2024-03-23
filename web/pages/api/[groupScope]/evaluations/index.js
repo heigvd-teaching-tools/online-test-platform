@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, EvaluationPhase, QuestionType, QuestionSource } from '@prisma/client'
+import {
+  Role,
+  EvaluationPhase,
+  QuestionType,
+  QuestionSource,
+} from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,
   withGroupScope,
   withMethodHandler,
 } from '@/middleware/withAuthorization'
-import { copyQuestion, questionIncludeClause, questionTypeSpecific } from '@/code/questions'
+import {
+  copyQuestion,
+  questionIncludeClause,
+  questionTypeSpecific,
+} from '@/code/questions'
 
 const get = async (req, res, prisma) => {
   // shallow session to question get -> we just need to count the number of questions
@@ -105,19 +114,19 @@ const post = async (req, res, prisma) => {
     data.durationMins = parseInt(duration.minutes)
   }
 
-
-
-
   try {
     let evaluation = undefined
     await prisma.$transaction(async (prisma) => {
       evaluation = await prisma.evaluation.create({ data })
 
       // copy all of the questions from the collection to the evaluation
-      for ( const collectionToQuestion of collectionToQuestions) {
-        
+      for (const collectionToQuestion of collectionToQuestions) {
         // copy the question
-        const newQuestion = await copyQuestion(prisma, collectionToQuestion.question, QuestionSource.EVAL)
+        const newQuestion = await copyQuestion(
+          prisma,
+          collectionToQuestion.question,
+          QuestionSource.EVAL,
+        )
         // create relation between evaluation and question
         await prisma.evaluationToQuestion.create({
           data: {
@@ -136,7 +145,6 @@ const post = async (req, res, prisma) => {
           },
         })
       }
-
     })
 
     res.status(200).json(evaluation)
@@ -157,4 +165,3 @@ export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
   POST: withAuthorization(withGroupScope(withPrisma(post)), [Role.PROFESSOR]),
 })
-

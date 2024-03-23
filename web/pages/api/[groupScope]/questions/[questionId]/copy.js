@@ -25,7 +25,6 @@ import { withPrisma } from '@/middleware/withPrisma'
 const post = async (req, res, prisma) => {
   const { groupScope, questionId } = req.query
 
- 
   // Step 1: Retrieve the question
   const question = await prisma.question.findFirst({
     where: {

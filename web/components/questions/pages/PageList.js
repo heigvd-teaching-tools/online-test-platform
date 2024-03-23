@@ -69,10 +69,10 @@ const PageList = () => {
     `/api/${groupScope}/questions?${queryString}`,
     groupScope ? fetcher : null,
   )
-  
-  const [ openSideUpdate, setOpenSideUpdate ] = useState(false)
-  const [ addDialogOpen, setAddDialogOpen] = useState(false)
-  const [ copyDialogOpen, setCopyDialogOpen] = useState(false)
+
+  const [openSideUpdate, setOpenSideUpdate] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false)
 
   const [selected, setSelected] = useState(undefined)
 
@@ -197,7 +197,6 @@ const PageList = () => {
               setCopyDialogOpen(false)
             }}
           />
-          
         </LayoutMain>
       </Loading>
     </Authorisation>
@@ -280,12 +279,14 @@ const QuestionsGrid = ({
           actions: [
             <React.Fragment key="actions">
               <Tooltip title="Make a copy">
-                <IconButton onClick={(ev) => {
-                  ev.preventDefault()
-                  ev.stopPropagation()
-                  setSelected(question)
-                  setCopyDialogOpen(true)
-                }}>
+                <IconButton
+                  onClick={(ev) => {
+                    ev.preventDefault()
+                    ev.stopPropagation()
+                    setSelected(question)
+                    setCopyDialogOpen(true)
+                  }}
+                >
                   <Image
                     alt={'Make a copy'}
                     src={'/svg/icons/copy.svg'}

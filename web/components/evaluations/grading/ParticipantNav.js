@@ -47,7 +47,7 @@ const ParticipantItem = forwardRef(
   },
 )
 
-ParticipantItem.displayName = 'ParticipantItem';
+ParticipantItem.displayName = 'ParticipantItem'
 
 const ParticipantNav = ({
   participants,

@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, QuestionType, StudentPermission, QuestionSource } from '@prisma/client'
+import {
+  Role,
+  QuestionType,
+  StudentPermission,
+  QuestionSource,
+} from '@prisma/client'
 import {
   withAuthorization,
   withGroupScope,
@@ -53,7 +58,7 @@ const get = async (req, res, prisma) => {
       },
       source: {
         in: [QuestionSource.BANK, QuestionSource.COPY],
-      }
+      },
     },
   }
 

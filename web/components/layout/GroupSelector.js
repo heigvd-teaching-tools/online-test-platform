@@ -29,9 +29,12 @@ const GroupSelector = () => {
 
   const { groups, switchGroup, error: errorGroups } = useGroup()
 
-  const findGroupBy = useCallback((what, value) =>
-    groups?.map((uOg) => uOg.group).find((group) => group[what] === value) ||
-    undefined, [groups])
+  const findGroupBy = useCallback(
+    (what, value) =>
+      groups?.map((uOg) => uOg.group).find((group) => group[what] === value) ||
+      undefined,
+    [groups],
+  )
 
   const switchGroupLink = (group) => {
     // replaces the root part of the path by the new group scope

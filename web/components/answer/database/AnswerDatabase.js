@@ -134,14 +134,17 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
   )
 
   const debouncedOnChange = useDebouncedCallback(onQueryChange, 500)
-  
-  const handleChange = useCallback((query) => {
-    // Update in memory for re-render
-    const index_of = queries.findIndex((q) => q.order === query.order)
-    queries[index_of] = query
-    setSaveLock(true)
-    debouncedOnChange(query)
-  }, [queries, debouncedOnChange])
+
+  const handleChange = useCallback(
+    (query) => {
+      // Update in memory for re-render
+      const index_of = queries.findIndex((q) => q.order === query.order)
+      queries[index_of] = query
+      setSaveLock(true)
+      debouncedOnChange(query)
+    },
+    [queries, debouncedOnChange],
+  )
 
   return (
     <Loading errors={[error]} loading={!answer}>

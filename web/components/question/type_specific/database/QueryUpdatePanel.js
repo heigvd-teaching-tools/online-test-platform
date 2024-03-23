@@ -254,7 +254,14 @@ const QuerySettingsTab = ({ query, onChange }) => {
     setDescription(query.description || '')
     setLintActive(query.lintActive)
     setLintRules(query.lintRules || '')
-  }, [query.id, query.studentPermission, query.title, query.description, query.lintActive, query.lintRules])
+  }, [
+    query.id,
+    query.studentPermission,
+    query.title,
+    query.description,
+    query.lintActive,
+    query.lintRules,
+  ])
 
   return (
     <Stack spacing={3} width={'100%'}>

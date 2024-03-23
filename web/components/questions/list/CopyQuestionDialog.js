@@ -20,9 +20,7 @@ import { Stack, Typography } from '@mui/material'
 
 import QuestionTypeIcon from '../../question/QuestionTypeIcon'
 
-
 const CopyQuestionDialog = ({ open, onClose, handleCopyQuestion }) => {
-  
   return (
     <DialogFeedback
       open={open}
@@ -31,7 +29,7 @@ const CopyQuestionDialog = ({ open, onClose, handleCopyQuestion }) => {
       content={
         <Stack spacing={2}>
           <Typography variant="body1">
-            Are you sure you want to copy this question? 
+            Are you sure you want to copy this question?
           </Typography>
         </Stack>
       }

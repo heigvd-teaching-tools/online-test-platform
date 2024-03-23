@@ -282,8 +282,6 @@ const StudentList = ({
     columns.push(...questionColumns)
   }
 
-  
-
   return (
     <Stack>
       <Typography variant="h6">{title}</Typography>

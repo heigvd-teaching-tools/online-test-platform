@@ -567,35 +567,36 @@ const PageGrading = () => {
   )
 }
 
-
-const EndGradingDialog = ({ groupScope, evaluation, open, onClose, onConfirm }) => {
-
+const EndGradingDialog = ({
+  groupScope,
+  evaluation,
+  open,
+  onClose,
+  onConfirm,
+}) => {
   return (
     <DialogFeedback
-        open={open}
-        onClose={() => onClose()}
-        title="End grading"
-        content={
-          <>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              You wont be able to get back to the grading phase.
-            </Typography>
-            <Typography variant="button" gutterBottom>
-              Are you sure you want to end grading?
-            </Typography>
-            <ToggleStudentViewSolution 
-              groupScope={groupScope}
-              evaluation={evaluation} 
-            />
-          </>
-        }
-        onConfirm={onConfirm}
-      />
+      open={open}
+      onClose={() => onClose()}
+      title="End grading"
+      content={
+        <>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            You wont be able to get back to the grading phase.
+          </Typography>
+          <Typography variant="button" gutterBottom>
+            Are you sure you want to end grading?
+          </Typography>
+          <ToggleStudentViewSolution
+            groupScope={groupScope}
+            evaluation={evaluation}
+          />
+        </>
+      }
+      onConfirm={onConfirm}
+    />
   )
 }
-
-
-
 
 const GradingNextBack = ({ isFirst, onPrev, onNext }) => {
   const handleKeyDown = useCallback(

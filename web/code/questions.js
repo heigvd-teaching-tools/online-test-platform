@@ -85,7 +85,6 @@ export const questionIncludeClause = (questionIncludeOptions) => {
               },
               orderBy: { order: 'asc' },
             },
-            
           },
         },
         trueFalse: {
@@ -202,7 +201,12 @@ export const questionIncludeClause = (questionIncludeOptions) => {
           },
         },
         multipleChoice: {
-          select: { options: { select: { id: true, text: true }, orderBy: { order: 'asc' } } },
+          select: {
+            options: {
+              select: { id: true, text: true },
+              orderBy: { order: 'asc' },
+            },
+          },
         },
         essay: { select: { content: true } },
         trueFalse: true,
@@ -283,15 +287,18 @@ export const questionTypeSpecific = (
   }
 }
 
-
 /**
  * Deep copy a question and its type-specific data.
  * @param {PrismaClient} prisma
  * @param {Object} question
  * @param {string} source
  */
-export const copyQuestion = async (prisma, question, source = QuestionSource.EVAL, appendCopyInTitle = false) => {
-
+export const copyQuestion = async (
+  prisma,
+  question,
+  source = QuestionSource.EVAL,
+  appendCopyInTitle = false,
+) => {
   const data = {
     title: appendCopyInTitle ? `Copy of ${question.title}` : question.title,
     content: question.content,
@@ -311,23 +318,19 @@ export const copyQuestion = async (prisma, question, source = QuestionSource.EVA
       })),
     },
     source: source,
-    sourceQuestion:{
-      connect:{
-        id: question.id
-      }
-    }
+    sourceQuestion: {
+      connect: {
+        id: question.id,
+      },
+    },
   }
 
   const copyGenericQuestion = async (prisma, question) => {
     const newQuestion = await prisma.question.create({
       data: {
-       ...data,
+        ...data,
         [question.type]: {
-          create: questionTypeSpecific(
-            question.type,
-            question,
-            'create',
-          ),
+          create: questionTypeSpecific(question.type, question, 'create'),
         },
       },
     })
@@ -476,13 +479,10 @@ export const copyQuestion = async (prisma, question, source = QuestionSource.EVA
           outputId: newQueryOutput?.id,
         },
       })
-
     }
 
     return newDatabaseQuestion
   }
-    
-    
 
   switch (question.type) {
     case QuestionType.essay:
@@ -497,5 +497,4 @@ export const copyQuestion = async (prisma, question, source = QuestionSource.EVA
     default:
       return null
   }
-  
 }
