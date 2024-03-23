@@ -20,12 +20,10 @@ jobs:
         with:
           node-version: '20' 
 
-      - name: Install dependencies
-        run: npm install 
-
       - name: Run ESLint
         run: |
           cd web
+          npm install 
           npx eslint . --ext .js,.jsx,.ts,.tsx --config eslintrc.json 
 
 
