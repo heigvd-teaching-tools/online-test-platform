@@ -73,7 +73,7 @@ const StepReferenceCollection = ({
         errorCollectionQuestions,
       ]}
     >
-      <Stack spacing={2} pt={2}>
+      <Stack spacing={2}>
         {!evaluationQuestions && (
           <>
             <Typography variant="h6">Reference Collection</Typography>

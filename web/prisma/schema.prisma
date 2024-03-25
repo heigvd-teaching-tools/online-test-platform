@@ -482,6 +482,12 @@ enum EvaluationStatus {
   ARCHIVED
 }
 
+
+enum UserOnEvaluatioAccessMode {
+  LINK_ONLY // Everyone with the link can access
+  LINK_AND_ACCESS_LIST // Access requires having the link and being in the access list
+}
+
 model Evaluation {
   id String @id @default(cuid())
 
@@ -499,6 +505,10 @@ model Evaluation {
   endAt   DateTime?
 
   showSolutionsWhenFinished Boolean @default(false)
+
+  accessMode UserOnEvaluatioAccessMode @default(LINK_ONLY)
+  accessList String[] 
+
 
   students              UserOnEvaluation[]
   evaluationToQuestions EvaluationToQuestion[]
@@ -528,6 +538,7 @@ enum UserOnEvaluationStatus {
   IN_PROGRESS
   FINISHED
 }
+
 
 model UserOnEvaluation {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
