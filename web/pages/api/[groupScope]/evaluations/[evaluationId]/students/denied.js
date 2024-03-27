@@ -21,6 +21,10 @@ import {
   withGroupScope,
 } from '@/middleware/withAuthorization'
 
+/* 
+Get the list of students who have been denied access to the evaluation
+*/
+
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
   const evaluation = await prisma.evaluation.findUnique({
@@ -28,40 +32,13 @@ const get = async (req, res, prisma) => {
       id: evaluationId,
     },
     select: {
-      students: {
+      userOnEvaluationDeniedAccessAttempt: {
         select: {
           user: true,
-          registeredAt: true,
-          finishedAt: true,
-          status: true,
+          attemptedAt: true,
         },
         orderBy: {
-          registeredAt: 'asc',
-        },
-      },
-      evaluationToQuestions: {
-        select: {
-          question: {
-            select: {
-              id: true,
-              title: true,
-              studentAnswer: {
-                select: {
-                  question: {
-                    select: {
-                      id: true,
-                    },
-                  },
-                  userEmail: true,
-                  status: true,
-                },
-              },
-            },
-          },
-          order: true,
-        },
-        orderBy: {
-          order: 'asc',
+          attemptedAt: 'asc',
         },
       },
     },

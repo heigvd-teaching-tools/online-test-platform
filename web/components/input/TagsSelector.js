@@ -36,15 +36,10 @@ const TagsSelector = ({
   formatTag = (tag) => tag,
   onChange,
 }) => {
-  const [inputValue, setInputValue] = useState('');
-  const [value, setValue] = useState([]);
-  const [invalidTags, setInvalidTags] = useState([]);
 
-  useEffect(() => {
-    const initialTags = initialValue.map(formatTag);
-    setValue(initialTags);
-    setInvalidTags(initialTags.filter(tag => !validateTag(tag)));
-  }, [initialValue, formatTag, validateTag]);
+  const [inputValue, setInputValue] = useState('');
+  const [value, setValue] = useState(initialValue);
+  const [invalidTags, setInvalidTags] = useState([]);
 
   // Update the logic to handle both addition and deletion of tags
   const onChangeValue = useCallback(

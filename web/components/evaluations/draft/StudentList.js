@@ -24,6 +24,7 @@ import FilledBullet from '@/components/feedback/FilledBullet'
 import PiePercent from '@/components/feedback/PiePercent'
 
 import DropdownSelector from '@/components/input/DropdownSelector'
+import DateTimeCell from '@/components/layout/utils/DateTimeCell'
 
 const StudentStatusManager = ({
   groupScope,
@@ -108,19 +109,6 @@ const StudentStatusManager = ({
       ]}
       onSelect={async (value) => await handleStatusChange(value)}
     />
-  )
-}
-
-const DateTimeCell = ({ dateTime }) => {
-  return (
-    <>
-      <Typography variant="caption">
-        {new Date(dateTime).toLocaleDateString()}
-      </Typography>
-      <Typography variant="body2">
-        {new Date(dateTime).toLocaleTimeString()}
-      </Typography>
-    </>
   )
 }
 

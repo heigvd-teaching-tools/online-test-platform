@@ -18,6 +18,7 @@ import {
   EvaluationPhase,
   QuestionType,
   QuestionSource,
+  UserOnEvaluatioAccessMode,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -61,7 +62,7 @@ The code questions are copied with all the files
 The database questions are copied with all the queries and their outputs
 * */
 const post = async (req, res, prisma) => {
-  const { label, conditions, duration, collectionId } = req.body
+  const { label, conditions, duration, collectionId, accessMode, accessList } = req.body
 
   const { groupScope } = req.query
 
@@ -112,6 +113,18 @@ const post = async (req, res, prisma) => {
   if (duration) {
     data.durationHours = parseInt(duration.hours)
     data.durationMins = parseInt(duration.minutes)
+  }
+
+  data.accessMode = accessMode
+
+  if (accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST) {
+    if(accessList.length === 0) {
+      res.status(400).json({ message: 'Please provide an access list.' })
+      return
+    }
+    data.accessList = accessList
+  }else {
+    data.accessList = []
   }
 
   try {

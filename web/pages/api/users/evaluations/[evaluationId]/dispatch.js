@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, EvaluationPhase } from '@prisma/client'
+import { Role, EvaluationPhase, UserOnEvaluatioAccessMode } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withMethodHandler,
@@ -40,6 +40,8 @@ const get = async (req, res, prisma) => {
     select: {
       phase: true,
       label: true,
+      accessMode: true,
+      accessList: true,
     },
   })
 
@@ -47,6 +49,30 @@ const get = async (req, res, prisma) => {
     // something fishy is going on
     res.status(401).json({ message: 'Unauthorized' })
     return
+  }
+
+  // Check if the user is in the evaluation access list in case the evaluation has restricted access
+  if (evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST) {
+    if(!evaluation.accessList.find((email) => email === user.email)) {
+
+      // keep track of the users who were denied access to the evaluation
+      await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
+        where: {
+          userEmail_evaluationId: {
+            userEmail: user.email,
+            evaluationId: evaluationId,
+          },
+        },
+        update: {},
+        create: {
+          userEmail: user.email,
+          evaluationId: evaluationId,
+        },
+      })
+
+      res.status(423).json({ message: 'Your attempt to access this evaluation has been registered. Awaiting approval.' })
+      return
+    }
   }
 
   const userOnEvaluation = await prisma.userOnEvaluation.findFirst({
@@ -75,7 +101,10 @@ const get = async (req, res, prisma) => {
 
   // the users is already in the evaluation
   res.status(200).json({
-    evaluation: evaluation,
+    evaluation: {
+      phase: evaluation.phase,
+      label: evaluation.label,
+    },
     userOnEvaluation: userOnEvaluation,
   })
 }

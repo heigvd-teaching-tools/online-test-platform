@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import LoadingAnimation from './LoadingAnimation'
+
 const Loading = ({ children, errors = [], loading = true, message = '' }) => {
   // find first error that is not undefined or null
   const error = errors.find((error) => error !== undefined && error !== null)
@@ -22,4 +23,5 @@ const Loading = ({ children, errors = [], loading = true, message = '' }) => {
 
   return children
 }
+
 export default Loading
