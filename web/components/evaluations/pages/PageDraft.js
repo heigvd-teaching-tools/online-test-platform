@@ -47,7 +47,7 @@ const PageDraft = () => {
 
   const { show: showSnackbar } = useSnackbar()
 
-  const { data: evaluation, error } = useSWR(
+  const { data: evaluation, error, mutate } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
     groupScope && evaluationId ? fetcher : null,
     {
@@ -68,6 +68,15 @@ const PageDraft = () => {
 
   const [ accessMode, setAccessMode ] = useState(UserOnEvaluatioAccessMode.LINK_ONLY)
   const [ accessList, setAccessList ] = useState([])
+
+  useEffect(
+    () => {
+      if(evaluation){
+        setAccessMode(evaluation.accessMode)
+        setAccessList(evaluation.accessList)
+      }
+    }
+  , [evaluation])
 
   const onChangeReferenceCollection = useCallback(
     (collection) => {
@@ -132,14 +141,6 @@ const PageDraft = () => {
       )
       setSaving(false)
       return false
-    }
-
-    if(accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST) {
-      if(accessList.length === 0) {
-        showSnackbar('Please provide an access list.', 'error')
-        setSaving(false)
-        return false
-      }
     }
 
     if (evaluation.id) {
@@ -224,9 +225,7 @@ const PageDraft = () => {
                 }}
               />
 
-              <StepAccessMode evaluation={evaluation} onChange={(accessMode, accessList) => {
-                console.log("onChange accessMode", accessMode)
-                console.log("onChange accessList", accessList)
+              <StepAccessMode accessList={accessList} accessMode={accessMode} onChange={(accessMode, accessList) => {
                 setAccessMode(accessMode)
                 setAccessList(accessList)
               }} />
@@ -240,7 +239,14 @@ const PageDraft = () => {
 
               <StudentsInEvaluation groupScope={groupScope} evaluation={evaluation} />
 
-              <DeniedStudentsInEvaluation groupScope={groupScope} evaluation={evaluation} />
+              <DeniedStudentsInEvaluation 
+                groupScope={groupScope} 
+                evaluation={evaluation} 
+                onStudentAllowed={async () => {
+                  mutate()
+                  showSnackbar("Student has been included in the access list")
+                }}  
+              />
 
               <Stack direction="row" justifyContent="space-between">
                 <LoadingButton
@@ -282,8 +288,8 @@ const StudentsInEvaluation = ({ groupScope, evaluation }) => {
   )
 }
 
-const DeniedStudentsInEvaluation = ({ groupScope, evaluation }) => {
-  const { data: students, error: errorStudents } = useSWR(
+const DeniedStudentsInEvaluation = ({ groupScope, evaluation, onStudentAllowed }) => {
+  const { data: students, error: errorStudents, mutate } = useSWR(
     `/api/${groupScope}/evaluations/${evaluation.id}/students/denied`,
     groupScope && evaluation?.id ? fetcher : null,
     { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
@@ -293,8 +299,14 @@ const DeniedStudentsInEvaluation = ({ groupScope, evaluation }) => {
     evaluation.id && (
       <Loading loading={!students} errors={[errorStudents]}>
         <DenienStudentList
+          groupScope={groupScope}
+          evaluationId={evaluation.id}
           title={`Denied students (${students?.userOnEvaluationDeniedAccessAttempt.length})`}
           students={students?.userOnEvaluationDeniedAccessAttempt}
+          onStudentAllowed={() => {
+              mutate();
+              onStudentAllowed()
+          }}
         />
       </Loading>
     )

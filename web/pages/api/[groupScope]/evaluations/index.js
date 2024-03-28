@@ -16,9 +16,7 @@
 import {
   Role,
   EvaluationPhase,
-  QuestionType,
   QuestionSource,
-  UserOnEvaluatioAccessMode,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -29,7 +27,6 @@ import {
 import {
   copyQuestion,
   questionIncludeClause,
-  questionTypeSpecific,
 } from '@/code/questions'
 
 const get = async (req, res, prisma) => {
@@ -103,6 +100,8 @@ const post = async (req, res, prisma) => {
     phase: EvaluationPhase.DRAFT,
     label,
     conditions,
+    accessMode,
+    accessList,
     group: {
       connect: {
         scope: groupScope,
@@ -113,18 +112,6 @@ const post = async (req, res, prisma) => {
   if (duration) {
     data.durationHours = parseInt(duration.hours)
     data.durationMins = parseInt(duration.minutes)
-  }
-
-  data.accessMode = accessMode
-
-  if (accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST) {
-    if(accessList.length === 0) {
-      res.status(400).json({ message: 'Please provide an access list.' })
-      return
-    }
-    data.accessList = accessList
-  }else {
-    data.accessList = []
   }
 
   try {

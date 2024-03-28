@@ -3,17 +3,17 @@ import { Alert, AlertTitle, FormControlLabel, FormGroup, Stack, Switch, Typograp
 import { UserOnEvaluatioAccessMode } from "@prisma/client"
 import { useEffect, useState } from "react"
 
-const StepAccessMode = ({ evaluation, onChange }) => {
+const StepAccessMode = ({ accessMode:initialMode, accessList:initialList, onChange }) => {
 
-    const [accessMode, setAccessMode] = useState(evaluation?.accessMode || UserOnEvaluatioAccessMode.LINK_ONLY)
-    const [accessList, setAccessList] = useState(evaluation?.accessList || [])
+    const [accessMode, setAccessMode] = useState(initialMode || UserOnEvaluatioAccessMode.LINK_ONLY)
+    const [accessList, setAccessList] = useState(initialList || [])
 
     useEffect(() => {
-        if(evaluation.id){
-            setAccessMode(evaluation.accessMode)
-            setAccessList(evaluation.accessList)
-        }
-    }, [evaluation.id, evaluation])
+        
+        setAccessMode(initialMode)
+        setAccessList(initialList)
+        
+    }, [initialMode, initialList])
 
     return (
         <Stack spacing={2}>
@@ -37,9 +37,15 @@ const StepAccessMode = ({ evaluation, onChange }) => {
                 { accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST &&
                 (
                     <>
-                    <Typography variant="body1">Provide a list of email addresses to restrict access to the evaluation.</Typography>
+                    <Typography variant="body1">
+                        Provide your access list by pasting it directly from your email client. Supported separators (,;\n) 
+                    </Typography>
+                    <Typography variant="body2">
+                        Denied attemps are being registered. This feature gives you the freedom to review and grant access permissions on the go. 
+                    </Typography>
                     <TagsSelector
                         label="Access list"
+                        placeholder="email1@heig-vd.ch, email2@heig-vd.ch..."
                         value={accessList}
                         options={[]}
                         validateTag={tag => {
@@ -62,14 +68,6 @@ const StepAccessMode = ({ evaluation, onChange }) => {
                             onChange(accessMode, emails)
                         }}
                     />
-                    {
-                    accessList.length === 0 &&
-                    <Alert severity="warning">
-                        <AlertTitle>Access list is empty</AlertTitle>
-                        Please provide at least one email address to restrict access to the evaluation.
-                    </Alert>
-                    }
-
                     {
                     accessList.length > 0 &&
                     <Alert severity="info">

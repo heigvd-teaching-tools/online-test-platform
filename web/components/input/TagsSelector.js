@@ -30,6 +30,7 @@ const TagsSelector = ({
   options,
   value: initialValue = [],
   label = 'Tags',
+  placeholder = '+',
   color = 'primary',
   size = 'medium',
   validateTag = () => true,
@@ -153,7 +154,7 @@ const TagsSelector = ({
             color={color}
             size={size}
             onPaste={handlePaste}
-            placeholder="+"
+            placeholder={placeholder}
           />
         )}
       />
