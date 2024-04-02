@@ -208,14 +208,14 @@ const PageInProgress = () => {
               <FilledBullet state={'empty'} />
               <Typography variant="body2">Missing answer</Typography>
             </Stack>
-            <DeniedStudentsInEvaluation 
-                groupScope={groupScope} 
-                evaluation={evaluation} 
-                onStudentAllowed={async (_) => {
-                  mutateStudents()
-                  showSnackbar("Student has been included in the access list")
-                }}  
-              />
+            <DeniedStudentsInEvaluation
+              groupScope={groupScope}
+              evaluation={evaluation}
+              onStudentAllowed={async (_) => {
+                mutateStudents()
+                showSnackbar('Student has been included in the access list')
+              }}
+            />
             <Loading loading={!students} errors={[errorStudents]}>
               <StudentList
                 groupScope={groupScope}

@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvaluationPhase, Role, UserOnEvaluatioAccessMode} from '@prisma/client'
+import {
+  EvaluationPhase,
+  Role,
+  UserOnEvaluatioAccessMode,
+} from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withMethodHandler,
@@ -30,7 +34,7 @@ In this scenario the student was denied access because he was not yet in the acc
 const post = async (req, res, prisma) => {
   const { groupScope, evaluationId } = req.query
   const { studentEmail } = req.body
-  
+
   const evaluation = await prisma.evaluation.findFirst({
     where: {
       id: evaluationId,
@@ -44,7 +48,7 @@ const post = async (req, res, prisma) => {
       durationHours: true,
       durationMins: true,
       accessMode: true,
-      accessList: true
+      accessList: true,
     },
   })
 
@@ -53,14 +57,14 @@ const post = async (req, res, prisma) => {
     return
   }
 
-  if(evaluation.accessMode !== UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST){
-    res
-      .status(400)
-      .json({ message: "No access list" })
+  if (
+    evaluation.accessMode !== UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+  ) {
+    res.status(400).json({ message: 'No access list' })
     return
   }
 
-  if (phaseGT(evaluation.phase, EvaluationPhase.IN_PROGRESS)){
+  if (phaseGT(evaluation.phase, EvaluationPhase.IN_PROGRESS)) {
     res
       .status(401)
       .json({ message: "It is too late to apologize. It's too late." })
@@ -70,37 +74,34 @@ const post = async (req, res, prisma) => {
   const accessList = evaluation.accessList
 
   if (!accessList.includes(studentEmail)) {
-    accessList.push(studentEmail);
-    
+    accessList.push(studentEmail)
+
     await prisma.$transaction(async (prisma) => {
       // update access list
-      console.log("update access list", accessList)
+      console.log('update access list', accessList)
 
       await prisma.evaluation.update({
         where: {
-          id: evaluationId
+          id: evaluationId,
         },
         data: {
-          accessList: accessList
-        }
+          accessList: accessList,
+        },
       })
 
       // remove the denied access attempt
       await prisma.userOnEvaluationDeniedAccessAttempt.delete({
-        where:{
+        where: {
           userEmail_evaluationId: {
-            evaluationId:evaluationId,
-            userEmail:studentEmail
-          }
-        }
+            evaluationId: evaluationId,
+            userEmail: studentEmail,
+          },
+        },
       })
-
     })
   }
 
-
-  res.status(200).json({ message: 'Student added to the access list'});
-
+  res.status(200).json({ message: 'Student added to the access list' })
 }
 
 export default withMethodHandler({

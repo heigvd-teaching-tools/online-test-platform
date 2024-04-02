@@ -28,7 +28,7 @@ const statusToIcon = {
   [LoadingStatus.INFO]: '/svg/info.svg',
 }
 
-const LoadingAnimation = ({ content, status=LoadingStatus.LOADING }) => (
+const LoadingAnimation = ({ content, status = LoadingStatus.LOADING }) => (
   <Stack
     alignItems="stretch"
     justifyContent="center"

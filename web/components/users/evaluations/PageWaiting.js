@@ -50,7 +50,7 @@ const PageWaiting = () => {
     { refreshInterval: 1000 },
   )
 
-  console.log("error", error)
+  console.log('error', error)
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
