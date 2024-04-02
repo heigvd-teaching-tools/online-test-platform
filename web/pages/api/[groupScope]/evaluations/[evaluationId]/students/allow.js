@@ -69,9 +69,6 @@ const post = async (req, res, prisma) => {
 
   const accessList = evaluation.accessList
 
-  console.log("accessList", accessList)
-
-
   if (!accessList.includes(studentEmail)) {
     accessList.push(studentEmail);
     
@@ -88,7 +85,6 @@ const post = async (req, res, prisma) => {
         }
       })
 
-      console.log("update done")
       // remove the denied access attempt
       await prisma.userOnEvaluationDeniedAccessAttempt.delete({
         where:{
@@ -98,8 +94,6 @@ const post = async (req, res, prisma) => {
           }
         }
       })
-
-      console.log("user removed")
 
     })
   }
