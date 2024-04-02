@@ -17,20 +17,20 @@ enum StudentPermission {
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
   refresh_expires_in Int?
-  not_before_policy Int? 
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  not_before_policy  Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -53,9 +53,10 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  roles         Role[]      
+  roles         Role[]
 
   userOnEvaluation UserOnEvaluation[]
+  userDeniedAccess UserOnEvaluationDeniedAccessAttempt[]
   studentAnswer    StudentAnswer[]
   gradingSignedBy  StudentQuestionGrading[]
   groups           UserOnGroup[]
@@ -102,7 +103,7 @@ model Group {
   questions   Question[]
   collections Collection[]
   tags        Tag[]
-  evaluations  Evaluation[]
+  evaluations Evaluation[]
 }
 
 model UserOnGroup {
@@ -149,9 +150,9 @@ enum QuestionSource {
 }
 
 model Question {
-  id      String       @id @default(cuid())
-  type    QuestionType
-  source  QuestionSource @default(BANK)
+  id     String         @id @default(cuid())
+  type   QuestionType
+  source QuestionSource @default(BANK)
 
   title   String
   content String?
@@ -168,9 +169,9 @@ model Question {
 
   collection CollectionToQuestion[]
 
-  sourceQuestionId String?           // Field indicating the ID of the source question if this is a copy
-  sourceQuestion   Question?         @relation("SourceQuestion", fields: [sourceQuestionId], references: [id], onDelete: SetNull)
-  copiedQuestions  Question[]        @relation("SourceQuestion")
+  sourceQuestionId String? // Field indicating the ID of the source question if this is a copy
+  sourceQuestion   Question?  @relation("SourceQuestion", fields: [sourceQuestionId], references: [id], onDelete: SetNull)
+  copiedQuestions  Question[] @relation("SourceQuestion")
 
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId String
@@ -482,6 +483,11 @@ enum EvaluationStatus {
   ARCHIVED
 }
 
+enum UserOnEvaluatioAccessMode {
+  LINK_ONLY // Everyone with the link can access
+  LINK_AND_ACCESS_LIST // Access requires having the link and being in the access list
+}
+
 model Evaluation {
   id String @id @default(cuid())
 
@@ -500,14 +506,29 @@ model Evaluation {
 
   showSolutionsWhenFinished Boolean @default(false)
 
+  accessMode UserOnEvaluatioAccessMode @default(LINK_ONLY)
+  accessList Json?
+
   students              UserOnEvaluation[]
   evaluationToQuestions EvaluationToQuestion[]
 
-  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId String
+  group                               Group                                 @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId                             String
+  userOnEvaluationDeniedAccessAttempt UserOnEvaluationDeniedAccessAttempt[]
 
   @@unique([groupId, label])
-	@@map("Evaluation")
+}
+
+model UserOnEvaluationDeniedAccessAttempt {
+  user         User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  userEmail    String
+  evaluationId String
+  attemptedAt  DateTime @default(now())
+
+  
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+
+  @@id([userEmail, evaluationId])
 }
 
 model EvaluationToQuestion {
@@ -521,7 +542,6 @@ model EvaluationToQuestion {
   order  Int   @default(0)
 
   @@id([evaluationId, questionId])
-	@@map("EvaluationToQuestion")
 }
 
 enum UserOnEvaluationStatus {
@@ -536,13 +556,12 @@ model UserOnEvaluation {
   evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
   evaluationId String
 
-  registeredAt DateTime @default(now())
-  finishedAt DateTime?
+  registeredAt DateTime  @default(now())
+  finishedAt   DateTime?
 
   status UserOnEvaluationStatus @default(IN_PROGRESS)
 
   @@id([userEmail, evaluationId])
-	@@map("UserOnEvaluation")
 }
 
 enum StudentAnswerStatus {

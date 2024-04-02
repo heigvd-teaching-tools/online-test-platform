@@ -15,7 +15,20 @@
  */
 import { Stack } from '@mui/material'
 import Image from 'next/image'
-const LoadingAnimation = ({ content, failed }) => (
+
+const LoadingStatus = {
+  LOADING: 'loading',
+  ERROR: 'error',
+  INFO: 'info',
+}
+
+const statusToIcon = {
+  [LoadingStatus.LOADING]: '/svg/loading.svg',
+  [LoadingStatus.ERROR]: '/svg/exclamation-mark.svg',
+  [LoadingStatus.INFO]: '/svg/info.svg',
+}
+
+const LoadingAnimation = ({ content, status = LoadingStatus.LOADING }) => (
   <Stack
     alignItems="stretch"
     justifyContent="center"
@@ -26,7 +39,7 @@ const LoadingAnimation = ({ content, failed }) => (
     <Stack alignItems="center" justifyContent="center" spacing={2}>
       <Image
         alt="Loading..."
-        src={failed ? '/svg/exclamation-mark.svg' : '/svg/loading.svg'}
+        src={statusToIcon[status]}
         width={80}
         height={80}
         priority="1"

@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Role,
-  EvaluationPhase,
-  QuestionType,
-  QuestionSource,
-} from '@prisma/client'
+import { Role, EvaluationPhase, QuestionSource } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,
   withGroupScope,
   withMethodHandler,
 } from '@/middleware/withAuthorization'
-import {
-  copyQuestion,
-  questionIncludeClause,
-  questionTypeSpecific,
-} from '@/code/questions'
+import { copyQuestion, questionIncludeClause } from '@/code/questions'
 
 const get = async (req, res, prisma) => {
   // shallow session to question get -> we just need to count the number of questions
@@ -61,7 +52,8 @@ The code questions are copied with all the files
 The database questions are copied with all the queries and their outputs
 * */
 const post = async (req, res, prisma) => {
-  const { label, conditions, duration, collectionId } = req.body
+  const { label, conditions, duration, collectionId, accessMode, accessList } =
+    req.body
 
   const { groupScope } = req.query
 
@@ -102,6 +94,8 @@ const post = async (req, res, prisma) => {
     phase: EvaluationPhase.DRAFT,
     label,
     conditions,
+    accessMode,
+    accessList,
     group: {
       connect: {
         scope: groupScope,

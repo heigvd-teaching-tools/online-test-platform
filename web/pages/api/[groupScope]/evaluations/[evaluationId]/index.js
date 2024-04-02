@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvaluationPhase, Role } from '@prisma/client'
+import {
+  EvaluationPhase,
+  Role,
+  UserOnEvaluatioAccessMode,
+} from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,
@@ -60,6 +64,8 @@ const patch = async (req, res, prisma) => {
     endAt,
     status,
     showSolutionsWhenFinished,
+    accessMode,
+    accessList,
   } = req.body
 
   let data = {}
@@ -111,6 +117,14 @@ const patch = async (req, res, prisma) => {
 
   if (showSolutionsWhenFinished !== undefined) {
     data.showSolutionsWhenFinished = showSolutionsWhenFinished
+  }
+
+  if (accessMode) {
+    data.accessMode = accessMode
+  }
+
+  if (accessList) {
+    data.accessList = accessList
   }
 
   try {

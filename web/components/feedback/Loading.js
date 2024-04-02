@@ -14,12 +14,26 @@
  * limitations under the License.
  */
 import LoadingAnimation from './LoadingAnimation'
+
 const Loading = ({ children, errors = [], loading = true, message = '' }) => {
   // find first error that is not undefined or null
-  const error = errors.find((error) => error !== undefined && error !== null)
-  if (error) return <LoadingAnimation failed={error} content={error.message} />
+  const error = errors.find(
+    (error) => error !== undefined && error.type === 'error',
+  )
+  if (error)
+    return <LoadingAnimation status={'error'} content={error.message} />
+
+  // find first info that is not undefined or null
+  const info = errors.find(
+    (error) => error !== undefined && error.type === 'info',
+  )
+  if (info) return <LoadingAnimation status={'info'} content={info.message} />
+
+  // otherwise show loading animation
   if (loading) return <LoadingAnimation content={message} />
 
+  // if not loading and no error, return children
   return children
 }
+
 export default Loading

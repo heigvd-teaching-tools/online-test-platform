@@ -49,6 +49,7 @@ import DisplayPhase from '../DisplayPhase'
 import PhaseRedirect from './PhaseRedirect'
 import StudentList from '../draft/StudentList'
 import FilledBullet from '@/components/feedback/FilledBullet'
+import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 10000
 
@@ -207,6 +208,14 @@ const PageInProgress = () => {
               <FilledBullet state={'empty'} />
               <Typography variant="body2">Missing answer</Typography>
             </Stack>
+            <DeniedStudentsInEvaluation
+              groupScope={groupScope}
+              evaluation={evaluation}
+              onStudentAllowed={async (_) => {
+                mutateStudents()
+                showSnackbar('Student has been included in the access list')
+              }}
+            />
             <Loading loading={!students} errors={[errorStudents]}>
               <StudentList
                 groupScope={groupScope}

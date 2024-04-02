@@ -23,6 +23,7 @@ import {
   EvaluationPhase,
   QuestionType,
   StudentPermission,
+  UserOnEvaluatioAccessMode,
 } from '@prisma/client'
 import { phaseGT } from '@/code/phase'
 import { questionIncludeClause } from '@/code/questions'
@@ -48,6 +49,33 @@ const post = async (req, res, prisma) => {
   if (phaseGT(evaluation.phase, EvaluationPhase.IN_PROGRESS)) {
     res.status(400).json({ message: 'Too late' })
     return
+  }
+
+  // Check if the user is in the evaluation access list in case the evaluation has restricted access
+  // The check is done previously in the endpoint /api/users/evaluations/%5BevaluationId%5D/dispatch.js
+  if (
+    evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+  ) {
+    if (!evaluation.accessList.find((email) => email === studentEmail)) {
+      // keep track of the users who were denied access to the evaluation
+      await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
+        where: {
+          userEmail_evaluationId: {
+            userEmail: user.email,
+            evaluationId: evaluationId,
+          },
+        },
+        update: {},
+        create: {
+          userEmail: user.email,
+          evaluationId: evaluationId,
+        },
+      })
+      res
+        .status(403)
+        .json({ message: 'You are not allowed to access this evaluatio2' })
+      return
+    }
   }
 
   // Is users already connected to the evaluation?

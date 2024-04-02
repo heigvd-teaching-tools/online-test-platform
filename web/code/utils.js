@@ -16,22 +16,32 @@
 export const fetcher = async (url) => {
   const res = await fetch(url)
 
-  if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.')
-    // Attach extra info to the error object.
-    try {
-      const data = await res.json()
-      error.message = data.message
-      error.isGeneric = false
-    } catch (e) {
-      error.isGeneric = true
-    }
-    error.status = res.status
-    throw error
-  }
-  return res.json()
-}
+  // Read and parse the response body once.
+  const data = await res.json()
 
+  if (!res.ok) {
+    const error = {
+      status: res.status,
+      ...data,
+    }
+
+    if (!error.type) {
+      error.type = 'error'
+    }
+
+    if (!error.message) {
+      error.message = 'An error occurred'
+    }
+
+    throw {
+      status: res.status,
+      ...data,
+    }
+  }
+
+  // Return the parsed data.
+  return data
+}
 /*
 this link send to users to the PageDispatch which decides (using api evaluation/id/dispatch endpoint) where the users should be directed
 * */

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import useSWR from 'swr'
+
 import { useState, useEffect } from 'react'
 import {
   Stack,
@@ -25,20 +25,8 @@ import {
   AlertTitle,
 } from '@mui/material'
 import DurationPicker from '@/components/input/DurationPicker'
-import StudentList from './StudentList'
 
-import { fetcher } from '@/code/utils'
-import Loading from '@/components/feedback/Loading'
-
-const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
-
-const StepSchedule = ({ groupScope, evaluation, onChange }) => {
-  const { data: students, error: errorStudents } = useSWR(
-    `/api/${groupScope}/evaluations/${evaluation.id}/students`,
-    groupScope && evaluation?.id ? fetcher : null,
-    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
-  )
-
+const StepSchedule = ({ evaluation, onChange }) => {
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
     hours: 0,
@@ -104,14 +92,6 @@ const StepSchedule = ({ groupScope, evaluation, onChange }) => {
             }}
           />
         </>
-      )}
-      {evaluation.id && (
-        <Loading loading={!students} errors={[errorStudents]}>
-          <StudentList
-            title={`Registered students (${students?.students.length})`}
-            students={students?.students}
-          />
-        </Loading>
       )}
     </Stack>
   )

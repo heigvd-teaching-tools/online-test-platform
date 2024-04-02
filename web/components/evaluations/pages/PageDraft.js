@@ -13,11 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useState, useCallback } from 'react'
-import { EvaluationPhase, Role } from '@prisma/client'
+import { useState, useCallback, useEffect } from 'react'
+import {
+  EvaluationPhase,
+  Role,
+  UserOnEvaluatioAccessMode,
+} from '@prisma/client'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Stack, Typography } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  Switch,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import LayoutMain from '@/components/layout/LayoutMain'
 
 import { useSnackbar } from '@/context/SnackbarContext'
@@ -35,6 +52,12 @@ import JoinClipboard from '../JoinClipboard'
 import StepReferenceCollection from '../draft/StepReferenceCollection'
 import StepGeneralInformation from '../draft/StepGeneralInformation'
 import StepSchedule from '../draft/StepSchedule'
+import StudentList from '../draft/StudentList'
+import TagsSelector from '@/components/input/TagsSelector'
+import StepAccessMode from '../draft/StepAccessMode'
+import { set } from 'lodash'
+import DenienStudentList from '../draft/DenienStudentList'
+import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
 
 const PageDraft = () => {
   const router = useRouter()
@@ -42,7 +65,11 @@ const PageDraft = () => {
 
   const { show: showSnackbar } = useSnackbar()
 
-  const { data: evaluation, error } = useSWR(
+  const {
+    data: evaluation,
+    error,
+    mutate,
+  } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
     groupScope && evaluationId ? fetcher : null,
     {
@@ -50,6 +77,8 @@ const PageDraft = () => {
         id: undefined,
         label: '',
         conditions: '',
+        accessMode: UserOnEvaluatioAccessMode.LINK_ONLY,
+        accessList: [],
       },
     },
   )
@@ -58,6 +87,20 @@ const PageDraft = () => {
 
   const [selectedCollection, setSelectedCollection] = useState(undefined)
   const [evaluationQuestions, setEvaluationQuestions] = useState([])
+
+  const [accessMode, setAccessMode] = useState(
+    UserOnEvaluatioAccessMode.LINK_ONLY,
+  )
+  const [accessList, setAccessList] = useState([])
+
+  useEffect(() => {
+    if (evaluation && evaluation.id) {
+      setAccessMode(evaluation.accessMode)
+      setAccessList(evaluation.accessList)
+    }
+  }, [evaluation])
+
+  console.log('evaluation', evaluation)
 
   const onChangeReferenceCollection = useCallback(
     (collection) => {
@@ -88,6 +131,8 @@ const PageDraft = () => {
       label: evaluation?.label,
       conditions: evaluation?.conditions,
       collectionId: selectedCollection?.id,
+      accessMode: accessMode,
+      accessList: accessList,
       duration,
     }
 
@@ -104,7 +149,7 @@ const PageDraft = () => {
 
     if (!hasQuestions) {
       showSnackbar(
-        'Your evaluation has no questions. Please select the reference collection.',
+        'Please select the reference collection that contain questions.',
         'error',
       )
       setSaving(false)
@@ -112,10 +157,7 @@ const PageDraft = () => {
     }
 
     if (data.label.length === 0) {
-      showSnackbar(
-        'You collections session has no label. Please enter a label.',
-        'error',
-      )
+      showSnackbar('Please provide a label for your evaluation.', 'error')
       setSaving(false)
       return false
     }
@@ -161,13 +203,9 @@ const PageDraft = () => {
     showSnackbar,
     router,
     groupScope,
+    accessMode,
+    accessList,
   ])
-
-  const handleFinalize = useCallback(async () => {
-    if (await handleSave()) {
-      await router.push(`/${groupScope}/evaluations`)
-    }
-  }, [groupScope, router, handleSave])
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
@@ -206,10 +244,32 @@ const PageDraft = () => {
                 }}
               />
 
+              <StepAccessMode
+                accessList={accessList}
+                accessMode={accessMode}
+                onChange={(accessMode, accessList) => {
+                  setAccessMode(accessMode)
+                  setAccessList(accessList)
+                }}
+              />
+
               <StepSchedule
-                groupScope={groupScope}
                 evaluation={evaluation}
                 onChange={onDurationChange}
+              />
+
+              <StudentsInEvaluation
+                groupScope={groupScope}
+                evaluation={evaluation}
+              />
+
+              <DeniedStudentsInEvaluation
+                groupScope={groupScope}
+                evaluation={evaluation}
+                onStudentAllowed={async (_) => {
+                  mutate()
+                  showSnackbar('Student has been included in the access list')
+                }}
               />
 
               <Stack direction="row" justifyContent="space-between">
@@ -227,6 +287,27 @@ const PageDraft = () => {
         </PhaseRedirect>
       </Loading>
     </Authorisation>
+  )
+}
+
+const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
+
+const StudentsInEvaluation = ({ groupScope, evaluation }) => {
+  const { data: students, error: errorStudents } = useSWR(
+    `/api/${groupScope}/evaluations/${evaluation.id}/students`,
+    groupScope && evaluation?.id ? fetcher : null,
+    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
+  )
+
+  return (
+    evaluation.id && (
+      <Loading loading={!students} errors={[errorStudents]}>
+        <StudentList
+          title={`Registered students (${students?.students.length})`}
+          students={students?.students}
+        />
+      </Loading>
+    )
   )
 }
 
