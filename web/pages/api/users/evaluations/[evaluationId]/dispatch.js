@@ -75,13 +75,11 @@ const get = async (req, res, prisma) => {
         },
       })
 
-      res
-        .status(401)
-        .json({
-          type: 'info',
-          message:
-            'Your attempt to access this evaluation has been registered. Awaiting approval.',
-        })
+      res.status(401).json({
+        type: 'info',
+        message:
+          'Your attempt to access this evaluation has been registered. Awaiting approval.',
+      })
       return
     }
   }
