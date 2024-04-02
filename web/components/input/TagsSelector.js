@@ -53,7 +53,7 @@ const TagsSelector = ({
       setValue(initialValue)
       setInvalidTags(initialValue.filter((tag) => !validateTag(tag)))
     }
-  }, [initialValue, validateTag])
+  }, [initialValue, validateTag, value])
 
   // Update the logic to handle both addition and deletion of tags
   const onChangeValue = useCallback(
@@ -144,7 +144,7 @@ const TagsSelector = ({
         onChange={(index, editedTag) => updateTags(value, index, editedTag)}
       />
     ),
-    [size, validateTag],
+    [validateTag, value, updateTags],
   )
 
   return (
@@ -224,7 +224,7 @@ const Tag = ({ tag: initial, index, validateTag, getTagProps, onChange }) => {
         onChange(index, tag)
       }
     },
-    [tag, onChange],
+    [tag, onChange, index],
   )
 
   return (
