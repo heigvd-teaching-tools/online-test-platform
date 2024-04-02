@@ -47,7 +47,7 @@ const get = async (req, res, prisma) => {
 
   if (!evaluation) {
     // something fishy is going on
-    res.status(401).json({ message: 'Unauthorized' })
+    res.status(401).json({ type:'error', message: 'Unauthorized' })
     return
   }
 
@@ -70,7 +70,7 @@ const get = async (req, res, prisma) => {
         },
       })
 
-      res.status(423).json({ message: 'Your attempt to access this evaluation has been registered. Awaiting approval.' })
+      res.status(401).json({ type:'info', message: 'Your attempt to access this evaluation has been registered. Awaiting approval.' })
       return
     }
   }

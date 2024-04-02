@@ -85,7 +85,7 @@ const DenienStudentList = ({
             actions: [
               <Button
                 key="edit"
-                color="success"
+                color="info"
                 startIcon={<Image
                   alt="Remove From Collection"
                   src="/svg/icons/enter.svg"

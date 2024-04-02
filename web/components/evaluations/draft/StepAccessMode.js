@@ -5,13 +5,16 @@ import { useEffect, useState } from "react"
 
 const StepAccessMode = ({ accessMode:initialMode, accessList:initialList, onChange }) => {
 
-    const [accessMode, setAccessMode] = useState(initialMode || UserOnEvaluatioAccessMode.LINK_ONLY)
-    const [accessList, setAccessList] = useState(initialList || [])
+    const [accessMode, setAccessMode] = useState(UserOnEvaluatioAccessMode.LINK_ONLY)
+    const [accessList, setAccessList] = useState([])
 
     useEffect(() => {
-        
-        setAccessMode(initialMode)
-        setAccessList(initialList)
+        if(initialMode) {
+            setAccessMode(initialMode)
+        }
+        if(initialList) {
+            setAccessList(initialList)
+        }
         
     }, [initialMode, initialList])
 
@@ -38,8 +41,12 @@ const StepAccessMode = ({ accessMode:initialMode, accessList:initialList, onChan
                 (
                     <>
                     <Typography variant="body1">
-                        Provide your access list by pasting it directly from your email client. Supported separators (,;\n) 
+                        Provide your access list by pasting it directly from your email client. 
+                        <Typography variant="body1">Supported separators are: comma, semicolon, newline. </Typography>
                     </Typography>
+                    
+                        
+                   
                     <Typography variant="body2">
                         Denied attemps are being registered. This feature gives you the freedom to review and grant access permissions on the go. 
                     </Typography>

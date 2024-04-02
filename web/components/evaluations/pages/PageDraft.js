@@ -40,6 +40,7 @@ import TagsSelector from '@/components/input/TagsSelector'
 import StepAccessMode from '../draft/StepAccessMode'
 import { set } from 'lodash'
 import DenienStudentList from '../draft/DenienStudentList'
+import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
 
 const PageDraft = () => {
   const router = useRouter()
@@ -71,12 +72,14 @@ const PageDraft = () => {
 
   useEffect(
     () => {
-      if(evaluation){
-        setAccessMode(evaluation.accessMode)
-        setAccessList(evaluation.accessList)
+      if(evaluation && evaluation.id) {
+       setAccessMode(evaluation.accessMode)
+       setAccessList(evaluation.accessList)
       }
     }
   , [evaluation])
+
+  console.log("evaluation", evaluation)
 
   const onChangeReferenceCollection = useCallback(
     (collection) => {
@@ -226,6 +229,7 @@ const PageDraft = () => {
               />
 
               <StepAccessMode accessList={accessList} accessMode={accessMode} onChange={(accessMode, accessList) => {
+               
                 setAccessMode(accessMode)
                 setAccessList(accessList)
               }} />
@@ -242,7 +246,7 @@ const PageDraft = () => {
               <DeniedStudentsInEvaluation 
                 groupScope={groupScope} 
                 evaluation={evaluation} 
-                onStudentAllowed={async () => {
+                onStudentAllowed={async (_) => {
                   mutate()
                   showSnackbar("Student has been included in the access list")
                 }}  
@@ -288,30 +292,6 @@ const StudentsInEvaluation = ({ groupScope, evaluation }) => {
   )
 }
 
-const DeniedStudentsInEvaluation = ({ groupScope, evaluation, onStudentAllowed }) => {
-  const { data: students, error: errorStudents, mutate } = useSWR(
-    `/api/${groupScope}/evaluations/${evaluation.id}/students/denied`,
-    groupScope && evaluation?.id ? fetcher : null,
-    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
-  )
-
-  return (
-    evaluation.id && (
-      <Loading loading={!students} errors={[errorStudents]}>
-        <DenienStudentList
-          groupScope={groupScope}
-          evaluationId={evaluation.id}
-          title={`Denied students (${students?.userOnEvaluationDeniedAccessAttempt.length})`}
-          students={students?.userOnEvaluationDeniedAccessAttempt}
-          onStudentAllowed={() => {
-              mutate();
-              onStudentAllowed()
-          }}
-        />
-      </Loading>
-    )
-  )
-}
 
 
 export default PageDraft

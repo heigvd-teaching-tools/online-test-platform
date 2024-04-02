@@ -42,6 +42,13 @@ const TagsSelector = ({
   const [value, setValue] = useState(initialValue);
   const [invalidTags, setInvalidTags] = useState([]);
 
+  useEffect(() => {
+    if (initialValue && initialValue !== value) {
+      setValue(initialValue);
+      setInvalidTags(initialValue.filter(tag => !validateTag(tag)));
+    }
+  }, [initialValue, validateTag]);
+
   // Update the logic to handle both addition and deletion of tags
   const onChangeValue = useCallback(
     (_, newValue) => {

@@ -20,12 +20,24 @@ export const fetcher = async (url) => {
   const data = await res.json();
   
   if (!res.ok) {
-    const error = new Error('An error occurred while fetching the data.');
-    // No need to parse the response again, use the already parsed data.
-    error.message = data.message || 'An error occurred while fetching the data.';
-    error.isGeneric = !data.message;
-    error.status = res.status;
-    throw error;
+
+    const error = {
+      status: res.status,
+      ...data
+    }
+
+    if(!error.type) {
+      error.type = 'error';
+    }
+
+    if(!error.message) {
+      error.message = 'An error occurred';
+    }
+
+    throw {
+      status: res.status,
+      ...data
+    };
   }
   
   // Return the parsed data.
