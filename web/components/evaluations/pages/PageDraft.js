@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 import { useState, useCallback, useEffect } from 'react'
-import { EvaluationPhase, Role, UserOnEvaluatioAccessMode } from '@prisma/client'
+import {
+  EvaluationPhase,
+  Role,
+  UserOnEvaluatioAccessMode,
+} from '@prisma/client'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Alert, AlertTitle, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup, Stack, Switch, Tooltip, Typography } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  Switch,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import LayoutMain from '@/components/layout/LayoutMain'
 
 import { useSnackbar } from '@/context/SnackbarContext'
@@ -48,7 +65,11 @@ const PageDraft = () => {
 
   const { show: showSnackbar } = useSnackbar()
 
-  const { data: evaluation, error, mutate } = useSWR(
+  const {
+    data: evaluation,
+    error,
+    mutate,
+  } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
     groupScope && evaluationId ? fetcher : null,
     {
@@ -67,19 +88,19 @@ const PageDraft = () => {
   const [selectedCollection, setSelectedCollection] = useState(undefined)
   const [evaluationQuestions, setEvaluationQuestions] = useState([])
 
-  const [ accessMode, setAccessMode ] = useState(UserOnEvaluatioAccessMode.LINK_ONLY)
-  const [ accessList, setAccessList ] = useState([])
+  const [accessMode, setAccessMode] = useState(
+    UserOnEvaluatioAccessMode.LINK_ONLY,
+  )
+  const [accessList, setAccessList] = useState([])
 
-  useEffect(
-    () => {
-      if(evaluation && evaluation.id) {
-       setAccessMode(evaluation.accessMode)
-       setAccessList(evaluation.accessList)
-      }
+  useEffect(() => {
+    if (evaluation && evaluation.id) {
+      setAccessMode(evaluation.accessMode)
+      setAccessList(evaluation.accessList)
     }
-  , [evaluation])
+  }, [evaluation])
 
-  console.log("evaluation", evaluation)
+  console.log('evaluation', evaluation)
 
   const onChangeReferenceCollection = useCallback(
     (collection) => {
@@ -115,8 +136,6 @@ const PageDraft = () => {
       duration,
     }
 
-    
-
     const hasQuestions =
       (selectedCollection?.collectionToQuestions &&
         selectedCollection.collectionToQuestions.length > 0) ||
@@ -138,10 +157,7 @@ const PageDraft = () => {
     }
 
     if (data.label.length === 0) {
-      showSnackbar(
-        'Please provide a label for your evaluation.',
-        'error',
-      )
+      showSnackbar('Please provide a label for your evaluation.', 'error')
       setSaving(false)
       return false
     }
@@ -228,28 +244,32 @@ const PageDraft = () => {
                 }}
               />
 
-              <StepAccessMode accessList={accessList} accessMode={accessMode} onChange={(accessMode, accessList) => {
-               
-                setAccessMode(accessMode)
-                setAccessList(accessList)
-              }} />
-
-              
+              <StepAccessMode
+                accessList={accessList}
+                accessMode={accessMode}
+                onChange={(accessMode, accessList) => {
+                  setAccessMode(accessMode)
+                  setAccessList(accessList)
+                }}
+              />
 
               <StepSchedule
                 evaluation={evaluation}
                 onChange={onDurationChange}
               />
 
-              <StudentsInEvaluation groupScope={groupScope} evaluation={evaluation} />
+              <StudentsInEvaluation
+                groupScope={groupScope}
+                evaluation={evaluation}
+              />
 
-              <DeniedStudentsInEvaluation 
-                groupScope={groupScope} 
-                evaluation={evaluation} 
+              <DeniedStudentsInEvaluation
+                groupScope={groupScope}
+                evaluation={evaluation}
                 onStudentAllowed={async (_) => {
                   mutate()
-                  showSnackbar("Student has been included in the access list")
-                }}  
+                  showSnackbar('Student has been included in the access list')
+                }}
               />
 
               <Stack direction="row" justifyContent="space-between">
@@ -269,7 +289,6 @@ const PageDraft = () => {
     </Authorisation>
   )
 }
-
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
 
@@ -291,7 +310,5 @@ const StudentsInEvaluation = ({ groupScope, evaluation }) => {
     )
   )
 }
-
-
 
 export default PageDraft

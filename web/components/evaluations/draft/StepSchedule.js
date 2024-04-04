@@ -26,9 +26,7 @@ import {
 } from '@mui/material'
 import DurationPicker from '@/components/input/DurationPicker'
 
-
 const StepSchedule = ({ evaluation, onChange }) => {
- 
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
     hours: 0,
@@ -95,7 +93,6 @@ const StepSchedule = ({ evaluation, onChange }) => {
           />
         </>
       )}
-     
     </Stack>
   )
 }

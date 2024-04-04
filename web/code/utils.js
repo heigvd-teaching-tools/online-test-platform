@@ -14,34 +14,33 @@
  * limitations under the License.
  */
 export const fetcher = async (url) => {
-  const res = await fetch(url);
-  
-  // Read and parse the response body once.
-  const data = await res.json();
-  
-  if (!res.ok) {
+  const res = await fetch(url)
 
+  // Read and parse the response body once.
+  const data = await res.json()
+
+  if (!res.ok) {
     const error = {
       status: res.status,
-      ...data
+      ...data,
     }
 
-    if(!error.type) {
-      error.type = 'error';
+    if (!error.type) {
+      error.type = 'error'
     }
 
-    if(!error.message) {
-      error.message = 'An error occurred';
+    if (!error.message) {
+      error.message = 'An error occurred'
     }
 
     throw {
       status: res.status,
-      ...data
-    };
+      ...data,
+    }
   }
-  
+
   // Return the parsed data.
-  return data;
+  return data
 }
 /*
 this link send to users to the PageDispatch which decides (using api evaluation/id/dispatch endpoint) where the users should be directed
