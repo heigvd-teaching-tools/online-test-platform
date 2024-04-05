@@ -25,7 +25,7 @@ WORKDIR /app
 # Copy the app's source code
 COPY . .
 
-# Install Google Chrome
+# Install Google Chrome for Puppeteer
 RUN apt-get update \
     && apt-get install -y wget gnupg \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
