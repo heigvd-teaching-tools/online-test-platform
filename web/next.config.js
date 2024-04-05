@@ -16,6 +16,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  webpack: (config) => {
+    // Add Handlebars loader for evaluation pdf export
+    config.module.rules.push({
+      test: /\.hbs$/,
+      use: 'raw-loader',
+    });
+    return config;
+  },
 }
 
 module.exports = nextConfig

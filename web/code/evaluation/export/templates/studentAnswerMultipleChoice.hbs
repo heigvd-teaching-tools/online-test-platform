@@ -1,0 +1,13 @@
+<div style="display:flex;flex-direction:column;gap:15px;">
+  {{> studentAnswerHeader studentAnswer}}
+  <div>
+    <span>Options selected by the student:</span>
+    <ul>
+    {{#each studentAnswer.multipleChoice.options}}
+      <li>
+        <label for="{{this.id}}">{{this.text}}</label>
+      </li>
+    {{/each}}
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<div style="display:flex;flex-direction:column;gap:15px;">
+  {{> studentAnswerHeader studentAnswer}}
+  <div>
+    <span>HTML:</span>
+    {{formatCode studentAnswer.web.html}}
+  </div>
+  <div>
+    <span>CSS:</span>
+    {{formatCode studentAnswer.web.css}}
+  </div>
+  <div>
+    <span>JS:</span>
+    {{formatCode studentAnswer.web.js}}
+  </div>
+</div>
