@@ -50,7 +50,8 @@
     "tar": "^6.1.11",
     "testcontainers": "^9.12.0",
     "uniqid": "^5.4.0",
-    "use-debounce": "^8.0.4"
+    "use-debounce": "^8.0.4",
+    "raw-loader": "^4.0.2"
   },
   "devDependencies": {
     "dotenv-cli": "^7.3.0",
@@ -59,7 +60,6 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-header": "^3.1.1",
     "prettier": "^2.8.8",
-    "prisma": "^4.16.0",
-    "raw-loader": "^4.0.2"
+    "prisma": "^4.16.0"
   }
 }
