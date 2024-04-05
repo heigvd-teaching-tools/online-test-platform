@@ -63,7 +63,7 @@ const ParticipantNav = ({
     if (active && participantRefs && participantRefs.current[active.id]) {
       // Wrap the scrollIntoView call in a microtask
       setTimeout(() => {
-        participantRefs.current[active.id].scrollIntoView({
+        participantRefs.current[active.id]?.scrollIntoView({
           behavior: 'smooth',
           block: 'nearest',
         })

@@ -149,11 +149,31 @@ const PageFinished = () => {
                           groupScope={groupScope}
                           evaluation={evaluation}
                         />
-                        <ExportCSV
-                          evaluation={evaluation}
-                          evaluationToQuestions={evaluationToQuestions}
-                          participants={participants}
-                        />
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Typography variant="body2">Export</Typography>
+                          <ExportCSV
+                            evaluation={evaluation}
+                            evaluationToQuestions={evaluationToQuestions}
+                            participants={participants}
+                          />
+                          <IconButton
+                            color={'info'}
+                            onClick={() => {
+                              // open in new page
+                              window.open(
+                                `/api/${groupScope}/evaluations/${evaluationId}/export`,
+                                '_blank',
+                              )
+                            }}
+                          >
+                            <Image
+                              alt="Export"
+                              src="/svg/icons/file-pdf.svg"
+                              width="22"
+                              height="22"
+                            />
+                          </IconButton>
+                        </Stack>
                       </Stack>
                     </Stack>
 

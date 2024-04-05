@@ -1,0 +1,33 @@
+<div style="display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;height:100%;padding:10px 0px 10px 0px;">
+    <div style="display:flex;flex-direction:column;align-items:center;padding: 10px 0px 10px 0px; gap:5px;margin-bottom:20px;">
+        <span class="body1">{{this.student.name}}</span>
+        <span class="body2">({{this.student.email}})</span>
+    </div>    
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:20px;margin-bottom:20px;">
+        {{#chunkQuestions this.questions 15}}
+        
+        <table border="0" style="border-collapse: collapse; border-top: 1px solid {{../../muiTheme.palette.divider}};">
+            <tr>
+            {{#each this}}
+                <th style="padding-top:10px;min-width: 40px;text-align: center;">
+                <h6>Q{{this.order}}</h6>
+                </th>
+            {{/each}}
+            </tr>
+            <tr>
+            {{#each this}}
+                <td style="min-width: 40px;text-align: center;">
+                <span class="caption">{{this.studentGrading.pointsObtained}} / {{this.points}}</span>
+                </td>
+            {{/each}}
+            
+            </tr>
+        </table>
+        
+    {{/chunkQuestions}}
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0px 10px 0px;">
+        Total: {{calculateObtainedPoints this.questions}} / {{calculateTotalPoints this.questions}}
+    </div>    
+</div>
+<div style="page-break-after: always;"></div>

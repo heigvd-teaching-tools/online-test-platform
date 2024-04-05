@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Button } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
 import { getObtainedPoints } from '../analytics/stats'
 import Image from 'next/image'
 import { useCallback } from 'react'
@@ -84,20 +84,14 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
   }, [evaluation, evaluationToQuestions, participants])
 
   return (
-    <Button
-      color={'info'}
-      onClick={exportAsCSV}
-      startIcon={
-        <Image
-          alt="Export"
-          src="/svg/icons/file-csv.svg"
-          width="22"
-          height="22"
-        />
-      }
-    >
-      Export
-    </Button>
+    <IconButton color={'info'} onClick={exportAsCSV}>
+      <Image
+        alt="Export"
+        src="/svg/icons/file-csv.svg"
+        width="22"
+        height="22"
+      />
+    </IconButton>
   )
 }
 

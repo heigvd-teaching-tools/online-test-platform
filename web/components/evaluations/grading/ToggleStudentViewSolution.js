@@ -23,25 +23,23 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
     evaluation.showSolutionsWhenFinished,
   )
 
-  const save = useCallback(async () => {
-    if (saving) return
-    if (!evaluation) return
-    setSaving(true)
-    await update(groupScope, evaluation.id, {
-      showSolutionsWhenFinished: showSolutionsWhenFinished,
-    })
-    setSaving(false)
-  }, [groupScope, evaluation, showSolutionsWhenFinished, saving])
+  const save = useCallback(
+    async (checked) => {
+      console.log('Saving')
+      if (saving) return
+      if (!evaluation) return
+      setSaving(true)
+      await update(groupScope, evaluation.id, {
+        showSolutionsWhenFinished: checked,
+      })
+      setSaving(false)
+    },
+    [groupScope, evaluation, saving],
+  )
 
   useEffect(() => {
     setShowSolutionsWhenFinished(evaluation.showSolutionsWhenFinished)
   }, [evaluation.showSolutionsWhenFinished])
-
-  useEffect(() => {
-    save()
-    // we dont want to run save each time the reference to save changes:
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showSolutionsWhenFinished])
 
   return (
     <FormControlLabel
@@ -49,7 +47,9 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
         <Switch
           checked={showSolutionsWhenFinished}
           onChange={(e) => {
-            setShowSolutionsWhenFinished(e.target.checked)
+            const checked = e.target.checked
+            setShowSolutionsWhenFinished(checked)
+            save(checked)
           }}
         />
       }
