@@ -51,7 +51,10 @@ import gradingTemplate from '@/code/evaluation/export/templates/grading.hbs'
 const OUTPUT_FORMAT = 'pdf' // 'html' or 'pdf'
 
 const generatePDF = async (html, header) => {
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  })
   const page = await browser.newPage()
 
   await page.setContent(html, { waitUntil: 'networkidle0' })
