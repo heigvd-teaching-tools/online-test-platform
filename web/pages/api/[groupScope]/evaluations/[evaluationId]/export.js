@@ -21,37 +21,44 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 
-import puppeteer from 'puppeteer';
-import Handlebars from 'handlebars';
+import puppeteer from 'puppeteer'
+import Handlebars from 'handlebars'
 
-import { IncludeStrategy, questionIncludeClause } from '@/code/questions';
-import muiTheme from '@/code/evaluation/muiTheme.json';
-import { chunkQuestions, countDatabasePassedTests, equals, formatCode, formatMarkdown, formatQuestionType } from '@/code/evaluation/export/helpers';
-import mainTempate from '@/code/evaluation/export/templates/main.hbs';
-import stylesTemplate from '@/code/evaluation/export/templates/styles.hbs';
-import studentCoverTemplate from '@/code/evaluation/export/templates/studentCover.hbs';
-import studentTemplate from '@/code/evaluation/export/templates/student.hbs';
-import questionTemplate from '@/code/evaluation/export/templates/question.hbs';
-import studentAnswerHeaderTemplate from '@/code/evaluation/export/templates/studentAnswerHeader.hbs';
-import studentAnswerCodeTemplate from '@/code/evaluation/export/templates/studentAnswerCode.hbs';
-import studentAnswerEssayTemplate from '@/code/evaluation/export/templates/studentAnswerEssay.hbs';
-import studentAnswerMultipleChoiceTemplate from '@/code/evaluation/export/templates/studentAnswerMultipleChoice.hbs';
-import studentAnswerTrueFalseTemplate from '@/code/evaluation/export/templates/studentAnswerTrueFalse.hbs';
-import studentAnswerWebTemplate from '@/code/evaluation/export/templates/studentAnswerWeb.hbs';
-import studentAnswerDatabaseTemplate from '@/code/evaluation/export/templates/studentAnswerDatabase.hbs';
-import gradingTemplate from '@/code/evaluation/export/templates/grading.hbs';
+import { IncludeStrategy, questionIncludeClause } from '@/code/questions'
+import muiTheme from '@/code/evaluation/muiTheme.json'
+import {
+  chunkQuestions,
+  countDatabasePassedTests,
+  equals,
+  formatCode,
+  formatMarkdown,
+  formatQuestionType,
+} from '@/code/evaluation/export/helpers'
+import mainTempate from '@/code/evaluation/export/templates/main.hbs'
+import stylesTemplate from '@/code/evaluation/export/templates/styles.hbs'
+import studentCoverTemplate from '@/code/evaluation/export/templates/studentCover.hbs'
+import studentTemplate from '@/code/evaluation/export/templates/student.hbs'
+import questionTemplate from '@/code/evaluation/export/templates/question.hbs'
+import studentAnswerHeaderTemplate from '@/code/evaluation/export/templates/studentAnswerHeader.hbs'
+import studentAnswerCodeTemplate from '@/code/evaluation/export/templates/studentAnswerCode.hbs'
+import studentAnswerEssayTemplate from '@/code/evaluation/export/templates/studentAnswerEssay.hbs'
+import studentAnswerMultipleChoiceTemplate from '@/code/evaluation/export/templates/studentAnswerMultipleChoice.hbs'
+import studentAnswerTrueFalseTemplate from '@/code/evaluation/export/templates/studentAnswerTrueFalse.hbs'
+import studentAnswerWebTemplate from '@/code/evaluation/export/templates/studentAnswerWeb.hbs'
+import studentAnswerDatabaseTemplate from '@/code/evaluation/export/templates/studentAnswerDatabase.hbs'
+import gradingTemplate from '@/code/evaluation/export/templates/grading.hbs'
 
 const OUTPUT_FORMAT = 'pdf' // 'html' or 'pdf'
 
 const generatePDF = async (html, header) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
 
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.setContent(html, { waitUntil: 'networkidle0' })
 
   // Adjust styles for @page directive
   await page.evaluate(() => {
-    const style = document.createElement('style');
+    const style = document.createElement('style')
     style.innerHTML = `
       @page {
         size: A4;
@@ -60,14 +67,14 @@ const generatePDF = async (html, header) => {
         @bottom-left { content: ""; } /* Hide the email on the first page if desired */
         @bottom-right { content: ""; } /* Optional: Exclude number on the first page */
       }
-    `;
-    document.head.appendChild(style);
-  });
+    `
+    document.head.appendChild(style)
+  })
 
   const pdfBuffer = await page.pdf({
     format: 'A4',
     margin: {
-      bottom: '10mm', 
+      bottom: '10mm',
       left: '5mm',
       right: '5mm',
       top: '10mm',
@@ -79,47 +86,54 @@ const generatePDF = async (html, header) => {
         <span style="float: right; margin-right: 20px;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
       </div>`,
     headerTemplate: `<div style="display:flex;justify-content:space-between;width:100%;font-size: 12px; color: #333; margin:0 20px 0 20px;"><div>${header}</div><div>EVAL</div></div>`,
-  });
+  })
 
-  await browser.close();
-  return pdfBuffer;
-};
-
-
+  await browser.close()
+  return pdfBuffer
+}
 
 // PARTIALS
-Handlebars.registerPartial('styles', stylesTemplate);
-Handlebars.registerPartial('studentInfo', studentTemplate);
-Handlebars.registerPartial('studentCover', studentCoverTemplate);
-Handlebars.registerPartial('questionHeader', questionTemplate);
-Handlebars.registerPartial('studentAnswerHeader', studentAnswerHeaderTemplate);
-Handlebars.registerPartial('studentAnswerCode', studentAnswerCodeTemplate);
-Handlebars.registerPartial('studentAnswerEssay', studentAnswerEssayTemplate);
-Handlebars.registerPartial('studentAnswerMultipleChoice', studentAnswerMultipleChoiceTemplate);
-Handlebars.registerPartial('studentAnswerTrueFalse', studentAnswerTrueFalseTemplate);
-Handlebars.registerPartial('studentAnswerWeb', studentAnswerWebTemplate);
-Handlebars.registerPartial('studentAnswerDatabase', studentAnswerDatabaseTemplate);
-Handlebars.registerPartial('studentAnswerGrading', gradingTemplate);
+Handlebars.registerPartial('styles', stylesTemplate)
+Handlebars.registerPartial('studentInfo', studentTemplate)
+Handlebars.registerPartial('studentCover', studentCoverTemplate)
+Handlebars.registerPartial('questionHeader', questionTemplate)
+Handlebars.registerPartial('studentAnswerHeader', studentAnswerHeaderTemplate)
+Handlebars.registerPartial('studentAnswerCode', studentAnswerCodeTemplate)
+Handlebars.registerPartial('studentAnswerEssay', studentAnswerEssayTemplate)
+Handlebars.registerPartial(
+  'studentAnswerMultipleChoice',
+  studentAnswerMultipleChoiceTemplate,
+)
+Handlebars.registerPartial(
+  'studentAnswerTrueFalse',
+  studentAnswerTrueFalseTemplate,
+)
+Handlebars.registerPartial('studentAnswerWeb', studentAnswerWebTemplate)
+Handlebars.registerPartial(
+  'studentAnswerDatabase',
+  studentAnswerDatabaseTemplate,
+)
+Handlebars.registerPartial('studentAnswerGrading', gradingTemplate)
 
 // HELPER FUNCTIONS
-Handlebars.registerHelper('formatCode', formatCode);
-Handlebars.registerHelper('formatMarkdown', formatMarkdown);
-Handlebars.registerHelper('eq', equals);
-Handlebars.registerHelper('formatQuestionType', formatQuestionType);
-Handlebars.registerHelper('countDatabasePassedTests', countDatabasePassedTests);
-Handlebars.registerHelper('chunkQuestions', chunkQuestions);
+Handlebars.registerHelper('formatCode', formatCode)
+Handlebars.registerHelper('formatMarkdown', formatMarkdown)
+Handlebars.registerHelper('eq', equals)
+Handlebars.registerHelper('formatQuestionType', formatQuestionType)
+Handlebars.registerHelper('countDatabasePassedTests', countDatabasePassedTests)
+Handlebars.registerHelper('chunkQuestions', chunkQuestions)
 Handlebars.registerHelper('calculateTotalPoints', (questions) => {
-  return questions.reduce((acc, q) => acc + q.points, 0);
-});
+  return questions.reduce((acc, q) => acc + q.points, 0)
+})
 Handlebars.registerHelper('calculateObtainedPoints', (questions) => {
-  return questions.reduce((acc, q) => acc + (q.studentAnswer?.studentGrading?.pointsObtained || 0), 0);
-});
-
+  return questions.reduce(
+    (acc, q) => acc + (q.studentAnswer?.studentGrading?.pointsObtained || 0),
+    0,
+  )
+})
 
 const get = async (req, res, prisma) => {
   const { groupScope, evaluationId } = req.query
-
-  
 
   const evaluation = await prisma.evaluation.findUnique({
     where: {
@@ -129,8 +143,8 @@ const get = async (req, res, prisma) => {
       evaluationToQuestions: true,
       students: {
         select: {
-          user: true
-        }
+          user: true,
+        },
       },
       group: true,
     },
@@ -168,16 +182,20 @@ const get = async (req, res, prisma) => {
   })
 
   // Transform the data to for the context of the template
-  const studentsWithQuestionsAndAnswers = evaluation.students.map(student => {
+  const studentsWithQuestionsAndAnswers = evaluation.students.map((student) => {
     const studentWithQuestionsAndAnswers = {
       student: student.user,
       questions: [],
-    };
+    }
 
-    questions.forEach(q => {
-      const studentAnswer = q.question.studentAnswer.find(sa => sa.user.email === student.user.email);
+    questions.forEach((q) => {
+      const studentAnswer = q.question.studentAnswer.find(
+        (sa) => sa.user.email === student.user.email,
+      )
 
-      const evalToQuestion = evaluation.evaluationToQuestions.find(etq => etq.questionId === q.question.id);
+      const evalToQuestion = evaluation.evaluationToQuestions.find(
+        (etq) => etq.questionId === q.question.id,
+      )
 
       studentWithQuestionsAndAnswers.questions.push({
         student: student.user,
@@ -186,10 +204,10 @@ const get = async (req, res, prisma) => {
         points: evalToQuestion.points,
         studentAnswer: studentAnswer,
         studentGrading: studentAnswer?.studentGrading,
-      });
-    });
+      })
+    })
     return studentWithQuestionsAndAnswers
-  });
+  })
 
   // Prepare the context for the template
   const context = {
@@ -199,32 +217,33 @@ const get = async (req, res, prisma) => {
     conditions: evaluation.conditions,
     studentsWithQuestionsAndAnswers: studentsWithQuestionsAndAnswers,
     muiTheme: muiTheme,
-
-  };
-
+  }
 
   // Compile the main template
-  const template = Handlebars.compile(mainTempate);
+  const template = Handlebars.compile(mainTempate)
   // Insert data into the template
-  const combinedHtmlContent = template(context);
+  const combinedHtmlContent = template(context)
 
   if (OUTPUT_FORMAT === 'html') {
-    res.setHeader('Content-Type', 'text/html');
-    res.send(combinedHtmlContent);
-    return;
-  }else{
+    res.setHeader('Content-Type', 'text/html')
+    res.send(combinedHtmlContent)
+    return
+  } else {
     // Generate PDF
     try {
-      const pdfBuffer = await generatePDF(combinedHtmlContent, evaluation.group.label);
-      const fileName = `evaluation_${evaluation.id}.pdf`;
+      const pdfBuffer = await generatePDF(
+        combinedHtmlContent,
+        evaluation.group.label,
+      )
+      const fileName = `evaluation_${evaluation.id}.pdf`
       // Set headers to indicate content type and disposition (attachment means it will be downloaded)
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-      res.setHeader('Content-Length', pdfBuffer.length);
-      res.send(pdfBuffer);
+      res.setHeader('Content-Type', 'application/pdf')
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`)
+      res.setHeader('Content-Length', pdfBuffer.length)
+      res.send(pdfBuffer)
     } catch (error) {
-      console.error(error);
-      res.status(500).send('Error generating PDF');
+      console.error(error)
+      res.status(500).send('Error generating PDF')
     }
   }
 }

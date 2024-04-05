@@ -42,15 +42,10 @@ import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
-import { useTheme } from '@emotion/react'
 
 const PageFinished = () => {
   const router = useRouter()
   const { groupScope, evaluationId } = router.query
-
-  const theme = useTheme()
-
-  console.log(theme)
 
   const { data: evaluation, error: errorEvaluation } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
@@ -155,28 +150,29 @@ const PageFinished = () => {
                           evaluation={evaluation}
                         />
                         <Stack direction="row" spacing={1} alignItems="center">
-                          <Typography variant="body2">
-                            Export 
-                          </Typography>
+                          <Typography variant="body2">Export</Typography>
                           <ExportCSV
                             evaluation={evaluation}
                             evaluationToQuestions={evaluationToQuestions}
                             participants={participants}
                           />
-                           <IconButton
-                              color={'info'}
-                              onClick={() => {
-                                // open in new page
-                                window.open(`/api/${groupScope}/evaluations/${evaluationId}/export`, '_blank')
-                              }}
-                            >
-                              <Image
-                                  alt="Export"
-                                  src="/svg/icons/file-pdf.svg"
-                                  width="22"
-                                  height="22"
-                                />
-                            </IconButton>
+                          <IconButton
+                            color={'info'}
+                            onClick={() => {
+                              // open in new page
+                              window.open(
+                                `/api/${groupScope}/evaluations/${evaluationId}/export`,
+                                '_blank',
+                              )
+                            }}
+                          >
+                            <Image
+                              alt="Export"
+                              src="/svg/icons/file-pdf.svg"
+                              width="22"
+                              height="22"
+                            />
+                          </IconButton>
                         </Stack>
                       </Stack>
                     </Stack>

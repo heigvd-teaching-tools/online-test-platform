@@ -84,16 +84,13 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
   }, [evaluation, evaluationToQuestions, participants])
 
   return (
-    <IconButton
-      color={'info'}
-      onClick={exportAsCSV}
-    >
+    <IconButton color={'info'} onClick={exportAsCSV}>
       <Image
-          alt="Export"
-          src="/svg/icons/file-csv.svg"
-          width="22"
-          height="22"
-        />
+        alt="Export"
+        src="/svg/icons/file-csv.svg"
+        width="22"
+        height="22"
+      />
     </IconButton>
   )
 }

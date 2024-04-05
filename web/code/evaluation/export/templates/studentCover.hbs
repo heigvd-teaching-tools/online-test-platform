@@ -9,14 +9,14 @@
         <table border="0" style="border-collapse: collapse; border-top: 1px solid {{../../muiTheme.palette.divider}};">
             <tr>
             {{#each this}}
-                <th style="padding: 10px;min-width: 40px;text-align: center;">
+                <th style="padding-top:10px;min-width: 40px;text-align: center;">
                 <h6>Q{{this.order}}</h6>
                 </th>
             {{/each}}
             </tr>
             <tr>
             {{#each this}}
-                <td style="padding: 10px;min-width: 40px;text-align: center;">
+                <td style="min-width: 40px;text-align: center;">
                 <span class="caption">{{this.studentGrading.pointsObtained}} / {{this.points}}</span>
                 </td>
             {{/each}}
