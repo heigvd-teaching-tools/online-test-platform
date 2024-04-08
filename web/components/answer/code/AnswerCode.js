@@ -39,7 +39,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
     async (file) => {
       setLockCodeCheck(true)
       const response = await fetch(
-        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/code/${file.id}`,
+        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/code/code-writing/${file.id}`,
         {
           method: 'PUT',
           headers: {
@@ -67,7 +67,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
               lockCodeCheck={lockCodeCheck}
               codeCheckAction={() =>
                 fetch(
-                  `/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/code`,
+                  `/api/sandbox/evaluations/${evaluationId}/questions/${questionId}/student/code/code-writing`,
                   {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -77,7 +77,7 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
             />
           }
         >
-          {answer?.code.files?.map((answerToFile, index) => (
+          {answer?.code.codeWriting?.files?.map((answerToFile, index) => (
             <FileEditor
               key={index}
               file={answerToFile.file}

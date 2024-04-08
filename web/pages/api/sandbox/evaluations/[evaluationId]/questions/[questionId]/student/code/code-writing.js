@@ -26,6 +26,7 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
+import codeWriting from '@/pages/api/[groupScope]/questions/[questionId]/code/code-writing'
 
 /*
  endpoint to run the code sandbox for a users (generally students) answers
@@ -46,8 +47,12 @@ const post = withEvaluationPhase(
         },
         include: {
           sandbox: true,
-          testCases: true,
-          solutionFiles: true, // to get the hidden files
+          codeWriting: {
+            select: {
+              testCases: true,
+              solutionFiles: true, // to get the hidden files
+            }
+          }
         },
       })
 
@@ -64,32 +69,39 @@ const post = withEvaluationPhase(
           },
         },
         include: {
-          files: {
-            include: {
-              file: true,
+          codeWriting: {
+            select: {
+              files: {
+                include: {
+                  file: true,
+                },
+              },
             },
-          },
+          }
         },
       })
 
-      if (!studentAnswerCodeFiles || !studentAnswerCodeFiles.files) {
+      if (!studentAnswerCodeFiles || !studentAnswerCodeFiles.codeWriting.files) {
         res.status(404).json({ message: 'Student files not found' })
         return
       }
 
-      const files = studentAnswerCodeFiles.files.map(
+      const image = code.sandbox.image
+      const beforeAll = code.sandbox.beforeAll
+      const files = studentAnswerCodeFiles.codeWriting.files.map(
         (codeToFile) => codeToFile.file,
       )
+      const tests = code.codeWriting.testCases
 
       await runSandbox({
-        image: code.sandbox.image,
+        image: image,
+        beforeAll: beforeAll,
         files: files,
-        beforeAll: code.sandbox.beforeAll,
-        tests: code.testCases,
+        tests: tests,
       })
         .then(async (response) => {
           // update the status of the users answers
-          await prisma.StudentAnswerCode.update({
+          await prisma.StudentAnswerCodeWriting.update({
             where: {
               userEmail_questionId: {
                 userEmail: user.email,

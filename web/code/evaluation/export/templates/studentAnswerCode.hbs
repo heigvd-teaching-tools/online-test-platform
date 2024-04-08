@@ -1,7 +1,7 @@
 <div style="display:flex;flex-direction:column;gap:15px;">
     {{> studentAnswerHeader studentAnswer}}
     <span>Only editable files are shown</span>
-    {{#each studentAnswer.code.files}}
+    {{#each studentAnswer.code.codeWriting.files}}
       <div>
       {{#if (eq this.studentPermission 'UPDATE')}}
         {{this.file.path}}
@@ -11,7 +11,7 @@
       </div>
     {{/each}}
     <h5>Test Case Results</h5>
-    {{#each studentAnswer.code.testCaseResults}}
+    {{#each studentAnswer.code.codeWriting.testCaseResults}}
       <div style="display: flex; flex-direction: column; gap: 5px;">
         <div style="display: flex; align-items: flex-start;">
           <label style="width: 150px;">Exec:</label>
@@ -36,7 +36,7 @@
       </div>
     {{/each}}
     <div style="display: flex; justify-content: space-between; align-items: center;">
-    {{#if studentAnswer.code.allTestCasesPassed}}
+    {{#if studentAnswer.code.codeWriting.allTestCasesPassed}}
       <label class="success">All Test Cases Passed!</label>
     {{else}}
       <label class="error">Some Test Cases Failed!</label>

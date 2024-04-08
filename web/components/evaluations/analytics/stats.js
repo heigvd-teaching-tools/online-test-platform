@@ -148,8 +148,8 @@ export const typeSpecificStats = (question) => {
         // Check if the users's answer has been submitted, test cases have been run, and all test cases passed.
         if (
           sa.status !== StudentAnswerStatus.MISSING &&
-          sa[question.type]?.testCaseResults?.length > 0 &&
-          sa[question.type].allTestCasesPassed
+          sa[question.type]?.codeWriting?.testCaseResults?.length > 0 &&
+          sa[question.type]?.codeWriting?.allTestCasesPassed
         ) {
           return acc + 1
         }
@@ -160,8 +160,8 @@ export const typeSpecificStats = (question) => {
         // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
         if (
           sa.status !== StudentAnswerStatus.MISSING &&
-          sa[question.type]?.testCaseResults?.length > 0 &&
-          !sa[question.type].allTestCasesPassed
+          sa[question.type]?.codeWriting?.testCaseResults?.length > 0 &&
+          !sa[question.type]?.codeWriting?.allTestCasesPassed
         ) {
           return acc + 1
         }
@@ -172,7 +172,7 @@ export const typeSpecificStats = (question) => {
         // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
         if (
           sa.status !== StudentAnswerStatus.MISSING &&
-          !sa[question.type]?.testCaseResults?.length
+          !sa[question.type]?.codeWriting?.testCaseResults?.length
         ) {
           return acc + 1
         }

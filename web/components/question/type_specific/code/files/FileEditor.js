@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import languages from '../../../../../code/languages.json'
+
 import React, { useEffect, useState } from 'react'
 import { Box, Stack, TextField, Typography } from '@mui/material'
 import InlineMonacoEditor from '../../../../input/InlineMonacoEditor'
 import { useTheme } from '@emotion/react'
+
+import languages from '@/code/languages.json'
 
 const languageBasedOnPathExtension = (path) => {
   if (!path) return null

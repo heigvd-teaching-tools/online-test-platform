@@ -16,7 +16,7 @@
 import { Box } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
-import languages from '../../../../code/languages.json'
+import languages from '@/code/languages.json'
 
 const environments = languages.environments
 const LanguageIcon = ({ language, size = 24 }) => {
@@ -24,8 +24,8 @@ const LanguageIcon = ({ language, size = 24 }) => {
   return (
     <Box minWidth={size} minHeight={size}>
       <Image
-        src={environments[index].icon}
-        alt={environments[index].language}
+        src={environments[index]?.icon}
+        alt={environments[index]?.language}
         width={size}
         height={size}
       />
@@ -34,3 +34,4 @@ const LanguageIcon = ({ language, size = 24 }) => {
 }
 
 export default LanguageIcon
+

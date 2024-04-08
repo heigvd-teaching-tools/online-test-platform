@@ -15,16 +15,16 @@
  */
 import { QuestionType } from '@prisma/client'
 import React, { useState } from 'react'
-import DialogFeedback from '../../feedback/DialogFeedback'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
 import { Stack, Typography } from '@mui/material'
-import { toArray as typesToArray } from '../../question/types'
+import { toArray as typesToArray } from '@/components/question/types'
 import { useSession } from 'next-auth/react'
-import AlertFeedback from '../../feedback/AlertFeedback'
-import QuestionTypeIcon from '../../question/QuestionTypeIcon'
-import LanguageSelector from '../../question/type_specific/code/LanguageSelector'
-import TypeSelector from '../../question/TypeSelector'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
+import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
+import LanguageSelector from '@/components/question/type_specific/code/LanguageSelector'
+import TypeSelector from '@/components/question/TypeSelector'
 
-import languages from '../../../code/languages.json'
+import languages from '@/code/languages.json'
 
 const types = typesToArray()
 

@@ -26,11 +26,11 @@ import {
   useTheme,
 } from '@mui/material'
 import { useDebouncedCallback } from 'use-debounce'
-import languages from '../../../../code/languages.json'
-import { fetcher } from '../../../../code/utils'
-import ScrollContainer from '../../../layout/ScrollContainer'
-import { useSnackbar } from '../../../../context/SnackbarContext'
-import Loading from '../../../feedback/Loading'
+import languages from '@/code/languages.json'
+import { fetcher } from '@/code/utils'
+import ScrollContainer from '@/components/layout/ScrollContainer'
+import { useSnackbar } from '@/context/SnackbarContext'
+import Loading from '@/components/feedback/Loading'
 
 const environments = languages.environments
 
@@ -41,7 +41,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
     mutate,
     error,
   } = useSWR(
-    `/api/${groupScope}/questions/${questionId}/code/tests`,
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/tests`,
     groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: true },
   )
@@ -51,7 +51,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
       tests.length === 0
         ? environments.find((env) => env.language === language).sandbox.exec
         : tests[tests.length - 1].exec
-    await fetch(`/api/${groupScope}/questions/${questionId}/code/tests`, {
+    await fetch(`/api/${groupScope}/questions/${questionId}/code/code-writing/tests`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
   const deleteTestCase = useCallback(
     async (index) => {
       await fetch(
-        `/api/${groupScope}/questions/${questionId}/code/tests/${index}`,
+        `/api/${groupScope}/questions/${questionId}/code/code-writing/tests/${index}`,
         {
           method: 'DELETE',
           headers: {
@@ -113,7 +113,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
   const updateTestCase = useCallback(
     async (test) => {
       await fetch(
-        `/api/${groupScope}/questions/${questionId}/code/tests/${test.index}`,
+        `/api/${groupScope}/questions/${questionId}/code/code-writing/tests/${test.index}`,
         {
           method: 'PUT',
           headers: {
@@ -143,7 +143,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
 
   const pullOutputs = useCallback(
     async (source) => {
-      const result = await fetch(`/api/sandbox/${questionId}/${source}`, {
+      const result = await fetch(`/api/sandbox/${questionId}/code-writing/${source}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       }).then((res) => res.json())

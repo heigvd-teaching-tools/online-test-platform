@@ -43,9 +43,6 @@ const CompareCode = ({ solution, answer }) => {
     */
   const { height: containerHeight } = useResizeObserver()
 
-  console.log('answer', answer)
-  console.log('solution', solution)
-
   return (
     answer &&
     solution && (
@@ -69,18 +66,18 @@ const CompareCode = ({ solution, answer }) => {
             <Tab
               label={
                 <Stack spacing={1} direction="row">
-                  {answer.testCaseResults.length > 0 ? (
+                  {answer.codeWriting.testCaseResults.length > 0 ? (
                     <>
                       <PassIndicator
-                        passed={answer.testCaseResults.every(
+                        passed={answer.codeWriting.testCaseResults.every(
                           (test) => test.passed,
                         )}
                       />
                       <Typography variant="caption">
                         {`${
-                          answer.testCaseResults.filter((test) => test.passed)
+                          answer.codeWriting.testCaseResults.filter((test) => test.passed)
                             .length
-                        } / ${answer.testCaseResults.length} tests passed`}
+                        } / ${answer.codeWriting.testCaseResults.length} tests passed`}
                       </Typography>
                     </>
                   ) : (
@@ -92,9 +89,9 @@ const CompareCode = ({ solution, answer }) => {
               }
               value={1}
             />
-            {answer.files.some(
+            {answer.codeWriting.files.some(
               (ansToFile) =>
-                ansToFile.file.updatedAt > answer.testCaseResults[0]?.createdAt,
+                ansToFile.file.updatedAt > answer.codeWriting.testCaseResults[0]?.createdAt,
             ) && (
               <Alert severity="warning">Post code-check modifications</Alert>
             )}
@@ -104,7 +101,7 @@ const CompareCode = ({ solution, answer }) => {
               <ResizePanel
                 leftPanel={
                   <ScrollContainer>
-                    {answer.files?.map((answerToFile, index) => (
+                    {answer.codeWriting.files?.map((answerToFile, index) => (
                       <FileEditor
                         key={index}
                         file={answerToFile.file}
@@ -116,7 +113,7 @@ const CompareCode = ({ solution, answer }) => {
                 }
                 rightPanel={
                   <ScrollContainer>
-                    {solution.solutionFiles?.map((solutionToFile, index) => (
+                    {solution.codeWriting.solutionFiles?.map((solutionToFile, index) => (
                       <FileEditor
                         key={index}
                         file={solutionToFile.file}
@@ -126,13 +123,13 @@ const CompareCode = ({ solution, answer }) => {
                     ))}
                   </ScrollContainer>
                 }
-                rightWidth={solution.solutionFiles?.length > 0 ? 20 : 0}
+                rightWidth={solution.codeWriting.solutionFiles?.length > 0 ? 20 : 0}
               />
             </TabContent>
           </TabPanel>
           <TabPanel value={tab} index={1}>
             <TabContent padding={1}>
-              <TestCaseResults tests={answer.testCaseResults} />
+              <TestCaseResults tests={answer.codeWriting.testCaseResults} />
             </TabContent>
           </TabPanel>
         </Box>

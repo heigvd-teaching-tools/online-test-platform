@@ -48,7 +48,7 @@ const AnswerConsult = ({ id, questionType, question, answer }) => {
             <ConsultEssay content={answer.content} />
           )) ||
           (questionType === QuestionType.code && (
-            <ConsultCode files={answer.files} tests={answer.testCaseResults} />
+            <ConsultCode files={answer.codeWriting.files} tests={answer.codeWriting.testCaseResults} />
           )) ||
           (questionType === QuestionType.web && (
             <ConsultWeb answer={answer} />

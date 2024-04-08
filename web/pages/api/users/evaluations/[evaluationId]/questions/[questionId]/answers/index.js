@@ -34,6 +34,7 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
+import codeWriting from '@/pages/api/[groupScope]/questions/[questionId]/code/code-writing'
 
 /*
   get the users answers for a question including related nested data
@@ -91,15 +92,19 @@ const get = withEvaluationPhase(
           },
           code: {
             select: {
-              files: {
-                where: {
-                  studentPermission: {
-                    not: StudentPermission.HIDDEN,
+              codeWriting: {
+                select: {
+                  files: {
+                    where: {
+                      studentPermission: {
+                        not: StudentPermission.HIDDEN,
+                      },
+                    },
+                    select: { studentPermission: true, order: true, file: true },
+                    orderBy: { order: 'asc' },
                   },
                 },
-                select: { studentPermission: true, order: true, file: true },
-                orderBy: { order: 'asc' },
-              },
+              }
             },
           },
           database: {

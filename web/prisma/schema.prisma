@@ -212,24 +212,9 @@ model Essay {
   solution String?
 }
 
-model SandBox {
-  image     String
-  beforeAll String?
-
-  Code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String @id @unique
-}
-
-model TestCase {
-  index      Int
-  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String
-
-  exec           String
-  input          String
-  expectedOutput String
-
-  @@id([index, questionId])
+enum CodeQuestionType {
+  codeWriting
+  codeReading
 }
 
 model Code {
@@ -240,12 +225,74 @@ model Code {
 
   sandbox SandBox?
 
+  codeType CodeQuestionType @default(codeWriting)
+
+  codeWriting CodeWriting? 
+
+  files         File[] // to casdade delete files
+  
+}
+
+
+model SandBox {
+  image     String
+  beforeAll String?
+
+  Code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String @id @unique
+}
+
+model TestCase {
+  index      Int
+  code       CodeWriting   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  exec           String
+  input          String
+  expectedOutput String
+
+  @@id([index, questionId])
+}
+
+model CodeWriting {
+  question   Code @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String @id
+
   testCases TestCase[]
 
   solutionFiles CodeToSolutionFile[]
   templateFiles CodeToTemplateFile[]
-  files         File[] // to casdade delete files
 }
+
+
+model CodeToSolutionFile {
+  code       CodeWriting   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  order Int @default(0)
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
+
+  @@id([questionId, fileId])
+}
+
+model CodeToTemplateFile {
+  code       CodeWriting   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId String
+
+  order Int @default(0)
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @unique
+
+  studentPermission StudentPermission @default(UPDATE)
+
+  @@id([questionId, fileId])
+}
+
+
+
 
 model Database {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -359,7 +406,7 @@ model StudentAnswerDatabaseToQuery {
 }
 
 model StudentAnswerCodeToFile {
-  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  studentAnswerCode StudentAnswerCodeWriting @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail         String
   questionId        String
 
@@ -409,31 +456,6 @@ enum DatabaseQueryOutputTest {
   INGORE_COLUMN_TYPES
 }
 
-model CodeToSolutionFile {
-  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String
-
-  order Int @default(0)
-
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId String @unique
-
-  @@id([questionId, fileId])
-}
-
-model CodeToTemplateFile {
-  code       Code   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId String
-
-  order Int @default(0)
-
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId String @unique
-
-  studentPermission StudentPermission @default(UPDATE)
-
-  @@id([questionId, fileId])
-}
 
 model Web {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -650,14 +672,25 @@ model StudentAnswerEssay {
   @@id([userEmail, questionId])
 }
 
+
 model StudentAnswerCode {
   studentAnswer StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   userEmail     String
   questionId    String
 
-  files StudentAnswerCodeToFile[]
+  codeType CodeQuestionType @default(codeWriting)
 
-  // studentAnswerCodeHistory StudentAnswerCodeHistory[]
+  codeWriting StudentAnswerCodeWriting? 
+
+  @@id([userEmail, questionId])
+}
+
+model StudentAnswerCodeWriting {
+  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail         String
+  questionId        String
+
+  files StudentAnswerCodeToFile[]
 
   testCaseResults TestCaseResult[]
 
@@ -684,7 +717,7 @@ model TestCaseResult {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
-  studentAnswerCode StudentAnswerCode @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  studentAnswerCode StudentAnswerCodeWriting @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
 
   exec           String
   input          String

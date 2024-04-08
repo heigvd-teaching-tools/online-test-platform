@@ -20,13 +20,13 @@ import { Button, IconButton, Stack } from '@mui/material'
 import FileEditor from './FileEditor'
 import Image from 'next/image'
 
-import languages from '../../../../../code/languages.json'
+import languages from '@/code/languages.json'
 import CodeCheck from '../CodeCheck'
-import Loading from '../../../../feedback/Loading'
-import { fetcher } from '../../../../../code/utils'
-import ScrollContainer from '../../../../layout/ScrollContainer'
+import Loading from '@/components/feedback/Loading'
+import { fetcher } from '@/code/utils'
+import ScrollContainer from '@/components/layout/ScrollContainer'
 import { useDebouncedCallback } from 'use-debounce'
-import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
+import BottomCollapsiblePanel from '@/components/layout/utils/BottomCollapsiblePanel'
 
 const environments = languages.environments
 const SolutionFilesManager = ({
@@ -42,7 +42,7 @@ const SolutionFilesManager = ({
     mutate,
     error,
   } = useSWR(
-    `/api/${groupScope}/questions/${questionId}/code/files/solution`,
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/files/solution`,
     groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false },
   )
@@ -108,7 +108,7 @@ const SolutionFilesManager = ({
             <CodeCheck
               lockCodeCheck={lockCodeCheck}
               codeCheckAction={() =>
-                fetch(`/api/sandbox/${questionId}/solution`, {
+                fetch(`/api/sandbox/${questionId}/code-writing/solution`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                 })

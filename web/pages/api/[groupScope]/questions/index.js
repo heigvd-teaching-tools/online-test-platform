@@ -16,7 +16,6 @@
 import {
   Role,
   QuestionType,
-  StudentPermission,
   QuestionSource,
 } from '@prisma/client'
 import {
@@ -25,7 +24,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { questionIncludeClause, questionTypeSpecific } from '@/code/questions'
+import { codeInitialUpdateQuery, questionIncludeClause, questionTypeSpecific } from '@/code/questions'
 
 import languages from '@/code/languages.json'
 
@@ -263,75 +262,13 @@ const codeBasedOnLanguage = (language) => {
       beforeAll: environments[index].sandbox.beforeAll,
     },
     files: {
-      template: environments[index].files.template,
-      solution: environments[index].files.solution,
+      template: environments[index].codeWriting.files.template,
+      solution: environments[index].codeWriting.files.solution,
     },
-    testCases: environments[index].testCases,
+    testCases: environments[index].codeWriting.testCases,
   }
 }
 
-const codeInitialUpdateQuery = (questionId, code) => {
-  return {
-    where: {
-      questionId: questionId,
-    },
-    data: {
-      language: code.language,
-      sandbox: {
-        create: {
-          image: code.sandbox.image,
-          beforeAll: code.sandbox.beforeAll,
-        },
-      },
-      testCases: {
-        create: code.testCases.map((testCase, index) => ({
-          index: index + 1,
-          exec: testCase.exec,
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-        })),
-      },
-      solutionFiles: {
-        create: code.files.solution.map((file, index) => ({
-          order: index,
-          file: {
-            create: {
-              path: file.path,
-              content: file.content,
-              code: {
-                connect: {
-                  questionId: questionId,
-                },
-              },
-            },
-          },
-        })),
-      },
-      templateFiles: {
-        create: code.files.template.map((file, index) => ({
-          order: index,
-          studentPermission: StudentPermission.UPDATE,
-          file: {
-            create: {
-              path: file.path,
-              content: file.content,
-              code: {
-                connect: {
-                  questionId: questionId,
-                },
-              },
-            },
-          },
-        })),
-      },
-      question: {
-        connect: {
-          id: questionId,
-        },
-      },
-    },
-  }
-}
 
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),

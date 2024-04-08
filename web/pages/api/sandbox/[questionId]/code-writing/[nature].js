@@ -41,31 +41,39 @@ const post = async (req, res, prisma) => {
     },
     include: {
       sandbox: true,
-      testCases: {
-        orderBy: {
-          index: 'asc',
-        },
-      },
-      [attribute]: {
-        include: {
-          file: true,
-        },
-      },
+      codeWriting: {
+        select: {
+          testCases: {
+            orderBy: {
+              index: 'asc',
+            },
+          },
+          [attribute]: {
+            include: {
+              file: true,
+            },
+          },
+        }
+      }
     },
   })
 
-  if (!code || !code[attribute]) {
+  if (!code || !code.codeWriting[attribute]) {
     res.status(404).json({ message: 'Code not found' })
     return
   }
 
-  const files = code[attribute].map((codeToFile) => codeToFile.file)
+  const image = code.sandbox.image
+  const beforeAll = code.sandbox.beforeAll
+  const files = code.codeWriting[attribute].map((codeToFile) => codeToFile.file)
+  const tests = code.codeWriting.testCases
+
 
   const result = await runSandbox({
-    image: code.sandbox.image,
+    image: image,
     files: files,
-    beforeAll: code.sandbox.beforeAll,
-    tests: code.testCases,
+    beforeAll: beforeAll,
+    tests: tests,
   })
 
   res.status(200).send(result)

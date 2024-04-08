@@ -29,6 +29,7 @@ import { phaseGT } from '@/code/phase'
 import { questionIncludeClause } from '@/code/questions'
 import { grading } from '@/code/grading'
 import { getUser } from '@/code/auth'
+import { create } from 'lodash'
 
 const post = async (req, res, prisma) => {
   const { evaluationId } = req.query
@@ -154,7 +155,7 @@ const post = async (req, res, prisma) => {
         },
       })
 
-      // code and database questions have type specific data to be copied for the users answer
+      // web, code and database questions have type specific data to be copied for the users answer
       switch (question.type) {
         case QuestionType.web:
           await prisma.studentAnswerWeb.update({
@@ -193,25 +194,29 @@ const post = async (req, res, prisma) => {
 
 const createCodeTypeSpecificData = (question) => {
   return {
-    files: {
-      create: question.code.templateFiles.map((codeToFile) => {
-        return {
-          studentPermission: codeToFile.studentPermission,
-          order: codeToFile.order,
-          file: {
-            create: {
-              path: codeToFile.file.path,
-              content: codeToFile.file.content,
-              createdAt: codeToFile.file.createdAt,
-              code: {
-                connect: {
-                  questionId: question.id,
+    codeWriting: {
+      create: {
+        files: {
+          create: question.code.codeWriting.templateFiles.map((codeToFile) => {
+            return {
+              studentPermission: codeToFile.studentPermission,
+              order: codeToFile.order,
+              file: {
+                create: {
+                  path: codeToFile.file.path,
+                  content: codeToFile.file.content,
+                  createdAt: codeToFile.file.createdAt,
+                  code: {
+                    connect: {
+                      questionId: question.id,
+                    },
+                  },
                 },
               },
-            },
-          },
-        }
-      }),
+            }
+          }),
+        },
+      },
     },
   }
 }

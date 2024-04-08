@@ -1,212 +1,227 @@
 {
   "comment": "Used both in frontend and backend. language property of an environment must match the monaco editor language property : https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages",
+  "codeWritingIcon": "/svg/languages/code-editor.svg",
+  "codeReadingIcon": "/svg/languages/check-list.svg",
   "environments": [
-    {
-      "language": "cpp",
-      "extension": "cpp",
-      "label": "C++",
-      "icon": "/svg/languages/cpp.svg",
-      "sandbox": {
-        "image": "gcc:latest",
-        "defaultPath": "/src/main.cpp",
-        "exec": "/src/main",
-        "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main"
-      },
-      "testCases": [
-        {
+      {
+        "language": "cpp",
+        "extension": "cpp",
+        "label": "C++",
+        "icon": "/svg/languages/cpp.svg",
+        "sandbox": {
+          "image": "gcc:latest",
+          "defaultPath": "/src/main.cpp",
           "exec": "/src/main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
+          "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main"
+        },
+        "codeWriting": {
+          "testCases": [
+            {
+              "exec": "/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/src/main.cpp",
+                "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/main.cpp",
+                "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+              }
+            ]
+          }
         }
-      ],
-      "files": {
-        "solution": [
-          {
-            "path": "/src/main.cpp",
-            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
-          }
-        ],
-        "template": [
-          {
-            "path": "/src/main.cpp",
-            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
-          }
-        ]
-      }
-    },
-    {
-      "language": "c",
-      "extension": "c",
-      "label": "C",
-      "icon": "/svg/languages/c.svg",
-      "sandbox": {
-        "image": "gcc:latest",
-        "defaultPath": "/src/main.c",
-        "exec": "/src/main",
-        "beforeAll": "gcc -std=c11 /src/main.c -o /src/main"
+        
       },
-      "testCases": [
-        {
+      {
+        "language": "c",
+        "extension": "c",
+        "label": "C",
+        "icon": "/svg/languages/c.svg",
+        "sandbox": {
+          "image": "gcc:latest",
+          "defaultPath": "/src/main.c",
           "exec": "/src/main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
+          "beforeAll": "gcc -std=c11 /src/main.c -o /src/main"
+        },
+        "codeWriting": {
+          "testCases": [
+            {
+              "exec": "/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/src/main.c",
+                "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/main.c",
+                "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
+              }
+            ]
+          }
         }
-      ],
-      "files": {
-        "solution": [
-          {
-            "path": "/src/main.c",
-            "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
-          }
-        ],
-        "template": [
-          {
-            "path": "/src/main.c",
-            "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
-          }
-        ]
-      }
-    },
-    {
-      "language": "java",
-      "extension": "java",
-      "label": "Java",
-      "icon": "/svg/languages/java.svg",
-      "sandbox": {
-        "image": "eclipse-temurin:latest",
-        "defaultPath": "/src/main.java",
-        "exec": "java -cp /src Main",
-        "beforeAll": "javac /src/Main.java"
       },
-      "testCases": [
-        {
+      {
+        "language": "java",
+        "extension": "java",
+        "label": "Java",
+        "icon": "/svg/languages/java.svg",
+        "sandbox": {
+          "image": "eclipse-temurin:latest",
+          "defaultPath": "/src/main.java",
           "exec": "java -cp /src Main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
+          "beforeAll": "javac /src/Main.java"
+        },
+        "codeWriting": {
+          "testCases": [
+            {
+              "exec": "java -cp /src Main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/src/Main.java",
+                "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/Main.java",
+                "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
+              }
+            ]
+          }
         }
-      ],
-      "files": {
-        "solution": [
-          {
-            "path": "/src/Main.java",
-            "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
-          }
-        ],
-        "template": [
-          {
-            "path": "/src/Main.java",
-            "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
-          }
-        ]
-      }
-    },
-    {
-      "language": "javascript",
-      "extension": "js",
-      "label": "JavaScript",
-      "icon": "/svg/languages/javascript.svg",
-      "sandbox": {
-        "image": "node:latest",
-        "defaultPath": "/src/script.js",
-        "exec": "node /src/script.js",
-        "beforeAll": ""
       },
-      "testCases": [
-        {
+      {
+        "language": "javascript",
+        "extension": "js",
+        "label": "JavaScript",
+        "icon": "/svg/languages/javascript.svg",
+        "sandbox": {
+          "image": "node:latest",
+          "defaultPath": "/src/script.js",
           "exec": "node /src/script.js",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
+          "beforeAll": ""
+        },
+        "codeWriting":{
+          "testCases": [
+            {
+              "exec": "node /src/script.js",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/src/script.js",
+                "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/script.js",
+                "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
+              }
+            ]
+          }
         }
-      ],
-      "files": {
-        "solution": [
-          {
-            "path": "/src/script.js",
-            "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
-          }
-        ],
-        "template": [
-          {
-            "path": "/src/script.js",
-            "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
-          }
-        ]
-      }
-    },
-    {
-      "language": "python",
-      "extension": "py",
-      "label": "Python",
-      "icon": "/svg/languages/python.svg",
-      "sandbox": {
-        "image": "python:latest",
-        "defaultPath": "/src/script.py",
-        "exec": "python /src/script.py",
-        "beforeAll": ""
       },
-      "testCases": [
-        {
+      {
+        "language": "python",
+        "extension": "py",
+        "label": "Python",
+        "icon": "/svg/languages/python.svg",
+        "sandbox": {
+          "image": "python:latest",
+          "defaultPath": "/src/script.py",
           "exec": "python /src/script.py",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1"
-        }
-      ],
-      "files": {
-        "solution": [
-          {
-            "path": "/src/script.py",
-            "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+          "beforeAll": ""
+        },
+        "codeWriting": {
+          "testCases": [
+            {
+              "exec": "python /src/script.py",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/src/script.py",
+                "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/script.py",
+                "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
+              }
+            ]
           }
-        ],
-        "template": [
-          {
-            "path": "/src/script.py",
-            "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
-          }
-        ]
-      }
-    },
-    {
-      "language": "go",
-      "extension": "go",
-      "label": "Go",
-      "icon": "/svg/languages/go.svg",
-      "sandbox": {
-        "image": "golang:latest",
-        "defaultPath": "/go/src/main.go",
-        "exec": "/go/src/main",
-        "beforeAll": "cd /go/src && go build -o main"
+        } 
       },
-      "testCases": [
-        {
+      {
+        "language": "go",
+        "extension": "go",
+        "label": "Go",
+        "icon": "/svg/languages/go.svg",
+        "sandbox": {
+          "image": "golang:latest",
+          "defaultPath": "/go/src/main.go",
           "exec": "/go/src/main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
+          "beforeAll": "cd /go/src && go build -o main"
+        },
+        "codeWriting": {
+          "testCases": [
+            {
+              "exec": "/go/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/go/src/main.go",
+                "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+              },
+              {
+                "path": "/go/src/go.mod",
+                "content": "module main\n\ngo 1.18\n"
+              }
+            ],
+            "template": [
+              {
+                "path": "/go/src/main.go",
+                "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+              },
+              {
+                "path": "/go/src/go.mod",
+                "content": "module main\n\ngo 1.18\n"
+              }
+            ]
+          }
         }
-      ],
-      "files": {
-        "solution": [
-          {
-            "path": "/go/src/main.go",
-            "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
-          },
-          {
-            "path": "/go/src/go.mod",
-            "content": "module main\n\ngo 1.18\n"
-          }
-        ],
-        "template": [
-          {
-            "path": "/go/src/main.go",
-            "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
-          },
-          {
-            "path": "/go/src/go.mod",
-            "content": "module main\n\ngo 1.18\n"
-          }
-        ]
       }
-    }
   ],
   "monacoExtensionToLanguage": {
     "abap": "abap",

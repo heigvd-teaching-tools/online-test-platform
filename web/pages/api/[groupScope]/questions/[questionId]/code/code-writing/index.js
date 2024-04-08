@@ -28,6 +28,9 @@ const get = async (req, res, prisma) => {
     where: {
       questionId: questionId,
     },
+    include:{
+      codeWriting: true,
+    }
   })
 
   res.status(200).json(code)

@@ -44,35 +44,39 @@ export const questionIncludeClause = (questionIncludeOptions) => {
   const typeSpecific = includeTypeSpecific
     ? {
         code: {
-          select: {
-            ...(includeOfficialAnswers
-              ? {
-                  solutionFiles: {
-                    include: {
-                      file: true,
-                    },
-                    orderBy: { order: 'asc' },
-                  },
-                }
-              : {}),
-            templateFiles: {
-              ...(!includeOfficialAnswers
-                ? {
-                    where: {
-                      studentPermission: {
-                        not: StudentPermission.HIDDEN,
-                      },
-                    },
-                  }
-                : {}),
-              include: {
-                file: true,
-              },
-              orderBy: { order: 'asc' },
-            },
+          select:{
             language: true,
             sandbox: true,
-            testCases: true,
+            codeWriting: {
+              select: {
+                ...(includeOfficialAnswers
+                  ? {
+                      solutionFiles: {
+                        include: {
+                          file: true,
+                        },
+                        orderBy: { order: 'asc' },
+                      },
+                    }
+                  : {}),
+                templateFiles: {
+                  ...(!includeOfficialAnswers
+                    ? {
+                        where: {
+                          studentPermission: {
+                            not: StudentPermission.HIDDEN,
+                          },
+                        },
+                      }
+                    : {}),
+                  include: {
+                    file: true,
+                  },
+                  orderBy: { order: 'asc' },
+                },
+                testCases: true,
+              },
+            },
           },
         },
         multipleChoice: {
@@ -172,20 +176,24 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         user: true,
         code: {
           select: {
-            files: {
-              where: {
-                studentPermission: {
-                  not: StudentPermission.HIDDEN,
+            codeWriting:{
+              select: {
+                files: {
+                  where: {
+                    studentPermission: {
+                      not: StudentPermission.HIDDEN,
+                    },
+                  },
+                  include: {
+                    file: true,
+                  },
+                  orderBy: { order: 'asc' },
                 },
+                testCaseResults: true,
+                allTestCasesPassed: true,
               },
-              include: {
-                file: true,
-              },
-              orderBy: { order: 'asc' },
             },
-            testCaseResults: true,
-            allTestCasesPassed: true,
-          },
+          }
         },
         database: {
           select: {
@@ -350,13 +358,17 @@ export const copyQuestion = async (
                 beforeAll: question.code.sandbox.beforeAll,
               },
             },
-            testCases: {
-              create: question.code.testCases.map((testCase) => ({
-                index: testCase.index,
-                exec: testCase.exec,
-                input: testCase.input,
-                expectedOutput: testCase.expectedOutput,
-              })),
+            codeWriting: {
+              create: {
+                testCases: {
+                  create: question.code.codeWriting.testCases.map((testCase) => ({
+                    index: testCase.index,
+                    exec: testCase.exec,
+                    input: testCase.input,
+                    expectedOutput: testCase.expectedOutput,
+                  })),
+                },
+              },
             },
           },
         },
@@ -365,7 +377,7 @@ export const copyQuestion = async (
 
     // create the copy of template and solution files and link them to the new code questions
 
-    for (const codeToFile of question.code.templateFiles) {
+    for (const codeToFile of question.code.codeWriting.templateFiles) {
       const newFile = await prisma.file.create({
         data: {
           path: codeToFile.file.path,
@@ -388,7 +400,7 @@ export const copyQuestion = async (
       })
     }
 
-    for (const codeToFile of question.code.solutionFiles) {
+    for (const codeToFile of question.code.codeWriting.solutionFiles) {
       const newFile = await prisma.file.create({
         data: {
           path: codeToFile.file.path,
@@ -496,5 +508,73 @@ export const copyQuestion = async (
       return copyDatabaseQuestion(prisma, question)
     default:
       return null
+  }
+}
+
+
+export const codeInitialUpdateQuery = (questionId, code) => {
+  return {
+    where: {
+      questionId: questionId,
+    },
+    data: {
+      language: code.language,
+      sandbox: {
+        create: {
+          image: code.sandbox.image,
+          beforeAll: code.sandbox.beforeAll,
+        },
+      },
+      codeWriting: {
+        create: {
+          testCases: {
+            create: code.testCases.map((testCase, index) => ({
+              index: index + 1,
+              exec: testCase.exec,
+              input: testCase.input,
+              expectedOutput: testCase.expectedOutput,
+            })),
+          },
+          solutionFiles: {
+            create: code.files.solution.map((file, index) => ({
+              order: index,
+              file: {
+                create: {
+                  path: file.path,
+                  content: file.content,
+                  code: {
+                    connect: {
+                      questionId: questionId,
+                    },
+                  },
+                },
+              },
+            })),
+          },
+          templateFiles: {
+            create: code.files.template.map((file, index) => ({
+              order: index,
+              studentPermission: StudentPermission.UPDATE,
+              file: {
+                create: {
+                  path: file.path,
+                  content: file.content,
+                  code: {
+                    connect: {
+                      questionId: questionId,
+                    },
+                  },
+                },
+              },
+            })),
+          },
+        },
+      },
+      question: {
+        connect: {
+          id: questionId,
+        },
+      },
+    },
   }
 }

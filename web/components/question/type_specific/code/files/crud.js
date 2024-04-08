@@ -15,7 +15,7 @@
  */
 export const update = (nature, groupScope, questionId, codeToFile) =>
   fetch(
-    `/api/${groupScope}/questions/${questionId}/code/files/${nature}/${codeToFile.file.id}`,
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/files/${nature}/${codeToFile.file.id}`,
     {
       method: 'PUT',
       headers: {
@@ -27,7 +27,7 @@ export const update = (nature, groupScope, questionId, codeToFile) =>
   ).then((data) => data.json())
 
 export const create = (nature, groupScope, questionId, codeToFile) =>
-  fetch(`/api/${groupScope}/questions/${questionId}/code/files/${nature}`, {
+  fetch(`/api/${groupScope}/questions/${questionId}/code/code-writing/files/${nature}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export const create = (nature, groupScope, questionId, codeToFile) =>
 
 export const del = (nature, groupScope, questionId, codeToFile) =>
   fetch(
-    `/api/${groupScope}/questions/${questionId}/code/files/${nature}/${codeToFile.file.id}`,
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/files/${nature}/${codeToFile.file.id}`,
     {
       method: 'DELETE',
       headers: {
@@ -49,7 +49,7 @@ export const del = (nature, groupScope, questionId, codeToFile) =>
   ).then((data) => data.json())
 
 export const pull = (groupScope, questionId) =>
-  fetch(`/api/${groupScope}/questions/${questionId}/code/files/solution/pull`, {
+  fetch(`/api/${groupScope}/questions/${questionId}/code/code-writing/files/solution/pull`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

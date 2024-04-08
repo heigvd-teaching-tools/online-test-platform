@@ -34,7 +34,7 @@ const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
     mutate,
     error,
   } = useSWR(
-    `/api/${groupScope}/questions/${questionId}/code/files/template`,
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/files/template`,
     groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false },
   )
@@ -69,7 +69,7 @@ const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
             <CodeCheck
               lockCodeCheck={lockCodeCheck}
               codeCheckAction={() =>
-                fetch(`/api/sandbox/${questionId}/template`, {
+                fetch(`/api/sandbox/${questionId}/code-writing/template`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                 })
