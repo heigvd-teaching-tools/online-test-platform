@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuestionType } from '@prisma/client'
+import { QuestionType, CodeQuestionType } from '@prisma/client'
 import React, { useState } from 'react'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { Stack, Typography } from '@mui/material'
+import { Stack, Typography, MenuItem } from '@mui/material'
 import { toArray as typesToArray } from '@/components/question/types'
 import { useSession } from 'next-auth/react'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
@@ -25,22 +25,41 @@ import LanguageSelector from '@/components/question/type_specific/code/LanguageS
 import TypeSelector from '@/components/question/TypeSelector'
 
 import languages from '@/code/languages.json'
+import DropDown from '@/components/input/DropDown'
 
 const types = typesToArray()
 
+console.log("CodeQuestionType", CodeQuestionType)
+
 const defaultLanguage = languages.environments[0].language
+
+const codeQuestionTypeToText = {
+  [CodeQuestionType.codeWriting]: "Code Writing",
+  [CodeQuestionType.codeReading]: "Code Reading"
+}
+
+
+const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => {
+  return {
+    value: CodeQuestionType[key],
+    label: codeQuestionTypeToText[CodeQuestionType[key]]
+  }
+})
+
+
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
   const { data: session } = useSession()
 
   const [type, setType] = useState(types[0].value)
   const [language, setLanguage] = useState(defaultLanguage)
+  const [codeQuestionType, setCodeQuestionType] = useState(CodeQuestionType.codeWriting)
 
   return (
     <DialogFeedback
       open={open}
       onClose={onClose}
-      title={`Create new question in group ${session.user.selected_group?.label}`}
+      title={`Create new question`}
       content={
         <Stack spacing={2}>
           <Typography variant="body1">
@@ -61,6 +80,21 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
                 Select the language of the code question
               </Typography>
               <LanguageSelector language={language} onChange={setLanguage} />
+              <DropDown
+                id="codeQuestionType"
+                name="Code Question Type"
+                defaultValue={CodeQuestionType.codeWriting}
+                minWidth="200px"
+                onChange={() => setCodeQuestionType(codeQuestionType)}
+              >
+                {listOfCodeQuestionTypes.map((type, i) => (
+                  <MenuItem key={i} value={type.value}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Typography variant="body1">{type.label}</Typography>
+                    </Stack>
+                  </MenuItem>
+                ))}
+              </DropDown>
             </>
           )}
           <AlertFeedback severity="warning">
