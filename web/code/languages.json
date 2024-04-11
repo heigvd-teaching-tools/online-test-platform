@@ -36,6 +36,20 @@
               }
             ]
           }
+        },
+        "codeReading": {
+          "context": "#include <iostream>\n#include <string>\n#include <algorithm>\n#include <cctype>\nusing namespace std;\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nint main() {\n    string functionName;\n    cin >> functionName;\n    {{SNIPPET_FUNCTION_CALLS}}\n    return 0;\n}",
+          "snippetWrapperFunctionSignature": "void {{SNIPPET_FUNCTION_NAME}}()",
+          "snippets": [
+            {
+              "snippet": "std::string s = \"hello, world\";\n    std::transform(s.begin(), s.end(), s.begin(), ::toupper);\n",
+              "output": "HELLO, WORLD"
+            },
+            {
+              "snippet": "for(int i = 0; i < 3; i++) {\n        cout << i << endl;\n    }",
+              "output": "0\n1\n2\n"
+            }
+          ]
         }
         
       },
@@ -72,6 +86,19 @@
               }
             ]
           }
+        },
+        "codeReading": {
+          "context": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    {{SNIPPETS}}\n    return 0;\n}",
+          "snippets": [
+            {
+              "snippet": "char s[] = \"hello, world\";\n    for(int i = 0; s[i] != '\\0'; i++) {\n        s[i] = toupper(s[i]);\n    }\n",
+              "output": "HELLO, WORLD"
+            },
+            {
+              "snippet": "for(int i = 0; i < 3; i++) {\n        printf(\"%d\\n\", i);\n    }",
+              "output": "0\n1\n2\n"
+            }
+          ]
         }
       },
       {
@@ -107,6 +134,19 @@
               }
             ]
           }
+        },
+        "codeReading": {
+          "context": "public class Main {\n    public static void main(String[] args) {\n        {{SNIPPETS}}\n    }\n}",
+          "snippets": [
+            {
+              "snippet": "System.out.println(\"Hello, world\".toUpperCase());",
+              "output": "HELLO, WORLD"
+            },
+            {
+              "snippet": "for (int i = 0; i < 3; i++) {\n        System.out.println(i);\n    }",
+              "output": "0\n1\n2\n"
+            }
+          ]
         }
       },
       {
@@ -142,6 +182,19 @@
               }
             ]
           }
+        },
+        "codeReading": {
+          "context": "const processSnippets = () => {\n    {{SNIPPETS}}\n};\n\nprocessSnippets();",
+          "snippets": [
+            {
+              "snippet": "console.log('Hello, world!'.toUpperCase());",
+              "output": "HELLO, WORLD!"
+            },
+            {
+              "snippet": "for (let i = 0; i < 3; i++) {\n  console.log(i);\n}",
+              "output": "0\n1\n2\n"
+            }
+          ]
         }
       },
       {
@@ -177,7 +230,20 @@
               }
             ]
           }
-        } 
+        },
+        "codeReading": {
+          "context": "def main():\n    {{SNIPPETS}}\n\nif __name__ == '__main__':\n    main()",
+          "snippets": [
+            {
+              "snippet": "print('Hello, world!'.upper())",
+              "output": "HELLO, WORLD!"
+            },
+            {
+              "snippet": "for i in range(3):\n    print(i)",
+              "output": "0\n1\n2\n"
+            }
+          ]
+        }
       },
       {
         "language": "go",
@@ -220,6 +286,18 @@
               }
             ]
           }
+        },
+        "codeReading": {
+          "snippets": [
+            {
+              "snippet": "fmt.Println(strings.ToUpper(\"hello, world\"))",
+              "output": "HELLO, WORLD"
+            },
+            {
+              "snippet": "for i := 0; i < 3; i++ {\n    fmt.Println(i)\n}",
+              "output": "0\n1\n2\n"
+            }
+          ]
         }
       }
   ],

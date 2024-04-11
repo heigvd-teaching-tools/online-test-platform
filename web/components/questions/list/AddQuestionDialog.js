@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Image from 'next/image'
 import { QuestionType, CodeQuestionType } from '@prisma/client'
 import React, { useState } from 'react'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { Stack, Typography, MenuItem } from '@mui/material'
+import { Stack, Typography, MenuItem, Box } from '@mui/material'
 import { toArray as typesToArray } from '@/components/question/types'
 import { useSession } from 'next-auth/react'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
@@ -29,8 +30,6 @@ import DropDown from '@/components/input/DropDown'
 
 const types = typesToArray()
 
-console.log("CodeQuestionType", CodeQuestionType)
-
 const defaultLanguage = languages.environments[0].language
 
 const codeQuestionTypeToText = {
@@ -42,14 +41,14 @@ const codeQuestionTypeToText = {
 const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => {
   return {
     value: CodeQuestionType[key],
-    label: codeQuestionTypeToText[CodeQuestionType[key]]
+    label: codeQuestionTypeToText[CodeQuestionType[key]],
+    icon: languages[`${key}Icon`]
   }
 })
 
 
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
-  const { data: session } = useSession()
 
   const [type, setType] = useState(types[0].value)
   const [language, setLanguage] = useState(defaultLanguage)
@@ -77,24 +76,19 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
           {type === QuestionType.code && (
             <>
               <Typography variant="body1">
-                Select the language of the code question
+                Select the language and type of the code question
               </Typography>
-              <LanguageSelector language={language} onChange={setLanguage} />
-              <DropDown
-                id="codeQuestionType"
-                name="Code Question Type"
-                defaultValue={CodeQuestionType.codeWriting}
-                minWidth="200px"
-                onChange={() => setCodeQuestionType(codeQuestionType)}
-              >
-                {listOfCodeQuestionTypes.map((type, i) => (
-                  <MenuItem key={i} value={type.value}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Typography variant="body1">{type.label}</Typography>
-                    </Stack>
-                  </MenuItem>
-                ))}
-              </DropDown>
+              <Stack direction="row" spacing={2}>
+              <LanguageSelector 
+                language={language} 
+                onChange={setLanguage} 
+              />
+              <CodeQuestionTypeSelector
+                options={listOfCodeQuestionTypes}
+                codeQuestionType={codeQuestionType}
+                setCodeQuestionType={setCodeQuestionType}
+              />
+              </Stack>
             </>
           )}
           <AlertFeedback severity="warning">
@@ -105,8 +99,44 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
           </AlertFeedback>
         </Stack>
       }
-      onConfirm={() => handleAddQuestion(type, language)}
+      onConfirm={() => handleAddQuestion(type, { language, codeQuestionType })}
     />
+  )
+}
+
+const CodeQuestionTypeSelector = ({ options, codeQuestionType, setCodeQuestionType }) => {
+  const helperText = codeQuestionType === CodeQuestionType.codeReading ? "Understand the code and guess the output" : "Write the code and pass codecheck" 
+  return (
+    <DropDown
+      id="codeQuestionType"
+      name="Code Question Type"
+      defaultValue={codeQuestionType}
+      minWidth="200px"
+      onChange={setCodeQuestionType}
+      helperText={helperText}
+    >
+      {options.map((type, i) => (
+        <MenuItem key={i} value={type.value}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <CodeQuestionTypeIcon codeQuestionType={type} />
+            <Typography variant="body1">{type.label}</Typography>
+          </Stack>
+        </MenuItem>
+      ))}
+    </DropDown>
+  )
+}
+
+const CodeQuestionTypeIcon = ({ codeQuestionType, size = 20 }) => {
+  return (
+    <Box minWidth={size} minHeight={size}>
+      <Image
+        src={codeQuestionType.icon}
+        alt={codeQuestionType.label}
+        width={size}
+        height={size}
+      />
+    </Box>
   )
 }
 

@@ -287,4 +287,17 @@ bash pg_restore.sh <backup-file-name>
 
 ## endpoint migrations done
 
-evaluation
+## Monitoring Server Resources
+
+A monitoring tool is available './home/heiguser/monitor.sh'. It refreshes every 5 seconds and displays the CPU, Memory and Disk usage of the server. The refresh rate can be changed in the script. 
+
+```bash
+cd ~
+bash ./monitor.sh
+```
+
+### Disk space used by docker
+    
+```bash
+docker system df
+```

@@ -16,7 +16,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Box, Stack, TextField, Typography } from '@mui/material'
-import InlineMonacoEditor from '../../../../input/InlineMonacoEditor'
+import InlineMonacoEditor from '../../../input/InlineMonacoEditor'
 import { useTheme } from '@emotion/react'
 
 import languages from '@/code/languages.json'
@@ -57,38 +57,43 @@ const FileEditor = ({
           direction="row"
           position="sticky"
           top={0}
-          spacing={1}
-          p={2}
           alignItems="center"
           justifyContent="center"
           zIndex={1}
           bgcolor={theme.palette.background.paper}
         >
-          {leftCorner}
-          {(!readonlyPath && (
-            <TextField
-              id={`${file.id}-${path}`}
-              variant="standard"
-              label={`Path [syntax: ${language}]`}
-              value={path}
-              fullWidth
-              onChange={(ev) => {
-                const path = ev.target.value
-                if (path === file.path) return
-                file.path = path
-                setPath(ev.target.value)
-                onChange({
-                  ...file,
-                  path: ev.target.value,
-                })
-              }}
-            />
-          )) || (
-            <Box width="100%" maxWidth="100%" overflow="hidden">
+          <Stack height={50} direction="row" alignItems="center" spacing={1} width="100%">
+            { leftCorner && (
+              <Box pl={2}>
+                {leftCorner}
+              </Box>
+            
+            )}
+            <Box flex={1}>
+            {(!readonlyPath && (
+              <TextField
+                id={`${file.id}-${path}`}
+                variant="standard"
+                label={`Path [syntax: ${language}]`}
+                value={path}
+                fullWidth
+                onChange={(ev) => {
+                  const path = ev.target.value
+                  if (path === file.path) return
+                  file.path = path
+                  setPath(ev.target.value)
+                  onChange({
+                    ...file,
+                    path: ev.target.value,
+                  })
+                }}
+              />
+            )) || (
               <Typography variant="body1"> {path} </Typography>
+            )}
             </Box>
-          )}
-          {secondaryActions}
+            {secondaryActions}
+          </Stack>
         </Stack>
         <InlineMonacoEditor
           code={content}

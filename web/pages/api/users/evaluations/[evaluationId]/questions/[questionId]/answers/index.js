@@ -34,7 +34,7 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
-import codeWriting from '@/pages/api/[groupScope]/questions/[questionId]/code/code-writing'
+
 
 /*
   get the users answers for a question including related nested data
@@ -92,6 +92,7 @@ const get = withEvaluationPhase(
           },
           code: {
             select: {
+              codeType: true,
               codeWriting: {
                 select: {
                   files: {
@@ -104,7 +105,28 @@ const get = withEvaluationPhase(
                     orderBy: { order: 'asc' },
                   },
                 },
-              }
+              },
+              codeReading: {
+                select: {
+                  outputs: {
+                    select: {
+                      output: true,
+                      codeReadingSnippet: {
+                        select: {
+                          id: true,
+                          snippet: true,
+                          order: true,
+                        },
+                      },
+                    },
+                    orderBy: {
+                      codeReadingSnippet: {
+                        order: 'asc',
+                      },
+                    },
+                  }
+                },
+              },
             },
           },
           database: {

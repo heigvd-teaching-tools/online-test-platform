@@ -52,10 +52,6 @@ const get = withEvaluationPhase(
 
       let includeQuestions = questionIncludeClause({
         includeTypeSpecific: false,
-        includeUserAnswers: {
-          strategy: IncludeStrategy.USER_SPECIFIC,
-          userEmail: email,
-        },
       })
 
       const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
@@ -71,7 +67,17 @@ const get = withEvaluationPhase(
               evaluationToQuestions: {
                 include: {
                   question: {
-                    include: includeQuestions,
+                    include: {
+                      ...includeQuestions,
+                      studentAnswer: {
+                        where: {
+                          userEmail: email,
+                        },
+                        select:{
+                          status: true,
+                        }
+                      },
+                    }
                   },
                 },
                 orderBy: {

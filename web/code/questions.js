@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuestionType, StudentPermission, QuestionSource } from '@prisma/client'
+import code from '@/pages/api/[groupScope]/questions/[questionId]/code'
+import { QuestionType, StudentPermission, QuestionSource, CodeQuestionType } from '@prisma/client'
+import { orderBy } from 'lodash'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -47,6 +49,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
           select:{
             language: true,
             sandbox: true,
+            codeType: true,
             codeWriting: {
               select: {
                 ...(includeOfficialAnswers
@@ -77,7 +80,29 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 testCases: true,
               },
             },
-          },
+            codeReading: {
+              select: {
+                ...(includeOfficialAnswers
+                  ? {
+                    studentOutputTest: true,
+                    contextExec: true,
+                    contextPath: true,
+                    context: true,
+                } : {}),
+                snippets: {
+                  select: {
+                    id: true,
+                    order: true,
+                    snippet: true,
+                    ...(includeOfficialAnswers ? { output: true } : {}),
+                  },
+                  orderBy: {
+                    order: 'asc',
+                  },
+                },
+              },
+            }
+          }
         },
         multipleChoice: {
           select: {
@@ -191,6 +216,27 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 },
                 testCaseResults: true,
                 allTestCasesPassed: true,
+              },
+            },
+            codeReading: {
+              select: {
+                outputs: {
+                  select: {
+                    output: true,
+                    codeReadingSnippet: {
+                      select: {
+                        id: true,
+                        snippet: true,
+                        order: true,
+                      },
+                    },
+                  },
+                  orderBy: {
+                    codeReadingSnippet: {
+                      order: 'asc',
+                    },
+                  },
+                }
               },
             },
           }
@@ -346,85 +392,122 @@ export const copyQuestion = async (
   }
 
   const copyCodeQuestion = async (prisma, question) => {
-    const newCodeQuestion = await prisma.question.create({
+
+    const query = {
       data: {
         ...data,
         code: {
           create: {
             language: question.code.language,
+            codeType: question.code.codeType,
             sandbox: {
               create: {
                 image: question.code.sandbox.image,
                 beforeAll: question.code.sandbox.beforeAll,
               },
             },
-            codeWriting: {
-              create: {
-                testCases: {
-                  create: question.code.codeWriting.testCases.map((testCase) => ({
-                    index: testCase.index,
-                    exec: testCase.exec,
-                    input: testCase.input,
-                    expectedOutput: testCase.expectedOutput,
-                  })),
-                },
-              },
-            },
           },
         },
       },
-    })
-
-    // create the copy of template and solution files and link them to the new code questions
-
-    for (const codeToFile of question.code.codeWriting.templateFiles) {
-      const newFile = await prisma.file.create({
-        data: {
-          path: codeToFile.file.path,
-          content: codeToFile.file.content,
-          createdAt: codeToFile.file.createdAt, // for deterministic ordering
-          code: {
-            connect: {
-              questionId: newCodeQuestion.id,
-            },
-          },
-        },
-      })
-      await prisma.codeToTemplateFile.create({
-        data: {
-          questionId: newCodeQuestion.id,
-          fileId: newFile.id,
-          order: codeToFile.order,
-          studentPermission: codeToFile.studentPermission,
-        },
-      })
     }
+    
+    let newCodeQuestion = undefined
 
-    for (const codeToFile of question.code.codeWriting.solutionFiles) {
-      const newFile = await prisma.file.create({
-        data: {
-          path: codeToFile.file.path,
-          content: codeToFile.file.content,
-          createdAt: codeToFile.file.createdAt, // for deterministic ordering
-          code: {
-            connect: {
-              questionId: newCodeQuestion.id,
+    switch (question.code.codeType) {
+      // create the copy of the code writing question
+      case CodeQuestionType.codeWriting: {
+
+        query.data.code.create.codeWriting = {
+          create: {
+            testCases: {
+              create: question.code.codeWriting.testCases.map((testCase) => ({
+                index: testCase.index,
+                exec: testCase.exec,
+                input: testCase.input,
+                expectedOutput: testCase.expectedOutput,
+              })),
             },
           },
-        },
-      })
-      await prisma.codeToSolutionFile.create({
-        data: {
-          questionId: newCodeQuestion.id,
-          fileId: newFile.id,
-          order: codeToFile.order,
-          studentPermission: codeToFile.studentPermission,
-        },
-      })
+        }
+
+        newCodeQuestion = await prisma.question.create(query)
+
+        // create the copy of template and solution files and link them to the new code questions
+
+        for (const codeToFile of question.code.codeWriting.templateFiles) {
+          const newFile = await prisma.file.create({
+            data: {
+              path: codeToFile.file.path,
+              content: codeToFile.file.content,
+              createdAt: codeToFile.file.createdAt, // for deterministic ordering
+              code: {
+                connect: {
+                  questionId: newCodeQuestion.id,
+                },
+              },
+            },
+          })
+          await prisma.codeToTemplateFile.create({
+            data: {
+              questionId: newCodeQuestion.id,
+              fileId: newFile.id,
+              order: codeToFile.order,
+              studentPermission: codeToFile.studentPermission,
+            },
+          })
+        }
+
+        for (const codeToFile of question.code.codeWriting.solutionFiles) {
+          const newFile = await prisma.file.create({
+            data: {
+              path: codeToFile.file.path,
+              content: codeToFile.file.content,
+              createdAt: codeToFile.file.createdAt, // for deterministic ordering
+              code: {
+                connect: {
+                  questionId: newCodeQuestion.id,
+                },
+              },
+            },
+          })
+          await prisma.codeToSolutionFile.create({
+            data: {
+              questionId: newCodeQuestion.id,
+              fileId: newFile.id,
+              order: codeToFile.order,
+              studentPermission: codeToFile.studentPermission,
+            },
+          })
+        }
+        break;
+      }
+      case CodeQuestionType.codeReading: {
+
+        query.data.code.create.codeReading = {
+          create: {
+            contextExec: question.code.codeReading.contextExec,
+            contextPath: question.code.codeReading.contextPath,
+            context: question.code.codeReading.context,
+            snippets: {
+              create: question.code.codeReading.snippets.map((snippet) => ({
+                order: snippet.order,
+                snippet: snippet.snippet,
+                output: snippet.output,
+              })),
+            },
+          },
+        }
+
+        newCodeQuestion = await prisma.question.create(query)
+
+        break;
+      }
+
     }
 
     return newCodeQuestion
   }
+  
 
   const copyDatabaseQuestion = async (prisma, question) => {
     const newDatabaseQuestion = await prisma.question.create({
@@ -511,70 +594,84 @@ export const copyQuestion = async (
   }
 }
 
-
-export const codeInitialUpdateQuery = (questionId, code) => {
-  return {
-    where: {
-      questionId: questionId,
+const buildCodeWritingUpdate = (questionId, { testCases, files }) => ({
+  create: {
+    testCases: {
+      create: testCases.map(({ exec, input, expectedOutput }, index) => ({
+        index: index + 1,
+        exec,
+        input,
+        expectedOutput,
+      })),
     },
+    solutionFiles: {
+      create: files.solution.map(({ path, content }, index) => ({
+        order: index,
+        file: {
+          create: {
+            path,
+            content,
+            code: {
+              connect: { questionId },
+            },
+          },
+        },
+      })),
+    },
+    templateFiles: {
+      create: files.template.map(({ path, content }, index) => ({
+        order: index,
+        studentPermission: 'UPDATE', // Assuming this is a constant value
+        file: {
+          create: {
+            path,
+            content,
+            code: {
+              connect: { questionId },
+            },
+          },
+        },
+      })),
+    },
+  }
+});
+
+// Function to create the structure for codeReading specifics
+const buildCodeReadingUpdate = ({contextExec, contextPath, context, snippets}) => ({
+  create: {
+    contextExec,
+    contextPath,
+    context,
+    snippets: {
+      create: snippets.map(({ snippet, output }, order) => ({
+        order,
+        snippet,
+        output,
+      })),
+    },
+  }
+});
+
+// Main function to build the initial update query
+export const codeInitialUpdateQuery = (questionId, code, codeQuestionType) => {
+  // Common data structure
+  const updateQuery = {
+    where: { questionId },
     data: {
       language: code.language,
-      sandbox: {
+      sandbox: code.sandbox ? {
         create: {
           image: code.sandbox.image,
           beforeAll: code.sandbox.beforeAll,
         },
-      },
-      codeWriting: {
-        create: {
-          testCases: {
-            create: code.testCases.map((testCase, index) => ({
-              index: index + 1,
-              exec: testCase.exec,
-              input: testCase.input,
-              expectedOutput: testCase.expectedOutput,
-            })),
-          },
-          solutionFiles: {
-            create: code.files.solution.map((file, index) => ({
-              order: index,
-              file: {
-                create: {
-                  path: file.path,
-                  content: file.content,
-                  code: {
-                    connect: {
-                      questionId: questionId,
-                    },
-                  },
-                },
-              },
-            })),
-          },
-          templateFiles: {
-            create: code.files.template.map((file, index) => ({
-              order: index,
-              studentPermission: StudentPermission.UPDATE,
-              file: {
-                create: {
-                  path: file.path,
-                  content: file.content,
-                  code: {
-                    connect: {
-                      questionId: questionId,
-                    },
-                  },
-                },
-              },
-            })),
-          },
-        },
-      },
+      } : undefined,
+      codeType: codeQuestionType,
+      [codeQuestionType]: codeQuestionType === CodeQuestionType.codeWriting ? buildCodeWritingUpdate(questionId, code) : buildCodeReadingUpdate(code),
       question: {
-        connect: {
-          id: questionId,
-        },
+        connect: { id: questionId },
       },
     },
   }
+
+  return updateQuery;
 }

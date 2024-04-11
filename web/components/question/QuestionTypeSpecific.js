@@ -15,7 +15,7 @@
  */
 import { QuestionType } from '@prisma/client'
 import ManageMultipleChoice from './type_specific/ManageMultipleChoice'
-import CodeWriting from './type_specific/CodeWriting'
+import Code from './type_specific/Code'
 import TrueFalse from './type_specific/TrueFalse'
 import Web from './type_specific/Web'
 import Database from './type_specific/Database'
@@ -41,7 +41,7 @@ const QuestionTypeSpecific = ({
 
       case QuestionType.code:
         return (
-          <CodeWriting
+          <Code
             groupScope={groupScope}
             questionId={question.id}
             onUpdate={onUpdate}

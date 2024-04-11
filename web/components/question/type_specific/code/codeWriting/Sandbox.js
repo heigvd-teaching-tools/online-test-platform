@@ -17,8 +17,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { Stack, TextField, Typography } from '@mui/material'
 import useSWR from 'swr'
-import Loading from '../../../feedback/Loading'
-import { fetcher } from '../../../../code/utils'
+import Loading from '@/components/feedback/Loading'
+import { fetcher } from '@/code/utils'
 const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
   const {
     data: sandbox,

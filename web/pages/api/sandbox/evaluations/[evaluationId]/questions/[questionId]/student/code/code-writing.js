@@ -26,7 +26,6 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
-import codeWriting from '@/pages/api/[groupScope]/questions/[questionId]/code/code-writing'
 
 /*
  endpoint to run the code sandbox for a users (generally students) answers
@@ -101,7 +100,7 @@ const post = withEvaluationPhase(
       })
         .then(async (response) => {
           // update the status of the users answers
-          await prisma.StudentAnswerCodeWriting.update({
+          const studentAnswer = await prisma.StudentAnswerCodeWriting.update({
             where: {
               userEmail_questionId: {
                 userEmail: user.email,
@@ -152,7 +151,7 @@ const post = withEvaluationPhase(
             update: grading(
               evaluationToQuestion.question,
               evaluationToQuestion.points,
-              response,
+              studentAnswer,
             ),
             create: {
               userEmail: user.email,
@@ -160,7 +159,7 @@ const post = withEvaluationPhase(
               ...grading(
                 evaluationToQuestion.question,
                 evaluationToQuestion.points,
-                response,
+                studentAnswer,
               ),
             },
           })

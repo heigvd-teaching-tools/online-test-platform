@@ -46,7 +46,6 @@ import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 import CopyQuestionDialog from '../list/CopyQuestionDialog'
-import { set } from 'lodash'
 
 const PageList = () => {
   const router = useRouter()
@@ -77,7 +76,7 @@ const PageList = () => {
   const [selected, setSelected] = useState(undefined)
 
   const createQuestion = useCallback(
-    async (type, language) => {
+    async (type, options) => {
       // language only used for code questions
       await fetch(`/api/${groupScope}/questions`, {
         method: 'POST',
@@ -87,7 +86,7 @@ const PageList = () => {
         },
         body: JSON.stringify({
           type,
-          language,
+          options
         }),
       })
         .then((res) => res.json())
@@ -184,8 +183,8 @@ const PageList = () => {
           <AddQuestionDialog
             open={addDialogOpen}
             onClose={() => setAddDialogOpen(false)}
-            handleAddQuestion={async (type, language) => {
-              await createQuestion(type, language)
+            handleAddQuestion={async (type, options) => {
+              await createQuestion(type, options)
               setAddDialogOpen(false)
             }}
           />

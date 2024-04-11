@@ -27,9 +27,6 @@ const get = async (req, res, prisma) => {
   const code = await prisma.code.findUnique({
     where: {
       questionId: questionId,
-    },
-    include:{
-      codeWriting: true,
     }
   })
 

@@ -86,7 +86,7 @@ export const themeOptions = {
     caption: {
       fontSize: '0.7rem',
     },
-  },
+  }  
 }
 
 const theme = createTheme(themeOptions)

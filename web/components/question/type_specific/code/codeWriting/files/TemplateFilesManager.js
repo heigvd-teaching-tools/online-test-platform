@@ -16,17 +16,17 @@
 import React, { useCallback, useState } from 'react'
 import useSWR from 'swr'
 import { Button, MenuItem, Stack } from '@mui/material'
-import FileEditor from './FileEditor'
+import FileEditor from '../../FileEditor'
 import { update, pull } from './crud'
-import DropDown from '../../../../input/DropDown'
+import DropDown from '../../../../../input/DropDown'
 import { StudentPermission } from '@prisma/client'
 
 import CodeCheck from '../CodeCheck'
-import Loading from '../../../../feedback/Loading'
-import { fetcher } from '../../../../../code/utils'
-import ScrollContainer from '../../../../layout/ScrollContainer'
+import Loading from '../../../../../feedback/Loading'
+import { fetcher } from '../../../../../../code/utils'
+import ScrollContainer from '../../../../../layout/ScrollContainer'
 import { useDebouncedCallback } from 'use-debounce'
-import BottomCollapsiblePanel from '../../../../layout/utils/BottomCollapsiblePanel'
+import BottomCollapsiblePanel from '../../../../../layout/utils/BottomCollapsiblePanel'
 
 const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
   const {

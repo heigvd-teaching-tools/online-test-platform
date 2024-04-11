@@ -24,12 +24,12 @@ import {
   QuestionType,
   StudentPermission,
   UserOnEvaluatioAccessMode,
+  CodeQuestionType,
 } from '@prisma/client'
 import { phaseGT } from '@/code/phase'
 import { questionIncludeClause } from '@/code/questions'
 import { grading } from '@/code/grading'
 import { getUser } from '@/code/auth'
-import { create } from 'lodash'
 
 const post = async (req, res, prisma) => {
   const { evaluationId } = req.query
@@ -180,7 +180,10 @@ const post = async (req, res, prisma) => {
                 questionId: question.id,
               },
             },
-            data: createCodeTypeSpecificData(question),
+            data: {
+              codeType: question.code.codeType,
+              ...createCodeTypeSpecificData(question),
+            },
           })
           break
         case QuestionType.database:
@@ -193,6 +196,41 @@ const post = async (req, res, prisma) => {
 }
 
 const createCodeTypeSpecificData = (question) => {
+  switch(question.code.codeType) {
+    case CodeQuestionType.codeReading:
+      return createCodeReadingTypeSpecificData(question)
+    case CodeQuestionType.codeWriting:
+      return createCodeWritingTypeSpecificData(question)
+    default:
+      return {}
+  }
+}
+
+const createCodeReadingTypeSpecificData = (question) => {
+  return {
+    codeReading: {
+      create: {
+        outputs: {
+          create: question.code.codeReading.snippets.map((snippet) => {
+            console.log("##snippet: ", snippet)
+            return {
+              // Student starts with an empty output
+              output: '',
+              // Connect the output to the corresponding snippet
+              codeReadingSnippet: {
+                connect: {
+                  id: snippet.id,
+                },
+              },
+            };
+          }),
+        },
+      },
+    },
+  };
+};
+
+const createCodeWritingTypeSpecificData = (question) => {
   return {
     codeWriting: {
       create: {
