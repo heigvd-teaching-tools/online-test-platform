@@ -27,26 +27,16 @@ import TypeSelector from '@/components/question/TypeSelector'
 
 import languages from '@/code/languages.json'
 import DropDown from '@/components/input/DropDown'
+import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
 
 const types = typesToArray()
 
 const defaultLanguage = languages.environments[0].language
 
-const codeQuestionTypeToText = {
-  [CodeQuestionType.codeWriting]: "Code Writing",
-  [CodeQuestionType.codeReading]: "Code Reading"
-}
 
+const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => ({ value: key }))
 
-const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => {
-  return {
-    value: CodeQuestionType[key],
-    label: codeQuestionTypeToText[CodeQuestionType[key]],
-    icon: languages[`${key}Icon`]
-  }
-})
-
-
+console.log("listOfCodeQuestionTypes", listOfCodeQuestionTypes)
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
 
@@ -118,25 +108,11 @@ const CodeQuestionTypeSelector = ({ options, codeQuestionType, setCodeQuestionTy
       {options.map((type, i) => (
         <MenuItem key={i} value={type.value}>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <CodeQuestionTypeIcon codeQuestionType={type} />
-            <Typography variant="body1">{type.label}</Typography>
+            <CodeQuestionTypeIcon size={20} codeType={type.value} withLabel />
           </Stack>
         </MenuItem>
       ))}
     </DropDown>
-  )
-}
-
-const CodeQuestionTypeIcon = ({ codeQuestionType, size = 20 }) => {
-  return (
-    <Box minWidth={size} minHeight={size}>
-      <Image
-        src={codeQuestionType.icon}
-        alt={codeQuestionType.label}
-        width={size}
-        height={size}
-      />
-    </Box>
   )
 }
 

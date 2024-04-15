@@ -45,7 +45,6 @@ import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 import DataGrid from '@/components/ui/DataGrid'
 import { useTheme } from '@emotion/react'
 import { LoadingButton } from '@mui/lab'
-import { useDebouncedCallback } from 'use-debounce'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import Overlay from '@/components/ui/Overlay'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
@@ -156,10 +155,26 @@ const PageTakeEvaluation = () => {
     }
   }
 
-  const debouncheMutate = useDebouncedCallback(() => {
-    console.log('mutate called')
-    mutate()
-  }, 500)
+  const handleSubmissionToggle = useCallback((questionId, isSubmitting) => {
+    /* 
+      Find the question page that corresponds to the question and update its submission status
+    */
+    const questionPage = pages.findIndex((page) => page.id === questionId);
+    if (questionPage !== -1) {
+      setPages((prevPages) => {
+        const newPages = [...prevPages];
+        newPages[questionPage].state = isSubmitting ? 'filled' : 'half';
+        return newPages;
+      });
+    }
+
+    const jstq = evaluationToQuestion.find(
+      (jtq) => jtq.question.id === questionId,
+    );
+    jstq.question.studentAnswer[0].status = isSubmitting
+      ? StudentAnswerStatus.SUBMITTED
+      : StudentAnswerStatus.IN_PROGRESS;
+  }, [pages, evaluationToQuestion]);
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
@@ -221,29 +236,8 @@ const PageTakeEvaluation = () => {
                         conditions={userOnEvaluation.conditions}
                         evaluationToQuestion={evaluationToQuestion}
                         setPages={setPages}
-                        onSubmit={(ok, questionId) => {
-                          if (!ok) {
-                            showSnackbar('Cannot submit answer', 'error')
-                            return
-                          }
-                          const questionPage = pages.findIndex(
-                            (page) => page.id === questionId,
-                          )
-                          if (questionPage !== -1) {
-                            setPages((prevPages) => {
-                              const newPages = [...prevPages]
-                              newPages[questionPage].state = 'filled'
-                              return newPages
-                            })
-                          }
-                          // Update in memory to reflect changes before the server responds (usefull under high latency conditions)
-                          const jstq = evaluationToQuestion.find(
-                            (jtq) => jtq.question.id === questionId,
-                          )
-                          jstq.question.studentAnswer[0].status =
-                            StudentAnswerStatus.SUBMITTED
-                          debouncheMutate()
-                        }}
+                        onSubmit={(questionId) => handleSubmissionToggle(questionId, true)}
+                        onUnsubmit={(questionId) => handleSubmissionToggle(questionId, false)}
                         onEndEvaluation={() => {
                           mutateStatus()
                         }}
@@ -374,6 +368,7 @@ const RightPanel = ({
   evaluationToQuestion,
   setPages,
   onSubmit,
+  onUnsubmit,
   onEndEvaluation,
 }) => {
   return (
@@ -416,11 +411,9 @@ const RightPanel = ({
           <ResizeObserverProvider>
             <ScrollContainer>
               <AnswerEditor
-                question={q.question}
+                questionId={q.question.id}
                 status={q.question.studentAnswer[0].status}
-                onAnswer={(question, updatedStudentAnswer) => {
-                  /* update the users answers status in memory */
-                  question.studentAnswer[0].status = updatedStudentAnswer.status
+                onAnswer={(updatedStudentAnswer) => {
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
                     newPages[index].state = getFilledStatus(
@@ -430,10 +423,7 @@ const RightPanel = ({
                   })
                 }}
                 onSubmit={(question) => {
-                  /* update the users answers status in memory */
-                  question.studentAnswer[0].status =
-                    StudentAnswerStatus.SUBMITTED
-                  /* change the state to trigger a re-render */
+                  onSubmit(question.id)
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
                     newPages[index].state = 'filled'
@@ -441,9 +431,7 @@ const RightPanel = ({
                   })
                 }}
                 onUnsubmit={(question) => {
-                  /* update the users answers status in memory */
-                  question.studentAnswer[0].status =
-                    StudentAnswerStatus.IN_PROGRESS
+                  onUnsubmit(question.id)
                   /* change the state to trigger a re-render */
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
@@ -463,6 +451,8 @@ const RightPanel = ({
 const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
   const [submitLock, setSubmitLock] = useState(false)
 
+  const { showTopCenter: showSnackbar } = useSnackbar()
+
   const [status, setStatus] = useState(answerStatus)
 
   useEffect(() => setStatus(answerStatus), [answerStatus])
@@ -476,15 +466,13 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
           method: 'PUT',
         },
       )
-
       const ok = response.ok
-      const data = await response.json()
-
       if (!ok) {
         setStatus(StudentAnswerStatus.IN_PROGRESS)
+        showSnackbar('Cannot submit answer', 'error')
+      }else{
+       onSubmit && onSubmit()
       }
-
-      onSubmit && onSubmit(ok)
 
       setSubmitLock(false)
     },
@@ -501,7 +489,6 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
         size="small"
         onClick={(ev) => {
           ev.stopPropagation()
-          console.log('onSubmitClick', questionId)
           onSubmitClick(questionId)
         }}
         disabled={status === StudentAnswerStatus.SUBMITTED}
@@ -606,7 +593,7 @@ const QuestionsGrid = ({ evaluationId, evaluationToQuestion, onSubmit }) => {
               evaluationId={evaluationId}
               questionId={jtq.question.id}
               answerStatus={jtq.question.studentAnswer[0].status}
-              onSubmit={(ok) => onSubmit(ok, jtq.question.id)}
+              onSubmit={() => onSubmit(jtq.question.id)}
             />,
           ],
         },

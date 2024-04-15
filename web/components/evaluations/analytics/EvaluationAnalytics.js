@@ -24,11 +24,12 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { getQuestionSuccessRate, typeSpecificStats } from './stats'
-import { QuestionType, StudentAnswerStatus } from '@prisma/client'
+import { CodeQuestionType, QuestionType, StudentAnswerStatus } from '@prisma/client'
 
 import PiePercent from '@/components/feedback/PiePercent'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 import FilledBullet from '@/components/feedback/FilledBullet'
+import ConsoleLog from '@/components/layout/utils/ConsoleLog'
 
 const EvaluationAnalytics = ({
   evaluationToQuestions,
@@ -45,6 +46,33 @@ const EvaluationAnalytics = ({
       ))}
     </Stack>
   )
+}
+
+const questionTypeToLegend = {
+  [QuestionType.multipleChoice]: [
+    { color: 'info', tooltip: 'Students chose this option' },
+  ],
+  [QuestionType.trueFalse]: [
+    { color: 'info', tooltip: 'Students chose this option' },
+  ],
+  [QuestionType.code]: {
+    [CodeQuestionType.codeWriting]: [
+      { color: 'success', tooltip: 'All test cases passed' },
+      { color: 'error', tooltip: 'Not all test cases passed' },
+      { color: 'info', tooltip: 'No code check runs' },
+    ],
+    [CodeQuestionType.codeReading]: [
+      { color: 'success', tooltip: 'All outputs match' },
+      { color: 'error', tooltip: 'Not all outputs match' },
+      { color: 'info', tooltip: 'Not answered' },
+    ],
+  },
+  [QuestionType.essay]: [{ color: 'success', tooltip: 'Submitted answers' }],
+  [QuestionType.web]: [{ color: 'success', tooltip: 'Submitted answers' }],
+  [QuestionType.database]: [
+    { color: 'success', tooltip: 'Test passed' },
+    { color: 'error', tooltip: 'Test failed' },
+  ],
 }
 
 const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
@@ -83,20 +111,40 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
           break
         }
         case QuestionType.code: {
+
+          const codeType = question.code.codeType
+          data[question.type].codeType = codeType
+
           data[question.type].success.percentage =
-            maxValue > 0
-              ? Math.round((data[question.type].success.count / maxValue) * 100)
-              : 0
-          data[question.type].failure.percentage =
-            maxValue > 0
-              ? Math.round((data[question.type].failure.count / maxValue) * 100)
-              : 0
-          data[question.type].noCodeCheckRuns.percentage =
-            maxValue > 0
-              ? Math.round(
-                  (data[question.type].noCodeCheckRuns.count / maxValue) * 100,
-                )
-              : 0
+                maxValue > 0
+                  ? Math.round((data[question.type].success.count / maxValue) * 100)
+                  : 0
+              data[question.type].failure.percentage =
+                maxValue > 0
+                  ? Math.round((data[question.type].failure.count / maxValue) * 100)
+                  : 0
+          
+          switch (codeType) {
+            case CodeQuestionType.codeWriting: {
+              
+              data[question.type].noCodeCheckRuns.percentage =
+                maxValue > 0
+                  ? Math.round(
+                      (data[question.type].noCodeCheckRuns.count / maxValue) * 100,
+                    )
+                  : 0
+            }
+            break;
+            case CodeQuestionType.codeReading: {
+              data[question.type].unanswered.percentage =
+                maxValue > 0
+                  ? Math.round(
+                      (data[question.type].unanswered.count / maxValue) * 100,
+                    )
+                  : 0
+            }
+            break;
+          }
 
           break
         }
@@ -183,24 +231,13 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
     }
   }, [question, evaluationToQuestions, maxValue])
 
-  const questionTypeToLegend = {
-    [QuestionType.multipleChoice]: [
-      { color: 'info', tooltip: 'Students chose this option' },
-    ],
-    [QuestionType.trueFalse]: [
-      { color: 'info', tooltip: 'Students chose this option' },
-    ],
-    [QuestionType.code]: [
-      { color: 'success', tooltip: 'All test cases passed' },
-      { color: 'error', tooltip: 'Not all test cases passed' },
-      { color: 'info', tooltip: 'No code check runs' },
-    ],
-    [QuestionType.essay]: [{ color: 'success', tooltip: 'Submitted answers' }],
-    [QuestionType.web]: [{ color: 'success', tooltip: 'Submitted answers' }],
-    [QuestionType.database]: [
-      { color: 'success', tooltip: 'Test passed' },
-      { color: 'error', tooltip: 'Test failed' },
-    ],
+  
+
+  const getLegend = (type, codeType) => {
+    if (type === QuestionType.code) {
+      return questionTypeToLegend[type][codeType]
+    }
+    return questionTypeToLegend[type]
   }
 
   const submittedAnswers = question.studentAnswer.filter(
@@ -224,7 +261,7 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
             </Typography>
             <Typography variant="body1">{question.title}</Typography>
           </Stack>
-          <ColorLegend items={questionTypeToLegend[question.type]} />
+          <ColorLegend items={getLegend(question.type, question.code?.codeType)} />
         </Stack>
         {questionData &&
           ((questionData.type === QuestionType.multipleChoice && (
@@ -283,45 +320,94 @@ const QuestionAnalytics = ({ evaluationToQuestions, showSuccessRate }) => {
             )) ||
             (questionData.type === QuestionType.code && (
               <>
-                <AnalyticsRow
-                  label={
-                    <Tooltip title="For the last code check run, all test cases passed">
-                      <Typography variant="body1">
-                        <b>Success</b>
-                      </Typography>
-                    </Tooltip>
-                  }
-                  color="success"
-                  segments={[
-                    {
-                      percent:
-                        questionData[questionData.type].success.percentage,
-                      color: 'success',
-                      tooltip: `All test cases passed [${
-                        questionData[questionData.type].success.count
-                      }]`,
-                    },
-                    {
-                      percent:
-                        questionData[questionData.type].failure.percentage,
-                      color: 'error',
-                      tooltip: `Not all test cases passed [${
-                        questionData[questionData.type].failure.count
-                      }]`,
-                    },
-                    {
-                      percent:
-                        questionData[questionData.type].noCodeCheckRuns
-                          .percentage,
-                      color: 'info',
-                      tooltip: `No code check runs [${
-                        questionData[questionData.type].noCodeCheckRuns.count
-                      }]`,
-                    },
-                  ]}
-                  amount={submittedAnswers}
-                />
+              <ConsoleLog data={ questionData[questionData.type]} />
+              {
+                questionData[questionData.type].codeType === CodeQuestionType.codeWriting && (
+                    <AnalyticsRow
+                      label={
+                        <Tooltip title="For the last code check run, all test cases passed">
+                          <Typography variant="body1">
+                            <b>Success</b>
+                          </Typography>
+                        </Tooltip>
+                      }
+                      color="success"
+                      segments={[
+                        {
+                          percent:
+                            questionData[questionData.type].success.percentage,
+                          color: 'success',
+                          tooltip: `All test cases passed [${
+                            questionData[questionData.type].success.count
+                          }]`,
+                        },
+                        {
+                          percent:
+                            questionData[questionData.type].failure.percentage,
+                          color: 'error',
+                          tooltip: `Not all test cases passed [${
+                            questionData[questionData.type].failure.count
+                          }]`,
+                        },
+                        {
+                          percent:
+                            questionData[questionData.type].noCodeCheckRuns
+                              .percentage,
+                          color: 'info',
+                          tooltip: `No code check runs [${
+                            questionData[questionData.type].noCodeCheckRuns.count
+                          }]`,
+                        },
+                      ]}
+                      amount={submittedAnswers}
+                    />
+                )
+              }
+              {
+                questionData[questionData.type].codeType === CodeQuestionType.codeReading && (
+                    <AnalyticsRow
+                      label={
+                        <Tooltip title="For the last code check run, all outputs match">
+                          <Typography variant="body1">
+                            <b>Success</b>
+                          </Typography>
+                        </Tooltip>
+                      }
+                      color="success"
+                      segments={[
+                        {
+                          percent:
+                            questionData[questionData.type].success.percentage,
+                          color: 'success',
+                          tooltip: `All outputs match [${
+                            questionData[questionData.type].success.count
+                          }]`,
+                        },
+                        {
+                          percent:
+                            questionData[questionData.type].failure.percentage,
+                          color: 'error',
+                          tooltip: `Not all outputs match [${
+                            questionData[questionData.type].failure.count
+                          }]`,
+                        },
+                        {
+                          percent:
+                            questionData[questionData.type].unanswered.percentage,
+                          color: 'info',
+                          tooltip: `Not answered [${
+                            questionData[questionData.type].unanswered.count
+                          }]`,
+                        },
+                      ]}
+                      amount={submittedAnswers}
+                    />
+                )
+              }
               </>
+                
+      
+
             )) ||
             ((questionData.type === QuestionType.essay ||
               questionData.type === QuestionType.web) && (
@@ -528,7 +614,7 @@ const AnalyticsRow = ({ label, segments, amount }) => (
 const ColorLegend = ({ items }) => {
   return (
     <Stack direction="row" spacing={2} alignItems="center">
-      {items.map((item, index) => (
+      {items?.map((item, index) => (
         <Tooltip title={item.tooltip} key={index}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <FilledBullet state={'filled'} color={item.color} size={14} />

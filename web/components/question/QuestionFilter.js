@@ -152,7 +152,7 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack spacing={2} padding={2}>
+      <Stack spacing={1} padding={2}>
         <Typography variant="body2" color="info">
           {' '}
           Filters
@@ -206,7 +206,7 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
           ))}
         </Box>
         {filter.questionTypes.code && (
-          <>
+          <Box>
             <Typography variant="body2" color="info">
               {' '}
               Code languages{' '}
@@ -226,7 +226,7 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
                 />
               ))}
             </Box>
-          </>
+          </Box>
         )}
         <Stack direction={'row'} spacing={2}>
           <Button variant="contained" color="info" fullWidth type="submit">
@@ -265,9 +265,12 @@ const CheckboxLabel = ({ label, checked, onChange }) => {
         size={'small'}
         checked={checked}
         color={'info'}
+        sx={{
+          padding: "4px",
+        }}
         onChange={(e) => onChange(e.target.checked)}
       />
-      <Typography variant="body1" color="info">
+      <Typography variant="caption" color="info">
         {' '}
         {label}{' '}
       </Typography>

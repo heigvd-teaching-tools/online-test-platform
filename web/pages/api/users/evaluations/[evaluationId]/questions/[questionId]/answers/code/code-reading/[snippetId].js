@@ -16,6 +16,7 @@
 import {
   EvaluationPhase,
   Role,
+  StudentAnswerCodeReadingOutputStatus,
   StudentAnswerStatus,
   UserOnEvaluationStatus,
 } from '@prisma/client'
@@ -58,10 +59,22 @@ const put = withEvaluationPhase(
               select: {
                 code: {
                   select: {
-                    codeType: true,
+                    codeType: true, // For grading
+                    codeReading: {
+                      select: {
+                        snippets: { // To set the StudentAnswerCodeReadingOutput status
+                          where: {
+                            id: snippetId,
+                          },
+                          select: {
+                            output: true,
+                          },
+                        }
+                      },
+                    }
                   },
                 },
-                type: true,
+                type: true, // For grading
               },
             },
           },
@@ -88,6 +101,8 @@ const put = withEvaluationPhase(
             status: StudentAnswerStatus.IN_PROGRESS,
           },
         });
+        
+        const officialOutput = evaluationToQuestion.question.code.codeReading.snippets[0].output
 
         // update the users answers file for code reading question
         await prisma.studentAnswerCodeReadingOutput.update({
@@ -100,6 +115,7 @@ const put = withEvaluationPhase(
           },
           data: {
             output: output,
+            status: output === officialOutput ? StudentAnswerCodeReadingOutputStatus.MATCH : StudentAnswerCodeReadingOutputStatus.MISMATCH,
           },
         })
 

@@ -41,14 +41,22 @@
           "context": "#include <iostream>\n#include <string>\n#include <algorithm>\n#include <cctype>\nusing namespace std;\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nint main() {\n    string functionName;\n    cin >> functionName;\n    {{SNIPPET_FUNCTION_CALLS}}\n    return 0;\n}",
           "snippetWrapperFunctionSignature": "void {{SNIPPET_FUNCTION_NAME}}()",
           "snippets": [
-            {
-              "snippet": "std::string s = \"hello, world\";\n    std::transform(s.begin(), s.end(), s.begin(), ::toupper);\n",
-              "output": "HELLO, WORLD"
-            },
-            {
-              "snippet": "for(int i = 0; i < 3; i++) {\n        cout << i << endl;\n    }",
-              "output": "0\n1\n2\n"
-            }
+              {
+                  "snippet": "std::string s = \"hello, world\";\nstd::transform(s.begin(), s.end(), s.begin(), ::toupper);\nstd::cout << s;",
+                  "output": "HELLO, WORLD"
+              },
+              {
+                  "snippet": "for(int i = 0; i < 3; i++) {\n    cout << i << endl;\n}",
+                  "output": "0\n1\n2\n"
+              },
+              {
+                  "snippet": "int i = 11;\nwhile (i > 4) {\n  cout << (i -= 2) << \" \";\n}",
+                  "output": "9 7 5 3 "
+              },
+              {
+                  "snippet": "string str;\nfor(char c = 'A'; c <= 'C'; ++c) \n  str = str + c + str;\ncout << str;",
+                  "output": "ABACABA"
+              }
           ]
         }
         

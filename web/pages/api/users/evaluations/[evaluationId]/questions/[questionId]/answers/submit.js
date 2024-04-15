@@ -46,7 +46,6 @@ const put = withEvaluationPhase(
       const user = await getUser(req, res)
       const studentEmail = user.email
       const { questionId } = req.query
-
       // Update the StudentAnswer status to SUBMITTED
       await prisma.studentAnswer.update({
         where: {

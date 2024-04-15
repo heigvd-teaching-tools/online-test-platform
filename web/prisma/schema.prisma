@@ -727,6 +727,12 @@ model StudentAnswerCodeReading {
   @@id([userEmail, questionId])
 }
 
+enum StudentAnswerCodeReadingOutputStatus {
+  NEUTRAL
+  MATCH
+  MISMATCH
+}
+
 model StudentAnswerCodeReadingOutput {
   questionId  String
   userEmail   String
@@ -737,6 +743,7 @@ model StudentAnswerCodeReadingOutput {
   studentAnswerCodeReading StudentAnswerCodeReading @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
   
   output String?
+  status StudentAnswerCodeReadingOutputStatus @default(NEUTRAL)
 
   @@id([questionId, userEmail, snippetId])
 }

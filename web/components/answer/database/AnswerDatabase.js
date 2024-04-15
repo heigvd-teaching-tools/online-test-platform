@@ -30,13 +30,16 @@ import StudentOutputDisplay from './StudentOutputDisplay'
 import StudentQueryConsole from './StudentQueryConsole'
 import BottomPanelHeader from '@/components/layout/utils/BottomPanelHeader'
 
-const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
-  const { data: answer, error } = useSWR(
-    `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
-    questionId ? fetcher : null,
+const AnswerDatabase = ({ evaluationId, question, onAnswerChange }) => {
+  const { data: questionAnswer, error } = useSWR(
+    `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers`,
+    question?.id ? fetcher : null,
     { revalidateOnFocus: false },
   )
 
+  const studentAnswer = questionAnswer?.studentAnswer
+  const questionId = question?.id
+    
   const ref = useRef()
 
   const [saveLock, setSaveLock] = useState(false)
@@ -46,20 +49,20 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
   const [studentOutputs, setStudentOutputs] = useState()
 
   useEffect(() => {
-    const studentQueries = answer?.database?.queries
+    const studentQueries = studentAnswer?.database?.queries
     if (studentQueries) {
       setQueries(studentQueries.map((q) => q.query))
       setStudentOutputs(studentQueries.map((q) => q.studentOutput))
     }
-  }, [questionId, answer])
+  }, [questionId, studentAnswer])
 
   const solutionOutputs = useMemo(
     () =>
-      answer?.question.database.solutionQueries.map((solQ) => ({
+      question?.database.solutionQueries.map((solQ) => ({
         order: solQ.query.order,
         output: solQ.output?.output,
       })),
-    [answer],
+    [question],
   )
 
   const getSolutionOutput = useCallback(
@@ -147,7 +150,7 @@ const AnswerDatabase = ({ evaluationId, questionId, onAnswerChange }) => {
   )
 
   return (
-    <Loading errors={[error]} loading={!answer}>
+    <Loading errors={[error]} loading={!studentAnswer}>
       {queries && queries.length > 0 && (
         <>
           <BottomCollapsiblePanel

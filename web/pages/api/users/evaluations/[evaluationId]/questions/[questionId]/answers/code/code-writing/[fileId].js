@@ -30,6 +30,7 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
+import select from '@/pages/api/users/groups/select'
 /*
   Student updated his answer to a code wiritng file during an evaluation
 
@@ -54,7 +55,16 @@ const put = withEvaluationPhase(
             },
           },
           include: {
-            question: true,
+            question: {
+              select: {
+                code:{
+                  select:{
+                    codeType: true,
+                  }
+                },
+                type: true,
+              }
+            },
           },
         },
       )

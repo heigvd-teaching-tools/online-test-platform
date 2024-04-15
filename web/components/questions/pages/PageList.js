@@ -46,6 +46,7 @@ import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 import CopyQuestionDialog from '../list/CopyQuestionDialog'
+import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
 
 const PageList = () => {
   const router = useRouter()
@@ -234,7 +235,8 @@ const QuestionsGrid = ({
                 return (
                   <Stack direction={'row'} spacing={1} alignItems={'center'}>
                     <QuestionTypeIcon type={row.type} size={24} />
-                    <LanguageIcon language={row.code?.language} size={18} />
+                    <CodeQuestionTypeIcon codeType={row.code?.codeType} size={18} />
+                    <LanguageIcon language={row.code?.language} size={18} withLabel /> 
                   </Stack>
                 )
               } else {

@@ -13,26 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Stack, Typography } from '@mui/material'
+import { Stack, Typography, Tooltip } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
 import languages from '@/code/languages.json'
+import { CodeQuestionType } from '@prisma/client'
 
-const environments = languages.environments
-const LanguageIcon = ({ language, size = 24, withLabel = false }) => {
-  const index = environments.findIndex((env) => env.language === language)
+const codeTypeToIcon = {
+  [CodeQuestionType.codeWriting]: {
+    icon: languages["codeWritingIcon"],
+    label: "Code Writing"
+  },
+  [CodeQuestionType.codeReading]: {
+    icon: languages["codeReadingIcon"],
+    label: "Code Reading"
+  }
+}
+
+const CodeQuestionTypeIcon = ({ codeType, size = 24, withLabel = false }) => {
   return (
     <Stack minWidth={size} minHeight={size} direction={"row"} alignItems={"center"} spacing={1}>
+      <Tooltip title={codeTypeToIcon[codeType]?.label} placement="top-start">
       <Image
-        src={environments[index]?.icon}
-        alt={environments[index]?.language}
+        src={codeTypeToIcon[codeType]?.icon}
+        alt={codeTypeToIcon[codeType]?.label}
         width={size}
         height={size}
       />
-      {withLabel && <Typography variant={"caption"}>{environments[index]?.label}</Typography>}
+      </Tooltip>
+      {withLabel && <Typography variant={"caption"}>{codeTypeToIcon[codeType]?.label}</Typography>}
     </Stack>
   )
 }
 
-export default LanguageIcon
+export default CodeQuestionTypeIcon
 

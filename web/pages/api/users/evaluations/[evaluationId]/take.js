@@ -16,7 +16,6 @@
 import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
 import { getUser } from '@/code/auth'
-import { IncludeStrategy, questionIncludeClause } from '@/code/questions'
 import { isInProgress } from './questions/[questionId]/answers/utils'
 import {
   withAuthorization,
@@ -50,10 +49,6 @@ const get = withEvaluationPhase(
         return
       }
 
-      let includeQuestions = questionIncludeClause({
-        includeTypeSpecific: false,
-      })
-
       const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
         where: {
           userEmail_evaluationId: {
@@ -68,7 +63,6 @@ const get = withEvaluationPhase(
                 include: {
                   question: {
                     include: {
-                      ...includeQuestions,
                       studentAnswer: {
                         where: {
                           userEmail: email,

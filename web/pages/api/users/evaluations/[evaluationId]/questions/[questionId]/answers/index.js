@@ -20,6 +20,7 @@ import {
   QuestionType,
   EvaluationPhase,
   UserOnEvaluationStatus,
+  CodeQuestionType,
 } from '@prisma/client'
 
 import { isInProgress } from './utils'
@@ -40,6 +41,10 @@ import { getUser } from '@/code/auth'
   get the users answers for a question including related nested data
 
 */
+
+const isCodeReadingQuestionWithStudentOutputTest = (question) => question.type === QuestionType.code && question.code.codeType === CodeQuestionType.codeReading && question.code.codeReading.studentOutputTest;
+
+
 const get = withEvaluationPhase(
   [EvaluationPhase.IN_PROGRESS],
   withStudentStatus(
@@ -49,6 +54,62 @@ const get = withEvaluationPhase(
       const studentEmail = user.email
       const { questionId } = req.query
 
+      // IMPORTANT! Do not provide any official answers to the student
+      const question = await prisma.question.findUnique({
+        where: {
+          id: questionId,
+        },
+        select: {
+          id: true,
+          type: true,
+          multipleChoice: {
+            select: {
+              options: {
+                select: {
+                  id: true,
+                  text: true,
+                },
+              },
+            },
+          },
+          database: {
+            select: {
+              solutionQueries: {
+                where: {
+                  query: {
+                    testQuery: true,
+                  },
+                },
+                select: {
+                  query: {
+                    select: {
+                      order: true,
+                    },
+                  },
+                  output: true,
+                },
+              },
+            },
+          },
+          code: {
+            select: {
+              codeType: true,
+              language: true,
+              codeReading: {
+                select: {
+                  studentOutputTest: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!question) {
+        res.status(404).json({ message: 'Question not found' })
+        return
+      }
+
       const studentAnswer = await prisma.studentAnswer.findUnique({
         where: {
           userEmail_questionId: {
@@ -57,39 +118,6 @@ const get = withEvaluationPhase(
           },
         },
         include: {
-          question: {
-            select: {
-              multipleChoice: {
-                select: {
-                  options: {
-                    select: {
-                      id: true,
-                      text: true,
-                    },
-                  },
-                },
-              },
-              database: {
-                select: {
-                  solutionQueries: {
-                    where: {
-                      query: {
-                        testQuery: true,
-                      },
-                    },
-                    select: {
-                      query: {
-                        select: {
-                          order: true, // we use order to map users query to solution query output
-                        },
-                      },
-                      output: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
           code: {
             select: {
               codeType: true,
@@ -111,6 +139,9 @@ const get = withEvaluationPhase(
                   outputs: {
                     select: {
                       output: true,
+                      ...(isCodeReadingQuestionWithStudentOutputTest(question) ? {
+                          status: true,
+                      } : {}),
                       codeReadingSnippet: {
                         select: {
                           id: true,
@@ -183,7 +214,10 @@ const get = withEvaluationPhase(
         )
       }
 
-      res.status(200).json(studentAnswer)
+      res.status(200).json({
+        question,
+        studentAnswer,
+      })
     },
   ),
 )

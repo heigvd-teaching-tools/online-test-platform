@@ -151,7 +151,7 @@ const CodeReading = ({ groupScope, questionId, language, onUpdate }) => {
         />
       </Tabs>
       <TabPanel id="setup" value={tab} index={0}>
-        <TabContent padding={2} spacing={4}>
+        <TabContent spacing={4} pt={2} px={1}>
           <Sandbox
             groupScope={groupScope}
             questionId={questionId}
@@ -231,7 +231,8 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
 
   return (
     <Loading loading={!codeReading} errors={[error]}>
-      <Stack spacing={2} height={'100%'} flex={1} overflow={'hidden'}>
+      <Stack spacing={1} height={'100%'} flex={1} overflow={'hidden'}>
+        <ScrollContainer pb={12} spacing={1}>
         <FormGroup>
           <FormControlLabel
             control={
@@ -247,14 +248,19 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
           />
           <FormHelperText>Allow students to test their outputs. The students will know if their output is correct or not.</FormHelperText>
         </FormGroup>
-        <Typography variant="h6">Snippet execution context</Typography>
-        <Box>
-          <Typography variant="body1">Each snippet will run in isolation within the context</Typography>
-          <Typography variant="body2">The context is not directly visible by students. You can use this context to add any required dependencies, functions, or variables</Typography>
-          <Typography variant="body2">Use  <code><b>{"{{SNIPPET_FUNCTION_DECLARATIONS}}"}</b></code> to indicate where the the snippet wrapper functions will be generated</Typography>
-          <Typography variant="body2">Use  <code><b>{"{{SNIPPET_FUNCTION_CALLS}}"}</b></code> to indicate where the the snippet Execution dispatcher will be generated</Typography>
-        </Box>
-        
+                
+        <Stack direction={'row'} spacing={0} alignItems={'center'}>
+          <Typography variant="h6">Snippet execution context</Typography>
+          <UserHelpPopper alwaysShow placement='top' mode='info'>
+            <Box>
+              <Typography variant="body2">Each snippet will run in isolation within the context, the program is executed for each snippet.</Typography>
+              <Typography variant="body2">The context is not directly visible by students. You can use this context to add any required dependencies, functions, or variables</Typography>
+              <Typography variant="body2"><code><b>{"{{SNIPPET_FUNCTION_DECLARATIONS}}"}</b></code> indicate where the the snippet wrapper functions will be generated</Typography>
+              <Typography variant="body2"><code><b>{"{{SNIPPET_FUNCTION_CALLS}}"}</b></code> indicate where the the snippet execution dispatcher will be generated</Typography>
+            </Box>
+          </UserHelpPopper>
+        </Stack>
+              
         <TextField
           id="context"
           variant="standard"
@@ -268,21 +274,18 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
             
           }}
         />
-        <ScrollContainer pb={24}>
-        {
-          codeReading && (
-            <FileEditor
-              file={context}
-              onChange={(code) => {
-                setContext(code);
-                onCodeReadingUpdate({
-                  context: code.content,
-                  contextPath: code.path,
-                })
-              }}
-            />
-          )
-      }
+                
+        <FileEditor
+          file={context}
+          onChange={(code) => {
+            setContext(code);
+            onCodeReadingUpdate({
+              context: code.content,
+              contextPath: code.path,
+            })
+          }}
+        />
+          
       </ScrollContainer>
       </Stack>      
     </Loading>
@@ -439,28 +442,8 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
             onClick={onAddSnippet
           }>Add Snippet</Button>
         </Stack>
-        <Stepper activeStep={-1}>
-          {statuses?.length > 0 &&
-            statuses.map((status, index) => (
-              <React.Fragment key={`status-${index}`}>
-                <Step
-                  completed={true}
-                >
-                  <StepLabel>
-                    <Stack
-                      direction={'row'}
-                      spacing={1}
-                      alignItems={'center'}
-                      height={20}
-                    >
-                      <StatusDisplay status={status} />
-                    </Stack>
-                  </StepLabel>
-                </Step>
-                <StepConnector />
-              </React.Fragment>
-            ))}
-        </Stepper>
+        
+        <SnippetStatuBar statuses={statuses} />
 
         <Stack flex={1}>
         {
@@ -521,8 +504,8 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
 
 const SnippetEditor = ({ index, snippet, language, onChange,onDelete }) => {
   return (
-    <Stack spacing={1} direction={'column'} key={index} pl={2} pr={1}>    
-      <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'space-between'}>
+    <Stack direction={'column'} key={index} spacing={1}>    
+      <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'space-between'} pl={1}>
         <Typography variant="h6">Snippet {index + 1}</Typography>
         <IconButton onClick={() => onDelete(snippet.id)} color="error">
           <DeleteForeverOutlinedIcon />
@@ -535,26 +518,29 @@ const SnippetEditor = ({ index, snippet, language, onChange,onDelete }) => {
         code={ snippet.snippet }
         onChange={onChange}
       />
-      <TextField
-        id={`output-${index}`}
-        variant="standard"
-        label={`Output`}
-        value={snippet?.output || ''}
-        multiline
-        fullWidth
-        InputProps={{
-          readOnly: true,
-        }}
-        error={snippet.output === '' || snippet.output == null}
-        helperText={(snippet.output === '' || snippet.output == null) ? 'Dont forget to run the snippets to get the output' : ' '}
-      />
+      <Box px={1}>
+        <TextField
+          id={`output-${index}`}
+          variant="standard"
+          label={`Output`}
+          value={snippet?.output || ''}
+          multiline
+          fullWidth
+          InputProps={{
+            readOnly: true,
+          }}
+          error={snippet.output === '' || snippet.output == null}
+          helperText={(snippet.output === '' || snippet.output == null) ? 'Dont forget to run the snippets to get the output' : ''}
+        />
+      </Box>
     </Stack>
   )
 }
 
 import { LoadingButton } from '@mui/lab';
 import { useBottomPanel } from '@/context/BottomPanelContext'
-import StatusDisplay from '@/components/feedback/StatusDisplay'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
+import SnippetStatuBar from './code/codeWriting/SnippetStatuBar'
 
 const RunSnippets = ({ lock, questionId, onBeforeRun, onUpdate }) => {
 

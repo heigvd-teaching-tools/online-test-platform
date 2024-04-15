@@ -212,7 +212,6 @@ const createCodeReadingTypeSpecificData = (question) => {
       create: {
         outputs: {
           create: question.code.codeReading.snippets.map((snippet) => {
-            console.log("##snippet: ", snippet)
             return {
               // Student starts with an empty output
               output: '',

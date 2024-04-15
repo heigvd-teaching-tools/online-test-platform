@@ -223,6 +223,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                 outputs: {
                   select: {
                     output: true,
+                    status: true,
                     codeReadingSnippet: {
                       select: {
                         id: true,
@@ -488,6 +489,7 @@ export const copyQuestion = async (
             contextExec: question.code.codeReading.contextExec,
             contextPath: question.code.codeReading.contextPath,
             context: question.code.codeReading.context,
+            studentOutputTest: question.code.codeReading.studentOutputTest,
             snippets: {
               create: question.code.codeReading.snippets.map((snippet) => ({
                 order: snippet.order,

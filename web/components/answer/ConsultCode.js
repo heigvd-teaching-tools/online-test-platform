@@ -14,14 +14,38 @@
  * limitations under the License.
  */
 import React, { useState } from 'react'
-import { Tab, Tabs, Typography } from '@mui/material'
+import { Tab, Tabs, Typography, TextField, InputAdornment, Box } from '@mui/material'
 
 import FileEditor from '@/components/question/type_specific/code/FileEditor'
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
 import TabContent from '@/components/layout/utils/TabContent'
 import TabPanel from '@/components/layout/utils/TabPanel'
+import { CodeQuestionType } from '@prisma/client'
+import InlineMonacoEditor from '../input/InlineMonacoEditor'
+import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
 
-const ConsultCode = ({ files, tests }) => {
+const ConsultCode = ({ question, answer }) => {
+  const codeType = question.code.codeType
+
+  return (
+    <>
+      {codeType === CodeQuestionType.codeWriting && (
+        <ConsultCodeWriting
+          files={answer.files}
+          tests={answer.tests}
+        />
+      )}
+      {codeType === CodeQuestionType.codeReading && (
+        <ConsultCodeReading
+          question={question}
+          answer={answer}
+        />
+      )}
+    </>
+  )
+}
+
+const ConsultCodeWriting = ({ files, tests }) => {
   const [tab, setTab] = useState(0)
   return (
     files && (
@@ -61,5 +85,46 @@ const ConsultCode = ({ files, tests }) => {
     )
   )
 }
+
+const ConsultCodeReading = ({ question, answer }) => {
+  const language = question.code.language
+  console.log("answer", answer)
+  return (
+    <Box pt={1}>
+      {answer?.codeReading?.outputs.map((output, index) => (
+        <>
+          <InlineMonacoEditor
+            key={index}
+            language={language}
+            code={output.codeReadingSnippet.snippet}
+            readOnly
+          />
+          <Box p={1}>
+            <TextField
+              fullWidth
+              multiline
+              label="Your output"
+              value={output.output}
+              variant='standard'
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Box pt={0.5}>
+                    <AnswerCodeReadingOutputStatus
+                      studentOutputTest
+                      status={output.status} 
+                    />
+                    </Box>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+        </>
+      ))}
+    </Box>
+  )
+}
+
 
 export default ConsultCode

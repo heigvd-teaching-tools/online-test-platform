@@ -139,7 +139,7 @@ const gradeCode = (question, totalPoints, studentAnswer) => {
   const codeType = question.code.codeType
 
   const gradeCodeWriting = (studentAnswer) => {
-    const success = studentAnswer.allTestCasesPassed
+    const success = studentAnswer?.allTestCasesPassed
     if (success !== undefined) {
       // response is from the code sandbox run
       grading = {
@@ -152,7 +152,7 @@ const gradeCode = (question, totalPoints, studentAnswer) => {
   }
   
   const gradeCodeReading = (studentAnswer) => {
-    const success = studentAnswer.outputs.every(output => output.output === output.codeReadingSnippet.output);
+    const success = studentAnswer?.outputs?.every(output => output.output === output.codeReadingSnippet.output);
     grading = {
       ...grading,
       status: StudentQuestionGradingStatus.AUTOGRADED,

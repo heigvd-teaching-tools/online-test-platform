@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import React from 'react'
-import { Alert, Box, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Alert, Box, Stack, Tab, Tabs, Typography, TextField } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
 
@@ -24,7 +24,9 @@ import TestCaseResults from '@/components/question/type_specific/code/codeWritin
 import TabPanel from '@/components/layout/utils/TabPanel'
 import TabContent from '@/components/layout/utils/TabContent'
 import ScrollContainer from '@/components/layout/ScrollContainer'
-import { useResizeObserver } from '@/context/ResizeObserverContext'
+import { CodeQuestionType, StudentAnswerCodeReadingOutputStatus } from '@prisma/client'
+import InlineMonacoEditor from '../input/InlineMonacoEditor'
+import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
 
 const PassIndicator = ({ passed }) => {
   return passed ? (
@@ -35,19 +37,36 @@ const PassIndicator = ({ passed }) => {
 }
 
 const CompareCode = ({ solution, answer }) => {
+
+  return (
+  <>
+    {
+      solution?.codeType === CodeQuestionType.codeWriting && (
+        <CompareCodeWriting 
+          solution={solution} 
+          answer={answer} 
+        />
+      )
+    }
+    {
+      solution?.codeType === CodeQuestionType.codeReading && (
+        <CompareCodeReading 
+          solution={solution} 
+          answer={answer} 
+        />
+      )
+    }
+  </>
+  )
+}
+
+
+const CompareCodeWriting = ({ solution, answer }) => {
   const [tab, setTab] = React.useState(0)
-
-  /*  unknown issues when using 100% for the height of the Stack container -> the parent height overflows the container
-        it only works well whe using px values thus the use for the ResizeObserver
-
-    */
-  const { height: containerHeight } = useResizeObserver()
-
   return (
     answer &&
     solution && (
       <Stack
-        maxHeight={containerHeight}
         height={'100%'}
         width={'100%'}
         overflow={'auto'}
@@ -100,7 +119,7 @@ const CompareCode = ({ solution, answer }) => {
             <TabContent>
               <ResizePanel
                 leftPanel={
-                  <ScrollContainer>
+                  <ScrollContainer px={1}>
                     {answer.codeWriting.files?.map((answerToFile, index) => (
                       <FileEditor
                         key={index}
@@ -112,7 +131,7 @@ const CompareCode = ({ solution, answer }) => {
                   </ScrollContainer>
                 }
                 rightPanel={
-                  <ScrollContainer>
+                  <ScrollContainer px={1}>
                     {solution.codeWriting.solutionFiles?.map((solutionToFile, index) => (
                       <FileEditor
                         key={index}
@@ -137,5 +156,91 @@ const CompareCode = ({ solution, answer }) => {
     )
   )
 }
+
+const CodeReadingSummary = ({ studentOutputs }) => {
+  const correctOutputs = studentOutputs.filter(output => output.status === StudentAnswerCodeReadingOutputStatus.MATCH).length;
+  const incorrectOutputs = studentOutputs.filter(output => output.status === StudentAnswerCodeReadingOutputStatus.MISMATCH).length;
+  const unansweredOutputs = studentOutputs.filter(output => output.status === StudentAnswerCodeReadingOutputStatus.NEUTRAL).length;
+
+  return (
+    <Stack spacing={2} direction={'row'} width={'100%'} pl={1}>
+      {correctOutputs > 0 && (
+        <Alert severity="success">{correctOutputs} correct output(s).</Alert>
+      )}
+      {incorrectOutputs > 0 && (
+        <Alert severity="error">{incorrectOutputs} incorrect output(s).</Alert>
+      )}
+      {unansweredOutputs > 0 && (
+        <Alert severity="warning">{unansweredOutputs} unanswered output(s).</Alert>
+      )}
+      {correctOutputs === studentOutputs.length && unansweredOutputs === 0 && incorrectOutputs === 0 && (
+        <Alert severity="success">
+          Student matched all expected outputs correctly.
+        </Alert>
+      )}
+    </Stack>
+  );
+};
+
+const CompareCodeReading = ({ solution, answer }) => {
+  const { snippets } = solution.codeReading;
+  const { outputs } = answer.codeReading;
+
+  return (
+    <Stack spacing={1} p={0} pt={1} height={'100%'}>
+      <CodeReadingSummary studentOutputs={outputs} />
+      <Box>
+      {snippets.map((snippet, index) => {
+        const studentOutput = outputs.find(output => output.codeReadingSnippet.order === snippet.order);
+        const severity = studentOutput ? (studentOutput.status === StudentAnswerCodeReadingOutputStatus.MATCH ? 'success' : 'error') : 'error';
+
+        return (
+          <Box key={index}>
+            <InlineMonacoEditor
+              readOnly
+              language="cpp"
+              minHeight={30}
+              code={snippet.snippet}
+            />
+            <Alert
+              severity={severity}
+              variant='standard'
+              icon={false}
+              sx={{
+                px: 1,
+                '& .MuiAlert-message': {
+                  width: '100%',
+                },
+              }}
+            >
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  variant="standard"
+                  label="Student Output"
+                  fullWidth
+                  multiline
+                  value={studentOutput?.output || 'No Output Provided'}
+                  readOnly
+                />
+                
+                <TextField
+                  variant="standard"
+                  label="Expected Output"
+                  fullWidth
+                  multiline
+                  value={snippet.output}
+                  readOnly
+                />
+              </Stack>
+            </Alert>
+            
+          </Box>
+        );
+      })}
+      </Box>
+    </Stack>
+  );
+};
+
 
 export default CompareCode

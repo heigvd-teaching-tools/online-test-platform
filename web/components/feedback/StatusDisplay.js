@@ -20,6 +20,7 @@ const StatusDisplay = ({ status, size = 16 }) => {
   const renderStatus = (status) => {
     switch (status) {
       case 'SUCCESS':
+      case 'MATCH':
         return (
           <Image
             src="/svg/status/success.svg"
@@ -29,6 +30,7 @@ const StatusDisplay = ({ status, size = 16 }) => {
           />
         )
       case 'ERROR':
+      case 'MISMATCH':
         return (
           <Image
             src="/svg/status/error.svg"
@@ -71,6 +73,15 @@ const StatusDisplay = ({ status, size = 16 }) => {
             width={size}
             height={size}
             alt="neutral"
+          />
+        )
+      case 'CLI':
+        return (
+          <Image
+            src="/svg/status/cli.svg"
+            width={size}
+            height={size}
+            alt="cli"
           />
         )
       case 'WIFI-ON':
