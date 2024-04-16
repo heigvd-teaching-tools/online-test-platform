@@ -71,32 +71,39 @@ const post = async (req, res, prisma) => {
   const tests = []
 
   code.codeReading.snippets.forEach((snippet, index) => {
-    const functionName = `snippetFunc${index}`;
-    if(!snippet.snippet || snippet.snippet === "") return;
-    const functionDeclaration = codeReadingConfig.snippetWrapperFunctionSignature.replace("{{SNIPPET_FUNCTION_NAME}}", functionName) + " {\n" + snippet.snippet + "\n}";
-    functionDeclarations += functionDeclaration + "\n";
-    functionCalls += `
-      if (functionName == "${functionName}") { 
-          ${functionName}(); 
-      }\n
-    `;
-    tests.push({
-      exec: code.codeReading.contextExec,
-      input: functionName
-    })
+      const functionName = `snippetFunc${index}`;
+      if (!snippet.snippet) return;
+
+      // Handle indentation for Python specifically
+      let indentedSnippet = snippet.snippet.split('\n').map(line => `   ${line}`).join('\n');
+      const functionDeclaration = codeReadingConfig.snippetWrapperFunctionSignature.replace("{{SNIPPET_FUNCTION_NAME}}", functionName).replace("{{SNIPPET_FUNCTION_BODY}}", indentedSnippet);
+
+      console.log("Function Declaration: ", functionDeclaration);
+
+      functionDeclarations += functionDeclaration + "\n";
+      functionCalls += codeReadingConfig.snippetFunctionCallTemplate.replace(new RegExp("{{SNIPPET_FUNCTION_NAME}}", "g"), functionName);
+
+      tests.push({ exec: code.codeReading.contextExec, input: functionName });
   });
 
-  // Insert generated function declarations and calls into the context
+  // Correctly indent the function calls
+  let correctlyIndentedFunctionCalls = functionCalls.split('\n').map(line => line).join('\n   ');
+
+  // Insert generated function declarations and function calls into the context
   let context = codeReadingConfig.context
-    .replace("{{SNIPPET_FUNCTION_DECLARATIONS}}", functionDeclarations)
-    .replace("{{SNIPPET_FUNCTION_CALLS}}", functionCalls);
+      .replace("{{SNIPPET_FUNCTION_DECLARATIONS}}", functionDeclarations)
+      .replace("{{SNIPPET_FUNCTION_CALLS}}", correctlyIndentedFunctionCalls);
 
   const contextFile = {
-    path: code.codeReading.contextPath,
-    content: context,
+      path: code.codeReading.contextPath,
+      content: context
   };
 
-  
+
+  console.log("image", code.sandbox.image)
+  console.log("beforeAll", code.sandbox.beforeAll)
+  console.log("tests", tests)
+  console.log("files", [contextFile])
   // Execute in the sandbox
   const result = await runSandbox({
     image: code.sandbox.image,
