@@ -21,7 +21,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
+import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /**
  * Managing the code files depending on their nature (solution or template)

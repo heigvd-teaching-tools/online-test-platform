@@ -20,6 +20,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withCollectionUpdate } from '@/middleware/withUpdate'
 
 /** Managing the order of the questions in a collection */
 
@@ -46,5 +47,5 @@ const put = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  PUT: withAuthorization(withGroupScope(withPrisma(put)), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withCollectionUpdate(withPrisma(put))), [Role.PROFESSOR]),
 })

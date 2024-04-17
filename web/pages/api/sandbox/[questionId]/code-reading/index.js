@@ -78,8 +78,6 @@ const post = async (req, res, prisma) => {
       let indentedSnippet = snippet.snippet.split('\n').map(line => `   ${line}`).join('\n');
       const functionDeclaration = codeReadingConfig.snippetWrapperFunctionSignature.replace("{{SNIPPET_FUNCTION_NAME}}", functionName).replace("{{SNIPPET_FUNCTION_BODY}}", indentedSnippet);
 
-      console.log("Function Declaration: ", functionDeclaration);
-
       functionDeclarations += functionDeclaration + "\n";
       functionCalls += `${codeReadingConfig.snippetFunctionCallTemplate.replace(new RegExp("{{SNIPPET_FUNCTION_NAME}}", "g"), functionName)}\n`;
 
@@ -99,11 +97,6 @@ const post = async (req, res, prisma) => {
       content: context
   };
 
-
-  console.log("image", code.sandbox.image)
-  console.log("beforeAll", code.sandbox.beforeAll)
-  console.log("tests", tests)
-  console.log(contextFile.content)
   // Execute in the sandbox
   const result = await runSandbox({
     image: code.sandbox.image,

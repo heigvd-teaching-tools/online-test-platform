@@ -21,7 +21,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
+import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /**
  *

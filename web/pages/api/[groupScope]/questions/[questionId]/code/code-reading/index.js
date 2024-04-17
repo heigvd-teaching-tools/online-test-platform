@@ -21,6 +21,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /**
  *
@@ -66,5 +67,5 @@ const put = async (req, res, prisma) => {
 
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
-  PUT: withAuthorization(withGroupScope(withPrisma(put)), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [Role.PROFESSOR]),
 })
