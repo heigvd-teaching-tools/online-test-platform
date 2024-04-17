@@ -52,7 +52,7 @@ import studentAnswerWebTemplate from '@/code/evaluation/export/templates/student
 import studentAnswerDatabaseTemplate from '@/code/evaluation/export/templates/studentAnswerDatabase.hbs'
 import gradingTemplate from '@/code/evaluation/export/templates/grading.hbs'
 
-const OUTPUT_FORMAT = 'html' // 'html' or 'pdf'
+const OUTPUT_FORMAT = 'pdf' // 'html' or 'pdf'
 
 const generatePDF = async (html, header) => {
   const browser = await puppeteer.launch({
