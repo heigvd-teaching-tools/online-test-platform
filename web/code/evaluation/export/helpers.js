@@ -17,35 +17,22 @@
 import { DatabaseQueryOutputStatus } from '@prisma/client'
 import Handlebars from 'handlebars'
 import { Remarkable } from 'remarkable'
-import hljs from 'highlight.js'
+import htmlspecialchars from 'htmlspecialchars'
 
 const md = new Remarkable({
-  highlight: function (str, lang) {
-    let highlighted = ''
-
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        // Update to the new API usage
-        highlighted = hljs.highlight(str, {
-          language: lang,
-          ignoreIllegals: true,
-        }).value
-      } catch (__) {}
-    }
-
-    return highlighted // Return the highlighted code, or an empty string if highlighting failed
-  },
+  html: true,
 })
 
 export const formatCode = (code) => {
   // wrap it in markdown code block
-  code = `\`\`\`
-    \n${code}`
+  code = code || ''
+  // escape special characters
+  code = htmlspecialchars(code)
+  // replace \n with <br> - this is important because otherwise the browsed adds whitespaces after each line
+  code = code.replace(/\n/g, '<br>')
 
-  // apply the md renderer to the escaped code
-  code = md.render(code)
-
-  return new Handlebars.SafeString(code)
+  // Join the trimmed lines back into a single string with proper newlines
+  return new Handlebars.SafeString(`<pre>${code}</pre>`)
 }
 
 export const formatMarkdown = (markdown) => {
@@ -56,7 +43,13 @@ export const equals = (a, b) => {
   return a === b
 }
 
-export const formatQuestionType = (type) => {
+export const formatQuestionType = (question) => {
+
+  let type = question.type
+
+  if (question.code) {
+    type = question.code.codeType
+  }
   // Split camelCase into words, then capitalize the first letter of each word
   const formattedType = type
     // Insert a space before each uppercase letter and split into an array
@@ -97,4 +90,15 @@ export const chunkQuestions = (array, chunkSize, options) => {
     result += options.fn(chunk) // Execute the block for each chunk
   }
   return result
+}
+
+export const calculateTotalPoints = (questions) => {
+  return questions.reduce((acc, q) => acc + q.points, 0)
+}
+
+export const calculateObtainedPoints = (questions) => {
+  return questions.reduce(
+    (acc, q) => acc + (q.studentAnswer?.studentGrading?.pointsObtained || 0),
+    0,
+  )
 }

@@ -2,10 +2,12 @@
     {{> studentAnswerHeader studentAnswer}}
     <span>Only editable files are shown</span>
     {{#each studentAnswer.code.codeWriting.files}}
-      <div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
       {{#if (eq this.studentPermission 'UPDATE')}}
-        {{this.file.path}}
-        {{formatCode this.file.content}}
+        <div>{{this.file.path}}</div>
+        <div>
+          {{> codeBloc this.file.content}}
+        </div>
       {{/if}}
   
       </div>
@@ -15,19 +17,19 @@
       <div style="display: flex; flex-direction: column; gap: 5px;">
         <div style="display: flex; align-items: flex-start;">
           <label style="width: 150px;">Exec:</label>
-          <span style="flex:1;">{{this.exec}}</span>
+          <span style="flex:1;">{{> codeBloc this.exec}}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <label style="width: 150px;">Input:</label>
-          <span style="flex:1;">{{this.input}}</span>
+          <span style="flex:1;">{{> codeBloc this.input}}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <label style="width: 150px;">Output:</label>
-          <span style="flex:1;">{{this.output}}</span>
+          <span style="flex:1;">{{> codeBloc this.output}}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <label style="width: 150px;">Expected Output:</label>
-          <span style="flex:1;">{{this.expectedOutput}}</span>
+          <span style="flex:1;">{{> codeBloc this.expectedOutput}}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <label style="width: 150px;">Passed:</label>
