@@ -176,6 +176,13 @@ const PageTakeEvaluation = () => {
       : StudentAnswerStatus.IN_PROGRESS;
   }, [pages, evaluationToQuestion]);
 
+  const handleOnAnswer = useCallback((questionId, updatedStudentAnswer) => {
+    const jstq = evaluationToQuestion.find(
+      (jtq) => jtq.question.id === questionId,
+    );
+    jstq.question.studentAnswer[0] = updatedStudentAnswer;
+  }, [evaluationToQuestion]);
+
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <StudentPhaseRedirect phase={getEvaluationPhase()}>
@@ -236,6 +243,7 @@ const PageTakeEvaluation = () => {
                         conditions={userOnEvaluation.conditions}
                         evaluationToQuestion={evaluationToQuestion}
                         setPages={setPages}
+                        onAnswer={(questionId, updatedStudentAnswer) => handleOnAnswer(questionId, updatedStudentAnswer)}
                         onSubmit={(questionId) => handleSubmissionToggle(questionId, true)}
                         onUnsubmit={(questionId) => handleSubmissionToggle(questionId, false)}
                         onEndEvaluation={() => {
@@ -368,6 +376,7 @@ const RightPanel = ({
   evaluationToQuestion,
   setPages,
   onSubmit,
+  onAnswer,
   onUnsubmit,
   onEndEvaluation,
 }) => {
@@ -413,7 +422,8 @@ const RightPanel = ({
               <AnswerEditor
                 questionId={q.question.id}
                 status={q.question.studentAnswer[0].status}
-                onAnswer={(updatedStudentAnswer) => {
+                onAnswer={(question, updatedStudentAnswer) => {
+                  onAnswer(question.id, updatedStudentAnswer)
                   setPages((prevPages) => {
                     const newPages = [...prevPages]
                     newPages[index].state = getFilledStatus(

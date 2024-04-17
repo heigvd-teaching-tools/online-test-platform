@@ -251,7 +251,7 @@
             {
               "exec": "python /src/script.py",
               "input": "Hello World1",
-              "expectedOutput": "HELLO WORLD1"
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
           "files": {

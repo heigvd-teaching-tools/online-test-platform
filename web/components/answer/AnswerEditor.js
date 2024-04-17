@@ -101,10 +101,10 @@ const AnswerEditor = ({
       }
       setStatus(data.status)
       if (onAnswer) {
-        onAnswer(data)
+        onAnswer(question, data)
       }
     },
-    [onAnswer, showSnackbar],
+    [onAnswer, question, showSnackbar],
   )
 
   const onSubmitClick = useCallback(async () => {

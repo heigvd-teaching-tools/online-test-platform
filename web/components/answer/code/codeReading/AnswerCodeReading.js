@@ -3,7 +3,7 @@ import {Stack, Button } from '@mui/material';
 import ScrollContainer from '@/components/layout/ScrollContainer'
 import { useTheme } from '@emotion/react'
 import { useDebouncedCallback } from 'use-debounce'
-import SnippetStatuBar from '@/components/question/type_specific/code/codeWriting/SnippetStatuBar';
+import SnippetStatuBar from '@/components/question/type_specific/code/codeReading/SnippetStatuBar';
 import AnswerCodeReadingOutput from './AnswerCodeReadingOutput';
 import AnswerCodeReadingOutputStatus from './AnswerCodeReadingOutputStatus';
 import { StudentAnswerCodeReadingOutputStatus } from '@prisma/client';

@@ -6,7 +6,7 @@
     {{#each studentAnswer.database.queries}}
       <li style="margin: 0px 0px 10px 0px;">
         <h6>Q{{this.query.order}} {{this.query.title}}</h6>
-        {{formatCode this.query.content}}   
+        {{> codeBloc this.query.content}}   
       </li>
     {{/each}}
     </ul>

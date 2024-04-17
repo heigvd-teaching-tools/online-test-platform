@@ -26,13 +26,11 @@ import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingO
 
 const ConsultCode = ({ question, answer }) => {
   const codeType = question.code.codeType
-
   return (
     <>
       {codeType === CodeQuestionType.codeWriting && (
         <ConsultCodeWriting
-          files={answer.files}
-          tests={answer.tests}
+          answer={answer}
         />
       )}
       {codeType === CodeQuestionType.codeReading && (
@@ -45,8 +43,10 @@ const ConsultCode = ({ question, answer }) => {
   )
 }
 
-const ConsultCodeWriting = ({ files, tests }) => {
+const ConsultCodeWriting = ({ answer }) => {
   const [tab, setTab] = useState(0)
+  const files = answer?.codeWriting?.files
+  const tests = answer?.codeWriting?.tests
   return (
     files && (
       <>

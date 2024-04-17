@@ -69,7 +69,7 @@ const FileEditor = ({
               </Box>
             
             )}
-            <Box flex={1}>
+            <Box flex={1} pl={1}>
             {(!readonlyPath && (
               <TextField
                 id={`${file.id}-${path}`}
