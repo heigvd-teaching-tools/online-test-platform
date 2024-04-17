@@ -81,7 +81,7 @@ const post = async (req, res, prisma) => {
       console.log("Function Declaration: ", functionDeclaration);
 
       functionDeclarations += functionDeclaration + "\n";
-      functionCalls += codeReadingConfig.snippetFunctionCallTemplate.replace(new RegExp("{{SNIPPET_FUNCTION_NAME}}", "g"), functionName);
+      functionCalls += `${codeReadingConfig.snippetFunctionCallTemplate.replace(new RegExp("{{SNIPPET_FUNCTION_NAME}}", "g"), functionName)}\n`;
 
       tests.push({ exec: code.codeReading.contextExec, input: functionName });
   });
@@ -103,7 +103,7 @@ const post = async (req, res, prisma) => {
   console.log("image", code.sandbox.image)
   console.log("beforeAll", code.sandbox.beforeAll)
   console.log("tests", tests)
-  console.log("files", [contextFile])
+  console.log(contextFile.content)
   // Execute in the sandbox
   const result = await runSandbox({
     image: code.sandbox.image,

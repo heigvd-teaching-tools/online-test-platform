@@ -60,7 +60,6 @@
               }
           ]
         }
-        
       },
       {
         "language": "c",
@@ -303,7 +302,7 @@
           "image": "golang:latest",
           "defaultPath": "/go/src/main.go",
           "exec": "/go/src/main",
-          "beforeAll": "cd /go/src && go build -o main"
+          "beforeAll": "cd /go/src && go build -o main main.go"
         },
         "codeWriting": {
           "testCases": [
@@ -318,26 +317,18 @@
               {
                 "path": "/go/src/main.go",
                 "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
-              },
-              {
-                "path": "/go/src/go.mod",
-                "content": "module main\n\ngo 1.18\n"
               }
             ],
             "template": [
               {
                 "path": "/go/src/main.go",
                 "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
-              },
-              {
-                "path": "/go/src/go.mod",
-                "content": "module main\n\ngo 1.18\n"
               }
             ]
           }
         },
         "codeReading": {
-          "context": "package main\n\nimport (\n\t\"fmt\"\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunc main() {\n\treader := bufio.NewReader(os.Stdin)\n\tfmt.Print(\"Enter function name: \")\n\tfunctionName, _ := reader.ReadString('\\n')\n\tfunctionName = strings.TrimSpace(functionName)\n\t{{SNIPPET_FUNCTION_CALLS}}\n}",
+          "context": "package main\n\nimport (\n\t\"fmt\"\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunc main() {\n   reader := bufio.NewReader(os.Stdin)\n   functionName, _ := reader.ReadString('\\n')\n   functionName = strings.TrimSpace(functionName)\n   {{SNIPPET_FUNCTION_CALLS}}\n}",
           "snippetWrapperFunctionSignature": "func {{SNIPPET_FUNCTION_NAME}}() {\n{{SNIPPET_FUNCTION_BODY}}\n}",
           "snippetFunctionCallTemplate": "if functionName == \"{{SNIPPET_FUNCTION_NAME}}\" {\n\t{{SNIPPET_FUNCTION_NAME}}()\n}",
           "snippets": [
@@ -350,7 +341,7 @@
               "output": "0\n1\n2"
             },
             {
-              "snippet": "i := 11\nwhile i > 4 {\n\ti -= 2\n\tfmt.Printf(\"%d \", i)\n}",
+              "snippet": "i := 11\nfor i > 4 {\n\ti -= 2\n\tfmt.Printf(\"%d \", i)\n}",
               "output": "9 7 5 3 "
             },
             {
