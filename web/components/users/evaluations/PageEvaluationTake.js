@@ -75,9 +75,7 @@ const PageEvaluationTake = () => {
  
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
-      <StudentPhaseRedirect phase={evaluation?.phase}>
-        
+    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>        
       <Loading
         loading={!loaded}
         errors={[error]}
@@ -148,7 +146,6 @@ const PageEvaluationTake = () => {
             </LayoutMain>
         )}
       </Loading>
-      </StudentPhaseRedirect>
     </Authorisation>
   )
 }

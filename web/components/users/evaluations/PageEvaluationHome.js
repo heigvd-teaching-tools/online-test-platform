@@ -26,7 +26,6 @@ import Authorisation from '@/components/security/Authorisation'
 import Loading from '@/components/feedback/Loading'
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
-import StudentPhaseRedirect from './StudentPhaseRedirect'
 import StudentMainMenu from './take/StudentMainMenu'
 import ContentEditor from '@/components/input/ContentEditor'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
@@ -35,7 +34,6 @@ import { useTheme } from '@emotion/react'
 import { LoadingButton } from '@mui/lab'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 import { useStudentOnEvaluation } from '@/context/StudentOnEvaluationContext'
-
 
 const PageEvaluationHome = () => {
   const { showTopCenter: showSnackbar } = useSnackbar()
@@ -65,7 +63,6 @@ const PageEvaluationHome = () => {
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
-      <StudentPhaseRedirect phase={evaluation?.phase}>
       <Loading
         loading={!loaded}
         errors={[error]}
@@ -138,7 +135,6 @@ const PageEvaluationHome = () => {
           />
         </LayoutMain>
       </Loading>
-      </StudentPhaseRedirect>
     </Authorisation>
   )
 }

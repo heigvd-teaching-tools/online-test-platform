@@ -21,6 +21,7 @@ import { StudentAnswerStatus, UserOnEvaluationStatus } from '@prisma/client'
 import Overlay from '@/components/ui/Overlay'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import { Stack, Typography } from '@mui/material'
+import StudentPhaseRedirect from '@/components/users/evaluations/StudentPhaseRedirect'
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -161,9 +162,6 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     })
   }, [evaluationToQuestions])
 
-
-
-
   return (
     <StudentOnEvaluationContext.Provider
       value={{
@@ -181,12 +179,13 @@ export const StudentOnEvaluationProvider = ({ children }) => {
         mutate
       }}
     >
-
-      {hasStudentFinished() ? (
-        <EvaluationCompletedDialog />
-      ) : (
-        children
-      )}
+    <StudentPhaseRedirect phase={evaluation?.evaluation?.phase}>
+        {hasStudentFinished() ? (
+          <EvaluationCompletedDialog />
+        ) : (
+          children
+        )}
+        </StudentPhaseRedirect>
     </StudentOnEvaluationContext.Provider>
   )
 }
