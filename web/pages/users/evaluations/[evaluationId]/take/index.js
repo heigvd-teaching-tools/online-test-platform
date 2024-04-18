@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PageTakeEvaluation from '@/components/users/evaluations/PageEvaluationTake'
+import PageEvaluationHome from '@/components/users/evaluations/PageEvaluationHome'
 import { StudentOnEvaluationProvider } from '@/context/StudentOnEvaluationContext'
 
-const TakeEvaluation = () => {
+const EvaluationHome = () => {
   return (
     <StudentOnEvaluationProvider>
-      <PageTakeEvaluation />
+      <PageEvaluationHome />
     </StudentOnEvaluationProvider>
   )
 }
 
-export default TakeEvaluation
+export default EvaluationHome

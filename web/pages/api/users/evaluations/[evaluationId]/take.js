@@ -58,7 +58,7 @@ const get = withEvaluationPhase(
         },
         include: {
           evaluation: {
-            include: {
+            select: {
               evaluationToQuestions: {
                 include: {
                   question: {
