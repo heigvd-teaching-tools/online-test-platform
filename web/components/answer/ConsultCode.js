@@ -88,7 +88,6 @@ const ConsultCodeWriting = ({ answer }) => {
 
 const ConsultCodeReading = ({ question, answer }) => {
   const language = question.code.language
-  console.log("answer", answer)
   return (
     <Box pt={1}>
       {answer?.codeReading?.outputs.map((output, index) => (

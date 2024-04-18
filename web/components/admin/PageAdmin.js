@@ -21,6 +21,7 @@ import useSWR from 'swr'
 import UserAvatar from '../layout/UserAvatar'
 import DataGrid from '../ui/DataGrid'
 import {
+  Alert,
   Box,
   Button,
   Checkbox,
@@ -39,6 +40,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import { LoadingButton } from '@mui/lab'
 
 import ScrollContainer from '../layout/ScrollContainer'
+import { useSnackbar } from '@/context/SnackbarContext'
 
 const roleToDetails = {
   [Role.STUDENT]: {
@@ -54,6 +56,63 @@ const roleToDetails = {
     color: 'error',
   },
 }
+
+const MaintenancePanel = () => {
+
+  const { showTopCenter: showSnackbar } = useSnackbar()
+  const [ openRunAllSandboxesDialog, setOpenRunAllSandboxesDialog ] = useState(false)
+
+  const [ running, setRunning ] = useState(false)
+
+  const runAllSandboxesAndUpdateExpectedOutput = useCallback(async () => {
+    setRunning(true)
+    await fetch('/api/maintenance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'run_all_sandboxes_and_update_expected_output' }),
+    })
+    setRunning(false)
+    showSnackbar('All sandboxes have been run and expected outputs updated', 'success')
+  }, [showSnackbar])
+
+  return (
+    <Stack direction="row" spacing={1}>
+      <LoadingButton
+        color="info"
+        onClick={() => setOpenRunAllSandboxesDialog(true)}
+        loading={running}
+      >
+
+        Run all sandboxes and update expected outputs
+      </LoadingButton>
+      <DialogFeedback
+        open={openRunAllSandboxesDialog}
+        onClose={() => setOpenRunAllSandboxesDialog(false)}
+        onConfirm={() => runAllSandboxesAndUpdateExpectedOutput()}
+        title="Run all sandboxes and update expected output"
+        content={
+          <Stack spacing={2}>
+            <Typography variant="body1">
+              This action will run all code writing question sandboxes and update the related text cases with the expected output.
+            </Typography>
+            <Typography variant="body2">
+              This will also update the expected outputs for the code writing questions that are part of evaluations.
+            </Typography>
+            
+            <Typography variant="body2">
+              Are you sure you want to run all sandboxes and update the expected output of the test cases?
+            </Typography>
+            <Alert severity="warning">
+              This action may be resource intensive and may take time to complete (up to 10 mins in dev environement with 450 code writing questions). It will run 1 sandbox at a time. You cannot cancel it once started.
+            </Alert>
+          </Stack>
+        }
+      />
+
+    </Stack>
+  )
+}
+
 
 const PageAdmin = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -81,9 +140,12 @@ const PageAdmin = () => {
       <LayoutMain
         hideLogo
         header={
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <BackButton backUrl="/" />
-            <Typography variant="h6">Role Management</Typography>
+          <Stack direction="row" alignItems={'center'} justifyContent={'space-between'}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <BackButton backUrl="/" />
+              <Typography variant="h6">Role Management</Typography>
+            </Stack>
+            <MaintenancePanel />
           </Stack>
         }
       >

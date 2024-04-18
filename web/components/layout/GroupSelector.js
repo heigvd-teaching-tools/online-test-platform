@@ -15,8 +15,7 @@
  */
 import DropDown from '../input/DropDown'
 import GroupIcon from '@mui/icons-material/Group'
-import { Button, MenuItem, Stack, Typography } from '@mui/material'
-import Link from 'next/link'
+import { MenuItem } from '@mui/material'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 import Loading from '../feedback/Loading'
@@ -66,9 +65,6 @@ const GroupSelector = () => {
           icon={<GroupIcon />}
           variant={'filled'}
         >
-          <Stack p={1} key={'groups-title'}>
-            <Typography variant={'h6'}>Your groups</Typography>
-          </Stack>
           {groups.map(({ group }) => (
             <MenuItem
               key={group.id}
@@ -78,11 +74,7 @@ const GroupSelector = () => {
               {group.label}
             </MenuItem>
           ))}
-          <Stack p={1} key={'manage-groups'}>
-            <Link href={`/groups`}>
-              <Button startIcon={<GroupIcon />}>Manage Groups</Button>
-            </Link>
-          </Stack>
+          
         </DropDown>
       )}
     </Loading>
