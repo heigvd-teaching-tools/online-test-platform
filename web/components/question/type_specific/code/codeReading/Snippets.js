@@ -105,7 +105,7 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
   
           return SnippetStatus.ERROR
         }))  
-        mutate()
+        mutate(undefined, true) // Force revalidation
       },
       [onUpdateSnippet, statuses, mutate],
     )
