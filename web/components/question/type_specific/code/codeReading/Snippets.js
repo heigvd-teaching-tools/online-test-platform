@@ -19,7 +19,6 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
   
     const [ lock, setLock ] = useState(false)
     const [ statuses, setStatuses ] = useState([])
-    const [ snippets, setSnippets ] = useState([])
   
     const { data, error, mutate } = useSWR(
       `/api/${groupScope}/questions/${questionId}/code/code-reading/snippets`,
@@ -29,7 +28,6 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
   
     useEffect(() => {
       if (!data) return
-      setSnippets(data)
       setStatuses(data.map((snippet) => {
         if (!snippet.output) return SnippetStatus.ERROR
   
@@ -43,13 +41,13 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
         await fetch(`/api/${groupScope}/questions/${questionId}/code/code-reading/snippets`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({order: snippets.length}),
+          body: JSON.stringify({order: statuses.length}),
         }).then((data) => data.json())
         setLock(false)
         onUpdate && onUpdate()
         mutate()
       },
-      [groupScope, questionId, onUpdate, snippets, mutate],
+      [groupScope, questionId, onUpdate, mutate, statuses],
     )
   
     const onUpdateSnippet = useCallback(
@@ -67,19 +65,10 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
         onUpdate && onUpdate()
         setLock(false)
       },
-      [groupScope, questionId, onUpdate, mutate],
+      [groupScope, questionId, onUpdate],
     )
   
     const debouncedUpdateSnippet = useDebouncedCallback(onUpdateSnippet, 500)
-  
-    const onUpdateSnippets = useCallback(
-      async (snippets) => {
-        snippets.forEach(async (snippet) => {
-          await onUpdateSnippet(snippet.id, snippet)
-        })
-      },
-      [onUpdateSnippet],
-    )
   
     const onDeleteSnippet = useCallback(
       async (snippetId) => {
@@ -98,51 +87,31 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
   
     const onBeforeRun = useCallback(
       () => {
-        setStatuses(snippets.map(() => SnippetStatus.RUNNING))
+        setStatuses(statuses.map(() => SnippetStatus.RUNNING))
       },
-      [snippets],
+      [statuses],
     )
   
     const onAfterRun = useCallback(
       (result) => {
-  
-        const snippetsWithTests = snippets.map((snippet, index) => {
-          const test = result.tests[index]
-          return {
-            ...snippet,
-            output: test?.output || undefined
-          }
-        })
-  
-        setStatuses(snippetsWithTests.map((snippet, index) => {
+        setStatuses(statuses.map((_, index) => {
           if (!result.tests || !result.tests[index]) {
             return SnippetStatus.ERROR
           }
   
-          if (snippet.output) {
+          if (result.tests[index].output) {
             return SnippetStatus.SUCCESS
           }
   
           return SnippetStatus.ERROR
-        }))
-        
-        const updatedSnippets = snippets.map((snippet, index) => {
-          const test = result.tests[index]
-          return {
-            ...snippet,
-            output: test?.output || undefined
-          }
-        })
-        setSnippets(updatedSnippets)
-        onUpdateSnippets(updatedSnippets)
-  
-  
+        }))  
+        mutate()
       },
-      [onUpdateSnippet, snippets, onUpdateSnippets],
+      [onUpdateSnippet, statuses, mutate],
     )
   
     return (
-      <Loading loading={!snippets} errors={[error]}>
+      <Loading loading={!data} errors={[error]}>
           <Stack  
             direction={'row'}
             alignItems={'center'}
@@ -157,7 +126,7 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
   
           <Stack flex={1}>
           {
-              snippets && (
+              data && (
                 <BottomCollapsiblePanel
                   bottomPanel={
                     <RunSnippets 
@@ -169,28 +138,16 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
                   }
                 >
                 {
-                  snippets.map((snippet, index) => (
+                  data.map((snippet, index) => (
                     <SnippetEditor
                       key={index}
                       index={index}
                       snippet={snippet}
                       language={language}
                       onChange={(code) => {
-                        const updatedSnippets = snippets.map((s, i) => {
-                          if (i === index) {
-                            return {
-                              ...s,
-                              snippet: code,
-                            }
-                          }
-                          return s
-                        })
-                        setSnippets(updatedSnippets)
-                        const updatedStatuses = updatedSnippets.map((s, i) => {
-                          if (!s.output) return SnippetStatus.ERROR
-                          // set the current snippet status to error 
+                        const updatedStatuses = statuses.map((s, i) => {
                           if (i === index) return SnippetStatus.ERROR
-                          return SnippetStatus.SUCCESS
+                          return s
                         })
                         setStatuses(updatedStatuses)
                         debouncedUpdateSnippet(snippet.id, {

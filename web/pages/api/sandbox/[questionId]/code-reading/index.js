@@ -98,14 +98,27 @@ const post = async (req, res, prisma) => {
   };
 
   // Execute in the sandbox
-  const result = await runSandbox({
+  const results = await runSandbox({
     image: code.sandbox.image,
     files: [contextFile],
     beforeAll: code.sandbox.beforeAll,
     tests: tests, 
   });
 
-  res.status(200).send(result);
+  // Update output of snippets
+  for(const snippet of code.codeReading.snippets) {
+    const result = results.tests[snippet.order];
+    await prisma.codeReadingSnippet.update({
+      where: {
+        id: snippet.id,
+      },
+      data: {
+        output: result?.output || '',
+      },
+    });
+  }
+
+  res.status(200).send(results);
 };
 
 export default withMethodHandler({
