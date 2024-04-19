@@ -19,7 +19,7 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@fontsource/roboto": "^4.5.8",
-    "@monaco-editor/react": "^4.4.5",
+    "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.98",
     "@mui/material": "^5.15.10",
@@ -39,6 +39,7 @@
     "pg": "^8.11.2",
     "prop-types": "^15.8.1",
     "puppeteer": "^22.6.2",
+    "raw-loader": "^4.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.5",
@@ -50,8 +51,7 @@
     "tar": "^6.1.11",
     "testcontainers": "^9.12.0",
     "uniqid": "^5.4.0",
-    "use-debounce": "^8.0.4",
-    "raw-loader": "^4.0.2"
+    "use-debounce": "^8.0.4"
   },
   "devDependencies": {
     "dotenv-cli": "^7.3.0",

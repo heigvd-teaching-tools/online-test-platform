@@ -2,7 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Box, InputAdornment, TextField } from '@mui/material';
 import InlineMonacoEditor from '@/components/input/InlineMonacoEditor';
 
+import { styled } from '@mui/system';
 
+// Styled component to apply whitespace visibility
+const MonoSpaceTextField = styled(TextField)({
+  '& textarea': {
+    whiteSpace: 'pre-wrap', // Preserves whitespaces and wraps text
+    fontFamily: 'monospace' // Makes spaces more noticeable
+  }
+});
 
 const AnswerCodeReadingOutput = ({ language, snippet, output:initial, status, onOutputChange }) => {
 
@@ -21,7 +29,7 @@ const AnswerCodeReadingOutput = ({ language, snippet, output:initial, status, on
           code={snippet}
         />
         <Box p={1}>
-          <TextField
+          <MonoSpaceTextField
             variant="standard"
             label="Guess the output"
             fullWidth

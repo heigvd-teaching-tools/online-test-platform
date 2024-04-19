@@ -36,7 +36,6 @@ const defaultLanguage = languages.environments[0].language
 
 const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => ({ value: key }))
 
-console.log("listOfCodeQuestionTypes", listOfCodeQuestionTypes)
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
 

@@ -2,7 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { Stack, Typography, IconButton, Box, TextField } from '@mui/material'
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined'
 import InlineMonacoEditor from '@/components/input/InlineMonacoEditor'
-import ContentEditor from '@/components/input/ContentEditor'
+
+import { styled } from '@mui/system';
+
+// Styled component to apply whitespace visibility
+const MonoSpaceTextField = styled(TextField)({
+  '& textarea': {
+    whiteSpace: 'pre-wrap', // Preserves whitespaces and wraps text
+    fontFamily: 'monospace' // Makes spaces more noticeable
+  }
+});
 
 const SnippetEditor = ({ index, snippet, language, onChange,onDelete }) => {
 
@@ -34,7 +43,7 @@ const SnippetEditor = ({ index, snippet, language, onChange,onDelete }) => {
         }}
       />
       <Box px={1}>
-        <TextField
+        <MonoSpaceTextField
           id={`output-${index}`}
           variant="standard"
           label={`Output`}
