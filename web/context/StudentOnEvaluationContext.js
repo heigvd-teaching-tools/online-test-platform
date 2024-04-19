@@ -69,7 +69,7 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     mutate: mutateUserOnEvaluation,
   } = useSWR(
     `/api/users/evaluations/${evaluationId}/take`,
-    !hasStudentFinished() ? fetcher : null,
+    hasStudentFinished() ? null : fetcher,
     { revalidateOnFocus: false },
   )
 

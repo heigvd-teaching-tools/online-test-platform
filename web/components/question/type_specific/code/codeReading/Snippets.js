@@ -64,7 +64,6 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }).then((data) => data.json())
-        mutate()
         onUpdate && onUpdate()
         setLock(false)
       },

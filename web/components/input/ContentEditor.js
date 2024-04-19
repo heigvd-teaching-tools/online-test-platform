@@ -67,6 +67,11 @@ const editorOptions = {
   parameterHints: {
     enabled: false, // Disables parameter hints
   },
+  lineNumbers: 'off',
+  glyphMargin: false,
+  folding: false,
+  lineDecorationsWidth: 0,
+  lineNumbersMinChars: 0
 }
 
 const EditMarkdown = ({

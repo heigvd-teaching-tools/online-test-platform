@@ -40,11 +40,6 @@ export function withStudentStatus(allowedStatuses = [], handler) {
       !userOnEvaluation ||
       !allowedStatuses.includes(userOnEvaluation.status)
     ) {
-      console.log(
-        'Access denied due to student status.',
-        userOnEvaluation,
-        allowedStatuses,
-      )
       return res.status(403).json({ message: 'Access denied.' })
     }
 
@@ -64,7 +59,6 @@ export function withEvaluationPhase(allowedPhases = [], handler) {
     })
 
     if (!evaluation || !allowedPhases.includes(evaluation.phase)) {
-      console.log('Access denied due to evaluation phase.')
       return res
         .status(403)
         .json({ message: 'Access denied due to evaluation phase.' })
