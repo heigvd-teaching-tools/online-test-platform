@@ -62,11 +62,11 @@ const post = withEvaluationPhase(
                       },
                     },
                   },
-                }
+                },
               },
             },
-          }
-        }
+          },
+        },
       )
 
       if (!evaluationToQuestion) {
@@ -74,8 +74,12 @@ const post = withEvaluationPhase(
         return
       }
 
-      if (!evaluationToQuestion.question?.code?.codeReading?.studentOutputTest) {
-        res.status(400).json({ message: 'Outpout testing is not enabled for this question' })
+      if (
+        !evaluationToQuestion.question?.code?.codeReading?.studentOutputTest
+      ) {
+        res
+          .status(400)
+          .json({ message: 'Outpout testing is not enabled for this question' })
         return
       }
 
@@ -87,7 +91,7 @@ const post = withEvaluationPhase(
             userEmail: studentEmail,
           },
         },
-        select:{
+        select: {
           outputs: {
             select: {
               output: true,
@@ -100,19 +104,19 @@ const post = withEvaluationPhase(
               },
             },
             orderBy: {
-              codeReadingSnippet:{
+              codeReadingSnippet: {
                 order: 'asc',
-              }
-            }
+              },
+            },
           },
-        }
+        },
       })
 
       if (!studentAnswer) {
         res.status(400).json({ message: 'Student answer not found' })
         return
       }
-      
+
       // Compare the student output with the official output
       for (const studentAnswerOutput of studentAnswer.outputs) {
         const snippetId = studentAnswerOutput.codeReadingSnippet.id
@@ -130,31 +134,34 @@ const post = withEvaluationPhase(
             },
           },
           data: {
-            status: passed ? StudentAnswerCodeReadingOutputStatus.MATCH : StudentAnswerCodeReadingOutputStatus.MISMATCH,
+            status: passed
+              ? StudentAnswerCodeReadingOutputStatus.MATCH
+              : StudentAnswerCodeReadingOutputStatus.MISMATCH,
           },
         })
       }
-      
+
       // Select the outputs with the status
-      const studentOutputs = await prisma.studentAnswerCodeReadingOutput.findMany({
-        where: {
-          questionId: questionId,
-          userEmail: studentEmail,
-        },
-        select:{
-          codeReadingSnippet: {
-            select: {
-              order: true,
+      const studentOutputs =
+        await prisma.studentAnswerCodeReadingOutput.findMany({
+          where: {
+            questionId: questionId,
+            userEmail: studentEmail,
+          },
+          select: {
+            codeReadingSnippet: {
+              select: {
+                order: true,
+              },
+            },
+            status: true,
+          },
+          orderBy: {
+            codeReadingSnippet: {
+              order: 'asc',
             },
           },
-          status: true,
-        },
-        orderBy: {
-          codeReadingSnippet:{
-            order: 'asc',
-          }
-        }
-      })
+        })
 
       // wait to simulate a long processing
       await new Promise((resolve) => setTimeout(resolve, 200))

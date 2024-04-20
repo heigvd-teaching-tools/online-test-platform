@@ -27,11 +27,11 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
  *
  * Get the code reading part of a code question
  * Includes sandbox and snippets
- * 
+ *
  */
 
 const get = async (req, res, prisma) => {
-  // 
+  //
   const { questionId } = req.query
   const codeReading = await prisma.codeReading.findUnique({
     where: {
@@ -40,7 +40,7 @@ const get = async (req, res, prisma) => {
   })
 
   if (!codeReading) res.status(404).json({ message: 'Code not found' })
-  
+
   res.status(200).json(codeReading)
 }
 
@@ -67,5 +67,7 @@ const put = async (req, res, prisma) => {
 
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
-  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [
+    Role.PROFESSOR,
+  ]),
 })

@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 import React, { useState } from 'react'
-import { Tab, Tabs, Typography, TextField, InputAdornment, Box } from '@mui/material'
+import {
+  Tab,
+  Tabs,
+  Typography,
+  TextField,
+  InputAdornment,
+  Box,
+} from '@mui/material'
 
 import FileEditor from '@/components/question/type_specific/code/FileEditor'
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
@@ -29,15 +36,10 @@ const ConsultCode = ({ question, answer }) => {
   return (
     <>
       {codeType === CodeQuestionType.codeWriting && (
-        <ConsultCodeWriting
-          answer={answer}
-        />
+        <ConsultCodeWriting answer={answer} />
       )}
       {codeType === CodeQuestionType.codeReading && (
-        <ConsultCodeReading
-          question={question}
-          answer={answer}
-        />
+        <ConsultCodeReading question={question} answer={answer} />
       )}
     </>
   )
@@ -104,15 +106,15 @@ const ConsultCodeReading = ({ question, answer }) => {
               multiline
               label="Your output"
               value={output.output}
-              variant='standard'
+              variant="standard"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <Box pt={0.5}>
-                    <AnswerCodeReadingOutputStatus
-                      studentOutputTest
-                      status={output.status} 
-                    />
+                      <AnswerCodeReadingOutputStatus
+                        studentOutputTest
+                        status={output.status}
+                      />
                     </Box>
                   </InputAdornment>
                 ),
@@ -124,6 +126,5 @@ const ConsultCodeReading = ({ question, answer }) => {
     </Box>
   )
 }
-
 
 export default ConsultCode

@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { fetcher } from '../code/utils'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
@@ -38,10 +44,10 @@ const getFilledStatus = (studentAnswerStatus) => {
 
 const StudentOnEvaluationContext = createContext()
 
-export const useStudentOnEvaluation = () => useContext(StudentOnEvaluationContext)
+export const useStudentOnEvaluation = () =>
+  useContext(StudentOnEvaluationContext)
 
 export const StudentOnEvaluationProvider = ({ children }) => {
-
   const router = useRouter()
 
   const { evaluationId, pageIndex } = router.query
@@ -58,10 +64,9 @@ export const StudentOnEvaluationProvider = ({ children }) => {
 
   const hasStudentFinished = useCallback(() => {
     return (
-      evaluation?.userOnEvaluation?.status ===
-      UserOnEvaluationStatus.FINISHED
-    );
-  }, [evaluation]);
+      evaluation?.userOnEvaluation?.status === UserOnEvaluationStatus.FINISHED
+    )
+  }, [evaluation])
 
   const {
     data: userOnEvaluation,
@@ -82,13 +87,14 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     - It also contains the status of the student answer (missing, in progress, submitted) used in paging and home page
   */
   const evaluationToQuestions = userOnEvaluation?.evaluationToQuestions
-  const activeQuestion = evaluationToQuestions && evaluationToQuestions[pageIndex - 1]
+  const activeQuestion =
+    evaluationToQuestions && evaluationToQuestions[pageIndex - 1]
   const error = errorEvaluationStatus || errorUserOnEvaluation
 
   // States
-  const [ loaded, setLoaded ] = useState(false)
-  const [ page, setPage ] = useState(parseInt(pageIndex))
-  const [ pages, setPages ] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const [page, setPage] = useState(parseInt(pageIndex))
+  const [pages, setPages] = useState([])
 
   useEffect(() => {
     if (userOnEvaluation) {
@@ -112,61 +118,70 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     mutateUserOnEvaluation()
   }, [evaluation?.userOnEvaluation?.status, mutateUserOnEvaluation])
 
-
-  const submitAnswerToggle = useCallback((questionId, isSubmitting) => {
-    // it is important to find the appropriate index rather than using the pageIndex
-    // The student might move to another question before the callback is called in case of high latency
-    const index = evaluationToQuestions.findIndex(
-      (jtq) => jtq.question.id === questionId,
-    );
-    if (index !== -1) {
-      setPages((prevPages) => {
-        const newPages = [...prevPages];
-        newPages[index].state = isSubmitting ? 'filled' : 'half';
-        return newPages;
-      });
-    }
-
-    const jstq = evaluationToQuestions.find(
-      (jtq) => jtq.question.id === questionId,
-    );
-    jstq.question.studentAnswer[0].status = isSubmitting
-      ? StudentAnswerStatus.SUBMITTED
-      : StudentAnswerStatus.IN_PROGRESS;
-  }, [evaluationToQuestions]);
-
-  const submitAnswer = useCallback((questionId) => {
-    submitAnswerToggle(questionId, true);
-  }, [submitAnswerToggle]);
-
-  const unsubmitAnswer = useCallback((questionId) => {
-    submitAnswerToggle(questionId, false);
-  }, [submitAnswerToggle]);
-
-  const changeAnswer = useCallback((questionId, updatedStudentAnswer) => {
-    const jstq = evaluationToQuestions.find(
-      (jtq) => jtq.question.id === questionId,
-    );
-    jstq.question.studentAnswer[0] = updatedStudentAnswer;
-    // it is important to find the appropriate index rather than using the pageIndex
-    // The student might move to another question before the callback is called in case of high latency
-    const index = evaluationToQuestions.findIndex(
-      (jtq) => jtq.question.id === questionId,
-    );
-    setPages((prevPages) => {
-      const newPages = [...prevPages]
-      newPages[index].state = getFilledStatus(
-        updatedStudentAnswer.status,
+  const submitAnswerToggle = useCallback(
+    (questionId, isSubmitting) => {
+      // it is important to find the appropriate index rather than using the pageIndex
+      // The student might move to another question before the callback is called in case of high latency
+      const index = evaluationToQuestions.findIndex(
+        (jtq) => jtq.question.id === questionId,
       )
-      return newPages
-    })
-  }, [evaluationToQuestions])
+      if (index !== -1) {
+        setPages((prevPages) => {
+          const newPages = [...prevPages]
+          newPages[index].state = isSubmitting ? 'filled' : 'half'
+          return newPages
+        })
+      }
+
+      const jstq = evaluationToQuestions.find(
+        (jtq) => jtq.question.id === questionId,
+      )
+      jstq.question.studentAnswer[0].status = isSubmitting
+        ? StudentAnswerStatus.SUBMITTED
+        : StudentAnswerStatus.IN_PROGRESS
+    },
+    [evaluationToQuestions],
+  )
+
+  const submitAnswer = useCallback(
+    (questionId) => {
+      submitAnswerToggle(questionId, true)
+    },
+    [submitAnswerToggle],
+  )
+
+  const unsubmitAnswer = useCallback(
+    (questionId) => {
+      submitAnswerToggle(questionId, false)
+    },
+    [submitAnswerToggle],
+  )
+
+  const changeAnswer = useCallback(
+    (questionId, updatedStudentAnswer) => {
+      const jstq = evaluationToQuestions.find(
+        (jtq) => jtq.question.id === questionId,
+      )
+      jstq.question.studentAnswer[0] = updatedStudentAnswer
+      // it is important to find the appropriate index rather than using the pageIndex
+      // The student might move to another question before the callback is called in case of high latency
+      const index = evaluationToQuestions.findIndex(
+        (jtq) => jtq.question.id === questionId,
+      )
+      setPages((prevPages) => {
+        const newPages = [...prevPages]
+        newPages[index].state = getFilledStatus(updatedStudentAnswer.status)
+        return newPages
+      })
+    },
+    [evaluationToQuestions],
+  )
 
   return (
     <StudentOnEvaluationContext.Provider
       value={{
         evaluationId,
-        evaluation:evaluation?.evaluation,
+        evaluation: evaluation?.evaluation,
         evaluationToQuestions,
         activeQuestion,
         loaded,
@@ -176,32 +191,29 @@ export const StudentOnEvaluationProvider = ({ children }) => {
         submitAnswer,
         unsubmitAnswer,
         changeAnswer,
-        mutate
+        mutate,
       }}
     >
-    <StudentPhaseRedirect phase={evaluation?.evaluation?.phase}>
-        {hasStudentFinished() ? (
-          <EvaluationCompletedDialog />
-        ) : (
-          children
-        )}
-        </StudentPhaseRedirect>
+      <StudentPhaseRedirect phase={evaluation?.evaluation?.phase}>
+        {hasStudentFinished() ? <EvaluationCompletedDialog /> : children}
+      </StudentPhaseRedirect>
     </StudentOnEvaluationContext.Provider>
   )
 }
 
-const EvaluationCompletedDialog = () => 
-<Overlay>
-  <AlertFeedback severity="info">
-    <Stack spacing={1}>
-      <Typography variant="h5">Evaluation Completed</Typography>
-      <Typography variant="body1">
-        You have finished your evaluation. Submissions are now closed.
-      </Typography>
-      <Typography variant="body2">
-        If you believe this is an error or if you have any questions,
-        please reach out to your professor.
-      </Typography>
-    </Stack>
-  </AlertFeedback>
-</Overlay>
+const EvaluationCompletedDialog = () => (
+  <Overlay>
+    <AlertFeedback severity="info">
+      <Stack spacing={1}>
+        <Typography variant="h5">Evaluation Completed</Typography>
+        <Typography variant="body1">
+          You have finished your evaluation. Submissions are now closed.
+        </Typography>
+        <Typography variant="body2">
+          If you believe this is an error or if you have any questions, please
+          reach out to your professor.
+        </Typography>
+      </Stack>
+    </AlertFeedback>
+  </Overlay>
+)

@@ -265,10 +265,10 @@ const calculateCodeWritingStats = (question) => {
       sa.code.codeWriting?.testCaseResults?.length > 0 &&
       sa.code.codeWriting.allTestCasesPassed
     ) {
-      return acc + 1;
+      return acc + 1
     }
-    return acc;
-  }, 0);
+    return acc
+  }, 0)
 
   let failure = question.studentAnswer.reduce((acc, sa) => {
     if (
@@ -276,31 +276,31 @@ const calculateCodeWritingStats = (question) => {
       sa.code.codeWriting?.testCaseResults?.length > 0 &&
       !sa.code.codeWriting.allTestCasesPassed
     ) {
-      return acc + 1;
+      return acc + 1
     }
-    return acc;
-  }, 0);
+    return acc
+  }, 0)
 
   let noCodeCheckRuns = question.studentAnswer.reduce((acc, sa) => {
     if (
       sa.status !== StudentAnswerStatus.MISSING &&
       !sa.code.codeWriting?.testCaseResults?.length
     ) {
-      return acc + 1;
+      return acc + 1
     }
-    return acc;
-  }, 0);
-  
+    return acc
+  }, 0)
+
   return {
     success: { count: success },
     failure: { count: failure },
     noCodeCheckRuns: { count: noCodeCheckRuns },
-  };
-};
+  }
+}
 
 const calculateCodeReadingStats = (question) => {
   let success = question.studentAnswer.reduce((acc, sa) => {
-    console.log("sa", sa)
+    console.log('sa', sa)
     if (
       sa.status !== StudentAnswerStatus.MISSING &&
       sa.code.codeReading?.outputs.every(
@@ -308,10 +308,10 @@ const calculateCodeReadingStats = (question) => {
           output.status === StudentAnswerCodeReadingOutputStatus.MATCH,
       )
     ) {
-      return acc + 1;
+      return acc + 1
     }
-    return acc;
-  }, 0);
+    return acc
+  }, 0)
 
   let failure = question.studentAnswer.reduce((acc, sa) => {
     if (
@@ -321,10 +321,10 @@ const calculateCodeReadingStats = (question) => {
           output.status === StudentAnswerCodeReadingOutputStatus.MISMATCH,
       )
     ) {
-      return acc + 1;
+      return acc + 1
     }
-    return acc;
-  }, 0);
+    return acc
+  }, 0)
 
   let unanswered = question.studentAnswer.reduce((acc, sa) => {
     if (
@@ -334,14 +334,14 @@ const calculateCodeReadingStats = (question) => {
           output.status === StudentAnswerCodeReadingOutputStatus.NEUTRAL,
       )
     ) {
-      return acc + 1;
+      return acc + 1
     }
-    return acc;
-  }, 0);
-  console.log("correct", success, "failure", failure, "unanswered", unanswered)
+    return acc
+  }, 0)
+  console.log('correct', success, 'failure', failure, 'unanswered', unanswered)
   return {
     success: { count: success },
     failure: { count: failure },
     unanswered: { count: unanswered },
-  };
-};
+  }
+}

@@ -25,7 +25,11 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { codeInitialUpdateQuery, questionIncludeClause, questionTypeSpecific } from '@/code/questions'
+import {
+  codeInitialUpdateQuery,
+  questionIncludeClause,
+  questionTypeSpecific,
+} from '@/code/questions'
 
 import languages from '@/code/languages.json'
 import { Code } from '@mui/icons-material'
@@ -181,7 +185,10 @@ const post = async (req, res, prisma) => {
     const language = options?.language
     const codeQuestionType = options?.codeQuestionType
     // get the default code for the language
-    const defaultCode = defaultCodeBasedOnLanguageAndType(language, codeQuestionType)
+    const defaultCode = defaultCodeBasedOnLanguageAndType(
+      language,
+      codeQuestionType,
+    )
     // update the empty initial code with the default code
     await prisma.code.update(
       codeInitialUpdateQuery(createdQuestion.id, defaultCode, codeQuestionType),
@@ -257,8 +264,8 @@ const del = async (req, res, prisma) => {
 }
 
 const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType) => {
-  const index = environments.findIndex((env) => env.language === language);
-  const environment = environments[index];
+  const index = environments.findIndex((env) => env.language === language)
+  const environment = environments[index]
 
   const data = {
     language: environment.language,
@@ -269,15 +276,12 @@ const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType) => {
   }
 
   if (codeQuestionType === CodeQuestionType.codeWriting) {
-
     return {
       ...data,
       files: environment.codeWriting.files,
       testCases: environment.codeWriting.testCases,
     }
-
   } else if (codeQuestionType === CodeQuestionType.codeReading) {
-    
     return {
       ...data,
       contextExec: environment.sandbox.exec,
@@ -285,10 +289,8 @@ const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType) => {
       context: environment.codeReading.context,
       snippets: environment.codeReading.snippets, // This is hypothetical; adjust based on your actual structure
     }
-
-  } 
+  }
 }
-
 
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),

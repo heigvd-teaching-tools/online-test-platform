@@ -31,7 +31,13 @@ import ConsultMultipleChoice from './ConsultMultipleChoice'
     it is important not to fetch the "isCorrect" property of the option
 * */
 const AnswerConsult = ({ id, questionType, question, answer }) => {
-  console.log("AnswerConsult.js: AnswerConsult()", answer, questionType, question, id)
+  console.log(
+    'AnswerConsult.js: AnswerConsult()',
+    answer,
+    questionType,
+    question,
+    id,
+  )
   return (
     <Stack height="100%" overflow="auto">
       {answer &&

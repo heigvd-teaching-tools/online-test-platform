@@ -286,8 +286,11 @@ const QuestionsGrid = ({ questions, addCollectionToQuestion }) => {
                 return (
                   <Stack direction={'row'} spacing={1} alignItems={'center'}>
                     <QuestionTypeIcon type={row.type} size={24} />
-                    <CodeQuestionTypeIcon codeType={row.code?.codeType} size={18} />
-                    <LanguageIcon language={row.code?.language} size={18} /> 
+                    <CodeQuestionTypeIcon
+                      codeType={row.code?.codeType}
+                      size={18}
+                    />
+                    <LanguageIcon language={row.code?.language} size={18} />
                   </Stack>
                 )
               } else {

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 import { useCallback, useEffect, useState } from 'react'
-import {
-  Role,
-  StudentAnswerStatus,
-} from '@prisma/client'
+import { Role, StudentAnswerStatus } from '@prisma/client'
 import { Box, Chip, Stack, Typography } from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
@@ -38,22 +35,21 @@ import { useStudentOnEvaluation } from '@/context/StudentOnEvaluationContext'
 const PageEvaluationHome = () => {
   const { showTopCenter: showSnackbar } = useSnackbar()
 
-  const { 
+  const {
     evaluationId,
     evaluation,
     evaluationToQuestions,
-    
+
     pages,
     page,
 
     submitAnswer,
     mutate,
     loaded,
-    error
+    error,
   } = useStudentOnEvaluation()
 
   const rightPenelWidth = (conditions) => {
-    
     if (conditions?.length > 0) {
       return 60
     } else {
@@ -63,10 +59,7 @@ const PageEvaluationHome = () => {
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
-      <Loading
-        loading={!loaded}
-        errors={[error]}
-      >
+      <Loading loading={!loaded} errors={[error]}>
         <LayoutMain
           header={
             <StudentMainMenu
@@ -98,10 +91,14 @@ const PageEvaluationHome = () => {
                     width={'100%'}
                   >
                     <Typography variant="h5">
-                      Evaluation is composed of <b>{evaluationToQuestions.length}</b>{' '}
-                      questions having a total of{' '}
+                      Evaluation is composed of{' '}
+                      <b>{evaluationToQuestions.length}</b> questions having a
+                      total of{' '}
                       <b>
-                        {evaluationToQuestions.reduce((acc, jtq) => acc + jtq.points, 0)}
+                        {evaluationToQuestions.reduce(
+                          (acc, jtq) => acc + jtq.points,
+                          0,
+                        )}
                       </b>{' '}
                       pts.
                     </Typography>
@@ -129,9 +126,7 @@ const PageEvaluationHome = () => {
                 </Stack>
               )
             }
-            rightWidth={rightPenelWidth(
-              evaluation?.conditions,
-            )}
+            rightWidth={rightPenelWidth(evaluation?.conditions)}
           />
         </LayoutMain>
       </Loading>
@@ -204,7 +199,6 @@ const ButtonEndEvaliation = ({ evaluationId, onEndEvaluation }) => {
   )
 }
 
-
 const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
   const [submitLock, setSubmitLock] = useState(false)
 
@@ -227,13 +221,13 @@ const SubmitButton = ({ evaluationId, questionId, answerStatus, onSubmit }) => {
       if (!ok) {
         setStatus(StudentAnswerStatus.IN_PROGRESS)
         showSnackbar('Cannot submit answer', 'error')
-      }else{
-       onSubmit && onSubmit()
+      } else {
+        onSubmit && onSubmit()
       }
 
       setSubmitLock(false)
     },
-    [onSubmit, evaluationId],
+    [onSubmit, evaluationId, showSnackbar],
   )
 
   return (

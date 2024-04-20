@@ -22,17 +22,26 @@ const environments = languages.environments
 const LanguageIcon = ({ language, size = 24, withLabel = false }) => {
   const index = environments.findIndex((env) => env.language === language)
   return (
-    <Stack minWidth={size} minHeight={size} direction={"row"} alignItems={"center"} spacing={1}>
+    <Stack
+      minWidth={size}
+      minHeight={size}
+      direction={'row'}
+      alignItems={'center'}
+      spacing={1}
+    >
       <Image
         src={environments[index]?.icon}
         alt={environments[index]?.language}
         width={size}
         height={size}
       />
-      {withLabel && <Typography variant={"caption"}>{environments[index]?.label}</Typography>}
+      {withLabel && (
+        <Typography variant={'caption'}>
+          {environments[index]?.label}
+        </Typography>
+      )}
     </Stack>
   )
 }
 
 export default LanguageIcon
-

@@ -87,7 +87,7 @@ const PageList = () => {
         },
         body: JSON.stringify({
           type,
-          options
+          options,
         }),
       })
         .then((res) => res.json())
@@ -235,8 +235,15 @@ const QuestionsGrid = ({
                 return (
                   <Stack direction={'row'} spacing={1} alignItems={'center'}>
                     <QuestionTypeIcon type={row.type} size={24} />
-                    <CodeQuestionTypeIcon codeType={row.code?.codeType} size={18} />
-                    <LanguageIcon language={row.code?.language} size={18} withLabel /> 
+                    <CodeQuestionTypeIcon
+                      codeType={row.code?.codeType}
+                      size={18}
+                    />
+                    <LanguageIcon
+                      language={row.code?.language}
+                      size={18}
+                      withLabel
+                    />
                   </Stack>
                 )
               } else {

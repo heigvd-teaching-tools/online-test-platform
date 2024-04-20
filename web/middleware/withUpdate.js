@@ -16,48 +16,47 @@
 import { getPrisma } from './withPrisma'
 
 function withEntityUpdate(updateFunction) {
-  const prisma = getPrisma();
+  const prisma = getPrisma()
 
-  return function(handler) {
+  return function (handler) {
     return async (req, res) => {
       // Wrap the original response.send function
-      const originalSend = res.send.bind(res);
+      const originalSend = res.send.bind(res)
 
       // Replace the res.send function with custom logic
       res.send = async function (...args) {
         // Call the original send function to send the response
-        originalSend(...args);
+        originalSend(...args)
 
         // Check if the response was successful
         if (res.statusCode === 200) {
           // Execute the update function passed as an argument
           try {
-            await updateFunction(req, prisma);
+            await updateFunction(req, prisma)
           } catch (error) {
-            console.error('Error during update:', error);
+            console.error('Error during update:', error)
             // Handle error as needed
           }
         }
-      };
+      }
 
       // Execute the original handler
-      await handler(req, res, prisma);
-    };
-  };
+      await handler(req, res, prisma)
+    }
+  }
 }
 
-
 export const withQuestionUpdate = withEntityUpdate(async (req, prisma) => {
-  const { questionId } = req.query;
+  const { questionId } = req.query
   await prisma.question.update({
     where: { id: questionId },
-    data: { updatedAt: new Date() }
-  });
-});
+    data: { updatedAt: new Date() },
+  })
+})
 export const withCollectionUpdate = withEntityUpdate(async (req, prisma) => {
-  const { collectionId } = req.query;
+  const { collectionId } = req.query
   await prisma.collection.update({
     where: { id: collectionId },
-    data: { updatedAt: new Date() }
-  });
-});
+    data: { updatedAt: new Date() },
+  })
+})

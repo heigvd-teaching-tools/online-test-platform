@@ -160,7 +160,7 @@ const AnswerEditor = ({
         {isReadOnly && (
           <SubmittedOverlay onUnsubmit={() => onUnsubmitClick()} />
         )}
-        {(question &&
+        {question &&
           ((question.type === QuestionType.trueFalse && (
             <AnswerTrueFalse
               answer={studentAnswer}
@@ -208,7 +208,7 @@ const AnswerEditor = ({
                 evaluationId={evaluationId}
                 onAnswerChange={onAnswerChange}
               />
-            ))))}
+            )))}
         <SubmissionToolbar
           lock={submitLock}
           status={status}

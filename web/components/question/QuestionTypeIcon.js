@@ -27,13 +27,13 @@ const QuestionTypeIcon = ({ type, size = 32, withLabel = false }) => {
         minHeight={size}
         minWidth={size}
       >
-          <Image
-            alt="Question Type Icon"
-            src={`/svg/questions/${type}.svg`}
-            width={size}
-            height={size}
-            priority="1"
-          />
+        <Image
+          alt="Question Type Icon"
+          src={`/svg/questions/${type}.svg`}
+          width={size}
+          height={size}
+          priority="1"
+        />
         {withLabel && (
           <Typography variant="caption" sx={{ textAlign: 'center' }}>
             <b>{getTextByType(type)}</b>

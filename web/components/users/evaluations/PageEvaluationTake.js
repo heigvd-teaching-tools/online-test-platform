@@ -35,12 +35,10 @@ import StudentMainMenu from './take/StudentMainMenu'
 import { useStudentOnEvaluation } from '@/context/StudentOnEvaluationContext'
 import { useSnackbar } from '@/context/SnackbarContext'
 
-
 const PageEvaluationTake = () => {
-  
   const { showTopCenter: showSnackbar } = useSnackbar()
 
-  const { 
+  const {
     evaluationId,
     evaluation,
     evaluationToQuestions,
@@ -48,13 +46,13 @@ const PageEvaluationTake = () => {
     pages,
     page,
     activeQuestion,
-    
+
     changeAnswer,
     submitAnswer,
     unsubmitAnswer,
 
     loaded,
-    error
+    error,
   } = useStudentOnEvaluation()
 
   useEffect(() => {
@@ -72,78 +70,72 @@ const PageEvaluationTake = () => {
       document.removeEventListener('keydown', handleKeyDown) // Clean up the event listener
     }
   }, [showSnackbar])
- 
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>        
-      <Loading
-        loading={!loaded}
-        errors={[error]}
-      >
+    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
+      <Loading loading={!loaded} errors={[error]}>
         {loaded && (
-            <LayoutMain
-              header={
-                <Loading
-                  loading={!loaded}
-                  errors={[error]}
-                  message={'Loading evaluation...'}
-                >
-                  <StudentMainMenu
-                    evaluationId={evaluationId}
-                    evaluation={evaluation}
-                    pages={pages}
+          <LayoutMain
+            header={
+              <Loading
+                loading={!loaded}
+                errors={[error]}
+                message={'Loading evaluation...'}
+              >
+                <StudentMainMenu
+                  evaluationId={evaluationId}
+                  evaluation={evaluation}
+                  pages={pages}
+                  page={page}
+                />
+              </Loading>
+            }
+          >
+            <LayoutSplitScreen
+              leftPanel={
+                <>
+                  <QuestionView
+                    order={activeQuestion?.order}
+                    points={activeQuestion?.points}
+                    question={activeQuestion?.question}
                     page={page}
+                    totalPages={pages.length - 1}
                   />
-                </Loading>
+                  <QuestionNav
+                    evaluationId={evaluationId}
+                    page={page}
+                    totalPages={pages.length}
+                  />
+                </>
               }
-            >
-              <LayoutSplitScreen
-                leftPanel={
-                  <>
-                    <QuestionView
-                      order={activeQuestion?.order}
-                      points={activeQuestion?.points}
-                      question={activeQuestion?.question}
-                      page={page}
-                      totalPages={pages.length - 1}
-                    />
-                    <QuestionNav
-                      evaluationId={evaluationId}
-                      page={page}
-                      totalPages={pages.length}
-                    />
-                  </>
-                }
-                rightPanel={
-                  evaluationToQuestions.map((q, index) => (
-                    <Box
-                      key={q.question.id}
-                      height="100%"
-                      display={index === page - 1 ? 'block' : 'none'}
-                    >
-                      <ResizeObserverProvider>
-                        <ScrollContainer>
-                          <AnswerEditor
-                            questionId={q.question.id}
-                            status={q.question.studentAnswer[0].status}
-                            onAnswer={(question, updatedStudentAnswer) => {
-                              changeAnswer(question.id, updatedStudentAnswer)
-                            }}
-                            onSubmit={(question) => {
-                              submitAnswer(question.id)
-                            }}
-                            onUnsubmit={(question) => {
-                              unsubmitAnswer(question.id)
-                            }}
-                          />
-                        </ScrollContainer>
-                      </ResizeObserverProvider>
-                    </Box>
-                  ))
-                }
-                rightWidth={70}
-              />
-            </LayoutMain>
+              rightPanel={evaluationToQuestions.map((q, index) => (
+                <Box
+                  key={q.question.id}
+                  height="100%"
+                  display={index === page - 1 ? 'block' : 'none'}
+                >
+                  <ResizeObserverProvider>
+                    <ScrollContainer>
+                      <AnswerEditor
+                        questionId={q.question.id}
+                        status={q.question.studentAnswer[0].status}
+                        onAnswer={(question, updatedStudentAnswer) => {
+                          changeAnswer(question.id, updatedStudentAnswer)
+                        }}
+                        onSubmit={(question) => {
+                          submitAnswer(question.id)
+                        }}
+                        onUnsubmit={(question) => {
+                          unsubmitAnswer(question.id)
+                        }}
+                      />
+                    </ScrollContainer>
+                  </ResizeObserverProvider>
+                </Box>
+              ))}
+              rightWidth={70}
+            />
+          </LayoutMain>
         )}
       </Loading>
     </Authorisation>

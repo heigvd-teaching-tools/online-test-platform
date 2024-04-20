@@ -161,7 +161,16 @@ const del = async (req, res, prisma) => {
 }
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
-  POST: withAuthorization(withGroupScope(withCollectionUpdate(withPrisma(post))), [Role.PROFESSOR]),
-  PUT: withAuthorization(withGroupScope(withCollectionUpdate(withPrisma(put))), [Role.PROFESSOR]),
-  DELETE: withAuthorization(withGroupScope(withCollectionUpdate(withPrisma(del))), [Role.PROFESSOR]),
+  POST: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(post))),
+    [Role.PROFESSOR],
+  ),
+  PUT: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(put))),
+    [Role.PROFESSOR],
+  ),
+  DELETE: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(del))),
+    [Role.PROFESSOR],
+  ),
 })

@@ -106,8 +106,14 @@ Handlebars.registerPartial('studentCover', studentCoverTemplate)
 Handlebars.registerPartial('questionHeader', questionTemplate)
 Handlebars.registerPartial('codeBloc', codeBlocTemplate)
 Handlebars.registerPartial('studentAnswerHeader', studentAnswerHeaderTemplate)
-Handlebars.registerPartial('studentAnswerCodeWriting', studentAnswerCodeWritingTemplate)
-Handlebars.registerPartial('studentAnswerCodeReading', studentAnswerCodeReadingTemplate)
+Handlebars.registerPartial(
+  'studentAnswerCodeWriting',
+  studentAnswerCodeWritingTemplate,
+)
+Handlebars.registerPartial(
+  'studentAnswerCodeReading',
+  studentAnswerCodeReadingTemplate,
+)
 Handlebars.registerPartial('studentAnswerEssay', studentAnswerEssayTemplate)
 Handlebars.registerPartial(
   'studentAnswerMultipleChoice',
@@ -133,7 +139,6 @@ Handlebars.registerHelper('countDatabasePassedTests', countDatabasePassedTests)
 Handlebars.registerHelper('chunkQuestions', chunkQuestions)
 Handlebars.registerHelper('calculateTotalPoints', calculateTotalPoints)
 Handlebars.registerHelper('calculateObtainedPoints', calculateObtainedPoints)
-
 
 const get = async (req, res, prisma) => {
   const { groupScope, evaluationId } = req.query

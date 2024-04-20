@@ -47,5 +47,8 @@ const put = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  PUT: withAuthorization(withGroupScope(withCollectionUpdate(withPrisma(put))), [Role.PROFESSOR]),
+  PUT: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(put))),
+    [Role.PROFESSOR],
+  ),
 })

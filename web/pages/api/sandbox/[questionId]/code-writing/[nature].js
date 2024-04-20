@@ -21,7 +21,6 @@ import {
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 
-
 /*
  endpoint to run the sandbox for a question with solution or template files recovered from the database
  used to run the sandbox for professor files, also use by pull solution output
@@ -54,8 +53,8 @@ const post = async (req, res, prisma) => {
               file: true,
             },
           },
-        }
-      }
+        },
+      },
     },
   })
 
@@ -68,7 +67,6 @@ const post = async (req, res, prisma) => {
   const beforeAll = code.sandbox.beforeAll
   const files = code.codeWriting[attribute].map((codeToFile) => codeToFile.file)
   const tests = code.codeWriting.testCases
-
 
   const result = await runSandbox({
     image: image,

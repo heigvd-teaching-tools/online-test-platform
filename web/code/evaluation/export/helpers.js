@@ -44,7 +44,6 @@ export const equals = (a, b) => {
 }
 
 export const formatQuestionType = (question) => {
-
   let type = question.type
 
   if (question.code) {

@@ -130,10 +130,19 @@ const execTests = async (container, tests) => {
     const { exec, input, expectedOutput } = tests[index]
     // time before execution
     const startTime = new Date().getTime()
-   
-    let { output } = await container.exec(['sh', '-c', `echo "${input}" | ${exec} 2>&1 | head -c ${(MAX_OUTPUT_SIZE_PER_EXEC_KB * 1024)} 2>&1`], {
-      tty: false,
-    });
+
+    let { output } = await container.exec(
+      [
+        'sh',
+        '-c',
+        `echo "${input}" | ${exec} 2>&1 | head -c ${
+          MAX_OUTPUT_SIZE_PER_EXEC_KB * 1024
+        } 2>&1`,
+      ],
+      {
+        tty: false,
+      },
+    )
 
     // time after execution
     const endTime = new Date().getTime()

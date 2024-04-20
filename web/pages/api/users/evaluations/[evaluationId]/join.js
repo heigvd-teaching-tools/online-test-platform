@@ -196,7 +196,7 @@ const post = async (req, res, prisma) => {
 }
 
 const createCodeTypeSpecificData = (question) => {
-  switch(question.code.codeType) {
+  switch (question.code.codeType) {
     case CodeQuestionType.codeReading:
       return createCodeReadingTypeSpecificData(question)
     case CodeQuestionType.codeWriting:
@@ -221,13 +221,13 @@ const createCodeReadingTypeSpecificData = (question) => {
                   id: snippet.id,
                 },
               },
-            };
+            }
           }),
         },
       },
     },
-  };
-};
+  }
+}
 
 const createCodeWritingTypeSpecificData = (question) => {
   return {

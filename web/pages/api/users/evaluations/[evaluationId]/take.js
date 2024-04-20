@@ -67,11 +67,11 @@ const get = withEvaluationPhase(
                         where: {
                           userEmail: email,
                         },
-                        select:{
+                        select: {
                           status: true,
-                        }
+                        },
                       },
-                    }
+                    },
                   },
                 },
                 orderBy: {

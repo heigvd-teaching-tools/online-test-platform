@@ -74,7 +74,6 @@ const GroupSelector = () => {
               {group.label}
             </MenuItem>
           ))}
-          
         </DropDown>
       )}
     </Loading>

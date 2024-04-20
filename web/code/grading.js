@@ -33,7 +33,6 @@ import {
 
  */
 export const grading = (question, totalPoints, studentAnswer) => {
-
   switch (question.type) {
     case QuestionType.multipleChoice:
       return gradeMultipleChoice(question, totalPoints, studentAnswer)
@@ -150,9 +149,11 @@ const gradeCode = (question, totalPoints, studentAnswer) => {
     }
     return grading
   }
-  
+
   const gradeCodeReading = (studentAnswer) => {
-    const success = studentAnswer?.outputs?.every(output => output.output === output.codeReadingSnippet.output);
+    const success = studentAnswer?.outputs?.every(
+      (output) => output.output === output.codeReadingSnippet.output,
+    )
     grading = {
       ...grading,
       status: StudentQuestionGradingStatus.AUTOGRADED,
@@ -169,7 +170,6 @@ const gradeCode = (question, totalPoints, studentAnswer) => {
     default:
       return grading
   }
-
 }
 
 const gradeEssay = (answer) => ({

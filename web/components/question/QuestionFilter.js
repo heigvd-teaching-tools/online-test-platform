@@ -266,7 +266,7 @@ const CheckboxLabel = ({ label, checked, onChange }) => {
         checked={checked}
         color={'info'}
         sx={{
-          padding: "4px",
+          padding: '4px',
         }}
         onChange={(e) => onChange(e.target.checked)}
       />

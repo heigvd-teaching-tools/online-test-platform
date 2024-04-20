@@ -29,7 +29,7 @@ const environments = languages.environments
  used to run the sandbox for admin, students cant run sandox for code reading
  */
 const post = async (req, res, prisma) => {
-  const { questionId } = req.query;
+  const { questionId } = req.query
 
   const code = await prisma.code.findUnique({
     where: {
@@ -47,67 +47,81 @@ const post = async (req, res, prisma) => {
               order: 'asc', // Ensure snippets are ordered by the `order` field in ascending order
             },
           },
-        }
-      }
+        },
+      },
     },
-  });
+  })
 
   if (!code || !code.codeReading) {
-    res.status(404).json({ message: 'Code not found' });
-    return;
+    res.status(404).json({ message: 'Code not found' })
+    return
   }
 
   // Assuming `environments` is accessible and contains the configs
-  const codeReadingConfig = environments.find((env) => env.language === code.language)?.codeReading;
+  const codeReadingConfig = environments.find(
+    (env) => env.language === code.language,
+  )?.codeReading
 
   if (!codeReadingConfig) {
-    res.status(500).json({ message: 'Language not supported' });
-    return;
+    res.status(500).json({ message: 'Language not supported' })
+    return
   }
 
   // Generate function declarations and calls
-  let functionDeclarations = '';
-  let functionCalls = '';
+  let functionDeclarations = ''
+  let functionCalls = ''
   const tests = []
 
   code.codeReading.snippets.forEach((snippet, index) => {
-      const functionName = `snippetFunc${index}`;
-      if (!snippet.snippet) return;
+    const functionName = `snippetFunc${index}`
+    if (!snippet.snippet) return
 
-      // Handle indentation for Python specifically
-      let indentedSnippet = snippet.snippet.split('\n').map(line => `   ${line}`).join('\n');
-      const functionDeclaration = codeReadingConfig.snippetWrapperFunctionSignature.replace("{{SNIPPET_FUNCTION_NAME}}", functionName).replace("{{SNIPPET_FUNCTION_BODY}}", indentedSnippet);
+    // Handle indentation for Python specifically
+    let indentedSnippet = snippet.snippet
+      .split('\n')
+      .map((line) => `   ${line}`)
+      .join('\n')
+    const functionDeclaration =
+      codeReadingConfig.snippetWrapperFunctionSignature
+        .replace('{{SNIPPET_FUNCTION_NAME}}', functionName)
+        .replace('{{SNIPPET_FUNCTION_BODY}}', indentedSnippet)
 
-      functionDeclarations += functionDeclaration + "\n";
-      functionCalls += `${codeReadingConfig.snippetFunctionCallTemplate.replace(new RegExp("{{SNIPPET_FUNCTION_NAME}}", "g"), functionName)}\n`;
+    functionDeclarations += functionDeclaration + '\n'
+    functionCalls += `${codeReadingConfig.snippetFunctionCallTemplate.replace(
+      new RegExp('{{SNIPPET_FUNCTION_NAME}}', 'g'),
+      functionName,
+    )}\n`
 
-      tests.push({ exec: code.codeReading.contextExec, input: functionName });
-  });
+    tests.push({ exec: code.codeReading.contextExec, input: functionName })
+  })
 
   // Correctly indent the function calls
-  let correctlyIndentedFunctionCalls = functionCalls.split('\n').map(line => line).join('\n   ');
+  let correctlyIndentedFunctionCalls = functionCalls
+    .split('\n')
+    .map((line) => line)
+    .join('\n   ')
 
   // Insert generated function declarations and function calls into the context
   let context = codeReadingConfig.context
-      .replace("{{SNIPPET_FUNCTION_DECLARATIONS}}", functionDeclarations)
-      .replace("{{SNIPPET_FUNCTION_CALLS}}", correctlyIndentedFunctionCalls);
+    .replace('{{SNIPPET_FUNCTION_DECLARATIONS}}', functionDeclarations)
+    .replace('{{SNIPPET_FUNCTION_CALLS}}', correctlyIndentedFunctionCalls)
 
   const contextFile = {
-      path: code.codeReading.contextPath,
-      content: context
-  };
+    path: code.codeReading.contextPath,
+    content: context,
+  }
 
   // Execute in the sandbox
   const results = await runSandbox({
     image: code.sandbox.image,
     files: [contextFile],
     beforeAll: code.sandbox.beforeAll,
-    tests: tests, 
-  });
+    tests: tests,
+  })
 
   // Update output of snippets
-  for(const snippet of code.codeReading.snippets) {
-    const result = results.tests[snippet.order];
+  for (const snippet of code.codeReading.snippets) {
+    const result = results.tests[snippet.order]
     await prisma.codeReadingSnippet.update({
       where: {
         id: snippet.id,
@@ -115,11 +129,11 @@ const post = async (req, res, prisma) => {
       data: {
         output: result?.output || '',
       },
-    });
+    })
   }
 
-  res.status(200).send(results);
-};
+  res.status(200).send(results)
+}
 
 export default withMethodHandler({
   POST: withAuthorization(withPrisma(post), [Role.PROFESSOR]),

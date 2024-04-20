@@ -24,36 +24,31 @@ import CodeWriting from './code/codeWriting/CodeWriting'
 import CodeReading from './code/codeReading/CodeReading'
 
 const Code = ({ groupScope, questionId, onUpdate }) => {
-
   const { data: code, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code`,
     groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false },
-  )  
+  )
 
   return (
     <Loading loading={!code} errors={[error]}>
       <Stack overflow={'hidden'} flex={1}>
-      {
-        code?.codeType === CodeQuestionType.codeWriting && (
-          <CodeWriting 
+        {code?.codeType === CodeQuestionType.codeWriting && (
+          <CodeWriting
             groupScope={groupScope}
             questionId={questionId}
             language={code.language}
             onUpdate={onUpdate}
           />
-        )
-      }
-      {
-        code?.codeType === CodeQuestionType.codeReading && (
-          <CodeReading 
+        )}
+        {code?.codeType === CodeQuestionType.codeReading && (
+          <CodeReading
             groupScope={groupScope}
             questionId={questionId}
             language={code.language}
             onUpdate={onUpdate}
           />
-        )
-      }
+        )}
       </Stack>
     </Loading>
   )

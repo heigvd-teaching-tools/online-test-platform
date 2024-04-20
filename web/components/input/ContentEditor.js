@@ -71,7 +71,7 @@ const editorOptions = {
   glyphMargin: false,
   folding: false,
   lineDecorationsWidth: 0,
-  lineNumbersMinChars: 0
+  lineNumbersMinChars: 0,
 }
 
 const EditMarkdown = ({

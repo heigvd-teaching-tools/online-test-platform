@@ -48,7 +48,7 @@ const AnswerCompare = ({ questionType, solution, answer }) => {
             <CompareEssay solution={solution} answer={answer.content} />
           )) ||
           (questionType === QuestionType.code && (
-              <CompareCode solution={solution} answer={answer} />
+            <CompareCode solution={solution} answer={answer} />
           )) ||
           (questionType === QuestionType.web && (
             <CompareWeb solution={solution} answer={answer} />

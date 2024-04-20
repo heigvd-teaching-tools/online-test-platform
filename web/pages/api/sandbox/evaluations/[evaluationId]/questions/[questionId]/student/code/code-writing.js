@@ -50,8 +50,8 @@ const post = withEvaluationPhase(
             select: {
               testCases: true,
               solutionFiles: true, // to get the hidden files
-            }
-          }
+            },
+          },
         },
       })
 
@@ -76,11 +76,14 @@ const post = withEvaluationPhase(
                 },
               },
             },
-          }
+          },
         },
       })
 
-      if (!studentAnswerCodeFiles || !studentAnswerCodeFiles.codeWriting.files) {
+      if (
+        !studentAnswerCodeFiles ||
+        !studentAnswerCodeFiles.codeWriting.files
+      ) {
         res.status(404).json({ message: 'Student files not found' })
         return
       }

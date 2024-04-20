@@ -24,8 +24,8 @@ import {
     If yes, renders the children.
 */
 const StudentPhaseRedirect = ({ phase, children }) => {
-  if(!phase) return null
   const router = useRouter()
+  if (!phase) return null
   if (!phasePageRelationship[phase].includes(router.pathname)) {
     // the pathname is not the expected one, we redirect
     const evaluationId = router.query.evaluationId

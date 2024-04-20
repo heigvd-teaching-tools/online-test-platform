@@ -30,7 +30,7 @@ const defaultOptions = {
     handleMouseWheel: false,
   },
   lineDecorationsWidth: 0,
-  lineNumbersMinChars: 4
+  lineNumbersMinChars: 4,
   //renderWhitespace: 'all',
 }
 
@@ -82,7 +82,6 @@ const InlineMonacoEditor = ({
         options={{ ...defaultOptions, ...editorOptions, readOnly }}
         onChange={onContentChange}
         onMount={editorMount}
-        
       />
     </Stack>
   )

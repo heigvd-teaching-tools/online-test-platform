@@ -51,18 +51,21 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
       tests.length === 0
         ? environments.find((env) => env.language === language).sandbox.exec
         : tests[tests.length - 1].exec
-    await fetch(`/api/${groupScope}/questions/${questionId}/code/code-writing/tests`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+    await fetch(
+      `/api/${groupScope}/questions/${questionId}/code/code-writing/tests`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          input: '',
+          expectedOutput: '',
+          exec: exec,
+        }),
       },
-      body: JSON.stringify({
-        input: '',
-        expectedOutput: '',
-        exec: exec,
-      }),
-    })
+    )
       .then(async (res) => {
         if (res.status === 200) {
           await mutate()
@@ -143,10 +146,13 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
 
   const pullOutputs = useCallback(
     async (source) => {
-      const result = await fetch(`/api/sandbox/${questionId}/code-writing/${source}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      }).then((res) => res.json())
+      const result = await fetch(
+        `/api/sandbox/${questionId}/code-writing/${source}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ).then((res) => res.json())
 
       for (const test of tests) {
         await updateTestCase({

@@ -21,30 +21,39 @@ import { CodeQuestionType } from '@prisma/client'
 
 const codeTypeToIcon = {
   [CodeQuestionType.codeWriting]: {
-    icon: languages["codeWritingIcon"],
-    label: "Code Writing"
+    icon: languages['codeWritingIcon'],
+    label: 'Code Writing',
   },
   [CodeQuestionType.codeReading]: {
-    icon: languages["codeReadingIcon"],
-    label: "Code Reading"
-  }
+    icon: languages['codeReadingIcon'],
+    label: 'Code Reading',
+  },
 }
 
 const CodeQuestionTypeIcon = ({ codeType, size = 24, withLabel = false }) => {
   return (
-    <Stack minWidth={size} minHeight={size} direction={"row"} alignItems={"center"} spacing={1}>
+    <Stack
+      minWidth={size}
+      minHeight={size}
+      direction={'row'}
+      alignItems={'center'}
+      spacing={1}
+    >
       <Tooltip title={codeTypeToIcon[codeType]?.label} placement="top-start">
-      <Image
-        src={codeTypeToIcon[codeType]?.icon}
-        alt={codeTypeToIcon[codeType]?.label}
-        width={size}
-        height={size}
-      />
+        <Image
+          src={codeTypeToIcon[codeType]?.icon}
+          alt={codeTypeToIcon[codeType]?.label}
+          width={size}
+          height={size}
+        />
       </Tooltip>
-      {withLabel && <Typography variant={"caption"}>{codeTypeToIcon[codeType]?.label}</Typography>}
+      {withLabel && (
+        <Typography variant={'caption'}>
+          {codeTypeToIcon[codeType]?.label}
+        </Typography>
+      )}
     </Stack>
   )
 }
 
 export default CodeQuestionTypeIcon
-

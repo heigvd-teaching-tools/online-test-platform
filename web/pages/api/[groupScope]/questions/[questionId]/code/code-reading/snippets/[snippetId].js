@@ -26,25 +26,24 @@ const put = async (req, res, prisma) => {
   // update a code snippet
 
   const { questionId, snippetId } = req.query
-  const {
-    snippet,
-    output
-  } = req.body
+  const { snippet, output } = req.body
 
- 
   // First, validate the questionId by checking if it's associated with the snippetId
   const existingSnippet = await prisma.codeReadingSnippet.findUnique({
     where: {
       id: snippetId,
     },
     include: {
-      codeReading: true, 
+      codeReading: true,
     },
-  });
+  })
 
   // If the snippet doesn't exist or the questionId does not match, return an error
-  if (!existingSnippet || existingSnippet.codeReading.questionId !== questionId) {
-    return res.status(404).json({ message: 'Invalid questionId or snippetId' });
+  if (
+    !existingSnippet ||
+    existingSnippet.codeReading.questionId !== questionId
+  ) {
+    return res.status(404).json({ message: 'Invalid questionId or snippetId' })
   }
 
   // If validation passes, proceed with the update
@@ -56,9 +55,9 @@ const put = async (req, res, prisma) => {
       snippet: snippet,
       output: output,
     },
-  });
+  })
 
-  res.status(200).json(codeReadingSnippet);
+  res.status(200).json(codeReadingSnippet)
 }
 
 const del = async (req, res, prisma) => {
@@ -74,11 +73,14 @@ const del = async (req, res, prisma) => {
     include: {
       codeReading: true,
     },
-  });
+  })
 
   // If the snippet doesn't exist or the questionId does not match, return an error
-  if (!existingSnippet || existingSnippet.codeReading.questionId !== questionId) {
-    return res.status(404).json({ message: 'Invalid questionId or snippetId' });
+  if (
+    !existingSnippet ||
+    existingSnippet.codeReading.questionId !== questionId
+  ) {
+    return res.status(404).json({ message: 'Invalid questionId or snippetId' })
   }
 
   // If validation passes, proceed with the deletion
@@ -86,9 +88,9 @@ const del = async (req, res, prisma) => {
     where: {
       id: snippetId,
     },
-  });
+  })
 
-  res.status(200).json({ message: 'Deleted' });
+  res.status(200).json({ message: 'Deleted' })
 }
 
 export default withMethodHandler({

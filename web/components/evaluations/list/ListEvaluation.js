@@ -29,7 +29,6 @@ import { useRouter } from 'next/router'
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
   const router = useRouter()
   return (
-  
     <GridGrouping
       label={'Evaluations'}
       actions={
@@ -122,13 +121,15 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
                 </IconButton>
               </Tooltip>
               <Link
-                
                 href={`/${groupScope}/evaluations/${evaluation.id}/analytics`}
                 passHref
                 key="analytics"
               >
                 <Tooltip title="Open Analytics Page">
-                  <IconButton component="span" onClick={(event) => event.stopPropagation()}>
+                  <IconButton
+                    component="span"
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     <Image
                       alt="Analytics"
                       src="/svg/icons/analytics.svg"
@@ -150,7 +151,7 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
                   </IconButton>
                 </Tooltip>
               )}
-  
+
               {evaluation.status === EvaluationStatus.ARCHIVED && (
                 <Tooltip title="Delete definitively" key="archive">
                   <IconButton onClick={(ev) => onDelete(ev, evaluation)}>
@@ -187,6 +188,5 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
       ]}
     />
   )
-  
 }
 export default ListEvaluation

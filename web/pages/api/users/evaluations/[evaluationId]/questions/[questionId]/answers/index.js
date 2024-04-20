@@ -36,14 +36,15 @@ import {
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
 
-
 /*
   get the users answers for a question including related nested data
 
 */
 
-const isCodeReadingQuestionWithStudentOutputTest = (question) => question.type === QuestionType.code && question.code.codeType === CodeQuestionType.codeReading && question.code.codeReading.studentOutputTest;
-
+const isCodeReadingQuestionWithStudentOutputTest = (question) =>
+  question.type === QuestionType.code &&
+  question.code.codeType === CodeQuestionType.codeReading &&
+  question.code.codeReading.studentOutputTest
 
 const get = withEvaluationPhase(
   [EvaluationPhase.IN_PROGRESS],
@@ -103,7 +104,7 @@ const get = withEvaluationPhase(
             },
           },
         },
-      });
+      })
 
       if (!question) {
         res.status(404).json({ message: 'Question not found' })
@@ -129,7 +130,11 @@ const get = withEvaluationPhase(
                         not: StudentPermission.HIDDEN,
                       },
                     },
-                    select: { studentPermission: true, order: true, file: true },
+                    select: {
+                      studentPermission: true,
+                      order: true,
+                      file: true,
+                    },
                     orderBy: { order: 'asc' },
                   },
                 },
@@ -139,9 +144,11 @@ const get = withEvaluationPhase(
                   outputs: {
                     select: {
                       output: true,
-                      ...(isCodeReadingQuestionWithStudentOutputTest(question) ? {
-                          status: true,
-                      } : {}),
+                      ...(isCodeReadingQuestionWithStudentOutputTest(question)
+                        ? {
+                            status: true,
+                          }
+                        : {}),
                       codeReadingSnippet: {
                         select: {
                           id: true,
@@ -155,7 +162,7 @@ const get = withEvaluationPhase(
                         order: 'asc',
                       },
                     },
-                  }
+                  },
                 },
               },
             },

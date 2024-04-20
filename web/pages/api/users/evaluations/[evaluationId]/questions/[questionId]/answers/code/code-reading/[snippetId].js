@@ -62,16 +62,17 @@ const put = withEvaluationPhase(
                     codeType: true, // For grading
                     codeReading: {
                       select: {
-                        snippets: { // To set the StudentAnswerCodeReadingOutput status
+                        snippets: {
+                          // To set the StudentAnswerCodeReadingOutput status
                           where: {
                             id: snippetId,
                           },
                           select: {
                             output: true,
                           },
-                        }
+                        },
                       },
-                    }
+                    },
                   },
                 },
                 type: true, // For grading
@@ -87,9 +88,8 @@ const put = withEvaluationPhase(
       }
 
       await prisma.$transaction(async (prisma) => {
-
         // update the status of the users answers
-        
+
         await prisma.studentAnswer.update({
           where: {
             userEmail_questionId: {
@@ -100,9 +100,10 @@ const put = withEvaluationPhase(
           data: {
             status: StudentAnswerStatus.IN_PROGRESS,
           },
-        });
-        
-        const officialOutput = evaluationToQuestion.question.code.codeReading.snippets[0].output
+        })
+
+        const officialOutput =
+          evaluationToQuestion.question.code.codeReading.snippets[0].output
 
         // update the users answers file for code reading question
         await prisma.studentAnswerCodeReadingOutput.update({
@@ -110,16 +111,19 @@ const put = withEvaluationPhase(
             questionId_userEmail_snippetId: {
               questionId: questionId,
               userEmail: studentEmail,
-              snippetId: snippetId
+              snippetId: snippetId,
             },
           },
           data: {
             output: output,
-            status: output === officialOutput ? StudentAnswerCodeReadingOutputStatus.MATCH : StudentAnswerCodeReadingOutputStatus.MISMATCH,
+            status:
+              output === officialOutput
+                ? StudentAnswerCodeReadingOutputStatus.MATCH
+                : StudentAnswerCodeReadingOutputStatus.MISMATCH,
           },
         })
 
-        // Get all student outputs 
+        // Get all student outputs
         const studentAnswer = await prisma.studentAnswerCodeReading.findUnique({
           where: {
             userEmail_questionId: {
@@ -127,7 +131,7 @@ const put = withEvaluationPhase(
               userEmail: studentEmail,
             },
           },
-          select:{
+          select: {
             outputs: {
               select: {
                 output: true,
@@ -138,10 +142,10 @@ const put = withEvaluationPhase(
                 },
               },
             },
-          }
+          },
         })
 
-        // grade question 
+        // grade question
         await prisma.studentQuestionGrading.upsert({
           where: {
             userEmail_questionId: {
@@ -164,7 +168,6 @@ const put = withEvaluationPhase(
             studentAnswer,
           ),
         })
-
       })
 
       const updatedAnswer = await prisma.studentAnswer.findUnique({

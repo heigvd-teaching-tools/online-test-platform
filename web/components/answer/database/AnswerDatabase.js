@@ -39,7 +39,7 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChange }) => {
 
   const studentAnswer = questionAnswer?.studentAnswer
   const questionId = question?.id
-    
+
   const ref = useRef()
 
   const [saveLock, setSaveLock] = useState(false)

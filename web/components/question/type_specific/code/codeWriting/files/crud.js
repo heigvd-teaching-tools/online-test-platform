@@ -27,14 +27,17 @@ export const update = (nature, groupScope, questionId, codeToFile) =>
   ).then((data) => data.json())
 
 export const create = (nature, groupScope, questionId, codeToFile) =>
-  fetch(`/api/${groupScope}/questions/${questionId}/code/code-writing/files/${nature}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+  fetch(
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/files/${nature}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(codeToFile),
     },
-    body: JSON.stringify(codeToFile),
-  }).then((data) => data.json())
+  ).then((data) => data.json())
 
 export const del = (nature, groupScope, questionId, codeToFile) =>
   fetch(
@@ -49,10 +52,13 @@ export const del = (nature, groupScope, questionId, codeToFile) =>
   ).then((data) => data.json())
 
 export const pull = (groupScope, questionId) =>
-  fetch(`/api/${groupScope}/questions/${questionId}/code/code-writing/files/solution/pull`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+  fetch(
+    `/api/${groupScope}/questions/${questionId}/code/code-writing/files/solution/pull`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
     },
-  }).then((data) => data.json())
+  ).then((data) => data.json())

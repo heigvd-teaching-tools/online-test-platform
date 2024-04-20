@@ -34,7 +34,6 @@ const get = async (req, res, prisma) => {
 
   const { questionId } = req.query
 
-  
   const snippets = await prisma.codeReadingSnippet.findMany({
     where: { questionId },
     orderBy: { order: 'asc' },
@@ -47,12 +46,10 @@ const get = async (req, res, prisma) => {
 
 const post = async (req, res, prisma) => {
   // create a new snippet for a code question
-  
+
   const { questionId } = req.query
 
-  const {
-    order,
-  } = req.body
+  const { order } = req.body
 
   const codeReadingSnippet = await prisma.codeReadingSnippet.create({
     data: {
@@ -62,7 +59,6 @@ const post = async (req, res, prisma) => {
   })
 
   res.status(200).json(codeReadingSnippet)
-
 }
 
 export default withMethodHandler({

@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 import code from '@/pages/api/[groupScope]/questions/[questionId]/code'
-import { QuestionType, StudentPermission, QuestionSource, CodeQuestionType } from '@prisma/client'
+import {
+  QuestionType,
+  StudentPermission,
+  QuestionSource,
+  CodeQuestionType,
+} from '@prisma/client'
 import { orderBy } from 'lodash'
 
 export const IncludeStrategy = {
@@ -46,7 +51,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
   const typeSpecific = includeTypeSpecific
     ? {
         code: {
-          select:{
+          select: {
             language: true,
             sandbox: true,
             codeType: true,
@@ -84,11 +89,12 @@ export const questionIncludeClause = (questionIncludeOptions) => {
               select: {
                 ...(includeOfficialAnswers
                   ? {
-                    studentOutputTest: true,
-                    contextExec: true,
-                    contextPath: true,
-                    context: true,
-                } : {}),
+                      studentOutputTest: true,
+                      contextExec: true,
+                      contextPath: true,
+                      context: true,
+                    }
+                  : {}),
                 snippets: {
                   select: {
                     id: true,
@@ -101,8 +107,8 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                   },
                 },
               },
-            }
-          }
+            },
+          },
         },
         multipleChoice: {
           select: {
@@ -201,7 +207,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         user: true,
         code: {
           select: {
-            codeWriting:{
+            codeWriting: {
               select: {
                 files: {
                   where: {
@@ -237,10 +243,10 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                       order: 'asc',
                     },
                   },
-                }
+                },
               },
             },
-          }
+          },
         },
         database: {
           select: {
@@ -393,7 +399,6 @@ export const copyQuestion = async (
   }
 
   const copyCodeQuestion = async (prisma, question) => {
-
     const query = {
       data: {
         ...data,
@@ -411,13 +416,12 @@ export const copyQuestion = async (
         },
       },
     }
-    
+
     let newCodeQuestion = undefined
 
     switch (question.code.codeType) {
       // create the copy of the code writing question
       case CodeQuestionType.codeWriting: {
-
         query.data.code.create.codeWriting = {
           create: {
             testCases: {
@@ -480,10 +484,9 @@ export const copyQuestion = async (
             },
           })
         }
-        break;
+        break
       }
       case CodeQuestionType.codeReading: {
-
         query.data.code.create.codeReading = {
           create: {
             contextExec: question.code.codeReading.contextExec,
@@ -502,14 +505,12 @@ export const copyQuestion = async (
 
         newCodeQuestion = await prisma.question.create(query)
 
-        break;
+        break
       }
-
     }
 
     return newCodeQuestion
   }
-  
 
   const copyDatabaseQuestion = async (prisma, question) => {
     const newDatabaseQuestion = await prisma.question.create({
@@ -635,11 +636,16 @@ const buildCodeWritingUpdate = (questionId, { testCases, files }) => ({
         },
       })),
     },
-  }
-});
+  },
+})
 
 // Function to create the structure for codeReading specifics
-const buildCodeReadingUpdate = ({contextExec, contextPath, context, snippets}) => ({
+const buildCodeReadingUpdate = ({
+  contextExec,
+  contextPath,
+  context,
+  snippets,
+}) => ({
   create: {
     contextExec,
     contextPath,
@@ -651,8 +657,8 @@ const buildCodeReadingUpdate = ({contextExec, contextPath, context, snippets}) =
         output,
       })),
     },
-  }
-});
+  },
+})
 
 // Main function to build the initial update query
 export const codeInitialUpdateQuery = (questionId, code, codeQuestionType) => {
@@ -661,19 +667,24 @@ export const codeInitialUpdateQuery = (questionId, code, codeQuestionType) => {
     where: { questionId },
     data: {
       language: code.language,
-      sandbox: code.sandbox ? {
-        create: {
-          image: code.sandbox.image,
-          beforeAll: code.sandbox.beforeAll,
-        },
-      } : undefined,
+      sandbox: code.sandbox
+        ? {
+            create: {
+              image: code.sandbox.image,
+              beforeAll: code.sandbox.beforeAll,
+            },
+          }
+        : undefined,
       codeType: codeQuestionType,
-      [codeQuestionType]: codeQuestionType === CodeQuestionType.codeWriting ? buildCodeWritingUpdate(questionId, code) : buildCodeReadingUpdate(code),
+      [codeQuestionType]:
+        codeQuestionType === CodeQuestionType.codeWriting
+          ? buildCodeWritingUpdate(questionId, code)
+          : buildCodeReadingUpdate(code),
       question: {
         connect: { id: questionId },
       },
     },
   }
 
-  return updateQuery;
+  return updateQuery
 }

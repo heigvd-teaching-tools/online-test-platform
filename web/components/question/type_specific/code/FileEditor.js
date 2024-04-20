@@ -62,35 +62,34 @@ const FileEditor = ({
           zIndex={1}
           bgcolor={theme.palette.background.paper}
         >
-          <Stack height={50} direction="row" alignItems="center" spacing={1} width="100%">
-            { leftCorner && (
-              <Box pl={2}>
-                {leftCorner}
-              </Box>
-            
-            )}
+          <Stack
+            height={50}
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            width="100%"
+          >
+            {leftCorner && <Box pl={2}>{leftCorner}</Box>}
             <Box flex={1} pl={1}>
-            {(!readonlyPath && (
-              <TextField
-                id={`${file.id}-${path}`}
-                variant="standard"
-                label={`Path [syntax: ${language}]`}
-                value={path}
-                fullWidth
-                onChange={(ev) => {
-                  const path = ev.target.value
-                  if (path === file.path) return
-                  file.path = path
-                  setPath(ev.target.value)
-                  onChange({
-                    ...file,
-                    path: ev.target.value,
-                  })
-                }}
-              />
-            )) || (
-              <Typography variant="body1"> {path} </Typography>
-            )}
+              {(!readonlyPath && (
+                <TextField
+                  id={`${file.id}-${path}`}
+                  variant="standard"
+                  label={`Path [syntax: ${language}]`}
+                  value={path}
+                  fullWidth
+                  onChange={(ev) => {
+                    const path = ev.target.value
+                    if (path === file.path) return
+                    file.path = path
+                    setPath(ev.target.value)
+                    onChange({
+                      ...file,
+                      path: ev.target.value,
+                    })
+                  }}
+                />
+              )) || <Typography variant="body1"> {path} </Typography>}
             </Box>
             {secondaryActions}
           </Stack>

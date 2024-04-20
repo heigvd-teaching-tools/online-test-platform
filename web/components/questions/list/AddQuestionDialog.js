@@ -33,15 +33,16 @@ const types = typesToArray()
 
 const defaultLanguage = languages.environments[0].language
 
-
-const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => ({ value: key }))
-
+const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => ({
+  value: key,
+}))
 
 const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
-
   const [type, setType] = useState(types[0].value)
   const [language, setLanguage] = useState(defaultLanguage)
-  const [codeQuestionType, setCodeQuestionType] = useState(CodeQuestionType.codeWriting)
+  const [codeQuestionType, setCodeQuestionType] = useState(
+    CodeQuestionType.codeWriting,
+  )
 
   return (
     <DialogFeedback
@@ -68,15 +69,12 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
                 Select the language and type of the code question
               </Typography>
               <Stack direction="row" spacing={2}>
-              <LanguageSelector 
-                language={language} 
-                onChange={setLanguage} 
-              />
-              <CodeQuestionTypeSelector
-                options={listOfCodeQuestionTypes}
-                codeQuestionType={codeQuestionType}
-                setCodeQuestionType={setCodeQuestionType}
-              />
+                <LanguageSelector language={language} onChange={setLanguage} />
+                <CodeQuestionTypeSelector
+                  options={listOfCodeQuestionTypes}
+                  codeQuestionType={codeQuestionType}
+                  setCodeQuestionType={setCodeQuestionType}
+                />
               </Stack>
             </>
           )}
@@ -93,8 +91,15 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
   )
 }
 
-const CodeQuestionTypeSelector = ({ options, codeQuestionType, setCodeQuestionType }) => {
-  const helperText = codeQuestionType === CodeQuestionType.codeReading ? "Understand the code and guess the output" : "Write the code and pass codecheck" 
+const CodeQuestionTypeSelector = ({
+  options,
+  codeQuestionType,
+  setCodeQuestionType,
+}) => {
+  const helperText =
+    codeQuestionType === CodeQuestionType.codeReading
+      ? 'Understand the code and guess the output'
+      : 'Write the code and pass codecheck'
   return (
     <DropDown
       id="codeQuestionType"

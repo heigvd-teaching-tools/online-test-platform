@@ -30,35 +30,28 @@ const AnswerCode = ({ evaluationId, questionId, onAnswerChange }) => {
   )
 
   const { question, studentAnswer } = questionAnswer || {}
-  
+
   return (
     <Loading errors={[error]} loading={!questionAnswer}>
-      {
-        studentAnswer?.code?.codeType === CodeQuestionType.codeWriting && (
-          <AnswerCodeWriting
-            evaluationId={evaluationId}
-            questionId={questionId}
-            answer={studentAnswer}
-            onAnswerChange={onAnswerChange}
-          />
-        )
-      }
-      {
-        studentAnswer?.code?.codeType === CodeQuestionType.codeReading && (
-          <AnswerCodeReading
-            evaluationId={evaluationId}
-            questionId={questionId}
-            question={question}
-            answer={studentAnswer}
-            onAnswerChange={onAnswerChange}
-          />
-        )
-      }
+      {studentAnswer?.code?.codeType === CodeQuestionType.codeWriting && (
+        <AnswerCodeWriting
+          evaluationId={evaluationId}
+          questionId={questionId}
+          answer={studentAnswer}
+          onAnswerChange={onAnswerChange}
+        />
+      )}
+      {studentAnswer?.code?.codeType === CodeQuestionType.codeReading && (
+        <AnswerCodeReading
+          evaluationId={evaluationId}
+          questionId={questionId}
+          question={question}
+          answer={studentAnswer}
+          onAnswerChange={onAnswerChange}
+        />
+      )}
     </Loading>
   )
 }
-
-
-
 
 export default AnswerCode

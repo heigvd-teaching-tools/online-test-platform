@@ -57,13 +57,13 @@ const put = withEvaluationPhase(
           include: {
             question: {
               select: {
-                code:{
-                  select:{
+                code: {
+                  select: {
                     codeType: true,
-                  }
+                  },
                 },
                 type: true,
-              }
+              },
             },
           },
         },
@@ -152,14 +152,14 @@ const put = withEvaluationPhase(
           code: {
             select: {
               codeWriting: {
-                select:{
+                select: {
                   files: {
                     select: {
                       file: true,
                     },
                   },
-                }
-              }
+                },
+              },
             },
           },
         },

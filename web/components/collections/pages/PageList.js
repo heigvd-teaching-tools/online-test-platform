@@ -77,16 +77,21 @@ const PageList = () => {
     setDeleteDialogOpen(false)
   }
 
-  console.log("collections", collections)
+  console.log('collections', collections)
 
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading errors={[error]} loading={!data}>
-        <LayoutMain
-          header={<MainMenu />}
-        >
-          <Box sx={{ minWidth: '100%', height:'100%', p:2, bgcolor: 'background.paper' }}>
-            { collections && (
+        <LayoutMain header={<MainMenu />}>
+          <Box
+            sx={{
+              minWidth: '100%',
+              height: '100%',
+              p: 2,
+              bgcolor: 'background.paper',
+            }}
+          >
+            {collections && (
               <GridGrouping
                 label="Collections"
                 actions={
@@ -166,9 +171,8 @@ const PageList = () => {
                 ]}
               />
             )}
-            
           </Box>
-            
+
           {collections && collections.length === 0 && (
             <AlertFeedback severity="info">
               <Typography variant="body1">
