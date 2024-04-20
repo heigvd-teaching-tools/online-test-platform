@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PageTakeEvaluation from '@/components/users/evaluations/PageTakeEvaluation'
+import PageTakeEvaluation from '@/components/users/evaluations/PageEvaluationTake'
+import { StudentOnEvaluationProvider } from '@/context/StudentOnEvaluationContext'
 
 const TakeEvaluation = () => {
-  return <PageTakeEvaluation />
+  return (
+    <StudentOnEvaluationProvider>
+      <PageTakeEvaluation />
+    </StudentOnEvaluationProvider>
+  )
 }
 
 export default TakeEvaluation

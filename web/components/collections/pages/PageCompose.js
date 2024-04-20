@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { Role } from '@prisma/client'
+import { QuestionType, Role } from '@prisma/client'
 
 import Image from 'next/image'
 
@@ -52,6 +52,8 @@ import { getTextByType } from '@/components/question/types'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 import QuestionTagsViewer from '@/components/question/tags/QuestionTagsViewer'
 import DateTimeAgo from '@/components/feedback/DateTimeAgo'
+import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
+import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 
 const PageCompose = () => {
   const router = useRouter()
@@ -175,23 +177,6 @@ const PageCompose = () => {
     [collectionToQuestions, setCollectionToQuestions],
   )
 
-  /* ORDERING DEBUG
-  
-    const arrayOfOrders = collectionToQuestions?.map(
-      (collectionToQuestion) => collectionToQuestion.order
-    )
-    
-    const isIncreasing = (arr = [])  => {
-      for (let i = 1; i < arr.length; i++) {
-        if (arr[i] <= arr[i - 1]) return false
-      }
-      return true
-    }
-
-    console.log(arrayOfOrders?.join(','), isIncreasing(arrayOfOrders))
-
-  */
-
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading
@@ -296,9 +281,22 @@ const QuestionsGrid = ({ questions, addCollectionToQuestion }) => {
           {
             label: 'Type',
             column: { width: '140px' },
-            renderCell: (row) => (
-              <QuestionTypeIcon type={row.type} size={24} withLabel />
-            ),
+            renderCell: (row) => {
+              if (row.type === QuestionType.code) {
+                return (
+                  <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                    <QuestionTypeIcon type={row.type} size={24} />
+                    <CodeQuestionTypeIcon
+                      codeType={row.code?.codeType}
+                      size={18}
+                    />
+                    <LanguageIcon language={row.code?.language} size={18} />
+                  </Stack>
+                )
+              } else {
+                return <QuestionTypeIcon type={row.type} size={24} withLabel />
+              }
+            },
           },
           {
             label: 'Title',

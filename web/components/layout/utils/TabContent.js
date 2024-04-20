@@ -16,8 +16,8 @@
 import React from 'react'
 import { Stack } from '@mui/material'
 
-const TabContent = ({ children, padding = 0, spacing = 0 }) => (
-  <Stack direction="column" padding={padding} spacing={spacing} height={'100%'}>
+const TabContent = ({ children, ...props }) => (
+  <Stack direction="column" height={'100%'} {...props}>
     {children}
   </Stack>
 )

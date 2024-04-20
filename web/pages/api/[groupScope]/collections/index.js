@@ -43,6 +43,9 @@ const get = async (req, res, prisma) => {
         scope: groupScope,
       },
     },
+    orderBy: {
+      updatedAt: 'desc',
+    },
   })
   res.status(200).json(collections)
 }

@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 import { useEffect, useState, useRef } from 'react'
-import { Select, InputLabel, FormControl, Typography, Box } from '@mui/material'
+import {
+  Select,
+  InputLabel,
+  FormControl,
+  FormHelperText,
+  Box,
+} from '@mui/material'
 const DropDown = ({
   children,
   id,
@@ -26,6 +32,7 @@ const DropDown = ({
   size = 'medium',
   icon,
   onChange,
+  helperText,
 }) => {
   const selectRef = useRef()
 
@@ -60,6 +67,7 @@ const DropDown = ({
       >
         {children}
       </Select>
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   )
 }

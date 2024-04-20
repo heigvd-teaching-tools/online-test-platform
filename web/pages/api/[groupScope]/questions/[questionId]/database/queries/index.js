@@ -20,7 +20,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { withQuestionUpdate } from '@/middleware/withQuestionUpdate'
+import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 const get = async (req, res, prisma) => {
   // get the solution queries for a database question

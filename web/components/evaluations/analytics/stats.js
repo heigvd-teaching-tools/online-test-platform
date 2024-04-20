@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 import {
+  CodeQuestionType,
   QuestionType,
+  StudentAnswerCodeReadingOutputStatus,
   StudentAnswerStatus,
   StudentQuestionGradingStatus,
 } from '@prisma/client'
@@ -144,51 +146,14 @@ export const typeSpecificStats = (question) => {
         },
       }
     case QuestionType.code:
-      let success = question.studentAnswer.reduce((acc, sa) => {
-        // Check if the users's answer has been submitted, test cases have been run, and all test cases passed.
-        if (
-          sa.status !== StudentAnswerStatus.MISSING &&
-          sa[question.type]?.testCaseResults?.length > 0 &&
-          sa[question.type].allTestCasesPassed
-        ) {
-          return acc + 1
-        }
-        return acc
-      }, 0)
-
-      let failure = question.studentAnswer.reduce((acc, sa) => {
-        // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
-        if (
-          sa.status !== StudentAnswerStatus.MISSING &&
-          sa[question.type]?.testCaseResults?.length > 0 &&
-          !sa[question.type].allTestCasesPassed
-        ) {
-          return acc + 1
-        }
-        return acc
-      }, 0)
-
-      let noCodeCheckRuns = question.studentAnswer.reduce((acc, sa) => {
-        // Check if the users's answer has been submitted, test cases have been run, and not all test cases passed.
-        if (
-          sa.status !== StudentAnswerStatus.MISSING &&
-          !sa[question.type]?.testCaseResults?.length
-        ) {
-          return acc + 1
-        }
-        return acc
-      }, 0)
-
-      return {
-        success: {
-          count: success,
-        },
-        failure: {
-          count: failure,
-        },
-        noCodeCheckRuns: {
-          count: noCodeCheckRuns,
-        },
+      const codeType = question.code.codeType
+      switch (codeType) {
+        case CodeQuestionType.codeReading:
+          return calculateCodeReadingStats(question)
+        case CodeQuestionType.codeWriting:
+          return calculateCodeWritingStats(question)
+        default:
+          return null
       }
     case QuestionType.essay:
     case QuestionType.web:
@@ -290,5 +255,93 @@ export const typeSpecificStats = (question) => {
       }
     default:
       return null
+  }
+}
+
+const calculateCodeWritingStats = (question) => {
+  let success = question.studentAnswer.reduce((acc, sa) => {
+    if (
+      sa.status !== StudentAnswerStatus.MISSING &&
+      sa.code.codeWriting?.testCaseResults?.length > 0 &&
+      sa.code.codeWriting.allTestCasesPassed
+    ) {
+      return acc + 1
+    }
+    return acc
+  }, 0)
+
+  let failure = question.studentAnswer.reduce((acc, sa) => {
+    if (
+      sa.status !== StudentAnswerStatus.MISSING &&
+      sa.code.codeWriting?.testCaseResults?.length > 0 &&
+      !sa.code.codeWriting.allTestCasesPassed
+    ) {
+      return acc + 1
+    }
+    return acc
+  }, 0)
+
+  let noCodeCheckRuns = question.studentAnswer.reduce((acc, sa) => {
+    if (
+      sa.status !== StudentAnswerStatus.MISSING &&
+      !sa.code.codeWriting?.testCaseResults?.length
+    ) {
+      return acc + 1
+    }
+    return acc
+  }, 0)
+
+  return {
+    success: { count: success },
+    failure: { count: failure },
+    noCodeCheckRuns: { count: noCodeCheckRuns },
+  }
+}
+
+const calculateCodeReadingStats = (question) => {
+  let success = question.studentAnswer.reduce((acc, sa) => {
+    console.log('sa', sa)
+    if (
+      sa.status !== StudentAnswerStatus.MISSING &&
+      sa.code.codeReading?.outputs.every(
+        (output) =>
+          output.status === StudentAnswerCodeReadingOutputStatus.MATCH,
+      )
+    ) {
+      return acc + 1
+    }
+    return acc
+  }, 0)
+
+  let failure = question.studentAnswer.reduce((acc, sa) => {
+    if (
+      sa.status !== StudentAnswerStatus.MISSING &&
+      sa.code.codeReading?.outputs.some(
+        (output) =>
+          output.status === StudentAnswerCodeReadingOutputStatus.MISMATCH,
+      )
+    ) {
+      return acc + 1
+    }
+    return acc
+  }, 0)
+
+  let unanswered = question.studentAnswer.reduce((acc, sa) => {
+    if (
+      sa.status !== StudentAnswerStatus.MISSING &&
+      sa.code.codeReading?.outputs.every(
+        (output) =>
+          output.status === StudentAnswerCodeReadingOutputStatus.NEUTRAL,
+      )
+    ) {
+      return acc + 1
+    }
+    return acc
+  }, 0)
+  console.log('correct', success, 'failure', failure, 'unanswered', unanswered)
+  return {
+    success: { count: success },
+    failure: { count: failure },
+    unanswered: { count: unanswered },
   }
 }

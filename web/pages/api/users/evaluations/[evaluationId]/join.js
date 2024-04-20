@@ -24,6 +24,7 @@ import {
   QuestionType,
   StudentPermission,
   UserOnEvaluatioAccessMode,
+  CodeQuestionType,
 } from '@prisma/client'
 import { phaseGT } from '@/code/phase'
 import { questionIncludeClause } from '@/code/questions'
@@ -154,7 +155,7 @@ const post = async (req, res, prisma) => {
         },
       })
 
-      // code and database questions have type specific data to be copied for the users answer
+      // web, code and database questions have type specific data to be copied for the users answer
       switch (question.type) {
         case QuestionType.web:
           await prisma.studentAnswerWeb.update({
@@ -179,7 +180,10 @@ const post = async (req, res, prisma) => {
                 questionId: question.id,
               },
             },
-            data: createCodeTypeSpecificData(question),
+            data: {
+              codeType: question.code.codeType,
+              ...createCodeTypeSpecificData(question),
+            },
           })
           break
         case QuestionType.database:
@@ -192,26 +196,64 @@ const post = async (req, res, prisma) => {
 }
 
 const createCodeTypeSpecificData = (question) => {
+  switch (question.code.codeType) {
+    case CodeQuestionType.codeReading:
+      return createCodeReadingTypeSpecificData(question)
+    case CodeQuestionType.codeWriting:
+      return createCodeWritingTypeSpecificData(question)
+    default:
+      return {}
+  }
+}
+
+const createCodeReadingTypeSpecificData = (question) => {
   return {
-    files: {
-      create: question.code.templateFiles.map((codeToFile) => {
-        return {
-          studentPermission: codeToFile.studentPermission,
-          order: codeToFile.order,
-          file: {
-            create: {
-              path: codeToFile.file.path,
-              content: codeToFile.file.content,
-              createdAt: codeToFile.file.createdAt,
-              code: {
+    codeReading: {
+      create: {
+        outputs: {
+          create: question.code.codeReading.snippets.map((snippet) => {
+            return {
+              // Student starts with an empty output
+              output: '',
+              // Connect the output to the corresponding snippet
+              codeReadingSnippet: {
                 connect: {
-                  questionId: question.id,
+                  id: snippet.id,
                 },
               },
-            },
-          },
-        }
-      }),
+            }
+          }),
+        },
+      },
+    },
+  }
+}
+
+const createCodeWritingTypeSpecificData = (question) => {
+  return {
+    codeWriting: {
+      create: {
+        files: {
+          create: question.code.codeWriting.templateFiles.map((codeToFile) => {
+            return {
+              studentPermission: codeToFile.studentPermission,
+              order: codeToFile.order,
+              file: {
+                create: {
+                  path: codeToFile.file.path,
+                  content: codeToFile.file.content,
+                  createdAt: codeToFile.file.createdAt,
+                  code: {
+                    connect: {
+                      questionId: question.id,
+                    },
+                  },
+                },
+              },
+            }
+          }),
+        },
+      },
     },
   }
 }

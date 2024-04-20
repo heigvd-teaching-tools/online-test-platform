@@ -13,23 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
-import languages from '../../../../code/languages.json'
+import languages from '@/code/languages.json'
 
 const environments = languages.environments
-const LanguageIcon = ({ language, size = 24 }) => {
+const LanguageIcon = ({ language, size = 24, withLabel = false }) => {
   const index = environments.findIndex((env) => env.language === language)
   return (
-    <Box minWidth={size} minHeight={size}>
+    <Stack
+      minWidth={size}
+      minHeight={size}
+      direction={'row'}
+      alignItems={'center'}
+      spacing={1}
+    >
       <Image
-        src={environments[index].icon}
-        alt={environments[index].language}
+        src={environments[index]?.icon}
+        alt={environments[index]?.language}
         width={size}
         height={size}
       />
-    </Box>
+      {withLabel && (
+        <Typography variant={'caption'}>
+          {environments[index]?.label}
+        </Typography>
+      )}
+    </Stack>
   )
 }
 

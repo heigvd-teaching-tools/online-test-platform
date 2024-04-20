@@ -13,34 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuestionType } from '@prisma/client'
+import Image from 'next/image'
+import { QuestionType, CodeQuestionType } from '@prisma/client'
 import React, { useState } from 'react'
-import DialogFeedback from '../../feedback/DialogFeedback'
-import { Stack, Typography } from '@mui/material'
-import { toArray as typesToArray } from '../../question/types'
+import DialogFeedback from '@/components/feedback/DialogFeedback'
+import { Stack, Typography, MenuItem, Box } from '@mui/material'
+import { toArray as typesToArray } from '@/components/question/types'
 import { useSession } from 'next-auth/react'
-import AlertFeedback from '../../feedback/AlertFeedback'
-import QuestionTypeIcon from '../../question/QuestionTypeIcon'
-import LanguageSelector from '../../question/type_specific/code/LanguageSelector'
-import TypeSelector from '../../question/TypeSelector'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
+import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
+import LanguageSelector from '@/components/question/type_specific/code/LanguageSelector'
+import TypeSelector from '@/components/question/TypeSelector'
 
-import languages from '../../../code/languages.json'
+import languages from '@/code/languages.json'
+import DropDown from '@/components/input/DropDown'
+import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
 
 const types = typesToArray()
 
 const defaultLanguage = languages.environments[0].language
 
-const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
-  const { data: session } = useSession()
+const listOfCodeQuestionTypes = Object.keys(CodeQuestionType).map((key) => ({
+  value: key,
+}))
 
+const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
   const [type, setType] = useState(types[0].value)
   const [language, setLanguage] = useState(defaultLanguage)
+  const [codeQuestionType, setCodeQuestionType] = useState(
+    CodeQuestionType.codeWriting,
+  )
 
   return (
     <DialogFeedback
       open={open}
       onClose={onClose}
-      title={`Create new question in group ${session.user.selected_group?.label}`}
+      title={`Create new question`}
       content={
         <Stack spacing={2}>
           <Typography variant="body1">
@@ -58,9 +66,16 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
           {type === QuestionType.code && (
             <>
               <Typography variant="body1">
-                Select the language of the code question
+                Select the language and type of the code question
               </Typography>
-              <LanguageSelector language={language} onChange={setLanguage} />
+              <Stack direction="row" spacing={2}>
+                <LanguageSelector language={language} onChange={setLanguage} />
+                <CodeQuestionTypeSelector
+                  options={listOfCodeQuestionTypes}
+                  codeQuestionType={codeQuestionType}
+                  setCodeQuestionType={setCodeQuestionType}
+                />
+              </Stack>
             </>
           )}
           <AlertFeedback severity="warning">
@@ -71,8 +86,37 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
           </AlertFeedback>
         </Stack>
       }
-      onConfirm={() => handleAddQuestion(type, language)}
+      onConfirm={() => handleAddQuestion(type, { language, codeQuestionType })}
     />
+  )
+}
+
+const CodeQuestionTypeSelector = ({
+  options,
+  codeQuestionType,
+  setCodeQuestionType,
+}) => {
+  const helperText =
+    codeQuestionType === CodeQuestionType.codeReading
+      ? 'Understand the code and guess the output'
+      : 'Write the code and pass codecheck'
+  return (
+    <DropDown
+      id="codeQuestionType"
+      name="Code Question Type"
+      defaultValue={codeQuestionType}
+      minWidth="200px"
+      onChange={setCodeQuestionType}
+      helperText={helperText}
+    >
+      {options.map((type, i) => (
+        <MenuItem key={i} value={type.value}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <CodeQuestionTypeIcon size={20} codeType={type.value} withLabel />
+          </Stack>
+        </MenuItem>
+      ))}
+    </DropDown>
   )
 }
 

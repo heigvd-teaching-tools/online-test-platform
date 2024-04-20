@@ -17,6 +17,7 @@ import {
   StudentQuestionGradingStatus,
   QuestionType,
   DatabaseQueryOutputStatus,
+  CodeQuestionType,
 } from '@prisma/client'
 
 /*
@@ -40,8 +41,7 @@ export const grading = (question, totalPoints, studentAnswer) => {
     case QuestionType.essay:
       return gradeEssay(studentAnswer)
     case QuestionType.code:
-      // users code submission is graded during users code sandbox run
-      return gradeCode(totalPoints, studentAnswer)
+      return gradeCode(question, totalPoints, studentAnswer)
     case QuestionType.web:
       return gradeWeb(studentAnswer)
     case QuestionType.database:
@@ -129,20 +129,47 @@ const gradeTrueFalse = (question, totalPoints, studentAnswer) => {
     code grading call is done during answers submission and code test run
     code test run : /api/sandbox/[questionId]/users
 */
-const gradeCode = (totalPoints, response) => {
+const gradeCode = (question, totalPoints, studentAnswer) => {
   let grading = {
     ...defaultGrading,
     status: StudentQuestionGradingStatus.UNGRADED,
   }
-  const success = response && response.tests.every((test) => test.passed)
-  if (success !== undefined) {
-    // response is from the code sandbox run
+
+  const codeType = question.code.codeType
+
+  const gradeCodeWriting = (studentAnswer) => {
+    const success = studentAnswer?.allTestCasesPassed
+    if (success !== undefined) {
+      // response is from the code sandbox run
+      grading = {
+        ...grading,
+        status: StudentQuestionGradingStatus.AUTOGRADED,
+        pointsObtained: success ? totalPoints : 0,
+      }
+    }
+    return grading
+  }
+
+  const gradeCodeReading = (studentAnswer) => {
+    const success = studentAnswer?.outputs?.every(
+      (output) => output.output === output.codeReadingSnippet.output,
+    )
     grading = {
+      ...grading,
       status: StudentQuestionGradingStatus.AUTOGRADED,
       pointsObtained: success ? totalPoints : 0,
     }
+    return grading
   }
-  return grading
+
+  switch (codeType) {
+    case CodeQuestionType.codeWriting:
+      return gradeCodeWriting(studentAnswer)
+    case CodeQuestionType.codeReading:
+      return gradeCodeReading(studentAnswer)
+    default:
+      return grading
+  }
 }
 
 const gradeEssay = (answer) => ({

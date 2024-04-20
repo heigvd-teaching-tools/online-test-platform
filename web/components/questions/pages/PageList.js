@@ -46,7 +46,7 @@ import { weeksAgo } from '../list/utils'
 import { getTextByType } from '@/components/question/types'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 import CopyQuestionDialog from '../list/CopyQuestionDialog'
-import { set } from 'lodash'
+import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
 
 const PageList = () => {
   const router = useRouter()
@@ -77,7 +77,7 @@ const PageList = () => {
   const [selected, setSelected] = useState(undefined)
 
   const createQuestion = useCallback(
-    async (type, language) => {
+    async (type, options) => {
       // language only used for code questions
       await fetch(`/api/${groupScope}/questions`, {
         method: 'POST',
@@ -87,7 +87,7 @@ const PageList = () => {
         },
         body: JSON.stringify({
           type,
-          language,
+          options,
         }),
       })
         .then((res) => res.json())
@@ -184,8 +184,8 @@ const PageList = () => {
           <AddQuestionDialog
             open={addDialogOpen}
             onClose={() => setAddDialogOpen(false)}
-            handleAddQuestion={async (type, language) => {
-              await createQuestion(type, language)
+            handleAddQuestion={async (type, options) => {
+              await createQuestion(type, options)
               setAddDialogOpen(false)
             }}
           />
@@ -235,7 +235,15 @@ const QuestionsGrid = ({
                 return (
                   <Stack direction={'row'} spacing={1} alignItems={'center'}>
                     <QuestionTypeIcon type={row.type} size={24} />
-                    <LanguageIcon language={row.code?.language} size={18} />
+                    <CodeQuestionTypeIcon
+                      codeType={row.code?.codeType}
+                      size={18}
+                    />
+                    <LanguageIcon
+                      language={row.code?.language}
+                      size={18}
+                      withLabel
+                    />
                   </Stack>
                 )
               } else {

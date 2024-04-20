@@ -1,5 +1,7 @@
 {
   "comment": "Used both in frontend and backend. language property of an environment must match the monaco editor language property : https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages",
+  "codeWritingIcon": "/svg/languages/code-editor.svg",
+  "codeReadingIcon": "/svg/languages/check-list.svg",
   "environments": [
     {
       "language": "cpp",
@@ -12,24 +14,49 @@
         "exec": "/src/main",
         "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main"
       },
-      "testCases": [
-        {
-          "exec": "/src/main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
-        }
-      ],
-      "files": {
-        "solution": [
+      "codeWriting": {
+        "testCases": [
           {
-            "path": "/src/main.cpp",
-            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+            "exec": "/src/main",
+            "input": "Hello World1",
+            "expectedOutput": "HELLO WORLD1\n"
           }
         ],
-        "template": [
+        "files": {
+          "solution": [
+            {
+              "path": "/src/main.cpp",
+              "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+            }
+          ],
+          "template": [
+            {
+              "path": "/src/main.cpp",
+              "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+            }
+          ]
+        }
+      },
+      "codeReading": {
+        "context": "#include <iostream>\n#include <string>\n#include <algorithm>\n#include <cctype>\nusing namespace std;\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nint main() {\n    string functionName;\n    cin >> functionName;\n    {{SNIPPET_FUNCTION_CALLS}}\n    return 0;\n}",
+        "snippetWrapperFunctionSignature": "void {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
+        "snippetFunctionCallTemplate": "if (functionName == \"{{SNIPPET_FUNCTION_NAME}}\") { {{SNIPPET_FUNCTION_NAME}}(); }",
+        "snippets": [
           {
-            "path": "/src/main.cpp",
-            "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+            "snippet": "std::string s = \"hello, world\";\nstd::transform(s.begin(), s.end(), s.begin(), ::toupper);\nstd::cout << s;",
+            "output": "HELLO, WORLD"
+          },
+          {
+            "snippet": "for(int i = 0; i < 3; i++) {\n    cout << i << endl;\n}",
+            "output": "0\n1\n2\n"
+          },
+          {
+            "snippet": "int i = 11;\nwhile (i > 4) {\n  cout << (i -= 2) << \" \";\n}",
+            "output": "9 7 5 3 "
+          },
+          {
+            "snippet": "string str;\nfor(char c = 'A'; c <= 'C'; ++c) \n  str = str + c + str;\ncout << str;",
+            "output": "ABACABA"
           }
         ]
       }
@@ -45,24 +72,49 @@
         "exec": "/src/main",
         "beforeAll": "gcc -std=c11 /src/main.c -o /src/main"
       },
-      "testCases": [
-        {
-          "exec": "/src/main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
-        }
-      ],
-      "files": {
-        "solution": [
+      "codeWriting": {
+        "testCases": [
           {
-            "path": "/src/main.c",
-            "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
+            "exec": "/src/main",
+            "input": "Hello World1",
+            "expectedOutput": "HELLO WORLD1\n"
           }
         ],
-        "template": [
+        "files": {
+          "solution": [
+            {
+              "path": "/src/main.c",
+              "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
+            }
+          ],
+          "template": [
+            {
+              "path": "/src/main.c",
+              "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
+            }
+          ]
+        }
+      },
+      "codeReading": {
+        "context": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nint main() {\n    char functionName[100];\n    scanf(\"%s\", functionName);\n    {{SNIPPET_FUNCTION_CALLS}}\n    return 0;\n}",
+        "snippetWrapperFunctionSignature": "void {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
+        "snippetFunctionCallTemplate": "if (strcmp(functionName, \"{{SNIPPET_FUNCTION_NAME}}\") == 0) { {{SNIPPET_FUNCTION_NAME}}(); }",
+        "snippets": [
           {
-            "path": "/src/main.c",
-            "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
+            "snippet": "char s[] = \"hello, world\";\nfor (int i = 0; s[i]; i++) s[i] = toupper(s[i]);\nprintf(\"%s\", s);",
+            "output": "HELLO, WORLD"
+          },
+          {
+            "snippet": "for (int i = 0; i < 3; i++) {\n    printf(\"%d\\n\", i);\n}",
+            "output": "0\n1\n2\n"
+          },
+          {
+            "snippet": "int i = 11;\nwhile (i > 4) {\n    i -= 2;\n    printf(\"%d \", i);\n}",
+            "output": "9 7 5 3 "
+          },
+          {
+            "snippet": "char str[20] = \"\";\nchar temp[20];\nfor (char c = 'A'; c <= 'C'; c++) {\n    sprintf(temp, \"%s%c%s\", str, c, str);\n    strcpy(str, temp);\n}\nprintf(\"%s\", str);",
+            "output": "ABACABA"
           }
         ]
       }
@@ -74,28 +126,53 @@
       "icon": "/svg/languages/java.svg",
       "sandbox": {
         "image": "eclipse-temurin:latest",
-        "defaultPath": "/src/main.java",
+        "defaultPath": "/src/Main.java",
         "exec": "java -cp /src Main",
         "beforeAll": "javac /src/Main.java"
       },
-      "testCases": [
-        {
-          "exec": "java -cp /src Main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
-        }
-      ],
-      "files": {
-        "solution": [
+      "codeWriting": {
+        "testCases": [
           {
-            "path": "/src/Main.java",
-            "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
+            "exec": "java -cp /src Main",
+            "input": "Hello World1",
+            "expectedOutput": "HELLO WORLD1\n"
           }
         ],
-        "template": [
+        "files": {
+          "solution": [
+            {
+              "path": "/src/Main.java",
+              "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
+            }
+          ],
+          "template": [
+            {
+              "path": "/src/Main.java",
+              "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
+            }
+          ]
+        }
+      },
+      "codeReading": {
+        "context": "import java.util.Scanner;\n\npublic class Main {\n  \n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\n   public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String functionName = scanner.nextLine();\n        {{SNIPPET_FUNCTION_CALLS}}\n        scanner.close();\n    }\n}",
+        "snippetWrapperFunctionSignature": "private static void {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
+        "snippetFunctionCallTemplate": "if (functionName.equals(\"{{SNIPPET_FUNCTION_NAME}}\")) { {{SNIPPET_FUNCTION_NAME}}(); }\n",
+        "snippets": [
           {
-            "path": "/src/Main.java",
-            "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
+            "snippet": "String s = \"hello, world\";\ns = s.toUpperCase();\nSystem.out.println(s);",
+            "output": "HELLO, WORLD"
+          },
+          {
+            "snippet": "for (int i = 0; i < 3; i++) {\n    System.out.println(i);\n}",
+            "output": "0\n1\n2\n"
+          },
+          {
+            "snippet": "int i = 11;\nwhile (i > 4) {\n    i -= 2;\n    System.out.print(i + \" \");\n}",
+            "output": "9 7 5 3 "
+          },
+          {
+            "snippet": "String str = \"\";\nfor (char c = 'A'; c <= 'C'; c++) {\n    str = str + c + str;\n}\nSystem.out.println(str);",
+            "output": "ABACABA"
           }
         ]
       }
@@ -111,24 +188,49 @@
         "exec": "node /src/script.js",
         "beforeAll": ""
       },
-      "testCases": [
-        {
-          "exec": "node /src/script.js",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
-        }
-      ],
-      "files": {
-        "solution": [
+      "codeWriting": {
+        "testCases": [
           {
-            "path": "/src/script.js",
-            "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+            "exec": "node /src/script.js",
+            "input": "Hello World1",
+            "expectedOutput": "HELLO WORLD1\n"
           }
         ],
-        "template": [
+        "files": {
+          "solution": [
+            {
+              "path": "/src/script.js",
+              "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+            }
+          ],
+          "template": [
+            {
+              "path": "/src/script.js",
+              "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
+            }
+          ]
+        }
+      },
+      "codeReading": {
+        "context": "\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunction main() {\n    const readline = require('readline');\n    const rl = readline.createInterface({\n        input: process.stdin,\n        output: process.stdout\n    });\n    rl.on('line', (functionName) => {\n        {{SNIPPET_FUNCTION_CALLS}}\n        rl.close();\n    });\n}\nmain();",
+        "snippetWrapperFunctionSignature": "function {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
+        "snippetFunctionCallTemplate": "if (functionName === '{{SNIPPET_FUNCTION_NAME}}') { {{SNIPPET_FUNCTION_NAME}}(); }\n",
+        "snippets": [
           {
-            "path": "/src/script.js",
-            "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
+            "snippet": "let s = 'hello, world';\ns = s.toUpperCase();\nconsole.log(s);",
+            "output": "HELLO, WORLD"
+          },
+          {
+            "snippet": "for (let i = 0; i < 3; i++) {\n    console.log(i);\n}",
+            "output": "0\n1\n2\n"
+          },
+          {
+            "snippet": "let i = 11;\nwhile (i > 4) {\n    i -= 2;\n    console.log(i + ' ');\n}",
+            "output": "9 7 5 3 "
+          },
+          {
+            "snippet": "let str = '';\nfor (let c = 'A'; c <= 'C'; c = String.fromCharCode(c.charCodeAt(0) + 1)) {\n    str = str + c + str;\n}\nconsole.log(str);",
+            "output": "ABACABA"
           }
         ]
       }
@@ -144,24 +246,49 @@
         "exec": "python /src/script.py",
         "beforeAll": ""
       },
-      "testCases": [
-        {
-          "exec": "python /src/script.py",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1"
-        }
-      ],
-      "files": {
-        "solution": [
+      "codeWriting": {
+        "testCases": [
           {
-            "path": "/src/script.py",
-            "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+            "exec": "python /src/script.py",
+            "input": "Hello World1",
+            "expectedOutput": "HELLO WORLD1\n"
           }
         ],
-        "template": [
+        "files": {
+          "solution": [
+            {
+              "path": "/src/script.py",
+              "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+            }
+          ],
+          "template": [
+            {
+              "path": "/src/script.py",
+              "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
+            }
+          ]
+        }
+      },
+      "codeReading": {
+        "context": "import sys\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\ndef main():\n   functionName = sys.stdin.read().strip()\n   {{SNIPPET_FUNCTION_CALLS}}\n\nif __name__ == '__main__':\n   main()",
+        "snippetWrapperFunctionSignature": "def {{SNIPPET_FUNCTION_NAME}}():\n{{SNIPPET_FUNCTION_BODY}}",
+        "snippetFunctionCallTemplate": "if functionName == '{{SNIPPET_FUNCTION_NAME}}':\n   {{SNIPPET_FUNCTION_NAME}}()\n",
+        "snippets": [
           {
-            "path": "/src/script.py",
-            "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
+            "snippet": "s = 'hello, world'\ns = s.upper()\nprint(s)",
+            "output": "HELLO, WORLD"
+          },
+          {
+            "snippet": "for i in range(3):\n    print(i)",
+            "output": "0\n1\n2\n"
+          },
+          {
+            "snippet": "i = 11\nwhile i > 4:\n    i -= 2\n    print(i, end=' ')",
+            "output": "9 7 5 3 "
+          },
+          {
+            "snippet": "str = ''\nfor c in ['A', 'B', 'C']:\n    str = str + c + str\nprint(str)",
+            "output": "ABACABA"
           }
         ]
       }
@@ -175,34 +302,51 @@
         "image": "golang:latest",
         "defaultPath": "/go/src/main.go",
         "exec": "/go/src/main",
-        "beforeAll": "cd /go/src && go build -o main"
+        "beforeAll": "cd /go/src && go build -o main main.go"
       },
-      "testCases": [
-        {
-          "exec": "/go/src/main",
-          "input": "Hello World1",
-          "expectedOutput": "HELLO WORLD1\n"
-        }
-      ],
-      "files": {
-        "solution": [
+      "codeWriting": {
+        "testCases": [
           {
-            "path": "/go/src/main.go",
-            "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
-          },
-          {
-            "path": "/go/src/go.mod",
-            "content": "module main\n\ngo 1.18\n"
+            "exec": "/go/src/main",
+            "input": "Hello World1",
+            "expectedOutput": "HELLO WORLD1\n"
           }
         ],
-        "template": [
+        "files": {
+          "solution": [
+            {
+              "path": "/go/src/main.go",
+              "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+            }
+          ],
+          "template": [
+            {
+              "path": "/go/src/main.go",
+              "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+            }
+          ]
+        }
+      },
+      "codeReading": {
+        "context": "package main\n\nimport (\n\t\"fmt\"\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunc main() {\n   reader := bufio.NewReader(os.Stdin)\n   functionName, _ := reader.ReadString('\\n')\n   functionName = strings.TrimSpace(functionName)\n   {{SNIPPET_FUNCTION_CALLS}}\n}",
+        "snippetWrapperFunctionSignature": "func {{SNIPPET_FUNCTION_NAME}}() {\n{{SNIPPET_FUNCTION_BODY}}\n}",
+        "snippetFunctionCallTemplate": "if functionName == \"{{SNIPPET_FUNCTION_NAME}}\" {\n\t{{SNIPPET_FUNCTION_NAME}}()\n}",
+        "snippets": [
           {
-            "path": "/go/src/main.go",
-            "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+            "snippet": "s := \"hello, world\"\nfmt.Println(strings.ToUpper(s))",
+            "output": "HELLO, WORLD"
           },
           {
-            "path": "/go/src/go.mod",
-            "content": "module main\n\ngo 1.18\n"
+            "snippet": "for i := 0; i < 3; i++ {\n\tfmt.Println(i)\n}",
+            "output": "0\n1\n2"
+          },
+          {
+            "snippet": "i := 11\nfor i > 4 {\n\ti -= 2\n\tfmt.Printf(\"%d \", i)\n}",
+            "output": "9 7 5 3 "
+          },
+          {
+            "snippet": "str := \"\"\nfor _, c := range \"ABC\" {\n\tstr = fmt.Sprintf(\"%s%c%s\", str, c, str)\n}\nfmt.Println(str)",
+            "output": "ABACABA"
           }
         ]
       }

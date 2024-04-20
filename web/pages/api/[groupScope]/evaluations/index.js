@@ -45,7 +45,7 @@ const get = async (req, res, prisma) => {
 
 /*
 ** Creating a new evaluation
-The questions from the collection are all deep copied to the evaluation
+The questions from the collection are all deep copied for the evaluation
 The reason for this is that the questions in the collection can be changed after the evaluation is created
 The evaluation must freeze the questions at the time of creation
 The code questions are copied with all the files

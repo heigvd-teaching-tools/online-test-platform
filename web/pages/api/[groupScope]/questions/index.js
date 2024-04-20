@@ -16,8 +16,8 @@
 import {
   Role,
   QuestionType,
-  StudentPermission,
   QuestionSource,
+  CodeQuestionType,
 } from '@prisma/client'
 import {
   withAuthorization,
@@ -25,9 +25,14 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
-import { questionIncludeClause, questionTypeSpecific } from '@/code/questions'
+import {
+  codeInitialUpdateQuery,
+  questionIncludeClause,
+  questionTypeSpecific,
+} from '@/code/questions'
 
 import languages from '@/code/languages.json'
+import { Code } from '@mui/icons-material'
 
 const environments = languages.environments
 
@@ -150,7 +155,7 @@ const get = async (req, res, prisma) => {
 const post = async (req, res, prisma) => {
   // create a new question -> at this point we only know the question type
   const { groupScope } = req.query
-  const { type } = req.body
+  const { type, options } = req.body
   const questionType = QuestionType[type]
 
   if (!questionType) {
@@ -177,12 +182,16 @@ const post = async (req, res, prisma) => {
 
   if (questionType === QuestionType.code) {
     // this must be done in a separate query because the files must be connected to the already existing code question
-    const { language } = req.body
+    const language = options?.language
+    const codeQuestionType = options?.codeQuestionType
     // get the default code for the language
-    const defaultCode = codeBasedOnLanguage(language)
+    const defaultCode = defaultCodeBasedOnLanguageAndType(
+      language,
+      codeQuestionType,
+    )
     // update the empty initial code with the default code
     await prisma.code.update(
-      codeInitialUpdateQuery(createdQuestion.id, defaultCode),
+      codeInitialUpdateQuery(createdQuestion.id, defaultCode, codeQuestionType),
     )
     createdQuestion = await prisma.question.findUnique({
       where: {
@@ -254,82 +263,32 @@ const del = async (req, res, prisma) => {
   res.status(200).json(deletedQuestion)
 }
 
-const codeBasedOnLanguage = (language) => {
+const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType) => {
   const index = environments.findIndex((env) => env.language === language)
-  return {
-    language: environments[index].language,
-    sandbox: {
-      image: environments[index].sandbox.image,
-      beforeAll: environments[index].sandbox.beforeAll,
-    },
-    files: {
-      template: environments[index].files.template,
-      solution: environments[index].files.solution,
-    },
-    testCases: environments[index].testCases,
-  }
-}
+  const environment = environments[index]
 
-const codeInitialUpdateQuery = (questionId, code) => {
-  return {
-    where: {
-      questionId: questionId,
+  const data = {
+    language: environment.language,
+    sandbox: {
+      image: environment.sandbox.image,
+      beforeAll: environment.sandbox.beforeAll,
     },
-    data: {
-      language: code.language,
-      sandbox: {
-        create: {
-          image: code.sandbox.image,
-          beforeAll: code.sandbox.beforeAll,
-        },
-      },
-      testCases: {
-        create: code.testCases.map((testCase, index) => ({
-          index: index + 1,
-          exec: testCase.exec,
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-        })),
-      },
-      solutionFiles: {
-        create: code.files.solution.map((file, index) => ({
-          order: index,
-          file: {
-            create: {
-              path: file.path,
-              content: file.content,
-              code: {
-                connect: {
-                  questionId: questionId,
-                },
-              },
-            },
-          },
-        })),
-      },
-      templateFiles: {
-        create: code.files.template.map((file, index) => ({
-          order: index,
-          studentPermission: StudentPermission.UPDATE,
-          file: {
-            create: {
-              path: file.path,
-              content: file.content,
-              code: {
-                connect: {
-                  questionId: questionId,
-                },
-              },
-            },
-          },
-        })),
-      },
-      question: {
-        connect: {
-          id: questionId,
-        },
-      },
-    },
+  }
+
+  if (codeQuestionType === CodeQuestionType.codeWriting) {
+    return {
+      ...data,
+      files: environment.codeWriting.files,
+      testCases: environment.codeWriting.testCases,
+    }
+  } else if (codeQuestionType === CodeQuestionType.codeReading) {
+    return {
+      ...data,
+      contextExec: environment.sandbox.exec,
+      contextPath: environment.sandbox.defaultPath,
+      context: environment.codeReading.context,
+      snippets: environment.codeReading.snippets, // This is hypothetical; adjust based on your actual structure
+    }
   }
 }
 

@@ -27,6 +27,8 @@ import Handlebars from 'handlebars'
 import { IncludeStrategy, questionIncludeClause } from '@/code/questions'
 import muiTheme from '@/code/evaluation/muiTheme.json'
 import {
+  calculateObtainedPoints,
+  calculateTotalPoints,
   chunkQuestions,
   countDatabasePassedTests,
   equals,
@@ -40,7 +42,9 @@ import studentCoverTemplate from '@/code/evaluation/export/templates/studentCove
 import studentTemplate from '@/code/evaluation/export/templates/student.hbs'
 import questionTemplate from '@/code/evaluation/export/templates/question.hbs'
 import studentAnswerHeaderTemplate from '@/code/evaluation/export/templates/studentAnswerHeader.hbs'
-import studentAnswerCodeTemplate from '@/code/evaluation/export/templates/studentAnswerCode.hbs'
+import codeBlocTemplate from '@/code/evaluation/export/templates/codeBloc.hbs'
+import studentAnswerCodeWritingTemplate from '@/code/evaluation/export/templates/studentAnswerCodeWriting.hbs'
+import studentAnswerCodeReadingTemplate from '@/code/evaluation/export/templates/studentAnswerCodeReading.hbs'
 import studentAnswerEssayTemplate from '@/code/evaluation/export/templates/studentAnswerEssay.hbs'
 import studentAnswerMultipleChoiceTemplate from '@/code/evaluation/export/templates/studentAnswerMultipleChoice.hbs'
 import studentAnswerTrueFalseTemplate from '@/code/evaluation/export/templates/studentAnswerTrueFalse.hbs'
@@ -100,8 +104,16 @@ Handlebars.registerPartial('styles', stylesTemplate)
 Handlebars.registerPartial('studentInfo', studentTemplate)
 Handlebars.registerPartial('studentCover', studentCoverTemplate)
 Handlebars.registerPartial('questionHeader', questionTemplate)
+Handlebars.registerPartial('codeBloc', codeBlocTemplate)
 Handlebars.registerPartial('studentAnswerHeader', studentAnswerHeaderTemplate)
-Handlebars.registerPartial('studentAnswerCode', studentAnswerCodeTemplate)
+Handlebars.registerPartial(
+  'studentAnswerCodeWriting',
+  studentAnswerCodeWritingTemplate,
+)
+Handlebars.registerPartial(
+  'studentAnswerCodeReading',
+  studentAnswerCodeReadingTemplate,
+)
 Handlebars.registerPartial('studentAnswerEssay', studentAnswerEssayTemplate)
 Handlebars.registerPartial(
   'studentAnswerMultipleChoice',
@@ -125,15 +137,8 @@ Handlebars.registerHelper('eq', equals)
 Handlebars.registerHelper('formatQuestionType', formatQuestionType)
 Handlebars.registerHelper('countDatabasePassedTests', countDatabasePassedTests)
 Handlebars.registerHelper('chunkQuestions', chunkQuestions)
-Handlebars.registerHelper('calculateTotalPoints', (questions) => {
-  return questions.reduce((acc, q) => acc + q.points, 0)
-})
-Handlebars.registerHelper('calculateObtainedPoints', (questions) => {
-  return questions.reduce(
-    (acc, q) => acc + (q.studentAnswer?.studentGrading?.pointsObtained || 0),
-    0,
-  )
-})
+Handlebars.registerHelper('calculateTotalPoints', calculateTotalPoints)
+Handlebars.registerHelper('calculateObtainedPoints', calculateObtainedPoints)
 
 const get = async (req, res, prisma) => {
   const { groupScope, evaluationId } = req.query

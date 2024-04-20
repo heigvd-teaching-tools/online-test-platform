@@ -20,6 +20,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withCollectionUpdate } from '@/middleware/withUpdate'
 
 /*
 
@@ -160,7 +161,16 @@ const del = async (req, res, prisma) => {
 }
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
-  POST: withAuthorization(withGroupScope(withPrisma(post)), [Role.PROFESSOR]),
-  PUT: withAuthorization(withGroupScope(withPrisma(put)), [Role.PROFESSOR]),
-  DELETE: withAuthorization(withGroupScope(withPrisma(del)), [Role.PROFESSOR]),
+  POST: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(post))),
+    [Role.PROFESSOR],
+  ),
+  PUT: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(put))),
+    [Role.PROFESSOR],
+  ),
+  DELETE: withAuthorization(
+    withGroupScope(withCollectionUpdate(withPrisma(del))),
+    [Role.PROFESSOR],
+  ),
 })

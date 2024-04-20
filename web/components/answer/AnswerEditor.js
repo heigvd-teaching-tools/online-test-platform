@@ -59,7 +59,7 @@ const SubmittedOverlay = ({ onUnsubmit }) => {
 
 const AnswerEditor = ({
   status: initial,
-  question,
+  questionId,
   onAnswer,
   onSubmit,
   onUnsubmit,
@@ -71,22 +71,25 @@ const AnswerEditor = ({
   const { evaluationId } = router.query
 
   const {
-    data: answer,
+    data: questionAnswer,
     error,
     mutate,
   } = useSWR(
-    `/api/users/evaluations/${evaluationId}/questions/${question.id}/answers`,
-    evaluationId && question ? fetcher : null,
+    `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers`,
+    evaluationId && questionId ? fetcher : null,
     { revalidateOnFocus: false },
   )
+
+  const studentAnswer = questionAnswer?.studentAnswer
+  const question = questionAnswer?.question
 
   const [status, setStatus] = useState(initial)
 
   useEffect(() => setStatus(initial), [initial])
 
   useEffect(() => {
-    setStatus(answer?.status)
-  }, [answer])
+    setStatus(studentAnswer?.status)
+  }, [studentAnswer])
 
   const [submitLock, setSubmitLock] = useState(false)
 
@@ -101,7 +104,7 @@ const AnswerEditor = ({
         onAnswer(question, data)
       }
     },
-    [question, onAnswer, showSnackbar],
+    [onAnswer, question, showSnackbar],
   )
 
   const onSubmitClick = useCallback(async () => {
@@ -152,15 +155,15 @@ const AnswerEditor = ({
   const isReadOnly = status === StudentAnswerStatus.SUBMITTED
 
   return (
-    <Loading errors={[error]} loading={!answer}>
+    <Loading errors={[error]} loading={!studentAnswer}>
       <Stack height={'100%'} position={'relative'}>
         {isReadOnly && (
           <SubmittedOverlay onUnsubmit={() => onUnsubmitClick()} />
         )}
-        {(question &&
+        {question &&
           ((question.type === QuestionType.trueFalse && (
             <AnswerTrueFalse
-              answer={answer}
+              answer={studentAnswer}
               evaluationId={evaluationId}
               questionId={question.id}
               onAnswerChange={onAnswerChange}
@@ -168,7 +171,8 @@ const AnswerEditor = ({
           )) ||
             (question.type === QuestionType.multipleChoice && (
               <AnswerMultipleChoice
-                answer={answer}
+                answer={studentAnswer}
+                question={question}
                 evaluationId={evaluationId}
                 questionId={question.id}
                 onAnswerChange={onAnswerChange}
@@ -176,7 +180,7 @@ const AnswerEditor = ({
             )) ||
             (question.type === QuestionType.essay && (
               <AnswerEssay
-                answer={answer}
+                answer={studentAnswer}
                 evaluationId={evaluationId}
                 questionId={question.id}
                 onAnswerChange={onAnswerChange}
@@ -191,20 +195,20 @@ const AnswerEditor = ({
             )) ||
             (question.type === QuestionType.web && (
               <AnswerWeb
-                answer={answer}
+                answer={studentAnswer}
                 evaluationId={evaluationId}
                 questionId={question.id}
                 onAnswerChange={onAnswerChange}
               />
-            )))) ||
-          (question.type === QuestionType.database && (
-            <AnswerDatabase
-              answer={answer}
-              evaluationId={evaluationId}
-              questionId={question.id}
-              onAnswerChange={onAnswerChange}
-            />
-          ))}
+            )) ||
+            (question.type === QuestionType.database && (
+              <AnswerDatabase
+                answer={studentAnswer}
+                question={question}
+                evaluationId={evaluationId}
+                onAnswerChange={onAnswerChange}
+              />
+            )))}
         <SubmissionToolbar
           lock={submitLock}
           status={status}
@@ -254,6 +258,7 @@ const SubmissionToolbar = ({ lock, status, onSubmit, onUnsubmit }) => {
 
 const AnswerMultipleChoice = ({
   answer,
+  question,
   evaluationId,
   questionId,
   onAnswerChange,
@@ -261,10 +266,10 @@ const AnswerMultipleChoice = ({
   const [options, setOptions] = useState(undefined)
 
   useEffect(() => {
-    if (answer?.question.multipleChoice.options && answer) {
+    if (question.multipleChoice.options && answer) {
       // merge the options with the users answers
 
-      let allOptions = answer.question.multipleChoice.options
+      let allOptions = question.multipleChoice.options
       let studentOptions = answer.multipleChoice?.options
 
       setOptions(
@@ -280,7 +285,7 @@ const AnswerMultipleChoice = ({
         }),
       )
     }
-  }, [answer])
+  }, [answer, question])
 
   const onOptionChange = useCallback(
     async (index, options) => {
