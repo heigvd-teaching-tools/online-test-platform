@@ -160,7 +160,7 @@
         "snippets": [
           {
             "snippet": "String s = \"hello, world\";\ns = s.toUpperCase();\nSystem.out.println(s);",
-            "output": "HELLO, WORLD"
+            "output": "HELLO, WORLD\n"
           },
           {
             "snippet": "for (int i = 0; i < 3; i++) {\n    System.out.println(i);\n}",
@@ -172,8 +172,8 @@
           },
           {
             "snippet": "String str = \"\";\nfor (char c = 'A'; c <= 'C'; c++) {\n    str = str + c + str;\n}\nSystem.out.println(str);",
-            "output": "ABACABA"
-          }
+            "output": "ABACABA\n"
+          }          
         ]
       }
     },
@@ -218,7 +218,7 @@
         "snippets": [
           {
             "snippet": "let s = 'hello, world';\ns = s.toUpperCase();\nconsole.log(s);",
-            "output": "HELLO, WORLD"
+            "output": "HELLO, WORLD\n"
           },
           {
             "snippet": "for (let i = 0; i < 3; i++) {\n    console.log(i);\n}",
@@ -226,11 +226,11 @@
           },
           {
             "snippet": "let i = 11;\nwhile (i > 4) {\n    i -= 2;\n    console.log(i + ' ');\n}",
-            "output": "9 7 5 3 "
+            "output": "9 \n7 \n5 \n3 \n"
           },
           {
             "snippet": "let str = '';\nfor (let c = 'A'; c <= 'C'; c = String.fromCharCode(c.charCodeAt(0) + 1)) {\n    str = str + c + str;\n}\nconsole.log(str);",
-            "output": "ABACABA"
+            "output": "ABACABA\n"
           }
         ]
       }
@@ -276,7 +276,7 @@
         "snippets": [
           {
             "snippet": "s = 'hello, world'\ns = s.upper()\nprint(s)",
-            "output": "HELLO, WORLD"
+            "output": "HELLO, WORLD\n"
           },
           {
             "snippet": "for i in range(3):\n    print(i)",
@@ -288,7 +288,7 @@
           },
           {
             "snippet": "str = ''\nfor c in ['A', 'B', 'C']:\n    str = str + c + str\nprint(str)",
-            "output": "ABACABA"
+            "output": "ABACABA\n"
           }
         ]
       }
@@ -334,11 +334,11 @@
         "snippets": [
           {
             "snippet": "s := \"hello, world\"\nfmt.Println(strings.ToUpper(s))",
-            "output": "HELLO, WORLD"
+            "output": "HELLO, WORLD\n"
           },
           {
             "snippet": "for i := 0; i < 3; i++ {\n\tfmt.Println(i)\n}",
-            "output": "0\n1\n2"
+            "output": "0\n1\n2\n"
           },
           {
             "snippet": "i := 11\nfor i > 4 {\n\ti -= 2\n\tfmt.Printf(\"%d \", i)\n}",
@@ -346,7 +346,7 @@
           },
           {
             "snippet": "str := \"\"\nfor _, c := range \"ABC\" {\n\tstr = fmt.Sprintf(\"%s%c%s\", str, c, str)\n}\nfmt.Println(str)",
-            "output": "ABACABA"
+            "output": "ABACABA\n"
           }
         ]
       }
