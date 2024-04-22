@@ -173,7 +173,7 @@
           {
             "snippet": "String str = \"\";\nfor (char c = 'A'; c <= 'C'; c++) {\n    str = str + c + str;\n}\nSystem.out.println(str);",
             "output": "ABACABA\n"
-          }          
+          }
         ]
       }
     },
