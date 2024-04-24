@@ -24,6 +24,7 @@ const ResizePanel = ({
   rightPanel,
   rightWidth,
   height = '100%',
+  hideHandle = false,
 }) => {
   return useMemo(
     () => (
@@ -35,7 +36,7 @@ const ResizePanel = ({
         <Box height={'100%'} minWidth={0} flex={1} overflow={'hidden'}>
           {leftPanel}
         </Box>
-        <MagicResizeHandle width={rightWidth} />
+        <MagicResizeHandle hideHandle={hideHandle} width={rightWidth} />
         <Box height={'100%'} minWidth={0} overflow={'hidden'}>
           {rightPanel}
         </Box>

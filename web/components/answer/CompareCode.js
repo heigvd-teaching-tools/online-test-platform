@@ -33,11 +33,13 @@ import TabPanel from '@/components/layout/utils/TabPanel'
 import TabContent from '@/components/layout/utils/TabContent'
 import ScrollContainer from '@/components/layout/ScrollContainer'
 import {
+  AnnotationEntityType,
   CodeQuestionType,
   StudentAnswerCodeReadingOutputStatus,
 } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
-import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
+import { AnnotationProvider, useAnnotation } from '@/context/AnnotationContext'
+import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
 
 const PassIndicator = ({ passed }) => {
   return passed ? (
@@ -47,11 +49,17 @@ const PassIndicator = ({ passed }) => {
   )
 }
 
-const CompareCode = ({ solution, answer }) => {
+const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   return (
     <>
       {solution?.codeType === CodeQuestionType.codeWriting && (
-        <CompareCodeWriting solution={solution} answer={answer} />
+        <CompareCodeWriting 
+          readOnly={readOnly}
+          student={student}
+          question={question}
+          solution={solution} 
+          answer={answer} 
+        />
       )}
       {solution?.codeType === CodeQuestionType.codeReading && (
         <CompareCodeReading solution={solution} answer={answer} />
@@ -60,7 +68,9 @@ const CompareCode = ({ solution, answer }) => {
   )
 }
 
-const CompareCodeWriting = ({ solution, answer }) => {
+
+
+const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) => {
   const [tab, setTab] = React.useState(0)
   return (
     answer &&
@@ -117,14 +127,21 @@ const CompareCodeWriting = ({ solution, answer }) => {
             <TabContent>
               <ResizePanel
                 leftPanel={
-                  <ScrollContainer px={1}>
+                  <ScrollContainer px={1} pt={1}>
                     {answer.codeWriting.files?.map((answerToFile, index) => (
-                      <FileEditor
-                        key={index}
-                        file={answerToFile.file}
-                        readonlyPath
-                        readonlyContent
-                      />
+                      <AnnotationProvider 
+                        key={index} 
+                        readOnly={readOnly}
+                        student={student}
+                        question={question}
+                        entityType={AnnotationEntityType.CODE_WRITING_FILE}
+                        entity={answerToFile.file}
+                        annotation={answerToFile.file.annotation}
+                      >
+                        <StudentFileAnnotationWrapper 
+                          file={answerToFile.file} 
+                        />
+                      </AnnotationProvider>
                     ))}
                   </ScrollContainer>
                 }
@@ -132,12 +149,12 @@ const CompareCodeWriting = ({ solution, answer }) => {
                   <ScrollContainer px={1}>
                     {solution.codeWriting.solutionFiles?.map(
                       (solutionToFile, index) => (
-                        <FileEditor
-                          key={index}
-                          file={solutionToFile.file}
-                          readonlyPath
-                          readonlyContent
-                        />
+                          <FileEditor
+                            key={index}
+                            file={solutionToFile.file}
+                            readonlyPath
+                            readonlyContent
+                          />
                       ),
                     )}
                   </ScrollContainer>
@@ -158,6 +175,7 @@ const CompareCodeWriting = ({ solution, answer }) => {
     )
   )
 }
+
 
 const CodeReadingSummary = ({ studentOutputs }) => {
   const correctOutputs = studentOutputs.filter(

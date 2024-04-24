@@ -24,7 +24,7 @@ import { cleanUpDockerStreamHeaders, sanitizeUTF8 } from './utils'
 // https://www.npmjs.com/package/testcontainers
 // https://github.com/apocas/dockerode
 
-const EXECUTION_TIMEOUT = 5000
+const EXECUTION_TIMEOUT = 15000
 const MAX_OUTPUT_SIZE_PER_EXEC_KB = 256
 
 export const runSandbox = async ({

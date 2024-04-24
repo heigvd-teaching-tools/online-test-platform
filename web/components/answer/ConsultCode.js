@@ -27,9 +27,11 @@ import FileEditor from '@/components/question/type_specific/code/FileEditor'
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
 import TabContent from '@/components/layout/utils/TabContent'
 import TabPanel from '@/components/layout/utils/TabPanel'
-import { CodeQuestionType } from '@prisma/client'
+import { AnnotationEntityType, CodeQuestionType } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
+import { AnnotationProvider } from '@/context/AnnotationContext'
+import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
 
 const ConsultCode = ({ question, answer }) => {
   const codeType = question.code.codeType
@@ -69,12 +71,16 @@ const ConsultCodeWriting = ({ answer }) => {
         <TabPanel value={tab} index={0}>
           <TabContent>
             {files.map((answerToFile, index) => (
-              <FileEditor
-                key={index}
-                file={answerToFile.file}
-                readonlyPath
-                readonlyContent
-              />
+              <AnnotationProvider
+                key={index} 
+                readOnly 
+                entityType={AnnotationEntityType.CODE_WRITING_FILE}
+                entity={answerToFile.file}
+              >
+                <StudentFileAnnotationWrapper 
+                  file={answerToFile.file} 
+                />
+              </AnnotationProvider>
             ))}
           </TabContent>
         </TabPanel>

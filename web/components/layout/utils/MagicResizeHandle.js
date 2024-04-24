@@ -28,7 +28,7 @@ const enableIframePointerEvents = () => {
   iframes.forEach((iframe) => (iframe.style.pointerEvents = 'auto'))
 }
 
-const MagicResizeHandle = ({ width = 50 }) => {
+const MagicResizeHandle = ({ hideHandle = false, width = 50 }) => {
   const handleRef = useRef(null)
 
   useEffect(() => {
@@ -107,6 +107,7 @@ const MagicResizeHandle = ({ width = 50 }) => {
 
   return (
     <Stack
+      display={hideHandle ? 'none' : 'flex'}
       justifyContent={'center'}
       sx={{ cursor: 'ew-resize' }}
       ref={handleRef}

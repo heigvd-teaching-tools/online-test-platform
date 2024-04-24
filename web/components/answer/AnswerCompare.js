@@ -23,7 +23,7 @@ import CompareMultipleChoice from './CompareMultipleChoice'
 import CompareTrueFalse from './CompareTrueFalse'
 import CompareDatabase from './CompareDatabase'
 
-const AnswerCompare = ({ questionType, solution, answer }) => {
+const AnswerCompare = ({ readOnly = false, question, student, solution, answer }) => {
   return (
     <Paper
       square
@@ -31,29 +31,35 @@ const AnswerCompare = ({ questionType, solution, answer }) => {
       sx={{ flex: 1, height: '100%', overflowX: 'auto', p: 0 }}
     >
       {(answer &&
-        ((questionType === QuestionType.trueFalse && (
+        ((question.type === QuestionType.trueFalse && (
           <CompareTrueFalse
             mode="compare"
             solution={solution.isTrue}
             answer={answer.isTrue}
           />
         )) ||
-          (questionType === QuestionType.multipleChoice && answer.options && (
+          (question.type === QuestionType.multipleChoice && answer.options && (
             <CompareMultipleChoice
               options={solution.options}
               answer={answer.options}
             />
           )) ||
-          (questionType === QuestionType.essay && (
+          (question.type === QuestionType.essay && (
             <CompareEssay solution={solution} answer={answer.content} />
           )) ||
-          (questionType === QuestionType.code && (
-            <CompareCode solution={solution} answer={answer} />
+          (question.type === QuestionType.code && (
+            <CompareCode 
+              readOnly={readOnly}
+              student={student}
+              question={question}
+              solution={solution} 
+              answer={answer} 
+            />
           )) ||
-          (questionType === QuestionType.web && (
+          (question.type === QuestionType.web && (
             <CompareWeb solution={solution} answer={answer} />
           )))) ||
-        (questionType === QuestionType.database && (
+        (question.type === QuestionType.database && (
           <CompareDatabase solution={solution} answer={answer} />
         ))}
     </Paper>

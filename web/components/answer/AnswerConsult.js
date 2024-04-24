@@ -30,37 +30,31 @@ import ConsultMultipleChoice from './ConsultMultipleChoice'
     this is why we passe question as a prop to this component, so that we can display all options and check the ones selected by the users
     it is important not to fetch the "isCorrect" property of the option
 * */
-const AnswerConsult = ({ id, questionType, question, answer }) => {
-  console.log(
-    'AnswerConsult.js: AnswerConsult()',
-    answer,
-    questionType,
-    question,
-    id,
-  )
+const AnswerConsult = ({ id, question, answer }) => {
+ 
   return (
     <Stack height="100%" overflow="auto">
       {answer &&
-        ((questionType === QuestionType.trueFalse && (
+        ((question.type === QuestionType.trueFalse && (
           <CompareTrueFalse mode="consult" answer={answer.isTrue} />
         )) ||
-          (questionType === QuestionType.multipleChoice && answer.options && (
+          (question.type === QuestionType.multipleChoice && answer.options && (
             <ConsultMultipleChoice
               id={id}
               options={question.multipleChoice.options}
               answer={answer.options}
             />
           )) ||
-          (questionType === QuestionType.essay && (
+          (question.type === QuestionType.essay && (
             <ConsultEssay content={answer.content} />
           )) ||
-          (questionType === QuestionType.code && (
+          (question.type === QuestionType.code && (
             <ConsultCode question={question} answer={answer} />
           )) ||
-          (questionType === QuestionType.web && (
+          (question.type === QuestionType.web && (
             <ConsultWeb answer={answer} />
           )) ||
-          (questionType === QuestionType.database && (
+          (question.type === QuestionType.database && (
             <ConsultDatabase queries={answer.queries} />
           )))}
     </Stack>

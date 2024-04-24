@@ -42,6 +42,7 @@
     "puppeteer": "^22.6.2",
     "raw-loader": "^4.0.2",
     "react": "^18.2.0",
+    "react-click-away-listener": "^2.2.3",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.5",
     "react-syntax-highlighter": "^15.5.0",
