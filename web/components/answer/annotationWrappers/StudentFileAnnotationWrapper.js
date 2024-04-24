@@ -4,7 +4,7 @@ import FileEditor from "@/components/question/type_specific/code/FileEditor"
 const { useAnnotation } = require("@/context/AnnotationContext")
 
 const StudentFileAnnotationWrapper = ({ file:original }) => {
-    const { readOnly, annotation, change } = useAnnotation()
+    const { readOnly, showOriginal, annotation, change } = useAnnotation()
   
     const onChange = ({content}) => {
       change(content)
@@ -37,8 +37,8 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
             readonlyContent
           />
         }
-        rightWidth={hasAnnotation ? 40 : 0}
-        hideHandle={!hasAnnotation}
+        rightWidth={hasAnnotation && showOriginal ? 40 : 0}
+        hideHandle={!hasAnnotation || !showOriginal}
       />
     )
   }

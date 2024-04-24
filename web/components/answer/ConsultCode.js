@@ -69,7 +69,7 @@ const ConsultCodeWriting = ({ answer }) => {
           />
         </Tabs>
         <TabPanel value={tab} index={0}>
-          <TabContent>
+          <TabContent pt={1}>
             {files.map((answerToFile, index) => (
               <AnnotationProvider
                 key={index} 

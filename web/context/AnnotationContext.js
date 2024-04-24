@@ -15,14 +15,12 @@
  */
 import React, { createContext, useContext, useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
-import { AnnotationEntityType, Role } from '@prisma/client'
 import { fetcher } from '../code/utils'
-import { Box, Button, ButtonGroup, Stack } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import ClickAwayListener from 'react-click-away-listener';
 import { useRouter } from 'next/router'
 import { useDebouncedCallback } from 'use-debounce'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { set } from 'lodash'
 
 const AnnotationContext = createContext()
 
@@ -48,41 +46,6 @@ const EditingState = {
   },
 }
 
-
-const AnnotateToolbar = ({ readOnly, state, onDiscard }) => {
-
-  const [ discardDialogOpen, setDiscardDialogOpen ] = useState(false)
-
-  return (
-    <>
-      { state === "ANNOTATED" && !readOnly && (
-            <Button
-              variant={"text"}
-              size={"small"}
-              onClick={(ev) => {
-                ev.stopPropagation()
-                setDiscardDialogOpen(true)
-              }}
-            >
-              Discard
-            </Button>
-          )
-      }
-    <DialogFeedback
-      open={discardDialogOpen}
-      title={"Discard Annotation"}
-      content={
-        "Are you sure you want to discard this annotation?"
-      }
-      onConfirm={() => {
-        onDiscard()
-        setDiscardDialogOpen(false)
-      }}
-      onCancel={() => setDiscardDialogOpen(false)}
-    />
-    </>
-  )
-}
 
 const createAnnotation = async (groupScope, student, question, entityType, entity, annotation) => {
   const response = await fetch(`/api/${groupScope}/gradings/annotations`, {
@@ -136,6 +99,7 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
     fetcher
   )
 
+  const [ showOriginal, setShowOriginal ] = useState(false)
   const [ annotation, setAnnotation ] = useState(null)
   const [ state, setState ] = useState(stateBasedOnAnnotation(initial))
   
@@ -153,6 +117,7 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
       content,
     }
     setAnnotation(updated)
+    
     if (state === "NOT_ANNOTATED") {
       setState("ANNOTATED")
     }
@@ -185,6 +150,7 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
     <AnnotationContext.Provider
       value={{
         readOnly,
+        showOriginal,
         annotation,
         change,
       }}
@@ -193,6 +159,8 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
         <Box position={"absolute"} top={0} right={0} zIndex={1000}>
           <AnnotateToolbar 
             readOnly={readOnly}
+            showOriginal={showOriginal}
+            toggleShowOriginal={() => setShowOriginal(!showOriginal)}
             state={state}
             onDiscard={() => discard(groupScope, annotation)}
           /> 
@@ -202,6 +170,58 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
     </AnnotationContext.Provider>
   )
 }
+
+
+const AnnotateToolbar = ({ readOnly, showOriginal, toggleShowOriginal, state, onDiscard }) => {
+
+  const [ discardDialogOpen, setDiscardDialogOpen ] = useState(false)
+
+  return (
+    <>
+      
+      { state === "ANNOTATED" && (
+        <>
+        <Button
+          variant={"text"}
+          size={"small"}
+          onClick={(ev) => {
+            ev.stopPropagation()
+            toggleShowOriginal()
+          }}
+        >
+          {showOriginal ? "Hide Original" : "Show Original"}
+        </Button>
+        {!readOnly && (
+          <Button
+            variant={"text"}
+            size={"small"}
+            onClick={(ev) => {
+              ev.stopPropagation()
+              setDiscardDialogOpen(true)
+            }}
+          >
+            Discard
+          </Button>
+        )}
+        </>
+      )
+      }
+    <DialogFeedback
+      open={discardDialogOpen}
+      title={"Discard Annotation"}
+      content={
+        "Are you sure you want to discard this annotation?"
+      }
+      onConfirm={() => {
+        onDiscard()
+        setDiscardDialogOpen(false)
+      }}
+      onCancel={() => setDiscardDialogOpen(false)}
+    />
+    </>
+  )
+}
+
 
 const AnnotationHighlight = ({ readOnly, state, children }) => {
   const [ editingState, setEditingState ] = useState("INACTIVE")
@@ -236,21 +256,21 @@ const AnnotationHighlight = ({ readOnly, state, children }) => {
     <ClickAwayListener onClickAway={() => {
       setEditingState("INACTIVE")
     }}>
-    <Box
-      position={"relative"}
-      m={2}
-      borderRadius={1}    
-      backgroundColor={'white'} 
-      transition={'box-shadow 0.15s ease-in-out'}
-      cursor={'pointer'}
-      boxShadow={getBoxShadow(editingState, state)}
-      
-      onMouseEnter={() => onMouseEnter()}
-      onMouseLeave={() => onMouseLeave()}
-      onClick={() => onClickHandler()}
-    >
-      {children}
-    </Box>
+      <Box
+        position={"relative"}
+        m={2}
+        borderRadius={1}    
+        backgroundColor={'white'} 
+        transition={'box-shadow 0.15s ease-in-out'}
+        cursor={'pointer'}
+        boxShadow={getBoxShadow(editingState, state)}
+        
+        onMouseEnter={() => onMouseEnter()}
+        onMouseLeave={() => onMouseLeave()}
+        onClick={() => onClickHandler()}
+      >
+        {children}
+      </Box>
     </ClickAwayListener>
   )
 }
