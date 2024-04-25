@@ -102,8 +102,8 @@ const ConsultCodeWriting = ({ answer }) => {
             )}
         </Tabs>
         <TabPanel value={tab} index={0}>
-          <TabContent p={1}>
-            <ScrollContainer>
+          <TabContent>
+            <ScrollContainer p={1}>
             {files.map((answerToFile, index) => (
               <AnnotationProvider
                 key={index} 
