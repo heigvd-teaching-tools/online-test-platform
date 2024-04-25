@@ -21,7 +21,7 @@ const defaultOptions = {
     vertical: 'hidden',
     handleMouseWheel: false,
   },
-  lineDecorationsWidth: 0,
+  lineDecorationsWidth: 8,
   lineNumbersMinChars: 4,
   // renderWhitespace: 'all',
 };

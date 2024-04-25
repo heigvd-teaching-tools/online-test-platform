@@ -23,7 +23,6 @@ import {
   Box,
 } from '@mui/material'
 
-import FileEditor from '@/components/question/type_specific/code/FileEditor'
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
 import TabContent from '@/components/layout/utils/TabContent'
 import TabPanel from '@/components/layout/utils/TabPanel'

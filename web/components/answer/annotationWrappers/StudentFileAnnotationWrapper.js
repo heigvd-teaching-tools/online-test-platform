@@ -132,11 +132,10 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
           <Typography variant="body1"> {file.path} </Typography>
           </Stack>
           <InlineDiffEditor
-            readOnly={readOnly}
+            readOnly
             original={file.content}
             modified={original.content}
             language={language}
-            readOnly
             editorOptions={{
               readOnly: true,
               renderSideBySide: true,
