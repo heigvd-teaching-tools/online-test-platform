@@ -188,7 +188,7 @@ const PageProfConsult = () => {
               rightWidth={65}
               rightPanel={
                 selected && (
-                  <Stack pt={1} height={'100%'}>
+                  <Stack height={'100%'}>
                     <AnswerCompare
                       id={`answer-viewer-${selected.question.id}`}
                       student={selected.question.studentAnswer[0].user}

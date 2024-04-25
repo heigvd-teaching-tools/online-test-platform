@@ -2,6 +2,7 @@ import { languageBasedOnPathExtension } from "@/code/utils";
 import DialogFeedback from "@/components/feedback/DialogFeedback";
 import DropdownSelector from "@/components/input/DropdownSelector";
 import InlineDiffEditor from "@/components/input/InlineDiffEditor ";
+import InlineMonacoEditor from "@/components/input/InlineMonacoEditor";
 import ResizePanel from "@/components/layout/utils/ResizePanel"
 import FileEditor from "@/components/question/type_specific/code/FileEditor"
 import { useTheme } from "@emotion/react";
@@ -69,12 +70,11 @@ const AnnotateToolbar = ({ readOnly, viewMode, setViewMode, state, onDiscard }) 
         setViewMode("ANNOTATED");
         setDiscardDialogOpen(false);
       }}
-      onCancel={() => setDiscardDialogOpen(false)}
+      onClose={() => setDiscardDialogOpen(false)}
     />
   </>
   );
 };
-
 
 const StudentFileAnnotationWrapper = ({ file:original }) => {
 
@@ -84,7 +84,7 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
 
     const [viewMode, setViewMode] = useState("ANNOTATED")
   
-    const onChange = ({content}) => {
+    const onChange = (content) => {
       change(content)
     }
   
@@ -96,54 +96,55 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
     }
 
     const language = languageBasedOnPathExtension(file?.path)
+
+    console.log("viewMode", viewMode, hasAnnotation)
   
     return (
-      <Stack>
-        <AnnotateToolbar
-          readOnly={readOnly}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          state={state}
-          onDiscard={discard}
-        />
-      { viewMode === "ANNOTATED" || viewMode === "ORIGINAL" ? (
-          <ResizePanel
-            leftPanel={
-              <FileEditor 
-                file={file}
-                readonlyPath
-                readonlyContent={readOnly}
-                onChange={onChange}
-              />
-            }
-            rightPanel={
-              <FileEditor 
-                file={original}
-                readonlyPath
-                readonlyContent
-              />
-            }
-            rightWidth={hasAnnotation && viewMode === "ORIGINAL" ? 40 : 0}
-            hideHandle={!hasAnnotation || !viewMode === "ORIGINAL"}
-          />
-        ) : (
-          <>
-          <Stack direction="row" alignItems="center" p={2} bgcolor={theme.palette.background.paper}>
+      <Stack position={"relative"}>
+        <Stack direction="row" alignItems="center" p={2} bgcolor={theme.palette.background.paper} zIndex={1000} position={"sticky"} top={0}>
           <Typography variant="body1"> {file.path} </Typography>
-          </Stack>
-          <InlineDiffEditor
-            readOnly
-            original={file.content}
-            modified={original.content}
-            language={language}
-            editorOptions={{
-              readOnly: true,
-              renderSideBySide: true,
-              enableSplitViewResizing: true,
-          }}
+          <AnnotateToolbar
+            readOnly={readOnly}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            state={state}
+            onDiscard={discard}
           />
-        </>
-        )}
+        </Stack>
+        <ResizePanel
+          leftPanel={
+            viewMode === "ANNOTATED" || viewMode === "ORIGINAL" ? (
+              <InlineMonacoEditor 
+                code={file.content}
+                readOnly={readOnly}
+                onChange={onChange}
+                language={language}
+              />
+            ) : (
+              <InlineDiffEditor
+                readOnly
+                original={file.content}
+                modified={original.content}
+                language={language}
+                editorOptions={{
+                  readOnly: true,
+                  renderSideBySide: true,
+                  enableSplitViewResizing: true,
+              }}
+              />
+            )
+          }
+          rightPanel={
+            <InlineMonacoEditor
+              code={original.content}
+              readOnly
+              language={language}
+            />
+          }
+          rightWidth={hasAnnotation && viewMode === "ORIGINAL" ? 40 : 0}
+          hideHandle={!hasAnnotation || !viewMode === "ORIGINAL"}
+        />
+      
       </Stack>
     )
   }

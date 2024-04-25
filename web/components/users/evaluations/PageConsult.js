@@ -134,7 +134,7 @@ const PageConsult = () => {
                     rightPanel={
                       selected &&
                       (userOnEvaluation.showSolutionsWhenFinished ? (
-                        <Box mt={1} height={'100%'}>
+                        <Box height={'100%'}>
                           <AnswerCompare
                             id={`answer-viewer-${selected.question.id}`}
                             readOnly

@@ -121,7 +121,7 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
             <TabContent>
               <ResizePanel
                 leftPanel={
-                  <ScrollContainer px={1} pt={1}>
+                  <ScrollContainer px={1} mt={1}>
                     {answer.codeWriting.files?.map((answerToFile, index) => (
                        (answerToFile.studentPermission === StudentPermission.UPDATE && (
                           <AnnotationProvider 
