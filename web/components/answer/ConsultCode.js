@@ -34,6 +34,7 @@ import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingO
 import { AnnotationProvider } from '@/context/AnnotationContext'
 import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
 import ScrollContainer from '../layout/ScrollContainer'
+import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
 
 const ConsultCode = ({ question, answer }) => {
   const codeType = question.code.codeType
@@ -81,7 +82,7 @@ const ConsultCodeWriting = ({ answer }) => {
         </Tabs>
         <TabPanel value={tab} index={0}>
           <TabContent>
-            <ScrollContainer mt={1} px={1}>
+            <ScrollContainer mt={1} px={1} spacing={1}>
             {files.map((answerToFile, index) => (
               <AnnotationProvider
                 key={index} 
