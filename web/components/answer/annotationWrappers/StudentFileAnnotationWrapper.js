@@ -98,7 +98,7 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
     }
 
     const language = languageBasedOnPathExtension(file?.path)
-  
+
     return (
       <Stack position={"relative"}>
         <Stack 
@@ -152,7 +152,7 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
             />
           }
           rightWidth={hasAnnotation && viewMode === "ORIGINAL" ? 40 : 0}
-          hideHandle={!hasAnnotation || !viewMode === "ORIGINAL"}
+          hideHandle={!hasAnnotation || viewMode !== "ORIGINAL"}
         />
       
       </Stack>
