@@ -33,7 +33,7 @@ const viewModes = [
 
 const ViewModeSelector = ({ currentViewMode, onViewModeChange }) => {
   // A function to format the label shown on the button
-  const formatLabel = (option) => `View ${option.label}`
+  const formatLabel = (option) => option.label
 
   return (
     <Box zIndex={100}>
