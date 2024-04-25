@@ -220,11 +220,11 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                       select: {
                         path: true,
                         content: true,
-                        ...(includeGradings ? { id: true, annotation: true } : {}),
+                        ...(includeGradings
+                          ? { id: true, annotation: true }
+                          : {}),
                       },
-                      
                     },
-                    
                   },
                   orderBy: { order: 'asc' },
                 },

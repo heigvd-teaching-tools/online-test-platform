@@ -54,11 +54,8 @@ model Annotation {
 }
  */
 
-
 const put = async (req, res, prisma) => {
-  const {
-    annotation,
-  } = req.body
+  const { annotation } = req.body
 
   const user = await getUser(req, res)
 
@@ -82,16 +79,15 @@ const put = async (req, res, prisma) => {
 }
 
 const del = async (req, res, prisma) => {
-    const { annotationId } = req.query
-    
-    await prisma.annotation.delete({
-        where: {
-        id: annotationId,
-        },
-    })
-    
-    res.status(200).json({ success: true })
+  const { annotationId } = req.query
 
+  await prisma.annotation.delete({
+    where: {
+      id: annotationId,
+    },
+  })
+
+  res.status(200).json({ success: true })
 }
 
 export default withMethodHandler({

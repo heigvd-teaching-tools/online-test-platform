@@ -50,7 +50,6 @@ const ConsultCode = ({ question, answer }) => {
   )
 }
 
-
 const ConsultCodeWriting = ({ answer }) => {
   const [tab, setTab] = useState(0)
   const files = answer?.codeWriting?.files
@@ -68,40 +67,38 @@ const ConsultCodeWriting = ({ answer }) => {
           />
           <Tab
             label={
-              <CodeWritingTabLabelTestSummary testCaseResults={answer.codeWriting.testCaseResults} />
+              <CodeWritingTabLabelTestSummary
+                testCaseResults={answer.codeWriting.testCaseResults}
+              />
             }
             value={1}
           />
-           {answer.codeWriting.files.some(
-              (ansToFile) =>
-                ansToFile.file.updatedAt >
-                answer.codeWriting.testCaseResults[0]?.createdAt,
-            ) && (
-              <Alert severity="warning">Post code-check modifications</Alert>
-            )}
+          {answer.codeWriting.files.some(
+            (ansToFile) =>
+              ansToFile.file.updatedAt >
+              answer.codeWriting.testCaseResults[0]?.createdAt,
+          ) && <Alert severity="warning">Post code-check modifications</Alert>}
         </Tabs>
         <TabPanel value={tab} index={0}>
           <TabContent>
             <ScrollContainer mt={1} px={1} spacing={1}>
-            {files.map((answerToFile, index) => (
-              <AnnotationProvider
-                key={index} 
-                readOnly 
-                entityType={AnnotationEntityType.CODE_WRITING_FILE}
-                entity={answerToFile.file}
-              >
-                <StudentFileAnnotationWrapper 
-                  file={answerToFile.file} 
-                />
-              </AnnotationProvider>
-            ))}
+              {files.map((answerToFile, index) => (
+                <AnnotationProvider
+                  key={index}
+                  readOnly
+                  entityType={AnnotationEntityType.CODE_WRITING_FILE}
+                  entity={answerToFile.file}
+                >
+                  <StudentFileAnnotationWrapper file={answerToFile.file} />
+                </AnnotationProvider>
+              ))}
             </ScrollContainer>
           </TabContent>
         </TabPanel>
         <TabPanel value={tab} index={1}>
           <TabContent padding={1}>
             <ScrollContainer>
-            <TestCaseResults tests={answer.codeWriting.testCaseResults} />
+              <TestCaseResults tests={answer.codeWriting.testCaseResults} />
             </ScrollContainer>
           </TabContent>
         </TabPanel>

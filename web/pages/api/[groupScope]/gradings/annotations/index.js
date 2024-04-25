@@ -70,13 +70,7 @@ const get = async (req, res, prisma) => {
 }
 
 const post = async (req, res, prisma) => {
-  const {
-    student,
-    question,
-    annotation,
-    entityType,
-    entity
-  } = req.body
+  const { student, question, annotation, entityType, entity } = req.body
 
   const user = await getUser(req, res)
 

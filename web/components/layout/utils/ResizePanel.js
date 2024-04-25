@@ -42,7 +42,7 @@ const ResizePanel = ({
         </Box>
       </Stack>
     ),
-    [leftPanel, rightPanel, height, rightWidth],
+    [leftPanel, rightPanel, height, rightWidth, hideHandle],
   )
 }
 

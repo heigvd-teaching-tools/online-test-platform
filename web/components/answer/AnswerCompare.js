@@ -23,7 +23,13 @@ import CompareMultipleChoice from './CompareMultipleChoice'
 import CompareTrueFalse from './CompareTrueFalse'
 import CompareDatabase from './CompareDatabase'
 
-const AnswerCompare = ({ readOnly = false, question, student, solution, answer }) => {
+const AnswerCompare = ({
+  readOnly = false,
+  question,
+  student,
+  solution,
+  answer,
+}) => {
   return (
     <Paper
       square
@@ -48,12 +54,12 @@ const AnswerCompare = ({ readOnly = false, question, student, solution, answer }
             <CompareEssay solution={solution} answer={answer.content} />
           )) ||
           (question.type === QuestionType.code && (
-            <CompareCode 
+            <CompareCode
               readOnly={readOnly}
               student={student}
               question={question}
-              solution={solution} 
-              answer={answer} 
+              solution={solution}
+              answer={answer}
             />
           )) ||
           (question.type === QuestionType.web && (

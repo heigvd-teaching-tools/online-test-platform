@@ -71,8 +71,7 @@ const StudentMainMenu = ({ evaluationId, evaluation, pages = [], page }) => {
             }
           />
         )}
-        </Stack>
-      
+      </Stack>
     </Stack>
   )
 }

@@ -20,7 +20,6 @@ import InlineMonacoEditor from '../../../input/InlineMonacoEditor'
 import { useTheme } from '@emotion/react'
 import { languageBasedOnPathExtension } from '@/code/utils'
 
-
 const FileEditor = ({
   file,
   readonlyPath = false,

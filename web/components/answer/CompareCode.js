@@ -24,7 +24,6 @@ import {
   TextField,
 } from '@mui/material'
 
-
 import ResizePanel from '@/components/layout/utils/ResizePanel'
 import FileEditor from '@/components/question/type_specific/code/FileEditor'
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
@@ -43,17 +42,16 @@ import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnota
 import PassIndicator from '../feedback/PassIndicator'
 import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
 
-
 const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   return (
     <>
       {solution?.codeType === CodeQuestionType.codeWriting && (
-        <CompareCodeWriting 
+        <CompareCodeWriting
           readOnly={readOnly}
           student={student}
           question={question}
-          solution={solution} 
-          answer={answer} 
+          solution={solution}
+          answer={answer}
         />
       )}
       {solution?.codeType === CodeQuestionType.codeReading && (
@@ -63,9 +61,13 @@ const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   )
 }
 
-
-
-const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) => {
+const CompareCodeWriting = ({
+  readOnly,
+  student,
+  question,
+  solution,
+  answer,
+}) => {
   const [tab, setTab] = React.useState(0)
   return (
     answer &&
@@ -83,7 +85,9 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
             />
             <Tab
               label={
-                <CodeWritingTabLabelTestSummary testCaseResults={answer.codeWriting.testCaseResults} />
+                <CodeWritingTabLabelTestSummary
+                  testCaseResults={answer.codeWriting.testCaseResults}
+                />
               }
               value={1}
             />
@@ -100,10 +104,12 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
               <ResizePanel
                 leftPanel={
                   <ScrollContainer px={1} mt={1} spacing={1}>
-                    {answer.codeWriting.files?.map((answerToFile, index) => (
-                       (answerToFile.studentPermission === StudentPermission.UPDATE && (
-                          <AnnotationProvider 
-                            key={index} 
+                    {answer.codeWriting.files?.map(
+                      (answerToFile, index) =>
+                        (answerToFile.studentPermission ===
+                          StudentPermission.UPDATE && (
+                          <AnnotationProvider
+                            key={index}
                             readOnly={readOnly}
                             student={student}
                             question={question}
@@ -111,33 +117,32 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
                             entity={answerToFile.file}
                             annotation={answerToFile.file.annotation}
                           >
-                          
-                            <StudentFileAnnotationWrapper 
-                              file={answerToFile.file} 
+                            <StudentFileAnnotationWrapper
+                              file={answerToFile.file}
                             />
                           </AnnotationProvider>
-                        ))
-                        ||
-                        (answerToFile.studentPermission !== StudentPermission.UPDATE && (
-                          <FileEditor 
+                        )) ||
+                        (answerToFile.studentPermission !==
+                          StudentPermission.UPDATE && (
+                          <FileEditor
                             file={answerToFile.file}
                             readonlyPath
                             readonlyContent
                           />
-                        ))
-                    ))}
+                        )),
+                    )}
                   </ScrollContainer>
                 }
                 rightPanel={
                   <ScrollContainer px={1} pt={1} spacing={1}>
                     {solution.codeWriting.solutionFiles?.map(
                       (solutionToFile, index) => (
-                          <FileEditor
-                            key={index}
-                            file={solutionToFile.file}
-                            readonlyPath
-                            readonlyContent
-                          />
+                        <FileEditor
+                          key={index}
+                          file={solutionToFile.file}
+                          readonlyPath
+                          readonlyContent
+                        />
                       ),
                     )}
                   </ScrollContainer>
@@ -158,7 +163,6 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
     )
   )
 }
-
 
 const CodeReadingSummary = ({ studentOutputs }) => {
   const correctOutputs = studentOutputs.filter(
