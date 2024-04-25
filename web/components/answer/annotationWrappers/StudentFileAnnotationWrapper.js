@@ -7,7 +7,8 @@ import ResizePanel from "@/components/layout/utils/ResizePanel"
 import FileEditor from "@/components/question/type_specific/code/FileEditor"
 import { useTheme } from "@emotion/react";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { set } from "lodash";
+import { useEffect, useState } from "react";
 
 const { useAnnotation } = require("@/context/AnnotationContext")
 
@@ -80,6 +81,10 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
     const { readOnly, state, annotation, change, discard } = useAnnotation()
 
     const [viewMode, setViewMode] = useState("ANNOTATED")
+
+    useEffect(() => {
+      setViewMode("ANNOTATED")
+    }, [original])
   
     const onChange = (content) => {
       change(content)
