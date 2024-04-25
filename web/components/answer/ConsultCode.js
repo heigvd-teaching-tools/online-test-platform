@@ -90,9 +90,7 @@ const ConsultCodeWriting = ({ answer }) => {
                   entityType={AnnotationEntityType.CODE_WRITING_FILE}
                   entity={answerToFile.file}
                 >
-                  <StudentFileAnnotationWrapper 
-                    file={answerToFile.file} 
-                  />
+                  <StudentFileAnnotationWrapper file={answerToFile.file} />
                 </AnnotationProvider>
               ))}
             </ScrollContainer>
