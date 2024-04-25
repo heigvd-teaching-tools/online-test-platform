@@ -25,8 +25,6 @@ import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
 import ScrollContainer from '@/components/layout/ScrollContainer'
 import AnswerEditor from '@/components/answer/AnswerEditor'
 
-import StudentPhaseRedirect from './StudentPhaseRedirect'
-
 import QuestionView from '@/components/question/QuestionView'
 
 import QuestionNav from './take/QuestionNav'

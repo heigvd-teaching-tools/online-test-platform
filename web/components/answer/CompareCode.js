@@ -146,7 +146,7 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
                   </ScrollContainer>
                 }
                 rightPanel={
-                  <ScrollContainer px={1}>
+                  <ScrollContainer px={1}pt={1}>
                     {solution.codeWriting.solutionFiles?.map(
                       (solutionToFile, index) => (
                           <FileEditor

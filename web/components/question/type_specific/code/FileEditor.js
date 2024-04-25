@@ -18,14 +18,8 @@ import React, { useEffect, useState } from 'react'
 import { Box, Stack, TextField, Typography } from '@mui/material'
 import InlineMonacoEditor from '../../../input/InlineMonacoEditor'
 import { useTheme } from '@emotion/react'
+import { languageBasedOnPathExtension } from '@/code/utils'
 
-import languages from '@/code/languages.json'
-
-const languageBasedOnPathExtension = (path) => {
-  if (!path) return null
-  const extension = path.split('.').pop()
-  return languages.monacoExtensionToLanguage[extension]
-}
 
 const FileEditor = ({
   file,

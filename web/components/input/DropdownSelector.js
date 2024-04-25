@@ -29,11 +29,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
 const DropdownSelector = ({
   label,
-  color,
   options,
-  variant = 'outlined',
   onSelect,
   value,
+  ...props
 }) => {
   const [open, setOpen] = useState(false)
   const anchorRef = useRef(null)
@@ -74,10 +73,9 @@ const DropdownSelector = ({
   return (
     <Box>
       <ButtonGroup
-        variant={variant}
-        color={color}
         ref={anchorRef}
         aria-label="split button"
+        {...props}
       >
         <Button onClick={handleClick}>
           {label && label(options[selectedIndex] || options[0])}

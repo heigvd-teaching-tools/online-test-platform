@@ -16,11 +16,12 @@
 import React, { createContext, useContext, useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { fetcher } from '../code/utils'
-import { Box, Button } from '@mui/material'
+import { Box, Button, ButtonGroup } from '@mui/material'
 import ClickAwayListener from 'react-click-away-listener';
 import { useRouter } from 'next/router'
 import { useDebouncedCallback } from 'use-debounce'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
+import { useTheme } from '@emotion/react';
 
 const AnnotationContext = createContext()
 
@@ -28,24 +29,27 @@ export const useAnnotation = () => useContext(AnnotationContext)
 
 const AnnotationState = {
   "NOT_ANNOTATED": {
-    "outline": "#000",
     "boxShadow": ""
   },
   "ANNOTATED": {
-    "outline": "#00f",
-    "boxShadow": "0 0 2px 6px #fff, 0 0 5px 5px #00f"
+    "boxShadow": "0 0 3px 1px #0000ff40"
   }
 }
 
 const EditingState = {
   "HOVER": {
-    "boxShadow": "0 0 2px 6px #fff, 0 0 5px 5px #555"
+    "boxShadow": "0 0 3px 1px #55555540"
   },
   "ACTIVE": {
-    "boxShadow": "0 0 2px 6px #fff, 0 0 5px 5px #0f0"
+    "boxShadow": "0 0 3px 1px #009d00d6"
   },
 }
 
+const ViewMode = {
+  ANNOTATED: "ANNOTATED",
+  ORIGINAL: "ORIGINAL",
+  DIFF: "DIFF"
+};
 
 const createAnnotation = async (groupScope, student, question, entityType, entity, annotation) => {
   const response = await fetch(`/api/${groupScope}/gradings/annotations`, {
@@ -99,7 +103,6 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
     fetcher
   )
 
-  const [ showOriginal, setShowOriginal ] = useState(false)
   const [ annotation, setAnnotation ] = useState(null)
   const [ state, setState ] = useState(stateBasedOnAnnotation(initial))
   
@@ -150,75 +153,17 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
     <AnnotationContext.Provider
       value={{
         readOnly,
-        showOriginal,
+        state,
         annotation,
         change,
+        discard
       }}
     >
       <AnnotationHighlight readOnly={readOnly} state={state}>
-        <Box position={"absolute"} top={0} right={0} zIndex={1000}>
-          <AnnotateToolbar 
-            readOnly={readOnly}
-            showOriginal={showOriginal}
-            toggleShowOriginal={() => setShowOriginal(!showOriginal)}
-            state={state}
-            onDiscard={() => discard(groupScope, annotation)}
-          /> 
-        </Box>
+        
       {children}
       </AnnotationHighlight>
     </AnnotationContext.Provider>
-  )
-}
-
-
-const AnnotateToolbar = ({ readOnly, showOriginal, toggleShowOriginal, state, onDiscard }) => {
-
-  const [ discardDialogOpen, setDiscardDialogOpen ] = useState(false)
-
-  return (
-    <>
-      
-      { state === "ANNOTATED" && (
-        <>
-        <Button
-          variant={"text"}
-          size={"small"}
-          onClick={(ev) => {
-            ev.stopPropagation()
-            toggleShowOriginal()
-          }}
-        >
-          {showOriginal ? "Hide Original" : "Show Original"}
-        </Button>
-        {!readOnly && (
-          <Button
-            variant={"text"}
-            size={"small"}
-            onClick={(ev) => {
-              ev.stopPropagation()
-              setDiscardDialogOpen(true)
-            }}
-          >
-            Discard
-          </Button>
-        )}
-        </>
-      )
-      }
-    <DialogFeedback
-      open={discardDialogOpen}
-      title={"Discard Annotation"}
-      content={
-        "Are you sure you want to discard this annotation?"
-      }
-      onConfirm={() => {
-        onDiscard()
-        setDiscardDialogOpen(false)
-      }}
-      onCancel={() => setDiscardDialogOpen(false)}
-    />
-    </>
   )
 }
 
@@ -258,10 +203,11 @@ const AnnotationHighlight = ({ readOnly, state, children }) => {
     }}>
       <Box
         position={"relative"}
-        m={2}
-        borderRadius={1}    
+        m={0}
+        mb={1}
+        
         backgroundColor={'white'} 
-        transition={'box-shadow 0.15s ease-in-out'}
+        transition={'box-shadow 0.25s ease-in-out'}
         cursor={'pointer'}
         boxShadow={getBoxShadow(editingState, state)}
         
