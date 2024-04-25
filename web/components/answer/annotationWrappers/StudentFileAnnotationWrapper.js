@@ -44,8 +44,7 @@ const AnnotateToolbar = ({ readOnly, viewMode, setViewMode, state, onDiscard }) 
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
 
   return state === "ANNOTATED" && (
-    <>
-    <Stack direction="row" alignItems="center" bgcolor={theme.palette.background.paper} position={"absolute"} right={0} top={0} p={1} zIndex={100} spacing={1}>
+    <Stack direction="row" alignItems="center" bgcolor={theme.palette.background.paper} zIndex={100} spacing={1}>
       <ViewModeSelector currentViewMode={viewMode} onViewModeChange={setViewMode} />
       {!readOnly && (
         <Button
@@ -59,20 +58,18 @@ const AnnotateToolbar = ({ readOnly, viewMode, setViewMode, state, onDiscard }) 
           Discard
         </Button>
       )}
+      <DialogFeedback
+        open={discardDialogOpen}
+        title="Discard Annotation"
+        content="Are you sure you want to discard this annotation?"
+        onConfirm={() => {
+          onDiscard();
+          setViewMode("ANNOTATED");
+          setDiscardDialogOpen(false);
+        }}
+        onClose={() => setDiscardDialogOpen(false)}
+      />
     </Stack>
-    
-    <DialogFeedback
-      open={discardDialogOpen}
-      title="Discard Annotation"
-      content="Are you sure you want to discard this annotation?"
-      onConfirm={() => {
-        onDiscard();
-        setViewMode("ANNOTATED");
-        setDiscardDialogOpen(false);
-      }}
-      onClose={() => setDiscardDialogOpen(false)}
-    />
-  </>
   );
 };
 
@@ -96,13 +93,21 @@ const StudentFileAnnotationWrapper = ({ file:original }) => {
     }
 
     const language = languageBasedOnPathExtension(file?.path)
-
-    console.log("viewMode", viewMode, hasAnnotation)
   
     return (
       <Stack position={"relative"}>
-        <Stack direction="row" alignItems="center" p={2} bgcolor={theme.palette.background.paper} zIndex={1000} position={"sticky"} top={0}>
-          <Typography variant="body1"> {file.path} </Typography>
+        <Stack 
+          position={"sticky"} top={0} 
+          direction="row" 
+          alignItems="center" 
+          justifyContent="space-between"
+          bgcolor={theme.palette.background.paper} 
+          zIndex={1000} 
+          height={50}
+        >
+          <Box flex={1} pl={1}>
+            <Typography variant="body1"> {file.path} </Typography>
+          </Box>
           <AnnotateToolbar
             readOnly={readOnly}
             viewMode={viewMode}

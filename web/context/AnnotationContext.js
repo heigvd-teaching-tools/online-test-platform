@@ -27,23 +27,6 @@ const AnnotationContext = createContext()
 
 export const useAnnotation = () => useContext(AnnotationContext)
 
-const AnnotationState = {
-  "NOT_ANNOTATED": {
-    "boxShadow": ""
-  },
-  "ANNOTATED": {
-    "boxShadow": "0 0 3px 1px #0000ff40"
-  }
-}
-
-const EditingState = {
-  "HOVER": {
-    "boxShadow": "0 0 3px 1px #55555540"
-  },
-  "ACTIVE": {
-    "boxShadow": "0 0 3px 1px #009d00d6"
-  },
-}
 
 const createAnnotation = async (groupScope, student, question, entityType, entity, annotation) => {
   const response = await fetch(`/api/${groupScope}/gradings/annotations`, {
@@ -162,6 +145,29 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
 }
 
 
+const AnnotationState = {
+  "NOT_ANNOTATED": {
+    "borderTop": "1px solid transparent",
+    
+  },
+  "ANNOTATED": {
+    "borderTop": "1px solid #0000ff40",
+    "boxShadow": "0 0 3px 1px #0000ff40"
+  }
+}
+
+const EditingState = {
+  "HOVER": {
+    "borderTop": "1px solid #55555540",
+    "boxShadow": "0 0 3px 1px #55555540"
+  },
+  "ACTIVE": {
+    "borderTop": "1px solid #009d00d6",
+    "boxShadow": "0 0 3px 1px #009d00d6"
+  },
+}
+
+
 const AnnotationHighlight = ({ readOnly, state, children }) => {
   const [ editingState, setEditingState ] = useState("INACTIVE")
 
@@ -198,12 +204,12 @@ const AnnotationHighlight = ({ readOnly, state, children }) => {
       <Box
         position={"relative"}
         m={0}
-        mb={1}
-        
+        p={0}
         backgroundColor={'white'} 
         transition={'box-shadow 0.25s ease-in-out'}
         cursor={'pointer'}
-        boxShadow={getBoxShadow(editingState, state)}
+        boxSizing={'border-box'}
+        {...getCss(editingState, state)}
         
         onMouseEnter={() => onMouseEnter()}
         onMouseLeave={() => onMouseLeave()}
@@ -219,9 +225,9 @@ const stateBasedOnAnnotation = (annotation) => {
   return annotation ? "ANNOTATED" : "NOT_ANNOTATED"
 }
 
-const getBoxShadow = (editingState, annotationState) => {
+const getCss = (editingState, annotationState) => {
   console
-  return EditingState[editingState]?.boxShadow || AnnotationState[annotationState]?.boxShadow
+  return EditingState[editingState] || AnnotationState[annotationState]
 }
 
 

@@ -41,6 +41,7 @@ import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import { AnnotationProvider } from '@/context/AnnotationContext'
 import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
 import PassIndicator from '../feedback/PassIndicator'
+import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
 
 
 const CompareCode = ({ readOnly, student, question, solution, answer }) => {
@@ -82,30 +83,7 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
             />
             <Tab
               label={
-                <Stack spacing={1} direction="row">
-                  {answer.codeWriting.testCaseResults.length > 0 ? (
-                    <>
-                      <PassIndicator
-                        passed={answer.codeWriting.testCaseResults.every(
-                          (test) => test.passed,
-                        )}
-                      />
-                      <Typography variant="caption">
-                        {`${
-                          answer.codeWriting.testCaseResults.filter(
-                            (test) => test.passed,
-                          ).length
-                        } / ${
-                          answer.codeWriting.testCaseResults.length
-                        } tests passed`}
-                      </Typography>
-                    </>
-                  ) : (
-                    <Typography variant="caption">
-                      No code-check runs
-                    </Typography>
-                  )}
-                </Stack>
+                <CodeWritingTabLabelTestSummary testCaseResults={answer.codeWriting.testCaseResults} />
               }
               value={1}
             />
@@ -151,7 +129,7 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
                   </ScrollContainer>
                 }
                 rightPanel={
-                  <ScrollContainer px={1}pt={1}>
+                  <ScrollContainer px={1} pt={1}>
                     {solution.codeWriting.solutionFiles?.map(
                       (solutionToFile, index) => (
                           <FileEditor

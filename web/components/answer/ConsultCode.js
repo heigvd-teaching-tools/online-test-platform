@@ -33,7 +33,6 @@ import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
 import { AnnotationProvider } from '@/context/AnnotationContext'
 import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
-import PassIndicator from '../feedback/PassIndicator'
 import ScrollContainer from '../layout/ScrollContainer'
 
 const ConsultCode = ({ question, answer }) => {
@@ -49,6 +48,7 @@ const ConsultCode = ({ question, answer }) => {
     </>
   )
 }
+
 
 const ConsultCodeWriting = ({ answer }) => {
   const [tab, setTab] = useState(0)
@@ -67,30 +67,8 @@ const ConsultCodeWriting = ({ answer }) => {
           />
           <Tab
             label={
-            <Stack spacing={1} direction="row">
-              {answer.codeWriting.testCaseResults.length > 0 ? (
-                <>
-                  <PassIndicator
-                    passed={answer.codeWriting.testCaseResults.every(
-                      (test) => test.passed,
-                    )}
-                  />
-                  <Typography variant="caption">
-                    {`${
-                      answer.codeWriting.testCaseResults.filter(
-                        (test) => test.passed,
-                      ).length
-                    } / ${
-                      answer.codeWriting.testCaseResults.length
-                    } tests passed`}
-                  </Typography>
-              </>
-            ) : (
-              <Typography variant="caption">
-                No code-check runs
-              </Typography>
-            )}
-          </Stack>}
+              <CodeWritingTabLabelTestSummary testCaseResults={answer.codeWriting.testCaseResults} />
+            }
             value={1}
           />
            {answer.codeWriting.files.some(
@@ -103,7 +81,7 @@ const ConsultCodeWriting = ({ answer }) => {
         </Tabs>
         <TabPanel value={tab} index={0}>
           <TabContent>
-            <ScrollContainer p={1}>
+            <ScrollContainer mt={1} px={1}>
             {files.map((answerToFile, index) => (
               <AnnotationProvider
                 key={index} 
