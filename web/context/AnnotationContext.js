@@ -125,7 +125,6 @@ export const AnnotationProvider = ({ children, readOnly = false, student, questi
     await discardAnnotation(groupScope, annotationId)
   }, [groupScope, annotation, mutate, readOnly])
 
-
   return (
     <AnnotationContext.Provider
       value={{
@@ -170,6 +169,12 @@ const EditingState = {
 
 const AnnotationHighlight = ({ readOnly, state, children }) => {
   const [ editingState, setEditingState ] = useState("INACTIVE")
+
+  useEffect(() => {
+    if(state === "NOT_ANNOTATED"){
+      setEditingState("INACTIVE")
+    }
+  }, [state])
 
   const onMouseEnter = useCallback(() => {
     if(readOnly){
@@ -225,9 +230,6 @@ const stateBasedOnAnnotation = (annotation) => {
   return annotation ? "ANNOTATED" : "NOT_ANNOTATED"
 }
 
-const getCss = (editingState, annotationState) => {
-  console
-  return EditingState[editingState] || AnnotationState[annotationState]
-}
+const getCss = (editingState, annotationState) => EditingState[editingState] || AnnotationState[annotationState]
 
 

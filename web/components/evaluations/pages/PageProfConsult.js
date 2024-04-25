@@ -144,8 +144,6 @@ const PageProfConsult = () => {
     [evaluationToQuestions, selected],
   )
 
-  console.log('evaluation', evaluation)
-
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} error={[error]}>
