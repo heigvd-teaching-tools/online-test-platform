@@ -15,6 +15,7 @@
  */
 import { useRouter } from 'next/router'
 import { Tabs, Tab, Tooltip, Typography } from '@mui/material'
+import { tabsClasses } from '@mui/material/Tabs'
 import FilledBullet from '../../feedback/FilledBullet'
 
 const Paging = ({ items, active, link }) => {
@@ -26,7 +27,12 @@ const Paging = ({ items, active, link }) => {
     <Tabs
       value={index_of === -1 ? false : index_of}
       variant="scrollable"
-      scrollButtons="auto"
+      scrollButtons
+      sx={{
+        [`& .${tabsClasses.scrollButtons}`]: {
+          '&.Mui-disabled': { opacity: 0.3 },
+        },
+      }}
       onChange={(e, index) => router.push(link(items[index].id, index))}
     >
       {items.map((item, index) => (

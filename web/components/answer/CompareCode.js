@@ -23,8 +23,6 @@ import {
   Typography,
   TextField,
 } from '@mui/material'
-import CheckIcon from '@mui/icons-material/Check'
-import ClearIcon from '@mui/icons-material/Clear'
 
 import ResizePanel from '@/components/layout/utils/ResizePanel'
 import FileEditor from '@/components/question/type_specific/code/FileEditor'
@@ -33,25 +31,28 @@ import TabPanel from '@/components/layout/utils/TabPanel'
 import TabContent from '@/components/layout/utils/TabContent'
 import ScrollContainer from '@/components/layout/ScrollContainer'
 import {
+  AnnotationEntityType,
   CodeQuestionType,
   StudentAnswerCodeReadingOutputStatus,
+  StudentPermission,
 } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
-import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
+import { AnnotationProvider } from '@/context/AnnotationContext'
+import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
+import PassIndicator from '../feedback/PassIndicator'
+import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
 
-const PassIndicator = ({ passed }) => {
-  return passed ? (
-    <CheckIcon sx={{ color: 'success.main', width: 16, height: 16 }} />
-  ) : (
-    <ClearIcon sx={{ color: 'error.main', width: 16, height: 16 }} />
-  )
-}
-
-const CompareCode = ({ solution, answer }) => {
+const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   return (
     <>
       {solution?.codeType === CodeQuestionType.codeWriting && (
-        <CompareCodeWriting solution={solution} answer={answer} />
+        <CompareCodeWriting
+          readOnly={readOnly}
+          student={student}
+          question={question}
+          solution={solution}
+          answer={answer}
+        />
       )}
       {solution?.codeType === CodeQuestionType.codeReading && (
         <CompareCodeReading solution={solution} answer={answer} />
@@ -60,7 +61,13 @@ const CompareCode = ({ solution, answer }) => {
   )
 }
 
-const CompareCodeWriting = ({ solution, answer }) => {
+const CompareCodeWriting = ({
+  readOnly,
+  student,
+  question,
+  solution,
+  answer,
+}) => {
   const [tab, setTab] = React.useState(0)
   return (
     answer &&
@@ -78,30 +85,9 @@ const CompareCodeWriting = ({ solution, answer }) => {
             />
             <Tab
               label={
-                <Stack spacing={1} direction="row">
-                  {answer.codeWriting.testCaseResults.length > 0 ? (
-                    <>
-                      <PassIndicator
-                        passed={answer.codeWriting.testCaseResults.every(
-                          (test) => test.passed,
-                        )}
-                      />
-                      <Typography variant="caption">
-                        {`${
-                          answer.codeWriting.testCaseResults.filter(
-                            (test) => test.passed,
-                          ).length
-                        } / ${
-                          answer.codeWriting.testCaseResults.length
-                        } tests passed`}
-                      </Typography>
-                    </>
-                  ) : (
-                    <Typography variant="caption">
-                      No code-check runs
-                    </Typography>
-                  )}
-                </Stack>
+                <CodeWritingTabLabelTestSummary
+                  testCaseResults={answer.codeWriting.testCaseResults}
+                />
               }
               value={1}
             />
@@ -117,19 +103,38 @@ const CompareCodeWriting = ({ solution, answer }) => {
             <TabContent>
               <ResizePanel
                 leftPanel={
-                  <ScrollContainer px={1}>
-                    {answer.codeWriting.files?.map((answerToFile, index) => (
-                      <FileEditor
-                        key={index}
-                        file={answerToFile.file}
-                        readonlyPath
-                        readonlyContent
-                      />
-                    ))}
+                  <ScrollContainer px={1} mt={1} spacing={1}>
+                    {answer.codeWriting.files?.map(
+                      (answerToFile, index) =>
+                        (answerToFile.studentPermission ===
+                          StudentPermission.UPDATE && (
+                          <AnnotationProvider
+                            key={index}
+                            readOnly={readOnly}
+                            student={student}
+                            question={question}
+                            entityType={AnnotationEntityType.CODE_WRITING_FILE}
+                            entity={answerToFile.file}
+                            annotation={answerToFile.file.annotation}
+                          >
+                            <StudentFileAnnotationWrapper
+                              file={answerToFile.file}
+                            />
+                          </AnnotationProvider>
+                        )) ||
+                        (answerToFile.studentPermission !==
+                          StudentPermission.UPDATE && (
+                          <FileEditor
+                            file={answerToFile.file}
+                            readonlyPath
+                            readonlyContent
+                          />
+                        )),
+                    )}
                   </ScrollContainer>
                 }
                 rightPanel={
-                  <ScrollContainer px={1}>
+                  <ScrollContainer px={1} pt={1} spacing={1}>
                     {solution.codeWriting.solutionFiles?.map(
                       (solutionToFile, index) => (
                         <FileEditor

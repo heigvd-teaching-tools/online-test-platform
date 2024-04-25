@@ -144,8 +144,6 @@ const PageProfConsult = () => {
     [evaluationToQuestions, selected],
   )
 
-  console.log('evaluation', evaluation)
-
   return (
     <Authorisation allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} error={[error]}>
@@ -188,10 +186,11 @@ const PageProfConsult = () => {
               rightWidth={65}
               rightPanel={
                 selected && (
-                  <Stack pt={1} height={'100%'}>
+                  <Stack height={'100%'}>
                     <AnswerCompare
                       id={`answer-viewer-${selected.question.id}`}
-                      questionType={selected.question.type}
+                      student={selected.question.studentAnswer[0].user}
+                      question={selected.question}
                       solution={selected.question[selected.question.type]}
                       answer={
                         selected.question.studentAnswer[0][

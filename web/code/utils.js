@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import languages from '@/code/languages.json'
+
 export const fetcher = async (url) => {
   const res = await fetch(url)
 
@@ -47,3 +50,9 @@ this link send to users to the PageDispatch which decides (using api evaluation/
 * */
 export const getStudentEntryLink = (evaluationId) =>
   `${window && window.location.origin}/users/evaluations/${evaluationId}`
+
+export const languageBasedOnPathExtension = (path) => {
+  if (!path) return null
+  const extension = path.split('.').pop()
+  return languages.monacoExtensionToLanguage[extension]
+}

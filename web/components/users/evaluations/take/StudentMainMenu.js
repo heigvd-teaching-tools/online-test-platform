@@ -42,7 +42,7 @@ const StudentMainMenu = ({ evaluationId, evaluation, pages = [], page }) => {
   const router = useRouter()
 
   return (
-    <Stack direction="row" alignItems="center">
+    <Stack direction="row" alignItems="center" flex={1}>
       <ConnectionIndicator />
       {evaluation.startAt && evaluation.endAt && (
         <Box sx={{ ml: 2 }}>
@@ -61,7 +61,7 @@ const StudentMainMenu = ({ evaluationId, evaluation, pages = [], page }) => {
           <HomeSvgIcon />
         </IconButton>
       </Stack>
-      <Stack direction="row" flex={1} overflow={'auto'}>
+      <Stack flex={1} sx={{ overflow: 'hidden' }}>
         {pages.length > 0 && (
           <Paging
             items={pages}

@@ -61,6 +61,7 @@ model User {
   gradingSignedBy  StudentQuestionGrading[]
   groups           UserOnGroup[]
   groupsCreated    Group[]
+  annotations      Annotation[]
 }
 
 enum Role {
@@ -408,6 +409,7 @@ model File {
   codeToSolutionFile CodeToSolutionFile?
   codeToTemplateFile CodeToTemplateFile?
   studentAnswerCode  StudentAnswerCodeToFile?
+  annotation         Annotation?
 }
 
 model StudentAnswerDatabaseToQuery {
@@ -632,7 +634,40 @@ model StudentAnswer {
 
   studentGrading StudentQuestionGrading?
 
+  annotations Annotation[]
+
   @@id([userEmail, questionId])
+}
+
+enum AnnotationEntityType {
+  CODE_WRITING_FILE
+}
+
+model Annotation {
+  // This model should be used to store annotations for a specific student answer
+  // It should be used for a number of different types of questions, thus having an auto-incrementing id (main entity) raher than a composite key
+
+  id             String   @id @default(cuid())
+  
+  studentAnswer  StudentAnswer @relation(fields: [userEmail, questionId], references: [userEmail, questionId], onDelete: Cascade)
+  userEmail      String
+  questionId     String
+
+  entityType     AnnotationEntityType @default(CODE_WRITING_FILE)
+  
+  // When attached to student code file
+  fileId         String?  @unique
+  file           File?    @relation(fields: [fileId], references: [id])
+
+  content        String   
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  createdBy      User?    @relation(fields: [createdById], references: [id])
+  createdById    String?
+
+  @@unique([entityType, fileId])
 }
 
 enum StudentQuestionGradingStatus {

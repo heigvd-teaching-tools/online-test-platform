@@ -437,7 +437,10 @@ const PageGrading = () => {
                       />
                       <Divider orientation="vertical" flexItem />
                       <AnswerCompare
-                        questionType={evaluationToQuestion.question.type}
+                        student={participants.find(
+                          (p) => p.id === participantId,
+                        )}
+                        question={evaluationToQuestion.question}
                         solution={
                           evaluationToQuestion.question[
                             evaluationToQuestion.question.type

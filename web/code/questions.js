@@ -216,7 +216,15 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                     },
                   },
                   include: {
-                    file: true,
+                    file: {
+                      select: {
+                        path: true,
+                        content: true,
+                        ...(includeGradings
+                          ? { id: true, annotation: true }
+                          : {}),
+                      },
+                    },
                   },
                   orderBy: { order: 'asc' },
                 },

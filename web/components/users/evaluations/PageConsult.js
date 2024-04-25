@@ -134,10 +134,11 @@ const PageConsult = () => {
                     rightPanel={
                       selected &&
                       (userOnEvaluation.showSolutionsWhenFinished ? (
-                        <Box mt={1} height={'100%'}>
+                        <Box height={'100%'}>
                           <AnswerCompare
                             id={`answer-viewer-${selected.question.id}`}
-                            questionType={selected.question.type}
+                            readOnly
+                            question={selected.question}
                             solution={selected.question[selected.question.type]}
                             answer={
                               selected.question.studentAnswer[0][
@@ -149,7 +150,6 @@ const PageConsult = () => {
                       ) : (
                         <AnswerConsult
                           id={`answer-viewer-${selected.question.id}`}
-                          questionType={selected.question.type}
                           question={selected.question}
                           answer={
                             selected.question.studentAnswer[0][

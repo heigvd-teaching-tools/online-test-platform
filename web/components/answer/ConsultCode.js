@@ -21,15 +21,20 @@ import {
   TextField,
   InputAdornment,
   Box,
+  Stack,
+  Alert,
 } from '@mui/material'
 
-import FileEditor from '@/components/question/type_specific/code/FileEditor'
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
 import TabContent from '@/components/layout/utils/TabContent'
 import TabPanel from '@/components/layout/utils/TabPanel'
-import { CodeQuestionType } from '@prisma/client'
+import { AnnotationEntityType, CodeQuestionType } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
+import { AnnotationProvider } from '@/context/AnnotationContext'
+import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
+import ScrollContainer from '../layout/ScrollContainer'
+import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
 
 const ConsultCode = ({ question, answer }) => {
   const codeType = question.code.codeType
@@ -48,7 +53,6 @@ const ConsultCode = ({ question, answer }) => {
 const ConsultCodeWriting = ({ answer }) => {
   const [tab, setTab] = useState(0)
   const files = answer?.codeWriting?.files
-  const tests = answer?.codeWriting?.tests
   return (
     files && (
       <>
@@ -62,25 +66,40 @@ const ConsultCodeWriting = ({ answer }) => {
             value={0}
           />
           <Tab
-            label={<Typography variant="caption">Tests</Typography>}
+            label={
+              <CodeWritingTabLabelTestSummary
+                testCaseResults={answer.codeWriting.testCaseResults}
+              />
+            }
             value={1}
           />
+          {answer.codeWriting.files.some(
+            (ansToFile) =>
+              ansToFile.file.updatedAt >
+              answer.codeWriting.testCaseResults[0]?.createdAt,
+          ) && <Alert severity="warning">Post code-check modifications</Alert>}
         </Tabs>
         <TabPanel value={tab} index={0}>
           <TabContent>
-            {files.map((answerToFile, index) => (
-              <FileEditor
-                key={index}
-                file={answerToFile.file}
-                readonlyPath
-                readonlyContent
-              />
-            ))}
+            <ScrollContainer mt={1} px={1} spacing={1}>
+              {files.map((answerToFile, index) => (
+                <AnnotationProvider
+                  key={index}
+                  readOnly
+                  entityType={AnnotationEntityType.CODE_WRITING_FILE}
+                  entity={answerToFile.file}
+                >
+                  <StudentFileAnnotationWrapper file={answerToFile.file} />
+                </AnnotationProvider>
+              ))}
+            </ScrollContainer>
           </TabContent>
         </TabPanel>
         <TabPanel value={tab} index={1}>
           <TabContent padding={1}>
-            <TestCaseResults tests={tests} />
+            <ScrollContainer>
+              <TestCaseResults tests={answer.codeWriting.testCaseResults} />
+            </ScrollContainer>
           </TabContent>
         </TabPanel>
       </>
