@@ -45,12 +45,6 @@ const EditingState = {
   },
 }
 
-const ViewMode = {
-  ANNOTATED: "ANNOTATED",
-  ORIGINAL: "ORIGINAL",
-  DIFF: "DIFF"
-};
-
 const createAnnotation = async (groupScope, student, question, entityType, entity, annotation) => {
   const response = await fetch(`/api/${groupScope}/gradings/annotations`, {
     method: 'POST',

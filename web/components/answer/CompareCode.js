@@ -36,6 +36,7 @@ import {
   AnnotationEntityType,
   CodeQuestionType,
   StudentAnswerCodeReadingOutputStatus,
+  StudentPermission,
 } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import { AnnotationProvider, useAnnotation } from '@/context/AnnotationContext'
@@ -129,19 +130,30 @@ const CompareCodeWriting = ({ readOnly, student, question, solution, answer }) =
                 leftPanel={
                   <ScrollContainer px={1} pt={1}>
                     {answer.codeWriting.files?.map((answerToFile, index) => (
-                      <AnnotationProvider 
-                        key={index} 
-                        readOnly={readOnly}
-                        student={student}
-                        question={question}
-                        entityType={AnnotationEntityType.CODE_WRITING_FILE}
-                        entity={answerToFile.file}
-                        annotation={answerToFile.file.annotation}
-                      >
-                        <StudentFileAnnotationWrapper 
-                          file={answerToFile.file} 
-                        />
-                      </AnnotationProvider>
+                       (answerToFile.studentPermission === StudentPermission.UPDATE && (
+                          <AnnotationProvider 
+                            key={index} 
+                            readOnly={readOnly}
+                            student={student}
+                            question={question}
+                            entityType={AnnotationEntityType.CODE_WRITING_FILE}
+                            entity={answerToFile.file}
+                            annotation={answerToFile.file.annotation}
+                          >
+                          
+                            <StudentFileAnnotationWrapper 
+                              file={answerToFile.file} 
+                            />
+                          </AnnotationProvider>
+                        ))
+                        ||
+                        (answerToFile.studentPermission !== StudentPermission.UPDATE && (
+                          <FileEditor 
+                            file={answerToFile.file}
+                            readonlyPath
+                            readonlyContent
+                          />
+                        ))
                     ))}
                   </ScrollContainer>
                 }
