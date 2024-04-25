@@ -23,8 +23,7 @@ import {
   Typography,
   TextField,
 } from '@mui/material'
-import CheckIcon from '@mui/icons-material/Check'
-import ClearIcon from '@mui/icons-material/Clear'
+
 
 import ResizePanel from '@/components/layout/utils/ResizePanel'
 import FileEditor from '@/components/question/type_specific/code/FileEditor'
@@ -39,16 +38,10 @@ import {
   StudentPermission,
 } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
-import { AnnotationProvider, useAnnotation } from '@/context/AnnotationContext'
+import { AnnotationProvider } from '@/context/AnnotationContext'
 import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
+import PassIndicator from '../feedback/PassIndicator'
 
-const PassIndicator = ({ passed }) => {
-  return passed ? (
-    <CheckIcon sx={{ color: 'success.main', width: 16, height: 16 }} />
-  ) : (
-    <ClearIcon sx={{ color: 'error.main', width: 16, height: 16 }} />
-  )
-}
 
 const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   return (

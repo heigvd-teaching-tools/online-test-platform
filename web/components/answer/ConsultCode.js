@@ -21,6 +21,8 @@ import {
   TextField,
   InputAdornment,
   Box,
+  Stack,
+  Alert,
 } from '@mui/material'
 
 import TestCaseResults from '@/components/question/type_specific/code/codeWriting/TestCaseResults'
@@ -31,6 +33,8 @@ import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
 import { AnnotationProvider } from '@/context/AnnotationContext'
 import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
+import PassIndicator from '../feedback/PassIndicator'
+import ScrollContainer from '../layout/ScrollContainer'
 
 const ConsultCode = ({ question, answer }) => {
   const codeType = question.code.codeType
@@ -49,7 +53,6 @@ const ConsultCode = ({ question, answer }) => {
 const ConsultCodeWriting = ({ answer }) => {
   const [tab, setTab] = useState(0)
   const files = answer?.codeWriting?.files
-  const tests = answer?.codeWriting?.tests
   return (
     files && (
       <>
@@ -63,12 +66,44 @@ const ConsultCodeWriting = ({ answer }) => {
             value={0}
           />
           <Tab
-            label={<Typography variant="caption">Tests</Typography>}
+            label={
+            <Stack spacing={1} direction="row">
+              {answer.codeWriting.testCaseResults.length > 0 ? (
+                <>
+                  <PassIndicator
+                    passed={answer.codeWriting.testCaseResults.every(
+                      (test) => test.passed,
+                    )}
+                  />
+                  <Typography variant="caption">
+                    {`${
+                      answer.codeWriting.testCaseResults.filter(
+                        (test) => test.passed,
+                      ).length
+                    } / ${
+                      answer.codeWriting.testCaseResults.length
+                    } tests passed`}
+                  </Typography>
+              </>
+            ) : (
+              <Typography variant="caption">
+                No code-check runs
+              </Typography>
+            )}
+          </Stack>}
             value={1}
           />
+           {answer.codeWriting.files.some(
+              (ansToFile) =>
+                ansToFile.file.updatedAt >
+                answer.codeWriting.testCaseResults[0]?.createdAt,
+            ) && (
+              <Alert severity="warning">Post code-check modifications</Alert>
+            )}
         </Tabs>
         <TabPanel value={tab} index={0}>
           <TabContent p={1}>
+            <ScrollContainer>
             {files.map((answerToFile, index) => (
               <AnnotationProvider
                 key={index} 
@@ -81,11 +116,14 @@ const ConsultCodeWriting = ({ answer }) => {
                 />
               </AnnotationProvider>
             ))}
+            </ScrollContainer>
           </TabContent>
         </TabPanel>
         <TabPanel value={tab} index={1}>
           <TabContent padding={1}>
-            <TestCaseResults tests={tests} />
+            <ScrollContainer>
+            <TestCaseResults tests={answer.codeWriting.testCaseResults} />
+            </ScrollContainer>
           </TabContent>
         </TabPanel>
       </>
