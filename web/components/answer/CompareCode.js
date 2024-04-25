@@ -39,7 +39,6 @@ import {
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import { AnnotationProvider } from '@/context/AnnotationContext'
 import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
-import PassIndicator from '../feedback/PassIndicator'
 import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
 
 const CompareCode = ({ readOnly, student, question, solution, answer }) => {
@@ -69,6 +68,7 @@ const CompareCodeWriting = ({
   answer,
 }) => {
   const [tab, setTab] = React.useState(0)
+
   return (
     answer &&
     solution && (
@@ -110,12 +110,12 @@ const CompareCodeWriting = ({
                           StudentPermission.UPDATE && (
                           <AnnotationProvider
                             key={index}
+                            annotation={answerToFile.file.annotation}
                             readOnly={readOnly}
                             student={student}
                             question={question}
                             entityType={AnnotationEntityType.CODE_WRITING_FILE}
                             entity={answerToFile.file}
-                            annotation={answerToFile.file.annotation}
                           >
                             <StudentFileAnnotationWrapper
                               file={answerToFile.file}

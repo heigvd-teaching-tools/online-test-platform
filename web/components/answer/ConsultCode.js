@@ -86,6 +86,7 @@ const ConsultCodeWriting = ({ answer }) => {
                 <AnnotationProvider
                   key={index}
                   readOnly
+                  annotation={answerToFile.file.annotation}
                   entityType={AnnotationEntityType.CODE_WRITING_FILE}
                   entity={answerToFile.file}
                 >

@@ -86,6 +86,7 @@ const discardAnnotation = async (groupScope, annotationId) => {
 
 export const AnnotationProvider = ({
   children,
+  annotation: immutableAnnotation,
   readOnly = false,
   student,
   question,
@@ -96,18 +97,38 @@ export const AnnotationProvider = ({
 
   const { groupScope } = router.query
 
-  const { data: initial, mutate } = useSWR(
-    `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entity.id}`,
-    fetcher,
+  const doFetch = !readOnly && groupScope && entity?.id
+
+  /* 
+      When used in the context of student consultation, the annotation is immutable
+      and is supplied as prop immutableAnnotation. The annotation is not managed by the context. It is only used to
+      initialize the context state.
+      When used in the context of grading, the annotation is mutable its data is managed by the context. The context
+      fetches the annotation from the server and updates it when the user changes it.
+    */
+  const { data: contextAnnotation, mutate } = useSWR(
+    doFetch &&
+      `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entity.id}`,
+    doFetch && fetcher,
   )
 
   const [annotation, setAnnotation] = useState(null)
-  const [state, setState] = useState(stateBasedOnAnnotation(initial))
+  const [state, setState] = useState(stateBasedOnAnnotation(contextAnnotation))
 
   useEffect(() => {
-    setAnnotation(initial)
-    setState(stateBasedOnAnnotation(initial))
-  }, [initial])
+    if (!doFetch) {
+      setAnnotation(immutableAnnotation)
+      setState(stateBasedOnAnnotation(immutableAnnotation))
+    }
+  }, [immutableAnnotation])
+
+  useEffect(() => {
+    if (doFetch) {
+      // Context Managed Annotation (Grading)
+      setAnnotation(contextAnnotation)
+      setState(stateBasedOnAnnotation(contextAnnotation))
+    }
+  }, [contextAnnotation, doFetch])
 
   const change = useCallback(
     async (content) => {
