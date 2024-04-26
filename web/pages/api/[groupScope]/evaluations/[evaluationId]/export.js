@@ -61,7 +61,7 @@ const generatePDF = async (html, header) => {
   })
   const page = await browser.newPage()
 
-  await page.setContent(html, { waitUntil: 'networkidle0', timeout: 0 })
+  await page.setContent(html, { waitUntil: 'networkidle0', timeout: 1800000 })
 
   // Adjust styles for @page directive
   await page.evaluate(() => {
