@@ -60,6 +60,7 @@ const generatePDF = async (html, header) => {
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   })
   const page = await browser.newPage()
+  page.setDefaultTimeout(1800000);
 
   await page.setContent(html, { waitUntil: 'networkidle0', timeout: 1800000 })
 
