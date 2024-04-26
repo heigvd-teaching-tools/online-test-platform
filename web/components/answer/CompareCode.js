@@ -60,6 +60,16 @@ const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   )
 }
 
+const PostCodeCheckModificationWarning = ({ answer }) => {
+  return (
+    answer.codeWriting.files.some(
+      (ansToFile) =>
+        ansToFile.file.updatedAt >
+        answer.codeWriting.testCaseResults[0]?.createdAt,
+    ) && <Alert severity="warning">Post code-check modifications</Alert>
+  )
+}
+
 const CompareCodeWriting = ({
   readOnly,
   student,
@@ -91,13 +101,7 @@ const CompareCodeWriting = ({
               }
               value={1}
             />
-            {answer.codeWriting.files.some(
-              (ansToFile) =>
-                ansToFile.file.updatedAt >
-                answer.codeWriting.testCaseResults[0]?.createdAt,
-            ) && (
-              <Alert severity="warning">Post code-check modifications</Alert>
-            )}
+            <PostCodeCheckModificationWarning answer={answer} />
           </Tabs>
           <TabPanel value={tab} index={0}>
             <TabContent>
