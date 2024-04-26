@@ -36,8 +36,8 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
   const [studentOutputTest, setStudentOutputTest] = useState(false)
   const [contextExec, setContextExec] = useState('')
   const [context, setContext] = useState({
-    path: '',
-    content: '',
+    contextPath: '',
+    context: '',
   })
 
   const {
@@ -55,13 +55,22 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
     setStudentOutputTest(codeReading.studentOutputTest)
     setContextExec(codeReading.contextExec)
     setContext({
-      path: codeReading.contextPath,
-      content: codeReading.context,
+      contextPath: codeReading.contextPath,
+      context: codeReading.context,
     })
   }, [codeReading])
 
   const onCodeReadingUpdate = useCallback(
-    async (updatedAttributes) => {
+    async (attributeName, updatedAttribute) => {
+      const codeReading = {
+        studentOutputTest,
+        contextExec,
+        context: {
+          context: context.context,
+          contextPath: context.contextPath,
+        },
+      }
+
       fetch(`/api/${groupScope}/questions/${questionId}/code/code-reading`, {
         method: 'PUT',
         headers: {
@@ -70,13 +79,19 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
         },
         body: JSON.stringify({
           ...codeReading,
-          ...updatedAttributes,
+          [attributeName]: updatedAttribute,
         }),
       }).then((data) => data.json())
-      mutate()
       onUpdate && onUpdate()
     },
-    [groupScope, questionId, onUpdate, codeReading, mutate],
+    [
+      groupScope,
+      questionId,
+      onUpdate,
+      studentOutputTest,
+      contextExec,
+      context,
+    ],
   )
 
   return (
@@ -90,7 +105,7 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
                   checked={studentOutputTest}
                   onChange={(e) => {
                     setStudentOutputTest(e.target.checked)
-                    onCodeReadingUpdate({ studentOutputTest: e.target.checked })
+                    onCodeReadingUpdate('studentOutputTest', e.target.checked)
                   }}
                 />
               }
@@ -142,18 +157,22 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
             fullWidth
             onChange={(ev) => {
               setContextExec(ev.target.value)
-              onCodeReadingUpdate({ contextExec: ev.target.value })
+              onCodeReadingUpdate('contextExec', ev.target.value)
             }}
           />
 
           <FileEditor
-            file={context}
+            file={{
+              path: context.contextPath,
+              content: context.context,
+            }}
             onChange={(code) => {
-              setContext(code)
-              onCodeReadingUpdate({
+              const context = {
                 context: code.content,
                 contextPath: code.path,
-              })
+              }
+              setContext(context)
+              onCodeReadingUpdate('context', context)
             }}
           />
         </ScrollContainer>
