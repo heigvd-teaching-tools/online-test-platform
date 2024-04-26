@@ -84,14 +84,7 @@ const SnippetContext = ({ groupScope, questionId, onUpdate }) => {
       }).then((data) => data.json())
       onUpdate && onUpdate()
     },
-    [
-      groupScope,
-      questionId,
-      onUpdate,
-      studentOutputTest,
-      contextExec,
-      context,
-    ],
+    [groupScope, questionId, onUpdate, studentOutputTest, contextExec, context],
   )
 
   return (
