@@ -102,7 +102,7 @@ const post = async (req, res, prisma) => {
     .join('\n   ')
 
   // Insert generated function declarations and function calls into the context
-  let context = codeReadingConfig.context
+  let context = code.codeReading.context
     .replace('{{SNIPPET_FUNCTION_DECLARATIONS}}', functionDeclarations)
     .replace('{{SNIPPET_FUNCTION_CALLS}}', correctlyIndentedFunctionCalls)
 

@@ -20,7 +20,7 @@ import {
   QuestionSource,
   CodeQuestionType,
 } from '@prisma/client'
-import { orderBy } from 'lodash'
+import { orderBy, update } from 'lodash'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -218,6 +218,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
                   include: {
                     file: {
                       select: {
+                        updatedAt: true,
                         path: true,
                         content: true,
                         ...(includeGradings

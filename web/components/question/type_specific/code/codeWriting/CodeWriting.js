@@ -50,7 +50,6 @@ const CodeWriting = ({ groupScope, questionId, language, onUpdate }) => {
           <Sandbox
             groupScope={groupScope}
             questionId={questionId}
-            language={language}
             onUpdate={onUpdate}
           />
 

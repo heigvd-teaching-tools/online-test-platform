@@ -19,7 +19,7 @@ import { Stack, TextField, Typography } from '@mui/material'
 import useSWR from 'swr'
 import Loading from '@/components/feedback/Loading'
 import { fetcher } from '@/code/utils'
-const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
+const Sandbox = ({ groupScope, questionId, onUpdate }) => {
   const {
     data: sandbox,
     mutate,
@@ -38,10 +38,6 @@ const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
     setBeforeAll(sandbox?.beforeAll || '')
   }, [sandbox])
 
-  useEffect(() => {
-    ;(async () => await mutate())()
-  }, [language, mutate])
-
   const onChange = useCallback(
     async (sandbox) => {
       await fetch(`/api/${groupScope}/questions/${questionId}/code/sandbox`, {
@@ -53,17 +49,11 @@ const Sandbox = ({ groupScope, questionId, language, onUpdate }) => {
         body: JSON.stringify({
           ...sandbox,
         }),
+      }).finally(() => {
+        onUpdate && onUpdate()
       })
-        .then(async (res) => {
-          if (res.status === 200) {
-            await mutate()
-          }
-        })
-        .finally(() => {
-          onUpdate && onUpdate()
-        })
     },
-    [groupScope, questionId, mutate, onUpdate],
+    [groupScope, questionId, onUpdate],
   )
 
   const debouncedOnChange = useDebouncedCallback(onChange, 500)

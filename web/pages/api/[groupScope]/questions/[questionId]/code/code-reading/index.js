@@ -48,15 +48,15 @@ const put = async (req, res, prisma) => {
   // update a code reading
   const { questionId } = req.query
 
-  const { studentOutputTest, contextExec, contextPath, context } = req.body
+  const { studentOutputTest, contextExec, context } = req.body
 
   const codeReading = await prisma.codeReading.update({
     where: {
       questionId: questionId,
     },
     data: {
-      context: context,
-      contextPath: contextPath,
+      context: context.context,
+      contextPath: context.contextPath,
       contextExec: contextExec,
       studentOutputTest: studentOutputTest,
     },
