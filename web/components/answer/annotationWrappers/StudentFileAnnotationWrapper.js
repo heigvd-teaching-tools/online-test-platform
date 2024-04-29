@@ -112,7 +112,7 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
 
   useEffect(() => {
     setViewMode(defaultViewMode)
-  }, [original])
+  }, [original, defaultViewMode])
 
   const onChange = (content) => {
     change(content)
