@@ -33,6 +33,8 @@ import {
 
 import languages from '@/code/languages.json'
 
+import util from 'util'
+
 const environments = languages.environments
 
 /**
@@ -89,19 +91,35 @@ const get = async (req, res, prisma) => {
     })
   }
 
-  // Apply filters for question types if specified
-  if (questionTypes.length > 0) {
+  const questionTypesWithoutCode = questionTypes.filter(
+    (type) => type !== QuestionType.code,
+  )
+
+  if (questionTypes.includes(QuestionType.code) && codeLanguages.length > 0) {
+    where.where.AND.push({
+      OR: [
+        {
+          type: { in: questionTypesWithoutCode },
+        },
+        {
+          AND: [
+            { type: QuestionType.code },
+            { code: { language: { in: codeLanguages } } },
+          ],
+        },
+      ],
+    })
+  } else if (questionTypes.length > 0) {
     where.where.AND.push({
       type: { in: questionTypes },
     })
   }
 
-  // Apply filters for code languages specifically for 'code' type questions
-  if (questionTypes.includes(QuestionType.code) && codeLanguages.length > 0) {
-    where.where.AND.push({
-      code: { language: { in: codeLanguages } },
-    })
+  if (where.where.AND.length === 0) {
+    delete where.where.AND
   }
+
+  // console.log("where: ", util.inspect(where, {showHidden: false, depth: null}))
 
   const questions = await prisma.question.findMany({
     ...where,
