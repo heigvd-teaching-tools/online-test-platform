@@ -106,10 +106,12 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
 
   const { readOnly, state, annotation, change, discard } = useAnnotation()
 
-  const [viewMode, setViewMode] = useState('ANNOTATED')
+  const defaultViewMode = readOnly ? 'DIFF' : 'ANNOTATED'
+
+  const [viewMode, setViewMode] = useState(defaultViewMode)
 
   useEffect(() => {
-    setViewMode('ANNOTATED')
+    setViewMode(defaultViewMode)
   }, [original])
 
   const onChange = (content) => {
