@@ -19,6 +19,7 @@ import { useCallback } from 'react'
 const CheckboxLabel = ({
   label,
   checked,
+  color = 'info',
   intermediate = undefined,
   onChange,
 }) => {
@@ -37,7 +38,7 @@ const CheckboxLabel = ({
         size={'small'}
         checked={checked}
         indeterminate={intermediate}
-        color={'info'}
+        color={color}
         sx={{
           padding: '4px',
         }}

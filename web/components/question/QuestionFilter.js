@@ -232,6 +232,9 @@ const LanguageSelection = ({ filter, updateFilter }) => {
     [filter.codeLanguages, updateFilter, allLanguagesSelected],
   )
 
+  const is_intermediate = someLanguagesSelected && !allLanguagesSelected
+  const color = is_intermediate ? 'primary' : 'info'
+
   return (
     filter.questionTypes.code && (
       <Box>
@@ -243,7 +246,8 @@ const LanguageSelection = ({ filter, updateFilter }) => {
           <CheckboxLabel
             label={'All'}
             checked={allLanguagesSelected}
-            intermediate={someLanguagesSelected && !allLanguagesSelected}
+            intermediate={is_intermediate}
+            color={color}
             onChange={(checked) => {
               if (allLanguagesSelected) {
                 return
@@ -303,6 +307,9 @@ const QuestionTypeSelection = ({ filter, updateFilter }) => {
     [filter.questionTypes, updateFilter, allTypesSelected],
   )
 
+  const is_intermediate = someTypesSelected && !allTypesSelected
+  const color = is_intermediate ? 'primary' : 'info'
+
   return (
     <Box>
       <Typography variant="body2" color="info">
@@ -312,7 +319,8 @@ const QuestionTypeSelection = ({ filter, updateFilter }) => {
         <CheckboxLabel
           label={'All'}
           checked={allTypesSelected}
-          intermediate={someTypesSelected && !allTypesSelected}
+          intermediate={is_intermediate}
+          color={color}
           onChange={(checked) => {
             if (allTypesSelected) {
               return
