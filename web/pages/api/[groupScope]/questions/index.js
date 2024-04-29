@@ -45,8 +45,7 @@ const environments = languages.environments
  */
 
 const get = async (req, res, prisma) => {
-  let { groupScope, search, tags, questionTypes, codeLanguages } =
-    req.query
+  let { groupScope, search, tags, questionTypes, codeLanguages } = req.query
 
   questionTypes = questionTypes
     ? questionTypes.split(',').map((type) => QuestionType[type])
@@ -74,9 +73,9 @@ const get = async (req, res, prisma) => {
         { title: { contains: search, mode: 'insensitive' } },
         { content: { contains: search, mode: 'insensitive' } },
       ],
-    });
+    })
   }
-    
+
   if (tags.length > 0) {
     where.where.AND.push({
       questionToTag: {
@@ -87,21 +86,21 @@ const get = async (req, res, prisma) => {
           },
         },
       },
-    });
+    })
   }
 
   // Apply filters for question types if specified
   if (questionTypes.length > 0) {
     where.where.AND.push({
       type: { in: questionTypes },
-    });
+    })
   }
 
   // Apply filters for code languages specifically for 'code' type questions
   if (questionTypes.includes(QuestionType.code) && codeLanguages.length > 0) {
     where.where.AND.push({
       code: { language: { in: codeLanguages } },
-    });
+    })
   }
 
   const questions = await prisma.question.findMany({
@@ -116,10 +115,10 @@ const get = async (req, res, prisma) => {
     orderBy: {
       updatedAt: 'desc',
     },
-  });
+  })
 
-  res.status(200).json(questions);
-};
+  res.status(200).json(questions)
+}
 
 const post = async (req, res, prisma) => {
   // create a new question -> at this point we only know the question type

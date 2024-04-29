@@ -149,8 +149,6 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
     [filter, onApplyFilter],
   )
 
-  
-
   return (
     <form onSubmit={handleSubmit}>
       <Stack spacing={2} padding={2}>
@@ -173,14 +171,8 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
           onChange={(tags) => updateFilter('tags', tags)}
         />
 
-        <QuestionTypeSelection
-          filter={filter}
-          updateFilter={updateFilter}
-        />
-        <LanguageSelection 
-          filter={filter} 
-          updateFilter={updateFilter} 
-        />
+        <QuestionTypeSelection filter={filter} updateFilter={updateFilter} />
+        <LanguageSelection filter={filter} updateFilter={updateFilter} />
         <Stack direction={'row'} spacing={2}>
           <Button variant="contained" color="info" fullWidth type="submit">
             {' '}
@@ -204,17 +196,18 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
 }
 
 const LanguageSelection = ({ filter, updateFilter }) => {
+  const allLanguagesSelected = Object.values(filter.codeLanguages).every(
+    Boolean,
+  )
+  const someLanguagesSelected = Object.values(filter.codeLanguages).some(
+    Boolean,
+  )
 
-  const allLanguagesSelected = Object.values(filter.codeLanguages).every(Boolean)
-  const someLanguagesSelected = Object.values(filter.codeLanguages).some(Boolean)
- 
-  
   const handleSelectLanguage = useCallback(
     (language) => {
       const newFilter = { ...filter.codeLanguages }
       // If all languages are selected, unselect all
       if (allLanguagesSelected) {
-        
         Object.keys(newFilter).forEach((key) => {
           newFilter[key] = false
         })
@@ -222,18 +215,16 @@ const LanguageSelection = ({ filter, updateFilter }) => {
       }
 
       newFilter[language] = !newFilter[language]
-      
+
       const noLanguagesSelected = Object.values(newFilter).every(
         (value) => !value,
       )
-      
-  
+
       // If no languages are selected, select all
       if (noLanguagesSelected) {
         Object.keys(newFilter).forEach((key) => {
           newFilter[key] = true
-        }
-        )
+        })
       }
 
       updateFilter('codeLanguages', newFilter)
@@ -241,8 +232,6 @@ const LanguageSelection = ({ filter, updateFilter }) => {
     [filter.codeLanguages, updateFilter, allLanguagesSelected],
   )
 
-  
-  
   return (
     filter.questionTypes.code && (
       <Box>
@@ -251,36 +240,36 @@ const LanguageSelection = ({ filter, updateFilter }) => {
           Code languages{' '}
         </Typography>
         <Box>
-            <CheckboxLabel  
-              label={'All'}
-              checked={allLanguagesSelected}
-              intermediate={someLanguagesSelected && !allLanguagesSelected}
-              onChange={(checked) => {
-                if(allLanguagesSelected){
-                  return 
-                }
+          <CheckboxLabel
+            label={'All'}
+            checked={allLanguagesSelected}
+            intermediate={someLanguagesSelected && !allLanguagesSelected}
+            onChange={(checked) => {
+              if (allLanguagesSelected) {
+                return
+              }
 
-                const newFilter = { ...filter.codeLanguages }
-                Object.keys(newFilter).forEach((key) => {
-                  newFilter[key] = checked
-                })
-                updateFilter('codeLanguages', newFilter)
+              const newFilter = { ...filter.codeLanguages }
+              Object.keys(newFilter).forEach((key) => {
+                newFilter[key] = checked
+              })
+              updateFilter('codeLanguages', newFilter)
+            }}
+          />
+          {environments.map((language) => (
+            <CheckboxLabel
+              key={language.language}
+              label={language.label}
+              checked={filter.codeLanguages[language.language]}
+              onChange={(checked) => {
+                handleSelectLanguage(language.language)
               }}
             />
-            {environments.map((language) => (
-              <CheckboxLabel
-                key={language.language}
-                label={language.label}
-                checked={filter.codeLanguages[language.language]}
-                onChange={(checked) => {
-                  handleSelectLanguage(language.language)
-                }}
-              />
-            ))}
+          ))}
         </Box>
       </Box>
     )
-  );
+  )
 }
 
 const QuestionTypeSelection = ({ filter, updateFilter }) => {
@@ -300,9 +289,7 @@ const QuestionTypeSelection = ({ filter, updateFilter }) => {
 
       newFilter[type] = !newFilter[type]
 
-      const noTypesSelected = Object.values(newFilter).every(
-        (value) => !value,
-      )
+      const noTypesSelected = Object.values(newFilter).every((value) => !value)
 
       // If no types are selected, select all
       if (noTypesSelected) {
@@ -352,7 +339,5 @@ const QuestionTypeSelection = ({ filter, updateFilter }) => {
     </Box>
   )
 }
-
-
 
 export default QuestionFilter
