@@ -32,7 +32,6 @@ import {
 } from '@/code/questions'
 
 import languages from '@/code/languages.json'
-import { Code } from '@mui/icons-material'
 
 const environments = languages.environments
 
@@ -46,8 +45,7 @@ const environments = languages.environments
  */
 
 const get = async (req, res, prisma) => {
-  let { groupScope, title, content, tags, questionTypes, codeLanguages } =
-    req.query
+  let { groupScope, search, tags, questionTypes, codeLanguages } = req.query
 
   questionTypes = questionTypes
     ? questionTypes.split(',').map((type) => QuestionType[type])
@@ -64,75 +62,45 @@ const get = async (req, res, prisma) => {
       source: {
         in: [QuestionSource.BANK, QuestionSource.COPY],
       },
+      AND: [],
     },
   }
 
   // use AND for title and content
-  if (title) {
-    where.where.title = {
-      contains: title,
-      mode: 'insensitive',
-    }
-  }
-
-  if (content) {
-    where.where.content = {
-      contains: content,
-      mode: 'insensitive',
-    }
+  if (search) {
+    where.where.AND.push({
+      OR: [
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+      ],
+    })
   }
 
   if (tags.length > 0) {
-    where.where.questionToTag = {
-      some: {
-        label: {
-          in: tags,
-          mode: 'insensitive',
+    where.where.AND.push({
+      questionToTag: {
+        some: {
+          label: {
+            in: tags,
+            mode: 'insensitive',
+          },
         },
       },
-    }
+    })
   }
 
-  // use OR for question types and code languages
+  // Apply filters for question types if specified
   if (questionTypes.length > 0) {
-    /*
-            in case the question type is code, we need to filter by the language of the code
-            why we need to do a separate OR entry to filter by language,
-            thus we must remove the code type from the questionTypes array in this OR entry
-        */
-    where.where.OR
-      ? where.where.OR.push({
-          type: {
-            in: questionTypes.filter((type) => type !== QuestionType.code),
-          },
-        })
-      : (where.where.OR = [
-          {
-            type: {
-              in: questionTypes.filter((type) => type !== QuestionType.code),
-            },
-          },
-        ])
+    where.where.AND.push({
+      type: { in: questionTypes },
+    })
   }
 
+  // Apply filters for code languages specifically for 'code' type questions
   if (questionTypes.includes(QuestionType.code) && codeLanguages.length > 0) {
-    where.where.OR
-      ? where.where.OR.push({
-          code: {
-            language: {
-              in: codeLanguages,
-            },
-          },
-        })
-      : (where.where.OR = [
-          {
-            code: {
-              language: {
-                in: codeLanguages,
-              },
-            },
-          },
-        ])
+    where.where.AND.push({
+      code: { language: { in: codeLanguages } },
+    })
   }
 
   const questions = await prisma.question.findMany({

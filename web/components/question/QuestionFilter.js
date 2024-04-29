@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -27,13 +27,13 @@ import { toArray as typesToArray } from './types.js'
 import languages from '../../code/languages.json'
 import { useTags } from '../../context/TagContext'
 import TagsSelector from '../input/TagsSelector'
+import CheckboxLabel from '../input/CheckboxLabel.js'
 
 const environments = languages.environments
 const types = typesToArray()
 
 const initialFilters = {
-  title: '',
-  content: '',
+  search: '',
   tags: [],
   questionTypes: types
     .map((type) => type.value)
@@ -64,8 +64,7 @@ const queryStringToFilter = (queryString) => {
 
   // Build the filter object based on the query string
   const filter = {
-    title: params.get('title') || initialFilters.title,
-    content: params.get('content') || initialFilters.content,
+    search: params.get('search') || initialFilters.search,
     tags: params.get('tags')
       ? params.get('tags').split(',')
       : initialFilters.tags,
@@ -152,33 +151,19 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack spacing={1} padding={2}>
-        <Typography variant="body2" color="info">
-          {' '}
-          Filters
-        </Typography>
+      <Stack spacing={2} padding={2}>
         <TextField
-          label={'Filter by title'}
+          label={'Search'}
           variant="outlined"
           fullWidth
           color="info"
           size="small"
-          value={filter.title}
-          onChange={(e) => updateFilter('title', e.target.value)}
-        />
-
-        <TextField
-          label={'Filter by content'}
-          variant="outlined"
-          fullWidth
-          color="info"
-          size="small"
-          value={filter.content}
-          onChange={(e) => updateFilter('content', e.target.value)}
+          value={filter.search}
+          onChange={(e) => updateFilter('search', e.target.value)}
         />
 
         <TagsSelector
-          label={'Filter by tags'}
+          label={'Tags'}
           size={'small'}
           color={'info'}
           options={allTags.map((tag) => tag.label)}
@@ -186,48 +171,8 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
           onChange={(tags) => updateFilter('tags', tags)}
         />
 
-        <Typography variant="body2" color="info">
-          {' '}
-          Question types{' '}
-        </Typography>
-        <Box>
-          {types.map((type) => (
-            <CheckboxLabel
-              key={type.value}
-              label={type.label}
-              checked={filter.questionTypes[type.value]}
-              onChange={(checked) =>
-                updateFilter('questionTypes', {
-                  ...filter.questionTypes,
-                  [type.value]: checked,
-                })
-              }
-            />
-          ))}
-        </Box>
-        {filter.questionTypes.code && (
-          <Box>
-            <Typography variant="body2" color="info">
-              {' '}
-              Code languages{' '}
-            </Typography>
-            <Box>
-              {environments.map((language) => (
-                <CheckboxLabel
-                  key={language.language}
-                  label={language.label}
-                  checked={filter.codeLanguages[language.language]}
-                  onChange={(checked) =>
-                    updateFilter('codeLanguages', {
-                      ...filter.codeLanguages,
-                      [language.language]: checked,
-                    })
-                  }
-                />
-              ))}
-            </Box>
-          </Box>
-        )}
+        <QuestionTypeSelection filter={filter} updateFilter={updateFilter} />
+        <LanguageSelection filter={filter} updateFilter={updateFilter} />
         <Stack direction={'row'} spacing={2}>
           <Button variant="contained" color="info" fullWidth type="submit">
             {' '}
@@ -249,32 +194,149 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
     </form>
   )
 }
-const CheckboxLabel = ({ label, checked, onChange }) => {
-  const setToggleCheckBox = useCallback(
-    () => onChange && onChange(!checked),
-    [onChange, checked],
+
+const LanguageSelection = ({ filter, updateFilter }) => {
+  const allLanguagesSelected = Object.values(filter.codeLanguages).every(
+    Boolean,
   )
+  const someLanguagesSelected = Object.values(filter.codeLanguages).some(
+    Boolean,
+  )
+
+  const handleSelectLanguage = useCallback(
+    (language) => {
+      const newFilter = { ...filter.codeLanguages }
+      // If all languages are selected, unselect all
+      if (allLanguagesSelected) {
+        Object.keys(newFilter).forEach((key) => {
+          newFilter[key] = false
+        })
+        updateFilter('codeLanguages', newFilter)
+      }
+
+      newFilter[language] = !newFilter[language]
+
+      const noLanguagesSelected = Object.values(newFilter).every(
+        (value) => !value,
+      )
+
+      // If no languages are selected, select all
+      if (noLanguagesSelected) {
+        Object.keys(newFilter).forEach((key) => {
+          newFilter[key] = true
+        })
+      }
+
+      updateFilter('codeLanguages', newFilter)
+    },
+    [filter.codeLanguages, updateFilter, allLanguagesSelected],
+  )
+
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      onClick={setToggleCheckBox}
-      sx={{ cursor: 'pointer' }}
-    >
-      <Checkbox
-        size={'small'}
-        checked={checked}
-        color={'info'}
-        sx={{
-          padding: '4px',
-        }}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <Typography variant="caption" color="info">
-        {' '}
-        {label}{' '}
+    filter.questionTypes.code && (
+      <Box>
+        <Typography variant="body2" color="info">
+          {' '}
+          Code languages{' '}
+        </Typography>
+        <Box>
+          <CheckboxLabel
+            label={'All'}
+            checked={allLanguagesSelected}
+            intermediate={someLanguagesSelected && !allLanguagesSelected}
+            onChange={(checked) => {
+              if (allLanguagesSelected) {
+                return
+              }
+
+              const newFilter = { ...filter.codeLanguages }
+              Object.keys(newFilter).forEach((key) => {
+                newFilter[key] = checked
+              })
+              updateFilter('codeLanguages', newFilter)
+            }}
+          />
+          {environments.map((language) => (
+            <CheckboxLabel
+              key={language.language}
+              label={language.label}
+              checked={filter.codeLanguages[language.language]}
+              onChange={(checked) => {
+                handleSelectLanguage(language.language)
+              }}
+            />
+          ))}
+        </Box>
+      </Box>
+    )
+  )
+}
+
+const QuestionTypeSelection = ({ filter, updateFilter }) => {
+  const allTypesSelected = Object.values(filter.questionTypes).every(Boolean)
+  const someTypesSelected = Object.values(filter.questionTypes).some(Boolean)
+
+  const handleSelectType = useCallback(
+    (type) => {
+      const newFilter = { ...filter.questionTypes }
+      // If all types are selected, unselect all
+      if (allTypesSelected) {
+        Object.keys(newFilter).forEach((key) => {
+          newFilter[key] = false
+        })
+        updateFilter('questionTypes', newFilter)
+      }
+
+      newFilter[type] = !newFilter[type]
+
+      const noTypesSelected = Object.values(newFilter).every((value) => !value)
+
+      // If no types are selected, select all
+      if (noTypesSelected) {
+        Object.keys(newFilter).forEach((key) => {
+          newFilter[key] = true
+        })
+      }
+
+      updateFilter('questionTypes', newFilter)
+    },
+    [filter.questionTypes, updateFilter, allTypesSelected],
+  )
+
+  return (
+    <Box>
+      <Typography variant="body2" color="info">
+        Question types
       </Typography>
-    </Stack>
+      <Box>
+        <CheckboxLabel
+          label={'All'}
+          checked={allTypesSelected}
+          intermediate={someTypesSelected && !allTypesSelected}
+          onChange={(checked) => {
+            if (allTypesSelected) {
+              return
+            }
+
+            const newFilter = { ...filter.questionTypes }
+            Object.keys(newFilter).forEach((key) => {
+              newFilter[key] = checked
+            })
+            updateFilter('questionTypes', newFilter)
+          }}
+        />
+        {types.map((type) => (
+          <CheckboxLabel
+            key={type.value}
+            label={type.label}
+            checked={filter.questionTypes[type.value]}
+            onChange={(checked) => {
+              handleSelectType(type.value)
+            }}
+          />
+        ))}
+      </Box>
+    </Box>
   )
 }
 
