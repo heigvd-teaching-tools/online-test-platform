@@ -28,14 +28,12 @@ import languages from '../../code/languages.json'
 import { useTags } from '../../context/TagContext'
 import TagsSelector from '../input/TagsSelector'
 import CheckboxLabel from '../input/CheckboxLabel.js'
-import { useTheme } from '@emotion/react'
 
 const environments = languages.environments
 const types = typesToArray()
 
 const initialFilters = {
-  title: '',
-  content: '',
+  search: '',
   tags: [],
   questionTypes: types
     .map((type) => type.value)
@@ -66,8 +64,7 @@ const queryStringToFilter = (queryString) => {
 
   // Build the filter object based on the query string
   const filter = {
-    title: params.get('title') || initialFilters.title,
-    content: params.get('content') || initialFilters.content,
+    search: params.get('search') || initialFilters.search,
     tags: params.get('tags')
       ? params.get('tags').split(',')
       : initialFilters.tags,
@@ -156,33 +153,19 @@ const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack spacing={1} padding={2}>
-        <Typography variant="body2" color="info">
-          {' '}
-          Filters
-        </Typography>
+      <Stack spacing={2} padding={2}>
         <TextField
-          label={'Filter by title'}
+          label={'Search'}
           variant="outlined"
           fullWidth
           color="info"
           size="small"
-          value={filter.title}
-          onChange={(e) => updateFilter('title', e.target.value)}
-        />
-
-        <TextField
-          label={'Filter by content'}
-          variant="outlined"
-          fullWidth
-          color="info"
-          size="small"
-          value={filter.content}
-          onChange={(e) => updateFilter('content', e.target.value)}
+          value={filter.search}
+          onChange={(e) => updateFilter('search', e.target.value)}
         />
 
         <TagsSelector
-          label={'Filter by tags'}
+          label={'Tags'}
           size={'small'}
           color={'info'}
           options={allTags.map((tag) => tag.label)}
