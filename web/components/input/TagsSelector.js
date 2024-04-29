@@ -40,6 +40,7 @@ const TagsSelector = ({
   placeholder = '+',
   color = 'primary',
   size = 'medium',
+  fullWidth = false,
   validateTag = () => true,
   formatTag = (tag) => tag,
   onChange,
@@ -160,6 +161,7 @@ const TagsSelector = ({
         onChange={onChangeValue}
         filterSelectedOptions
         filterOptions={filterOptions}
+        fullWidth={fullWidth}
         freeSolo
         size={size}
         onKeyDown={handleKeyDown}
