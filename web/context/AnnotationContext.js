@@ -22,12 +22,10 @@ import React, {
 } from 'react'
 import useSWR from 'swr'
 import { fetcher } from '../code/utils'
-import { Box, Button, ButtonGroup } from '@mui/material'
-import ClickAwayListener from 'react-click-away-listener'
 import { useRouter } from 'next/router'
 import { useDebouncedCallback } from 'use-debounce'
-import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { useTheme } from '@emotion/react'
+import AnnotationHighlight from '@/components/evaluations/grading/annotation/AnnotationHighlight'
+import { AnnotationState } from '@/components/evaluations/grading/annotation/types'
 
 const AnnotationContext = createContext()
 
@@ -105,7 +103,7 @@ export const AnnotationProvider = ({
       initialize the context state.
       When used in the context of grading, the annotation is mutable its data is managed by the context. The context
       fetches the annotation from the server and updates it when the user changes it.
-    */
+  */
   const { data: contextAnnotation, mutate } = useSWR(
     doFetch &&
       `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entity.id}`,
@@ -141,8 +139,8 @@ export const AnnotationProvider = ({
       }
       setAnnotation(updated)
 
-      if (state === 'NOT_ANNOTATED') {
-        setState('ANNOTATED')
+      if (state === AnnotationState.NOT_ANNOTATED.value) {
+        setState(AnnotationState.ANNOTATED.value)
       }
 
       if (annotation?.id) {
@@ -183,7 +181,7 @@ export const AnnotationProvider = ({
     }
     const annotationId = annotation.id
     setAnnotation(null)
-    setState('NOT_ANNOTATED')
+    setState(AnnotationState.NOT_ANNOTATED.value)
     await discardAnnotation(groupScope, annotationId)
   }, [groupScope, annotation, mutate, readOnly])
 
@@ -204,89 +202,6 @@ export const AnnotationProvider = ({
   )
 }
 
-const AnnotationState = {
-  NOT_ANNOTATED: {
-    borderTop: '1px solid transparent',
-  },
-  ANNOTATED: {
-    borderTop: '1px solid #0000ff40',
-    boxShadow: '0 0 3px 1px #0000ff40',
-  },
-}
-
-const EditingState = {
-  HOVER: {
-    borderTop: '1px solid #55555540',
-    boxShadow: '0 0 3px 1px #55555540',
-  },
-  ACTIVE: {
-    borderTop: '1px solid #009d00d6',
-    boxShadow: '0 0 3px 1px #009d00d6',
-  },
-}
-
-const AnnotationHighlight = ({ readOnly, state, children }) => {
-  const [editingState, setEditingState] = useState('INACTIVE')
-
-  useEffect(() => {
-    if (state === 'NOT_ANNOTATED') {
-      setEditingState('INACTIVE')
-    }
-  }, [state])
-
-  const onMouseEnter = useCallback(() => {
-    if (readOnly) {
-      return
-    }
-    if (editingState !== 'ACTIVE' && state !== 'ANNOTATED') {
-      setEditingState('HOVER')
-    }
-  }, [editingState, state, readOnly])
-
-  const onMouseLeave = useCallback(() => {
-    if (readOnly) {
-      return
-    }
-    if (editingState !== 'ACTIVE') {
-      setEditingState('INACTIVE')
-    }
-  }, [editingState, readOnly])
-
-  const onClickHandler = useCallback(() => {
-    if (readOnly) {
-      return
-    }
-    setEditingState('ACTIVE')
-  }, [readOnly])
-
-  return (
-    <ClickAwayListener
-      onClickAway={() => {
-        setEditingState('INACTIVE')
-      }}
-    >
-      <Box
-        position={'relative'}
-        m={0}
-        p={0}
-        backgroundColor={'white'}
-        transition={'box-shadow 0.25s ease-in-out'}
-        cursor={'pointer'}
-        boxSizing={'border-box'}
-        {...getCss(editingState, state)}
-        onMouseEnter={() => onMouseEnter()}
-        onMouseLeave={() => onMouseLeave()}
-        onClick={() => onClickHandler()}
-      >
-        {children}
-      </Box>
-    </ClickAwayListener>
-  )
-}
-
 const stateBasedOnAnnotation = (annotation) => {
-  return annotation ? 'ANNOTATED' : 'NOT_ANNOTATED'
+  return annotation ? AnnotationState.ANNOTATED.value : AnnotationState.NOT_ANNOTATED.value
 }
-
-const getCss = (editingState, annotationState) =>
-  EditingState[editingState] || AnnotationState[annotationState]

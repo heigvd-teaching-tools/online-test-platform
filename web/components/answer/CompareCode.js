@@ -38,8 +38,9 @@ import {
 } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import { AnnotationProvider } from '@/context/AnnotationContext'
-import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
+
 import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
+import StudentFileAnnotationWrapper from '../evaluations/grading/annotation/StudentFileAnnotationWrapper'
 
 const CompareCode = ({ readOnly, student, question, solution, answer }) => {
   return (

@@ -32,9 +32,10 @@ import { AnnotationEntityType, CodeQuestionType } from '@prisma/client'
 import InlineMonacoEditor from '../input/InlineMonacoEditor'
 import AnswerCodeReadingOutputStatus from './code/codeReading/AnswerCodeReadingOutputStatus'
 import { AnnotationProvider } from '@/context/AnnotationContext'
-import StudentFileAnnotationWrapper from './annotationWrappers/StudentFileAnnotationWrapper'
+
 import ScrollContainer from '../layout/ScrollContainer'
 import CodeWritingTabLabelTestSummary from './code/codeWriting/CodeWritingTabLabelTestSummary'
+import StudentFileAnnotationWrapper from '../evaluations/grading/annotation/StudentFileAnnotationWrapper'
 
 const ConsultCode = ({ question, answer }) => {
   const codeType = question.code.codeType
