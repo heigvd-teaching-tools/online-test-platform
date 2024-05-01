@@ -22,12 +22,7 @@ import { update } from './crud'
 
 import {
   Stack,
-  Stepper,
-  Step,
-  StepLabel,
   Typography,
-  Alert,
-  AlertTitle,
   Tooltip,
   Button,
 } from '@mui/material'
@@ -38,7 +33,7 @@ import LayoutMain from '@/components/layout/LayoutMain'
 import BackButton from '@/components/layout/BackButton'
 import Loading from '@/components/feedback/Loading'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 
 import { LoadingButton } from '@mui/lab'
 
@@ -129,7 +124,7 @@ const PageInProgress = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} errors={[error]}>
         <PhaseRedirect phase={evaluation?.phase}>
           <LayoutMain
@@ -213,18 +208,23 @@ const PageInProgress = () => {
               evaluation={evaluation}
               onStudentAllowed={async (_) => {
                 mutateStudents()
+                mutate()
                 showSnackbar('Student has been included in the access list')
               }}
             />
             <Loading loading={!students} errors={[errorStudents]}>
+             { evaluation && students && 
               <StudentList
                 groupScope={groupScope}
                 evaluationId={evaluationId}
                 title={'Students submissions'}
                 students={students?.students}
+                restrictedAccess={evaluation.accessMode === 'LINK_AND_ACCESS_LIST'}
+                accessList={evaluation.accessList}
                 questions={students?.evaluationToQuestions}
                 onChange={() => mutateStudents()}
               />
+              }
             </Loading>
 
             <DialogFeedback
@@ -250,7 +250,7 @@ const PageInProgress = () => {
           </LayoutMain>
         </PhaseRedirect>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

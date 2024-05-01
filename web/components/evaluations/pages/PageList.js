@@ -27,7 +27,7 @@ import { fetcher } from '@/code/utils'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 
 import MainMenu from '@/components/layout/MainMenu'
 
@@ -114,7 +114,7 @@ const Evaluations = () => {
   }, [groupScope, evaluations, selected, showSnackbar])
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluations} errors={[error]}>
         <TabContext value={tab}>
           <LayoutMain
@@ -217,7 +217,7 @@ const Evaluations = () => {
           />
         </TabContext>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

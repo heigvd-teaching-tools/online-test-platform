@@ -16,7 +16,7 @@
 import { Role, EvaluationPhase } from '@prisma/client'
 import { useRouter } from 'next/router'
 import Authentication from '../../security/Authentication'
-import Authorisation from '../../security/Authorisation'
+import Authorization from '../../security/Authorization'
 import useSWR from 'swr'
 import { useEffect } from 'react'
 import { phaseGT, studentPhaseRedirect } from '../../../code/phase'
@@ -54,9 +54,9 @@ const PageDispatch = () => {
 
   return (
     <Authentication>
-      <Authorisation allowRoles={[Role.STUDENT, Role.PROFESSOR]}>
+      <Authorization allowRoles={[Role.STUDENT, Role.PROFESSOR]}>
         <Loading errors={[dispatchError]} loading={!data} />
-      </Authorisation>
+      </Authorization>
     </Authentication>
   )
 }

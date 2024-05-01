@@ -18,7 +18,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import LayoutMain from '../../layout/LayoutMain'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { QuestionType, Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
+import Authorization from '../../security/Authorization'
 import QuestionFilter from '../../question/QuestionFilter'
 import MainMenu from '../../layout/MainMenu'
 import {
@@ -121,7 +121,7 @@ const PageList = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!questions} errors={[error]}>
         <LayoutMain header={<MainMenu />}>
           <LayoutSplitScreen
@@ -199,7 +199,7 @@ const PageList = () => {
           />
         </LayoutMain>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

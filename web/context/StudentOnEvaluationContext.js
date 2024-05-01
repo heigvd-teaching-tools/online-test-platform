@@ -62,14 +62,12 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     { refreshInterval: 1000 },
   )
 
-  const hasStudentFinished = useCallback(() => {
-    return (
-      evaluation?.userOnEvaluation?.status === UserOnEvaluationStatus.FINISHED
-    )
-  }, [evaluation])
+  const hasStudentFinished = useCallback(() => evaluation?.userOnEvaluation?.status === UserOnEvaluationStatus.FINISHED, [evaluation])
+
+  const isStudentAllowed = useCallback(() => evaluation?.allowed, [evaluation])
 
   const {
-    data: userOnEvaluation,
+    data: evaluationToQuestions,
     error: errorUserOnEvaluation,
     mutate: mutateUserOnEvaluation,
   } = useSWR(
@@ -86,7 +84,6 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     - Used for paging, navigation and problem statement (with points)
     - It also contains the status of the student answer (missing, in progress, submitted) used in paging and home page
   */
-  const evaluationToQuestions = userOnEvaluation?.evaluationToQuestions
   const activeQuestion =
     evaluationToQuestions && evaluationToQuestions[pageIndex - 1]
   const error = errorEvaluationStatus || errorUserOnEvaluation
@@ -97,8 +94,8 @@ export const StudentOnEvaluationProvider = ({ children }) => {
   const [pages, setPages] = useState([])
 
   useEffect(() => {
-    if (userOnEvaluation) {
-      const pages = userOnEvaluation.evaluationToQuestions.map((jtq) => ({
+    if (evaluationToQuestions) {
+      const pages = evaluationToQuestions.map((jtq) => ({
         id: jtq.question.id,
         label: `Q${jtq.order + 1}`,
         tooltip: `${jtq.question.type} "${jtq.question.title}" - ${jtq.points} points`,
@@ -108,7 +105,7 @@ export const StudentOnEvaluationProvider = ({ children }) => {
       setPages(pages)
       setLoaded(true)
     }
-  }, [userOnEvaluation])
+  }, [evaluationToQuestions])
 
   useEffect(() => {
     setPage(parseInt(pageIndex))
@@ -195,7 +192,13 @@ export const StudentOnEvaluationProvider = ({ children }) => {
       }}
     >
       <StudentPhaseRedirect phase={evaluation?.evaluation?.phase}>
-        {hasStudentFinished() ? <EvaluationCompletedDialog /> : children}
+        {hasStudentFinished() ? (
+          <EvaluationCompletedDialog />
+        ) : !isStudentAllowed() ? (
+          <StudentNotAllowedDialog />
+        ) : (
+          children
+        )}
       </StudentPhaseRedirect>
     </StudentOnEvaluationContext.Provider>
   )
@@ -212,6 +215,20 @@ const EvaluationCompletedDialog = () => (
         <Typography variant="body2">
           If you believe this is an error or if you have any questions, please
           reach out to your professor.
+        </Typography>
+      </Stack>
+    </AlertFeedback>
+  </Overlay>
+)
+
+
+const StudentNotAllowedDialog = () => (
+  <Overlay>
+    <AlertFeedback severity="warning">
+      <Stack spacing={1}>
+        <Typography variant="h5">You are not allowed to participate</Typography>
+        <Typography variant="body2">
+          Please reach out to your professor if you believe this is an error.
         </Typography>
       </Stack>
     </AlertFeedback>

@@ -73,12 +73,11 @@ const post = async (req, res, prisma) => {
 
   const accessList = evaluation.accessList
 
-  if (!accessList.includes(studentEmail)) {
-    accessList.push(studentEmail)
-
-    await prisma.$transaction(async (prisma) => {
+  await prisma.$transaction(async (prisma) => {
+    if (!accessList.includes(studentEmail)) {
+      accessList.push(studentEmail)
+      
       // update access list
-      console.log('update access list', accessList)
 
       await prisma.evaluation.update({
         where: {
@@ -87,19 +86,19 @@ const post = async (req, res, prisma) => {
         data: {
           accessList: accessList,
         },
-      })
+      })      
+    }
 
-      // remove the denied access attempt
-      await prisma.userOnEvaluationDeniedAccessAttempt.delete({
-        where: {
-          userEmail_evaluationId: {
-            evaluationId: evaluationId,
-            userEmail: studentEmail,
-          },
+    // remove the denied access attempt
+    await prisma.userOnEvaluationDeniedAccessAttempt.delete({
+      where: {
+        userEmail_evaluationId: {
+          evaluationId: evaluationId,
+          userEmail: studentEmail,
         },
-      })
+      },
     })
-  }
+  })
 
   res.status(200).json({ message: 'Student added to the access list' })
 }

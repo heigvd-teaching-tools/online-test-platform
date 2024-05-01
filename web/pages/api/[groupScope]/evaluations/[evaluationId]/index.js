@@ -48,6 +48,7 @@ const patch = async (req, res, prisma) => {
       startAt: true,
       durationHours: true,
       durationMins: true,
+      accessMode: true,
     },
   })
 
@@ -128,13 +129,31 @@ const patch = async (req, res, prisma) => {
   }
 
   try {
-    const evaluationAfterUpdate = await prisma.evaluation.update({
-      where: {
-        id: evaluationId,
-      },
-      data: data,
+    let evaluationAfterUpdate = undefined;
+    await prisma.$transaction(async (prisma) => {
+      evaluationAfterUpdate = await prisma.evaluation.update({
+        where: {
+          id: evaluationId,
+        },
+        data: data,
+      })
+
+      if (currentEvaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST && accessMode === UserOnEvaluatioAccessMode.LINK_ONLY) {
+        // remove eventual denied students
+        await prisma.userOnEvaluationDeniedAccessAttempt.deleteMany({
+          where: {
+            evaluationId: evaluationId,
+          },
+        })
+      }
+      
+      
     })
+
     res.status(200).json(evaluationAfterUpdate)
+
+
+
   } catch (e) {
     switch (e.code) {
       case 'P2002':

@@ -58,7 +58,7 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
         fullWidth
         value={label}
         onChange={(e) => setLabel(e.target.value)}
-        error={errorLabel}
+        error={errorLabel ? true : false}
         helperText={errorLabel ? 'Label is required' : ''}
       />
       <ContentEditor

@@ -36,7 +36,7 @@ const columns = [
   },
 ]
 
-const DenienStudentList = ({
+const DeniedStudentList = ({
   groupScope,
   evaluationId,
   title,
@@ -120,4 +120,4 @@ const DenienStudentList = ({
   )
 }
 
-export default DenienStudentList
+export default DeniedStudentList

@@ -76,11 +76,11 @@ const StepSchedule = ({ evaluation, onChange }) => {
         <>
           <Alert severity="warning">
             <AlertTitle>Warning</AlertTitle>
-            <Typography variant="body1">
+            <Typography variant="body1" component={'span'}>
               The evaluation will not end automatically. You will have to end it
               manually in the in-progress phase.
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" component={'span'}>
               The sole purpose of this feature is to give students an idea of
               the time they have to complete the evaluation.
             </Typography>

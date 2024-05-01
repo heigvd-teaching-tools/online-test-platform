@@ -30,7 +30,7 @@ import { fetcher } from '@/code/utils'
 import BackButton from '@/components/layout/BackButton'
 import LayoutMain from '@/components/layout/LayoutMain'
 import PiePercent from '@/components/feedback/PiePercent'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 
 import PhaseRedirect from './PhaseRedirect'
@@ -89,7 +89,7 @@ const PageFinished = () => {
   }
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <PhaseRedirect phase={evaluation?.phase}>
         <Loading
           errors={[errorEvaluation, errorQuestions]}
@@ -227,7 +227,7 @@ const PageFinished = () => {
           </TabContext>
         </Loading>
       </PhaseRedirect>
-    </Authorisation>
+    </Authorization>
   )
 }
 

@@ -15,7 +15,7 @@
  */
 import Loading from '@/components/feedback/Loading'
 import useSWR from 'swr'
-import DenienStudentList from './DenienStudentList'
+import DeniedStudentList from './DenienStudentList'
 import { fetcher } from '@/code/utils'
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
@@ -38,7 +38,7 @@ const DeniedStudentsInEvaluation = ({
     evaluation.id && (
       <Loading loading={!students} errors={[errorStudents]}>
         {students?.userOnEvaluationDeniedAccessAttempt.length > 0 && (
-          <DenienStudentList
+          <DeniedStudentList
             groupScope={groupScope}
             evaluationId={evaluation.id}
             title={`Denied students (${students?.userOnEvaluationDeniedAccessAttempt.length})`}

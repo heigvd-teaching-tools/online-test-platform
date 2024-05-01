@@ -18,7 +18,7 @@ import { Role } from '@prisma/client'
 import { Box } from '@mui/material'
 
 import { ResizeObserverProvider } from '@/context/ResizeObserverContext'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
@@ -70,7 +70,7 @@ const PageEvaluationTake = () => {
   }, [showSnackbar])
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
+    <Authorization allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading loading={!loaded} errors={[error]}>
         {loaded && (
           <LayoutMain
@@ -136,7 +136,7 @@ const PageEvaluationTake = () => {
           </LayoutMain>
         )}
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

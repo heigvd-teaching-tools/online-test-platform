@@ -28,7 +28,7 @@ import { useGroup } from '@/context/GroupContext'
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
 
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 
@@ -80,7 +80,7 @@ const PageList = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!group} errors={[error]}>
         <LayoutMain
           header={
@@ -174,7 +174,7 @@ const PageList = () => {
           />
         </LayoutMain>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

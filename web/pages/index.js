@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 import { Role } from '@prisma/client'
-import Authorisation from '../components/security/Authorisation'
+import Authorization from '../components/security/Authorization'
 import IndexPage from '../components/IndexPage'
 
 const Home = () => {
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <IndexPage />
-    </Authorisation>
+    </Authorization>
   )
 }
 

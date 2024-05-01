@@ -34,7 +34,7 @@ import AddIcon from '@mui/icons-material/Add'
 
 import { fetcher } from '@/code/utils'
 
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
@@ -178,7 +178,7 @@ const PageCompose = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading
         errors={[errorSearch, errorCollection]}
         loading={!searchQuestions || !collection}
@@ -252,7 +252,7 @@ const PageCompose = () => {
           />
         </LayoutMain>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

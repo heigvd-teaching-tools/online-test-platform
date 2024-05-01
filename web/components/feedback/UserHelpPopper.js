@@ -18,9 +18,10 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined'
-import { IconButton, Paper, Popper, Stack, Fade } from '@mui/material'
+import { IconButton, Paper, Popper, Stack, Fade, Box, Typography } from '@mui/material'
+import ClickAwayListener from 'react-click-away-listener'
 
-const UserHelpPopper = ({ children, placement = 'bottom', mode = 'info' }) => {
+const UserHelpPopper = ({ children, label, placement = 'bottom', mode = 'info' }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [open, setOpen] = useState(false)
 
@@ -48,14 +49,17 @@ const UserHelpPopper = ({ children, placement = 'bottom', mode = 'info' }) => {
   }
 
   return (
-    <>
-      <IconButton
-        onClick={handleToggle}
-        color={mode} // This sets the button color. You may adjust if your theme supports it.
-        aria-label={`${mode} info`}
-      >
-        {getIcon()}
-      </IconButton>
+    <ClickAwayListener onClickAway={() => setOpen(false)}>
+      <Box>
+      <Stack direction="row" spacing={0} alignItems="center" justifyContent="center" cursor={"pointer"} onClick={handleToggle}>
+        <IconButton
+          color={mode} // This sets the button color. You may adjust if your theme supports it.
+          aria-label={`${mode} info`}
+        >
+          {getIcon()}
+        </IconButton>
+        {label && <Typography variant="caption">{label}</Typography>}
+      </Stack>
       <Popper
         id={id}
         open={open}
@@ -74,7 +78,8 @@ const UserHelpPopper = ({ children, placement = 'bottom', mode = 'info' }) => {
           </Fade>
         )}
       </Popper>
-    </>
+      </Box>
+    </ClickAwayListener>
   )
 }
 

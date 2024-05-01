@@ -16,7 +16,7 @@
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { Role, StudentAnswerStatus } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
+import Authorization from '../../security/Authorization'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
 import { Box, Paper, Stack } from '@mui/material'
 import Paging from '../../layout/utils/Paging'
@@ -93,7 +93,7 @@ const PageConsult = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
+    <Authorization allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading loading={!evaluationStatus} errors={[errorEvaluationStatus]}>
         {evaluationStatus && (
           <StudentPhaseRedirect phase={evaluationStatus.evaluation.phase}>
@@ -211,7 +211,7 @@ const PageConsult = () => {
           </StudentPhaseRedirect>
         )}
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

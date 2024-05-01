@@ -19,7 +19,7 @@ import { Box, Chip, Stack, Typography } from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
@@ -58,7 +58,7 @@ const PageEvaluationHome = () => {
   }
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
+    <Authorization allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading loading={!loaded} errors={[error]}>
         <LayoutMain
           header={
@@ -130,7 +130,7 @@ const PageEvaluationHome = () => {
           />
         </LayoutMain>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

@@ -23,7 +23,11 @@ import {
   withEvaluationPhase,
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
-import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
+import { EvaluationPhase, Role, UserOnEvaluatioAccessMode, UserOnEvaluationStatus } from '@prisma/client'
+
+const isStudentInAccessList = (evaluation, studentEmail) => {
+  return evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST && evaluation.accessList?.includes(studentEmail)
+}
 
 const get = async (req, res, prisma) => {
   const user = await getUser(req, res)
@@ -39,8 +43,15 @@ const get = async (req, res, prisma) => {
       phase: true,
       startAt: true,
       endAt: true,
+      accessMode: true, // sensitive!
+      accessList: true, // sensitive!
     },
   })
+
+  if (!evaluation) {
+    res.status(404).json({ message: 'Evaluation not found' })
+    return
+  }
 
   const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
     where: {
@@ -51,8 +62,39 @@ const get = async (req, res, prisma) => {
     },
   })
 
+  if (!userOnEvaluation) {
+
+    res.status(404).json({ message: 'User not found in evaluation' })
+    return
+  }
+
+  const allowed = isStudentInAccessList(evaluation, studentEmail)
+
+  if (!allowed) {
+    // keep track of the users who were denied access to the evaluation
+    await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
+      where: {
+        userEmail_evaluationId: {
+          userEmail: studentEmail,
+          evaluationId: evaluationId,
+        },
+      },
+      update: {},
+      create: {
+        userEmail: studentEmail,
+        evaluationId: evaluationId,
+      },
+    })
+  }
+
   res.status(200).json({
-    evaluation: evaluation,
+    allowed: allowed,
+    evaluation: {
+      phase: evaluation.phase,
+      startAt: evaluation.startAt,
+      endAt: evaluation.endAt,
+      
+    },
     userOnEvaluation: userOnEvaluation,
   })
 }

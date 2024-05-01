@@ -31,7 +31,7 @@ import { fetcher } from '@/code/utils'
 
 import BackButton from '@/components/layout/BackButton'
 import LayoutMain from '@/components/layout/LayoutMain'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 
 import EvaluationAnalytics from '../analytics/EvaluationAnalytics'
@@ -70,7 +70,7 @@ const PageAnalytics = () => {
   }, [evaluation])
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading
         error={[errorEvaluations, errorEvaluation, errorQuestions]}
         loading={!evaluation || !evaluations || !evaluationToQuestions}
@@ -138,7 +138,7 @@ const PageAnalytics = () => {
           )}
         </LayoutMain>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 
