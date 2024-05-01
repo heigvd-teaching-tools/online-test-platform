@@ -63,7 +63,6 @@ const AnnotationHighlight = ({ readOnly, state, children }) => {
           position={'relative'}
           m={0}
           p={0}
-          backgroundColor={'white'}
           transition={'box-shadow 0.25s ease-in-out'}
           cursor={'pointer'}
           boxSizing={'border-box'}
@@ -78,11 +77,7 @@ const AnnotationHighlight = ({ readOnly, state, children }) => {
     )
 }
     
-const getCss = (editingState, annotationState) => {
-    console.log("editingState: ", editingState, "annotationState: ", annotationState, "css: ", EditingState[editingState]?.css || AnnotationState[annotationState]?.css)
-
-    return EditingState[editingState]?.css || AnnotationState[annotationState]?.css 
-}
+const getCss = (editingState, annotationState) => EditingState[editingState]?.css || AnnotationState[annotationState]?.css
     
   
 export default AnnotationHighlight

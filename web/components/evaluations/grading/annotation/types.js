@@ -18,6 +18,7 @@ export const AnnotationState = {
     NOT_ANNOTATED: {
         value: 'NOT_ANNOTATED',
         css: {
+            boxSizing: 'border-box',
             border: '2px solid transparent',
         },
     },
