@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  EvaluationPhase,
-  Role,
-  UserOnEvaluationStatus,
-} from '@prisma/client'
+import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
 import { getUser } from '@/code/auth'
 import { isInProgress } from './questions/[questionId]/answers/utils'
