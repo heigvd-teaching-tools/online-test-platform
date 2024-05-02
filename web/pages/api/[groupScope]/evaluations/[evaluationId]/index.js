@@ -128,8 +128,7 @@ const patch = async (req, res, prisma) => {
     data.accessList = accessList
   }
 
-  
-  let evaluationAfterUpdate = undefined;
+  let evaluationAfterUpdate = undefined
   await prisma.$transaction(async (prisma) => {
     evaluationAfterUpdate = await prisma.evaluation.update({
       where: {
@@ -138,7 +137,10 @@ const patch = async (req, res, prisma) => {
       data: data,
     })
 
-    if (currentEvaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST) {
+    if (
+      currentEvaluation.accessMode ===
+      UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+    ) {
       // remove eventual denied students
       await prisma.userOnEvaluationDeniedAccessAttempt.deleteMany({
         where: {
@@ -149,12 +151,9 @@ const patch = async (req, res, prisma) => {
         },
       })
     }
-    
-    
   })
 
   res.status(200).json(evaluationAfterUpdate)
-
 }
 
 const del = async (req, res, prisma) => {

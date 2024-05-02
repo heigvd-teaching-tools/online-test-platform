@@ -203,5 +203,7 @@ export const AnnotationProvider = ({
 }
 
 const stateBasedOnAnnotation = (annotation) => {
-  return annotation ? AnnotationState.ANNOTATED.value : AnnotationState.NOT_ANNOTATED.value
+  return annotation
+    ? AnnotationState.ANNOTATED.value
+    : AnnotationState.NOT_ANNOTATED.value
 }

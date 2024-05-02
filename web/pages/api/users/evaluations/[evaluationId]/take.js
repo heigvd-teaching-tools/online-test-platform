@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvaluationPhase, Role, UserOnEvaluatioAccessMode, UserOnEvaluationStatus } from '@prisma/client'
+import {
+  EvaluationPhase,
+  Role,
+  UserOnEvaluationStatus,
+} from '@prisma/client'
 
 import { getUser } from '@/code/auth'
 import { isInProgress } from './questions/[questionId]/answers/utils'
@@ -36,8 +40,6 @@ No official answers are included and no question type specific at all
 Each question has included the answer for that particular users only
 
 */
-
-
 
 const get = withEvaluationPhase(
   [EvaluationPhase.IN_PROGRESS],
@@ -96,11 +98,11 @@ const get = withEvaluationPhase(
       }
 
       if (!isStudentAllowed(userOnEvaluation.evaluation, email)) {
-        
-        res.status(403).json({ message: 'You are not allowed to access this evaluation' })
+        res
+          .status(403)
+          .json({ message: 'You are not allowed to access this evaluation' })
         return
       }
-
 
       res.status(200).json(userOnEvaluation.evaluation.evaluationToQuestions)
     },

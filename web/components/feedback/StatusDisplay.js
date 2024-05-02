@@ -93,7 +93,7 @@ const StatusDisplay = ({ status, size = 16 }) => {
             alt="prohibited"
           />
         )
-        
+
       case 'WIFI-ON':
         return <WifiOnIcon width={size} height={size} />
       case 'WIFI-OFF':

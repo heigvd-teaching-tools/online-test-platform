@@ -119,8 +119,6 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
     change(content)
   }
 
-  
-
   const file = {
     ...original,
     content: hasAnnotation ? annotation.content : original.content,

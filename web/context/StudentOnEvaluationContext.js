@@ -62,7 +62,11 @@ export const StudentOnEvaluationProvider = ({ children }) => {
     { refreshInterval: 1000 },
   )
 
-  const hasStudentFinished = useCallback(() => evaluation?.userOnEvaluation?.status === UserOnEvaluationStatus.FINISHED, [evaluation])
+  const hasStudentFinished = useCallback(
+    () =>
+      evaluation?.userOnEvaluation?.status === UserOnEvaluationStatus.FINISHED,
+    [evaluation],
+  )
 
   const isStudentAllowed = useCallback(() => evaluation?.allowed, [evaluation])
 
@@ -220,7 +224,6 @@ const EvaluationCompletedDialog = () => (
     </AlertFeedback>
   </Overlay>
 )
-
 
 const StudentNotAllowedDialog = () => (
   <Overlay>

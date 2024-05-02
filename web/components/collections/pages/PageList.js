@@ -77,7 +77,6 @@ const PageList = () => {
     setDeleteDialogOpen(false)
   }
 
-
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading errors={[error]} loading={!data}>

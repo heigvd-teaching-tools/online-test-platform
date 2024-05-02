@@ -72,7 +72,7 @@ const StepAccessMode = ({
           <>
             <Typography variant="body1">
               Provide your access list by pasting it directly from your email
-              client. 
+              client.
             </Typography>
             <Typography variant="body2">
               Supported separators are: comma, semicolon, newline.{' '}

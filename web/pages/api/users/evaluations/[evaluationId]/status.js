@@ -27,7 +27,6 @@ import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
 import { isStudentAllowed } from './utils'
 
-
 const get = async (req, res, prisma) => {
   const user = await getUser(req, res)
   const studentEmail = user.email
@@ -62,7 +61,6 @@ const get = async (req, res, prisma) => {
   })
 
   if (!userOnEvaluation) {
-
     res.status(404).json({ message: 'User not found in evaluation' })
     return
   }
@@ -92,7 +90,6 @@ const get = async (req, res, prisma) => {
       phase: evaluation.phase,
       startAt: evaluation.startAt,
       endAt: evaluation.endAt,
-      
     },
     userOnEvaluation: userOnEvaluation,
   })

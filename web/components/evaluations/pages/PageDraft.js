@@ -21,10 +21,7 @@ import {
 } from '@prisma/client'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import {
-  Stack,
-  Typography,
-} from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import LayoutMain from '@/components/layout/LayoutMain'
 
 import { useSnackbar } from '@/context/SnackbarContext'
@@ -246,7 +243,9 @@ const PageDraft = () => {
               <StudentsInEvaluation
                 groupScope={groupScope}
                 evaluation={evaluation}
-                restrictedAccess={accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST}
+                restrictedAccess={
+                  accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+                }
                 accessList={accessList}
                 onStudentAllowed={() => {
                   mutate()
@@ -283,8 +282,18 @@ const PageDraft = () => {
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
 
-const StudentsInEvaluation = ({ groupScope, evaluation, restrictedAccess, accessList, onStudentAllowed }) => {
-  const { data: students, error: errorStudents, mutate } = useSWR(
+const StudentsInEvaluation = ({
+  groupScope,
+  evaluation,
+  restrictedAccess,
+  accessList,
+  onStudentAllowed,
+}) => {
+  const {
+    data: students,
+    error: errorStudents,
+    mutate,
+  } = useSWR(
     `/api/${groupScope}/evaluations/${evaluation.id}/students`,
     groupScope && evaluation?.id ? fetcher : null,
     { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
@@ -300,7 +309,7 @@ const StudentsInEvaluation = ({ groupScope, evaluation, restrictedAccess, access
           students={students?.students}
           restrictedAccess={restrictedAccess}
           accessList={accessList}
-          onStudentAllowed={()=>{
+          onStudentAllowed={() => {
             onStudentAllowed()
             mutate()
           }}

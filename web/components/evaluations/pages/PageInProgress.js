@@ -20,12 +20,7 @@ import useSWR from 'swr'
 import { EvaluationPhase, Role } from '@prisma/client'
 import { update } from './crud'
 
-import {
-  Stack,
-  Typography,
-  Tooltip,
-  Button,
-} from '@mui/material'
+import { Stack, Typography, Tooltip, Button } from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 import { fetcher } from '@/code/utils'
@@ -213,19 +208,21 @@ const PageInProgress = () => {
               }}
             />
             <Loading loading={!students} errors={[errorStudents]}>
-             { evaluation && students && 
-              <StudentList
-                groupScope={groupScope}
-                evaluationId={evaluationId}
-                title={'Students submissions'}
-                students={students?.students}
-                restrictedAccess={evaluation.accessMode === 'LINK_AND_ACCESS_LIST'}
-                accessList={evaluation.accessList}
-                questions={students?.evaluationToQuestions}
-                onChange={() => mutateStudents()}
-                onStudentAllowed={() => mutate()}
-              />
-              }
+              {evaluation && students && (
+                <StudentList
+                  groupScope={groupScope}
+                  evaluationId={evaluationId}
+                  title={'Students submissions'}
+                  students={students?.students}
+                  restrictedAccess={
+                    evaluation.accessMode === 'LINK_AND_ACCESS_LIST'
+                  }
+                  accessList={evaluation.accessList}
+                  questions={students?.evaluationToQuestions}
+                  onChange={() => mutateStudents()}
+                  onStudentAllowed={() => mutate()}
+                />
+              )}
             </Loading>
 
             <DialogFeedback

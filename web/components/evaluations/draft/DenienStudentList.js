@@ -42,7 +42,6 @@ const DeniedStudentList = ({
   students,
   onStudentAllowed,
 }) => {
-
   return (
     <Stack>
       <Typography variant="h6">{title}</Typography>
@@ -59,7 +58,8 @@ const DeniedStudentList = ({
           meta: {
             key: student.user.id,
             actions: [
-              <ButtonAddToAccessList 
+              <ButtonAddToAccessList
+                key="allow"
                 groupScope={groupScope}
                 evaluationId={evaluationId}
                 studentEmail={student.user.email}
@@ -72,6 +72,5 @@ const DeniedStudentList = ({
     </Stack>
   )
 }
-
 
 export default DeniedStudentList

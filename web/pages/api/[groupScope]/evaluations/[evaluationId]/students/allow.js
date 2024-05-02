@@ -76,7 +76,7 @@ const post = async (req, res, prisma) => {
   await prisma.$transaction(async (prisma) => {
     if (!accessList.includes(studentEmail)) {
       accessList.push(studentEmail)
-      
+
       // update access list
 
       await prisma.evaluation.update({
@@ -86,9 +86,9 @@ const post = async (req, res, prisma) => {
         data: {
           accessList: accessList,
         },
-      })      
+      })
     }
-    try{
+    try {
       // remove the denied access attempt
       await prisma.userOnEvaluationDeniedAccessAttempt.delete({
         where: {
