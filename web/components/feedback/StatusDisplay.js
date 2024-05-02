@@ -84,6 +84,16 @@ const StatusDisplay = ({ status, size = 16 }) => {
             alt="cli"
           />
         )
+      case 'PROHIBITED':
+        return (
+          <Image
+            src="/svg/status/prohibited.svg"
+            width={size}
+            height={size}
+            alt="prohibited"
+          />
+        )
+
       case 'WIFI-ON':
         return <WifiOnIcon width={size} height={size} />
       case 'WIFI-OFF':
@@ -106,7 +116,7 @@ const StatusDisplay = ({ status, size = 16 }) => {
     }
   }
   return (
-    <Box minWidth={size} minHeight={size}>
+    <Box minWidth={size} minHeight={size} maxHeight={size} maxWidth={size}>
       {renderStatus(status)}
     </Box>
   )

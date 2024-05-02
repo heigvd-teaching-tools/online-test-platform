@@ -21,20 +21,7 @@ import {
 } from '@prisma/client'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import {
-  Alert,
-  AlertTitle,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Switch,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import LayoutMain from '@/components/layout/LayoutMain'
 
 import { useSnackbar } from '@/context/SnackbarContext'
@@ -42,7 +29,7 @@ import { useSnackbar } from '@/context/SnackbarContext'
 import { LoadingButton } from '@mui/lab'
 
 import { fetcher } from '@/code/utils'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 import BackButton from '@/components/layout/BackButton'
 
@@ -53,10 +40,7 @@ import StepReferenceCollection from '../draft/StepReferenceCollection'
 import StepGeneralInformation from '../draft/StepGeneralInformation'
 import StepSchedule from '../draft/StepSchedule'
 import StudentList from '../draft/StudentList'
-import TagsSelector from '@/components/input/TagsSelector'
 import StepAccessMode from '../draft/StepAccessMode'
-import { set } from 'lodash'
-import DenienStudentList from '../draft/DenienStudentList'
 import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
 
 const PageDraft = () => {
@@ -99,8 +83,6 @@ const PageDraft = () => {
       setAccessList(evaluation.accessList)
     }
   }, [evaluation])
-
-  console.log('evaluation', evaluation)
 
   const onChangeReferenceCollection = useCallback(
     (collection) => {
@@ -208,7 +190,7 @@ const PageDraft = () => {
   ])
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading error={[error]} loading={!evaluation}>
         <PhaseRedirect phase={evaluation?.phase}>
           <LayoutMain
@@ -261,6 +243,14 @@ const PageDraft = () => {
               <StudentsInEvaluation
                 groupScope={groupScope}
                 evaluation={evaluation}
+                restrictedAccess={
+                  accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+                }
+                accessList={accessList}
+                onStudentAllowed={() => {
+                  mutate()
+                  showSnackbar('Student has been included in the access list')
+                }}
               />
 
               <DeniedStudentsInEvaluation
@@ -286,14 +276,24 @@ const PageDraft = () => {
           </LayoutMain>
         </PhaseRedirect>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
 
-const StudentsInEvaluation = ({ groupScope, evaluation }) => {
-  const { data: students, error: errorStudents } = useSWR(
+const StudentsInEvaluation = ({
+  groupScope,
+  evaluation,
+  restrictedAccess,
+  accessList,
+  onStudentAllowed,
+}) => {
+  const {
+    data: students,
+    error: errorStudents,
+    mutate,
+  } = useSWR(
     `/api/${groupScope}/evaluations/${evaluation.id}/students`,
     groupScope && evaluation?.id ? fetcher : null,
     { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
@@ -303,8 +303,16 @@ const StudentsInEvaluation = ({ groupScope, evaluation }) => {
     evaluation.id && (
       <Loading loading={!students} errors={[errorStudents]}>
         <StudentList
+          groupScope={groupScope}
           title={`Registered students (${students?.students.length})`}
+          evaluationId={evaluation.id}
           students={students?.students}
+          restrictedAccess={restrictedAccess}
+          accessList={accessList}
+          onStudentAllowed={() => {
+            onStudentAllowed()
+            mutate()
+          }}
         />
       </Loading>
     )

@@ -17,7 +17,7 @@ import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { Role } from '@prisma/client'
 
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import Loading from '@/components/feedback/Loading'
 import { fetcher } from '@/code/utils'
 
@@ -33,11 +33,11 @@ const PageIndex = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} errors={[error]}>
         <PhaseRedirect phase={evaluation?.phase} />
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

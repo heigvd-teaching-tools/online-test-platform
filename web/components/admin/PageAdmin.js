@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Role } from '@prisma/client'
-import Authorisation from '../security/Authorisation'
+import Authorization from '../security/Authorization'
 import { fetcher } from '@/code/utils'
 import Loading from '../feedback/Loading'
 import useSWR from 'swr'
@@ -144,7 +144,7 @@ const PageAdmin = () => {
   const [manageRolesDialogOpen, setManageRolesDialogOpen] = useState(false)
 
   return (
-    <Authorisation allowRoles={[Role.SUPER_ADMIN]}>
+    <Authorization allowRoles={[Role.SUPER_ADMIN]}>
       <LayoutMain
         hideLogo
         header={
@@ -262,7 +262,7 @@ const PageAdmin = () => {
           )
         }}
       />
-    </Authorisation>
+    </Authorization>
   )
 }
 
@@ -274,7 +274,6 @@ const ManageRolesDialog = ({ open, user, onClose, onChange }) => {
   }, [user])
 
   const save = useCallback(async () => {
-    console.log('save', roles, user.id)
     await fetch(`/api/users/${user.id}`, {
       method: 'PATCH',
       headers: {

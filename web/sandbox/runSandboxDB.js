@@ -189,7 +189,6 @@ export const runSandboxDB = async ({
         resolve(results)
       } catch (error) {
         clearTimeout(timeout) // Clear the timeout if there's an error
-        console.log('DB Execution Error:', error)
         results.push({
           order: results.length + 1, // Adjusted order logic
           status: DatabaseQueryOutputStatus.ERROR,
@@ -201,7 +200,6 @@ export const runSandboxDB = async ({
       }
     } catch (error) {
       // General error handling for the container setup or connection
-      console.log('error: ', error)
       results.push({
         status: DatabaseQueryOutputStatus.ERROR,
         feedback: `Client connection error: ${error.message}`,
@@ -210,7 +208,6 @@ export const runSandboxDB = async ({
       })
       resolve(results)
     } finally {
-      console.log('Finally block')
       if (client) await client.end()
       if (container) await container.stop()
     }

@@ -300,7 +300,6 @@ const calculateCodeWritingStats = (question) => {
 
 const calculateCodeReadingStats = (question) => {
   let success = question.studentAnswer.reduce((acc, sa) => {
-    console.log('sa', sa)
     if (
       sa.status !== StudentAnswerStatus.MISSING &&
       sa.code.codeReading?.outputs.every(
@@ -338,7 +337,6 @@ const calculateCodeReadingStats = (question) => {
     }
     return acc
   }, 0)
-  console.log('correct', success, 'failure', failure, 'unanswered', unanswered)
   return {
     success: { count: success },
     failure: { count: failure },

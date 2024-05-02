@@ -20,7 +20,7 @@ import { Box } from '@mui/material'
 import LayoutMain from '../../layout/LayoutMain'
 
 import { Role } from '@prisma/client'
-import Authorisation from '../../security/Authorisation'
+import Authorization from '../../security/Authorization'
 import QuestionUpdate from '../../question/QuestionUpdate'
 
 import BackButton from '../../layout/BackButton'
@@ -29,7 +29,7 @@ const PageUpdate = () => {
   const router = useRouter()
   const { groupScope } = router.query
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <LayoutMain
         hideLogo
         header={<BackButton backUrl={`/${groupScope}/questions`} />}
@@ -41,7 +41,7 @@ const PageUpdate = () => {
           />
         </Box>
       </LayoutMain>
-    </Authorisation>
+    </Authorization>
   )
 }
 

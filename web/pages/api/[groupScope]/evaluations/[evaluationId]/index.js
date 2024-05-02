@@ -48,6 +48,7 @@ const patch = async (req, res, prisma) => {
       startAt: true,
       durationHours: true,
       durationMins: true,
+      accessMode: true,
     },
   })
 
@@ -127,24 +128,32 @@ const patch = async (req, res, prisma) => {
     data.accessList = accessList
   }
 
-  try {
-    const evaluationAfterUpdate = await prisma.evaluation.update({
+  let evaluationAfterUpdate = undefined
+  await prisma.$transaction(async (prisma) => {
+    evaluationAfterUpdate = await prisma.evaluation.update({
       where: {
         id: evaluationId,
       },
       data: data,
     })
-    res.status(200).json(evaluationAfterUpdate)
-  } catch (e) {
-    switch (e.code) {
-      case 'P2002':
-        res.status(409).json({ message: 'evaluation label already exists' })
-        break
-      default:
-        res.status(500).json({ message: 'Error while updating evaluation' })
-        break
+
+    if (
+      currentEvaluation.accessMode ===
+      UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+    ) {
+      // remove eventual denied students
+      await prisma.userOnEvaluationDeniedAccessAttempt.deleteMany({
+        where: {
+          evaluationId: evaluationId,
+          userEmail: {
+            in: accessList || [],
+          },
+        },
+      })
     }
-  }
+  })
+
+  res.status(200).json(evaluationAfterUpdate)
 }
 
 const del = async (req, res, prisma) => {

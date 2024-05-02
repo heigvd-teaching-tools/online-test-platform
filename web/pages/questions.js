@@ -16,7 +16,7 @@
 import React, { useState } from 'react'
 import { Role } from '@prisma/client'
 import IndexPage from '../components/IndexPage'
-import Authorisation from '../components/security/Authorisation'
+import Authorization from '../components/security/Authorization'
 /*
 Needs to be keept for some time for the user to clear the cache
 TODO : REMOVE THIS PAGE in february 2024
@@ -41,7 +41,7 @@ const LegacyQuestionPage = () => {
   }
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <DialogFeedback
         open={showDialog}
         title="Clear Browser Cache"
@@ -77,7 +77,7 @@ const LegacyQuestionPage = () => {
 
       {/* Render IndexPage only if the dialog has been confirmed */}
       {!showDialog && <IndexPage />}
-    </Authorisation>
+    </Authorization>
   )
 }
 

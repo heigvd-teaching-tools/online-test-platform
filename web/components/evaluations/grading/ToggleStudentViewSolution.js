@@ -25,7 +25,6 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
 
   const save = useCallback(
     async (checked) => {
-      console.log('Saving')
       if (saving) return
       if (!evaluation) return
       setSaving(true)

@@ -23,7 +23,7 @@ import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { fetcher } from '@/code/utils'
 import { useSnackbar } from '@/context/SnackbarContext'
 
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 import LayoutMain from '@/components/layout/LayoutMain'
 import MainMenu from '@/components/layout/MainMenu'
 import DataGrid from '@/components/ui/DataGrid'
@@ -77,10 +77,8 @@ const PageList = () => {
     setDeleteDialogOpen(false)
   }
 
-  console.log('collections', collections)
-
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading errors={[error]} loading={!data}>
         <LayoutMain header={<MainMenu />}>
           <Box
@@ -197,7 +195,7 @@ const PageList = () => {
           />
         </LayoutMain>
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

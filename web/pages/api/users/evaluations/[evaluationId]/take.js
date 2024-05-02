@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
+import {
+  EvaluationPhase,
+  Role,
+  UserOnEvaluationStatus,
+} from '@prisma/client'
 
 import { getUser } from '@/code/auth'
 import { isInProgress } from './questions/[questionId]/answers/utils'
@@ -26,6 +30,7 @@ import {
   withEvaluationPhase,
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
+import { isStudentAllowed } from './utils'
 
 /*
 Get the details about thr evaluation for a users
@@ -59,6 +64,8 @@ const get = withEvaluationPhase(
         include: {
           evaluation: {
             select: {
+              accessMode: true, // sensitive!
+              accessList: true, // sensitive!
               evaluationToQuestions: {
                 include: {
                   question: {
@@ -90,7 +97,14 @@ const get = withEvaluationPhase(
         return
       }
 
-      res.status(200).json(userOnEvaluation.evaluation)
+      if (!isStudentAllowed(userOnEvaluation.evaluation, email)) {
+        res
+          .status(403)
+          .json({ message: 'You are not allowed to access this evaluation' })
+        return
+      }
+
+      res.status(200).json(userOnEvaluation.evaluation.evaluationToQuestions)
     },
   ),
 )

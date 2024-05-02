@@ -13,15 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined'
-import { IconButton, Paper, Popper, Stack, Fade } from '@mui/material'
+import {
+  IconButton,
+  Paper,
+  Popper,
+  Stack,
+  Fade,
+  Box,
+  Typography,
+} from '@mui/material'
+import ClickAwayListener from 'react-click-away-listener'
 
-const UserHelpPopper = ({ children, placement = 'bottom', mode = 'info' }) => {
+const UserHelpPopper = ({
+  children,
+  label,
+  placement = 'bottom',
+  mode = 'info',
+}) => {
+  const popperRef = useRef(null)
+
   const [anchorEl, setAnchorEl] = useState(null)
+
   const [open, setOpen] = useState(false)
 
   const handleToggle = (event) => {
@@ -47,34 +64,53 @@ const UserHelpPopper = ({ children, placement = 'bottom', mode = 'info' }) => {
     }
   }
 
+  const handleClickAway = (event) => {
+    // Only close if click is outside of the popper content
+    if (popperRef.current && !popperRef.current.contains(event.target)) {
+      setOpen(false)
+    }
+  }
+
   return (
-    <>
-      <IconButton
-        onClick={handleToggle}
-        color={mode} // This sets the button color. You may adjust if your theme supports it.
-        aria-label={`${mode} info`}
-      >
-        {getIcon()}
-      </IconButton>
-      <Popper
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        placement={placement}
-        transition
-        sx={{ zIndex: 9999 }}
-      >
-        {({ TransitionProps }) => (
-          <Fade {...TransitionProps} timeout={350}>
-            <Paper>
-              <Stack p={2} maxWidth={600} bgcolor="background.paper">
-                {children}
-              </Stack>
-            </Paper>
-          </Fade>
-        )}
-      </Popper>
-    </>
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <Box>
+        <Stack
+          direction="row"
+          spacing={0}
+          alignItems="center"
+          justifyContent="center"
+          cursor={'pointer'}
+          onClick={handleToggle}
+        >
+          <IconButton
+            color={mode} // This sets the button color. You may adjust if your theme supports it.
+            aria-label={`${mode} info`}
+          >
+            {getIcon()}
+          </IconButton>
+          {label && <Typography variant="caption">{label}</Typography>}
+        </Stack>
+        <Popper
+          id={id}
+          ref={popperRef}
+          open={open}
+          anchorEl={anchorEl}
+          placement={placement}
+          transition
+          sx={{ zIndex: 1000 }}
+        >
+          {({ TransitionProps }) => (
+            <Fade {...TransitionProps} timeout={350}>
+              <Paper>
+                <Stack p={2} maxWidth={600} bgcolor="background.paper">
+                  {children}
+                </Stack>
+              </Paper>
+            </Fade>
+          )}
+        </Popper>
+      </Box>
+    </ClickAwayListener>
   )
 }
 

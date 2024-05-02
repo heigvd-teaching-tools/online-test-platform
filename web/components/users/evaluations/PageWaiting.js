@@ -15,7 +15,7 @@
  */
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import Authorisation from '../../security/Authorisation'
+import Authorization from '../../security/Authorization'
 import { EvaluationPhase, Role } from '@prisma/client'
 import Loading from '../../feedback/Loading'
 import StudentPhaseRedirect from './StudentPhaseRedirect'
@@ -50,10 +50,8 @@ const PageWaiting = () => {
     { refreshInterval: 1000 },
   )
 
-  console.log('error', error)
-
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
+    <Authorization allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading errors={[error]} loading={!data}>
         {data?.evaluation && (
           <StudentPhaseRedirect phase={data.evaluation.phase}>
@@ -81,7 +79,7 @@ const PageWaiting = () => {
           </StudentPhaseRedirect>
         )}
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 

@@ -73,13 +73,13 @@ const StepAccessMode = ({
             <Typography variant="body1">
               Provide your access list by pasting it directly from your email
               client.
-              <Typography variant="body1">
-                Supported separators are: comma, semicolon, newline.{' '}
-              </Typography>
+            </Typography>
+            <Typography variant="body2">
+              Supported separators are: comma, semicolon, newline.{' '}
             </Typography>
 
             <Typography variant="body2">
-              Denied attemps are being registered. This feature gives you the
+              Denied attempts are being registered. This feature gives you the
               freedom to review and grant access permissions on the go.
             </Typography>
             <TagsSelector
@@ -113,7 +113,7 @@ const StepAccessMode = ({
             {accessList.length > 0 && (
               <Alert severity="info">
                 <AlertTitle>Access list</AlertTitle>
-                <Typography variant="body1">
+                <Typography variant="body1" component={'span'}>
                   Access list contains {accessList.length} email addresses.
                 </Typography>
               </Alert>

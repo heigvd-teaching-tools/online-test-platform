@@ -106,7 +106,8 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
 
   const { readOnly, state, annotation, change, discard } = useAnnotation()
 
-  const defaultViewMode = readOnly ? 'DIFF' : 'ANNOTATED'
+  const hasAnnotation = annotation?.content !== undefined
+  const defaultViewMode = readOnly && hasAnnotation ? 'DIFF' : 'ANNOTATED'
 
   const [viewMode, setViewMode] = useState(defaultViewMode)
 
@@ -117,8 +118,6 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
   const onChange = (content) => {
     change(content)
   }
-
-  const hasAnnotation = annotation?.content !== undefined
 
   const file = {
     ...original,
@@ -162,8 +161,8 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
           ) : (
             <InlineDiffEditor
               readOnly
-              original={file.content}
-              modified={original.content}
+              original={original.content}
+              modified={file.content}
               language={language}
               editorOptions={{
                 readOnly: true,

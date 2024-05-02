@@ -133,7 +133,6 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
             label={(option) =>
               `${items.length} ${label} grouped by ${option.label}`
             }
-            optionInLabel
             color="info"
             value={selectedGrouping.option}
             options={groupings.map((g) => ({

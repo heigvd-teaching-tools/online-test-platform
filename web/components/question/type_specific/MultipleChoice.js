@@ -63,7 +63,6 @@ const MultipleChoice = ({
 
   const onReorder = useCallback(
     async (sourceIndex, targetIndex) => {
-      // console.log("onChangeCollectionOrder", sourceIndex, "->", targetIndex);
       const reordered = [...options]
 
       // Remove the element from its original position

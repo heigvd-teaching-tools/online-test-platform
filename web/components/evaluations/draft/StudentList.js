@@ -16,7 +16,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { StudentAnswerStatus, UserOnEvaluationStatus } from '@prisma/client'
-import { IconButton, Stack, Tooltip, Typography } from '@mui/material'
+import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
 
 import UserAvatar from '@/components/layout/UserAvatar'
 import Datagrid from '@/components/ui/DataGrid'
@@ -25,6 +25,9 @@ import PiePercent from '@/components/feedback/PiePercent'
 
 import DropdownSelector from '@/components/input/DropdownSelector'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
+import StatusDisplay from '@/components/feedback/StatusDisplay'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
+import ButtonAddToAccessList from './ButtonAddToAccessList'
 
 const StudentStatusManager = ({
   groupScope,
@@ -94,7 +97,6 @@ const StudentStatusManager = ({
     <DropdownSelector
       color={statusToColor[status]}
       variant={'text'}
-      optionInLabel
       label={(option) => <Option value={option.value} />}
       value={status}
       options={[
@@ -117,14 +119,62 @@ const StudentList = ({
   evaluationId,
   title,
   students,
+  restrictedAccess,
+  accessList,
   questions = [],
   onChange,
+  onStudentAllowed,
 }) => {
+  const isStudentProhibited = (studentEmail) =>
+    restrictedAccess && !accessList?.includes(studentEmail)
+
   const columns = [
     {
       label: 'Student',
       column: { minWidth: 230, flexGrow: 1 },
-      renderCell: (row) => <UserAvatar user={row.user} />,
+      renderCell: (row) => (
+        <Stack
+          direction={'row'}
+          spacing={1}
+          alignItems={'center'}
+          justifyContent={'space-between'}
+        >
+          <UserAvatar user={row.user} />
+          {isStudentProhibited(row.user.email) && (
+            <Stack direction="row" spacing={2} alignItems="center">
+              <UserHelpPopper
+                alwaysShow
+                label={'Prohibited'}
+                placement="left"
+                mode="warning"
+              >
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <StatusDisplay status="PROHIBITED" size={24} />
+                  <Box>
+                    <Typography variant="body1">
+                      Student Participation Prohibited
+                    </Typography>
+                    <Typography variant="body2">
+                      This student registered before the access restriction was
+                      set.
+                    </Typography>
+                    <Typography variant="body2">
+                      To allow participation, please add the student to the
+                      access list.
+                    </Typography>
+                  </Box>
+                </Stack>
+              </UserHelpPopper>
+              <ButtonAddToAccessList
+                groupScope={groupScope}
+                evaluationId={evaluationId}
+                studentEmail={row.user.email}
+                onStudentAllowed={onStudentAllowed}
+              />
+            </Stack>
+          )}
+        </Stack>
+      ),
     },
 
     {
@@ -211,7 +261,7 @@ const StudentList = ({
       },
     })
     columns.push({
-      label: 'Actions',
+      label: 'Status',
       column: { minWidth: 150, width: 150 },
       renderCell: (row) => {
         return (
@@ -258,8 +308,7 @@ const StudentList = ({
           title="Percentage of Submitted answers"
           key="submission-percentage"
         >
-          {' '}
-          Overall{' '}
+          <Typography variant="caption">Overall </Typography>
         </Tooltip>
       ),
       column: { minWidth: 70, width: 70 },

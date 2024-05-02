@@ -53,7 +53,7 @@ import Loading from '@/components/feedback/Loading'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
 import Paging from '@/components/layout/utils/Paging'
 import MainMenu from '@/components/layout/MainMenu'
-import Authorisation from '@/components/security/Authorisation'
+import Authorization from '@/components/security/Authorization'
 
 import QuestionView from '@/components/question/QuestionView'
 import AnswerCompare from '@/components/answer/AnswerCompare'
@@ -333,7 +333,7 @@ const PageGrading = () => {
     participantId
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <PhaseRedirect phase={evaluation?.phase}>
         <Loading
           errors={[errorEvaluation, errorQuestions]}
@@ -566,7 +566,7 @@ const PageGrading = () => {
           </ResizableDrawer>
         </Loading>
       </PhaseRedirect>
-    </Authorisation>
+    </Authorization>
   )
 }
 

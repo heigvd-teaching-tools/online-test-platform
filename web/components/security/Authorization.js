@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react'
 import { useGroup } from '../../context/GroupContext'
 import UnauthorizedMissingGroups from './UnauthorizedMissingGroups'
 
-const Authorisation = ({ children, allowRoles = [] }) => {
+const Authorization = ({ children, allowRoles = [] }) => {
   const { groups } = useGroup()
   const { data: session } = useSession()
 
@@ -60,4 +60,4 @@ const Authorisation = ({ children, allowRoles = [] }) => {
   return children
 }
 
-export default Authorisation
+export default Authorization

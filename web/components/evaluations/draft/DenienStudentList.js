@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useState } from 'react'
-import { Stack, Typography, Button } from '@mui/material'
-import Image from 'next/image'
+
+import { Stack, Typography } from '@mui/material'
 
 import UserAvatar from '@/components/layout/UserAvatar'
 import Datagrid from '@/components/ui/DataGrid'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
-import DialogFeedback from '@/components/feedback/DialogFeedback'
+import ButtonAddToAccessList from './ButtonAddToAccessList'
 
 const columns = [
   {
@@ -36,33 +35,13 @@ const columns = [
   },
 ]
 
-const DenienStudentList = ({
+const DeniedStudentList = ({
   groupScope,
   evaluationId,
   title,
   students,
   onStudentAllowed,
 }) => {
-  const [selectedEmail, setSelectedEmail] = useState(undefined)
-
-  const onAllowStudent = useCallback(async () => {
-    await fetch(
-      `/api/${groupScope}/evaluations/${evaluationId}/students/allow`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ studentEmail: selectedEmail }),
-      },
-    ).then((res) => {
-      if (res.ok) {
-        onStudentAllowed(selectedEmail)
-      }
-    })
-  }, [groupScope, evaluationId, selectedEmail, onStudentAllowed])
-
   return (
     <Stack>
       <Typography variant="h6">{title}</Typography>
@@ -79,45 +58,19 @@ const DenienStudentList = ({
           meta: {
             key: student.user.id,
             actions: [
-              <Button
-                key="edit"
-                color="info"
-                startIcon={
-                  <Image
-                    alt="Remove From Collection"
-                    src="/svg/icons/enter.svg"
-                    width="24"
-                    height="24"
-                  />
-                }
-                onClick={() => {
-                  const studentEmail = student.user.email
-                  setSelectedEmail(studentEmail)
-                }}
-              >
-                Add to access list
-              </Button>,
+              <ButtonAddToAccessList
+                key="allow"
+                groupScope={groupScope}
+                evaluationId={evaluationId}
+                studentEmail={student.user.email}
+                onStudentAllowed={onStudentAllowed}
+              />,
             ],
           },
         }))}
-      />
-      <DialogFeedback
-        open={selectedEmail !== undefined}
-        title={'Allow the student to access the evaluation'}
-        content={
-          <Typography variant={'body1'}>
-            Are you sure you want to add {selectedEmail} to the access list?
-          </Typography>
-        }
-        onClose={() => {
-          setSelectedEmail(undefined)
-        }}
-        onConfirm={() => {
-          onAllowStudent(selectedEmail)
-        }}
       />
     </Stack>
   )
 }
 
-export default DenienStudentList
+export default DeniedStudentList

@@ -16,7 +16,7 @@
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
-import Authorisation from '../../security/Authorisation'
+import Authorization from '../../security/Authorization'
 import Loading from '../../feedback/Loading'
 import { EvaluationPhase, Role, StudentAnswerStatus } from '@prisma/client'
 import { fetcher } from '../../../code/utils'
@@ -145,7 +145,7 @@ const PageProfConsult = () => {
   )
 
   return (
-    <Authorisation allowRoles={[Role.PROFESSOR]}>
+    <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} error={[error]}>
         {isDataReady && (
           <LayoutMain
@@ -226,7 +226,7 @@ const PageProfConsult = () => {
           </LayoutMain>
         )}
       </Loading>
-    </Authorisation>
+    </Authorization>
   )
 }
 
