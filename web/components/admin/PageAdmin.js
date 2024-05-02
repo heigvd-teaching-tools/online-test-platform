@@ -274,7 +274,6 @@ const ManageRolesDialog = ({ open, user, onClose, onChange }) => {
   }, [user])
 
   const save = useCallback(async () => {
-    console.log('save', roles, user.id)
     await fetch(`/api/users/${user.id}`, {
       method: 'PATCH',
       headers: {

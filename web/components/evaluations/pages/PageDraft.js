@@ -248,6 +248,10 @@ const PageDraft = () => {
                 evaluation={evaluation}
                 restrictedAccess={accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST}
                 accessList={accessList}
+                onStudentAllowed={() => {
+                  mutate()
+                  showSnackbar('Student has been included in the access list')
+                }}
               />
 
               <DeniedStudentsInEvaluation
@@ -279,8 +283,8 @@ const PageDraft = () => {
 
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
 
-const StudentsInEvaluation = ({ groupScope, evaluation, restrictedAccess, accessList }) => {
-  const { data: students, error: errorStudents } = useSWR(
+const StudentsInEvaluation = ({ groupScope, evaluation, restrictedAccess, accessList, onStudentAllowed }) => {
+  const { data: students, error: errorStudents, mutate } = useSWR(
     `/api/${groupScope}/evaluations/${evaluation.id}/students`,
     groupScope && evaluation?.id ? fetcher : null,
     { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
@@ -290,10 +294,16 @@ const StudentsInEvaluation = ({ groupScope, evaluation, restrictedAccess, access
     evaluation.id && (
       <Loading loading={!students} errors={[errorStudents]}>
         <StudentList
+          groupScope={groupScope}
           title={`Registered students (${students?.students.length})`}
+          evaluationId={evaluation.id}
           students={students?.students}
           restrictedAccess={restrictedAccess}
           accessList={accessList}
+          onStudentAllowed={()=>{
+            onStudentAllowed()
+            mutate()
+          }}
         />
       </Loading>
     )

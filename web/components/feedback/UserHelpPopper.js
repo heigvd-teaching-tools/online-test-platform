@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
@@ -22,7 +22,10 @@ import { IconButton, Paper, Popper, Stack, Fade, Box, Typography } from '@mui/ma
 import ClickAwayListener from 'react-click-away-listener'
 
 const UserHelpPopper = ({ children, label, placement = 'bottom', mode = 'info' }) => {
+  const popperRef = useRef(null)
+  
   const [anchorEl, setAnchorEl] = useState(null)
+  
   const [open, setOpen] = useState(false)
 
   const handleToggle = (event) => {
@@ -48,8 +51,15 @@ const UserHelpPopper = ({ children, label, placement = 'bottom', mode = 'info' }
     }
   }
 
+  const handleClickAway = (event) => {
+    // Only close if click is outside of the popper content
+    if (popperRef.current && !popperRef.current.contains(event.target)) {
+      setOpen(false);
+    }
+  }
+
   return (
-    <ClickAwayListener onClickAway={() => setOpen(false)}>
+    <ClickAwayListener onClickAway={handleClickAway}>
       <Box>
       <Stack direction="row" spacing={0} alignItems="center" justifyContent="center" cursor={"pointer"} onClick={handleToggle}>
         <IconButton
@@ -62,11 +72,12 @@ const UserHelpPopper = ({ children, label, placement = 'bottom', mode = 'info' }
       </Stack>
       <Popper
         id={id}
+        ref={popperRef}
         open={open}
         anchorEl={anchorEl}
         placement={placement}
         transition
-        sx={{ zIndex: 9999 }}
+        sx={{ zIndex: 1000 }}
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={350}>

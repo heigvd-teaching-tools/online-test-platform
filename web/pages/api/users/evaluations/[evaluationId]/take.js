@@ -26,6 +26,7 @@ import {
   withEvaluationPhase,
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
+import { isStudentAllowed } from './utils'
 
 /*
 Get the details about thr evaluation for a users
@@ -36,9 +37,6 @@ Each question has included the answer for that particular users only
 
 */
 
-const isStudentInAccessList = (evaluation, studentEmail) => {
-  return evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST && evaluation.accessList?.includes(studentEmail)
-}
 
 
 const get = withEvaluationPhase(
@@ -97,7 +95,7 @@ const get = withEvaluationPhase(
         return
       }
 
-      if (!isStudentInAccessList(userOnEvaluation.evaluation, email)) {
+      if (!isStudentAllowed(userOnEvaluation.evaluation, email)) {
         
         res.status(403).json({ message: 'You are not allowed to access this evaluation' })
         return

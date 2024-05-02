@@ -143,7 +143,7 @@ const PageCompose = () => {
 
   const onChangeCollectionOrder = useCallback(
     async (sourceIndex, targetIndex) => {
-      // console.log("onChangeCollectionOrder", sourceIndex, "->", targetIndex);
+      
       const reordered = [...collectionToQuestions]
 
       // Remove the element from its original position

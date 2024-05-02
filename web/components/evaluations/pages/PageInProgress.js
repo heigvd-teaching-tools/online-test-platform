@@ -223,6 +223,7 @@ const PageInProgress = () => {
                 accessList={evaluation.accessList}
                 questions={students?.evaluationToQuestions}
                 onChange={() => mutateStudents()}
+                onStudentAllowed={() => mutate()}
               />
               }
             </Loading>

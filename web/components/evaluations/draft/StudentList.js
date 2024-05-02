@@ -27,6 +27,7 @@ import DropdownSelector from '@/components/input/DropdownSelector'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
 import StatusDisplay from '@/components/feedback/StatusDisplay'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
+import ButtonAddToAccessList from './ButtonAddToAccessList'
 
 const StudentStatusManager = ({
   groupScope,
@@ -122,6 +123,7 @@ const StudentList = ({
   accessList,
   questions = [],
   onChange,
+  onStudentAllowed
 }) => {
 
   const isStudentProhibited = (studentEmail) => restrictedAccess && !accessList?.includes(studentEmail)
@@ -131,9 +133,10 @@ const StudentList = ({
       label: 'Student',
       column: { minWidth: 230, flexGrow: 1 },
       renderCell: (row) =>
-      <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={"space-between"} pr={2}>
+      <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={"space-between"}>
         <UserAvatar user={row.user} />
         {isStudentProhibited(row.user.email) && (
+          <Stack direction="row" spacing={2} alignItems="center">
           <UserHelpPopper alwaysShow label={"Prohibited"} placement="left" mode="warning">
             <Stack direction="row" spacing={2} alignItems="center">
               <StatusDisplay status="PROHIBITED" size={24} />
@@ -144,6 +147,13 @@ const StudentList = ({
               </Box>
             </Stack>
           </UserHelpPopper>
+          <ButtonAddToAccessList
+            groupScope={groupScope}
+            evaluationId={evaluationId}
+            studentEmail={row.user.email}
+            onStudentAllowed={onStudentAllowed}
+          />
+        </Stack>
         )}
       </Stack>,
 
@@ -233,7 +243,7 @@ const StudentList = ({
       },
     })
     columns.push({
-      label: 'Actions',
+      label: 'Status',
       column: { minWidth: 150, width: 150 },
       renderCell: (row) => {
         return (

@@ -23,11 +23,10 @@ import {
   withEvaluationPhase,
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
-import { EvaluationPhase, Role, UserOnEvaluatioAccessMode, UserOnEvaluationStatus } from '@prisma/client'
+import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
-const isStudentInAccessList = (evaluation, studentEmail) => {
-  return evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST && evaluation.accessList?.includes(studentEmail)
-}
+import { isStudentAllowed } from './utils'
+
 
 const get = async (req, res, prisma) => {
   const user = await getUser(req, res)
@@ -68,7 +67,7 @@ const get = async (req, res, prisma) => {
     return
   }
 
-  const allowed = isStudentInAccessList(evaluation, studentEmail)
+  const allowed = isStudentAllowed(evaluation, studentEmail)
 
   if (!allowed) {
     // keep track of the users who were denied access to the evaluation

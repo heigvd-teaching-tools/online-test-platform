@@ -77,7 +77,6 @@ const PageList = () => {
     setDeleteDialogOpen(false)
   }
 
-  console.log('collections', collections)
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>

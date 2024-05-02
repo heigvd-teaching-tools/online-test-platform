@@ -50,8 +50,6 @@ const PageWaiting = () => {
     { refreshInterval: 1000 },
   )
 
-  console.log('error', error)
-
   return (
     <Authorization allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading errors={[error]} loading={!data}>

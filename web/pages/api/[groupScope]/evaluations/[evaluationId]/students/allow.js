@@ -88,16 +88,19 @@ const post = async (req, res, prisma) => {
         },
       })      
     }
-
-    // remove the denied access attempt
-    await prisma.userOnEvaluationDeniedAccessAttempt.delete({
-      where: {
-        userEmail_evaluationId: {
-          evaluationId: evaluationId,
-          userEmail: studentEmail,
+    try{
+      // remove the denied access attempt
+      await prisma.userOnEvaluationDeniedAccessAttempt.delete({
+        where: {
+          userEmail_evaluationId: {
+            evaluationId: evaluationId,
+            userEmail: studentEmail,
+          },
         },
-      },
-    })
+      })
+    } catch (e) {
+      // ignore if the user was not in the denied access list
+    }
   })
 
   res.status(200).json({ message: 'Student added to the access list' })

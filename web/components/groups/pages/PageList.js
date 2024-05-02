@@ -62,7 +62,6 @@ const PageList = () => {
 
   useEffect(() => {
     if (!selectedGroup && groups && groups.length > 0) {
-      console.log('Select group index 0')
       setSelectedGroup(groups[0].group)
       setUpdatingCurrentGroup(groups[0].group.scope === currentGroup)
     }
@@ -71,7 +70,6 @@ const PageList = () => {
   const onGroupsLeaveOrDelete = useCallback(
     async (groupId) => {
       if (selectedGroup && selectedGroup.id === groupId) {
-        console.log('onGroupsLeaveOrDelete unselect group')
         setSelectedGroup(null)
         setUpdatingCurrentGroup(false)
       }
