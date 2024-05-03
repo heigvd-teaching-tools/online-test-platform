@@ -22,7 +22,6 @@ import { fetcher } from '@/code/utils'
 const Sandbox = ({ groupScope, questionId, onUpdate }) => {
   const {
     data: sandbox,
-    mutate,
     error,
   } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/sandbox`,
@@ -68,10 +67,13 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
             label="Image"
             variant="standard"
             value={image}
+            sx={{
+              width: '300px',
+            }}
             onChange={(ev) => {
               setImage(ev.target.value)
               debouncedOnChange({
-                ...sandbox,
+                ...sandbox, 
                 image: ev.target.value,
               })
             }}
@@ -82,6 +84,7 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
             variant="standard"
             value={beforeAll}
             fullWidth
+            multiline
             onChange={(ev) => {
               setBeforeAll(ev.target.value)
               debouncedOnChange({

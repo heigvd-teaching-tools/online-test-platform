@@ -301,3 +301,55 @@ bash ./monitor.sh
 ```bash
 docker system df
 ```
+
+
+## Custom Docker Images in GitHub Container Registry for Code Check
+
+#### Login
+https://docs.github.com/fr/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+
+1) Login the GitHub user in docker cli using PAT (Personal Access Token)
+```bash
+docker login ghcr.io -u <username> --password <PAT>
+```
+
+#### Create Dockerfile
+
+Example of a Dockerfile for a C++ image with CUnit installed
+
+```bash
+# Use an official GCC image from the Docker Hub
+FROM gcc:latest
+
+# Define the LABEL that provides metadata about the image
+LABEL org.opencontainers.image.source="https://github.com/heigvd-teaching-tools/code-check-image"
+
+# Install CUnit for unit testing
+RUN apt-get update && apt-get install -y \
+    libcunit1-dev \
+    libcunit1
+```
+
+You do not need to copy files and compile the code in the Dockerfile. It will be done by the code check runner.
+
+The important part is to do all the time consuming tasks such as installing dependencies in the Dockerfile.
+
+#### Build and push the image
+
+The Dockerfile must have the LABEL `org.opencontainers.image.source` set to the repository URL. This is required by GitHub to be able to build the image.
+
+
+Build the image:
+```bash
+docker build -t ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest .
+
+```
+
+Push the image:
+```bash
+docker push ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest
+```
+
+#### Use the image in the code check 
+
+Use `ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest` in the image field of the Code question.

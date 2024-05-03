@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { GenericContainer, Wait } from 'testcontainers'
-import Docker from 'dockerode'
+
 import {
   DatabaseQueryOutputStatus,
   DatabaseQueryOutputType,
@@ -25,51 +25,9 @@ import {
   postgresGenerateFeedbackMessage,
   postgresOutputToToDataset,
 } from '../code/database'
+import { pullImageIfNotExists } from './utils'
 
 const { Client } = pkg
-const docker = new Docker()
-
-const imageExists = async (name) => {
-  const images = await docker.listImages({ filters: { reference: [name] } })
-  return images.length > 0
-}
-
-const pullImage = async (name) => {
-  return new Promise((resolve, reject) => {
-    docker.pull(name, {}, (err, stream) => {
-      if (err) return reject(err)
-      docker.modem.followProgress(stream, (error, output) => {
-        if (error) reject(error)
-        resolve(output)
-      })
-    })
-  })
-}
-
-const pullImageIfNotExists = async (image) => {
-  try {
-    // Check if the image exists locally
-    const exists = await imageExists(image)
-    if (exists) {
-      return {
-        status: true,
-        wasExisting: true,
-        message: 'Image already exists',
-      }
-    }
-
-    // Pull the image if it's not available locally
-    await pullImage(image)
-    return {
-      status: true,
-      wasExisting: false,
-      message: 'Image pulled successfully',
-    }
-  } catch (error) {
-    console.error('Error pulling image:', error)
-    return { status: false, message: `Error pulling image: ${error.message}` }
-  }
-}
 
 const EXECUTION_TIMEOUT = 5000
 

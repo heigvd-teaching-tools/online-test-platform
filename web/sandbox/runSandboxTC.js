@@ -16,9 +16,10 @@
 import uniqid from 'uniqid'
 import fs from 'fs'
 import tar from 'tar'
+import util from 'util'
 
 import { GenericContainer } from 'testcontainers'
-import { cleanUpDockerStreamHeaders, sanitizeUTF8 } from './utils'
+import { cleanUpDockerStreamHeaders, pullImageIfNotExists, sanitizeUTF8 } from './utils'
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
@@ -35,11 +36,38 @@ export const runSandbox = async ({
 }) => {
   const directory = await prepareContent(files)
 
-  const { container, beforeAllOutput } = await startContainer(
-    image,
-    directory,
-    beforeAll,
-  )
+  console.log("files", util.inspect(files, {showHidden: false, depth: null}))
+  console.log("beforeAll", util.inspect(beforeAll, {showHidden: false, depth: null}))
+
+  let container, beforeAllOutput
+
+  try {
+    ({ container, beforeAllOutput } = await startContainer(image, directory, beforeAll))
+  } catch (initialError) {
+    if(initialError.message.includes('No such image')) {
+      const { status, message } = await pullImageIfNotExists(image)
+      if (!status) {
+        return {
+          beforeAll: message,
+          tests: [],
+        }
+      }
+    } else {
+      return {
+        beforeAll: initialError.message,
+        tests: [],
+      }
+    }
+
+    try {
+      ({ container, beforeAllOutput } = await startContainer(image, directory, beforeAll))
+    } catch (secondError) {
+      return {
+        beforeAll: secondError.message,
+        tests: [],
+      }
+    }
+  }
 
   return new Promise(async (resolve, reject) => {
     let timeout = setTimeout(() => {

@@ -10,34 +10,118 @@
       "icon": "/svg/languages/cpp.svg",
       "sandbox": {
         "image": "gcc:latest",
-        "defaultPath": "/src/main.cpp",
-        "exec": "/src/main",
-        "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main"
+        "defaultPath": "/src/main.cpp", 
+        "beforeAll": "g++ -std=c++17 /src/main.cpp -o /src/main",
+        "exec": "/src/main"
       },
-      "codeWriting": {
-        "testCases": [
-          {
-            "exec": "/src/main",
-            "input": "Hello World1",
-            "expectedOutput": "HELLO WORLD1\n"
-          }
-        ],
-        "files": {
-          "solution": [
+      "codeWriting": [{
+        "label": "Basic",
+        "value": "basic",
+        "description": "Basic input / output example",
+        "setup":{
+          "testCases": [
             {
-              "path": "/src/main.cpp",
-              "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+              "exec": "/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
-          "template": [
-            {
-              "path": "/src/main.cpp",
-              "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
-            }
-          ]
+          "files": {
+            "solution": [
+              {
+                "path": "/src/main.cpp",
+                "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring toUpperCase(string str) {\n    for(int i = 0; i < str.length(); i++) {\n        if(str[i] >= 'a' && str[i] <= 'z') {\n            str[i] = str[i] - 32;\n        }\n    }\n    return str;\n}\n\n\nint main() {\n    string line;\n    while(getline(cin, line)) {\n        cout << toUpperCase(line) << endl;\n    }\n    return 0;\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/main.cpp",
+                "content": "\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string line;\n    cout << \"Hello World!\" << endl;\n    return 0;\n}"
+              }
+            ]
+          }
         }
-      },
+      },{
+        "label": "CUnit and RegExp validator",
+        "value": "unitTests",
+        "description": "Validate the student code with unit tests and regular expressions",
+        "setup":{
+          "image": "ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest",
+          "beforeAll": "cd src && make all -s",
+          "testCases": [
+            {
+              "exec": "/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            },
+            {
+              "exec": "/src/run_tests",
+              "input": "",
+              "expectedOutput": "Test: test of toUpperCase ...passed\n"
+            },
+            {
+              "exec": "/src/regex_validator /src/string_utils.cpp",
+              "input": "std::transform",
+              "expectedOutput": "REGEXP PASS\n"
+            },
+            {
+              "exec": "/src/regex_validator /src/string_utils.cpp",
+              "input": "std::toupper",
+              "expectedOutput": "REGEXP PASS\n"
+            }
+          ],
+          "files": {
+            "solution": [{
+                "path": "/src/main.cpp",
+                "content": "#include <iostream>\n#include <string>\n#include \"string_utils.h\"\n\nint main() {\n    std::string line;\n    while(std::getline(std::cin, line)) {\n        std::cout << toUpperCase(line) << std::endl;\n    }\n    return 0;\n}"
+              },{
+                "path": "/src/string_utils.h",
+                "content": "#ifndef STRING_UTILS_H\r\n#define STRING_UTILS_H\r\n#include <string>\r\nstd::string toUpperCase(const std::string& input);\r\n#endif // STRING_UTILS_H"
+              },{
+                "path": "/src/string_utils.cpp",
+                "content": "#include \"string_utils.h\"\r\n#include <cctype>\r\n#include <algorithm>\r\n\r\nstd::string toUpperCase(const std::string& input) {\r\n    std::string output = input;\r\n    std::transform(output.begin(), output.end(), output.begin(), \r\n        [](unsigned char c){ return std::toupper(c); }\r\n    );\r\n    return output;\r\n}"
+              },{
+                "path": "/src/test_main.cpp",
+                "content": "#include <CUnit/Basic.h>\r\n#include \"string_utils.h\"\r\n\r\nvoid test_toUpperCase() {\r\n    CU_ASSERT_STRING_EQUAL(\"HELLO WORLD\", toUpperCase(\"hello world\").c_str());\r\n    CU_ASSERT_STRING_EQUAL(\"123\", toUpperCase(\"123\").c_str());\r\n    CU_ASSERT_STRING_EQUAL(\"\", toUpperCase(\"\").c_str());\r\n}\r\n\r\nvoid custom_test_runner(CU_pSuite suite) {\r\n    CU_pTest test = suite->pTest;\r\n    while (test != NULL) {\r\n        unsigned int failed_tests_before = CU_get_number_of_tests_failed();\r\n        CU_run_test(suite, test);\r\n        unsigned int failed_tests_after = CU_get_number_of_tests_failed();\r\n        printf(\"Test: %s ...%s\\n\", test->pName, (failed_tests_after == failed_tests_before) ? \"passed\" : \"failed\");\r\n        test = test->pNext;\r\n    }\r\n}\r\n\r\nint main() {\r\n    if (CU_initialize_registry() != CUE_SUCCESS)\r\n        return CU_get_error();\r\n\r\n    CU_pSuite suite = CU_add_suite(\"toUpperCase_suite\", 0, 0);\r\n    if (!suite) {\r\n        CU_cleanup_registry();\r\n        return CU_get_error();\r\n    }\r\n\r\n    if (!CU_add_test(suite, \"test of toUpperCase\", test_toUpperCase)) {\r\n        CU_cleanup_registry();\r\n        return CU_get_error();\r\n    }\r\n\r\n    custom_test_runner(suite);\r\n\r\n    CU_cleanup_registry();\r\n    return CU_get_error();\r\n}\r\n"
+              },{
+                "path": "/src/regex_validator.cpp",
+                "content": "#include <iostream>\r\n#include <fstream>\r\n#include <string>\r\n#include <regex>\r\n\r\nint main(int argc, char* argv[]) {\r\n   \r\n    std::string filePath = argv[1];\r\n    std::string pattern;\r\n\r\n    std::getline(std::cin, pattern);\r\n\r\n    // Open the file\r\n    std::ifstream file(filePath);\r\n    if (!file.is_open()) {\r\n        std::cerr << \"Failed to open file: \" << filePath << std::endl;\r\n        return 1;\r\n    }\r\n\r\n    // Compile the regular expression\r\n    std::regex transformRegex(pattern);\r\n    std::string line;\r\n    bool found = false;\r\n\r\n    // Read the file line by line\r\n    while (std::getline(file, line)) {\r\n        // Search for the regex pattern in each line\r\n        if (std::regex_search(line, transformRegex)) {\r\n            found = true;\r\n            break;\r\n        }\r\n    }\r\n\r\n    // Close the file\r\n    file.close();\r\n\r\n    // Output the result\r\n    if (found) {\r\n        std::cout << \"REGEXP PASS\" << std::endl;\r\n    } else {\r\n        std::cout << \"REGEXP FAILED\" << std::endl;\r\n    }\r\n\r\n    return 0;\r\n}\r\n"
+              },{
+                "path": "/src/Makefile",
+                "content": "CXX=g++\r\nCXXFLAGS=-Wall -I.\r\nLIBS=-lcunit\r\n\r\nall: main run_tests regex_validator\r\n\r\nstring_utils.o: string_utils.cpp string_utils.h\r\n\t$(CXX) -c string_utils.cpp $(CXXFLAGS)\r\n\r\nmain.o: main.cpp string_utils.h\r\n\t$(CXX) -c main.cpp $(CXXFLAGS)\r\n\r\nmain: main.o string_utils.o\r\n\t$(CXX) -o main main.o string_utils.o\r\n\r\ntest_main.o: test_main.cpp string_utils.h\r\n\t$(CXX) -c test_main.cpp $(CXXFLAGS)\r\n\r\nrun_tests: string_utils.o test_main.o\r\n\t$(CXX) -o run_tests test_main.o string_utils.o $(LIBS)\r\n\r\nregex_validator: regex_validator.cpp\r\n\t$(CXX) -o regex_validator regex_validator.cpp -std=c++17\r\n\r\nclean:\r\n\trm -f *.o main run_tests regex_validator\r\n\r\n.PHONY: all clean\r\n"
+              }
+            ],
+            "template": [{
+                "path": "/src/main.cpp",
+                "content": "#include <iostream>\n#include <string>\n#include \"string_utils.h\"\n\nint main() {\n    std::string line;\n    while(std::getline(std::cin, line)) {\n        std::cout << toUpperCase(line) << std::endl;\n    }\n    return 0;\n}",
+                "studentPermission": "VIEW"
+              },{
+                "path": "/src/string_utils.h",
+                "content": "#ifndef STRING_UTILS_H\r\n#define STRING_UTILS_H\r\n#include <string>\r\nstd::string toUpperCase(const std::string& input);\r\n#endif // STRING_UTILS_H",
+                "studentPermission": "VIEW"
+              },{
+                "path": "/src/string_utils.cpp",
+                "content": "#include \"string_utils.h\"\n#include <cctype>\n#include <algorithm>\n\nstd::string toUpperCase(const std::string& input) {\n return \"\";\n}",
+                "studentPermission": "UPDATE"
+              },{
+                "path": "/src/test_main.cpp",
+                "content": "#include <CUnit/Basic.h>\r\n#include \"string_utils.h\"\r\n\r\nvoid test_toUpperCase() {\r\n    CU_ASSERT_STRING_EQUAL(\"HELLO WORLD\", toUpperCase(\"hello world\").c_str());\r\n    CU_ASSERT_STRING_EQUAL(\"123\", toUpperCase(\"123\").c_str());\r\n    CU_ASSERT_STRING_EQUAL(\"\", toUpperCase(\"\").c_str());\r\n}\r\n\r\nvoid custom_test_runner(CU_pSuite suite) {\r\n    CU_pTest test = suite->pTest;\r\n    while (test != NULL) {\r\n        unsigned int failed_tests_before = CU_get_number_of_tests_failed();\r\n        CU_run_test(suite, test);\r\n        unsigned int failed_tests_after = CU_get_number_of_tests_failed();\r\n        printf(\"Test: %s ...%s\\n\", test->pName, (failed_tests_after == failed_tests_before) ? \"passed\" : \"failed\");\r\n        test = test->pNext;\r\n    }\r\n}\r\n\r\nint main() {\r\n    if (CU_initialize_registry() != CUE_SUCCESS)\r\n        return CU_get_error();\r\n\r\n    CU_pSuite suite = CU_add_suite(\"toUpperCase_suite\", 0, 0);\r\n    if (!suite) {\r\n        CU_cleanup_registry();\r\n        return CU_get_error();\r\n    }\r\n\r\n    if (!CU_add_test(suite, \"test of toUpperCase\", test_toUpperCase)) {\r\n        CU_cleanup_registry();\r\n        return CU_get_error();\r\n    }\r\n\r\n    custom_test_runner(suite);\r\n\r\n    CU_cleanup_registry();\r\n    return CU_get_error();\r\n}\r\n",
+                "studentPermission": "HIDDEN"
+              },{
+                "path": "/src/regex_validator.cpp",
+                "content": "#include <iostream>\r\n#include <fstream>\r\n#include <string>\r\n#include <regex>\r\n\r\nint main(int argc, char* argv[]) {\r\n   \r\n    std::string filePath = argv[1];\r\n    std::string pattern;\r\n\r\n    std::getline(std::cin, pattern);\r\n\r\n    // Open the file\r\n    std::ifstream file(filePath);\r\n    if (!file.is_open()) {\r\n        std::cerr << \"Failed to open file: \" << filePath << std::endl;\r\n        return 1;\r\n    }\r\n\r\n    // Compile the regular expression\r\n    std::regex transformRegex(pattern);\r\n    std::string line;\r\n    bool found = false;\r\n\r\n    // Read the file line by line\r\n    while (std::getline(file, line)) {\r\n        // Search for the regex pattern in each line\r\n        if (std::regex_search(line, transformRegex)) {\r\n            found = true;\r\n            break;\r\n        }\r\n    }\r\n\r\n    // Close the file\r\n    file.close();\r\n\r\n    // Output the result\r\n    if (found) {\r\n        std::cout << \"REGEXP PASS\" << std::endl;\r\n    } else {\r\n        std::cout << \"REGEXP FAILED\" << std::endl;\r\n    }\r\n\r\n    return 0;\r\n}\r\n",
+                "studentPermission": "HIDDEN"
+              },{
+                "path": "/src/Makefile",
+                "content": "CXX=g++\r\nCXXFLAGS=-Wall -I.\r\nLIBS=-lcunit\r\n\r\nall: main run_tests regex_validator\r\n\r\nstring_utils.o: string_utils.cpp string_utils.h\r\n\t$(CXX) -c string_utils.cpp $(CXXFLAGS)\r\n\r\nmain.o: main.cpp string_utils.h\r\n\t$(CXX) -c main.cpp $(CXXFLAGS)\r\n\r\nmain: main.o string_utils.o\r\n\t$(CXX) -o main main.o string_utils.o\r\n\r\ntest_main.o: test_main.cpp string_utils.h\r\n\t$(CXX) -c test_main.cpp $(CXXFLAGS)\r\n\r\nrun_tests: string_utils.o test_main.o\r\n\t$(CXX) -o run_tests test_main.o string_utils.o $(LIBS)\r\n\r\nregex_validator: regex_validator.cpp\r\n\t$(CXX) -o regex_validator regex_validator.cpp -std=c++17\r\n\r\nclean:\r\n\trm -f *.o main run_tests regex_validator\r\n\r\n.PHONY: all clean\r\n",
+                "studentPermission": "HIDDEN"
+              }
+            ]
+          }
+        }
+      }],
       "codeReading": {
+        "beforeAll": "g++  -std=c++17 /src/main.cpp -o /src/main",
         "context": "#include <iostream>\n#include <string>\n#include <algorithm>\n#include <cctype>\nusing namespace std;\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nint main() {\n    string functionName;\n    cin >> functionName;\n    {{SNIPPET_FUNCTION_CALLS}}\n    return 0;\n}",
         "snippetWrapperFunctionSignature": "void {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
         "snippetFunctionCallTemplate": "if (functionName == \"{{SNIPPET_FUNCTION_NAME}}\") { {{SNIPPET_FUNCTION_NAME}}(); }",
@@ -72,29 +156,123 @@
         "exec": "/src/main",
         "beforeAll": "gcc -std=c11 /src/main.c -o /src/main"
       },
-      "codeWriting": {
-        "testCases": [
-          {
-            "exec": "/src/main",
-            "input": "Hello World1",
-            "expectedOutput": "HELLO WORLD1\n"
-          }
-        ],
-        "files": {
-          "solution": [
+      "codeWriting": [{
+        "label": "Basic",
+        "value": "basic",
+        "description": "Basic input / output example", 
+        "setup": {
+          "testCases": [
             {
-              "path": "/src/main.c",
-              "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
+              "exec": "/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
-          "template": [
-            {
-              "path": "/src/main.c",
-              "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
-            }
-          ]
+          "files": {
+            "solution": [
+              {
+                "path": "/src/main.c",
+                "content": "\n#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nvoid toUpperCase(char* str) {\n    for(int i = 0; str[i] != '\\0'; i++) {\n        str[i] = toupper(str[i]);\n    }\n}\n\nint main() {\n    char line[1000];\n    while(fgets(line, sizeof(line), stdin)) {\n        toUpperCase(line);\n        printf(\"%s\", line);\n    }\n    return 0;\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/main.c",
+                "content": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello World!\\n\");\n    return 0;\n}"
+              }
+            ]
+          }
         }
-      },
+      },{
+        "label": "CUnit and RegExp validator",
+        "value": "unitTests",
+        "description": "Validate the student code with unit tests and regular expressions",
+        "setup": {
+          "image": "ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest",
+          "beforeAll": "cd src && make all -s",
+          "testCases": [
+            {
+              "exec": "/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
+            },
+            {
+              "exec": "/src/run_tests",
+              "input": "",
+              "expectedOutput": "Test: test of toUpperCase ...passed\n"
+            },
+            {
+              "exec": "/src/regex_validator /src/string_utils.c",
+              "input": "toupper",
+              "expectedOutput": "REGEXP PASS\n"
+            },
+            {
+              "exec": "/src/regex_validator /src/string_utils.c",
+              "input": "<ctype.h>",
+              "expectedOutput": "REGEXP PASS\n"
+            }
+          ],
+          "files": {
+            "solution": [
+              {
+                "path": "/src/main.c",
+                "content": "#include <stdio.h>\n#include <string.h>\n#include \"string_utils.h\"\n\nint main() {\n    char line[1024];\n    while(fgets(line, sizeof(line), stdin)) {\n        fputs(toUpperCase(line), stdout);\n    }\n    return 0;\n}"
+              },
+              {
+                "path": "/src/string_utils.h",
+                "content": "#ifndef STRING_UTILS_H\n#define STRING_UTILS_H\n#include <string.h>\nchar* toUpperCase(char* input);\n#endif // STRING_UTILS_H"
+              },
+              {
+                "path": "/src/string_utils.c",
+                "content": "#include \"string_utils.h\"\n#include <ctype.h>\n#include <stdio.h>\n\nchar* toUpperCase(char* input) {\n    if(input == NULL) return NULL;\n    char* output = strdup(input);\n    int i = 0;\n    while(input[i]) {\n        output[i] = toupper(input[i]);\n        i++;\n    }\n    return output;\n}"
+              },
+              {
+                "path": "/src/test_main.c",
+                "content": "#include <CUnit/Basic.h>\n#include \"string_utils.h\"\n\nvoid test_toUpperCase() {\n    CU_ASSERT_STRING_EQUAL(\"HELLO WORLD\", toUpperCase(\"hello world\"));\n    CU_ASSERT_STRING_EQUAL(\"123\", toUpperCase(\"123\"));\n    CU_ASSERT_STRING_EQUAL(\"\", toUpperCase(\"\"));\n}\n\nvoid custom_test_runner(CU_pSuite suite) {\n    CU_pTest test = suite->pTest;\n    while (test != NULL) {\n        unsigned int failed_tests_before = CU_get_number_of_tests_failed();\n        CU_run_test(suite, test);\n        unsigned int failed_tests_after = CU_get_number_of_tests_failed();\n        printf(\"Test: %s ...%s\\n\", test->pName, (failed_tests_after == failed_tests_before) ? \"passed\" : \"failed\");\n        test = test->pNext;\n    }\n}\n\nint main() {\n    if (CU_initialize_registry() != CUE_SUCCESS)\n        return CU_get_error();\n    CU_pSuite suite = CU_add_suite(\"toUpperCase_suite\", 0, 0);\n    if (!suite) {\n        CU_cleanup_registry();\n        return CU_get_error();\n    }\n    if (!CU_add_test(suite, \"test of toUpperCase\", test_toUpperCase)) {\n        CU_cleanup_registry();\n        return CU_get_error();\n    }\n    custom_test_runner(suite);\n    CU_cleanup_registry();\n    return CU_get_error();\n}"
+              },
+              {
+                "path": "/src/regex_validator.c",
+                "content": "#include <stdio.h>\n#include <stdlib.h>\n#include <regex.h>\n#include <string.h>\n\n#define MAX_LINE_LENGTH 1024\n\nint main(int argc, char *argv[]) {\n\n    FILE *file = fopen(argv[1], \"r\");\n    if (file == NULL) {\n        perror(\"Error opening file\");\n        return 1;\n    }\n\n    char pattern[MAX_LINE_LENGTH];\n    if (fgets(pattern, sizeof(pattern), stdin) == NULL) {\n        fprintf(stderr, \"Error reading pattern\\n\");\n        fclose(file);\n        return 1;\n    }\n\n    // Remove newline character from pattern if present\n    if (pattern[strlen(pattern) - 1] == '\\n') {\n        pattern[strlen(pattern) - 1] = '\\0';\n    }\n\n    regex_t regex;\n    int reti = regcomp(&regex, pattern, 0);\n    if (reti) {\n        fprintf(stderr, \"Could not compile regex\\n\");\n        fclose(file);\n        return 1;\n    }\n\n    char line[MAX_LINE_LENGTH];\n    while (fgets(line, sizeof(line), file)) {\n        if (regexec(&regex, line, 0, NULL, 0) == 0) {\n            printf(\"REGEXP PASS\\n\");\n            fclose(file);\n            return 0;\n        }\n    }\n\n    printf(\"REGEXP FAILED\\n\");\n    fclose(file);\n    return 0;\n}\n"
+              },
+              {
+                "path": "/src/Makefile",
+                "content": "CC=gcc\nCFLAGS=-Wall -I.\nLIBS=-lcunit\n\nall: main run_tests regex_validator\n\nstring_utils.o: string_utils.c string_utils.h\n\t$(CC) -c string_utils.c $(CFLAGS)\n\nmain.o: main.c string_utils.h\n\t$(CC) -c main.c $(CFLAGS)\n\nmain: main.o string_utils.o\n\t$(CC) -o main main.o string_utils.o $(LIBS)\n\ntest_main.o: test_main.c string_utils.h\n\t$(CC) -c test_main.c $(CFLAGS)\n\nrun_tests: string_utils.o test_main.o\n\t$(CC) -o run_tests test_main.o string_utils.o $(LIBS)\n\nregex_validator: regex_validator.c\n\t$(CC) -o regex_validator regex_validator.c -std=c11\n\nclean:\n\trm -f *.o main run_tests regex_validator\n\n.PHONY: all clean\n"
+              }
+            ],
+            "template": [{
+                "path": "/src/main.c",
+                "content": "#include <stdio.h>\n#include <string.h>\n#include \"string_utils.h\"\n\nint main() {\n    char line[1024];\n    while(fgets(line, sizeof(line), stdin)) {\n        fputs(toUpperCase(line), stdout);\n    }\n    return 0;\n}",
+                "studentPermission": "VIEW"
+              },
+              {
+                "path": "/src/string_utils.h",
+                "content": "#ifndef STRING_UTILS_H\n#define STRING_UTILS_H\n#include <string.h>\nchar* toUpperCase(char* input);\n#endif // STRING_UTILS_H",
+                "studentPermission": "VIEW"
+              },
+              {
+                "path": "/src/string_utils.c",
+                "content": "#include \"string_utils.h\"\n\nchar* toUpperCase(char* input) {\n return \"\";\n}",
+                "studentPermission": "UPDATE"
+              },
+              {
+                "path": "/src/test_main.c",
+                "content": "#include <CUnit/Basic.h>\n#include \"string_utils.h\"\n\nvoid test_toUpperCase() {\n    CU_ASSERT_STRING_EQUAL(\"HELLO WORLD\", toUpperCase(\"hello world\"));\n    CU_ASSERT_STRING_EQUAL(\"123\", toUpperCase(\"123\"));\n    CU_ASSERT_STRING_EQUAL(\"\", toUpperCase(\"\"));\n}\n\nvoid custom_test_runner(CU_pSuite suite) {\n    CU_pTest test = suite->pTest;\n    while (test != NULL) {\n        unsigned int failed_tests_before = CU_get_number_of_tests_failed();\n        CU_run_test(suite, test);\n        unsigned int failed_tests_after = CU_get_number_of_tests_failed();\n        printf(\"Test: %s ...%s\\n\", test->pName, (failed_tests_after == failed_tests_before) ? \"passed\" : \"failed\");\n        test = test->pNext;\n    }\n}\n\nint main() {\n    if (CU_initialize_registry() != CUE_SUCCESS)\n        return CU_get_error();\n    CU_pSuite suite = CU_add_suite(\"toUpperCase_suite\", 0, 0);\n    if (!suite) {\n        CU_cleanup_registry();\n        return CU_get_error();\n    }\n    if (!CU_add_test(suite, \"test of toUpperCase\", test_toUpperCase)) {\n        CU_cleanup_registry();\n        return CU_get_error();\n    }\n    custom_test_runner(suite);\n    CU_cleanup_registry();\n    return CU_get_error();\n}",
+                "studentPermission": "HIDDEN"
+              },
+              {
+                "path": "/src/regex_validator.c",
+                "content": "#include <stdio.h>\n#include <stdlib.h>\n#include <regex.h>\n#include <string.h>\n\n#define MAX_LINE_LENGTH 1024\n\nint main(int argc, char *argv[]) {\n\n    FILE *file = fopen(argv[1], \"r\");\n    if (file == NULL) {\n        perror(\"Error opening file\");\n        return 1;\n    }\n\n    char pattern[MAX_LINE_LENGTH];\n    if (fgets(pattern, sizeof(pattern), stdin) == NULL) {\n        fprintf(stderr, \"Error reading pattern\\n\");\n        fclose(file);\n        return 1;\n    }\n\n    // Remove newline character from pattern if present\n    if (pattern[strlen(pattern) - 1] == '\\n') {\n        pattern[strlen(pattern) - 1] = '\\0';\n    }\n\n    regex_t regex;\n    int reti = regcomp(&regex, pattern, 0);\n    if (reti) {\n        fprintf(stderr, \"Could not compile regex\\n\");\n        fclose(file);\n        return 1;\n    }\n\n    char line[MAX_LINE_LENGTH];\n    while (fgets(line, sizeof(line), file)) {\n        if (regexec(&regex, line, 0, NULL, 0) == 0) {\n            printf(\"REGEXP PASS\\n\");\n            fclose(file);\n            return 0;\n        }\n    }\n\n    printf(\"REGEXP FAILED\\n\");\n    fclose(file);\n    return 0;\n}\n",
+                "studentPermission": "HIDDEN"
+              },
+              {
+                "path": "/src/Makefile",
+                "content": "CC=gcc\nCFLAGS=-Wall -I.\nLIBS=-lcunit\n\nall: main run_tests regex_validator\n\nstring_utils.o: string_utils.c string_utils.h\n\t$(CC) -c string_utils.c $(CFLAGS)\n\nmain.o: main.c string_utils.h\n\t$(CC) -c main.c $(CFLAGS)\n\nmain: main.o string_utils.o\n\t$(CC) -o main main.o string_utils.o $(LIBS)\n\ntest_main.o: test_main.c string_utils.h\n\t$(CC) -c test_main.c $(CFLAGS)\n\nrun_tests: string_utils.o test_main.o\n\t$(CC) -o run_tests test_main.o string_utils.o $(LIBS)\n\nregex_validator: regex_validator.c\n\t$(CC) -o regex_validator regex_validator.c -std=c11\n\nclean:\n\trm -f *.o main run_tests regex_validator\n\n.PHONY: all clean\n",
+                "studentPermission": "HIDDEN"
+              }]
+          }
+        }
+      }
+      ],
       "codeReading": {
         "context": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nint main() {\n    char functionName[100];\n    scanf(\"%s\", functionName);\n    {{SNIPPET_FUNCTION_CALLS}}\n    return 0;\n}",
         "snippetWrapperFunctionSignature": "void {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
@@ -130,29 +308,109 @@
         "exec": "java -cp /src Main",
         "beforeAll": "javac /src/Main.java"
       },
-      "codeWriting": {
-        "testCases": [
-          {
-            "exec": "java -cp /src Main",
-            "input": "Hello World1",
-            "expectedOutput": "HELLO WORLD1\n"
-          }
-        ],
-        "files": {
-          "solution": [
+      "codeWriting": [{
+        "label": "Basic",
+        "value": "basic",
+        "description": "Basic input / output example",
+        "setup": {
+          "testCases": [
             {
-              "path": "/src/Main.java",
-              "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
+              "exec": "java -cp /src Main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
-          "template": [
-            {
-              "path": "/src/Main.java",
-              "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
-            }
-          ]
+          "files": {
+            "solution": [
+              {
+                "path": "/src/Main.java",
+                "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine().toUpperCase());\n        }\n    }\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/Main.java",
+                "content": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        while(sc.hasNextLine()) {\n            System.out.println(sc.nextLine());\n        }\n    }\n}"
+              }
+            ]
+          }
         }
-      },
+      },{
+        "label": "JUnit and RegExp validator",
+        "value": "unitTests",
+        "description": "Validate the student code with unit tests and regular expressions",
+        "setup": {
+            "image": "ghcr.io/heigvd-teaching-tools/code-check-image/java-junit:latest",
+            "beforeAll": "cd src && javac -cp .:/opt/java/junit-4.13.2.jar:/opt/java/hamcrest-core-1.3.jar *.java",
+            "testCases": [{
+                "exec": "java -cp /src Main",
+                "input": "Hello World1",
+                "expectedOutput": "HELLO WORLD1\n"
+            },{
+                "exec": "java -cp /src:/opt/java/junit-4.13.2.jar:/opt/java/hamcrest-core-1.3.jar CustomTestRunner",
+                "input": "",
+                "expectedOutput": "Test: testToUpperCase ...passed\n"
+            },{
+                "exec": "java -cp /src RegexValidator /src/StringUtils.java",
+                "input": "toUpperCase",
+                "expectedOutput": "REGEXP PASS\n"
+            }],
+            "files": {
+                "solution": [
+                    {
+                        "path": "/src/Main.java",
+                        "content": "import java.util.Scanner;\npublic class Main {\n\tpublic static void main(String[] args) {\n\t\tScanner scanner = new Scanner(System.in);\n\t\twhile (scanner.hasNextLine()) {\n\t\t\tSystem.out.println(StringUtils.upper(scanner.nextLine()));\n\t\t}\n\t\tscanner.close();\n\t}\n}"
+                    },
+                    {
+                        "path": "/src/StringUtils.java",
+                        "content": "public class StringUtils {\n\tpublic static String upper(String input) {\n\t\treturn input.toUpperCase();\n\t}\n}"
+                    },
+                    {
+                        "path": "/src/StringUtilsTest.java",
+                        "content": "import static org.junit.Assert.*;\nimport org.junit.Test;\n\npublic class StringUtilsTest {\n\t@Test\n\tpublic void testToUpperCase() {\n\t\tassertEquals(\"HELLO WORLD\", StringUtils.upper(\"hello world\"));\n\t\tassertEquals(\"123\", StringUtils.upper(\"123\"));\n\t\tassertEquals(\"\", StringUtils.upper(\"\"));\n\t}\n}"
+                    },
+                    {
+                        "path": "/src/RegexValidator.java",
+                        "content": "import java.io.*;\nimport java.util.regex.*;\n\npublic class RegexValidator {\n\tpublic static void main(String[] args) throws IOException {\n\t\tBufferedReader reader = new BufferedReader(new FileReader(args[0]));\n\t\tString line;\n\t\tPattern pattern = Pattern.compile(new BufferedReader(new InputStreamReader(System.in)).readLine());\n\t\tboolean matchFound = false;\n\t\twhile ((line = reader.readLine()) != null) {\n\t\t\tif (pattern.matcher(line).find()) {\n\t\t\t\tSystem.out.println(\"REGEXP PASS\");\n\t\t\t\treader.close();\n\t\t\t\treturn;\n\t\t\t}\n\t\t}\n\t\tSystem.out.println(\"REGEXP FAILED\");\n\t\treader.close();\n\t}\n}"
+                    },
+                    {
+                        "path": "/src/CustomTestRunner.java",
+                        "content": "import org.junit.runner.notification.RunListener;\nimport org.junit.runner.Result;\nimport org.junit.runner.Description;\n\npublic class CustomTestRunner extends RunListener {\n    private boolean allTestsPassed = true;\n\n    @Override\n    public void testFailure(org.junit.runner.notification.Failure failure) throws Exception {\n        allTestsPassed = false;\n        System.out.println(\"Test: \" + failure.getDescription().getMethodName() + \" ...failed\");\n    }\n\n    @Override\n    public void testFinished(Description description) throws Exception {\n        if (allTestsPassed) {\n            System.out.println(\"Test: \" + description.getMethodName() + \" ...passed\");\n        }\n        allTestsPassed = true;\n    }\n\n    public static void main(String[] args) {\n        org.junit.runner.JUnitCore runner = new org.junit.runner.JUnitCore();\n        CustomTestRunner testListener = new CustomTestRunner();\n        runner.addListener(testListener);\n        runner.run(StringUtilsTest.class);\n    }\n}"
+                    }
+                ],
+                "template": [
+                  {
+                      "path": "/src/Main.java",
+                      "content": "import java.util.Scanner;\npublic class Main {\n\tpublic static void main(String[] args) {\n\t\tScanner scanner = new Scanner(System.in);\n\t\twhile (scanner.hasNextLine()) {\n\t\t\tSystem.out.println(StringUtils.upper(scanner.nextLine()));\n\t\t}\n\t\tscanner.close();\n\t}\n}",
+                      "studentPermission": "VIEW"
+                  },
+                  {
+                      "path": "/src/StringUtils.java",
+                      "content": "public class StringUtils {\n\tpublic static String upper(String input) {\n\t\treturn \"\";\n\t}\n}",
+                      "studentPermission": "UPDATE"
+                  },
+                  {
+                      "path": "/src/StringUtilsTest.java",
+                      "content": "import static org.junit.Assert.*;\nimport org.junit.Test;\n\npublic class StringUtilsTest {\n\t@Test\n\tpublic void testToUpperCase() {\n\t\tassertEquals(\"HELLO WORLD\", StringUtils.upper(\"hello world\"));\n\t\tassertEquals(\"123\", StringUtils.upper(\"123\"));\n\t\tassertEquals(\"\", StringUtils.upper(\"\"));\n\t}\n}",
+                      "studentPermission": "HIDDEN"
+                  },
+                  {
+                      "path": "/src/RegexValidator.java",
+                      "content": "import java.io.*;\nimport java.util.regex.*;\n\npublic class RegexValidator {\n\tpublic static void main(String[] args) throws IOException {\n\t\tBufferedReader reader = new BufferedReader(new FileReader(args[0]));\n\t\tString line;\n\t\tPattern pattern = Pattern.compile(new BufferedReader(new InputStreamReader(System.in)).readLine());\n\t\tboolean matchFound = false;\n\t\twhile ((line = reader.readLine()) != null) {\n\t\t\tif (pattern.matcher(line).find()) {\n\t\t\t\tSystem.out.println(\"REGEXP PASS\");\n\t\t\t\treader.close();\n\t\t\t\treturn;\n\t\t\t}\n\t\t}\n\t\tSystem.out.println(\"REGEXP FAILED\");\n\t\treader.close();\n\t}\n}",
+                      "studentPermission": "HIDDEN"
+                  },
+                  {
+                      "path": "/src/CustomTestRunner.java",
+                      "content": "import org.junit.runner.notification.RunListener;\nimport org.junit.runner.Result;\nimport org.junit.runner.Description;\n\npublic class CustomTestRunner extends RunListener {\n    private boolean allTestsPassed = true;\n\n    @Override\n    public void testFailure(org.junit.runner.notification.Failure failure) throws Exception {\n        allTestsPassed = false;\n        System.out.println(\"Test: \" + failure.getDescription().getMethodName() + \" ...failed\");\n    }\n\n    @Override\n    public void testFinished(Description description) throws Exception {\n        if (allTestsPassed) {\n            System.out.println(\"Test: \" + description.getMethodName() + \" ...passed\");\n        }\n        allTestsPassed = true;\n    }\n\n    public static void main(String[] args) {\n        org.junit.runner.JUnitCore runner = new org.junit.runner.JUnitCore();\n        CustomTestRunner testListener = new CustomTestRunner();\n        runner.addListener(testListener);\n        runner.run(StringUtilsTest.class);\n    }\n}",
+                      "studentPermission": "HIDDEN"
+                  }
+                ]
+              
+            }
+        }
+    }
+    
+    ],
       "codeReading": {
         "context": "import java.util.Scanner;\n\npublic class Main {\n  \n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\n   public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String functionName = scanner.nextLine();\n        {{SNIPPET_FUNCTION_CALLS}}\n        scanner.close();\n    }\n}",
         "snippetWrapperFunctionSignature": "private static void {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
@@ -188,29 +446,34 @@
         "exec": "node /src/script.js",
         "beforeAll": ""
       },
-      "codeWriting": {
-        "testCases": [
-          {
-            "exec": "node /src/script.js",
-            "input": "Hello World1",
-            "expectedOutput": "HELLO WORLD1\n"
-          }
-        ],
-        "files": {
-          "solution": [
+      "codeWriting": [{
+        "label": "Basic",
+        "value": "basic",
+        "description": "Basic input / output example",
+        "setup": {
+          "testCases": [
             {
-              "path": "/src/script.js",
-              "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+              "exec": "node /src/script.js",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
-          "template": [
-            {
-              "path": "/src/script.js",
-              "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
-            }
-          ]
-        }
-      },
+          "files": {
+            "solution": [
+              {
+                "path": "/src/script.js",
+                "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/script.js",
+                "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
+              }
+            ]
+          }
+        }       
+      }],
       "codeReading": {
         "context": "\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunction main() {\n    const readline = require('readline');\n    const rl = readline.createInterface({\n        input: process.stdin,\n        output: process.stdout\n    });\n    rl.on('line', (functionName) => {\n        {{SNIPPET_FUNCTION_CALLS}}\n        rl.close();\n    });\n}\nmain();",
         "snippetWrapperFunctionSignature": "function {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
@@ -246,29 +509,35 @@
         "exec": "python /src/script.py",
         "beforeAll": ""
       },
-      "codeWriting": {
-        "testCases": [
-          {
-            "exec": "python /src/script.py",
-            "input": "Hello World1",
-            "expectedOutput": "HELLO WORLD1\n"
-          }
-        ],
-        "files": {
-          "solution": [
+      "codeWriting": [{
+        "label": "Basic",
+        "value": "basic",
+        "description": "Basic input / output example",
+        "setup":{
+          "testCases": [
             {
-              "path": "/src/script.py",
-              "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+              "exec": "python /src/script.py",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
-          "template": [
-            {
-              "path": "/src/script.py",
-              "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
-            }
-          ]
+          "files": {
+            "solution": [
+              {
+                "path": "/src/script.py",
+                "content": "import sys\nfor line in sys.stdin:\n    print(line.upper(), end=\"\")"
+              }
+            ],
+            "template": [
+              {
+                "path": "/src/script.py",
+                "content": "import sys\nfor line in sys.stdin:\n    print(line, end=\"\")"
+              }
+            ]
+          }
         }
-      },
+        
+      }],
       "codeReading": {
         "context": "import sys\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\ndef main():\n   functionName = sys.stdin.read().strip()\n   {{SNIPPET_FUNCTION_CALLS}}\n\nif __name__ == '__main__':\n   main()",
         "snippetWrapperFunctionSignature": "def {{SNIPPET_FUNCTION_NAME}}():\n{{SNIPPET_FUNCTION_BODY}}",
@@ -304,29 +573,34 @@
         "exec": "/go/src/main",
         "beforeAll": "cd /go/src && go build -o main main.go"
       },
-      "codeWriting": {
-        "testCases": [
-          {
-            "exec": "/go/src/main",
-            "input": "Hello World1",
-            "expectedOutput": "HELLO WORLD1\n"
-          }
-        ],
-        "files": {
-          "solution": [
+      "codeWriting": [{
+        "label": "Basic",
+        "value": "basic",
+        "description": "Basic input / output example",
+        "setup": {
+          "testCases": [
             {
-              "path": "/go/src/main.go",
-              "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+              "exec": "/go/src/main",
+              "input": "Hello World1",
+              "expectedOutput": "HELLO WORLD1\n"
             }
           ],
-          "template": [
-            {
-              "path": "/go/src/main.go",
-              "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
-            }
-          ]
+          "files": {
+            "solution": [
+              {
+                "path": "/go/src/main.go",
+                "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tinput := scanner.Text()\n\t\toutput := strings.ToUpper(input)\n\t\tprintln(output)\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+              }
+            ],
+            "template": [
+              {
+                "path": "/go/src/main.go",
+                "content": "package main\n\nimport (\n\t\"bufio\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tfor scanner.Scan() {\n\t\tprintln(scanner.Text())\n\t}\n\tif err := scanner.Err(); err != nil {\n\t\tprintln(\"error reading input:\", err)\n\t}\n}"
+              }
+            ]
+          }
         }
-      },
+      }],
       "codeReading": {
         "context": "package main\n\nimport (\n\t\"fmt\"\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunc main() {\n   reader := bufio.NewReader(os.Stdin)\n   functionName, _ := reader.ReadString('\\n')\n   functionName = strings.TrimSpace(functionName)\n   {{SNIPPET_FUNCTION_CALLS}}\n}",
         "snippetWrapperFunctionSignature": "func {{SNIPPET_FUNCTION_NAME}}() {\n{{SNIPPET_FUNCTION_BODY}}\n}",
