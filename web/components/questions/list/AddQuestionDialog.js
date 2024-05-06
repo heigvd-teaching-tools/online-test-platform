@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Image from 'next/image'
 import { QuestionType, CodeQuestionType } from '@prisma/client'
 import React, { useState } from 'react'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { Stack, Typography, MenuItem, Box } from '@mui/material'
+import { Stack, Typography, MenuItem, Box, Alert } from '@mui/material'
 import { toArray as typesToArray } from '@/components/question/types'
-import { useSession } from 'next-auth/react'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 import LanguageSelector from '@/components/question/type_specific/code/LanguageSelector'
@@ -44,25 +42,32 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
     CodeQuestionType.codeWriting,
   )
 
+  const [codeWritingTemplate, setCodeWritingTemplate] = useState('basic')
+
   return (
     <DialogFeedback
       open={open}
       onClose={onClose}
       title={`Create new question`}
       content={
-        <Stack spacing={2}>
+        <Stack spacing={2} width={'500px'}>
           <Typography variant="body1">
             Select the type of question you want to create
           </Typography>
           <Stack
             spacing={1}
-            sx={{ width: '500px' }}
+            width={'100%'}
             direction={'row'}
             alignItems={'center'}
           >
             <TypeSelector type={type} onChange={setType} />
             <QuestionTypeIcon type={type} size={50} />
           </Stack>
+          <AlertFeedback severity="warning">
+            <Typography variant="body1">
+              You cannot change the type after the question has been created.
+            </Typography>
+          </AlertFeedback>
           {type === QuestionType.code && (
             <>
               <Typography variant="body1">
@@ -76,21 +81,27 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
                   setCodeQuestionType={setCodeQuestionType}
                 />
               </Stack>
+              {codeQuestionType === CodeQuestionType.codeWriting && (
+                <CodeWritingStartingTemplate
+                  language={language}
+                  codeWritingTemplate={codeWritingTemplate}
+                  setCodeWritingTemplate={setCodeWritingTemplate}
+                />
+              )}
             </>
           )}
-          <AlertFeedback severity="warning">
-            <Typography variant="body1">
-              You cannot change the type of a question after it has been
-              created.
-            </Typography>
-          </AlertFeedback>
         </Stack>
       }
-      onConfirm={() => handleAddQuestion(type, { language, codeQuestionType })}
+      onConfirm={() =>
+        handleAddQuestion(type, {
+          language,
+          codeQuestionType,
+          codeWritingTemplate,
+        })
+      }
     />
   )
 }
-
 const CodeQuestionTypeSelector = ({
   options,
   codeQuestionType,
@@ -105,7 +116,7 @@ const CodeQuestionTypeSelector = ({
       id="codeQuestionType"
       name="Code Question Type"
       defaultValue={codeQuestionType}
-      minWidth="200px"
+      minWidth="150px"
       onChange={setCodeQuestionType}
       helperText={helperText}
     >
@@ -117,6 +128,39 @@ const CodeQuestionTypeSelector = ({
         </MenuItem>
       ))}
     </DropDown>
+  )
+}
+
+const CodeWritingStartingTemplate = ({
+  language,
+  codeWritingTemplate,
+  setCodeWritingTemplate,
+}) => {
+  const template = languages.environments
+    .find((env) => env.language === language)
+    .codeWriting.find((cw) => cw.value === codeWritingTemplate)
+
+  return (
+    <>
+      <DropDown
+        id="template"
+        name="Starter Template"
+        defaultValue={codeWritingTemplate}
+        minWidth="140px"
+        onChange={setCodeWritingTemplate}
+      >
+        {languages.environments
+          .find((env) => env.language === language)
+          .codeWriting.map((template, i) => (
+            <MenuItem key={i} value={template.value}>
+              {template.label}
+            </MenuItem>
+          ))}
+      </DropDown>
+      <AlertFeedback severity="info">
+        <Typography variant="body1">{template.description}</Typography>
+      </AlertFeedback>
+    </>
   )
 }
 

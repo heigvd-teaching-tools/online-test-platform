@@ -210,7 +210,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
   const debouncedOnChange = useDebouncedCallback(onChange, 300)
 
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction="row" spacing={2} alignItems="flex-start">
       <Stack
         borderRight={`3px solid ${theme.palette.info.main}`}
         pr={1}
@@ -221,17 +221,17 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
           <b>{test.index}</b>
         </Typography>
       </Stack>
-      <TextField
-        id="exec"
-        label="Exec"
-        variant="standard"
-        value={exec}
-        onChange={(ev) => {
-          setExec(ev.target.value)
-          debouncedOnChange({ ...test, exec: ev.target.value })
-        }}
-      />
-      <Stack direction="row" spacing={2} flexGrow={1}>
+      <Stack direction="column" spacing={2} flexGrow={1}>
+        <TextField
+          id="exec"
+          label="Exec"
+          variant="standard"
+          value={exec}
+          onChange={(ev) => {
+            setExec(ev.target.value)
+            debouncedOnChange({ ...test, exec: ev.target.value })
+          }}
+        />
         <TextField
           id="input"
           label="Input"

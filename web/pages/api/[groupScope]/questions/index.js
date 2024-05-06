@@ -149,43 +149,54 @@ const post = async (req, res, prisma) => {
     return
   }
 
-  let createdQuestion = await prisma.question.create({
-    data: {
-      type: questionType,
-      title: '',
-      content: '',
-      [questionType]: {
-        create: questionTypeSpecific(questionType, null),
-      },
-      group: {
-        connect: {
-          scope: groupScope,
-        },
-      },
-    },
-    include: questionIncludeClause(true, true),
-  })
+  let createdQuestion = undefined
 
-  if (questionType === QuestionType.code) {
-    // this must be done in a separate query because the files must be connected to the already existing code question
-    const language = options?.language
-    const codeQuestionType = options?.codeQuestionType
-    // get the default code for the language
-    const defaultCode = defaultCodeBasedOnLanguageAndType(
-      language,
-      codeQuestionType,
-    )
-    // update the empty initial code with the default code
-    await prisma.code.update(
-      codeInitialUpdateQuery(createdQuestion.id, defaultCode, codeQuestionType),
-    )
-    createdQuestion = await prisma.question.findUnique({
-      where: {
-        id: createdQuestion.id,
+  await prisma.$transaction(async (prisma) => {
+    createdQuestion = await prisma.question.create({
+      data: {
+        type: questionType,
+        title: '',
+        content: '',
+        [questionType]: {
+          create: questionTypeSpecific(questionType, null),
+        },
+        group: {
+          connect: {
+            scope: groupScope,
+          },
+        },
       },
       include: questionIncludeClause(true, true),
     })
-  }
+
+    if (questionType === QuestionType.code) {
+      // this must be done in a separate query because the files must be connected to the already existing code question
+      const language = options?.language
+      const codeQuestionType = options?.codeQuestionType
+      // get the default code for the language
+      const defaultCode = defaultCodeBasedOnLanguageAndType(
+        language,
+        codeQuestionType,
+        options,
+      )
+
+      console.log('defaultCode: ', defaultCode)
+      // update the empty initial code with the default code
+      await prisma.code.update(
+        codeInitialUpdateQuery(
+          createdQuestion.id,
+          defaultCode,
+          codeQuestionType,
+        ),
+      )
+      createdQuestion = await prisma.question.findUnique({
+        where: {
+          id: createdQuestion.id,
+        },
+        include: questionIncludeClause(true, true),
+      })
+    }
+  })
 
   res.status(200).json(createdQuestion)
 }
@@ -249,7 +260,11 @@ const del = async (req, res, prisma) => {
   res.status(200).json(deletedQuestion)
 }
 
-const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType) => {
+const defaultCodeBasedOnLanguageAndType = (
+  language,
+  codeQuestionType,
+  options,
+) => {
   const index = environments.findIndex((env) => env.language === language)
   const environment = environments[index]
 
@@ -262,10 +277,22 @@ const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType) => {
   }
 
   if (codeQuestionType === CodeQuestionType.codeWriting) {
+    const codeWriting = environment.codeWriting.find(
+      (cw) => cw.value === options.codeWritingTemplate,
+    )?.setup
+
+    if (codeWriting.beforeAll) {
+      data.sandbox.beforeAll = codeWriting.beforeAll
+    }
+
+    if (codeWriting.image) {
+      data.sandbox.image = codeWriting.image
+    }
+
     return {
       ...data,
-      files: environment.codeWriting.files,
-      testCases: environment.codeWriting.testCases,
+      files: codeWriting.files,
+      testCases: codeWriting.testCases,
     }
   } else if (codeQuestionType === CodeQuestionType.codeReading) {
     return {

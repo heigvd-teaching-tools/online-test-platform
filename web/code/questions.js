@@ -631,19 +631,23 @@ const buildCodeWritingUpdate = (questionId, { testCases, files }) => ({
       })),
     },
     templateFiles: {
-      create: files.template.map(({ path, content }, index) => ({
-        order: index,
-        studentPermission: 'UPDATE', // Assuming this is a constant value
-        file: {
-          create: {
-            path,
-            content,
-            code: {
-              connect: { questionId },
+      create: files.template.map(
+        ({ path, content, studentPermission }, index) => ({
+          order: index,
+          studentPermission: studentPermission
+            ? studentPermission
+            : StudentPermission.UPDATE,
+          file: {
+            create: {
+              path,
+              content,
+              code: {
+                connect: { questionId },
+              },
             },
           },
-        },
-      })),
+        }),
+      ),
     },
   },
 })

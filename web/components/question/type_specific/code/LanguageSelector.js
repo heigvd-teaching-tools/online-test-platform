@@ -27,7 +27,7 @@ const LanguageSelector = ({ language, onChange }) => {
       id="language"
       name="Language"
       defaultValue={language}
-      minWidth="200px"
+      minWidth="140px"
       onChange={onChange}
     >
       {environments.map((env, i) => (
