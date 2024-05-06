@@ -350,6 +350,19 @@ Push the image:
 docker push ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest
 ```
 
+#### Set the visibility of the package to public
+
+The package must be public to be used in the code check runner.
+
+Go to the package settings and set the package visibility to public.
+
+https://github.com/orgs/heigvd-teaching-tools/packages?repo_name=online-test-platform
+
+Select your package and go to the "package settings".
+
+Goto Danger Zone / Change package visibility
+
+
 #### Use the image in the code check 
 
 Use `ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest` in the image field of the Code question.
