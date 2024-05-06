@@ -17,7 +17,6 @@ import Docker from 'dockerode'
 
 const docker = new Docker()
 
-
 export const imageExists = async (name) => {
   const images = await docker.listImages({ filters: { reference: [name] } })
   return images.length > 0

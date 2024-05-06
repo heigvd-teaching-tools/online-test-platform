@@ -20,10 +20,7 @@ import useSWR from 'swr'
 import Loading from '@/components/feedback/Loading'
 import { fetcher } from '@/code/utils'
 const Sandbox = ({ groupScope, questionId, onUpdate }) => {
-  const {
-    data: sandbox,
-    error,
-  } = useSWR(
+  const { data: sandbox, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/sandbox`,
     groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false },
@@ -67,13 +64,11 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
             label="Image"
             variant="standard"
             value={image}
-            sx={{
-              width: '300px',
-            }}
+            fullWidth
             onChange={(ev) => {
               setImage(ev.target.value)
               debouncedOnChange({
-                ...sandbox, 
+                ...sandbox,
                 image: ev.target.value,
               })
             }}

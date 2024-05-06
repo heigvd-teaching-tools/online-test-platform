@@ -1,0 +1,13 @@
+{
+    "name": "src",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "node --test --test-reporter ./customReporter.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+    
+}

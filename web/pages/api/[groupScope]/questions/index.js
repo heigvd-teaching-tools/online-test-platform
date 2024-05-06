@@ -143,7 +143,7 @@ const post = async (req, res, prisma) => {
   const { groupScope } = req.query
   const { type, options } = req.body
   const questionType = QuestionType[type]
-  
+
   if (!questionType) {
     res.status(400).json({ message: 'Invalid question type' })
     return
@@ -152,7 +152,6 @@ const post = async (req, res, prisma) => {
   let createdQuestion = undefined
 
   await prisma.$transaction(async (prisma) => {
-  
     createdQuestion = await prisma.question.create({
       data: {
         type: questionType,
@@ -178,13 +177,17 @@ const post = async (req, res, prisma) => {
       const defaultCode = defaultCodeBasedOnLanguageAndType(
         language,
         codeQuestionType,
-        options
+        options,
       )
 
-      console.log("defaultCode: ", defaultCode)
+      console.log('defaultCode: ', defaultCode)
       // update the empty initial code with the default code
       await prisma.code.update(
-        codeInitialUpdateQuery(createdQuestion.id, defaultCode, codeQuestionType),
+        codeInitialUpdateQuery(
+          createdQuestion.id,
+          defaultCode,
+          codeQuestionType,
+        ),
       )
       createdQuestion = await prisma.question.findUnique({
         where: {
@@ -257,7 +260,11 @@ const del = async (req, res, prisma) => {
   res.status(200).json(deletedQuestion)
 }
 
-const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType, options) => {
+const defaultCodeBasedOnLanguageAndType = (
+  language,
+  codeQuestionType,
+  options,
+) => {
   const index = environments.findIndex((env) => env.language === language)
   const environment = environments[index]
 
@@ -270,16 +277,18 @@ const defaultCodeBasedOnLanguageAndType = (language, codeQuestionType, options) 
   }
 
   if (codeQuestionType === CodeQuestionType.codeWriting) {
-    const codeWriting = environment.codeWriting.find((cw) => cw.value === options.codeWritingTemplate)?.setup
+    const codeWriting = environment.codeWriting.find(
+      (cw) => cw.value === options.codeWritingTemplate,
+    )?.setup
 
     if (codeWriting.beforeAll) {
       data.sandbox.beforeAll = codeWriting.beforeAll
     }
 
-    if(codeWriting.image) {
+    if (codeWriting.image) {
       data.sandbox.image = codeWriting.image
     }
-   
+
     return {
       ...data,
       files: codeWriting.files,

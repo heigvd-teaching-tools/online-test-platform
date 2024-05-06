@@ -16,7 +16,7 @@
 import { QuestionType, CodeQuestionType } from '@prisma/client'
 import React, { useState } from 'react'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { Stack, Typography, MenuItem, Box } from '@mui/material'
+import { Stack, Typography, MenuItem, Box, Alert } from '@mui/material'
 import { toArray as typesToArray } from '@/components/question/types'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
@@ -50,123 +50,58 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
       onClose={onClose}
       title={`Create new question`}
       content={
-        <Stack spacing={2}>
+        <Stack spacing={2} width={'500px'}>
           <Typography variant="body1">
             Select the type of question you want to create
           </Typography>
           <Stack
             spacing={1}
-            sx={{ width: '500px' }}
+            width={'100%'}
             direction={'row'}
             alignItems={'center'}
           >
             <TypeSelector type={type} onChange={setType} />
             <QuestionTypeIcon type={type} size={50} />
           </Stack>
+          <AlertFeedback severity="warning">
+            <Typography variant="body1">
+              You cannot change the type after the question has been created.
+            </Typography>
+          </AlertFeedback>
           {type === QuestionType.code && (
             <>
               <Typography variant="body1">
                 Select the language and type of the code question
               </Typography>
               <Stack direction="row" spacing={2}>
-                <LanguageSelector 
-                  language={language} 
-                  onChange={setLanguage} 
-                />
+                <LanguageSelector language={language} onChange={setLanguage} />
                 <CodeQuestionTypeSelector
                   options={listOfCodeQuestionTypes}
                   codeQuestionType={codeQuestionType}
                   setCodeQuestionType={setCodeQuestionType}
                 />
               </Stack>
-              <CodeWritingStartingTemplate 
-                language={language} 
-                codeWritingTemplate={codeWritingTemplate}
-                setCodeWritingTemplate={setCodeWritingTemplate}
-              />
+              {codeQuestionType === CodeQuestionType.codeWriting && (
+                <CodeWritingStartingTemplate
+                  language={language}
+                  codeWritingTemplate={codeWritingTemplate}
+                  setCodeWritingTemplate={setCodeWritingTemplate}
+                />
+              )}
             </>
           )}
-          <AlertFeedback severity="warning">
-            <Typography variant="body1">
-              You cannot change the type of a question after it has been
-              created.
-            </Typography>
-          </AlertFeedback>
         </Stack>
       }
-      onConfirm={() => handleAddQuestion(type, { language, codeQuestionType, codeWritingTemplate })}
+      onConfirm={() =>
+        handleAddQuestion(type, {
+          language,
+          codeQuestionType,
+          codeWritingTemplate,
+        })
+      }
     />
   )
 }
-
-/*
-
-{
-      "language": "javascript",
-      "extension": "js",
-      "label": "JavaScript",
-      "icon": "/svg/languages/javascript.svg",
-      "sandbox": {
-        "image": "node:latest",
-        "defaultPath": "/src/script.js",
-        "exec": "node /src/script.js",
-        "beforeAll": ""
-      },
-      "codeWriting": [{
-        "label": "Basic",
-        "value": "basic",
-        "description": "Basic input / output example",
-        "setup": {
-          "testCases": [
-            {
-              "exec": "node /src/script.js",
-              "input": "Hello World1",
-              "expectedOutput": "HELLO WORLD1\n"
-            }
-          ],
-          "files": {
-            "solution": [
-              {
-                "path": "/src/script.js",
-                "content": "\nconst readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line.toUpperCase());\n});"
-              }
-            ],
-            "template": [
-              {
-                "path": "/src/script.js",
-                "content": "const readline = require('readline');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    console.log(line);\n});"
-              }
-            ]
-          }
-        }
-       
-      }],
-      "codeReading": {
-        "context": "\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunction main() {\n    const readline = require('readline');\n    const rl = readline.createInterface({\n        input: process.stdin,\n        output: process.stdout\n    });\n    rl.on('line', (functionName) => {\n        {{SNIPPET_FUNCTION_CALLS}}\n        rl.close();\n    });\n}\nmain();",
-        "snippetWrapperFunctionSignature": "function {{SNIPPET_FUNCTION_NAME}}(){\n{{SNIPPET_FUNCTION_BODY}}\n}",
-        "snippetFunctionCallTemplate": "if (functionName === '{{SNIPPET_FUNCTION_NAME}}') { {{SNIPPET_FUNCTION_NAME}}(); }\n",
-        "snippets": [
-          {
-            "snippet": "let s = 'hello, world';\ns = s.toUpperCase();\nconsole.log(s);",
-            "output": "HELLO, WORLD\n"
-          },
-          {
-            "snippet": "for (let i = 0; i < 3; i++) {\n    console.log(i);\n}",
-            "output": "0\n1\n2\n"
-          },
-          {
-            "snippet": "let i = 11;\nwhile (i > 4) {\n    i -= 2;\n    console.log(i + ' ');\n}",
-            "output": "9 \n7 \n5 \n3 \n"
-          },
-          {
-            "snippet": "let str = '';\nfor (let c = 'A'; c <= 'C'; c = String.fromCharCode(c.charCodeAt(0) + 1)) {\n    str = str + c + str;\n}\nconsole.log(str);",
-            "output": "ABACABA\n"
-          }
-        ]
-      }
-    }
-*/
-
 const CodeQuestionTypeSelector = ({
   options,
   codeQuestionType,
@@ -196,33 +131,36 @@ const CodeQuestionTypeSelector = ({
   )
 }
 
-const CodeWritingStartingTemplate = ({ 
+const CodeWritingStartingTemplate = ({
   language,
   codeWritingTemplate,
   setCodeWritingTemplate,
 }) => {
-
   const template = languages.environments
     .find((env) => env.language === language)
     .codeWriting.find((cw) => cw.value === codeWritingTemplate)
 
   return (
-    <DropDown 
-      id="template"
-      name="Starter Template"
-      defaultValue={codeWritingTemplate}
-      minWidth="140px"
-      onChange={setCodeWritingTemplate}
-      helperText={template.description}
-    >
-      {languages.environments
-        .find((env) => env.language === language)
-        .codeWriting.map((template, i) => (
-          <MenuItem key={i} value={template.value}>
-            {template.label}
-          </MenuItem>
-        ))}
-    </DropDown>
+    <>
+      <DropDown
+        id="template"
+        name="Starter Template"
+        defaultValue={codeWritingTemplate}
+        minWidth="140px"
+        onChange={setCodeWritingTemplate}
+      >
+        {languages.environments
+          .find((env) => env.language === language)
+          .codeWriting.map((template, i) => (
+            <MenuItem key={i} value={template.value}>
+              {template.label}
+            </MenuItem>
+          ))}
+      </DropDown>
+      <AlertFeedback severity="info">
+        <Typography variant="body1">{template.description}</Typography>
+      </AlertFeedback>
+    </>
   )
 }
 

@@ -19,13 +19,17 @@ import tar from 'tar'
 import util from 'util'
 
 import { GenericContainer } from 'testcontainers'
-import { cleanUpDockerStreamHeaders, pullImageIfNotExists, sanitizeUTF8 } from './utils'
+import {
+  cleanUpDockerStreamHeaders,
+  pullImageIfNotExists,
+  sanitizeUTF8,
+} from './utils'
 
 // mode = run / test
 // https://www.npmjs.com/package/testcontainers
 // https://github.com/apocas/dockerode
 
-const EXECUTION_TIMEOUT = 15000
+const EXECUTION_TIMEOUT = 300000
 const MAX_OUTPUT_SIZE_PER_EXEC_KB = 256
 
 export const runSandbox = async ({
@@ -36,15 +40,22 @@ export const runSandbox = async ({
 }) => {
   const directory = await prepareContent(files)
 
-  console.log("files", util.inspect(files, {showHidden: false, depth: null}))
-  console.log("beforeAll", util.inspect(beforeAll, {showHidden: false, depth: null}))
+  /*
+  console.log("files", util.inspect(files, {showHidden: false, depth: null, breakLength: Infinity}))
+  console.log("beforeAll", util.inspect(beforeAll, {showHidden: false, depth: null, breakLength: Infinity}))
+  console.log("tests", util.inspect(tests, {showHidden: false, depth: null, breakLength: Infinity}))
+  */
 
   let container, beforeAllOutput
 
   try {
-    ({ container, beforeAllOutput } = await startContainer(image, directory, beforeAll))
+    ;({ container, beforeAllOutput } = await startContainer(
+      image,
+      directory,
+      beforeAll,
+    ))
   } catch (initialError) {
-    if(initialError.message.includes('No such image')) {
+    if (initialError.message.includes('No such image')) {
       const { status, message } = await pullImageIfNotExists(image)
       if (!status) {
         return {
@@ -60,7 +71,11 @@ export const runSandbox = async ({
     }
 
     try {
-      ({ container, beforeAllOutput } = await startContainer(image, directory, beforeAll))
+      ;({ container, beforeAllOutput } = await startContainer(
+        image,
+        directory,
+        beforeAll,
+      ))
     } catch (secondError) {
       return {
         beforeAll: secondError.message,
