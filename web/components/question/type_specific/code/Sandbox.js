@@ -15,10 +15,12 @@
  */
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-import { Stack, TextField, Typography } from '@mui/material'
+import { Box, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material'
 import useSWR from 'swr'
 import Loading from '@/components/feedback/Loading'
 import { fetcher } from '@/code/utils'
+import StatusDisplay from '@/components/feedback/StatusDisplay'
+import { useSnackbar } from '@/context/SnackbarContext'
 const Sandbox = ({ groupScope, questionId, onUpdate }) => {
   const { data: sandbox, error } = useSWR(
     `/api/${groupScope}/questions/${questionId}/code/sandbox`,
@@ -26,8 +28,11 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
     { revalidateOnFocus: false },
   )
 
+  const { show: showSnackbar } = useSnackbar()
+
   const [image, setImage] = useState(sandbox?.image || '')
   const [beforeAll, setBeforeAll] = useState(sandbox?.beforeAll || '')
+  const [ pullStatus, setPullStatus ] = useState('RELOAD')
 
   useEffect(() => {
     setImage(sandbox?.image || '')
@@ -54,6 +59,32 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
 
   const debouncedOnChange = useDebouncedCallback(onChange, 500)
 
+  const pullImage = async (image) => {
+    setPullStatus("LOADING")
+    await fetch(`/api/sandbox/image/pull`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        image: image,
+      }),
+    })
+    .then((data) => data.json())
+    .then((data) => {
+      setPullStatus(data.status)
+      const severity = data.status === 'SUCCESS' ? 'success' : 'error'
+      showSnackbar(data.message, severity)
+      // Set to RELOAD after 2 seconds
+      setTimeout(() => {
+        setPullStatus("RELOAD")
+      }, 2000)
+    })
+    
+  }
+
+
   return (
     <Loading loading={!sandbox} errors={[error]}>
       <Stack spacing={2}>
@@ -72,7 +103,26 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
                 image: ev.target.value,
               })
             }}
+            InputProps={{
+              endAdornment: (
+                <Tooltip title="Pull the latest version">
+                  <Box ml={0.5}>
+                    <IconButton
+                        edge="end"
+                        aria-label="pull"
+                        size='small'
+                        onClick={() => pullImage(image)}
+                    >
+                    <StatusDisplay
+                      status={pullStatus}
+                    />  
+                    </IconButton>
+                  </Box>
+                </Tooltip>
+              ),
+            }}
           />
+          
           <TextField
             id="compile"
             label="Before All"

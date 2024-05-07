@@ -75,6 +75,15 @@ const StatusDisplay = ({ status, size = 16 }) => {
             alt="neutral"
           />
         )
+      case 'RELOAD':
+        return (
+          <Image
+            src="/svg/status/reload.svg"
+            width={size}
+            height={size}
+            alt="reload"
+          />
+        )
       case 'CLI':
         return (
           <Image
