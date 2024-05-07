@@ -251,7 +251,7 @@ const TestCaseUpdate = ({ test, onChange, onDelete }) => {
           inputProps={{ style: { fontFamily: 'monospace' } }}
           multiline
           fullWidth
-          variant='standard'
+          variant="standard"
           value={expectedOutput}
           onChange={(ev) => {
             setExpectedOutput(ev.target.value)
