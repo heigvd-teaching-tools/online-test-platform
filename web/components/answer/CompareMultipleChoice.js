@@ -16,6 +16,7 @@
 import { Alert, Box, Stack, Typography } from '@mui/material'
 import RadioViewer from '@/components/input/RadioViewer'
 import ResizePanel from '@/components/layout/utils/ResizePanel'
+import ScrollContainer from '../layout/ScrollContainer'
 
 const StudentSelectionSummary = ({ options, answer }) => {
   const missedCorrect = options.filter(
@@ -53,59 +54,65 @@ const StudentSelectionSummary = ({ options, answer }) => {
 
 const CompareMultipleChoice = ({ options, answer }) => {
   return (
-    <Box p={2} pt={1} height={'100%'}>
-      <StudentSelectionSummary options={options} answer={answer} />
-      <ResizePanel
-        leftPanel={
-          <Stack spacing={2} padding={2}>
-            <Typography variant="h6">Student&apos;s options</Typography>
-            {options?.map((option, index) => (
-              <Stack
-                key={index}
-                direction="row"
-                alignItems="center"
-                spacing={2}
-                sx={{ flex: 1 }}
-              >
-                <RadioViewer
-                  mode={'compare'}
-                  key={index}
-                  isCorrect={option.isCorrect}
-                  isFilled={answer.some((opt) => opt.id === option.id)}
-                />
-                <Box>
-                  <Typography variant="body1">{option.text}</Typography>
-                </Box>
-              </Stack>
-            ))}
-          </Stack>
-        }
-        rightPanel={
-          <Stack spacing={2} padding={2}>
-            <Typography variant="h6">Solution options</Typography>
-            {options?.map((option, index) => (
-              <Stack
-                key={index}
-                direction="row"
-                alignItems="center"
-                spacing={2}
-                sx={{ flex: 1 }}
-              >
-                <RadioViewer
-                  mode={'compare'}
-                  key={index}
-                  isCorrect={option.isCorrect}
-                  isFilled={option.isCorrect}
-                />
-                <Box>
-                  <Typography variant="body1">{option.text}</Typography>
-                </Box>
-              </Stack>
-            ))}
-          </Stack>
-        }
-      />
-    </Box>
+    <Stack p={2} pt={1} height={'100%'}>
+        <StudentSelectionSummary options={options} answer={answer} />
+        <Stack flex={1}>
+          <ScrollContainer>
+            <Box>
+            <ResizePanel
+              leftPanel={
+                <Stack spacing={2} padding={2}>
+                  <Typography variant="h6">Student&apos;s options</Typography>
+                  {options?.map((option, index) => (
+                    <Stack
+                      key={index}
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                      sx={{ flex: 1 }}
+                    >
+                      <RadioViewer
+                        mode={'compare'}
+                        key={index}
+                        isCorrect={option.isCorrect}
+                        isFilled={answer.some((opt) => opt.id === option.id)}
+                      />
+                      <Box>
+                        <Typography variant="body1">{option.text}</Typography>
+                      </Box>
+                    </Stack>
+                  ))}
+                </Stack>
+              }
+              rightPanel={
+                <Stack spacing={2} padding={2}>
+                  <Typography variant="h6">Solution options</Typography>
+                  {options?.map((option, index) => (
+                    <Stack
+                      key={index}
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                      sx={{ flex: 1 }}
+                    >
+                      <RadioViewer
+                        mode={'compare'}
+                        key={index}
+                        isCorrect={option.isCorrect}
+                        isFilled={option.isCorrect}
+                      />
+                      <Box>
+                        <Typography variant="body1">{option.text}</Typography>
+                      </Box>
+                    </Stack>
+                  ))}
+                </Stack>
+              }
+            />
+            </Box>
+          </ScrollContainer>
+        </Stack>
+    </Stack>
   )
 }
 
