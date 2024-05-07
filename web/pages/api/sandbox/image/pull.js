@@ -19,7 +19,6 @@ import {
   withAuthorization,
   withMethodHandler,
 } from '@/middleware/withAuthorization'
-import { withPrisma } from '@/middleware/withPrisma'
 import { pullImage } from '@/sandbox/utils'
 
 const post = async (req, res, prisma) => {
@@ -27,7 +26,7 @@ const post = async (req, res, prisma) => {
   // Pull the latest docker image
   try{
     const output = await pullImage(image)
-    return res.status(200).json({ status: 'SUCCESS', message: output[2]?.status || 'Image pulled successfully' })
+    return res.status(200).json({ status: 'SUCCESS', message: output[output.length - 1]?.status || 'Image pulled successfully' })
   } catch (error) {
     console.error('Error pulling image:', error)
     return res.status(500).json({ status: 'ERROR', message: `Error pulling image: ${error.message}` })
@@ -36,5 +35,5 @@ const post = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  POST: withAuthorization(withPrisma(post), [Role.PROFESSOR, Role.STUDENT]),
+  POST: withAuthorization(post, [Role.PROFESSOR, Role.STUDENT]),
 })
