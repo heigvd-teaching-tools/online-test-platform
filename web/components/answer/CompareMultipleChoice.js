@@ -55,10 +55,10 @@ const StudentSelectionSummary = ({ options, answer }) => {
 const CompareMultipleChoice = ({ options, answer }) => {
   return (
     <Stack p={2} pt={1} height={'100%'}>
-        <StudentSelectionSummary options={options} answer={answer} />
-        <Stack flex={1}>
-          <ScrollContainer>
-            <Box>
+      <StudentSelectionSummary options={options} answer={answer} />
+      <Stack flex={1}>
+        <ScrollContainer>
+          <Box>
             <ResizePanel
               leftPanel={
                 <Stack spacing={2} padding={2}>
@@ -109,9 +109,9 @@ const CompareMultipleChoice = ({ options, answer }) => {
                 </Stack>
               }
             />
-            </Box>
-          </ScrollContainer>
-        </Stack>
+          </Box>
+        </ScrollContainer>
+      </Stack>
     </Stack>
   )
 }
