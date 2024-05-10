@@ -23,7 +23,7 @@ import {
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import copyToClipboard from 'clipboard-copy'
 import { useSnackbar } from '@/context/SnackbarContext'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import MDEditor, { commands } from '@uiw/react-md-editor'
 
@@ -73,35 +73,6 @@ mermaid.initialize({
   theme: 'default', 
 });
 
-const MermaidChart = ({ code }) => {
-  const ref = useRef(null);
-  const [id] = useState(uuidv4()); // Create a unique ID for each component instance
-
-  useLayoutEffect(() => {
-    // Make sure the code is not attempted to be rendered server-side
-    if (typeof window !== 'undefined' && ref.current && code) {
-      // Check if the container is properly initialized
-      if (ref.current.clientHeight > 0 && ref.current.clientWidth > 0) {
-        try {
-          mermaid.render(`mermaid-${id}`, code, ref.current).then(({ bindFunctions, svg }) => {
-            ref.current.innerHTML = svg;
-            if (bindFunctions && Array.isArray(bindFunctions)) {
-              bindFunctions.forEach(f => f(ref.current));
-            }
-          }).catch((error) => {
-            //ignore
-          });
-        } catch (error) {
-          console.error('Mermaid rendering failed:', error);
-        }
-      } else {
-        console.warn('Container not ready or has zero dimensions, delaying Mermaid rendering.');
-      }
-    }
-  }, [code, id]); // Include id in the dependencies array
-
-  return <div ref={ref} style={{ width: '100%', minHeight: '100px' }} />;
-};
 
 
 const previewOptions = {
@@ -136,7 +107,7 @@ const previewOptions = {
           })
           return <code dangerouslySetInnerHTML={{ __html: html }} />
         } else if (language === 'mermaid') {
-          return <MermaidChart code={code} />
+          return <MermaidBloc code={code} />
 
         } else {
           return <CodeBlock language={language} value={code} />
@@ -330,6 +301,33 @@ const UploadingStatus = ({ status = "NOT_STARTED" }) => {
     </Overlay>
   ) : null
 }
+
+const MermaidBloc = ({ code }) => {
+  const ref = useRef(null);
+  const [id] = useState(uuidv4()); // Create a unique ID for each component instance
+
+  useEffect(() => {
+    // Make sure the code is not attempted to be rendered server-side
+    if (typeof window !== 'undefined' && ref.current && code) {
+      // Check if the container is properly initialized
+      try {
+        mermaid.render(`mermaid-${id}`, code, ref.current).then(({ bindFunctions, svg }) => {
+          ref.current.innerHTML = svg;
+          if (bindFunctions && Array.isArray(bindFunctions)) {
+            bindFunctions.forEach(f => f(ref.current));
+          }
+        }).catch((error) => {
+          //ignore
+        });
+      } catch (error) {
+        //ignore
+      }
+      
+    }
+  }, [code, id]); // Include id in the dependencies array
+
+  return <Box ref={ref} style={{ width: '100%', minHeight: '100px' }} />;
+};
 
 
 const CodeBlock = ({ language, value }) => {
