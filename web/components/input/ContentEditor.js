@@ -16,209 +16,321 @@
 import {
   Box,
   Button,
-  IconButton,
   Stack,
-  Tooltip,
   Typography,
   useTheme,
 } from '@mui/material'
-import InlineMonacoEditor from './InlineMonacoEditor'
-import ReactMarkdown from 'react-markdown'
-import gfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import copyToClipboard from 'clipboard-copy'
 import { useSnackbar } from '@/context/SnackbarContext'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import ScrollContainer from '@/components/layout/ScrollContainer'
-import ResizePanel from '@/components/layout/utils/ResizePanel'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+import MDEditor, { commands } from '@uiw/react-md-editor'
+
+
+import StatusDisplay from '../feedback/StatusDisplay'
+import Overlay from '../ui/Overlay'
+
+import rehypeSanitize from 'rehype-sanitize'
+import { getCodeString } from 'rehype-rewrite'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
+import mermaid from "mermaid";
+import { v4 as uuidv4 } from 'uuid'; 
+
 /*
         using Monaco Editor for editing content in markdown
         using ReactMarkdown for displaying content in markdown
 */
 
+const mainCommands = [
+  commands.bold,
+  commands.italic,
+  commands.strikethrough,
+  commands.hr,
+  commands.title,
+  commands.divider,
+  commands.link,
+  commands.quote,
+  commands.code,
+  commands.image,
+  commands.unorderedListCommand,
+  commands.orderedListCommand,
+  commands.checkedListCommand,
+]
+
+const extraCommands = [
+  commands.codeEdit,
+  commands.codeLive,
+  commands.codePreview,
+  commands.divider,
+  commands.fullscreen,
+]
+
+// Initialize Mermaid's global settings
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default', 
+});
+
+const MermaidChart = ({ code }) => {
+  const ref = useRef(null);
+  const [id] = useState(uuidv4()); // Create a unique ID for each component instance
+
+  useLayoutEffect(() => {
+    // Make sure the code is not attempted to be rendered server-side
+    if (typeof window !== 'undefined' && ref.current && code) {
+      // Check if the container is properly initialized
+      if (ref.current.clientHeight > 0 && ref.current.clientWidth > 0) {
+        try {
+          mermaid.render(`mermaid-${id}`, code, ref.current).then(({ bindFunctions, svg }) => {
+            ref.current.innerHTML = svg;
+            if (bindFunctions && Array.isArray(bindFunctions)) {
+              bindFunctions.forEach(f => f(ref.current));
+            }
+          }).catch((error) => {
+            //ignore
+          });
+        } catch (error) {
+          console.error('Mermaid rendering failed:', error);
+        }
+      } else {
+        console.warn('Container not ready or has zero dimensions, delaying Mermaid rendering.');
+      }
+    }
+  }, [code, id]); // Include id in the dependencies array
+
+  return <div ref={ref} style={{ width: '100%', minHeight: '100px' }} />;
+};
+
+
+const previewOptions = {
+  rehypePlugins: [[rehypeSanitize]],
+  components: {
+    code: ({ children = [], className, node, ...props }) => {
+      const position = node?.position || {}
+      const inline =
+        !position.start.line || position.start.line === position.end.line
+      const language =
+        className?.split(' ')[0].replace('language-', '') || 'javascript'
+
+      if (inline) {
+        const txt = children
+        if (typeof txt === 'string' && /^\$\$(.*)\$\$/.test(txt)) {
+          const html = katex.renderToString(
+            txt.replace(/^\$\$(.*)\$\$/, '$1'),
+            {
+              throwOnError: false,
+            },
+          )
+          return <code dangerouslySetInnerHTML={{ __html: html }} />
+        }
+        return <CodeInline value={txt} />
+      } else {
+        const txt = children[0]
+        const code = node && node.children ? getCodeString(node.children) : txt
+
+        if (['latex', 'katex'].includes(language.toLowerCase())) {
+          const html = katex.renderToString(code, {
+            throwOnError: false,
+          })
+          return <code dangerouslySetInnerHTML={{ __html: html }} />
+        } else if (language === 'mermaid') {
+          return <MermaidChart code={code} />
+
+        } else {
+          return <CodeBlock language={language} value={code} />
+        }
+      }
+    },
+  },
+}
+
+const defaultEditorOptions = {
+  height: '100%',
+  overflow: false,
+  visibleDragbar: false,
+  enableScroll: false,
+  preview: 'live',
+}
+
 const ContentEditor = ({
   title,
+  groupScope,
   readOnly = false,
-  fill = true, // When true, the editor will fill the available space
+  withPaste = false,
   rawContent = '',
-  mode = 'source',
   onChange,
 }) => {
-  const editorStyle = fill ? { height: '100%' } : { minHeight: '140px' }
+  const { show: showSnackbar } = useSnackbar()
 
-  return readOnly ? (
-    <PreviewMarkdown rawContent={rawContent} />
-  ) : (
-    <EditMarkdown
-      title={title || ''}
-      mode={mode}
-      rawContent={rawContent}
-      style={editorStyle} // Apply conditional styling
-      onChange={onChange}
-      fill={fill} // Pass `fill` prop down to EditMarkdown
-    />
+  return (
+    <Box data-color-mode="light" height={'100%'} overflow={"hidden"}>
+      { !readOnly && (
+        <Stack direction="row" alignItems="center" spacing={1} py={.5}>
+          <Typography variant="body1">{title}</Typography>
+          <Typography variant="caption">(markdown)</Typography>
+        </Stack>
+      )}
+      <MarkdownEditor
+        groupScope={groupScope}
+        editorProps={{
+          ...defaultEditorOptions,
+          preview: readOnly ? 'preview' : 'live',
+        }}
+        previewOptions={previewOptions}
+        commands={readOnly ? [] : mainCommands}
+        extraCommands={readOnly ? [] : extraCommands}
+        withPaste={withPaste}
+        content={rawContent}
+        onChange={onChange}
+        onError={(error) => showSnackbar(error, 'error')}
+      />
+    </Box>
   )
 }
 
-const editorOptions = {
-  suggestOnTriggerCharacters: false,
-  quickSuggestions: false,
-  wordBasedSuggestions: false,
-  parameterHints: {
-    enabled: false, // Disables parameter hints
-  },
-  lineNumbers: 'off',
-  glyphMargin: false,
-  folding: false,
-  lineDecorationsWidth: 0,
-  lineNumbersMinChars: 0,
-}
-
-const EditMarkdown = ({
-  title,
-  mode: initialMode = 'source',
-  rawContent: initial,
-  style,
+const MarkdownEditor = ({
+  groupScope,
+  withPaste = false,
+  editorProps,
+  previewOptions,
+  commands,
+  extraCommands,
+  content: initial,
   onChange,
-  fill,
+  onError,
 }) => {
   const ref = useRef(null)
 
-  const readOnly = onChange === undefined
+  const [content, setContent] = useState(initial)
 
-  const [mode, setMode] = useState(initialMode)
-
-  const [rawContent, setRawContent] = useState(initial || '')
+  const [ uploadStatus, setUploadStatus ] = useState("NOT_STARTED")
 
   useEffect(() => {
-    setRawContent(initial)
+    setContent(initial)
   }, [initial])
 
-  const onChangeContent = useCallback(
-    (newContent) => {
-      setRawContent(newContent)
-      onChange(newContent === '' ? undefined : newContent)
+  const handleChange = useCallback(
+    (value) => {
+      setContent(value)
+      onChange(value)
     },
     [onChange],
   )
 
+  const handlePaste = useCallback(
+    async (e) => {
+      if (!groupScope) return
+
+      const items = e.clipboardData.items
+
+      for (const item of items) {
+        if (item.kind !== 'file') continue
+
+        setUploadStatus("RUNNING")
+
+        const blob = item.getAsFile()
+        if (!blob) continue // Skip non-file items
+
+        const formData = new FormData()
+        formData.append('file', blob)
+
+        try {
+          const response = await fetch(`/api/${groupScope}/upload`, {
+            method: 'POST',
+            body: formData,
+          })
+          const data = await response.json()
+          const [type, _] = blob.type.split('/') // Destructure MIME type into type and subtype
+          if (response.ok) {
+            switch (type) {
+              case 'image':
+                insertImageInEditor(data.fileUrl, blob.name)
+                break
+              case 'application':
+              case 'text':
+                insertDocumentLinkInEditor(data.fileUrl, blob.name)
+                break
+              default:
+                onError && onError(`Unsupported file type: ${blob.type}`)
+            }
+          } else {
+            onError && onError(data.message)
+          }
+        } catch (error) {
+          onError && onError(`Error uploading file: ${error.message}`)
+        }
+        setUploadStatus("NOT_STARTED")       
+      }
+    },
+    [groupScope, onError],
+  )
+
+  const insertImageInEditor = (imageUrl, imageName) => {
+    const markdownImageSyntax = `![${imageName}](${imageUrl})`
+    insertTextAtCursor(markdownImageSyntax)
+  }
+
+  const insertDocumentLinkInEditor = (fileUrl, fileName) => {
+    const markdownLinkSyntax = `[${fileName}](${fileUrl})`
+    insertTextAtCursor(markdownLinkSyntax)
+  }
+
+  const insertTextAtCursor = useCallback(
+    (text) => {
+      const textarea = ref.current.textarea
+      if (!textarea) return
+
+      const selectionStart = textarea.selectionStart
+      const selectionEnd = textarea.selectionEnd
+
+      const textBefore = textarea.value.substring(0, selectionStart)
+      const textAfter = textarea.value.substring(
+        selectionEnd,
+        textarea.value.length,
+      )
+
+      const newValue = textBefore + text + textAfter
+
+      handleChange(newValue)
+      textarea.selectionStart = textarea.selectionEnd =
+        selectionStart + text.length
+    },
+    [handleChange],
+  )
+
   return (
-    <Stack spacing={0} style={style} ref={ref}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        justifyContent={'space-between'}
-      >
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="body1">{title}</Typography>
-          <Typography variant="caption">(markdown)</Typography>
-        </Stack>
-        <Stack direction="row" alignItems="center" spacing={0}>
-          <Tooltip title="Source view">
-            <IconButton size="small" onClick={() => setMode('source')}>
-              <SourceViewIcon active={mode === 'source'} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Split view">
-            <IconButton size="small" onClick={() => setMode('split')}>
-              <SplitViewIcon active={mode === 'split'} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Preview">
-            <IconButton size="small" onClick={() => setMode('preview')}>
-              <PreviewIcon active={mode === 'preview'} />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      </Stack>
-      <EditorMode
-        mode={mode}
-        rawContent={rawContent}
-        readOnly={readOnly}
-        onChangeContent={onChangeContent}
-        fill={fill}
+    <Stack position={"relative"} height={'100%'}>
+      <UploadingStatus status={uploadStatus} />
+      <MDEditor
+        ref={ref}
+        value={content}
+        {...editorProps}
+        previewOptions={previewOptions}
+        commands={commands}
+        extraCommands={extraCommands}
+        onChange={handleChange}
+        onPaste={withPaste ? handlePaste : undefined}
+        textareaProps={{
+          placeholder: 'Markdown content...',
+        }}
       />
     </Stack>
   )
 }
 
-const EditorMode = ({ mode, rawContent, readOnly, onChangeContent, fill }) => {
-  const ModeComponent =
-    mode === 'source' ? SourceMode : mode === 'split' ? SplitMode : PreviewMode
-
-  const content = (
-    <ModeComponent
-      fill={fill}
-      rawContent={rawContent}
-      readOnly={readOnly}
-      onChangeContent={onChangeContent}
-    />
-  )
-
-  return fill ? <ScrollContainer>{content}</ScrollContainer> : content
+const UploadingStatus = ({ status = "NOT_STARTED" }) => {
+  return status !== "NOT_STARTED" ? (
+    <Overlay>
+      <StatusDisplay
+        status={status}
+        size={40}
+      />
+    </Overlay>
+  ) : null
 }
 
-const SourceMode = ({ rawContent, readOnly, onChangeContent }) => (
-  <InlineMonacoEditor
-    code={rawContent}
-    language={'markdown'}
-    readOnly={readOnly}
-    onChange={onChangeContent}
-    editorOptions={editorOptions}
-  />
-)
-
-const SplitMode = ({ rawContent, readOnly, onChangeContent, fill }) => {
-  // Conditional rendering of ScrollContainer
-  const editorPart = (
-    <InlineMonacoEditor
-      code={rawContent}
-      language={'markdown'}
-      readOnly={readOnly}
-      onChange={onChangeContent}
-      editorOptions={editorOptions}
-    />
-  )
-
-  const previewPart = <PreviewMarkdown rawContent={rawContent} />
-
-  return (
-    <ResizePanel
-      leftPanel={
-        fill ? <ScrollContainer>{editorPart}</ScrollContainer> : editorPart
-      }
-      rightPanel={
-        fill ? <ScrollContainer>{previewPart}</ScrollContainer> : previewPart
-      }
-    />
-  )
-}
-
-const PreviewMode = ({ rawContent }) => (
-  <PreviewMarkdown rawContent={rawContent} />
-)
-
-const PreviewMarkdown = ({ rawContent }) => {
-  return (
-    <Box className="markdown-body">
-      <ReactMarkdown
-        remarkPlugins={[gfm]}
-        components={{
-          code: ({ children: code, className, inline }) => {
-            // If it's its inline code, we'll use the <code> component
-            if (inline) return <code>{code}</code>
-            // If it's a block, we'll use the SyntaxHighlighter component
-            const language = className?.replace('language-', '') || 'text'
-            return <CodeBlock language={language} value={code} />
-          },
-        }}
-      >
-        {rawContent?.toString()}
-      </ReactMarkdown>
-    </Box>
-  )
-}
 
 const CodeBlock = ({ language, value }) => {
   const theme = useTheme()
@@ -235,14 +347,7 @@ const CodeBlock = ({ language, value }) => {
   )
 
   return (
-    <Box
-      border={`1px dashed ${theme.palette.divider}`}
-      borderRadius={1}
-      mr={1}
-      mt={1}
-      mb={1}
-      position={'relative'}
-    >
+    <Box borderRadius={1} position={'relative'}>
       <SyntaxHighlighter language={language}>{value}</SyntaxHighlighter>
       <Button
         size="small"
@@ -255,122 +360,9 @@ const CodeBlock = ({ language, value }) => {
   )
 }
 
-const SourceViewIcon = ({ size = 24, active = false }) => {
-  const theme = useTheme()
-  const color = active ? theme.palette.primary.main : theme.palette.grey[500]
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M3 3H21V21H3V3Z"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 8H18"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 12H18"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 16H12"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+const CodeInline = ({ value }) => {
+  return <code>{value}</code>
 }
 
-const SplitViewIcon = ({ size = 24, active = false }) => {
-  const theme = useTheme()
-  const color = active ? theme.palette.primary.main : theme.palette.grey[500]
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M3 3H21V21H3V3Z"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 3V21"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 8H10"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 12H10"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 16H12"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-const PreviewIcon = ({ size = 24, active = false }) => {
-  const theme = useTheme()
-  const color = active ? theme.palette.primary.main : theme.palette.grey[500]
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M3 3H21V21H3V3Z"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
 
 export default ContentEditor

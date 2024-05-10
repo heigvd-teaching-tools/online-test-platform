@@ -130,7 +130,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
       <LayoutSplitScreen
         leftPanel={
           question && (
-            <Stack spacing={2} sx={{ pl: 2, pt: 1, pb: 2, height: '100%' }}>
+            <Stack spacing={2} sx={{ pl: 2, pt: 1, height: '100%' }}>
               <Stack direction="row" alignItems="flex-start" spacing={1}>
                 <TextField
                   id={`question-${question.id}-title`}
@@ -152,16 +152,19 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
               />
               <ContentEditor
                 id={`question-${question.id}`}
+                groupScope={groupScope}
+                withPaste
                 title="Problem Statement"
                 rawContent={question.content}
-                readOnly={false}
                 onChange={(content) => onPropertyChange('content', content)}
               />
 
               <Stack
                 direction="row"
                 justifyContent="flex-end"
-                sx={{ width: '100%' }}
+                width={'100%'}
+                py={1}
+                alignItems={'center'}
               >
                 <Button
                   startIcon={

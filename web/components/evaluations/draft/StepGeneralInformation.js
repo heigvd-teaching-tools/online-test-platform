@@ -64,8 +64,6 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
       <ContentEditor
         id={`conditions`}
         title="Conditions"
-        mode="split"
-        fill={false}
         rawContent={conditions}
         readOnly={false}
         onChange={(content) => setConditions(content)}

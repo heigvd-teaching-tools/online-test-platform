@@ -21,7 +21,7 @@ const ConsultEssay = ({ content }) => {
     <Box p={2} pt={1} height={'100%'}>
       <ContentEditor
         id={`answer-compare-essay`}
-        mode={'preview'}
+        readOnly
         title={'Your answer'}
         rawContent={content || ''}
       />
