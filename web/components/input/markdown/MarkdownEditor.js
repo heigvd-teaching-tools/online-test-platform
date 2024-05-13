@@ -277,9 +277,6 @@ const ContentEditor = ({
     [groupScope, onError, insertImageInEditor, insertDocumentLinkInEditor],
   )
 
-  
-
-
   return (
     <Stack position={'relative'} height={'100%'}>
       <UploadingStatus status={uploadStatus} />
