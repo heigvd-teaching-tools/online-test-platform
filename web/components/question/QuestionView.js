@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import Image from 'next/image'
-import ContentEditor from '../input/ContentEditor'
 import { Stack, Chip, Typography } from '@mui/material'
 import Column from '../layout/utils/Column'
 import ScrollContainer from '../layout/ScrollContainer'
+import MarkdownViewer from '../input/markdown/MarkdownViewer'
 
 const QuestionView = ({ order, points, question, totalPages }) => {
   return (
@@ -51,12 +51,12 @@ const QuestionView = ({ order, points, question, totalPages }) => {
         </Column>
       </Stack>
       <Stack flex={1} spacing={1}>
-        <Typography variant="h4">{question.title}</Typography>
+        <Typography variant="h6">{question.title}</Typography>
         <ScrollContainer>
-          <ContentEditor
+          <MarkdownViewer
             id={'questions-view-' + question.id}
             readOnly
-            rawContent={question.content}
+            content={question.content}
           />
         </ScrollContainer>
       </Stack>

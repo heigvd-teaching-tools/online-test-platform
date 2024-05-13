@@ -16,7 +16,8 @@
 const withTM = require('next-transpile-modules')([
   '@uiw/react-md-editor',
   '@uiw/react-markdown-preview',
-  'lodash-es'
+  'react-syntax-highlighter',
+  'lodash-es',
 ]) // Packages that do import css files
 
 const nextConfig = {

@@ -17,7 +17,7 @@ import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Stack, TextField, Button, Typography } from '@mui/material'
-import ContentEditor from '../input/ContentEditor'
+import MarkdownEditor from '../input/markdown/MarkdownEditor'
 
 import LayoutSplitScreen from '../layout/LayoutSplitScreen'
 import QuestionTypeSpecific from './QuestionTypeSpecific'
@@ -145,25 +145,26 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
                   }}
                 />
               </Stack>
-              <QuestionTagsSelector
-                groupScope={groupScope}
-                questionId={question.id}
-                onChange={() => onUpdate && onUpdate(question)}
-              />
-              <ContentEditor
-                id={`question-${question.id}`}
-                groupScope={groupScope}
-                withPaste
-                title="Problem Statement"
-                rawContent={question.content}
-                onChange={(content) => onPropertyChange('content', content)}
-              />
-
+              <Stack flex={1}>
+                <QuestionTagsSelector
+                  groupScope={groupScope}
+                  questionId={question.id}
+                  onChange={() => onUpdate && onUpdate(question)}
+                />
+                <MarkdownEditor
+                  id={`question-${question.id}`}
+                  groupScope={groupScope}
+                  withUpload
+                  title="Problem Statement"
+                  rawContent={question.content}
+                  onChange={(content) => onPropertyChange('content', content)}
+                />
+              </Stack>
               <Stack
                 direction="row"
                 justifyContent="flex-end"
                 width={'100%'}
-                py={1}
+                pb={1}
                 alignItems={'center'}
               >
                 <Button

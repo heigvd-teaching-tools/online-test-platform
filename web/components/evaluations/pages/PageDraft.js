@@ -219,6 +219,7 @@ const PageDraft = () => {
               />
 
               <StepGeneralInformation
+                groupScope={groupScope}
                 evaluation={evaluation}
                 onChange={(data) => {
                   evaluation.label = data.label

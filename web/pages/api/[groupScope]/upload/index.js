@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // pages/api/[groupScope]/upload.js
 
 import multer from 'multer'
@@ -26,11 +41,13 @@ const SUPPORTED_APPLICATION_TYPES = [
   'csv',
   'zip',
   'x-compressed',
+  'x-rar-compressed',
+  'x-tar',
 ]
 
 const SUPPORTED_IMAGE_TYPES = ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp']
 
-const SUPPORTED_TEXT_TYPES = ['plain']
+const SUPPORTED_TEXT_TYPES = ['plain', 'csv']
 
 const isSupportedMimeType = (mimetype) => {
   const [type, subtype] = mimetype.split('/')
@@ -123,8 +140,20 @@ async function processImage(filePath) {
       withoutEnlargement: true,
     })
     .toFile(newFilePath)
-  await fs.unlink(filePath)
-  return newFilePath // Return new file path for the resized image
+
+  // Retry unlink a few times if it fails initially
+  for (let i = 0; i < 3; i++) {
+    try {
+      await fs.unlink(filePath)
+    } catch (error) {
+      if (error.code === 'EPERM' && i < 2) {
+        // Wait 100 ms before retrying
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        continue // Retry
+      }
+    }
+  }
+  return newFilePath
 }
 
 export default withMethodHandler({

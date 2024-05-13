@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box } from '@mui/material'
-import MarkdownEditor from '@/components/input/markdown/MarkdownEditor'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 
-const ConsultEssay = ({ content }) => {
-  return (
-    <Box p={2} pt={1} height={'100%'}>
-      <MarkdownEditor
-        id={`answer-compare-essay`}
-        readOnly
-        title={'Your answer'}
-        rawContent={content || ''}
-      />
-    </Box>
-  )
+const KatexBloc = ({ code }) => {
+  try {
+    const html = katex.renderToString(code, {
+      throwOnError: false,
+      displayMode: true,
+    })
+    return <span dangerouslySetInnerHTML={{ __html: html }} />
+  } catch (error) {
+    return <span>{error.message}</span>
+  }
 }
 
-export default ConsultEssay
+export default KatexBloc

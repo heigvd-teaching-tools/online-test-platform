@@ -41,6 +41,7 @@ const get = async (req, res, prisma) => {
       phase: true,
       startAt: true,
       endAt: true,
+      conditions: true,
       accessMode: true, // sensitive!
       accessList: true, // sensitive!
     },
@@ -90,6 +91,7 @@ const get = async (req, res, prisma) => {
       phase: evaluation.phase,
       startAt: evaluation.startAt,
       endAt: evaluation.endAt,
+      conditions: evaluation.conditions,
     },
     userOnEvaluation: userOnEvaluation,
   })

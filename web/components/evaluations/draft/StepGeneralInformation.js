@@ -15,9 +15,9 @@
  */
 import { useEffect, useState } from 'react'
 import { Stack, TextField, Typography } from '@mui/material'
-import ContentEditor from '@/components/input/ContentEditor'
+import MarkdownEditor from '@/components/input/markdown/MarkdownEditor'
 
-const StepGeneralInformation = ({ evaluation, onChange }) => {
+const StepGeneralInformation = ({ groupScope, evaluation, onChange }) => {
   const [label, setLabel] = useState(
     evaluation && evaluation.label ? evaluation.label : '',
   )
@@ -25,6 +25,17 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
   const [conditions, setConditions] = useState(
     evaluation ? evaluation.conditions : '',
   )
+
+  const [conditionHeight, setConditionHeight] = useState(150)
+
+  useEffect(() => {
+    console.log('conditions', conditions, conditions.length)
+    if (conditions && conditions.length > 0) {
+      setConditionHeight(800)
+    } else {
+      setConditionHeight(150)
+    }
+  }, [conditions])
 
   useEffect(() => {
     if (!label && evaluation) {
@@ -61,13 +72,18 @@ const StepGeneralInformation = ({ evaluation, onChange }) => {
         error={errorLabel ? true : false}
         helperText={errorLabel ? 'Label is required' : ''}
       />
-      <ContentEditor
-        id={`conditions`}
-        title="Conditions"
-        rawContent={conditions}
-        readOnly={false}
-        onChange={(content) => setConditions(content)}
-      />
+      <Stack height={conditionHeight}>
+        <MarkdownEditor
+          id={`conditions`}
+          title="Conditions"
+          groupScope={groupScope}
+          withUpload
+          rawContent={conditions}
+          onChange={(content) => {
+            setConditions(content)
+          }}
+        />
+      </Stack>
     </Stack>
   )
 }

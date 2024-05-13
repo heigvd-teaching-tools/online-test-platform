@@ -24,13 +24,13 @@ import Loading from '@/components/feedback/Loading'
 import LayoutMain from '@/components/layout/LayoutMain'
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
 import StudentMainMenu from './take/StudentMainMenu'
-import ContentEditor from '@/components/input/ContentEditor'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 import DataGrid from '@/components/ui/DataGrid'
 import { useTheme } from '@emotion/react'
 import { LoadingButton } from '@mui/lab'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 import { useStudentOnEvaluation } from '@/context/StudentOnEvaluationContext'
+import MarkdownViewer from '@/components/input/markdown/MarkdownViewer'
 
 const PageEvaluationHome = () => {
   const { showTopCenter: showSnackbar } = useSnackbar()
@@ -73,10 +73,10 @@ const PageEvaluationHome = () => {
           <LayoutSplitScreen
             leftPanel={
               <Stack p={1}>
-                <ContentEditor
+                <MarkdownViewer
                   id={'evaluation-view-' + evaluationId}
                   readOnly
-                  rawContent={evaluation?.conditions}
+                  content={evaluation?.conditions}
                 />
               </Stack>
             }
