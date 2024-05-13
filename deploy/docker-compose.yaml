@@ -49,8 +49,6 @@ services:
   uploads:
     image: nginx:alpine
     restart: unless-stopped
-    ports:
-      - "4000:80"
     volumes:
       - files:/usr/share/nginx/html/uploads
     networks:
