@@ -190,6 +190,45 @@ const ContentEditor = ({
     [onChange],
   )
 
+  const insertTextAtCursor = useCallback(
+    (text) => {
+      const textarea = ref.current.textarea
+      if (!textarea) return
+
+      const selectionStart = textarea.selectionStart
+      const selectionEnd = textarea.selectionEnd
+
+      const textBefore = textarea.value.substring(0, selectionStart)
+      const textAfter = textarea.value.substring(
+        selectionEnd,
+        textarea.value.length,
+      )
+
+      const newValue = textBefore + text + textAfter
+
+      handleChange(newValue)
+      textarea.selectionStart = textarea.selectionEnd =
+        selectionStart + text.length
+    },
+    [handleChange],
+  )
+
+  const insertImageInEditor = useCallback(
+    (imageUrl, imageName) => {
+      const markdownImageSyntax = `![${imageName}](${imageUrl})`
+      insertTextAtCursor(markdownImageSyntax)
+    },
+    [insertTextAtCursor],
+  )
+
+  const insertDocumentLinkInEditor = useCallback(
+    (fileUrl, fileName) => {
+      const markdownLinkSyntax = `[${fileName}](${fileUrl})`
+      insertTextAtCursor(markdownLinkSyntax)
+    },
+    [insertTextAtCursor],
+  )
+
   const handlePaste = useCallback(
     async (e) => {
       if (!groupScope) return
@@ -238,44 +277,8 @@ const ContentEditor = ({
     [groupScope, onError, insertImageInEditor, insertDocumentLinkInEditor],
   )
 
-  const insertImageInEditor = useCallback(
-    (imageUrl, imageName) => {
-      const markdownImageSyntax = `![${imageName}](${imageUrl})`
-      insertTextAtCursor(markdownImageSyntax)
-    },
-    [insertTextAtCursor],
-  )
+  
 
-  const insertDocumentLinkInEditor = useCallback(
-    (fileUrl, fileName) => {
-      const markdownLinkSyntax = `[${fileName}](${fileUrl})`
-      insertTextAtCursor(markdownLinkSyntax)
-    },
-    [insertTextAtCursor],
-  )
-
-  const insertTextAtCursor = useCallback(
-    (text) => {
-      const textarea = ref.current.textarea
-      if (!textarea) return
-
-      const selectionStart = textarea.selectionStart
-      const selectionEnd = textarea.selectionEnd
-
-      const textBefore = textarea.value.substring(0, selectionStart)
-      const textAfter = textarea.value.substring(
-        selectionEnd,
-        textarea.value.length,
-      )
-
-      const newValue = textBefore + text + textAfter
-
-      handleChange(newValue)
-      textarea.selectionStart = textarea.selectionEnd =
-        selectionStart + text.length
-    },
-    [handleChange],
-  )
 
   return (
     <Stack position={'relative'} height={'100%'}>
