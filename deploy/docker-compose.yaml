@@ -50,7 +50,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     volumes:
-      - files:/usr/share/nginx/html/uploads
+      - files:/usr/share/nginx/html
     networks:
       - app-network
 
