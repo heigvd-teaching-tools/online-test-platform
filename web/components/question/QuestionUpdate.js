@@ -17,7 +17,7 @@ import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Stack, TextField, Button, Typography } from '@mui/material'
-import ContentEditor from '../input/ContentEditor'
+import MarkdownEditor from '../input/markdown/MarkdownEditor'
 
 import LayoutSplitScreen from '../layout/LayoutSplitScreen'
 import QuestionTypeSpecific from './QuestionTypeSpecific'
@@ -130,7 +130,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
       <LayoutSplitScreen
         leftPanel={
           question && (
-            <Stack spacing={2} sx={{ pl: 2, pt: 1, pb: 2, height: '100%' }}>
+            <Stack spacing={2} sx={{ pl: 2, pt: 1, height: '100%' }}>
               <Stack direction="row" alignItems="flex-start" spacing={1}>
                 <TextField
                   id={`question-${question.id}-title`}
@@ -145,23 +145,27 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
                   }}
                 />
               </Stack>
-              <QuestionTagsSelector
-                groupScope={groupScope}
-                questionId={question.id}
-                onChange={() => onUpdate && onUpdate(question)}
-              />
-              <ContentEditor
-                id={`question-${question.id}`}
-                title="Problem Statement"
-                rawContent={question.content}
-                readOnly={false}
-                onChange={(content) => onPropertyChange('content', content)}
-              />
-
+              <Stack flex={1}>
+                <QuestionTagsSelector
+                  groupScope={groupScope}
+                  questionId={question.id}
+                  onChange={() => onUpdate && onUpdate(question)}
+                />
+                <MarkdownEditor
+                  id={`question-${question.id}`}
+                  groupScope={groupScope}
+                  withUpload
+                  title="Problem Statement"
+                  rawContent={question.content}
+                  onChange={(content) => onPropertyChange('content', content)}
+                />
+              </Stack>
               <Stack
                 direction="row"
                 justifyContent="flex-end"
-                sx={{ width: '100%' }}
+                width={'100%'}
+                pb={1}
+                alignItems={'center'}
               >
                 <Button
                   startIcon={

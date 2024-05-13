@@ -13,6 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const withTM = require('next-transpile-modules')([
+  '@uiw/react-md-editor',
+  '@uiw/react-markdown-preview',
+  'react-syntax-highlighter',
+  'lodash-es',
+]) // Packages that do import css files
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -22,8 +29,11 @@ const nextConfig = {
       test: /\.hbs$/,
       use: 'raw-loader',
     })
+
+    // Further configuration modifications can be placed here
+
     return config
   },
 }
 
-module.exports = nextConfig
+module.exports = withTM(nextConfig)

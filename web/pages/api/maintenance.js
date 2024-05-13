@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import fs from 'fs/promises'
+import path from 'path'
 import {
   withAuthorization,
   withMethodHandler,
@@ -94,11 +96,121 @@ async function migrateCodeQuestionsExpectedOutput(prisma) {
   return true
 }
 
-const post = async (req, res, prisma) => {
-  try {
-    const done = await migrateCodeQuestionsExpectedOutput(prisma)
+const extractUrlsFromMarkdown = (markdown) => {
+  const regexp = /\]\((http[s]?:\/\/.*?)(?="\)|\))/g
+  const urls = []
+  let match
+  while ((match = regexp.exec(markdown)) !== null) {
+    urls.push(match[1])
+  }
+  return urls
+}
 
-    res.status(200).json({ done })
+async function getFilesFromDirectory(directoryPath, basePath) {
+  let fileList = []
+  try {
+    const files = await fs.readdir(directoryPath, { withFileTypes: true })
+    for (const file of files) {
+      if (file.isDirectory()) {
+        const subDirFiles = await getFilesFromDirectory(
+          path.join(directoryPath, file.name),
+          basePath,
+        )
+        fileList = fileList.concat(subDirFiles)
+      } else {
+        // Ensure path normalization and trimming
+        fileList.push(
+          path
+            .relative(basePath, path.join(directoryPath, file.name))
+            .replace(/\\/g, '/'),
+        )
+      }
+    }
+  } catch (error) {
+    console.error('Failed to read directory:', error)
+    throw error
+  }
+  return fileList
+}
+
+async function cleanupUnusedUploads(prisma, domainName) {
+  const uploadsBasePath = path.join(process.cwd(), 'public', 'uploads')
+
+  const markdownFields = [
+    // Combine content from different models, ensure each item is trimmed
+    ...(await prisma.evaluation.findMany({ select: { conditions: true } })).map(
+      (e) => e.conditions,
+    ),
+    ...(await prisma.question.findMany({ select: { content: true } })).map(
+      (q) => q.content,
+    ),
+    ...(await prisma.essay.findMany({ select: { solution: true } })).map(
+      (e) => e.solution,
+    ),
+    ...(
+      await prisma.studentAnswerEssay.findMany({ select: { content: true } })
+    ).map((sa) => sa.content),
+  ]
+
+  const referencedUrls = []
+  markdownFields.forEach((field) => {
+    extractUrlsFromMarkdown(field).forEach((url) => {
+      if (url.startsWith(domainName)) {
+        const relativePath = url
+          .replace(domainName, '')
+          .replace(/^\/+/, '')
+          .trim() // Normalize and trim path
+        referencedUrls.push(relativePath)
+      }
+    })
+  })
+
+  console.log('Referenced URLs: ', referencedUrls)
+
+  const allFiles = await getFilesFromDirectory(uploadsBasePath, uploadsBasePath)
+  console.log('All Files: ', allFiles)
+
+  const filesToDelete = allFiles.filter((file) => {
+    return !referencedUrls.some((url) => url.endsWith(file))
+  })
+  console.log('Files to delete: ', filesToDelete)
+
+  // Delete unreferenced files
+  for (let file of filesToDelete) {
+    await fs.unlink(path.join(uploadsBasePath, file))
+  }
+
+  return {
+    all: allFiles.length,
+    deleted: filesToDelete.length,
+    referenced: referencedUrls.length,
+  }
+}
+
+const post = async (req, res, prisma) => {
+  const { action, options } = req.body
+
+  try {
+    switch (action) {
+      case 'run_all_sandboxes_and_update_expected_output':
+        const done = await migrateCodeQuestionsExpectedOutput(prisma)
+        res.status(200).json({ done })
+        break
+      case 'cleanup_unused_uploads':
+        const { all, deleted, referenced } = await cleanupUnusedUploads(
+          prisma,
+          options.domain,
+        )
+        res.status(200).json({
+          message: 'Cleanup successful',
+          all,
+          deleted,
+          referenced,
+        })
+        break
+      default:
+        res.status(400).json({ error: 'Invalid action specified' })
+    }
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

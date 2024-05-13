@@ -115,3 +115,5 @@ ssl
 *.pem
 
 .idea/
+
+web/public/uploads

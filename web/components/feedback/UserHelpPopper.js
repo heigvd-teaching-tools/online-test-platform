@@ -34,6 +34,8 @@ const UserHelpPopper = ({
   label,
   placement = 'bottom',
   mode = 'info',
+  size = 'small',
+  maxHeight = 700,
 }) => {
   const popperRef = useRef(null)
 
@@ -67,6 +69,7 @@ const UserHelpPopper = ({
   const handleClickAway = (event) => {
     // Only close if click is outside of the popper content
     if (popperRef.current && !popperRef.current.contains(event.target)) {
+      console.log('handleClickAway', event.target)
       setOpen(false)
     }
   }
@@ -84,6 +87,7 @@ const UserHelpPopper = ({
         >
           <IconButton
             color={mode} // This sets the button color. You may adjust if your theme supports it.
+            size={size}
             aria-label={`${mode} info`}
           >
             {getIcon()}
@@ -97,12 +101,18 @@ const UserHelpPopper = ({
           anchorEl={anchorEl}
           placement={placement}
           transition
-          sx={{ zIndex: 1000 }}
+          sx={{ zIndex: 10000 }}
         >
           {({ TransitionProps }) => (
             <Fade {...TransitionProps} timeout={350}>
               <Paper>
-                <Stack p={2} maxWidth={600} bgcolor="background.paper">
+                <Stack
+                  p={2}
+                  maxWidth={600}
+                  maxHeight={maxHeight}
+                  bgcolor="background.paper"
+                  overflow="auto"
+                >
                   {children}
                 </Stack>
               </Paper>

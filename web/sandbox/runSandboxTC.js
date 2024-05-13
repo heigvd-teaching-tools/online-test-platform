@@ -16,7 +16,6 @@
 import uniqid from 'uniqid'
 import fs from 'fs'
 import tar from 'tar'
-import util from 'util'
 
 import { GenericContainer } from 'testcontainers'
 import {

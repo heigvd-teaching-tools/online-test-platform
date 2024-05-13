@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Box } from '@mui/material'
-import ContentEditor from '@/components/input/ContentEditor'
+import MarkdownEditor from '@/components/input/markdown/MarkdownEditor'
 import ResizePanel from '@/components/layout/utils/ResizePanel'
 
 const CompareEssay = ({ solution, answer }) => {
@@ -22,16 +22,16 @@ const CompareEssay = ({ solution, answer }) => {
     <Box p={2} pt={0} height={'100%'}>
       <ResizePanel
         leftPanel={
-          <ContentEditor
-            mode={'preview'}
+          <MarkdownEditor
+            readOnly
             title={"Student's answer"}
             id={`answer-compare-essay`}
             rawContent={answer || ''}
           />
         }
         rightPanel={
-          <ContentEditor
-            mode={'preview'}
+          <MarkdownEditor
+            readOnly
             title={'Solution'}
             id={`solution-compare-essay`}
             rawContent={solution.solution || ''}

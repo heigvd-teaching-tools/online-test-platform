@@ -28,6 +28,7 @@ import {
   Chip,
   FormControlLabel,
   FormGroup,
+  Menu,
   Stack,
   TextField,
   Typography,
@@ -41,6 +42,8 @@ import { LoadingButton } from '@mui/lab'
 
 import ScrollContainer from '../layout/ScrollContainer'
 import { useSnackbar } from '@/context/SnackbarContext'
+
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 const roleToDetails = {
   [Role.STUDENT]: {
@@ -58,14 +61,21 @@ const roleToDetails = {
 }
 
 const MaintenancePanel = () => {
+  const [anchorElUser, setAnchorEl] = useState(null)
+
   const { showTopCenter: showSnackbar } = useSnackbar()
+
   const [openRunAllSandboxesDialog, setOpenRunAllSandboxesDialog] =
     useState(false)
 
-  const [running, setRunning] = useState(false)
+  const [openUnusedUploadsCleanupDialog, setOpenUnusedUploadsCleanupDialog] =
+    useState(false)
+
+  const [runningAllSandbox, setRunningAllSandbox] = useState(false)
+  const [runningUploadsCleanup, setRunningUploadsCleanup] = useState(false)
 
   const runAllSandboxesAndUpdateExpectedOutput = useCallback(async () => {
-    setRunning(true)
+    setRunningAllSandbox(true)
     await fetch('/api/maintenance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -73,22 +83,76 @@ const MaintenancePanel = () => {
         action: 'run_all_sandboxes_and_update_expected_output',
       }),
     })
-    setRunning(false)
+    setRunningAllSandbox(false)
     showSnackbar(
       'All sandboxes have been run and expected outputs updated',
       'success',
     )
   }, [showSnackbar])
 
+  const cleanupUnusedUploads = useCallback(async () => {
+    setRunningUploadsCleanup(true)
+    const response = await fetch('/api/maintenance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'cleanup_unused_uploads',
+        options: {
+          domain: window.location.origin,
+        },
+      }),
+    }).then((res) => res.json())
+    setRunningUploadsCleanup(false)
+
+    showSnackbar(
+      `Cleanup successful: ${response.deleted} files deleted`,
+      'success',
+    )
+  }, [showSnackbar])
+
   return (
     <Stack direction="row" spacing={1}>
-      <LoadingButton
-        color="info"
-        onClick={() => setOpenRunAllSandboxesDialog(true)}
-        loading={running}
+      <Button
+        size="small"
+        onClick={(ev) => {
+          ev.preventDefault()
+          ev.stopPropagation()
+          setAnchorEl(ev.currentTarget)
+        }}
+        endIcon={<MoreVertIcon />}
       >
-        Run all sandboxes and update expected outputs
-      </LoadingButton>
+        Maintenance
+      </Button>
+      <Menu
+        sx={{ mt: '40px' }}
+        id="menu-maintenance"
+        anchorEl={anchorElUser}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        keepMounted
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        open={Boolean(anchorElUser)}
+        onClose={() => setAnchorEl(null)}
+      >
+        <Stack padding={2} spacing={2} alignItems={'flex-start'}>
+          <LoadingButton
+            color="info"
+            onClick={() => setOpenRunAllSandboxesDialog(true)}
+            loading={runningAllSandbox}
+            fullWidth
+          >
+            Run all sandboxes and update expected outputs
+          </LoadingButton>
+          <LoadingButton
+            color="info"
+            onClick={() => setOpenUnusedUploadsCleanupDialog(true)}
+            loading={runningUploadsCleanup}
+            fullWidth
+          >
+            Cleanup unused uploads
+          </LoadingButton>
+        </Stack>
+      </Menu>
+
       <DialogFeedback
         open={openRunAllSandboxesDialog}
         onClose={() => setOpenRunAllSandboxesDialog(false)}
@@ -115,6 +179,22 @@ const MaintenancePanel = () => {
               questions). It will run 1 sandbox at a time. You cannot cancel it
               once started.
             </Alert>
+          </Stack>
+        }
+      />
+      <DialogFeedback
+        open={openUnusedUploadsCleanupDialog}
+        onClose={() => setOpenUnusedUploadsCleanupDialog(false)}
+        onConfirm={() => cleanupUnusedUploads()}
+        title="Cleanup unused uploads"
+        content={
+          <Stack spacing={2}>
+            <Typography variant="body1">
+              This action will cleanup all unused uploads.
+            </Typography>
+            <Typography variant="body2">
+              Are you sure you want to cleanup all unused uploads?
+            </Typography>
           </Stack>
         }
       />

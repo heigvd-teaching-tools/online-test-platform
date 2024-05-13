@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 import React from 'react'
-import MarkdownEditor from '../../input/markdown/MarkdownEditor'
-import { Stack } from '@mui/material'
+import MDEditor from '@uiw/react-md-editor'
+import { Box } from '@mui/material'
+import { previewOptions } from './previewOptions'
+import { useTheme } from '@emotion/react'
 
-const Essay = ({ id = 'essay', groupScope, title, content, onChange }) => {
+const MarkdownViewer = ({ content }) => {
+  const theme = useTheme()
+  const bgColor = theme.palette.background.default
   return (
-    <Stack spacing={1} width="100%" height="100%" position="relative" px={1}>
-      <MarkdownEditor
-        id={id}
-        title={title}
-        groupScope={groupScope}
-        rawContent={content}
-        onChange={(newContent) => {
-          if (newContent === content) return
-          onChange(newContent === '' ? undefined : newContent)
-        }}
-      />
-    </Stack>
+    <Box
+      data-color-mode="light"
+      sx={{
+        '&[data-color-mode="light"] .wmde-markdown': {
+          '--color-canvas-default': bgColor,
+          backgroundColor: 'var(--color-canvas-default)',
+        },
+      }}
+    >
+      <MDEditor.Markdown source={content} {...previewOptions} />
+    </Box>
   )
 }
 
-export default Essay
+export default MarkdownViewer
