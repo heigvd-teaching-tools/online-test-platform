@@ -13,7 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Alert, AlertTitle, Box, Stack, TextField, Typography } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -325,9 +332,8 @@ const UserHelp = () => {
         <Alert severity="warning">
           <AlertTitle>The original file name is kept. </AlertTitle>
           <Typography variant="body2" color="main.warning">
-            Name your files meaningfully before
-            pasting them. Eventual existing files will be overwritten. The files
-            are organized per group.
+            Name your files meaningfully before pasting them. Eventual existing
+            files will be overwritten. The files are organized per group.
           </Typography>
         </Alert>
         <Box>
