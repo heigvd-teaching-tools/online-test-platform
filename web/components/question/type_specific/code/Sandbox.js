@@ -35,7 +35,7 @@ const Sandbox = ({ groupScope, questionId, onUpdate }) => {
     { revalidateOnFocus: false },
   )
 
-  const { showTopRight: showSnackbar } = useSnackbar()
+  const { show: showSnackbar } = useSnackbar()
 
   const [image, setImage] = useState(sandbox?.image || '')
   const [beforeAll, setBeforeAll] = useState(sandbox?.beforeAll || '')
