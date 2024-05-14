@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import React, { useRef, useState } from 'react'
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
@@ -53,6 +54,8 @@ const UserHelpPopper = ({
   // Function to determine the icon based on mode
   const getIcon = () => {
     switch (mode) {
+      case 'help':
+        return <HelpOutlineOutlinedIcon />
       case 'info':
         return <InfoOutlinedIcon />
       case 'warning':

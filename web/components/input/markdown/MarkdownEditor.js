@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Box, Stack, TextField, Typography } from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -307,12 +307,19 @@ const UploadingStatus = ({ status = 'NOT_STARTED' }) => {
 
 const UserHelp = () => {
   return (
-    <UserHelpPopper label="Features" maxHeight={500}>
+    <UserHelpPopper label="Guide" maxHeight={500}>
       <Stack spacing={1}>
         <Typography variant="h6">File upload</Typography>
         <Typography variant="body1">
           You can paste images and documents directly into the editor
         </Typography>
+        <Alert severity="warning">
+        <Typography variant="body2" color="main.warning">
+            The original file name is kept. Name your files meaningfully
+             before pasting them. Eventual existing files will be
+            overwritten. The files are organized per group.
+        </Typography>
+        </Alert>
         <Box>
           <Typography variant="body2">
             Supported document types: pdf, doc, docx, xls, xlsx, ppt, pptx, csv,
@@ -324,6 +331,7 @@ const UserHelp = () => {
           <Typography variant="body2">
             Supported text types: plain, csv
           </Typography>
+          
           <Typography variant="body2">Max file size: 10MB</Typography>
         </Box>
 
