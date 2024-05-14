@@ -59,7 +59,6 @@ int main() {
 }
 \`\`\``
 
-
 const mainCommands = [
   commands.bold,
   commands.italic,
@@ -324,11 +323,11 @@ const UserHelp = () => {
           You can paste images and documents directly into the editor
         </Typography>
         <Alert severity="warning">
-        <Typography variant="body2" color="main.warning">
-            The original file name is kept. Name your files meaningfully
-             before pasting them. Eventual existing files will be
-            overwritten. The files are organized per group.
-        </Typography>
+          <Typography variant="body2" color="main.warning">
+            The original file name is kept. Name your files meaningfully before
+            pasting them. Eventual existing files will be overwritten. The files
+            are organized per group.
+          </Typography>
         </Alert>
         <Box>
           <Typography variant="body2">
@@ -341,7 +340,7 @@ const UserHelp = () => {
           <Typography variant="body2">
             Supported text types: plain, csv
           </Typography>
-          
+
           <Typography variant="body2">Max file size: 10MB</Typography>
         </Box>
 
@@ -425,28 +424,25 @@ const UserHelp = () => {
         </Typography>
 
         <Stack spacing={2}>
-            <Typography variant="body2">
-              Code snippets must be enclosed in triple backticks (code bloc). 
-              The language of the code snippet can be specified after the
-              opening triple backticks. The language is used for syntax
-              highlighting.
-            </Typography>
+          <Typography variant="body2">
+            Code snippets must be enclosed in triple backticks (code bloc). The
+            language of the code snippet can be specified after the opening
+            triple backticks. The language is used for syntax highlighting.
+          </Typography>
 
-            <TextField
-              variant="outlined"
-              label="Code snippet example"
-              value={codeExample}
-              fullWidth
-              multiline
-              rows={8}
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-            />
-
+          <TextField
+            variant="outlined"
+            label="Code snippet example"
+            value={codeExample}
+            fullWidth
+            multiline
+            rows={8}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+          />
         </Stack>
-
       </Stack>
     </UserHelpPopper>
   )
