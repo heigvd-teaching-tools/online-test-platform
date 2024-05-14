@@ -122,6 +122,7 @@ const MarkdownEditor = ({
   onChange,
   onHeightChange,
 }) => {
+  
   const { show: showSnackbar } = useSnackbar()
 
   return (
@@ -137,7 +138,7 @@ const MarkdownEditor = ({
         </Stack>
         {withUpload && <UserHelp />}
       </Stack>
-      <ScrollContainer>
+      
         <ContentEditor
           groupScope={groupScope}
           readOnly={readOnly}
@@ -154,7 +155,7 @@ const MarkdownEditor = ({
           onHeightChange={onHeightChange}
           onError={(error) => showSnackbar(error, 'error')}
         />
-      </ScrollContainer>
+      
     </Box>
   )
 }
