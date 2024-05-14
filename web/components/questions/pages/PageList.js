@@ -145,6 +145,7 @@ const PageList = () => {
                   />
                   <ResizableDrawer
                     open={openSideUpdate}
+                    width={85}
                     onClose={() => {
                       setSelected(undefined)
                       setOpenSideUpdate(false)
