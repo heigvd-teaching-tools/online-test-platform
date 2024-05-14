@@ -50,6 +50,15 @@ const latexExample = `\`\`\`latex
 c = \\pm\\sqrt{a^2 + b^2}
 \`\`\``
 
+const codeExample = `\`\`\`cpp
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!";
+    return 0;
+}
+\`\`\``
+
 const mainCommands = [
   commands.bold,
   commands.italic,
@@ -314,11 +323,11 @@ const UserHelp = () => {
           You can paste images and documents directly into the editor
         </Typography>
         <Alert severity="warning">
-        <Typography variant="body2" color="main.warning">
-            The original file name is kept. Name your files meaningfully
-             before pasting them. Eventual existing files will be
-            overwritten. The files are organized per group.
-        </Typography>
+          <Typography variant="body2" color="main.warning">
+            The original file name is kept. Name your files meaningfully before
+            pasting them. Eventual existing files will be overwritten. The files
+            are organized per group.
+          </Typography>
         </Alert>
         <Box>
           <Typography variant="body2">
@@ -331,7 +340,7 @@ const UserHelp = () => {
           <Typography variant="body2">
             Supported text types: plain, csv
           </Typography>
-          
+
           <Typography variant="body2">Max file size: 10MB</Typography>
         </Box>
 
@@ -345,7 +354,7 @@ const UserHelp = () => {
           </Typography>
           <TextField
             variant="outlined"
-            label="Mermaid diagram example"
+            label="Mermaid graph diagram example"
             value={mermaidExample}
             fullWidth
             multiline
@@ -358,7 +367,7 @@ const UserHelp = () => {
 
           <TextField
             variant="outlined"
-            label="Mermaid diagram example 2"
+            label="Mermaid class diagram example"
             value={mermaidExample2}
             fullWidth
             multiline
@@ -407,6 +416,32 @@ const UserHelp = () => {
           <Link href="https://katex.org/docs/supported" target="_blank">
             Supported symbols
           </Link>
+        </Stack>
+
+        <Typography variant="h6">Code snippet support</Typography>
+        <Typography variant="body1">
+          You can use code snippets with syntax highlighting
+        </Typography>
+
+        <Stack spacing={2}>
+          <Typography variant="body2">
+            Code snippets must be enclosed in triple backticks (code bloc). The
+            language of the code snippet can be specified after the opening
+            triple backticks. The language is used for syntax highlighting.
+          </Typography>
+
+          <TextField
+            variant="outlined"
+            label="Code snippet example"
+            value={codeExample}
+            fullWidth
+            multiline
+            rows={8}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+          />
         </Stack>
       </Stack>
     </UserHelpPopper>

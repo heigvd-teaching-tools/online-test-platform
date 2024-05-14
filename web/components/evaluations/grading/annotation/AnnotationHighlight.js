@@ -21,7 +21,6 @@ import { Stack } from '@mui/system'
 import { useTheme } from '@emotion/react'
 
 const AnnotationHighlight = ({ readOnly, state, children }) => {
-
   const theme = useTheme()
 
   const [editingState, setEditingState] = useState(EditingState.INACTIVE.value)
