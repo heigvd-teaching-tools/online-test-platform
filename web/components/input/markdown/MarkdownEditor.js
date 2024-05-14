@@ -122,7 +122,6 @@ const MarkdownEditor = ({
   onChange,
   onHeightChange,
 }) => {
-  
   const { show: showSnackbar } = useSnackbar()
 
   return (
@@ -138,24 +137,23 @@ const MarkdownEditor = ({
         </Stack>
         {withUpload && <UserHelp />}
       </Stack>
-      
-        <ContentEditor
-          groupScope={groupScope}
-          readOnly={readOnly}
-          editorProps={{
-            ...defaultEditorOptions,
-            preview: readOnly ? 'preview' : 'live',
-          }}
-          previewOptions={previewOptions}
-          commands={readOnly ? [] : mainCommands}
-          extraCommands={extraCommands}
-          withUpload={!readOnly && withUpload}
-          content={rawContent}
-          onChange={onChange}
-          onHeightChange={onHeightChange}
-          onError={(error) => showSnackbar(error, 'error')}
-        />
-      
+
+      <ContentEditor
+        groupScope={groupScope}
+        readOnly={readOnly}
+        editorProps={{
+          ...defaultEditorOptions,
+          preview: readOnly ? 'preview' : 'live',
+        }}
+        previewOptions={previewOptions}
+        commands={readOnly ? [] : mainCommands}
+        extraCommands={extraCommands}
+        withUpload={!readOnly && withUpload}
+        content={rawContent}
+        onChange={onChange}
+        onHeightChange={onHeightChange}
+        onError={(error) => showSnackbar(error, 'error')}
+      />
     </Box>
   )
 }
