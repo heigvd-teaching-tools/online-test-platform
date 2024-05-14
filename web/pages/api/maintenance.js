@@ -23,7 +23,7 @@ import { withPrisma } from '@/middleware/withPrisma'
 import { runSandbox } from '@/sandbox/runSandboxTC'
 import { CodeQuestionType, Role } from '@prisma/client'
 
-async function migrateCodeQuestionsExpectedOutput(prisma) {
+const migrateCodeQuestionsExpectedOutput = async (prisma) => {
   // Select all Code questions of type codeWriting
   const codeQuestions = await prisma.code.findMany({
     where: {
@@ -106,7 +106,7 @@ const extractUrlsFromMarkdown = (markdown) => {
   return urls
 }
 
-async function getFilesFromDirectory(directoryPath, basePath) {
+const getFilesFromDirectory = async (directoryPath, basePath) => {
   let fileList = []
   try {
     const files = await fs.readdir(directoryPath, { withFileTypes: true })
@@ -133,11 +133,20 @@ async function getFilesFromDirectory(directoryPath, basePath) {
   return fileList
 }
 
-async function cleanupUnusedUploads(prisma, domainName) {
-  const uploadsBasePath = path.join(process.cwd(), 'public', 'uploads')
+const cleanupUnusedUploads = async (prisma, domainName) => {
+  /* IMPORTANT
+  
+    Get all markdown fields from the database
+    It is very important to keep this list up-to-date with all markdown fields that contain URLs
+    that may reference uploaded files.
 
+    This list should be updated whenever a new markdown field is added to the database.
+
+    Missing fields may result in files being deleted even if they are still referenced in the database.
+
+
+  */
   const markdownFields = [
-    // Combine content from different models, ensure each item is trimmed
     ...(await prisma.evaluation.findMany({ select: { conditions: true } })).map(
       (e) => e.conditions,
     ),
@@ -151,6 +160,8 @@ async function cleanupUnusedUploads(prisma, domainName) {
       await prisma.studentAnswerEssay.findMany({ select: { content: true } })
     ).map((sa) => sa.content),
   ]
+
+  const uploadsBasePath = path.join(process.cwd(), 'public', 'uploads')
 
   const referencedUrls = []
   markdownFields.forEach((field) => {
@@ -199,7 +210,7 @@ const post = async (req, res, prisma) => {
       case 'cleanup_unused_uploads':
         const { all, deleted, referenced } = await cleanupUnusedUploads(
           prisma,
-          options.domain,
+          options.domaine,
         )
         res.status(200).json({
           message: 'Cleanup successful',

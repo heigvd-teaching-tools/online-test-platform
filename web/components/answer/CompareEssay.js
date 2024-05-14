@@ -19,7 +19,7 @@ import ResizePanel from '@/components/layout/utils/ResizePanel'
 
 const CompareEssay = ({ solution, answer }) => {
   return (
-    <Box p={2} pt={0} height={'100%'}>
+    <Box p={2} pt={1} height={'100%'}>
       <ResizePanel
         leftPanel={
           <MarkdownEditor

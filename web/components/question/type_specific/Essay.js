@@ -19,7 +19,7 @@ import { Stack } from '@mui/material'
 
 const Essay = ({ id = 'essay', groupScope, title, content, onChange }) => {
   return (
-    <Stack spacing={1} width="100%" height="100%" position="relative" px={1}>
+    <Stack spacing={1} width="100%" height="100%" position="relative" px={1} pt={1}>
       <MarkdownEditor
         id={id}
         title={title}

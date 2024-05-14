@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 import ClickAwayListener from 'react-click-away-listener'
 import { AnnotationState, EditingState } from './types'
+import { Stack } from '@mui/system'
+import { useTheme } from '@emotion/react'
 
 const AnnotationHighlight = ({ readOnly, state, children }) => {
+
+  const theme = useTheme()
+
   const [editingState, setEditingState] = useState(EditingState.INACTIVE.value)
 
   useEffect(() => {

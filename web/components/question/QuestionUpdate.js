@@ -145,21 +145,21 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
                   }}
                 />
               </Stack>
-              <Stack flex={1}>
-                <QuestionTagsSelector
-                  groupScope={groupScope}
-                  questionId={question.id}
-                  onChange={() => onUpdate && onUpdate(question)}
-                />
-                <MarkdownEditor
-                  id={`question-${question.id}`}
-                  groupScope={groupScope}
-                  withUpload
-                  title="Problem Statement"
-                  rawContent={question.content}
-                  onChange={(content) => onPropertyChange('content', content)}
-                />
-              </Stack>
+
+              <QuestionTagsSelector
+                groupScope={groupScope}
+                questionId={question.id}
+                onChange={() => onUpdate && onUpdate(question)}
+              />
+              <MarkdownEditor
+                id={`question-${question.id}`}
+                groupScope={groupScope}
+                withUpload
+                title="Problem Statement"
+                rawContent={question.content}
+                onChange={(content) => onPropertyChange('content', content)}
+              />
+
               <Stack
                 direction="row"
                 justifyContent="flex-end"
