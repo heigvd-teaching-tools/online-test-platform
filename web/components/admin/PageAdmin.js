@@ -98,7 +98,7 @@ const MaintenancePanel = () => {
       body: JSON.stringify({
         action: 'cleanup_unused_uploads',
         options: {
-          domain: window.location.origin,
+          domaine: window.location.origin,
         },
       }),
     }).then((res) => res.json())

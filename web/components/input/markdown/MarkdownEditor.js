@@ -114,7 +114,6 @@ const MarkdownEditor = ({
         direction="row"
         alignItems="center"
         justifyContent={'space-between'}
-        py={1}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="body1">{title}</Typography>

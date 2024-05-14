@@ -76,8 +76,7 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    cb(null, uniquePrefix + path.extname(file.originalname))
+    cb(null, file.originalname)
   },
 })
 
@@ -119,6 +118,7 @@ const post = async (req, res) => {
       const fileUrl = `${req.headers.origin}/${normalizedFilePath.substring(
         normalizedFilePath.indexOf('/uploads'),
       )}`
+
       res.status(200).json({ success: true, fileUrl })
     } catch (error) {
       console.error('Error processing file:', error)
@@ -130,10 +130,11 @@ const post = async (req, res) => {
 }
 
 async function processImage(filePath) {
-  const newFilePath =
-    filePath.replace(path.extname(filePath), '') +
-    '-resized' +
-    path.extname(filePath)
+  const newFilePath = `${filePath.replace(
+    path.extname(filePath),
+    '',
+  )}-resized${path.extname(filePath)}`
+
   await sharp(filePath)
     .resize(MAX_IMAGE_WIDTH_PX, null, {
       fit: sharp.fit.inside,
@@ -141,18 +142,8 @@ async function processImage(filePath) {
     })
     .toFile(newFilePath)
 
-  // Retry unlink a few times if it fails initially
-  for (let i = 0; i < 3; i++) {
-    try {
-      await fs.unlink(filePath)
-    } catch (error) {
-      if (error.code === 'EPERM' && i < 2) {
-        // Wait 100 ms before retrying
-        await new Promise((resolve) => setTimeout(resolve, 100))
-        continue // Retry
-      }
-    }
-  }
+  await fs.unlink(filePath)
+
   return newFilePath
 }
 
