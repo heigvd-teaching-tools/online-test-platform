@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import order from '@/pages/api/[groupScope]/collections/[collectionId]/order'
 import code from '@/pages/api/[groupScope]/questions/[questionId]/code'
+import select from '@/pages/api/users/groups/select'
 import {
   QuestionType,
   StudentPermission,
   QuestionSource,
   CodeQuestionType,
 } from '@prisma/client'
-import { orderBy, update } from 'lodash'
+
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -112,9 +114,18 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         },
         multipleChoice: {
           select: {
+            ...(includeOfficialAnswers ? { 
+              gradingPolicy: true,
+              activateStudentComment: true,
+              studentCommentLabel: true,
+              activateSelectionLimit: true,
+              selectionLimit: true,
+              multipleChoiceProportionalCreditConfig: true,
+            } : {}),
             options: {
               select: {
                 id: true,
+                order: true,
                 text: true,
                 ...(includeOfficialAnswers ? { isCorrect: true } : {}),
               },
@@ -273,7 +284,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         multipleChoice: {
           select: {
             options: {
-              select: { id: true, text: true },
+              select: { id: true, order:true, text: true },
               orderBy: [{ order: 'asc' }, { id: 'asc' }],
             },
           },
@@ -339,6 +350,27 @@ export const questionTypeSpecific = (
             },
           }
         : {
+            gradingPolicy: question.multipleChoice.gradingPolicy,
+            activateStudentComment: question.multipleChoice.activateStudentComment,
+            studentCommentLabel: question.multipleChoice.studentCommentLabel,
+            activateSelectionLimit: question.multipleChoice.activateSelectionLimit,
+            selectionLimit: question.multipleChoice.selectionLimit,
+            multipleChoiceProportionalCreditConfig: 
+              question.multipleChoice.multipleChoiceProportionalCreditConfig
+              ? mode === 'update'
+                ? {
+                    update: {
+                      negativeMarking: question.multipleChoice.multipleChoiceProportionalCreditConfig.negativeMarking,
+                      threshold: question.multipleChoice.multipleChoiceProportionalCreditConfig.threshold,
+                    },
+                  }
+                : {
+                    create: {
+                      negativeMarking: question.multipleChoice.multipleChoiceProportionalCreditConfig.negativeMarking,
+                      threshold: question.multipleChoice.multipleChoiceProportionalCreditConfig.threshold,
+                    },
+                  }
+              : undefined,
             options:
               mode === 'update'
                 ? // multi choice options are no longer managed on the question level, they are managed by individual endpoints : api/questions/:id/multiple-choice/options

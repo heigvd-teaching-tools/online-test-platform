@@ -27,7 +27,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import MDEditor, { commands } from '@uiw/react-md-editor'
 import StatusDisplay from '../../feedback/StatusDisplay'
 import Overlay from '../../ui/Overlay'
-import ScrollContainer from '../../layout/ScrollContainer'
+
 import { previewOptions } from './previewOptions'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import Link from 'next/link'
@@ -91,6 +91,7 @@ const mainCommands = [
   commands.quote,
   commands.codeBlock,
   commands.image,
+  commands.table,
   commands.divider,
   commands.unorderedListCommand,
   commands.orderedListCommand,
@@ -218,7 +219,7 @@ const ContentEditor = ({
         textarea.value.length,
       )
 
-      const newValue = textBefore + text + textAfter
+      const newValue = `${textBefore}\n${text}\n${textAfter}`
 
       handleChange(newValue)
       textarea.selectionStart = textarea.selectionEnd =

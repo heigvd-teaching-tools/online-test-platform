@@ -135,10 +135,11 @@ const TagsSelector = ({
   )
 
   const renderTag = useCallback(
-    (getTagProps, tag, index) => (
+    (getTagProps, tag, index, size) => (
       <Tag
         key={tag}
         tag={tag}
+        size={size}
         index={index}
         getTagProps={getTagProps}
         validateTag={validateTag}
@@ -166,7 +167,7 @@ const TagsSelector = ({
         size={size}
         onKeyDown={handleKeyDown}
         renderTags={(tagValue, getTagProps) =>
-          tagValue.map((option, index) => renderTag(getTagProps, option, index))
+          tagValue.map((option, index) => renderTag(getTagProps, option, index, size))
         }
         renderInput={(params) => (
           <TextField
@@ -194,7 +195,7 @@ const TagsSelector = ({
   )
 }
 
-const Tag = ({ tag: initial, index, validateTag, getTagProps, onChange }) => {
+const Tag = ({ tag: initial, index, validateTag, getTagProps, size, onChange }) => {
   const [tag, setTag] = useState(initial)
   const [mode, setMode] = useState('view')
   const inputRef = useRef(null) // Ref for the TextField
@@ -237,6 +238,7 @@ const Tag = ({ tag: initial, index, validateTag, getTagProps, onChange }) => {
           variant="outlined"
           color={validateTag(tag) ? 'default' : 'error'}
           label={tag}
+          size={size}
           {...getTagProps({ index })}
           onDoubleClick={handleDoubleClick}
         />

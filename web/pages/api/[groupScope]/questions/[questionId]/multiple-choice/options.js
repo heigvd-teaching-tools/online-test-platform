@@ -26,36 +26,11 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 /**
  *
  * Managing the options of a multichoice question
- * get: list options of a multichoice question
- * put: update an option of a multichoice question
+  * put: update an option of a multichoice question
  * post: create an option for a multichoice question
  * del: delete an option of a multichoice question
  */
 
-// get the options of the multichoice question
-const get = async (req, res, prisma) => {
-  const { questionId } = req.query
-
-  const multiChoice = await prisma.multipleChoice.findUnique({
-    where: {
-      questionId: questionId,
-    },
-    include: {
-      options: {
-        orderBy: [
-          {
-            order: 'asc',
-          },
-          {
-            id: 'asc', // For historical options before the order was added
-          },
-        ],
-      },
-    },
-  })
-
-  res.status(200).json(multiChoice.options)
-}
 
 // update the option of the multichoice question
 const put = async (req, res, prisma) => {
@@ -63,14 +38,14 @@ const put = async (req, res, prisma) => {
   const { option } = req.body
 
   // check if options belongs to the question
-  const optionQuestion = await prisma.multipleChoice.findUnique({
+  const multipleChoice = await prisma.multipleChoice.findUnique({
     where: { questionId: questionId },
     include: {
       options: true,
     },
   })
 
-  if (!optionQuestion.options.some((o) => o.id === option.id)) {
+  if (!multipleChoice.options.some((o) => o.id === option.id)) {
     res.status(404).json({ message: 'Option not found' })
     return
   }
@@ -83,6 +58,29 @@ const put = async (req, res, prisma) => {
       isCorrect: option.isCorrect,
     },
   })
+
+  
+  if(multipleChoice.activateSelectionLimit){
+    // count the number of correct options and update the selectionLimit
+    const countCorrectOptions = await prisma.option.count({
+      where: {
+        multipleChoice: {
+          questionId: questionId,
+        },
+        isCorrect: true,
+      },
+    })
+
+    // update the selectionLimit
+    await prisma.multipleChoice.update({
+      where: { questionId: questionId },
+      data: {
+        selectionLimit: countCorrectOptions,
+      },
+    })
+  }
+
+  
 
   res.status(200).json(updatedOption)
 }
@@ -139,7 +137,6 @@ const del = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
   PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [
     Role.PROFESSOR,
   ]),

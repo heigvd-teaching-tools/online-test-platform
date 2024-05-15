@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import useSWR from 'swr'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 import { useDebouncedCallback } from 'use-debounce'
 import { useRouter } from 'next/router'
-import { Button, Stack, Typography } from '@mui/material'
+import { Button, Stack, ToggleButton, Typography } from '@mui/material'
 import { fetcher } from '@/code/utils'
 
 import TrueFalse from '@/components/question/type_specific/TrueFalse'
-import MultipleChoice from '@/components/question/type_specific/MultipleChoice'
 import Essay from '@/components/question/type_specific/Essay'
 import Loading from '@/components/feedback/Loading'
 import WebEditor from '@/components/question/type_specific/web/WebEditor'
@@ -35,6 +34,9 @@ import AlertFeedback from '../feedback/AlertFeedback'
 import { LoadingButton } from '@mui/lab'
 import { useSnackbar } from '@/context/SnackbarContext'
 import Overlay from '../ui/Overlay'
+
+import CheckIcon from '@mui/icons-material/Check'
+import ClearIcon from '@mui/icons-material/Clear'
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
   return (
@@ -288,15 +290,20 @@ const AnswerMultipleChoice = ({
   }, [answer, question])
 
   const onOptionChange = useCallback(
-    async (index, options) => {
-      const changedOption = options[index]
-      const method = changedOption.isCorrect ? 'POST' : 'DELETE'
+    async (id, options) => {
+      
+      const option = options.find((option) => option.id === id)
+      if (!option) return
+
+      option.isCorrect = !option.isCorrect
+      
+      const method = option.isCorrect ? 'POST' : 'DELETE'
       const response = await fetch(
         `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
         {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ option: changedOption }),
+          body: JSON.stringify({ option: option }),
         },
       )
       const ok = response.ok
@@ -307,16 +314,56 @@ const AnswerMultipleChoice = ({
     [evaluationId, questionId, onAnswerChange],
   )
 
+  const round = useMemo(() => question.multipleChoice.activateSelectionLimit &&  question.multipleChoice.selectionLimit === 1, [question])
+
   return (
-    answer?.multipleChoice &&
-    options && (
-      <MultipleChoice
-        id={`answer-editor-${questionId}`}
-        selectOnly
-        options={options}
-        onChange={onOptionChange}
-      />
-    )
+    <Stack direction="column" spacing={2} padding={2}>
+      {
+        answer?.multipleChoice &&
+        options && options.map((option, index) => (
+          <MultipleChoiceOptionSelect
+            key={option.id}
+            round={round}
+            option={option}
+            onSelect={() => onOptionChange(option.id, options)}
+          />
+        ))
+      }
+    </Stack>
+  );
+};
+
+const MultipleChoiceOptionSelect = ({ round = false, option, onSelect }) => {
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={2}
+      sx={{ flex: 1, cursor: 'pointer' }}
+      onClick={(ev) => {
+        ev.stopPropagation()
+        onSelect(option.order)
+      }}
+    >
+      <ToggleButton
+        value="correct"
+        selected={option.isCorrect}
+        size="small"
+        color="success"
+        onChange={(e) => onSelect(option.order)}
+        sx={
+          round
+            ? {
+                borderRadius: '50%',
+              }
+            : {}
+        }
+      >
+        {option.isCorrect ? <CheckIcon /> : <ClearIcon />}
+      </ToggleButton>
+
+      <Typography variant="body1">{option.text}</Typography>
+    </Stack>
   )
 }
 

@@ -39,13 +39,9 @@ const SUPPORTED_APPLICATION_TYPES = [
   'vnd.ms-powerpoint',
   'vnd.openxmlformats-officedocument.presentationml.presentation',
   'csv',
-  'zip',
-  'x-compressed',
-  'x-rar-compressed',
-  'x-tar',
 ]
 
-const SUPPORTED_IMAGE_TYPES = ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp']
+const SUPPORTED_IMAGE_TYPES = ['jpeg', 'jpg', 'png', 'gif']
 
 const SUPPORTED_TEXT_TYPES = ['plain', 'csv']
 
