@@ -230,8 +230,6 @@ const get = async (req, res, prisma) => {
     muiTheme: muiTheme,
   }
 
-  console.log(utils.inspect(context, { depth: null }))
-
   // Compile the main template
   const template = Handlebars.compile(mainTempate)
   // Insert data into the template
