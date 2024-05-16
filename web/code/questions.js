@@ -117,7 +117,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             ...(includeOfficialAnswers
               ? {
                   gradingPolicy: true,
-                  multipleChoiceProportionalCreditConfig: true,
+                  multipleChoiceGradualCreditConfig: true,
                 }
               : {}),
             activateStudentComment: true,
@@ -360,29 +360,29 @@ export const questionTypeSpecific = (
             activateSelectionLimit:
               question.multipleChoice.activateSelectionLimit,
             selectionLimit: question.multipleChoice.selectionLimit,
-            multipleChoiceProportionalCreditConfig: question.multipleChoice
-              .multipleChoiceProportionalCreditConfig
+            multipleChoiceGradualCreditConfig: question.multipleChoice
+              .multipleChoiceGradualCreditConfig
               ? mode === 'update'
                 ? {
                     update: {
                       negativeMarking:
                         question.multipleChoice
-                          .multipleChoiceProportionalCreditConfig
+                          .multipleChoiceGradualCreditConfig
                           .negativeMarking,
                       threshold:
                         question.multipleChoice
-                          .multipleChoiceProportionalCreditConfig.threshold,
+                          .multipleChoiceGradualCreditConfig.threshold,
                     },
                   }
                 : {
                     create: {
                       negativeMarking:
                         question.multipleChoice
-                          .multipleChoiceProportionalCreditConfig
+                          .multipleChoiceGradualCreditConfig
                           .negativeMarking,
                       threshold:
                         question.multipleChoice
-                          .multipleChoiceProportionalCreditConfig.threshold,
+                          .multipleChoiceGradualCreditConfig.threshold,
                     },
                   }
               : undefined,

@@ -62,7 +62,7 @@ const ResizableDrawer = ({ open, width: initial = 70, onClose, children }) => {
     <Drawer
       anchor={'right'}
       open={open}
-      PaperProps={{ style: { width: `${width}vw` } }}
+      PaperProps={{ style: { width: `${width}vw`, zIndex: 1 } }}
       onClose={() => onClose()}
       ref={ref}
     >

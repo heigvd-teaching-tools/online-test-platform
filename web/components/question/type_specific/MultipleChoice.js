@@ -22,7 +22,6 @@ import ClearIcon from '@mui/icons-material/Clear'
 
 import DragHandleSVG from '@/components/layout/utils/DragHandleSVG'
 import ReorderableList from '@/components/layout/utils/ReorderableList'
-import { debounce } from 'lodash'
 import { useDebouncedCallback } from 'use-debounce'
 
 const MultipleChoice = ({
@@ -32,7 +31,6 @@ const MultipleChoice = ({
   onChangeOption,
   onChangeOrder,
   onDelete,
-  selectOnly = false,
 }) => {
   const [options, setOptions] = useState([])
 
@@ -98,7 +96,7 @@ const MultipleChoice = ({
             const deleted = options[order]
             newOptions.splice(index, 1)
             setOptions(newOptions)
-            onDelete(newOptions[index].id, deleted)
+            onDelete(deleted)
           }}
         />
       ))}

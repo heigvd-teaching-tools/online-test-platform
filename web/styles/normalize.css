@@ -271,3 +271,13 @@ svg {
   margin: 0;
   padding: 0;
 }
+
+ul {
+  
+  padding: 0 0 0 1rem;
+  margin: 0;
+}
+
+li {
+  list-style-type: circle;
+}

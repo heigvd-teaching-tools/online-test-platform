@@ -193,7 +193,7 @@ model MultipleChoice {
   options    Option[]
 
   gradingPolicy MultipleChoiceGradingPolicyType @default(ALL_OR_NOTHING)
-  multipleChoiceProportionalCreditConfig MultipleChoiceGradualCreditConfig?
+  multipleChoiceGradualCreditConfig MultipleChoiceGradualCreditConfig?
 
   activateStudentComment Boolean  @default(false) // Allow student to provide a comment/justification
   studentCommentLabel String?                     // Label for the student comment field
@@ -207,7 +207,7 @@ model MultipleChoiceGradualCreditConfig {
   questionId   String @unique
   
   negativeMarking    Boolean           @default(false)
-  threshold          Int               @default(0) 
+  threshold          Float             @default(0)
   
 }
 

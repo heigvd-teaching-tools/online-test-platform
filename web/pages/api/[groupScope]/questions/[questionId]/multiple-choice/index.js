@@ -37,7 +37,7 @@ const get = async (req, res, prisma) => {
       questionId: questionId,
     },
     include: {
-      multipleChoiceProportionalCreditConfig: true,
+      multipleChoiceGradualCreditConfig: true,
       options: {
         orderBy: [
           {
@@ -61,7 +61,29 @@ const put = async (req, res, prisma) => {
     activateStudentComment,
     studentCommentLabel,
     activateSelectionLimit,
+    gradingPolicy,
   } = req.body
+
+  const multiChoice = await prisma.multipleChoice.findUnique({
+    where: {
+      questionId: questionId,
+    },
+  })
+
+  if (!multiChoice) {
+    return res.status(404).json({ error: 'Question not found' })
+  }
+
+  const currentGradingPolicy = multiChoice.gradingPolicy
+
+  if (currentGradingPolicy !== gradingPolicy) {
+    // If the grading policy is changed, we need to remove the existing gradual credit config
+    await prisma.multipleChoiceGradualCreditConfig.delete({
+      where: {
+        questionId: questionId,
+      },
+    })
+  }
 
   // update the multichoice
   const updatedMultiChoice = await prisma.multipleChoice.update({
@@ -70,9 +92,10 @@ const put = async (req, res, prisma) => {
       activateStudentComment: activateStudentComment,
       studentCommentLabel: studentCommentLabel,
       activateSelectionLimit: activateSelectionLimit,
+      gradingPolicy: gradingPolicy,
     },
     include: {
-      multipleChoiceProportionalCreditConfig: true,
+      multipleChoiceGradualCreditConfig: true,
     },
   })
 
