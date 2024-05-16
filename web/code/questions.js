@@ -24,7 +24,6 @@ import {
 } from '@prisma/client'
 import { comment } from '@uiw/react-md-editor'
 
-
 export const IncludeStrategy = {
   ALL: 'all',
   USER_SPECIFIC: 'user_specific',
@@ -115,10 +114,12 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         },
         multipleChoice: {
           select: {
-            ...(includeOfficialAnswers ? { 
-              gradingPolicy: true,
-              multipleChoiceProportionalCreditConfig: true,
-            } : {}),
+            ...(includeOfficialAnswers
+              ? {
+                  gradingPolicy: true,
+                  multipleChoiceProportionalCreditConfig: true,
+                }
+              : {}),
             activateStudentComment: true,
             studentCommentLabel: true,
             activateSelectionLimit: true,
@@ -286,7 +287,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
           select: {
             comment: true,
             options: {
-              select: { id: true, order:true, text: true },
+              select: { id: true, order: true, text: true },
               orderBy: [{ order: 'asc' }, { id: 'asc' }],
             },
           },
@@ -353,23 +354,35 @@ export const questionTypeSpecific = (
           }
         : {
             gradingPolicy: question.multipleChoice.gradingPolicy,
-            activateStudentComment: question.multipleChoice.activateStudentComment,
+            activateStudentComment:
+              question.multipleChoice.activateStudentComment,
             studentCommentLabel: question.multipleChoice.studentCommentLabel,
-            activateSelectionLimit: question.multipleChoice.activateSelectionLimit,
+            activateSelectionLimit:
+              question.multipleChoice.activateSelectionLimit,
             selectionLimit: question.multipleChoice.selectionLimit,
-            multipleChoiceProportionalCreditConfig: 
-              question.multipleChoice.multipleChoiceProportionalCreditConfig
+            multipleChoiceProportionalCreditConfig: question.multipleChoice
+              .multipleChoiceProportionalCreditConfig
               ? mode === 'update'
                 ? {
                     update: {
-                      negativeMarking: question.multipleChoice.multipleChoiceProportionalCreditConfig.negativeMarking,
-                      threshold: question.multipleChoice.multipleChoiceProportionalCreditConfig.threshold,
+                      negativeMarking:
+                        question.multipleChoice
+                          .multipleChoiceProportionalCreditConfig
+                          .negativeMarking,
+                      threshold:
+                        question.multipleChoice
+                          .multipleChoiceProportionalCreditConfig.threshold,
                     },
                   }
                 : {
                     create: {
-                      negativeMarking: question.multipleChoice.multipleChoiceProportionalCreditConfig.negativeMarking,
-                      threshold: question.multipleChoice.multipleChoiceProportionalCreditConfig.threshold,
+                      negativeMarking:
+                        question.multipleChoice
+                          .multipleChoiceProportionalCreditConfig
+                          .negativeMarking,
+                      threshold:
+                        question.multipleChoice
+                          .multipleChoiceProportionalCreditConfig.threshold,
                     },
                   }
               : undefined,

@@ -167,7 +167,9 @@ const TagsSelector = ({
         size={size}
         onKeyDown={handleKeyDown}
         renderTags={(tagValue, getTagProps) =>
-          tagValue.map((option, index) => renderTag(getTagProps, option, index, size))
+          tagValue.map((option, index) =>
+            renderTag(getTagProps, option, index, size),
+          )
         }
         renderInput={(params) => (
           <TextField
@@ -195,7 +197,14 @@ const TagsSelector = ({
   )
 }
 
-const Tag = ({ tag: initial, index, validateTag, getTagProps, size, onChange }) => {
+const Tag = ({
+  tag: initial,
+  index,
+  validateTag,
+  getTagProps,
+  size,
+  onChange,
+}) => {
   const [tag, setTag] = useState(initial)
   const [mode, setMode] = useState('view')
   const inputRef = useRef(null) // Ref for the TextField
@@ -234,7 +243,6 @@ const Tag = ({ tag: initial, index, validateTag, getTagProps, size, onChange }) 
     <Stack direction="row" spacing={1}>
       {mode === 'view' ? (
         <Chip
-          size="medium"
           variant="outlined"
           color={validateTag(tag) ? 'default' : 'error'}
           label={tag}

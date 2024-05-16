@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Stack,
-  TextField,
-  IconButton,
-  ToggleButton,
-} from '@mui/material'
+import { Stack, TextField, IconButton, ToggleButton } from '@mui/material'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
@@ -77,7 +72,11 @@ const MultipleChoice = ({
     [options, onChangeOrder],
   )
 
-  const round = useMemo(() => limiterActivated && options.filter(opt => opt.isCorrect).length === 1, [options, limiterActivated])
+  const round = useMemo(
+    () =>
+      limiterActivated && options.filter((opt) => opt.isCorrect).length === 1,
+    [options, limiterActivated],
+  )
 
   return (
     <ReorderableList onChangeOrder={onReorder}>
@@ -107,9 +106,14 @@ const MultipleChoice = ({
   )
 }
 
-const MultipleChoiceOptionUpdate = ({ round = false, option, onSelect, onChangeOption, onDelete }) => {
-
-  const [ text, setText ] = useState(option.text)
+const MultipleChoiceOptionUpdate = ({
+  round = false,
+  option,
+  onSelect,
+  onChangeOption,
+  onDelete,
+}) => {
+  const [text, setText] = useState(option.text)
 
   useEffect(() => {
     setText(option.text)
@@ -118,35 +122,31 @@ const MultipleChoiceOptionUpdate = ({ round = false, option, onSelect, onChangeO
   const debounceOnChange = useDebouncedCallback(onChangeOption, 500)
 
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={2}
-      sx={{ flex: 1 }}
-    >
-      
+    <Stack direction="row" alignItems="center" spacing={2} sx={{ flex: 1 }}>
       <Stack justifyContent={'center'} sx={{ cursor: 'move' }}>
         <DragHandleSVG />
       </Stack>
-      
+
       <ToggleButton
         value="correct"
         selected={option.isCorrect}
         color="success"
         size="small"
         onChange={(e) => onSelect(option.id)}
-        sx={round && {
-          borderRadius: '50%',
-        }}
+        sx={
+          round && {
+            borderRadius: '50%',
+          }
+        }
       >
         {option.isCorrect ? <CheckIcon /> : <ClearIcon />}
       </ToggleButton>
-      
+
       <TextField
         id="outlined-text"
         label={`Option ${option.order + 1}`}
         variant="standard"
-        size='small'
+        size="small"
         value={text}
         fullWidth
         error={text.length === 0}

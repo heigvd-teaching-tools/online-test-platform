@@ -105,7 +105,7 @@ const AnswerEditor = ({
         onAnswer(question, data)
       }
     },
-    [onAnswer, question, showSnackbar, mutate],
+    [onAnswer, question, showSnackbar],
   )
 
   const onSubmitClick = useCallback(async () => {
@@ -256,7 +256,6 @@ const SubmissionToolbar = ({ lock, status, onSubmit, onUnsubmit }) => {
     )
   )
 }
-
 
 const AnswerTrueFalse = ({
   answer,

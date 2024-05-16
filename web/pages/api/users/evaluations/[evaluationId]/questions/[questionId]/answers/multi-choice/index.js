@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  EvaluationPhase,
-  Role,
-  UserOnEvaluationStatus,
-} from '@prisma/client'
+import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
 import {
   withAuthorization,
@@ -30,56 +26,54 @@ import {
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
 
-
 // The student can answer with a comment in some multi-choice setups
 const put = withEvaluationPhase(
   [EvaluationPhase.IN_PROGRESS],
   withStudentStatus(
     [UserOnEvaluationStatus.IN_PROGRESS],
     async (req, res, prisma) => {
-        const user = await getUser(req, res);
-        const studentEmail = user.email;
-        const { evaluationId, questionId } = req.query;
+      const user = await getUser(req, res)
+      const studentEmail = user.email
+      const { evaluationId, questionId } = req.query
 
-        const { comment } = req.body;
+      const { comment } = req.body
 
-        // Get all options including their official answer status,
-        // these are used to grade the user's answers
-        // WARNING! they should not be returned by the api to the users
-        const evaluationToQuestion = await prisma.evaluationToQuestion.findUnique({
+      // Get all options including their official answer status,
+      // these are used to grade the user's answers
+      // WARNING! they should not be returned by the api to the users
+      const evaluationToQuestion = await prisma.evaluationToQuestion.findUnique(
+        {
           where: {
             evaluationId_questionId: {
               evaluationId: evaluationId,
               questionId: questionId,
             },
-          }
-        });
-  
-        if (!evaluationToQuestion) {
-          res.status(400).json({ message: 'Internal Server Error' });
-          return;
-        }
-
-        await prisma.studentAnswerMultipleChoice.update({
-          where: {
-            userEmail_questionId: {
-              userEmail: studentEmail,
-              questionId: questionId,
-            },
           },
-          data: {
-            comment: comment,
-          },
-        });
+        },
+      )
 
-        res.status(200).json({ message: 'Comment updated' });
-    }
-  )
-);
+      if (!evaluationToQuestion) {
+        res.status(400).json({ message: 'Internal Server Error' })
+        return
+      }
+
+      await prisma.studentAnswerMultipleChoice.update({
+        where: {
+          userEmail_questionId: {
+            userEmail: studentEmail,
+            questionId: questionId,
+          },
+        },
+        data: {
+          comment: comment,
+        },
+      })
+
+      res.status(200).json({ message: 'Comment updated' })
+    },
+  ),
+)
 
 export default withMethodHandler({
-  PUT: withAuthorization(withPrisma(put), [
-    Role.PROFESSOR,
-    Role.STUDENT,
-  ])
-});
+  PUT: withAuthorization(withPrisma(put), [Role.PROFESSOR, Role.STUDENT]),
+})

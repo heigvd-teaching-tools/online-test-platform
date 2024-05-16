@@ -26,11 +26,10 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 /**
  *
  * Managing the options of a multichoice question
-  * put: update an option of a multichoice question
+ * put: update an option of a multichoice question
  * post: create an option for a multichoice question
  * del: delete an option of a multichoice question
  */
-
 
 // update the option of the multichoice question
 const put = async (req, res, prisma) => {
@@ -59,8 +58,7 @@ const put = async (req, res, prisma) => {
     },
   })
 
-  
-  if(multipleChoice.activateSelectionLimit){
+  if (multipleChoice.activateSelectionLimit) {
     // count the number of correct options and update the selectionLimit
     const countCorrectOptions = await prisma.option.count({
       where: {
@@ -79,8 +77,6 @@ const put = async (req, res, prisma) => {
       },
     })
   }
-
-  
 
   res.status(200).json(updatedOption)
 }

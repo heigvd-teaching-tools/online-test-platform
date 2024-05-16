@@ -28,7 +28,7 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
  * get: multiple choice settings and options
  */
 
-// get the multichoice 
+// get the multichoice
 const get = async (req, res, prisma) => {
   const { questionId } = req.query
 
@@ -57,7 +57,11 @@ const get = async (req, res, prisma) => {
 // update the multichoice first level attributes
 const put = async (req, res, prisma) => {
   const { questionId } = req.query
-  const { activateStudentComment, studentCommentLabel, activateSelectionLimit } = req.body
+  const {
+    activateStudentComment,
+    studentCommentLabel,
+    activateSelectionLimit,
+  } = req.body
 
   // update the multichoice
   const updatedMultiChoice = await prisma.multipleChoice.update({
@@ -75,8 +79,9 @@ const put = async (req, res, prisma) => {
   res.status(200).json(updatedMultiChoice)
 }
 
-
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
-  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [
+    Role.PROFESSOR,
+  ]),
 })

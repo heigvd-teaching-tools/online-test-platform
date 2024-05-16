@@ -19,14 +19,17 @@ import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
 import { useMemo } from 'react'
 
 const ConsultMultipleChoice = ({ multipleChoice, answer }) => {
-  const radio = useMemo(() => multipleChoice.activateSelectionLimit && multipleChoice.selectionLimit === 1, [multipleChoice])
+  const radio = useMemo(
+    () =>
+      multipleChoice.activateSelectionLimit &&
+      multipleChoice.selectionLimit === 1,
+    [multipleChoice],
+  )
 
   return (
-    <Box  height={'100%'}>
+    <Box height={'100%'}>
       <Stack pt={2} px={1}>
-      <MultipleChoiceConfig
-        multipleChoice={multipleChoice}
-      />
+        <MultipleChoiceConfig multipleChoice={multipleChoice} />
       </Stack>
       <Stack spacing={1} padding={2}>
         {multipleChoice.options?.map((option, index) => (
@@ -49,11 +52,11 @@ const ConsultMultipleChoice = ({ multipleChoice, answer }) => {
             </Box>
           </Stack>
         ))}
-        { multipleChoice.activateStudentComment && (
+        {multipleChoice.activateStudentComment && (
           <TextField
             label={multipleChoice.studentCommentLabel || 'Comment'}
             multiline
-            variant='standard'
+            variant="standard"
             fullWidth
             value={answer.comment || ''}
           />

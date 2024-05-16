@@ -30,12 +30,18 @@ import { Box, Stack } from '@mui/material'
 const RadioViewer = ({ round, mode, isCorrect, isFilled }) => {
   const getIndicator = (mode, isFilled, isCorrect, size = 20) => {
     if (mode === 'consult')
-      return <ClearIcon sx={{ color: `info.main`, width: size, height: size }} />
+      return (
+        <ClearIcon sx={{ color: `info.main`, width: size, height: size }} />
+      )
 
     if (isFilled && isCorrect)
-      return <CheckIcon sx={{ color: `success.main`, width: size, height: size }} />
+      return (
+        <CheckIcon sx={{ color: `success.main`, width: size, height: size }} />
+      )
     if (isFilled && !isCorrect)
-      return <ClearIcon sx={{ color: `error.main`, width: size, height: size }} />
+      return (
+        <ClearIcon sx={{ color: `error.main`, width: size, height: size }} />
+      )
   }
 
   const getBorderColor = (mode, isFilled, isCorrect) => {

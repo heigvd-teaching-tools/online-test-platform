@@ -44,7 +44,7 @@ const TrueFalse = ({
         value="isTrue"
         selected={isTrue === true}
         color="success"
-        size='small'
+        size="small"
         sx={{
           borderRadius: '50%',
         }}
@@ -65,7 +65,7 @@ const TrueFalse = ({
         value="isTrue"
         selected={isTrue === false}
         color="success"
-        size='small'
+        size="small"
         sx={{
           borderRadius: '50%',
         }}

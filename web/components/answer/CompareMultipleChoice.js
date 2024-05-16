@@ -17,19 +17,21 @@ import { Alert, Box, Stack, TextField, Typography } from '@mui/material'
 import RadioViewer from '@/components/input/RadioViewer'
 import ResizePanel from '@/components/layout/utils/ResizePanel'
 import ScrollContainer from '../layout/ScrollContainer'
-import CheckboxLabel from '../input/CheckboxLabel'
 import { useMemo } from 'react'
 import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
 
 const StudentSelectionSummary = ({ solution, answer }) => {
   const missedCorrect = solution.options.filter(
-    (option) => option.isCorrect && !answer.options.some((opt) => opt.id === option.id),
+    (option) =>
+      option.isCorrect && !answer.options.some((opt) => opt.id === option.id),
   ).length
   const incorrectSelection = solution.options.filter(
-    (option) => !option.isCorrect && answer.options.some((opt) => opt.id === option.id),
+    (option) =>
+      !option.isCorrect && answer.options.some((opt) => opt.id === option.id),
   ).length
   const correctSelection = solution.options.filter(
-    (option) => option.isCorrect && answer.options.some((opt) => opt.id === option.id),
+    (option) =>
+      option.isCorrect && answer.options.some((opt) => opt.id === option.id),
   ).length
 
   return (
@@ -56,7 +58,6 @@ const StudentSelectionSummary = ({ solution, answer }) => {
 }
 
 const CompareMultipleChoice = ({ solution, answer }) => {
-
   const radio = useMemo(() => {
     return solution.activateSelectionLimit && solution.selectionLimit === 1
   }, [solution.activateSelectionLimit, solution.selectionLimit])
@@ -64,37 +65,34 @@ const CompareMultipleChoice = ({ solution, answer }) => {
   return (
     <Stack p={2} pt={2} height={'100%'} spacing={2}>
       <StudentSelectionSummary solution={solution} answer={answer} />
-      <MultipleChoiceConfig
-        multipleChoice={solution}
-      />
+      <MultipleChoiceConfig multipleChoice={solution} />
       <Stack flex={1}>
         <ScrollContainer>
           <Box>
             <ResizePanel
               leftPanel={
                 <Stack spacing={1}>
-                  
                   <Typography variant="h6">Student&apos;s options</Typography>
                   {solution.options?.map((option, index) => (
                     <MultipleChoiceOptionSelect
                       key={index}
                       option={option}
                       round={radio}
-                      isFilled={answer.options.some((opt) => opt.id === option.id)}
+                      isFilled={answer.options.some(
+                        (opt) => opt.id === option.id,
+                      )}
                       onSelect={() => {}}
                     />
                   ))}
-                  {
-                    solution.activateStudentComment && (
-                      <TextField
-                        label={solution.studentCommentLabel || 'Comment'}
-                        multiline
-                        variant='standard'
-                        fullWidth
-                        value={answer.comment || ''}
-                      />
-                    )
-                  }
+                  {solution.activateStudentComment && (
+                    <TextField
+                      label={solution.studentCommentLabel || 'Comment'}
+                      multiline
+                      variant="standard"
+                      fullWidth
+                      value={answer.comment || ''}
+                    />
+                  )}
                 </Stack>
               }
               rightPanel={
@@ -119,9 +117,12 @@ const CompareMultipleChoice = ({ solution, answer }) => {
   )
 }
 
-
-
-const MultipleChoiceOptionSelect = ({ round = false, mode="compare", option, isFilled }) => {
+const MultipleChoiceOptionSelect = ({
+  round = false,
+  mode = 'compare',
+  option,
+  isFilled,
+}) => {
   return (
     <Stack
       direction="row"
@@ -133,12 +134,12 @@ const MultipleChoiceOptionSelect = ({ round = false, mode="compare", option, isF
         onSelect(option.id)
       }}
     >
-       <RadioViewer
-          mode={'compare'}
-          round={round}
-          isCorrect={option.isCorrect}
-          isFilled={isFilled}
-        />
+      <RadioViewer
+        mode={'compare'}
+        round={round}
+        isCorrect={option.isCorrect}
+        isFilled={isFilled}
+      />
 
       <Typography variant="body1">{option.text}</Typography>
     </Stack>
