@@ -150,23 +150,31 @@ const AnswerMultipleChoice = ({
     );
 };
 
+
+
 const SelectionIndicator = ({ limit, options }) => {
-
-    const remainingOptions = useMemo(() =>  limit && limit - (options?.filter((option) => option.isCorrect).length || 0), [options, limit])
-
+    const remainingOptions = useMemo(() => limit && limit - (options?.filter((option) => option.isCorrect).length || 0), [options, limit]);
+  
+    const getMessage = () => {
+      if (remainingOptions === limit) {
+        return `Select up to ${limit} option${limit > 1 ? 's' : ''}`;
+      }
+      if (remainingOptions > 0) {
+        return `Select ${remainingOptions} more option${remainingOptions > 1 ? 's' : ''}`;
+      }
+      
+      return `Selection limit reached`;
+    };
+  
     return limit && (
-        <Stack direction="row" alignItems="center" spacing={1} pl={0}>
-            <StatusDisplay status={remainingOptions > 0 ? 'WARNING' : 'SUCCESS'} />
-            <Typography variant="body2">
-                {remainingOptions === limit ? 
-                    `You can select up to ${limit} option${limit > 1 ? 's' : ''}` :
-                    remainingOptions > 0 ? 
-                        `You can select ${remainingOptions} more option${remainingOptions > 1 ? 's' : ''}` :
-                        `Selection limit reached: ${limit} option${limit > 1 ? 's' : ''} maximum`
-                }
-            </Typography>
-        </Stack>
-    )
-}
+      <Stack direction="row" alignItems="center" spacing={1} pl={0}>
+        <StatusDisplay status={remainingOptions > 0 ? 'WARNING' : 'SUCCESS'} />
+        <Typography variant="body2">
+          {getMessage()}
+        </Typography>
+      </Stack>
+    );
+};
+  
 
 export default AnswerMultipleChoice;

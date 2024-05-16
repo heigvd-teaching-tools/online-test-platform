@@ -44,6 +44,10 @@ const TrueFalse = ({
         value="isTrue"
         selected={isTrue === true}
         color="success"
+        size='small'
+        sx={{
+          borderRadius: '50%',
+        }}
         onChange={() => {
           let newValue =
             isTrue === true ? (allowUndefined ? undefined : isTrue) : true
@@ -61,6 +65,10 @@ const TrueFalse = ({
         value="isTrue"
         selected={isTrue === false}
         color="success"
+        size='small'
+        sx={{
+          borderRadius: '50%',
+        }}
         onChange={() => {
           let newValue =
             isTrue === false ? (allowUndefined ? undefined : isTrue) : false

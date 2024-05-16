@@ -52,6 +52,8 @@ import studentAnswerWebTemplate from '@/code/evaluation/export/templates/student
 import studentAnswerDatabaseTemplate from '@/code/evaluation/export/templates/studentAnswerDatabase.hbs'
 import gradingTemplate from '@/code/evaluation/export/templates/grading.hbs'
 
+import utils from 'util'
+
 const OUTPUT_FORMAT = 'pdf' // 'html' or 'pdf'
 
 const generatePDF = async (html, header) => {
@@ -227,6 +229,8 @@ const get = async (req, res, prisma) => {
     studentsWithQuestionsAndAnswers: studentsWithQuestionsAndAnswers,
     muiTheme: muiTheme,
   }
+
+  console.log(utils.inspect(context, { depth: null }))
 
   // Compile the main template
   const template = Handlebars.compile(mainTempate)
