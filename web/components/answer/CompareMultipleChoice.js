@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Alert, Box, Stack, Typography } from '@mui/material'
+import { Alert, Box, Stack, TextField, Typography } from '@mui/material'
 import RadioViewer from '@/components/input/RadioViewer'
 import ResizePanel from '@/components/layout/utils/ResizePanel'
 import ScrollContainer from '../layout/ScrollContainer'
+import CheckboxLabel from '../input/CheckboxLabel'
+import { useMemo } from 'react'
+import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
 
-const StudentSelectionSummary = ({ options, answer }) => {
-  const missedCorrect = options.filter(
-    (option) => option.isCorrect && !answer.some((opt) => opt.id === option.id),
+const StudentSelectionSummary = ({ solution, answer }) => {
+  const missedCorrect = solution.options.filter(
+    (option) => option.isCorrect && !answer.options.some((opt) => opt.id === option.id),
   ).length
-  const incorrectSelection = options.filter(
-    (option) => !option.isCorrect && answer.some((opt) => opt.id === option.id),
+  const incorrectSelection = solution.options.filter(
+    (option) => !option.isCorrect && answer.options.some((opt) => opt.id === option.id),
   ).length
-  const correctSelection = options.filter(
-    (option) => option.isCorrect && answer.some((opt) => opt.id === option.id),
+  const correctSelection = solution.options.filter(
+    (option) => option.isCorrect && answer.options.some((opt) => opt.id === option.id),
   ).length
 
   return (
@@ -52,59 +55,59 @@ const StudentSelectionSummary = ({ options, answer }) => {
   )
 }
 
-const CompareMultipleChoice = ({ options, answer }) => {
+const CompareMultipleChoice = ({ solution, answer }) => {
+
+  const radio = useMemo(() => {
+    return solution.activateSelectionLimit && solution.selectionLimit === 1
+  }, [solution.activateSelectionLimit, solution.selectionLimit])
+
   return (
-    <Stack p={2} pt={1} height={'100%'}>
-      <StudentSelectionSummary options={options} answer={answer} />
+    <Stack p={2} pt={2} height={'100%'} spacing={2}>
+      <StudentSelectionSummary solution={solution} answer={answer} />
+      <MultipleChoiceConfig
+        multipleChoice={solution}
+      />
       <Stack flex={1}>
         <ScrollContainer>
           <Box>
             <ResizePanel
               leftPanel={
-                <Stack spacing={2} padding={2}>
+                <Stack spacing={1}>
+                  
                   <Typography variant="h6">Student&apos;s options</Typography>
-                  {options?.map((option, index) => (
-                    <Stack
+                  {solution.options?.map((option, index) => (
+                    <MultipleChoiceOptionSelect
                       key={index}
-                      direction="row"
-                      alignItems="center"
-                      spacing={2}
-                      sx={{ flex: 1 }}
-                    >
-                      <RadioViewer
-                        mode={'compare'}
-                        key={index}
-                        isCorrect={option.isCorrect}
-                        isFilled={answer.some((opt) => opt.id === option.id)}
-                      />
-                      <Box>
-                        <Typography variant="body1">{option.text}</Typography>
-                      </Box>
-                    </Stack>
+                      option={option}
+                      round={radio}
+                      isFilled={answer.options.some((opt) => opt.id === option.id)}
+                      onSelect={() => {}}
+                    />
                   ))}
+                  {
+                    solution.activateStudentComment && (
+                      <TextField
+                        label={solution.studentCommentLabel || 'Comment'}
+                        multiline
+                        variant='standard'
+                        fullWidth
+                        value={answer.comment || ''}
+                      />
+                    )
+                  }
                 </Stack>
               }
               rightPanel={
-                <Stack spacing={2} padding={2}>
+                <Stack spacing={1}>
                   <Typography variant="h6">Solution options</Typography>
-                  {options?.map((option, index) => (
-                    <Stack
+                  {solution.options?.map((option, index) => (
+                    <MultipleChoiceOptionSelect
                       key={index}
-                      direction="row"
-                      alignItems="center"
-                      spacing={2}
-                      sx={{ flex: 1 }}
-                    >
-                      <RadioViewer
-                        mode={'compare'}
-                        key={index}
-                        isCorrect={option.isCorrect}
-                        isFilled={option.isCorrect}
-                      />
-                      <Box>
-                        <Typography variant="body1">{option.text}</Typography>
-                      </Box>
-                    </Stack>
+                      option={option}
+                      round={radio}
+                      isCorrect={option.isCorrect}
+                      isFilled={option.isCorrect}
+                    />
                   ))}
                 </Stack>
               }
@@ -112,6 +115,32 @@ const CompareMultipleChoice = ({ options, answer }) => {
           </Box>
         </ScrollContainer>
       </Stack>
+    </Stack>
+  )
+}
+
+
+
+const MultipleChoiceOptionSelect = ({ round = false, mode="compare", option, isFilled }) => {
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={2}
+      sx={{ flex: 1, cursor: 'pointer' }}
+      onClick={(ev) => {
+        ev.stopPropagation()
+        onSelect(option.id)
+      }}
+    >
+       <RadioViewer
+          mode={'compare'}
+          round={round}
+          isCorrect={option.isCorrect}
+          isFilled={isFilled}
+        />
+
+      <Typography variant="body1">{option.text}</Typography>
     </Stack>
   )
 }

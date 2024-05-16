@@ -22,7 +22,7 @@ import { Box, Stack } from '@mui/material'
 const ResizePanel = ({
   leftPanel,
   rightPanel,
-  rightWidth,
+  rightWidth = 50,
   height = '100%',
   hideHandle = false,
 }) => {
@@ -44,10 +44,6 @@ const ResizePanel = ({
     ),
     [leftPanel, rightPanel, height, rightWidth, hideHandle],
   )
-}
-
-ResizePanel.defaultProps = {
-  rightWidth: 50,
 }
 
 ResizePanel.propTypes = {

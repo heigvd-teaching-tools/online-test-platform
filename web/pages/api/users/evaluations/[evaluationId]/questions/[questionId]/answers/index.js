@@ -35,11 +35,9 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
-import select from '@/pages/api/users/groups/select'
 
 /*
   get the users answers for a question including related nested data
-
 */
 
 const isCodeReadingQuestionWithStudentOutputTest = (question) =>
@@ -192,6 +190,7 @@ const get = withEvaluationPhase(
           },
           multipleChoice: {
             select: {
+              comment: true,
               options: {
                 select: {
                   id: true,

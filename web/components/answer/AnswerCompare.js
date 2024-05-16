@@ -46,8 +46,8 @@ const AnswerCompare = ({
         )) ||
           (question.type === QuestionType.multipleChoice && answer.options && (
             <CompareMultipleChoice
-              options={solution.options}
-              answer={answer.options}
+              solution={solution}
+              answer={answer}
             />
           )) ||
           (question.type === QuestionType.essay && (

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
 import { QuestionType, StudentAnswerStatus } from '@prisma/client'
 import { useDebouncedCallback } from 'use-debounce'
 import { useRouter } from 'next/router'
-import { Button, Stack, ToggleButton, Typography } from '@mui/material'
+import { Button, Stack, Typography } from '@mui/material'
 import { fetcher } from '@/code/utils'
 
 import TrueFalse from '@/components/question/type_specific/TrueFalse'
@@ -35,8 +35,7 @@ import { LoadingButton } from '@mui/lab'
 import { useSnackbar } from '@/context/SnackbarContext'
 import Overlay from '../ui/Overlay'
 
-import CheckIcon from '@mui/icons-material/Check'
-import ClearIcon from '@mui/icons-material/Clear'
+import AnswerMultipleChoice from './multipleChoice/AnswerMultipleChoice'
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
   return (
@@ -106,7 +105,7 @@ const AnswerEditor = ({
         onAnswer(question, data)
       }
     },
-    [onAnswer, question, showSnackbar],
+    [onAnswer, question, showSnackbar, mutate],
   )
 
   const onSubmitClick = useCallback(async () => {
@@ -258,114 +257,6 @@ const SubmissionToolbar = ({ lock, status, onSubmit, onUnsubmit }) => {
   )
 }
 
-const AnswerMultipleChoice = ({
-  answer,
-  question,
-  evaluationId,
-  questionId,
-  onAnswerChange,
-}) => {
-  const [options, setOptions] = useState(undefined)
-
-  useEffect(() => {
-    if (question.multipleChoice.options && answer) {
-      // merge the options with the users answers
-
-      let allOptions = question.multipleChoice.options
-      let studentOptions = answer.multipleChoice?.options
-
-      setOptions(
-        allOptions.map((option) => {
-          return {
-            ...option,
-            isCorrect:
-              studentOptions &&
-              studentOptions.some(
-                (studentOption) => studentOption.id === option.id,
-              ),
-          }
-        }),
-      )
-    }
-  }, [answer, question])
-
-  const onOptionChange = useCallback(
-    async (id, options) => {
-      
-      const option = options.find((option) => option.id === id)
-      if (!option) return
-
-      option.isCorrect = !option.isCorrect
-      
-      const method = option.isCorrect ? 'POST' : 'DELETE'
-      const response = await fetch(
-        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
-        {
-          method: method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ option: option }),
-        },
-      )
-      const ok = response.ok
-      const data = await response.json()
-
-      onAnswerChange && onAnswerChange(ok, data)
-    },
-    [evaluationId, questionId, onAnswerChange],
-  )
-
-  const round = useMemo(() => question.multipleChoice.activateSelectionLimit &&  question.multipleChoice.selectionLimit === 1, [question])
-
-  return (
-    <Stack direction="column" spacing={2} padding={2}>
-      {
-        answer?.multipleChoice &&
-        options && options.map((option, index) => (
-          <MultipleChoiceOptionSelect
-            key={option.id}
-            round={round}
-            option={option}
-            onSelect={() => onOptionChange(option.id, options)}
-          />
-        ))
-      }
-    </Stack>
-  );
-};
-
-const MultipleChoiceOptionSelect = ({ round = false, option, onSelect }) => {
-  return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={2}
-      sx={{ flex: 1, cursor: 'pointer' }}
-      onClick={(ev) => {
-        ev.stopPropagation()
-        onSelect(option.order)
-      }}
-    >
-      <ToggleButton
-        value="correct"
-        selected={option.isCorrect}
-        size="small"
-        color="success"
-        onChange={(e) => onSelect(option.order)}
-        sx={
-          round
-            ? {
-                borderRadius: '50%',
-              }
-            : {}
-        }
-      >
-        {option.isCorrect ? <CheckIcon /> : <ClearIcon />}
-      </ToggleButton>
-
-      <Typography variant="body1">{option.text}</Typography>
-    </Stack>
-  )
-}
 
 const AnswerTrueFalse = ({
   answer,

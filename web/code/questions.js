@@ -22,6 +22,7 @@ import {
   QuestionSource,
   CodeQuestionType,
 } from '@prisma/client'
+import { comment } from '@uiw/react-md-editor'
 
 
 export const IncludeStrategy = {
@@ -116,12 +117,12 @@ export const questionIncludeClause = (questionIncludeOptions) => {
           select: {
             ...(includeOfficialAnswers ? { 
               gradingPolicy: true,
-              activateStudentComment: true,
-              studentCommentLabel: true,
-              activateSelectionLimit: true,
-              selectionLimit: true,
               multipleChoiceProportionalCreditConfig: true,
             } : {}),
+            activateStudentComment: true,
+            studentCommentLabel: true,
+            activateSelectionLimit: true,
+            selectionLimit: true,
             options: {
               select: {
                 id: true,
@@ -283,6 +284,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         },
         multipleChoice: {
           select: {
+            comment: true,
             options: {
               select: { id: true, order:true, text: true },
               orderBy: [{ order: 'asc' }, { id: 'asc' }],
