@@ -157,19 +157,20 @@ const MultipleChoiceGradualCreditPolicy = ({
             `}
               />
             </Typography>
+            <GradualPolicyCalculationDetails
+                totalPoints={14}
+                correctOptions={4}
+                incorrectOptions={6}
+                selectedCorrectOptions={3}
+                selectedIncorrectOptions={1}
+                threshold={0}
+                negativeMarking={false}
+            />
+
           </Collapse>
         </Alert>
 
-        <GradualPolicyCalculationDetails
-          totalPoints={14}
-          correctOptions={4}
-          incorrectOptions={2}
-          selectedCorrectOptions={3}
-          selectedIncorrectOptions={1}
-          threshold={0}
-          negativeMarking={false}
-        />
-
+       
         <Stack spacing={1} direction={'row'}>
           <CheckboxLabel
             label="Enable negative marking"

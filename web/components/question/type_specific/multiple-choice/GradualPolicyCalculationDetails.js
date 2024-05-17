@@ -65,11 +65,7 @@ const GradualPolicyCalculationDetails = ({
   return (
     <Box>
       <Typography variant="h6">
-        Multiple Choice Gradual Credit Policy
-      </Typography>
-      <Typography variant="body1">
-        The calculation of the points is based on the selected correct and
-        incorrect options as follows:
+        Multiple Choice Gradual Credit Policy Calculation
       </Typography>
       <Typography variant="caption">
         <Box>

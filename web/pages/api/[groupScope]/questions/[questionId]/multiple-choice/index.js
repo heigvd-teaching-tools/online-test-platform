@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from '@prisma/client'
+import { MultipleChoiceGradingPolicyType, Role } from '@prisma/client'
 
 import {
   withAuthorization,
@@ -76,13 +76,21 @@ const put = async (req, res, prisma) => {
 
   const currentGradingPolicy = multiChoice.gradingPolicy
 
-  if (currentGradingPolicy !== gradingPolicy) {
+  if (currentGradingPolicy !== MultipleChoiceGradingPolicyType.GRADUAL_CREDIT) {
     // If the grading policy is changed, we need to remove the existing gradual credit config
-    await prisma.gradualCreditConfig.delete({
+    const exists = await prisma.multipleChoiceGradualCreditConfig.findUnique({
       where: {
         questionId: questionId,
       },
     })
+
+    if (exists) {
+      await prisma.multipleChoiceGradualCreditConfig.delete({
+        where: {
+          questionId: questionId,
+        },
+      })
+    }
   }
 
   // update the multichoice
