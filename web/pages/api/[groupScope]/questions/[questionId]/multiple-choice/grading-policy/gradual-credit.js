@@ -64,7 +64,7 @@ const put = async (req, res, prisma) => {
 const post = async (req, res, prisma) => {
   const { questionId } = req.query
   const { negativeMarking, threshold } = req.body
-  
+
   // create the multichoice gradual credit policy
   const createdGradualCredit =
     await prisma.multipleChoiceGradualCreditConfig.upsert({
@@ -77,7 +77,7 @@ const post = async (req, res, prisma) => {
       update: {
         negativeMarking,
         threshold,
-      },  
+      },
     })
 
   res.status(200).json(createdGradualCredit)
