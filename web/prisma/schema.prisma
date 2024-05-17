@@ -193,7 +193,7 @@ model MultipleChoice {
   options    Option[]
 
   gradingPolicy MultipleChoiceGradingPolicyType @default(ALL_OR_NOTHING)
-  multipleChoiceGradualCreditConfig MultipleChoiceGradualCreditConfig?
+  gradualCreditConfig MultipleChoiceGradualCreditConfig?
 
   activateStudentComment Boolean  @default(false) // Allow student to provide a comment/justification
   studentCommentLabel String?                     // Label for the student comment field

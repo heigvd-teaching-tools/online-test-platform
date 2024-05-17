@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useEffect, useState, useMemo, use } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import {
@@ -31,10 +31,6 @@ import {
   IconButton,
   Tooltip,
   Box,
-  ButtonBase,
-  FormControlLabel,
-  Switch,
-  FormGroup,
 } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -169,11 +165,12 @@ const PageGrading = () => {
   )
 
   const onChangeGrading = useCallback(
-    async (grading) => {
+    (grading) => {
       const newEvaluationToQuestions = [...evaluationToQuestions]
       const evaluationToQuestion = newEvaluationToQuestions.find(
         (jstq) => jstq.question.id === grading.questionId,
       )
+
       evaluationToQuestion.question.studentAnswer =
         evaluationToQuestion.question.studentAnswer.map((sa) => {
           if (sa.user.email === grading.userEmail) {
@@ -474,11 +471,10 @@ const PageGrading = () => {
                     />
                     <GradingSignOff
                       loading={loading}
-                      grading={
-                        evaluationToQuestion.question.studentAnswer.find(
-                          (ans) => ans.user.id === participantId,
-                        ).studentGrading
-                      }
+                      question={evaluationToQuestion.question}
+                      answer={evaluationToQuestion.question.studentAnswer.find(
+                        (ans) => ans.user.id === participantId,
+                      )}
                       maxPoints={evaluationToQuestion.points}
                       onChange={onChangeGrading}
                     />

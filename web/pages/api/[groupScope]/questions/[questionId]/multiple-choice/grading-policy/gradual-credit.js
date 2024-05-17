@@ -32,11 +32,12 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 const get = async (req, res, prisma) => {
   const { questionId } = req.query
 
-  const gradualCredit = await prisma.multipleChoiceGradualCreditConfig.findUnique({
-    where: {
-      questionId: questionId,
-    },
-  })
+  const gradualCredit =
+    await prisma.multipleChoiceGradualCreditConfig.findUnique({
+      where: {
+        questionId: questionId,
+      },
+    })
 
   res.status(gradualCredit ? 200 : 404).json(gradualCredit)
 }
@@ -44,19 +45,17 @@ const get = async (req, res, prisma) => {
 // update the gradual credit policy
 const put = async (req, res, prisma) => {
   const { questionId } = req.query
-  const {
-    negativeMarking,
-    threshold
-  } = req.body
+  const { negativeMarking, threshold } = req.body
 
   // update the multichoice gradual credit policy
-  const updatedGradualCredit = await prisma.multipleChoiceGradualCreditConfig.update({
-    where: { questionId: questionId },
-    data: {
-      negativeMarking,
-      threshold
-    },
-  })
+  const updatedGradualCredit =
+    await prisma.multipleChoiceGradualCreditConfig.update({
+      where: { questionId: questionId },
+      data: {
+        negativeMarking,
+        threshold,
+      },
+    })
 
   res.status(200).json(updatedGradualCredit)
 }
@@ -64,19 +63,17 @@ const put = async (req, res, prisma) => {
 // create the gradual credit policy
 const post = async (req, res, prisma) => {
   const { questionId } = req.query
-  const {
-    negativeMarking,
-    threshold
-  } = req.body
+  const { negativeMarking, threshold } = req.body
 
   // create the multichoice gradual credit policy
-  const createdGradualCredit = await prisma.multipleChoiceGradualCreditConfig.create({
-    data: {
-      negativeMarking,
-      threshold,
-      questionId
-    },
-  })
+  const createdGradualCredit =
+    await prisma.multipleChoiceGradualCreditConfig.create({
+      data: {
+        negativeMarking,
+        threshold,
+        questionId,
+      },
+    })
 
   res.status(200).json(createdGradualCredit)
 }
@@ -86,7 +83,8 @@ export default withMethodHandler({
   PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [
     Role.PROFESSOR,
   ]),
-  POST: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(post))), [
-    Role.PROFESSOR,
-  ]),
+  POST: withAuthorization(
+    withGroupScope(withQuestionUpdate(withPrisma(post))),
+    [Role.PROFESSOR],
+  ),
 })

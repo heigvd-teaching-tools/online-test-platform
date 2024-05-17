@@ -49,35 +49,37 @@ const put = async (req, res, prisma) => {
     return
   }
 
-  // update the option
-  const updatedOption = await prisma.option.update({
-    where: { id: option.id },
-    data: {
-      text: option.text,
-      isCorrect: option.isCorrect,
-    },
-  })
-
-  if (multipleChoice.activateSelectionLimit) {
-    // count the number of correct options and update the selectionLimit
-    const countCorrectOptions = await prisma.option.count({
-      where: {
-        multipleChoice: {
-          questionId: questionId,
-        },
-        isCorrect: true,
-      },
-    })
-
-    // update the selectionLimit
-    await prisma.multipleChoice.update({
-      where: { questionId: questionId },
+  let updatedOption = null
+  await prisma.$transaction(async (prisma) => {
+    // update the option
+    updatedOption = await prisma.option.update({
+      where: { id: option.id },
       data: {
-        selectionLimit: countCorrectOptions,
+        text: option.text,
+        isCorrect: option.isCorrect,
       },
     })
-  }
 
+    if (multipleChoice.activateSelectionLimit) {
+      // count the number of correct options and update the selectionLimit
+      const countCorrectOptions = await prisma.option.count({
+        where: {
+          multipleChoice: {
+            questionId: questionId,
+          },
+          isCorrect: true,
+        },
+      })
+
+      // update the selectionLimit
+      await prisma.multipleChoice.update({
+        where: { questionId: questionId },
+        data: {
+          selectionLimit: countCorrectOptions,
+        },
+      })
+    }
+  })
   res.status(200).json(updatedOption)
 }
 
@@ -86,12 +88,21 @@ const post = async (req, res, prisma) => {
   const { questionId } = req.query
   const { option } = req.body
 
+  // count the existing options to determine the order
+  const countOptions = await prisma.option.count({
+    where: {
+      multipleChoice: {
+        questionId: questionId,
+      },
+    },
+  })
+
   // create the option
   const newOption = await prisma.option.create({
     data: {
       text: option.text,
       isCorrect: option.isCorrect,
-      order: option.order,
+      order: countOptions + 1, // use the count as the new order
       multipleChoice: {
         connect: {
           questionId: questionId,
@@ -129,7 +140,49 @@ const del = async (req, res, prisma) => {
     },
   })
 
-  res.status(200).json({ message: 'Option deleted' })
+  // reorder the remaining options
+  const remainingOptions = await prisma.option.findMany({
+    where: {
+      multipleChoice: {
+        questionId: questionId,
+      },
+    },
+    orderBy: {
+      order: 'asc',
+    },
+  })
+
+  await prisma.$transaction(async (prisma) => {
+    await Promise.all(
+      remainingOptions.map((o, index) =>
+        prisma.option.update({
+          where: { id: o.id },
+          data: { order: index + 1 },
+        }),
+      ),
+    )
+
+    // update the selectionLimit if the deleted option was correct
+    if (option.isCorrect && optionQuestion.activateSelectionLimit) {
+      const countCorrectOptions = await prisma.option.count({
+        where: {
+          multipleChoice: {
+            questionId: questionId,
+          },
+          isCorrect: true,
+        },
+      })
+
+      await prisma.multipleChoice.update({
+        where: { questionId: questionId },
+        data: {
+          selectionLimit: countCorrectOptions,
+        },
+      })
+    }
+  })
+
+  res.status(200).json({ message: 'Option deleted and reordered' })
 }
 
 export default withMethodHandler({

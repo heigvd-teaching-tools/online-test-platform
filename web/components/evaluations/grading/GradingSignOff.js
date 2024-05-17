@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { StudentQuestionGradingStatus } from '@prisma/client'
+import {
+  MultipleChoiceGradingPolicyType,
+  StudentQuestionGradingStatus,
+} from '@prisma/client'
 import Image from 'next/image'
-import { Box, Paper, Stack, TextField, Toolbar, Tooltip } from '@mui/material'
+import { Box, Paper, Stack, TextField, Tooltip } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { useSession } from 'next-auth/react'
 
@@ -25,40 +28,37 @@ import DecimalInput from '@/components/input/DecimalInput'
 import GradingStatus from './GradingStatus'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
+import GradualPolicyCalculationDetails from '@/components/question/type_specific/multiple-choice/GradualPolicyCalculationDetails'
 
-const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
+const GradingSignOff = ({
+  loading,
+  question,
+  answer: initial,
+  maxPoints,
+  onChange,
+}) => {
   const [grading, setGrading] = useState(initial)
   const { data } = useSession()
   const commentInputRef = useRef(null)
 
   useEffect(() => {
-    setGrading(initial)
+    setGrading(initial.studentGrading)
   }, [initial])
 
   const signOffGrading = useCallback(() => {
-    let status = grading.status
-    switch (grading.status) {
-      case StudentQuestionGradingStatus.UNGRADED:
-        status = StudentQuestionGradingStatus.GRADED
-        break
-      case StudentQuestionGradingStatus.AUTOGRADED:
-        if (grading.pointsObtained !== initial.pointsObtained) {
-          status = StudentQuestionGradingStatus.GRADED
-        }
-        break
-      default:
-        break
-    }
-
-    let newGrading = {
+    const newGrading = {
       ...grading,
       isCorrect: grading.pointsObtained === maxPoints,
-      status: status,
+      status:
+        grading.status === StudentQuestionGradingStatus.UNGRADED
+          ? StudentQuestionGradingStatus.GRADED
+          : grading.status,
       signedBy: data.user,
     }
     setGrading(newGrading)
     onChange(newGrading)
-  }, [grading, initial, maxPoints, onChange, data])
+  }, [grading, maxPoints, onChange, data])
 
   const unsignGrading = useCallback(() => {
     let newGrading = {
@@ -148,11 +148,19 @@ const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
                   value={grading.pointsObtained}
                   max={maxPoints}
                   rightAdornement={'/ ' + maxPoints + ' pts'}
+                  leftAdornement={
+                    <CalculationDetails
+                      maxPoints={maxPoints}
+                      question={question}
+                      answer={initial}
+                    />
+                  }
                   variant="filled"
                   onChange={async (value) => {
                     const newGrading = {
                       ...grading,
                       pointsObtained: value,
+                      status: StudentQuestionGradingStatus.GRADED,
                     }
                     setGrading(newGrading)
                     onChange(newGrading)
@@ -178,6 +186,7 @@ const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
               />
             </Stack>
           )}
+
           {grading.signedBy && (
             <GradingPointsComment
               points={grading.pointsObtained}
@@ -191,6 +200,49 @@ const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
       )}
     </Paper>
   )
+}
+
+const CalculationDetails = ({ maxPoints, question, answer }) => {
+  const gradingPolicy = question[question.type]?.gradingPolicy
+
+  switch (gradingPolicy) {
+    case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT: {
+      const correctOptions = question.multipleChoice.options.filter(
+        (option) => option.isCorrect,
+      )
+      const incorrectOptions = question.multipleChoice.options.filter(
+        (option) => !option.isCorrect,
+      )
+
+      const selectedCorrectOptions = answer.multipleChoice.options.filter(
+        (answer) => correctOptions.some((option) => option.id === answer.id),
+      )
+
+      const selectedIncorrectOptions = answer.multipleChoice.options.filter(
+        (answer) => incorrectOptions.some((option) => option.id === answer.id),
+      )
+
+      const threshold = question.multipleChoice.gradualCreditConfig.threshold
+      const negativeMarking =
+        question.multipleChoice.gradualCreditConfig.negativeMarking
+
+      return (
+        <UserHelpPopper>
+          <GradualPolicyCalculationDetails
+            totalPoints={maxPoints}
+            correctOptions={correctOptions.length}
+            incorrectOptions={incorrectOptions.length}
+            selectedCorrectOptions={selectedCorrectOptions.length}
+            selectedIncorrectOptions={selectedIncorrectOptions.length}
+            threshold={threshold}
+            negativeMarking={negativeMarking}
+          />
+        </UserHelpPopper>
+      )
+    }
+    default:
+      return <></>
+  }
 }
 
 export default GradingSignOff

@@ -117,7 +117,7 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             ...(includeOfficialAnswers
               ? {
                   gradingPolicy: true,
-                  multipleChoiceGradualCreditConfig: true,
+                  gradualCreditConfig: true,
                 }
               : {}),
             activateStudentComment: true,
@@ -318,6 +318,8 @@ export const questionIncludeClause = (questionIncludeOptions) => {
     using this function we can extract the type specific data (and only that) from the question object
     also used to avoid injections
  */
+
+import utils from 'util'
 export const questionTypeSpecific = (
   questionType,
   question,
@@ -342,6 +344,8 @@ export const questionTypeSpecific = (
         solution: question?.essay.solution ?? '',
       }
     case QuestionType.multipleChoice:
+      // console.log(utils.inspect(question, { showHidden: false, depth: null }))
+
       return !question
         ? {
             // default options when creating a new question
@@ -360,29 +364,24 @@ export const questionTypeSpecific = (
             activateSelectionLimit:
               question.multipleChoice.activateSelectionLimit,
             selectionLimit: question.multipleChoice.selectionLimit,
-            multipleChoiceGradualCreditConfig: question.multipleChoice
-              .multipleChoiceGradualCreditConfig
+            gradualCreditConfig: question.multipleChoice.gradualCreditConfig
               ? mode === 'update'
                 ? {
                     update: {
                       negativeMarking:
-                        question.multipleChoice
-                          .multipleChoiceGradualCreditConfig
+                        question.multipleChoice.gradualCreditConfig
                           .negativeMarking,
                       threshold:
-                        question.multipleChoice
-                          .multipleChoiceGradualCreditConfig.threshold,
+                        question.multipleChoice.gradualCreditConfig.threshold,
                     },
                   }
                 : {
                     create: {
                       negativeMarking:
-                        question.multipleChoice
-                          .multipleChoiceGradualCreditConfig
+                        question.multipleChoice.gradualCreditConfig
                           .negativeMarking,
                       threshold:
-                        question.multipleChoice
-                          .multipleChoiceGradualCreditConfig.threshold,
+                        question.multipleChoice.gradualCreditConfig.threshold,
                     },
                   }
               : undefined,

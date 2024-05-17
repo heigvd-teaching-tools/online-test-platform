@@ -18,7 +18,9 @@ import {
   QuestionType,
   DatabaseQueryOutputStatus,
   CodeQuestionType,
+  MultipleChoiceGradingPolicyType,
 } from '@prisma/client'
+import { raw } from '@prisma/client/runtime'
 
 /*
     This function is used to grade a users answers to a question.
@@ -32,6 +34,7 @@ import {
     during answers editing (code file editing), the grading of code question is done during the code-check run (see /api/sandbox/[questionId]/users.js).
 
  */
+
 export const grading = (question, totalPoints, studentAnswer) => {
   switch (question.type) {
     case QuestionType.multipleChoice:
@@ -92,15 +95,44 @@ const gradeDatabase = (totalPoints, studentAnswer) => {
 
   return grading
 }
+
+// Main grading function for multiple choice
 const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
+  switch (question.multipleChoice.gradingPolicy) {
+    case MultipleChoiceGradingPolicyType.ALL_OR_NOTHING:
+      return gradeMultipleChoiceAllOrNothing(
+        question,
+        totalPoints,
+        studentAnswer,
+      )
+
+    case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT:
+      return gradeMultipleChoiceGradualCredit(
+        question,
+        totalPoints,
+        studentAnswer,
+      )
+
+    default:
+      return defaultGrading
+  }
+}
+
+// Helper function for ALL_OR_NOTHING policy
+const gradeMultipleChoiceAllOrNothing = (
+  question,
+  totalPoints,
+  studentAnswer,
+) => {
   let grading = defaultGrading
 
   if (studentAnswer !== undefined) {
-    let correctOptions = question.multipleChoice.options.filter(
+    const correctOptions = question.multipleChoice.options.filter(
       (opt) => opt.isCorrect,
     )
-    let answerOptions = studentAnswer.options
-    let isCorrect =
+    const answerOptions = studentAnswer.options
+
+    const isCorrect =
       correctOptions.length === answerOptions.length &&
       correctOptions.every((opt) =>
         answerOptions.some((aOpt) => aOpt.id === opt.id),
@@ -110,6 +142,72 @@ const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
       pointsObtained: isCorrect ? totalPoints : 0,
     }
   }
+
+  return grading
+}
+
+const gradeMultipleChoiceGradualCredit = (
+  question,
+  totalPoints,
+  studentAnswer,
+) => {
+  let grading = defaultGrading
+  if (studentAnswer !== undefined) {
+    const threshold = question.multipleChoice.gradualCreditConfig.threshold
+    const negativeMarking =
+      question.multipleChoice.gradualCreditConfig.negativeMarking
+
+    // Extract relevant data from question and student answer
+
+    const correctOptions = question.multipleChoice.options.filter(
+      (option) => option.isCorrect,
+    )
+    const incorrectOptions = question.multipleChoice.options.filter(
+      (option) => !option.isCorrect,
+    )
+
+    const selectedCorrectOptions = studentAnswer.options.filter((answer) =>
+      correctOptions.some((option) => option.id === answer.id),
+    )
+
+    const selectedIncorrectOptions = studentAnswer.options.filter((answer) =>
+      incorrectOptions.some((option) => option.id === answer.id),
+    )
+
+    // Calculate adjusted correctness ratio
+    const correctnessRation =
+      selectedCorrectOptions.length / correctOptions.length -
+      selectedIncorrectOptions.length / incorrectOptions.length
+
+    // Calculate raw score
+    const rawScore = totalPoints * correctnessRation
+
+    // Calculate final score
+    let finalScore = rawScore
+
+    // Ensure final score is zero if threshold is not met
+    if (correctnessRation < threshold / 100 && rawScore > 0) {
+      finalScore = 0
+    }
+
+    // Ensure final score is not negative if negative marking is disabled
+    if (!negativeMarking) {
+      finalScore = Math.max(0, finalScore)
+    }
+
+    // Round to 2 decimal places
+    finalScore = Math.round(finalScore * 100) / 100
+
+    console.log('correctnessRatio', correctnessRation)
+    console.log('rawScore', rawScore)
+    console.log('finalScore', finalScore)
+
+    grading = {
+      status: StudentQuestionGradingStatus.AUTOGRADED,
+      pointsObtained: finalScore,
+    }
+  }
+
   return grading
 }
 

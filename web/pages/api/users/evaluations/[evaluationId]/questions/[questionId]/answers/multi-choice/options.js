@@ -64,6 +64,8 @@ const addOrRemoveOption = withEvaluationPhase(
                     options: true,
                     activateSelectionLimit: true,
                     selectionLimit: true,
+                    gradingPolicy: true,
+                    gradualCreditConfig: true,
                   },
                 },
               },

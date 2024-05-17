@@ -23,6 +23,7 @@ import ClearIcon from '@mui/icons-material/Clear'
 import DragHandleSVG from '@/components/layout/utils/DragHandleSVG'
 import ReorderableList from '@/components/layout/utils/ReorderableList'
 import { useDebouncedCallback } from 'use-debounce'
+import ScrollContainer from '@/components/layout/ScrollContainer'
 
 const MultipleChoice = ({
   id = 'multi_choice',
@@ -77,30 +78,32 @@ const MultipleChoice = ({
   )
 
   return (
-    <ReorderableList onChangeOrder={onReorder}>
-      {options?.map((option, index) => (
-        <MultipleChoiceOptionUpdate
-          key={index}
-          round={round}
-          option={option}
-          onSelect={(id) => selectOption(id)}
-          onChangeOption={(value) => {
-            const newOptions = [...options]
-            const option = newOptions[index]
-            option.text = value
-            setOptions(newOptions)
-            onChangeOption(option)
-          }}
-          onDelete={(order) => {
-            let newOptions = [...options]
-            const deleted = options[order]
-            newOptions.splice(index, 1)
-            setOptions(newOptions)
-            onDelete(deleted)
-          }}
-        />
-      ))}
-    </ReorderableList>
+    <ScrollContainer spacing={1} pb={8}>
+      <ReorderableList onChangeOrder={onReorder}>
+        {options?.map((option, index) => (
+          <MultipleChoiceOptionUpdate
+            key={index}
+            round={round}
+            option={option}
+            onSelect={(id) => selectOption(id)}
+            onChangeOption={(value) => {
+              const newOptions = [...options]
+              const option = newOptions[index]
+              option.text = value
+              setOptions(newOptions)
+              onChangeOption(option)
+            }}
+            onDelete={(option) => {
+              let newOptions = [...options]
+              const deleted = newOptions.find((opt) => opt.id === option.id)
+              newOptions.splice(index, 1)
+              setOptions(newOptions)
+              onDelete(deleted)
+            }}
+          />
+        ))}
+      </ReorderableList>
+    </ScrollContainer>
   )
 }
 
@@ -115,7 +118,7 @@ const MultipleChoiceOptionUpdate = ({
 
   useEffect(() => {
     setText(option.text)
-  }, [option.text])
+  }, [option])
 
   const debounceOnChange = useDebouncedCallback(onChangeOption, 500)
 
@@ -156,7 +159,10 @@ const MultipleChoiceOptionUpdate = ({
       <IconButton
         variant="small"
         color="error"
-        onClick={() => onDelete(option.order)}
+        onClick={() => {
+          console.log('onDelete', option)
+          onDelete(option)
+        }}
       >
         <DeleteIcon />
       </IconButton>

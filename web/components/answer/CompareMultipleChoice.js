@@ -117,22 +117,13 @@ const CompareMultipleChoice = ({ solution, answer }) => {
   )
 }
 
-const MultipleChoiceOptionSelect = ({
-  round = false,
-  mode = 'compare',
-  option,
-  isFilled,
-}) => {
+const MultipleChoiceOptionSelect = ({ round = false, option, isFilled }) => {
   return (
     <Stack
       direction="row"
       alignItems="center"
       spacing={2}
       sx={{ flex: 1, cursor: 'pointer' }}
-      onClick={(ev) => {
-        ev.stopPropagation()
-        onSelect(option.id)
-      }}
     >
       <RadioViewer
         mode={'compare'}

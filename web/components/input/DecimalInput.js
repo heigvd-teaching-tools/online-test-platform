@@ -26,6 +26,7 @@ const DecimalInput = ({
   min = 0,
   max = Infinity,
   rightAdornement,
+  leftAdornement,
   ...props
 }) => {
   const [value, setValue] = useState(initial)
@@ -93,6 +94,11 @@ const DecimalInput = ({
         endAdornment: (
           <InputAdornment position="end">
             <Typography variant={'caption'}>{rightAdornement}</Typography>
+          </InputAdornment>
+        ),
+        startAdornment: leftAdornement && (
+          <InputAdornment position="start">
+            <Typography variant={'caption'}>{leftAdornement}</Typography>
           </InputAdornment>
         ),
       }}

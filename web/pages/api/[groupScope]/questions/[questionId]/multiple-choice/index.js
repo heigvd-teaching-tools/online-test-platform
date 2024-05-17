@@ -37,7 +37,7 @@ const get = async (req, res, prisma) => {
       questionId: questionId,
     },
     include: {
-      multipleChoiceGradualCreditConfig: true,
+      gradualCreditConfig: true,
       options: {
         orderBy: [
           {
@@ -78,7 +78,7 @@ const put = async (req, res, prisma) => {
 
   if (currentGradingPolicy !== gradingPolicy) {
     // If the grading policy is changed, we need to remove the existing gradual credit config
-    await prisma.multipleChoiceGradualCreditConfig.delete({
+    await prisma.gradualCreditConfig.delete({
       where: {
         questionId: questionId,
       },
@@ -95,7 +95,7 @@ const put = async (req, res, prisma) => {
       gradingPolicy: gradingPolicy,
     },
     include: {
-      multipleChoiceGradualCreditConfig: true,
+      gradualCreditConfig: true,
     },
   })
 
