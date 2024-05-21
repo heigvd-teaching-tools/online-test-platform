@@ -25,6 +25,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import { fetcher } from '@/code/utils'
 import Loading from '@/components/feedback/Loading'
 import KatexBloc from '@/components/input/markdown/KatexBloc'
+import { calculateGradualCreditPoints } from '@/components/evaluations/grading/GradingPolicyCalculationDetails'
 
 const MultipleChoiceGradualCreditPolicy = ({
   groupScope,
@@ -138,8 +139,8 @@ const MultipleChoiceGradualCreditPolicy = ({
             <Typography variant="caption">
               <KatexBloc
                 code={`
-              \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
-            `}
+                \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
+              `}
               />
               <KatexBloc
                 code={`
@@ -148,13 +149,13 @@ const MultipleChoiceGradualCreditPolicy = ({
               />
               <KatexBloc
                 code={`
-              \\text{Final Score} = 
-              \\begin{cases} 
-              0 & \\text{if Correctness Ratio} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
-              \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
-              \\text{Raw Score} & \\text{otherwise}
-              \\end{cases}
-            `}
+                \\text{Final Score} = 
+                \\begin{cases} 
+                0 & \\text{if Correctness Ratio} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
+                \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
+                \\text{Raw Score} & \\text{otherwise}
+                \\end{cases}
+              `}
               />
             </Typography>
             <GradualPolicyCalculationDetails
@@ -165,6 +166,7 @@ const MultipleChoiceGradualCreditPolicy = ({
               selectedIncorrectOptions={1}
               threshold={0}
               negativeMarking={false}
+              calculator={calculateGradualCreditPoints}
             />
           </Collapse>
         </Alert>

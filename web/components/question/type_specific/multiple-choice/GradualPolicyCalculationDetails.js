@@ -24,17 +24,19 @@ const GradualPolicyCalculationDetails = ({
   selectedIncorrectOptions,
   threshold,
   negativeMarking,
+  calculator,
 }) => {
   // Calculate correctness ratio
-  const correctnessRatio =
-    selectedCorrectOptions / correctOptions -
-    selectedIncorrectOptions / incorrectOptions
+  let { finalScore, rawScore, correctnessRatio} = calculator(
+    totalPoints,
+    correctOptions,
+    incorrectOptions,
+    selectedCorrectOptions,
+    selectedIncorrectOptions,
+    threshold,
+    negativeMarking,
+  )
 
-  // Calculate raw score
-  const rawScore = totalPoints * correctnessRatio
-
-  // Calculate final score
-  let finalScore = rawScore
   let appliedCondition = null
 
   // Ensure final score is zero if threshold is not met
@@ -112,7 +114,7 @@ const GradualPolicyCalculationDetails = ({
           code={`
               \\text{Final Score} = 
               \\begin{cases} 
-              0 & \\text{if Correctness Ratio} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
+              0 & \\text{if Correctness Ratio} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
               \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
               \\text{Raw Score} & \\text{otherwise}
               \\end{cases}

@@ -19,6 +19,8 @@ import ResizePanel from '@/components/layout/utils/ResizePanel'
 import ScrollContainer from '../layout/ScrollContainer'
 import { useMemo } from 'react'
 import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
+import { GradingPolicyCalculationDetails } from '../evaluations/grading/GradingPolicyCalculationDetails'
+
 
 const StudentSelectionSummary = ({ solution, answer }) => {
   const missedCorrect = solution.options.filter(
@@ -37,14 +39,14 @@ const StudentSelectionSummary = ({ solution, answer }) => {
   return (
     <Stack spacing={2} direction={'row'} width={'100%'}>
       {correctSelection > 0 && (
-        <Alert severity="success">{correctSelection} correct option(s).</Alert>
+        <Alert severity="success">{correctSelection} correct</Alert>
       )}
       {missedCorrect > 0 && (
-        <Alert severity="error">{missedCorrect} missed option(s).</Alert>
+        <Alert severity="error">{missedCorrect} missed</Alert>
       )}
       {incorrectSelection > 0 && (
         <Alert severity="error">
-          {incorrectSelection} incorrect option(s).
+          {incorrectSelection} incorrect
         </Alert>
       )}
       {missedCorrect === 0 && incorrectSelection === 0 && (
@@ -57,14 +59,23 @@ const StudentSelectionSummary = ({ solution, answer }) => {
   )
 }
 
-const CompareMultipleChoice = ({ solution, answer }) => {
+const CompareMultipleChoice = ({ maxPoints, question, solution, answer }) => {
   const radio = useMemo(() => {
     return solution.activateSelectionLimit && solution.selectionLimit === 1
   }, [solution.activateSelectionLimit, solution.selectionLimit])
 
   return (
     <Stack p={2} pt={2} height={'100%'} spacing={2}>
-      <StudentSelectionSummary solution={solution} answer={answer} />
+      <Stack direction={'row'} alignItems={'center'} spacing={1}>
+        <StudentSelectionSummary solution={solution} answer={answer} />
+          <GradingPolicyCalculationDetails 
+            gradingPolicy={question[question.type].gradingPolicy}
+            maxPoints={maxPoints}
+            solution={solution}
+            question={question}
+            answer={answer}
+          />
+      </Stack>
       <MultipleChoiceConfig multipleChoice={solution} />
       <Stack flex={1}>
         <ScrollContainer>

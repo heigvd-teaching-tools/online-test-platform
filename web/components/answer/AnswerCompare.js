@@ -25,11 +25,15 @@ import CompareDatabase from './CompareDatabase'
 
 const AnswerCompare = ({
   readOnly = false,
-  question,
+  evaluationToQuestion,
   student,
   solution,
   answer,
 }) => {
+
+  const question = evaluationToQuestion.question
+  const maxPoints = evaluationToQuestion.points
+
   return (
     <Paper
       square
@@ -45,7 +49,12 @@ const AnswerCompare = ({
           />
         )) ||
           (question.type === QuestionType.multipleChoice && answer.options && (
-            <CompareMultipleChoice solution={solution} answer={answer} />
+            <CompareMultipleChoice 
+              maxPoints={maxPoints}
+              question={question}
+              solution={solution} 
+              answer={answer} 
+            />
           )) ||
           (question.type === QuestionType.essay && (
             <CompareEssay solution={solution} answer={answer.content} />

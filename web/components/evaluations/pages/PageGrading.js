@@ -437,7 +437,7 @@ const PageGrading = () => {
                         student={participants.find(
                           (p) => p.id === participantId,
                         )}
-                        question={evaluationToQuestion.question}
+                        evaluationToQuestion={evaluationToQuestion}
                         solution={
                           evaluationToQuestion.question[
                             evaluationToQuestion.question.type
@@ -471,7 +471,6 @@ const PageGrading = () => {
                     />
                     <GradingSignOff
                       loading={loading}
-                      question={evaluationToQuestion.question}
                       answer={evaluationToQuestion.question.studentAnswer.find(
                         (ans) => ans.user.id === participantId,
                       )}

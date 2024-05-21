@@ -15,7 +15,6 @@
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
-  MultipleChoiceGradingPolicyType,
   StudentQuestionGradingStatus,
 } from '@prisma/client'
 import Image from 'next/image'
@@ -28,12 +27,9 @@ import DecimalInput from '@/components/input/DecimalInput'
 import GradingStatus from './GradingStatus'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
-import UserHelpPopper from '@/components/feedback/UserHelpPopper'
-import GradualPolicyCalculationDetails from '@/components/question/type_specific/multiple-choice/GradualPolicyCalculationDetails'
 
 const GradingSignOff = ({
   loading,
-  question,
   answer: initial,
   maxPoints,
   onChange,
@@ -148,13 +144,6 @@ const GradingSignOff = ({
                   value={grading.pointsObtained}
                   max={maxPoints}
                   rightAdornement={'/ ' + maxPoints + ' pts'}
-                  leftAdornement={
-                    <CalculationDetails
-                      maxPoints={maxPoints}
-                      question={question}
-                      answer={initial}
-                    />
-                  }
                   variant="filled"
                   onChange={async (value) => {
                     const newGrading = {
@@ -202,47 +191,5 @@ const GradingSignOff = ({
   )
 }
 
-const CalculationDetails = ({ maxPoints, question, answer }) => {
-  const gradingPolicy = question[question.type]?.gradingPolicy
-
-  switch (gradingPolicy) {
-    case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT: {
-      const correctOptions = question.multipleChoice.options.filter(
-        (option) => option.isCorrect,
-      )
-      const incorrectOptions = question.multipleChoice.options.filter(
-        (option) => !option.isCorrect,
-      )
-
-      const selectedCorrectOptions = answer.multipleChoice.options.filter(
-        (answer) => correctOptions.some((option) => option.id === answer.id),
-      )
-
-      const selectedIncorrectOptions = answer.multipleChoice.options.filter(
-        (answer) => incorrectOptions.some((option) => option.id === answer.id),
-      )
-
-      const threshold = question.multipleChoice.gradualCreditConfig.threshold
-      const negativeMarking =
-        question.multipleChoice.gradualCreditConfig.negativeMarking
-
-      return (
-        <UserHelpPopper>
-          <GradualPolicyCalculationDetails
-            totalPoints={maxPoints}
-            correctOptions={correctOptions.length}
-            incorrectOptions={incorrectOptions.length}
-            selectedCorrectOptions={selectedCorrectOptions.length}
-            selectedIncorrectOptions={selectedIncorrectOptions.length}
-            threshold={threshold}
-            negativeMarking={negativeMarking}
-          />
-        </UserHelpPopper>
-      )
-    }
-    default:
-      return <></>
-  }
-}
 
 export default GradingSignOff
