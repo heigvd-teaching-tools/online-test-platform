@@ -19,39 +19,14 @@ import { Typography } from '@mui/material'
 import { MultipleChoiceGradingPolicyType } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import AllOrNothingPolicyCalculationBreakdown from './AllOrNothingCalculationBreakdown'
+import {
+  calculateAllOrNothingPoints,
+  calculateGradualCreditPoints,
+} from '@/code/grading/calculation'
 
 const gradingPolicyToLabel = {
   [MultipleChoiceGradingPolicyType.GRADUAL_CREDIT]: 'Gradual Credit',
   [MultipleChoiceGradingPolicyType.ALL_OR_NOTHING]: 'All or Nothing',
-}
-
-const calculateGradualCreditPoints = (
-  maxPoints,
-  correctOptions,
-  incorrectOptions,
-  selectedCorrectOptions,
-  selectedIncorrectOptions,
-  threshold,
-  negativeMarking,
-) => {
-  const correctnessRatio =
-    selectedCorrectOptions / correctOptions -
-    selectedIncorrectOptions / incorrectOptions
-
-  const rawScore = maxPoints * correctnessRatio
-  let finalScore = rawScore
-
-  if (correctnessRatio < threshold / 100 && rawScore > 0) {
-    finalScore = 0
-  }
-
-  if (!negativeMarking) {
-    finalScore = Math.max(0, finalScore)
-  }
-
-  finalScore = Math.round(finalScore * 100) / 100
-
-  return { finalScore, rawScore, correctnessRatio }
 }
 
 const extractGradualCreditData = (maxPoints, solution, answer) => {
@@ -110,8 +85,11 @@ const extractAllOrNothingData = (maxPoints, solution, answer) => {
     incorrectOptions.some((option) => option.id === answer.id),
   )
 
-  const finalScore =
-    selectedCorrectOptions.length === correctOptions.length ? maxPoints : 0
+  const { finalScore } = calculateAllOrNothingPoints(
+    maxPoints,
+    correctOptions,
+    answer.options,
+  )
 
   return {
     totalPoints: maxPoints,

@@ -24,7 +24,7 @@ import {
 } from '@prisma/client'
 
 import { isInProgress } from './utils'
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import {
   withAuthorization,
   withMethodHandler,

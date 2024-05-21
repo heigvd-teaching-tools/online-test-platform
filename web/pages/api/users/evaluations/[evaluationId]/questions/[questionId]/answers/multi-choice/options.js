@@ -20,7 +20,7 @@ import {
   UserOnEvaluationStatus,
 } from '@prisma/client'
 
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import {
   withAuthorization,
   withMethodHandler,

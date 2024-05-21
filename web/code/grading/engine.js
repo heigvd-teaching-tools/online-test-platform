@@ -20,7 +20,10 @@ import {
   CodeQuestionType,
   MultipleChoiceGradingPolicyType,
 } from '@prisma/client'
-import { raw } from '@prisma/client/runtime'
+import {
+  calculateAllOrNothingPoints,
+  calculateGradualCreditPoints,
+} from './calculation'
 
 /*
     This function is used to grade a users answers to a question.
@@ -132,14 +135,15 @@ const gradeMultipleChoiceAllOrNothing = (
     )
     const answerOptions = studentAnswer.options
 
-    const isCorrect =
-      correctOptions.length === answerOptions.length &&
-      correctOptions.every((opt) =>
-        answerOptions.some((aOpt) => aOpt.id === opt.id),
-      )
+    const { finalScore } = calculateAllOrNothingPoints(
+      totalPoints,
+      correctOptions,
+      answerOptions,
+    )
+
     grading = {
       status: StudentQuestionGradingStatus.AUTOGRADED,
-      pointsObtained: isCorrect ? totalPoints : 0,
+      pointsObtained: finalScore,
     }
   }
 
@@ -174,33 +178,15 @@ const gradeMultipleChoiceGradualCredit = (
       incorrectOptions.some((option) => option.id === answer.id),
     )
 
-    // Calculate adjusted correctness ratio
-    const correctnessRation =
-      selectedCorrectOptions.length / correctOptions.length -
-      selectedIncorrectOptions.length / incorrectOptions.length
-
-    // Calculate raw score
-    const rawScore = totalPoints * correctnessRation
-
-    // Calculate final score
-    let finalScore = rawScore
-
-    // Ensure final score is zero if threshold is not met
-    if (correctnessRation < threshold / 100 && rawScore > 0) {
-      finalScore = 0
-    }
-
-    // Ensure final score is not negative if negative marking is disabled
-    if (!negativeMarking) {
-      finalScore = Math.max(0, finalScore)
-    }
-
-    // Round to 2 decimal places
-    finalScore = Math.round(finalScore * 100) / 100
-
-    console.log('correctnessRatio', correctnessRation)
-    console.log('rawScore', rawScore)
-    console.log('finalScore', finalScore)
+    const { finalScore } = calculateGradualCreditPoints(
+      totalPoints,
+      correctOptions.length,
+      incorrectOptions.length,
+      selectedCorrectOptions.length,
+      selectedIncorrectOptions.length,
+      threshold,
+      negativeMarking,
+    )
 
     grading = {
       status: StudentQuestionGradingStatus.AUTOGRADED,
