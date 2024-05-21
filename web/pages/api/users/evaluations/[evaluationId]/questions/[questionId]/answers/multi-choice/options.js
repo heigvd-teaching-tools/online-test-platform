@@ -20,7 +20,7 @@ import {
   UserOnEvaluationStatus,
 } from '@prisma/client'
 
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import {
   withAuthorization,
   withMethodHandler,
@@ -45,8 +45,8 @@ const addOrRemoveOption = withEvaluationPhase(
 
       const { option } = req.body
 
-      // get all options including their official answer status,
-      // these are used to grade the users answers
+      // Get all options including their official answer status,
+      // these are used to grade the user's answers
       // WARNING! they should not be returned by the api to the users
       const evaluationToQuestion = await prisma.evaluationToQuestion.findUnique(
         {
@@ -62,6 +62,10 @@ const addOrRemoveOption = withEvaluationPhase(
                 multipleChoice: {
                   select: {
                     options: true,
+                    activateSelectionLimit: true,
+                    selectionLimit: true,
+                    gradingPolicy: true,
+                    gradualCreditConfig: true,
                   },
                 },
               },
@@ -75,11 +79,85 @@ const addOrRemoveOption = withEvaluationPhase(
         return
       }
 
+      const { multipleChoice } = evaluationToQuestion.question
+      const radio =
+        multipleChoice.activateSelectionLimit &&
+        multipleChoice.selectionLimit === 1
+      const limit = multipleChoice.activateSelectionLimit
+        ? multipleChoice.selectionLimit
+        : Infinity
+
       let status = StudentAnswerStatus.IN_PROGRESS
 
+      const transaction = [] // to do in single transaction, queries are done in order
+
+      if (radio) {
+        // If radio behavior, deselect all other options
+        transaction.push(
+          prisma.studentAnswerMultipleChoice.update({
+            where: {
+              userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId,
+              },
+            },
+            data: {
+              options: {
+                set: [], // Deselect all options
+              },
+            },
+          }),
+        )
+      } else {
+        const studentAnswer =
+          await prisma.studentAnswerMultipleChoice.findUnique({
+            where: {
+              userEmail_questionId: {
+                userEmail: studentEmail,
+                questionId: questionId,
+              },
+            },
+            select: {
+              options: {
+                select: {
+                  id: true,
+                  text: true,
+                },
+              },
+            },
+          })
+
+        const selectedOptions = studentAnswer.options
+
+        // Prevent selecting more than the limit
+        if (selectedOptions.length >= limit && toAdd) {
+          res.status(400).json({ message: 'Selection limit reached' })
+          return
+        }
+      }
+
+      // Add or remove option to/from user's multi-choice answers
+      transaction.push(
+        prisma.studentAnswerMultipleChoice.update({
+          where: {
+            userEmail_questionId: {
+              userEmail: studentEmail,
+              questionId: questionId,
+            },
+          },
+          data: {
+            options: {
+              [toAdd ? 'connect' : 'disconnect']: {
+                id: option.id,
+              },
+            },
+          },
+        }),
+      )
+
+      // Update the status of the user's answers
       if (!toAdd) {
-        // toRemove
-        // check if the option to remove is the only one selected, if so, set status to missing
+        // Check if the option to remove is the only one selected, if so, set status to missing
         const studentAnswer =
           await prisma.studentAnswerMultipleChoice.findUnique({
             where: {
@@ -103,9 +181,6 @@ const addOrRemoveOption = withEvaluationPhase(
         }
       }
 
-      const transaction = [] // to do in single transaction, queries are done in order
-
-      // update the status of the users answers
       transaction.push(
         prisma.studentAnswer.update({
           where: {
@@ -120,29 +195,10 @@ const addOrRemoveOption = withEvaluationPhase(
         }),
       )
 
-      // add option to users multi-choice answers
-      transaction.push(
-        prisma.studentAnswerMultipleChoice.update({
-          where: {
-            userEmail_questionId: {
-              userEmail: studentEmail,
-              questionId: questionId,
-            },
-          },
-          data: {
-            options: {
-              [toAdd ? 'connect' : 'disconnect']: {
-                id: option.id,
-              },
-            },
-          },
-        }),
-      )
-
-      // prisma transaction
+      // Execute the prisma transaction
       await prisma.$transaction(transaction)
 
-      // get the updated users answers
+      // Get the updated user's answers
       const studentAnswer = await prisma.studentAnswerMultipleChoice.findUnique(
         {
           where: {
@@ -162,7 +218,7 @@ const addOrRemoveOption = withEvaluationPhase(
         },
       )
 
-      // grade the users answers
+      // Grade the user's answers
       await prisma.studentQuestionGrading.upsert({
         where: {
           userEmail_questionId: {
@@ -186,7 +242,7 @@ const addOrRemoveOption = withEvaluationPhase(
         ),
       })
 
-      // get the updated users answers -> do not return the options official answer status "isCorerct"
+      // Get the updated user's answers -> do not return the options official answer status "isCorrect"
       const updatedStudentAnswer = await prisma.studentAnswer.findUnique({
         where: {
           userEmail_questionId: {

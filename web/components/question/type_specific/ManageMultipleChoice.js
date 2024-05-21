@@ -19,21 +19,54 @@ import MultipleChoice from './MultipleChoice'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import { useDebouncedCallback } from 'use-debounce'
+import { Box, Stack } from '@mui/system'
+import { Button } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import MultipleChoiceConfig from './multiple-choice/MultipleChoiceConfig'
 
 const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   const {
-    data: options,
+    data: multipleChoice,
     mutate,
     error,
   } = useSWR(
-    `/api/${groupScope}/questions/${questionId}/multiple-choice/options`,
+    `/api/${groupScope}/questions/${questionId}/multiple-choice`,
     groupScope && questionId ? fetcher : null,
     { revalidateOnFocus: false },
   )
 
-  const onChangeOptions = useCallback(
-    async (index, options) => {
-      const updatedOption = options[index]
+  const saveMultipleChoice = useCallback(
+    async (multipleChoice) => {
+      await fetch(
+        `/api/${groupScope}/questions/${questionId}/multiple-choice`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(multipleChoice),
+        },
+      )
+        .then((data) => data.json())
+        .then(async () => {
+          await mutate()
+        })
+    },
+    [groupScope, questionId, mutate],
+  )
+
+  const onPropertyChange = useCallback(
+    async (property, value) => {
+      multipleChoice[property] = value
+      await saveMultipleChoice(multipleChoice)
+      onUpdate && onUpdate()
+    },
+    [multipleChoice, saveMultipleChoice, onUpdate],
+  )
+
+  const onChangeOption = useCallback(
+    async (newOption) => {
       await fetch(
         `/api/${groupScope}/questions/${questionId}/multiple-choice/options`,
         {
@@ -43,13 +76,13 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
             Accept: 'application/json',
           },
           body: JSON.stringify({
-            option: updatedOption,
+            option: newOption,
           }),
         },
       )
         .then(async (res) => {
           if (res.status === 200) {
-            await mutate(options)
+            await mutate()
           }
         })
         .finally(() => {
@@ -60,7 +93,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   )
 
   const onDeleteOption = useCallback(
-    async (_, deletedOption) => {
+    async (deletedOption) => {
       await fetch(
         `/api/${groupScope}/questions/${questionId}/multiple-choice/options`,
         {
@@ -96,7 +129,10 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          option: { text: '', isCorrect: false, order: options.length },
+          option: {
+            text: '',
+            isCorrect: false,
+          },
         }),
       },
     )
@@ -108,7 +144,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
       .finally(() => {
         onUpdate && onUpdate()
       })
-  }, [groupScope, questionId, mutate, onUpdate, options])
+  }, [groupScope, questionId, mutate, onUpdate])
 
   const saveReOrder = useCallback(
     async (reordered) => {
@@ -132,20 +168,50 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
   const debounceSaveOrdering = useDebouncedCallback(saveReOrder, 300)
 
   return (
-    <Loading loading={!options} errors={[error]}>
-      <MultipleChoice
-        options={options}
-        onAdd={onAddOption}
-        onChange={async (changedIndex, newOptions) => {
-          await onChangeOptions(changedIndex, newOptions)
-        }}
-        onChangeOrder={async (reordered) => {
-          await debounceSaveOrdering(reordered)
-        }}
-        onDelete={async (deletedIndex, deletedOption) => {
-          await onDeleteOption(deletedIndex, deletedOption)
-        }}
-      />
+    <Loading loading={!multipleChoice} errors={[error]}>
+      <Stack spacing={2} mt={1} flex={1}>
+        <Stack
+          direction="row"
+          justifyContent={'space-between'}
+          alignItems={'flex-start'}
+          px={1}
+        >
+          <MultipleChoiceConfig
+            groupScope={groupScope}
+            questionId={questionId}
+            multipleChoice={multipleChoice}
+            onPropertyChange={onPropertyChange}
+            onUpdate={() => onUpdate()} // trigger parent update
+          />
+        </Stack>
+        <Stack alignItems={'center'}>
+          <Button
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => onAddOption()}
+            px={2}
+          >
+            Add Option
+          </Button>
+        </Stack>
+
+        <Stack px={2} spacing={2} flex={1}>
+          <MultipleChoice
+            limiterActivated={multipleChoice?.activateSelectionLimit}
+            options={multipleChoice?.options}
+            onAdd={onAddOption}
+            onChangeOption={async (newOption) => {
+              await onChangeOption(newOption)
+            }}
+            onChangeOrder={async (reordered) => {
+              await debounceSaveOrdering(reordered)
+            }}
+            onDelete={async (deletedOption) => {
+              await onDeleteOption(deletedOption)
+            }}
+          />
+        </Stack>
+      </Stack>
     </Loading>
   )
 }

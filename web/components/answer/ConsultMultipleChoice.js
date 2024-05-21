@@ -13,14 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Stack, TextField, Typography } from '@mui/material'
 import RadioViewer from '@/components/input/RadioViewer'
+import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
+import { useMemo } from 'react'
 
-const ConsultMultipleChoice = ({ options, answer }) => {
+const ConsultMultipleChoice = ({ multipleChoice, answer }) => {
+  const radio = useMemo(
+    () =>
+      multipleChoice.activateSelectionLimit &&
+      multipleChoice.selectionLimit === 1,
+    [multipleChoice],
+  )
+
   return (
-    <Box p={2} pt={1} height={'100%'}>
-      <Stack spacing={2} padding={2}>
-        {options?.map((option, index) => (
+    <Box height={'100%'}>
+      <Stack pt={2} px={1}>
+        <MultipleChoiceConfig multipleChoice={multipleChoice} />
+      </Stack>
+      <Stack spacing={1} padding={2}>
+        {multipleChoice.options?.map((option, index) => (
           <Stack
             key={index}
             direction="row"
@@ -31,14 +43,24 @@ const ConsultMultipleChoice = ({ options, answer }) => {
             <RadioViewer
               mode={'consult'}
               key={index}
+              round={radio}
               isCorrect={option.isCorrect}
-              isFilled={answer.some((opt) => opt.id === option.id)}
+              isFilled={answer.options.some((opt) => opt.id === option.id)}
             />
             <Box>
               <Typography variant="body1">{option.text}</Typography>
             </Box>
           </Stack>
         ))}
+        {multipleChoice.activateStudentComment && (
+          <TextField
+            label={multipleChoice.studentCommentLabel || 'Comment'}
+            multiline
+            variant="standard"
+            fullWidth
+            value={answer.comment || ''}
+          />
+        )}
       </Stack>
     </Box>
   )

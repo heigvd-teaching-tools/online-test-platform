@@ -17,15 +17,16 @@ import React, { useCallback, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import { InputAdornment, Typography } from '@mui/material'
 
-// Regular expression to allow only numbers with up to 2 decimal places
-const regex = /^-?(\d+\.?\d{0,2}|\.\d{0,2})$/
+// Regular expression to allow only numbers with up to 2 decimal places, including negatives
+const regex = /^-?(\d+(\.\d{0,2})?|\.\d{0,2})$/
 
 const DecimalInput = ({
   value: initial,
   onChange,
-  min = 0,
+  min = -Infinity,
   max = Infinity,
   rightAdornement,
+  leftAdornement,
   ...props
 }) => {
   const [value, setValue] = useState(initial)
@@ -85,14 +86,19 @@ const DecimalInput = ({
       value={value}
       onChange={handleChange}
       type="text"
-      error={errorMessage} // Display error if hasError is true
+      error={Boolean(errorMessage)} // Display error if errorMessage exists
       helperText={errorMessage}
       InputProps={{
         inputMode: 'numeric',
-        pattern: '^\\d*(\\.\\d{0,2})?$',
+        pattern: '^-?\\d*(\\.\\d{0,2})?$',
         endAdornment: (
           <InputAdornment position="end">
             <Typography variant={'caption'}>{rightAdornement}</Typography>
+          </InputAdornment>
+        ),
+        startAdornment: leftAdornement && (
+          <InputAdornment position="start">
+            <Typography variant={'caption'}>{leftAdornement}</Typography>
           </InputAdornment>
         ),
       }}

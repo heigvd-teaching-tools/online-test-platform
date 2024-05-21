@@ -17,7 +17,6 @@ import rehypeSanitize from 'rehype-sanitize'
 import { getCodeString } from 'rehype-rewrite'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
-import mermaid from 'mermaid'
 import CodeBlock from './CodeBlock' // Use existing component for handling code blocks
 import MermaidBloc from './MermaidBloc' // Use existing component for handling Mermaid diagrams
 

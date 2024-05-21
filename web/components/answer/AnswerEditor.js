@@ -22,7 +22,6 @@ import { Button, Stack, Typography } from '@mui/material'
 import { fetcher } from '@/code/utils'
 
 import TrueFalse from '@/components/question/type_specific/TrueFalse'
-import MultipleChoice from '@/components/question/type_specific/MultipleChoice'
 import Essay from '@/components/question/type_specific/Essay'
 import Loading from '@/components/feedback/Loading'
 import WebEditor from '@/components/question/type_specific/web/WebEditor'
@@ -35,6 +34,8 @@ import AlertFeedback from '../feedback/AlertFeedback'
 import { LoadingButton } from '@mui/lab'
 import { useSnackbar } from '@/context/SnackbarContext'
 import Overlay from '../ui/Overlay'
+
+import AnswerMultipleChoice from './multipleChoice/AnswerMultipleChoice'
 
 const SubmittedOverlay = ({ onUnsubmit }) => {
   return (
@@ -252,70 +253,6 @@ const SubmissionToolbar = ({ lock, status, onSubmit, onUnsubmit }) => {
           </LoadingButton>
         )}
       </Stack>
-    )
-  )
-}
-
-const AnswerMultipleChoice = ({
-  answer,
-  question,
-  evaluationId,
-  questionId,
-  onAnswerChange,
-}) => {
-  const [options, setOptions] = useState(undefined)
-
-  useEffect(() => {
-    if (question.multipleChoice.options && answer) {
-      // merge the options with the users answers
-
-      let allOptions = question.multipleChoice.options
-      let studentOptions = answer.multipleChoice?.options
-
-      setOptions(
-        allOptions.map((option) => {
-          return {
-            ...option,
-            isCorrect:
-              studentOptions &&
-              studentOptions.some(
-                (studentOption) => studentOption.id === option.id,
-              ),
-          }
-        }),
-      )
-    }
-  }, [answer, question])
-
-  const onOptionChange = useCallback(
-    async (index, options) => {
-      const changedOption = options[index]
-      const method = changedOption.isCorrect ? 'POST' : 'DELETE'
-      const response = await fetch(
-        `/api/users/evaluations/${evaluationId}/questions/${questionId}/answers/multi-choice/options`,
-        {
-          method: method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ option: changedOption }),
-        },
-      )
-      const ok = response.ok
-      const data = await response.json()
-
-      onAnswerChange && onAnswerChange(ok, data)
-    },
-    [evaluationId, questionId, onAnswerChange],
-  )
-
-  return (
-    answer?.multipleChoice &&
-    options && (
-      <MultipleChoice
-        id={`answer-editor-${questionId}`}
-        selectOnly
-        options={options}
-        onChange={onOptionChange}
-      />
     )
   )
 }

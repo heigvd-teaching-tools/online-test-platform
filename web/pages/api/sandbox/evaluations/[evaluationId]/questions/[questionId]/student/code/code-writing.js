@@ -15,7 +15,7 @@
  */
 import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 import { runSandbox } from '@/sandbox/runSandboxTC'
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import {
   withAuthorization,
   withMethodHandler,

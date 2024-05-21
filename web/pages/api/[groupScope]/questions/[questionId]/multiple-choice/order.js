@@ -20,6 +20,7 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /** Managing the order of the options of a multichoice question */
 
@@ -43,5 +44,7 @@ const put = async (req, res, prisma) => {
 }
 
 export default withMethodHandler({
-  PUT: withAuthorization(withGroupScope(withPrisma(put)), [Role.PROFESSOR]),
+  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [
+    Role.PROFESSOR,
+  ]),
 })

@@ -16,7 +16,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
-import { Box, Paper, Stack, TextField, Toolbar, Tooltip } from '@mui/material'
+import { Box, Paper, Stack, TextField, Tooltip } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { useSession } from 'next-auth/react'
 
@@ -26,39 +26,28 @@ import GradingStatus from './GradingStatus'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
 
-const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
+const GradingSignOff = ({ loading, answer: initial, maxPoints, onChange }) => {
   const [grading, setGrading] = useState(initial)
   const { data } = useSession()
   const commentInputRef = useRef(null)
 
   useEffect(() => {
-    setGrading(initial)
+    setGrading(initial.studentGrading)
   }, [initial])
 
   const signOffGrading = useCallback(() => {
-    let status = grading.status
-    switch (grading.status) {
-      case StudentQuestionGradingStatus.UNGRADED:
-        status = StudentQuestionGradingStatus.GRADED
-        break
-      case StudentQuestionGradingStatus.AUTOGRADED:
-        if (grading.pointsObtained !== initial.pointsObtained) {
-          status = StudentQuestionGradingStatus.GRADED
-        }
-        break
-      default:
-        break
-    }
-
-    let newGrading = {
+    const newGrading = {
       ...grading,
       isCorrect: grading.pointsObtained === maxPoints,
-      status: status,
+      status:
+        grading.status === StudentQuestionGradingStatus.UNGRADED
+          ? StudentQuestionGradingStatus.GRADED
+          : grading.status,
       signedBy: data.user,
     }
     setGrading(newGrading)
     onChange(newGrading)
-  }, [grading, initial, maxPoints, onChange, data])
+  }, [grading, maxPoints, onChange, data])
 
   const unsignGrading = useCallback(() => {
     let newGrading = {
@@ -153,6 +142,7 @@ const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
                     const newGrading = {
                       ...grading,
                       pointsObtained: value,
+                      status: StudentQuestionGradingStatus.GRADED,
                     }
                     setGrading(newGrading)
                     onChange(newGrading)
@@ -178,6 +168,7 @@ const GradingSignOff = ({ loading, grading: initial, maxPoints, onChange }) => {
               />
             </Stack>
           )}
+
           {grading.signedBy && (
             <GradingPointsComment
               points={grading.pointsObtained}

@@ -19,7 +19,7 @@ import {
   StudentAnswerStatus,
   UserOnEvaluationStatus,
 } from '@prisma/client'
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,

@@ -190,7 +190,7 @@ const PageProfConsult = () => {
                     <AnswerCompare
                       id={`answer-viewer-${selected.question.id}`}
                       student={selected.question.studentAnswer[0].user}
-                      question={selected.question}
+                      evaluationToQuestion={selected}
                       solution={selected.question[selected.question.type]}
                       answer={
                         selected.question.studentAnswer[0][
@@ -211,11 +211,9 @@ const PageProfConsult = () => {
                   >
                     <GradingSignOff
                       loading={loading}
-                      grading={
-                        selected.question.studentAnswer.find(
-                          (ans) => ans.user.email === userEmail,
-                        ).studentGrading
-                      }
+                      answer={selected.question.studentAnswer.find(
+                        (ans) => ans.user.email === userEmail,
+                      )}
                       maxPoints={selected.points}
                       onChange={onChangeGrading}
                     />

@@ -31,10 +31,6 @@ import {
   IconButton,
   Tooltip,
   Box,
-  ButtonBase,
-  FormControlLabel,
-  Switch,
-  FormGroup,
 } from '@mui/material'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -169,11 +165,12 @@ const PageGrading = () => {
   )
 
   const onChangeGrading = useCallback(
-    async (grading) => {
+    (grading) => {
       const newEvaluationToQuestions = [...evaluationToQuestions]
       const evaluationToQuestion = newEvaluationToQuestions.find(
         (jstq) => jstq.question.id === grading.questionId,
       )
+
       evaluationToQuestion.question.studentAnswer =
         evaluationToQuestion.question.studentAnswer.map((sa) => {
           if (sa.user.email === grading.userEmail) {
@@ -326,11 +323,40 @@ const PageGrading = () => {
     }))
   }, [evaluationToQuestions, gradingState])
 
-  const ready =
-    evaluationToQuestions &&
+  const ready = useMemo(
+    () =>
+      evaluationToQuestions &&
+      evaluationToQuestion &&
+      participants &&
+      participantId,
+    [evaluationToQuestions, evaluationToQuestion, participants, participantId],
+  )
+
+  const student = useMemo(
+    () => participants.find((p) => p.id === participantId),
+    [participants, participantId],
+  )
+
+  const solution = useMemo(
+    () => evaluationToQuestion?.question[evaluationToQuestion.question.type],
+    [evaluationToQuestion],
+  )
+
+  const studentAnswer = useMemo(
+    () =>
+      ready &&
+      evaluationToQuestion?.question.studentAnswer.find(
+        (answer) => answer.user.id === participantId,
+      )[evaluationToQuestion.question.type],
+    [evaluationToQuestion, participantId, ready],
+  )
+
+  const grading =
+    ready &&
     evaluationToQuestion &&
-    participants &&
-    participantId
+    evaluationToQuestion.question.studentAnswer.find(
+      (sa) => sa.user.id === student.id,
+    ).studentGrading
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
@@ -427,30 +453,15 @@ const PageGrading = () => {
                           )
                         }}
                         isParticipantFilled={(participant) => {
-                          const grading =
-                            evaluationToQuestion &&
-                            evaluationToQuestion.question.studentAnswer.find(
-                              (sa) => sa.user.id === participant.id,
-                            ).studentGrading
                           return grading && grading.signedBy
                         }}
                       />
                       <Divider orientation="vertical" flexItem />
                       <AnswerCompare
-                        student={participants.find(
-                          (p) => p.id === participantId,
-                        )}
-                        question={evaluationToQuestion.question}
-                        solution={
-                          evaluationToQuestion.question[
-                            evaluationToQuestion.question.type
-                          ]
-                        }
-                        answer={
-                          evaluationToQuestion.question.studentAnswer.find(
-                            (answer) => answer.user.id === participantId,
-                          )[evaluationToQuestion.question.type]
-                        }
+                        student={student}
+                        evaluationToQuestion={evaluationToQuestion}
+                        solution={solution}
+                        answer={studentAnswer}
                       />
                     </>
                   )}
@@ -474,11 +485,9 @@ const PageGrading = () => {
                     />
                     <GradingSignOff
                       loading={loading}
-                      grading={
-                        evaluationToQuestion.question.studentAnswer.find(
-                          (ans) => ans.user.id === participantId,
-                        ).studentGrading
-                      }
+                      answer={evaluationToQuestion.question.studentAnswer.find(
+                        (ans) => ans.user.id === participantId,
+                      )}
                       maxPoints={evaluationToQuestion.points}
                       onChange={onChangeGrading}
                     />

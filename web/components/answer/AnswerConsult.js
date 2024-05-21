@@ -40,8 +40,8 @@ const AnswerConsult = ({ id, question, answer }) => {
           (question.type === QuestionType.multipleChoice && answer.options && (
             <ConsultMultipleChoice
               id={id}
-              options={question.multipleChoice.options}
-              answer={answer.options}
+              multipleChoice={question.multipleChoice}
+              answer={answer}
             />
           )) ||
           (question.type === QuestionType.essay && (

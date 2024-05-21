@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined'
+import CloseIcon from '@mui/icons-material/Close'
+
 import {
   IconButton,
   Paper,
@@ -28,7 +30,6 @@ import {
   Box,
   Typography,
 } from '@mui/material'
-import ClickAwayListener from 'react-click-away-listener'
 
 const UserHelpPopper = ({
   children,
@@ -36,22 +37,23 @@ const UserHelpPopper = ({
   placement = 'bottom',
   mode = 'info',
   size = 'small',
+  width = 300,
   maxHeight = 700,
+  onChildOpen, // Add this prop to track child open state
 }) => {
   const popperRef = useRef(null)
-
   const [anchorEl, setAnchorEl] = useState(null)
-
   const [open, setOpen] = useState(false)
 
   const handleToggle = (event) => {
-    setOpen(!open)
-    setAnchorEl(open ? null : event.currentTarget)
+    setAnchorEl(event.currentTarget)
+    const newOpenState = !open
+    setOpen(newOpenState)
+    if (onChildOpen) onChildOpen(newOpenState) // Notify parent popper about the state change
   }
 
   const id = open ? 'simple-popper' : undefined
 
-  // Function to determine the icon based on mode
   const getIcon = () => {
     switch (mode) {
       case 'help':
@@ -69,61 +71,81 @@ const UserHelpPopper = ({
     }
   }
 
-  const handleClickAway = (event) => {
-    // Only close if click is outside of the popper content
-    if (popperRef.current && !popperRef.current.contains(event.target)) {
-      console.log('handleClickAway', event.target)
+  const handleDocumentClick = useCallback(
+    (event) => {
+      if (popperRef.current && popperRef.current.contains(event.target)) {
+        return
+      }
       setOpen(false)
+      if (onChildOpen) onChildOpen(false) // Notify parent popper to close
+    },
+    [onChildOpen],
+  )
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener('mousedown', handleDocumentClick)
+    } else {
+      document.removeEventListener('mousedown', handleDocumentClick)
     }
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocumentClick)
+    }
+  }, [open, handleDocumentClick])
+
+  const handlePaperMouseDown = (event) => {
+    event.stopPropagation()
   }
 
   return (
-    <ClickAwayListener onClickAway={handleClickAway}>
-      <Box>
-        <Stack
-          direction="row"
-          spacing={0}
-          alignItems="center"
-          justifyContent="center"
-          cursor={'pointer'}
-          onClick={handleToggle}
-        >
-          <IconButton
-            color={mode} // This sets the button color. You may adjust if your theme supports it.
-            size={size}
-            aria-label={`${mode} info`}
-          >
-            {getIcon()}
-          </IconButton>
-          {label && <Typography variant="caption">{label}</Typography>}
-        </Stack>
-        <Popper
-          id={id}
-          ref={popperRef}
-          open={open}
-          anchorEl={anchorEl}
-          placement={placement}
-          transition
-          sx={{ zIndex: 10000 }}
-        >
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={350}>
-              <Paper>
-                <Stack
-                  p={2}
-                  maxWidth={600}
-                  maxHeight={maxHeight}
-                  bgcolor="background.paper"
-                  overflow="auto"
-                >
-                  {children}
-                </Stack>
-              </Paper>
-            </Fade>
-          )}
-        </Popper>
-      </Box>
-    </ClickAwayListener>
+    <Box>
+      <Stack
+        direction="row"
+        spacing={0}
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          cursor: 'pointer',
+        }}
+        onClick={handleToggle}
+      >
+        <IconButton color={mode} size={size} aria-label={`${mode} info`}>
+          {open ? <CloseIcon color="error" fontSize={size} /> : getIcon()}
+        </IconButton>
+        {label && <Typography variant="caption">{label}</Typography>}
+      </Stack>
+      <Popper
+        id={id}
+        ref={popperRef}
+        open={open}
+        anchorEl={anchorEl}
+        placement={placement}
+        transition
+        sx={{ zIndex: 10000 }}
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <Paper
+              elevation={3}
+              ref={popperRef}
+              onMouseDown={handlePaperMouseDown}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Stack
+                p={2}
+                maxWidth={Math.max(width, 700)}
+                maxHeight={maxHeight}
+                bgcolor="background.paper"
+                overflow="auto"
+              >
+                {children}
+              </Stack>
+            </Paper>
+          </Fade>
+        )}
+      </Popper>
+    </Box>
   )
 }
 

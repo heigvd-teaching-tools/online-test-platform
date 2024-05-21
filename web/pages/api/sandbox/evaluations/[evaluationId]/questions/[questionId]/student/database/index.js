@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { DatabaseQueryOutputType, Prisma, Role } from '@prisma/client'
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import { isInProgress } from '@/pages/api/users/evaluations/[evaluationId]/questions/[questionId]/answers/utils'
 import { runSandboxDB } from '@/sandbox/runSandboxDB'
 import { runTestsOnDatasets } from '@/code/database'

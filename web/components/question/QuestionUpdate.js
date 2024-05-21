@@ -186,16 +186,19 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
         }
         rightPanel={
           question && (
-            <QuestionTypeSpecific
-              groupScope={groupScope}
-              question={question}
-              onUpdate={() => {
-                onUpdate && onUpdate(question)
-              }}
-              onTypeSpecificChange={(type, value) => {
-                onPropertyChange(type, value)
-              }}
-            />
+            <Stack flex={1}>
+              <QuestionTypeSpecific
+                groupScope={groupScope}
+                question={question}
+                onUpdate={() => {
+                  onUpdate && onUpdate(question)
+                  mutate()
+                }}
+                onTypeSpecificChange={(type, value) => {
+                  onPropertyChange(type, value)
+                }}
+              />
+            </Stack>
           )
         }
       />

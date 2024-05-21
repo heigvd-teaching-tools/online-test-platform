@@ -25,11 +25,15 @@ import CompareDatabase from './CompareDatabase'
 
 const AnswerCompare = ({
   readOnly = false,
-  question,
+  evaluationToQuestion,
   student,
   solution,
   answer,
 }) => {
+  const question = evaluationToQuestion?.question
+  const maxPoints = evaluationToQuestion?.points
+  const questionType = question?.type
+
   return (
     <Paper
       square
@@ -37,23 +41,26 @@ const AnswerCompare = ({
       sx={{ flex: 1, height: '100%', overflowX: 'auto', p: 0 }}
     >
       {(answer &&
-        ((question.type === QuestionType.trueFalse && (
+        ((questionType === QuestionType.trueFalse && (
           <CompareTrueFalse
             mode="compare"
             solution={solution.isTrue}
             answer={answer.isTrue}
           />
         )) ||
-          (question.type === QuestionType.multipleChoice && answer.options && (
+          (questionType === QuestionType.multipleChoice && answer.options && (
             <CompareMultipleChoice
-              options={solution.options}
-              answer={answer.options}
+              readOnly={readOnly}
+              maxPoints={maxPoints}
+              question={question}
+              solution={solution}
+              answer={answer}
             />
           )) ||
-          (question.type === QuestionType.essay && (
+          (questionType === QuestionType.essay && (
             <CompareEssay solution={solution} answer={answer.content} />
           )) ||
-          (question.type === QuestionType.code && (
+          (questionType === QuestionType.code && (
             <CompareCode
               readOnly={readOnly}
               student={student}
@@ -62,10 +69,10 @@ const AnswerCompare = ({
               answer={answer}
             />
           )) ||
-          (question.type === QuestionType.web && (
+          (questionType === QuestionType.web && (
             <CompareWeb solution={solution} answer={answer} />
           )))) ||
-        (question.type === QuestionType.database && (
+        (questionType === QuestionType.database && (
           <CompareDatabase solution={solution} answer={answer} />
         ))}
     </Paper>

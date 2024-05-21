@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import order from '@/pages/api/[groupScope]/collections/[collectionId]/order'
 import code from '@/pages/api/[groupScope]/questions/[questionId]/code'
+import select from '@/pages/api/users/groups/select'
 import {
   QuestionType,
   StudentPermission,
   QuestionSource,
   CodeQuestionType,
 } from '@prisma/client'
-import { orderBy, update } from 'lodash'
+import { comment } from '@uiw/react-md-editor'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -112,9 +114,20 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         },
         multipleChoice: {
           select: {
+            ...(includeOfficialAnswers
+              ? {
+                  gradingPolicy: true,
+                  gradualCreditConfig: true,
+                }
+              : {}),
+            activateStudentComment: true,
+            studentCommentLabel: true,
+            activateSelectionLimit: true,
+            selectionLimit: true,
             options: {
               select: {
                 id: true,
+                order: true,
                 text: true,
                 ...(includeOfficialAnswers ? { isCorrect: true } : {}),
               },
@@ -272,8 +285,9 @@ export const questionIncludeClause = (questionIncludeOptions) => {
         },
         multipleChoice: {
           select: {
+            comment: true,
             options: {
-              select: { id: true, text: true },
+              select: { id: true, order: true, text: true },
               orderBy: [{ order: 'asc' }, { id: 'asc' }],
             },
           },
@@ -304,6 +318,8 @@ export const questionIncludeClause = (questionIncludeOptions) => {
     using this function we can extract the type specific data (and only that) from the question object
     also used to avoid injections
  */
+
+import utils from 'util'
 export const questionTypeSpecific = (
   questionType,
   question,
@@ -328,17 +344,47 @@ export const questionTypeSpecific = (
         solution: question?.essay.solution ?? '',
       }
     case QuestionType.multipleChoice:
+      // console.log(utils.inspect(question, { showHidden: false, depth: null }))
+
       return !question
         ? {
             // default options when creating a new question
             options: {
               create: [
-                { text: 'Option 1', isCorrect: false },
-                { text: 'Option 2', isCorrect: true },
+                { text: 'Option 1', isCorrect: false, order: 0 },
+                { text: 'Option 2', isCorrect: true, order: 1 },
               ],
             },
           }
         : {
+            gradingPolicy: question.multipleChoice.gradingPolicy,
+            activateStudentComment:
+              question.multipleChoice.activateStudentComment,
+            studentCommentLabel: question.multipleChoice.studentCommentLabel,
+            activateSelectionLimit:
+              question.multipleChoice.activateSelectionLimit,
+            selectionLimit: question.multipleChoice.selectionLimit,
+            gradualCreditConfig: question.multipleChoice.gradualCreditConfig
+              ? mode === 'update'
+                ? {
+                    update: {
+                      negativeMarking:
+                        question.multipleChoice.gradualCreditConfig
+                          .negativeMarking,
+                      threshold:
+                        question.multipleChoice.gradualCreditConfig.threshold,
+                    },
+                  }
+                : {
+                    create: {
+                      negativeMarking:
+                        question.multipleChoice.gradualCreditConfig
+                          .negativeMarking,
+                      threshold:
+                        question.multipleChoice.gradualCreditConfig.threshold,
+                    },
+                  }
+              : undefined,
             options:
               mode === 'update'
                 ? // multi choice options are no longer managed on the question level, they are managed by individual endpoints : api/questions/:id/multiple-choice/options

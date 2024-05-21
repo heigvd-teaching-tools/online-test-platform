@@ -10,4 +10,10 @@
     {{/each}}
     </ul>
   </div>
+  {{#if question.multipleChoice.activateStudentComment}}
+    <div>
+      <span><b>{{question.multipleChoice.studentCommentLabel}}</b></span>
+      <p>{{studentAnswer.multipleChoice.comment}}</p>
+    </div>
+  {{/if}}
 </div>

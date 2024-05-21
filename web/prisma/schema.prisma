@@ -182,18 +182,40 @@ model Question {
   evaluation    EvaluationToQuestion?
 }
 
+enum MultipleChoiceGradingPolicyType {
+  ALL_OR_NOTHING
+  GRADUAL_CREDIT
+}
+
 model MultipleChoice {
-  id         String   @id @default(cuid())
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String   @unique
+  questionId String   @id
   options    Option[]
+
+  gradingPolicy MultipleChoiceGradingPolicyType @default(ALL_OR_NOTHING)
+  gradualCreditConfig MultipleChoiceGradualCreditConfig?
+
+  activateStudentComment Boolean  @default(false) // Allow student to provide a comment/justification
+  studentCommentLabel String?                     // Label for the student comment field
+  activateSelectionLimit Boolean @default(false)  // Activate the selection limit, 
+  selectionLimit        Int?    @default(0)       // The number of correct options that the student can select, depends on the number of correct options
+}
+
+
+model MultipleChoiceGradualCreditConfig {
+  multipleChoice     MultipleChoice?   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId   String @unique
+  
+  negativeMarking    Boolean           @default(false)
+  threshold          Float             @default(0)
+  
 }
 
 model Option {
   id               String         @id @default(cuid())
   order            Int            @default(0)
-  multipleChoice   MultipleChoice @relation(fields: [multipleChoiceId], references: [id], onDelete: Cascade)
-  multipleChoiceId String
+  multipleChoice   MultipleChoice @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  questionId       String
   text             String?
   isCorrect        Boolean        @default(false)
 
@@ -702,6 +724,8 @@ model StudentAnswerMultipleChoice {
   questionId    String
 
   options Option[]
+
+  comment String?
 
   @@unique([userEmail, questionId])
 }

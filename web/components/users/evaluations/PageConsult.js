@@ -138,7 +138,7 @@ const PageConsult = () => {
                           <AnswerCompare
                             id={`answer-viewer-${selected.question.id}`}
                             readOnly
-                            question={selected.question}
+                            evaluationToQuestion={selected}
                             solution={selected.question[selected.question.type]}
                             answer={
                               selected.question.studentAnswer[0][

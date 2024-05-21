@@ -28,7 +28,7 @@ import {
 } from '@prisma/client'
 import { phaseGT } from '@/code/phase'
 import { questionIncludeClause } from '@/code/questions'
-import { grading } from '@/code/grading'
+import { grading } from '@/code/grading/engine'
 import { getUser } from '@/code/auth'
 
 const post = async (req, res, prisma) => {
