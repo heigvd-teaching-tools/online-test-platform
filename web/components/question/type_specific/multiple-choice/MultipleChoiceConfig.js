@@ -31,8 +31,7 @@ const MultipleChoiceConfig = ({
     multipleChoice?.activateStudentComment,
   )
   const [studentCommentLabel, setStudentCommentLabel] = useState(
-    multipleChoice?.studentCommentLabel ||
-      'Provide an explanation for your answer',
+    multipleChoice?.studentCommentLabel,
   )
 
   const [activateSelectionLimit, setActivateSelectionLimit] = useState(
@@ -41,9 +40,16 @@ const MultipleChoiceConfig = ({
 
   useEffect(() => {
     setAllowStudentComment(multipleChoice?.activateStudentComment)
+    if (
+      multipleChoice?.activateStudentComment &&
+      multipleChoice?.studentCommentLabel === null
+    ) {
+      onPropertyChange('studentCommentLabel', 'Explain your answer here.')
+      return
+    }
     setStudentCommentLabel(multipleChoice?.studentCommentLabel)
     setActivateSelectionLimit(multipleChoice?.activateSelectionLimit)
-  }, [multipleChoice])
+  }, [multipleChoice, onPropertyChange])
 
   const debounceOnPropertyChange = useDebouncedCallback(onPropertyChange, 500)
 
@@ -110,7 +116,7 @@ const MultipleChoiceConfig = ({
           onUpdate={() => onUpdate()}
         />
       </Stack>
-      {activateStudentComment && (
+      {activateStudentComment && studentCommentLabel !== null && (
         <TextField
           label="Student comment label"
           variant="standard"

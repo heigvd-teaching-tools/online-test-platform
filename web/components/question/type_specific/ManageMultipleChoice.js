@@ -19,7 +19,7 @@ import MultipleChoice from './MultipleChoice'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import { useDebouncedCallback } from 'use-debounce'
-import { Stack } from '@mui/system'
+import { Box, Stack } from '@mui/system'
 import { Button } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import MultipleChoiceConfig from './multiple-choice/MultipleChoiceConfig'
@@ -184,15 +184,16 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
             onUpdate={() => onUpdate()} // trigger parent update
           />
         </Stack>
-
-        <Button
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => onAddOption()}
-          px={2}
-        >
-          Add Option
-        </Button>
+        <Stack alignItems={'center'}>
+          <Button
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => onAddOption()}
+            px={2}
+          >
+            Add Option
+          </Button>
+        </Stack>
 
         <Stack px={2} spacing={2} flex={1}>
           <MultipleChoice

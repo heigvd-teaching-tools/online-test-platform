@@ -160,7 +160,7 @@ const del = async (req, res, prisma) => {
       remainingOptions.map((o, index) =>
         prisma.option.update({
           where: { id: o.id },
-          data: { order: index + 1 },
+          data: { order: index },
         }),
       ),
     )

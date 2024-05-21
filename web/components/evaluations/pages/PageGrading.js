@@ -351,15 +351,12 @@ const PageGrading = () => {
     [evaluationToQuestion, participantId, ready],
   )
 
-  const grading = useMemo(
-    () =>
-      ready &&
-      evaluationToQuestion &&
-      evaluationToQuestion.question.studentAnswer.find(
-        (sa) => sa.user.id === student.id,
-      ).studentGrading,
-    [evaluationToQuestion, student, ready],
-  )
+  const grading =
+    ready &&
+    evaluationToQuestion &&
+    evaluationToQuestion.question.studentAnswer.find(
+      (sa) => sa.user.id === student.id,
+    ).studentGrading
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>

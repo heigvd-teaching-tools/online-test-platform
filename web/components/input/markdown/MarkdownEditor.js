@@ -31,6 +31,7 @@ import Overlay from '../../ui/Overlay'
 import { previewOptions } from './previewOptions'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import Link from 'next/link'
+import ScrollContainer from '@/components/layout/ScrollContainer'
 
 const mermaidExample = `\`\`\`mermaid
 graph TD
@@ -126,7 +127,7 @@ const MarkdownEditor = ({
   const { show: showSnackbar } = useSnackbar()
 
   return (
-    <Box data-color-mode="light" height={'100%'} overflow={'hidden'}>
+    <Stack data-color-mode="light" height={'100%'} overflow={'hidden'}>
       <Stack
         direction="row"
         alignItems="center"
@@ -138,24 +139,25 @@ const MarkdownEditor = ({
         </Stack>
         {withUpload && <UserHelp />}
       </Stack>
-
-      <ContentEditor
-        groupScope={groupScope}
-        readOnly={readOnly}
-        editorProps={{
-          ...defaultEditorOptions,
-          preview: readOnly ? 'preview' : 'live',
-        }}
-        previewOptions={previewOptions}
-        commands={readOnly ? [] : mainCommands}
-        extraCommands={extraCommands}
-        withUpload={!readOnly && withUpload}
-        content={rawContent}
-        onChange={onChange}
-        onHeightChange={onHeightChange}
-        onError={(error) => showSnackbar(error, 'error')}
-      />
-    </Box>
+      <Stack height={'100%'} pb={4}>
+        <ContentEditor
+          groupScope={groupScope}
+          readOnly={readOnly}
+          editorProps={{
+            ...defaultEditorOptions,
+            preview: readOnly ? 'preview' : 'live',
+          }}
+          previewOptions={previewOptions}
+          commands={readOnly ? [] : mainCommands}
+          extraCommands={extraCommands}
+          withUpload={!readOnly && withUpload}
+          content={rawContent}
+          onChange={onChange}
+          onHeightChange={onHeightChange}
+          onError={(error) => showSnackbar(error, 'error')}
+        />
+      </Stack>
+    </Stack>
   )
 }
 
