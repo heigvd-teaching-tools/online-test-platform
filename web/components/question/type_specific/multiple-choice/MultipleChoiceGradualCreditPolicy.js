@@ -18,7 +18,6 @@ import useSWR from 'swr'
 import { Stack, Typography, Collapse, Alert, AlertTitle } from '@mui/material'
 import CheckboxLabel from '@/components/input/CheckboxLabel'
 import DecimalInput from '@/components/input/DecimalInput'
-import GradualPolicyCalculationBreakdown from '../../../evaluations/grading/policy/GradualPolicyCalculationBreakdown'
 
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import { useDebouncedCallback } from 'use-debounce'
@@ -99,7 +98,9 @@ const MultipleChoiceGradualCreditPolicy = ({
   const [negativeMarking, setNegativeMarking] = useState(
     gradualCreditConfig?.negativeMarking,
   )
-  const [threshold, setThreshold] = useState(gradualCreditConfig?.threshold)
+  const [threshold, setThreshold] = useState(
+    gradualCreditConfig?.threshold || 0,
+  )
 
   const [showFormula, setShowFormula] = useState(false)
 
@@ -129,6 +130,7 @@ const MultipleChoiceGradualCreditPolicy = ({
               </li>
             </ul>
           </Typography>
+
           <CheckboxLabel
             label="Show formula"
             checked={showFormula}
@@ -159,77 +161,81 @@ const MultipleChoiceGradualCreditPolicy = ({
             </Typography>
           </Collapse>
         </Alert>
+        {negativeMarking !== undefined && (
+          <Stack spacing={1} direction={'row'}>
+            <CheckboxLabel
+              label="Enable negative marking"
+              checked={negativeMarking || false}
+              onChange={(checked) => {
+                setNegativeMarking(checked)
+                debouncedSaveGradualCreditPolicy({
+                  negativeMarking: checked,
+                  threshold,
+                })
+              }}
+            />
+            <UserHelpPopper>
+              <Alert severity="info">
+                <AlertTitle>Negative Marking</AlertTitle>
+                <Typography variant="body2">
+                  If negative marking is enabled, the student&apos;s total score
+                  for the question can be reduced below zero due to incorrect
+                  selections.
+                </Typography>
+              </Alert>
+              <Alert severity="warning">
+                <AlertTitle>Warning</AlertTitle>
+                <Typography variant="body2">
+                  Consider enabling the selection limiter to prevent students
+                  from selecting more options than expected.
+                </Typography>
+              </Alert>
+            </UserHelpPopper>
+          </Stack>
+        )}
 
-        <Stack spacing={1} direction={'row'}>
-          <CheckboxLabel
-            label="Enable negative marking"
-            checked={negativeMarking || false}
-            onChange={(checked) => {
-              setNegativeMarking(checked)
-              debouncedSaveGradualCreditPolicy({
-                negativeMarking: checked,
-                threshold,
-              })
-            }}
-          />
-          <UserHelpPopper>
-            <Alert severity="info">
-              <AlertTitle>Negative Marking</AlertTitle>
-              <Typography variant="body2">
-                If negative marking is enabled, the student&apos;s total score
-                for the question can be reduced below zero due to incorrect
-                selections.
-              </Typography>
-            </Alert>
-            <Alert severity="warning">
-              <AlertTitle>Warning</AlertTitle>
-              <Typography variant="body2">
-                Consider enabling the selection limiter to prevent students from
-                selecting more options than expected.
-              </Typography>
-            </Alert>
-          </UserHelpPopper>
-        </Stack>
-        <Stack spacing={1} direction={'row'} alignItems={'center'}>
-          <DecimalInput
-            label="Threshold for partial credit"
-            variant="standard"
-            value={threshold}
-            sx={{
-              width: '200px',
-            }}
-            size={'small'}
-            onChange={(value) => {
-              setThreshold(value)
-              debouncedSaveGradualCreditPolicy({
-                negativeMarking,
-                threshold: value,
-              })
-            }}
-            min={0}
-            max={100}
-            placeholder="0 - 100"
-            rightAdornement={<Typography variant={'body1'}>%</Typography>}
-          />
+        {threshold !== undefined && (
+          <Stack spacing={1} direction={'row'} alignItems={'center'}>
+            <DecimalInput
+              label="Threshold for partial credit"
+              variant="standard"
+              value={threshold}
+              sx={{
+                width: '200px',
+              }}
+              size={'small'}
+              onChange={(value) => {
+                setThreshold(value)
+                debouncedSaveGradualCreditPolicy({
+                  negativeMarking,
+                  threshold: value,
+                })
+              }}
+              min={0}
+              max={100}
+              placeholder="0 - 100"
+              rightAdornement={<Typography variant={'body1'}>%</Typography>}
+            />
 
-          <UserHelpPopper width={700}>
-            <Alert severity="info">
-              <AlertTitle>Threshold for partial credit</AlertTitle>
-              <Typography variant="body2">
-                The correctness ratio must be greater than or equal to the
-                threshold to earn points.
-              </Typography>
-              <KatexBloc
-                code={`
-                \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
-              `}
-              />
-              <Typography variant="body2">
-                The threshold only applies on positive scores.
-              </Typography>
-            </Alert>
-          </UserHelpPopper>
-        </Stack>
+            <UserHelpPopper width={700}>
+              <Alert severity="info">
+                <AlertTitle>Threshold for partial credit</AlertTitle>
+                <Typography variant="body2">
+                  The correctness ratio must be greater than or equal to the
+                  threshold to earn points.
+                </Typography>
+                <KatexBloc
+                  code={`
+                  \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
+                `}
+                />
+                <Typography variant="body2">
+                  The threshold only applies on positive scores.
+                </Typography>
+              </Alert>
+            </UserHelpPopper>
+          </Stack>
+        )}
       </Stack>
     </Loading>
   )
