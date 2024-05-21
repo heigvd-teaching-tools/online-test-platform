@@ -59,7 +59,7 @@ const StudentSelectionSummary = ({ solution, answer }) => {
   )
 }
 
-const CompareMultipleChoice = ({ maxPoints, question, solution, answer }) => {
+const CompareMultipleChoice = ({ readOnly = false, maxPoints, question, solution, answer }) => {
   const radio = useMemo(() => {
     return solution.activateSelectionLimit && solution.selectionLimit === 1
   }, [solution.activateSelectionLimit, solution.selectionLimit])
@@ -68,6 +68,7 @@ const CompareMultipleChoice = ({ maxPoints, question, solution, answer }) => {
     <Stack p={2} pt={2} height={'100%'} spacing={2}>
       <Stack direction={'row'} alignItems={'center'} spacing={1}>
         <StudentSelectionSummary solution={solution} answer={answer} />
+        {!readOnly && (
           <GradingPolicyCalculation
             gradingPolicy={question[question.type].gradingPolicy}
             maxPoints={maxPoints}
@@ -75,6 +76,7 @@ const CompareMultipleChoice = ({ maxPoints, question, solution, answer }) => {
             question={question}
             answer={answer}
           />
+        )}
       </Stack>
       <MultipleChoiceConfig multipleChoice={solution} />
       <Stack flex={1}>

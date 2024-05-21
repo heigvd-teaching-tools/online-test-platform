@@ -329,6 +329,22 @@ const PageGrading = () => {
     participants &&
     participantId
 
+  const student = participants.find((p) => p.id === participantId)
+
+  const solution = evaluationToQuestion?.question[
+    evaluationToQuestion.question.type
+  ]
+  
+  const studentAnswer = evaluationToQuestion.question.studentAnswer.find(
+      (answer) => answer.user.id === participantId,
+    )[evaluationToQuestion.question.type]
+
+  const grading =
+    evaluationToQuestion &&
+    evaluationToQuestion.question.studentAnswer.find(
+      (sa) => sa.user.id === participant.id,
+    ).studentGrading
+
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
       <PhaseRedirect phase={evaluation?.phase}>
@@ -424,30 +440,15 @@ const PageGrading = () => {
                           )
                         }}
                         isParticipantFilled={(participant) => {
-                          const grading =
-                            evaluationToQuestion &&
-                            evaluationToQuestion.question.studentAnswer.find(
-                              (sa) => sa.user.id === participant.id,
-                            ).studentGrading
                           return grading && grading.signedBy
                         }}
                       />
                       <Divider orientation="vertical" flexItem />
                       <AnswerCompare
-                        student={participants.find(
-                          (p) => p.id === participantId,
-                        )}
+                        student={student}
                         evaluationToQuestion={evaluationToQuestion}
-                        solution={
-                          evaluationToQuestion.question[
-                            evaluationToQuestion.question.type
-                          ]
-                        }
-                        answer={
-                          evaluationToQuestion.question.studentAnswer.find(
-                            (answer) => answer.user.id === participantId,
-                          )[evaluationToQuestion.question.type]
-                        }
+                        solution={solution}
+                        answer={studentAnswer}
                       />
                     </>
                   )}

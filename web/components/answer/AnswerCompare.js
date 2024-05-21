@@ -51,6 +51,7 @@ const AnswerCompare = ({
         )) ||
           (questionType === QuestionType.multipleChoice && answer.options && (
             <CompareMultipleChoice 
+              readOnly={readOnly}
               maxPoints={maxPoints}
               question={question}
               solution={solution} 
