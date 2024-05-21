@@ -19,7 +19,7 @@ import ResizePanel from '@/components/layout/utils/ResizePanel'
 import ScrollContainer from '../layout/ScrollContainer'
 import { useMemo } from 'react'
 import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
-import { GradingPolicyCalculation } from '../evaluations/grading/policy/GradingPolicyCalculation'
+import GradingPolicyCalculation from '../evaluations/grading/policy/GradingPolicyCalculation'
 
 
 const StudentSelectionSummary = ({ solution, answer }) => {
@@ -51,8 +51,7 @@ const StudentSelectionSummary = ({ solution, answer }) => {
       )}
       {missedCorrect === 0 && incorrectSelection === 0 && (
         <Alert severity="success">
-          Student selected all the correct options and didn&apos;t select any
-          incorrect option.
+          No incorrect or missed
         </Alert>
       )}
     </Stack>

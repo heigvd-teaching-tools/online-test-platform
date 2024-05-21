@@ -191,8 +191,7 @@ const QuestionUpdate = ({ groupScope, questionId, onUpdate, onDelete }) => {
                 groupScope={groupScope}
                 question={question}
                 onUpdate={() => {
-                  onUpdate && onUpdate(question)
-                  console.log('onUpdate', question)
+                  mutate()
                 }}
                 onTypeSpecificChange={(type, value) => {
                   onPropertyChange(type, value)

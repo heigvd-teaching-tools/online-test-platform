@@ -133,6 +133,9 @@ const AnswerMultipleChoice = ({
     [saveComment],
   )
 
+  const selectedCount = options?.filter((option) => option.isCorrect).length || 0
+
+
   return (
     <Stack direction="column" p={2} height={'100%'} spacing={2}>
       <SelectionIndicator limit={limit} options={options} />
@@ -146,6 +149,7 @@ const AnswerMultipleChoice = ({
                 <MultipleChoiceOptionSelect
                   key={option.id}
                   round={radio}
+                  disabled={!option.isCorrect && !radio && limit && selectedCount >= limit}
                   option={option}
                   onSelect={(id) => onOptionChange(id)}
                 />

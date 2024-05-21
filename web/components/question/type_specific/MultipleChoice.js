@@ -160,7 +160,6 @@ const MultipleChoiceOptionUpdate = ({
         variant="small"
         color="error"
         onClick={() => {
-          console.log('onDelete', option)
           onDelete(option)
         }}
       >

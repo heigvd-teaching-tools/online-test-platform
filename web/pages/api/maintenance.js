@@ -176,15 +176,12 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
     })
   })
 
-  console.log('Referenced URLs: ', referencedUrls)
 
   const allFiles = await getFilesFromDirectory(uploadsBasePath, uploadsBasePath)
-  console.log('All Files: ', allFiles)
 
   const filesToDelete = allFiles.filter((file) => {
     return !referencedUrls.some((url) => url.endsWith(file))
   })
-  console.log('Files to delete: ', filesToDelete)
 
   // Delete unreferenced files
   for (let file of filesToDelete) {

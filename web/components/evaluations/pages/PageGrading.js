@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo, use } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import {
@@ -323,27 +323,34 @@ const PageGrading = () => {
     }))
   }, [evaluationToQuestions, gradingState])
 
-  const ready =
+  const ready = useMemo(() =>
     evaluationToQuestions &&
     evaluationToQuestion &&
     participants &&
     participantId
+  , [evaluationToQuestions, evaluationToQuestion, participants, participantId])
 
-  const student = participants.find((p) => p.id === participantId)
+  const student = useMemo(() => participants.find((p) => p.id === participantId), [
+    participants,
+    participantId,
+  ])
 
-  const solution = evaluationToQuestion?.question[
+  const solution = useMemo(() => evaluationToQuestion?.question[
     evaluationToQuestion.question.type
-  ]
+  ], [evaluationToQuestion])
   
-  const studentAnswer = evaluationToQuestion.question.studentAnswer.find(
+  const studentAnswer = useMemo(() => ready && evaluationToQuestion?.question.studentAnswer.find(
       (answer) => answer.user.id === participantId,
     )[evaluationToQuestion.question.type]
+  , [evaluationToQuestion, participantId])
 
-  const grading =
+  const grading = useMemo(() => 
+    ready &&
     evaluationToQuestion &&
     evaluationToQuestion.question.studentAnswer.find(
-      (sa) => sa.user.id === participant.id,
+      (sa) => sa.user.id === student.id,
     ).studentGrading
+  , [evaluationToQuestion, student])
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>

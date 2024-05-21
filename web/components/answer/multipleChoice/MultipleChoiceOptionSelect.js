@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 import { Stack, ToggleButton, Typography } from '@mui/material'
-
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
 
-const MultipleChoiceOptionSelect = ({ round = false, option, onSelect }) => {
+const MultipleChoiceOptionSelect = ({ round = false, option, onSelect, disabled = false }) => {
   return (
     <Stack
       direction="row"
       alignItems="center"
       spacing={2}
-      sx={{ flex: 1, cursor: 'pointer' }}
+      sx={{ flex: 1, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}
       onClick={(ev) => {
-        ev.stopPropagation()
-        onSelect(option.id)
+        if (!disabled) {
+          ev.stopPropagation()
+          onSelect(option.id)
+        }
       }}
     >
       <ToggleButton
@@ -36,9 +37,12 @@ const MultipleChoiceOptionSelect = ({ round = false, option, onSelect }) => {
         size="small"
         color="success"
         onChange={(e) => {
-          e.stopPropagation()
-          onSelect(option.id)
+          if (!disabled) {
+            e.stopPropagation()
+            onSelect(option.id)
+          }
         }}
+        disabled={disabled}
         sx={
           round
             ? {
@@ -56,3 +60,4 @@ const MultipleChoiceOptionSelect = ({ round = false, option, onSelect }) => {
 }
 
 export default MultipleChoiceOptionSelect
+

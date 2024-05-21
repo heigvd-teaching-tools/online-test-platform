@@ -207,7 +207,6 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
               await debounceSaveOrdering(reordered)
             }}
             onDelete={async (deletedOption) => {
-              console.log('deletedOption', deletedOption)
               await onDeleteOption(deletedOption)
             }}
           />

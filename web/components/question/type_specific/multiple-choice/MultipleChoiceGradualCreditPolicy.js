@@ -25,7 +25,6 @@ import { useDebouncedCallback } from 'use-debounce'
 import { fetcher } from '@/code/utils'
 import Loading from '@/components/feedback/Loading'
 import KatexBloc from '@/components/input/markdown/KatexBloc'
-import { calculateGradualCreditPoints } from '@/components/evaluations/grading/policy/GradingPolicyCalculation'
 
 const MultipleChoiceGradualCreditPolicy = ({
   groupScope,
@@ -158,16 +157,6 @@ const MultipleChoiceGradualCreditPolicy = ({
               `}
               />
             </Typography>
-            <GradualPolicyCalculationBreakdown
-              totalPoints={14}
-              correctOptions={4}
-              incorrectOptions={6}
-              selectedCorrectOptions={3}
-              selectedIncorrectOptions={1}
-              threshold={0}
-              negativeMarking={false}
-              calculator={calculateGradualCreditPoints}
-            />
           </Collapse>
         </Alert>
 
@@ -223,12 +212,22 @@ const MultipleChoiceGradualCreditPolicy = ({
             rightAdornement={<Typography variant={'body1'}>%</Typography>}
           />
 
-          <UserHelpPopper>
+          <UserHelpPopper
+            width={700}
+          >
             <Alert severity="info">
               <AlertTitle>Threshold for partial credit</AlertTitle>
               <Typography variant="body2">
-                The threshold for partial credit is the percentage of correct
-                options that must be selected to receive partial credit.
+                The correctness ratio must be greater than or equal to the
+                threshold to earn points.
+              </Typography>
+              <KatexBloc
+                code={`
+                \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
+              `}
+              />
+              <Typography variant="body2">
+                The threshold only applies on positive scores.
               </Typography>
             </Alert>
           </UserHelpPopper>

@@ -36,6 +36,7 @@ const UserHelpPopper = ({
   placement = 'bottom',
   mode = 'info',
   size = 'small',
+  width = 300,
   maxHeight = 700,
   onChildOpen, // Add this prop to track child open state
 }) => {
@@ -132,7 +133,7 @@ const UserHelpPopper = ({
             >
               <Stack
                 p={2}
-                maxWidth={600}
+                maxWidth={Math.max(width, 700)}
                 maxHeight={maxHeight}
                 bgcolor="background.paper"
                 overflow="auto"

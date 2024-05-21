@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import KatexBloc from '@/components/input/markdown/KatexBloc'
-import { Typography, Box } from '@mui/material'
+import { Typography, Box, Stack } from '@mui/material'
+import { useMemo } from 'react'
 
 const GradualPolicyCalculationBreakdown = ({
   totalPoints,
@@ -24,106 +25,170 @@ const GradualPolicyCalculationBreakdown = ({
   selectedIncorrectOptions,
   threshold,
   negativeMarking,
-  calculator,
+  finalScore,
+  rawScore,
+  correctnessRatio,
 }) => {
-  // Calculate correctness ratio
-  let { finalScore, rawScore, correctnessRatio} = calculator(
-    totalPoints,
-    correctOptions,
-    incorrectOptions,
-    selectedCorrectOptions,
-    selectedIncorrectOptions,
-    threshold,
-    negativeMarking,
-  )
+ 
 
-  let appliedCondition = null
+  let appliedFinalFormulaCondition = null
 
   // Ensure final score is zero if threshold is not met
   if (correctnessRatio < threshold / 100 && rawScore > 0) {
     finalScore = 0
-    appliedCondition = `\\text{Since Correctness Ratio} < \\frac{${threshold}}{100} \\text{ and Raw Score > 0, Final Score} = 0`
+    appliedFinalFormulaCondition = `\\text{Since Correctness Ratio} < \\frac{${threshold}}{100} \\text{ and Raw Score > 0, Final Score} = 0`
   }
 
   // Ensure final score is not negative if negative marking is disabled
   if (!negativeMarking) {
     finalScore = Math.max(0, finalScore)
-    if (appliedCondition === null && finalScore !== rawScore) {
-      appliedCondition = `\\text{Since Negative Marking is Disabled, Final Score} = \\max(0, ${rawScore.toFixed(
+    if (appliedFinalFormulaCondition === null && finalScore !== rawScore) {
+      appliedFinalFormulaCondition = `\\text{Since Negative Marking is Disabled, Final Score} = \\max(0, ${rawScore?.toFixed(
         2,
-      )}) = ${finalScore.toFixed(2)}`
+      )}) = ${finalScore?.toFixed(2)}`
     }
   }
 
   // Round to 2 decimal places
   finalScore = Math.round(finalScore * 100) / 100
 
-  if (appliedCondition === null) {
-    appliedCondition = `\\text{Final Score remains as } ${finalScore.toFixed(
+  if (appliedFinalFormulaCondition === null) {
+    appliedFinalFormulaCondition = `\\text{Final Score remains as } ${finalScore?.toFixed(
       2,
     )}`
   }
 
+  const ready = useMemo(() => {
+    const isNotNullOrUndefined = (value) => value !== null && value !== undefined;
+    
+    return isNotNullOrUndefined(totalPoints) &&
+           isNotNullOrUndefined(correctOptions) &&
+           isNotNullOrUndefined(incorrectOptions) &&
+           isNotNullOrUndefined(selectedCorrectOptions) &&
+           isNotNullOrUndefined(selectedIncorrectOptions) &&
+           isNotNullOrUndefined(threshold) &&
+           isNotNullOrUndefined(negativeMarking) &&
+           isNotNullOrUndefined(finalScore) &&
+           isNotNullOrUndefined(rawScore) &&
+           isNotNullOrUndefined(correctnessRatio);
+  }, [totalPoints, correctOptions, incorrectOptions, selectedCorrectOptions, selectedIncorrectOptions, threshold, negativeMarking, finalScore, rawScore, correctnessRatio]);
+  
+
   return (
-    <Box>
-      <Typography variant="h6">
-        Multiple-Choice Gradual Credit Policy Breakdown
-      </Typography>
-      <Typography variant="caption">
-        <Box>
-          <Typography variant="body1">Variables</Typography>
-          <ul>
-            <li>Total Points: {totalPoints}</li>
-            <li>Total Correct Options: {correctOptions}</li>
-            <li>Total Incorrect Options: {incorrectOptions}</li>
-            <li>Selected Correct Options: {selectedCorrectOptions}</li>
-            <li>Selected Incorrect Options: {selectedIncorrectOptions}</li>
-            <li>Threshold: {threshold}%</li>
-            <li>
-              Negative Marking: {negativeMarking ? 'Enabled' : 'Disabled'}
-            </li>
-          </ul>
-        </Box>
-        <Box>
-          <Typography variant="body1">Correctness Ratio Formula:</Typography>
-        </Box>
-        <KatexBloc
-          code={`\\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)`}
-        />
-        <Box>
-          <Typography variant="body1">Substitute Variables:</Typography>
-        </Box>
-        <KatexBloc
-          code={`
-            \\text{Correctness Ratio} = \\left( \\frac{${selectedCorrectOptions}}{${correctOptions}} \\right) - \\left( \\frac{${selectedIncorrectOptions}}{${incorrectOptions}} \\right) = ${correctnessRatio.toFixed(
-            2,
-          )}
-          `}
-        />
-        <KatexBloc
-          code={`
-            \\text{Raw Score} = ${totalPoints} \\times ${correctnessRatio.toFixed(
-            2,
-          )} = ${rawScore.toFixed(2)}
-          `}
-        />
-        <Box>
-          <Typography variant="body1">Final Score Formula:</Typography>
-        </Box>
-        <KatexBloc
-          code={`
-              \\text{Final Score} = 
-              \\begin{cases} 
-              0 & \\text{if Correctness Ratio} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
-              \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
-              \\text{Raw Score} & \\text{otherwise}
-              \\end{cases}
+    ready && (
+      <Stack spacing={1}>
+        <Typography variant="h6">
+          Multiple-Choice Gradual Credit Policy Breakdown
+        </Typography>
+        <Typography variant="caption">
+          <Box>
+            <Typography variant="body1">Variables</Typography>
+            <ul>
+              <li>Total Points: <b>{totalPoints}</b></li>
+              <li>Total Correct Options: <b>{correctOptions}</b></li>
+              <li>Total Incorrect Options: <b>{incorrectOptions}</b></li>
+              <li>Selected Correct Options: <b>{selectedCorrectOptions}</b></li>
+              <li>Selected Incorrect Options:<b>{selectedIncorrectOptions}</b></li>
+              <li>Threshold: <b>{threshold}%</b></li>
+              <li>
+                Negative Marking: <b>{negativeMarking ? 'Enabled' : 'Disabled'}</b>
+              </li>
+            </ul>
+          </Box>
+          <Box>
+            <Typography variant="body1">Correctness Ratio Formula:</Typography>
+          </Box>
+          <KatexBloc
+            code={`\\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)`}
+          />
+          <Box>
+            <Typography variant="body1">Substitute Variables:</Typography>
+          </Box>
+          <KatexBloc
+            code={`
+              \\text{Correctness Ratio} = \\left( \\frac{${selectedCorrectOptions}}{${correctOptions}} \\right) - \\left( \\frac{${selectedIncorrectOptions}}{${incorrectOptions}} \\right) = ${correctnessRatio.toFixed(
+              2,
+            )}
             `}
-        />
-        <KatexBloc code={appliedCondition} />
-      </Typography>
-    </Box>
+          />
+          <KatexBloc
+            code={`
+              \\text{Raw Score} = ${totalPoints} \\times ${correctnessRatio?.toFixed(
+              2,
+            )} = ${rawScore.toFixed(2)}
+            `}
+          />
+          <Box>
+            <Typography variant="body1">Final Score Formula:</Typography>
+          </Box>
+          <KatexBloc
+            code={`
+                \\text{Final Score} = 
+                \\begin{cases} 
+                0 & \\text{if Correctness Ratio} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
+                \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
+                \\text{Raw Score} & \\text{otherwise}
+                \\end{cases}
+              `}
+          />
+          <KatexBloc code={appliedFinalFormulaCondition} />
+        </Typography>
+      </Stack>
+    )
   )
 }
+
+const VariablesTable = ({
+  totalPoints,
+  correctOptions,
+  incorrectOptions,
+  selectedCorrectOptions,
+  selectedIncorrectOptions,
+  threshold,
+  negativeMarking,
+}) => {
+  return (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell><Typography variant="body1">Variables</Typography></TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell>Total Points</TableCell>
+            <TableCell><b>{totalPoints}</b></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Total Correct Options</TableCell>
+            <TableCell><b>{correctOptions}</b></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Total Incorrect Options</TableCell>
+            <TableCell><b>{incorrectOptions}</b></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Selected Correct Options</TableCell>
+            <TableCell><b>{selectedCorrectOptions}</b></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Selected Incorrect Options</TableCell>
+            <TableCell><b>{selectedIncorrectOptions}</b></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Threshold</TableCell>
+            <TableCell><b>{threshold}%</b></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Negative Marking</TableCell>
+            <TableCell><b>{negativeMarking ? 'Enabled' : 'Disabled'}</b></TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
 export default GradualPolicyCalculationBreakdown
