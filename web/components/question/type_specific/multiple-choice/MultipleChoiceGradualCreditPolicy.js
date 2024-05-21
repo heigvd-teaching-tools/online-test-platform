@@ -212,9 +212,7 @@ const MultipleChoiceGradualCreditPolicy = ({
             rightAdornement={<Typography variant={'body1'}>%</Typography>}
           />
 
-          <UserHelpPopper
-            width={700}
-          >
+          <UserHelpPopper width={700}>
             <Alert severity="info">
               <AlertTitle>Threshold for partial credit</AlertTitle>
               <Typography variant="body2">

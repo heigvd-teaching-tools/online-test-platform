@@ -29,8 +29,6 @@ const GradualPolicyCalculationBreakdown = ({
   rawScore,
   correctnessRatio,
 }) => {
- 
-
   let appliedFinalFormulaCondition = null
 
   // Ensure final score is zero if threshold is not met
@@ -59,20 +57,33 @@ const GradualPolicyCalculationBreakdown = ({
   }
 
   const ready = useMemo(() => {
-    const isNotNullOrUndefined = (value) => value !== null && value !== undefined;
-    
-    return isNotNullOrUndefined(totalPoints) &&
-           isNotNullOrUndefined(correctOptions) &&
-           isNotNullOrUndefined(incorrectOptions) &&
-           isNotNullOrUndefined(selectedCorrectOptions) &&
-           isNotNullOrUndefined(selectedIncorrectOptions) &&
-           isNotNullOrUndefined(threshold) &&
-           isNotNullOrUndefined(negativeMarking) &&
-           isNotNullOrUndefined(finalScore) &&
-           isNotNullOrUndefined(rawScore) &&
-           isNotNullOrUndefined(correctnessRatio);
-  }, [totalPoints, correctOptions, incorrectOptions, selectedCorrectOptions, selectedIncorrectOptions, threshold, negativeMarking, finalScore, rawScore, correctnessRatio]);
-  
+    const isNotNullOrUndefined = (value) =>
+      value !== null && value !== undefined
+
+    return (
+      isNotNullOrUndefined(totalPoints) &&
+      isNotNullOrUndefined(correctOptions) &&
+      isNotNullOrUndefined(incorrectOptions) &&
+      isNotNullOrUndefined(selectedCorrectOptions) &&
+      isNotNullOrUndefined(selectedIncorrectOptions) &&
+      isNotNullOrUndefined(threshold) &&
+      isNotNullOrUndefined(negativeMarking) &&
+      isNotNullOrUndefined(finalScore) &&
+      isNotNullOrUndefined(rawScore) &&
+      isNotNullOrUndefined(correctnessRatio)
+    )
+  }, [
+    totalPoints,
+    correctOptions,
+    incorrectOptions,
+    selectedCorrectOptions,
+    selectedIncorrectOptions,
+    threshold,
+    negativeMarking,
+    finalScore,
+    rawScore,
+    correctnessRatio,
+  ])
 
   return (
     ready && (
@@ -84,14 +95,27 @@ const GradualPolicyCalculationBreakdown = ({
           <Box>
             <Typography variant="body1">Variables</Typography>
             <ul>
-              <li>Total Points: <b>{totalPoints}</b></li>
-              <li>Total Correct Options: <b>{correctOptions}</b></li>
-              <li>Total Incorrect Options: <b>{incorrectOptions}</b></li>
-              <li>Selected Correct Options: <b>{selectedCorrectOptions}</b></li>
-              <li>Selected Incorrect Options:<b>{selectedIncorrectOptions}</b></li>
-              <li>Threshold: <b>{threshold}%</b></li>
               <li>
-                Negative Marking: <b>{negativeMarking ? 'Enabled' : 'Disabled'}</b>
+                Total Points: <b>{totalPoints}</b>
+              </li>
+              <li>
+                Total Correct Options: <b>{correctOptions}</b>
+              </li>
+              <li>
+                Total Incorrect Options: <b>{incorrectOptions}</b>
+              </li>
+              <li>
+                Selected Correct Options: <b>{selectedCorrectOptions}</b>
+              </li>
+              <li>
+                Selected Incorrect Options:<b>{selectedIncorrectOptions}</b>
+              </li>
+              <li>
+                Threshold: <b>{threshold}%</b>
+              </li>
+              <li>
+                Negative Marking:{' '}
+                <b>{negativeMarking ? 'Enabled' : 'Disabled'}</b>
               </li>
             </ul>
           </Box>
@@ -137,58 +161,5 @@ const GradualPolicyCalculationBreakdown = ({
     )
   )
 }
-
-const VariablesTable = ({
-  totalPoints,
-  correctOptions,
-  incorrectOptions,
-  selectedCorrectOptions,
-  selectedIncorrectOptions,
-  threshold,
-  negativeMarking,
-}) => {
-  return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell><Typography variant="body1">Variables</Typography></TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell>Total Points</TableCell>
-            <TableCell><b>{totalPoints}</b></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Total Correct Options</TableCell>
-            <TableCell><b>{correctOptions}</b></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Total Incorrect Options</TableCell>
-            <TableCell><b>{incorrectOptions}</b></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Selected Correct Options</TableCell>
-            <TableCell><b>{selectedCorrectOptions}</b></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Selected Incorrect Options</TableCell>
-            <TableCell><b>{selectedIncorrectOptions}</b></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Threshold</TableCell>
-            <TableCell><b>{threshold}%</b></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Negative Marking</TableCell>
-            <TableCell><b>{negativeMarking ? 'Enabled' : 'Disabled'}</b></TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
 
 export default GradualPolicyCalculationBreakdown

@@ -176,7 +176,6 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
     })
   })
 
-
   const allFiles = await getFilesFromDirectory(uploadsBasePath, uploadsBasePath)
 
   const filesToDelete = allFiles.filter((file) => {

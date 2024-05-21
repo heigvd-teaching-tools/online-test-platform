@@ -351,8 +351,8 @@ export const questionTypeSpecific = (
             // default options when creating a new question
             options: {
               create: [
-                { text: 'Option 1', isCorrect: false },
-                { text: 'Option 2', isCorrect: true },
+                { text: 'Option 1', isCorrect: false, order: 0 },
+                { text: 'Option 2', isCorrect: true, order: 1 },
               ],
             },
           }

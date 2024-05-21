@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
-import {
-  StudentQuestionGradingStatus,
-} from '@prisma/client'
+import { StudentQuestionGradingStatus } from '@prisma/client'
 import Image from 'next/image'
 import { Box, Paper, Stack, TextField, Tooltip } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
@@ -28,12 +26,7 @@ import GradingStatus from './GradingStatus'
 import GradingSigned from './GradingSigned'
 import GradingPointsComment from './GradingPointsComment'
 
-const GradingSignOff = ({
-  loading,
-  answer: initial,
-  maxPoints,
-  onChange,
-}) => {
+const GradingSignOff = ({ loading, answer: initial, maxPoints, onChange }) => {
   const [grading, setGrading] = useState(initial)
   const { data } = useSession()
   const commentInputRef = useRef(null)
@@ -190,6 +183,5 @@ const GradingSignOff = ({
     </Paper>
   )
 }
-
 
 export default GradingSignOff

@@ -21,7 +21,6 @@ import { useMemo } from 'react'
 import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
 import GradingPolicyCalculation from '../evaluations/grading/policy/GradingPolicyCalculation'
 
-
 const StudentSelectionSummary = ({ solution, answer }) => {
   const missedCorrect = solution.options.filter(
     (option) =>
@@ -45,20 +44,22 @@ const StudentSelectionSummary = ({ solution, answer }) => {
         <Alert severity="error">{missedCorrect} missed</Alert>
       )}
       {incorrectSelection > 0 && (
-        <Alert severity="error">
-          {incorrectSelection} incorrect
-        </Alert>
+        <Alert severity="error">{incorrectSelection} incorrect</Alert>
       )}
       {missedCorrect === 0 && incorrectSelection === 0 && (
-        <Alert severity="success">
-          No incorrect or missed
-        </Alert>
+        <Alert severity="success">No incorrect or missed</Alert>
       )}
     </Stack>
   )
 }
 
-const CompareMultipleChoice = ({ readOnly = false, maxPoints, question, solution, answer }) => {
+const CompareMultipleChoice = ({
+  readOnly = false,
+  maxPoints,
+  question,
+  solution,
+  answer,
+}) => {
   const radio = useMemo(() => {
     return solution.activateSelectionLimit && solution.selectionLimit === 1
   }, [solution.activateSelectionLimit, solution.selectionLimit])

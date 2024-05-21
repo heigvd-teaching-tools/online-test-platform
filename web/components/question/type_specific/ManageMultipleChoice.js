@@ -132,7 +132,6 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
           option: {
             text: '',
             isCorrect: false,
-            order: multipleChoice?.options.length,
           },
         }),
       },
@@ -145,7 +144,7 @@ const ManageMultipleChoice = ({ groupScope, questionId, onUpdate }) => {
       .finally(() => {
         onUpdate && onUpdate()
       })
-  }, [groupScope, questionId, mutate, onUpdate, multipleChoice?.options])
+  }, [groupScope, questionId, mutate, onUpdate])
 
   const saveReOrder = useCallback(
     async (reordered) => {

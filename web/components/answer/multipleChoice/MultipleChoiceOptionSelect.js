@@ -17,13 +17,22 @@ import { Stack, ToggleButton, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
 
-const MultipleChoiceOptionSelect = ({ round = false, option, onSelect, disabled = false }) => {
+const MultipleChoiceOptionSelect = ({
+  round = false,
+  option,
+  onSelect,
+  disabled = false,
+}) => {
   return (
     <Stack
       direction="row"
       alignItems="center"
       spacing={2}
-      sx={{ flex: 1, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}
+      sx={{
+        flex: 1,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+      }}
       onClick={(ev) => {
         if (!disabled) {
           ev.stopPropagation()
@@ -60,4 +69,3 @@ const MultipleChoiceOptionSelect = ({ round = false, option, onSelect, disabled 
 }
 
 export default MultipleChoiceOptionSelect
-

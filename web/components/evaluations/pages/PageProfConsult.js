@@ -211,11 +211,9 @@ const PageProfConsult = () => {
                   >
                     <GradingSignOff
                       loading={loading}
-                      answer={
-                        selected.question.studentAnswer.find(
-                          (ans) => ans.user.email === userEmail,
-                        )
-                      }
+                      answer={selected.question.studentAnswer.find(
+                        (ans) => ans.user.email === userEmail,
+                      )}
                       maxPoints={selected.points}
                       onChange={onChangeGrading}
                     />

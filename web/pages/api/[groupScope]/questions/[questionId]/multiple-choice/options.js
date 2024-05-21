@@ -64,7 +64,7 @@ const put = async (req, res, prisma) => {
       Important: We need to keep track of the selection limit even when the limit is not activated
       because it might be activated later.
     */
-    
+
     // count the number of correct options and update the selectionLimit
     const countCorrectOptions = await prisma.option.count({
       where: {
@@ -105,7 +105,7 @@ const post = async (req, res, prisma) => {
     data: {
       text: option.text,
       isCorrect: option.isCorrect,
-      order: countOptions + 1, // use the count as the new order
+      order: countOptions, // use the count as the new order
       multipleChoice: {
         connect: {
           questionId: questionId,
@@ -171,7 +171,7 @@ const del = async (req, res, prisma) => {
         Important: We need to keep track of the selection limit even when the limit is not activated
         because it might be activated later.
       */
-    
+
       const countCorrectOptions = await prisma.option.count({
         where: {
           multipleChoice: {

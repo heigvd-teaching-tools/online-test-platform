@@ -30,8 +30,7 @@ const AnswerCompare = ({
   solution,
   answer,
 }) => {
-
-  const question = evaluationToQuestion?.question 
+  const question = evaluationToQuestion?.question
   const maxPoints = evaluationToQuestion?.points
   const questionType = question?.type
 
@@ -50,12 +49,12 @@ const AnswerCompare = ({
           />
         )) ||
           (questionType === QuestionType.multipleChoice && answer.options && (
-            <CompareMultipleChoice 
+            <CompareMultipleChoice
               readOnly={readOnly}
               maxPoints={maxPoints}
               question={question}
-              solution={solution} 
-              answer={answer} 
+              solution={solution}
+              answer={answer}
             />
           )) ||
           (questionType === QuestionType.essay && (

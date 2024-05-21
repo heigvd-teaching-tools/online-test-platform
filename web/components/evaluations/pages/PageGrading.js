@@ -323,34 +323,43 @@ const PageGrading = () => {
     }))
   }, [evaluationToQuestions, gradingState])
 
-  const ready = useMemo(() =>
-    evaluationToQuestions &&
-    evaluationToQuestion &&
-    participants &&
-    participantId
-  , [evaluationToQuestions, evaluationToQuestion, participants, participantId])
+  const ready = useMemo(
+    () =>
+      evaluationToQuestions &&
+      evaluationToQuestion &&
+      participants &&
+      participantId,
+    [evaluationToQuestions, evaluationToQuestion, participants, participantId],
+  )
 
-  const student = useMemo(() => participants.find((p) => p.id === participantId), [
-    participants,
-    participantId,
-  ])
+  const student = useMemo(
+    () => participants.find((p) => p.id === participantId),
+    [participants, participantId],
+  )
 
-  const solution = useMemo(() => evaluationToQuestion?.question[
-    evaluationToQuestion.question.type
-  ], [evaluationToQuestion])
-  
-  const studentAnswer = useMemo(() => ready && evaluationToQuestion?.question.studentAnswer.find(
-      (answer) => answer.user.id === participantId,
-    )[evaluationToQuestion.question.type]
-  , [evaluationToQuestion, participantId])
+  const solution = useMemo(
+    () => evaluationToQuestion?.question[evaluationToQuestion.question.type],
+    [evaluationToQuestion],
+  )
 
-  const grading = useMemo(() => 
-    ready &&
-    evaluationToQuestion &&
-    evaluationToQuestion.question.studentAnswer.find(
-      (sa) => sa.user.id === student.id,
-    ).studentGrading
-  , [evaluationToQuestion, student])
+  const studentAnswer = useMemo(
+    () =>
+      ready &&
+      evaluationToQuestion?.question.studentAnswer.find(
+        (answer) => answer.user.id === participantId,
+      )[evaluationToQuestion.question.type],
+    [evaluationToQuestion, participantId, ready],
+  )
+
+  const grading = useMemo(
+    () =>
+      ready &&
+      evaluationToQuestion &&
+      evaluationToQuestion.question.studentAnswer.find(
+        (sa) => sa.user.id === student.id,
+      ).studentGrading,
+    [evaluationToQuestion, student, ready],
+  )
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
