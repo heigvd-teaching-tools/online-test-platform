@@ -16,7 +16,7 @@
 import KatexBloc from '@/components/input/markdown/KatexBloc'
 import { Typography, Box } from '@mui/material'
 
-const GradualPolicyCalculationDetails = ({
+const GradualPolicyCalculationBreakdown = ({
   totalPoints,
   correctOptions,
   incorrectOptions,
@@ -67,7 +67,7 @@ const GradualPolicyCalculationDetails = ({
   return (
     <Box>
       <Typography variant="h6">
-        Multiple Choice Gradual Credit Policy Calculation
+        Multiple-Choice Gradual Credit Policy Breakdown
       </Typography>
       <Typography variant="caption">
         <Box>
@@ -126,4 +126,4 @@ const GradualPolicyCalculationDetails = ({
   )
 }
 
-export default GradualPolicyCalculationDetails
+export default GradualPolicyCalculationBreakdown

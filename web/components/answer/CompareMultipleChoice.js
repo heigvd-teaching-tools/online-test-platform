@@ -19,7 +19,7 @@ import ResizePanel from '@/components/layout/utils/ResizePanel'
 import ScrollContainer from '../layout/ScrollContainer'
 import { useMemo } from 'react'
 import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
-import { GradingPolicyCalculationDetails } from '../evaluations/grading/GradingPolicyCalculationDetails'
+import { GradingPolicyCalculation } from '../evaluations/grading/policy/GradingPolicyCalculation'
 
 
 const StudentSelectionSummary = ({ solution, answer }) => {
@@ -68,7 +68,7 @@ const CompareMultipleChoice = ({ maxPoints, question, solution, answer }) => {
     <Stack p={2} pt={2} height={'100%'} spacing={2}>
       <Stack direction={'row'} alignItems={'center'} spacing={1}>
         <StudentSelectionSummary solution={solution} answer={answer} />
-          <GradingPolicyCalculationDetails 
+          <GradingPolicyCalculation
             gradingPolicy={question[question.type].gradingPolicy}
             maxPoints={maxPoints}
             solution={solution}

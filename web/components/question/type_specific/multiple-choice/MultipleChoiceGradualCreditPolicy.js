@@ -18,14 +18,14 @@ import useSWR from 'swr'
 import { Stack, Typography, Collapse, Alert, AlertTitle } from '@mui/material'
 import CheckboxLabel from '@/components/input/CheckboxLabel'
 import DecimalInput from '@/components/input/DecimalInput'
-import GradualPolicyCalculationDetails from './GradualPolicyCalculationDetails'
+import GradualPolicyCalculationBreakdown from '../../../evaluations/grading/policy/GradualPolicyCalculationBreakdown'
 
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import { useDebouncedCallback } from 'use-debounce'
 import { fetcher } from '@/code/utils'
 import Loading from '@/components/feedback/Loading'
 import KatexBloc from '@/components/input/markdown/KatexBloc'
-import { calculateGradualCreditPoints } from '@/components/evaluations/grading/GradingPolicyCalculationDetails'
+import { calculateGradualCreditPoints } from '@/components/evaluations/grading/policy/GradingPolicyCalculation'
 
 const MultipleChoiceGradualCreditPolicy = ({
   groupScope,
@@ -158,7 +158,7 @@ const MultipleChoiceGradualCreditPolicy = ({
               `}
               />
             </Typography>
-            <GradualPolicyCalculationDetails
+            <GradualPolicyCalculationBreakdown
               totalPoints={14}
               correctOptions={4}
               incorrectOptions={6}

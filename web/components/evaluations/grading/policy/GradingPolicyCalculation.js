@@ -1,5 +1,5 @@
 import UserHelpPopper from "@/components/feedback/UserHelpPopper"
-import GradualPolicyCalculationDetails from "@/components/question/type_specific/multiple-choice/GradualPolicyCalculationDetails"
+import GradualPolicyCalculationBreakdown from "@/components/evaluations/grading/policy/GradualPolicyCalculationBreakdown"
 import { Typography } from "@mui/material"
 import { MultipleChoiceGradingPolicyType } from "@prisma/client"
 
@@ -38,7 +38,7 @@ const calculateGradualCreditPoints = (
     return { finalScore, rawScore, correctnessRatio }
 }
   
-const GradingPolicyCalculationDetails = ({ gradingPolicy, maxPoints, solution, answer }) => {
+const GradingPolicyCalculation = ({ gradingPolicy, maxPoints, solution, answer }) => {
   
     switch (gradingPolicy) {
       case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT: {
@@ -77,7 +77,7 @@ const GradingPolicyCalculationDetails = ({ gradingPolicy, maxPoints, solution, a
               {gradingPolicyToLabel[gradingPolicy]} <b>({finalScore} pts)</b>
             </Typography>
           }>
-            <GradualPolicyCalculationDetails
+            <GradualPolicyCalculationBreakdown
               totalPoints={maxPoints}
               correctOptions={correctOptions.length}
               incorrectOptions={incorrectOptions.length}
@@ -95,5 +95,5 @@ const GradingPolicyCalculationDetails = ({ gradingPolicy, maxPoints, solution, a
     }
 }
 
-export { GradingPolicyCalculationDetails, calculateGradualCreditPoints}
+export { GradingPolicyCalculation, calculateGradualCreditPoints}
   
