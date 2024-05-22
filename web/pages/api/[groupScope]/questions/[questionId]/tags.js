@@ -43,64 +43,73 @@ const get = async (req, res, prisma) => {
 
   res.status(200).json(tags)
 }
-
 const put = async (req, res, prisma) => {
-  const { groupScope } = req.query
+  const { groupScope } = req.query;
+  const { tags } = req.body;
+  const { questionId } = req.query;
 
-  const { tags } = req.body
+  // Retrieve the group ID based on the provided scope
+  const group = await prisma.group.findUnique({
+    where: {
+      scope: groupScope,
+    },
+  });
 
-  const { questionId } = req.query
+  if (!group) {
+    res.status(404).json({ message: 'Group not found' });
+    return;
+  }
+
+  const groupId = group.id;
 
   const transaction = [
-    // unlink all tags from this question
+    // Unlink all tags from this question
     prisma.questionToTag.deleteMany({
       where: {
         questionId: questionId,
       },
     }),
-    // create eventual new tags
+    // Create or update tags within the specified group
     ...tags.map((tag) =>
       prisma.tag.upsert({
         where: {
-          label: tag,
+          groupId_label: {
+            groupId: groupId,
+            label: tag,
+          },
         },
         update: {},
         create: {
           label: tag,
-          group: {
-            connect: {
-              scope: groupScope,
-            },
-          },
+          groupId: groupId,
         },
       }),
     ),
-    // link all tags to this question
+    // Link all tags to this question
     ...tags.map((tag) =>
       prisma.questionToTag.create({
         data: {
           questionId: questionId,
+          groupId: groupId,
           label: tag,
         },
       }),
     ),
-    // delete tags that are not linked to any question
+    // Delete tags that are not linked to any question
     prisma.tag.deleteMany({
       where: {
         questionToTag: {
           none: {},
         },
-        group: {
-          scope: groupScope,
-        },
+        groupId: groupId,
       },
     }),
-  ]
+  ];
 
-  const response = await prisma.$transaction(transaction)
+  const response = await prisma.$transaction(transaction);
 
-  res.status(200).json(response)
-}
+  res.status(200).json(response);
+};
 
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
