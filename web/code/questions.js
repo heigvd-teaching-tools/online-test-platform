@@ -428,7 +428,10 @@ export const copyQuestion = async (
       create: question.questionToTag.map((qTag) => ({
         tag: {
           connect: {
-            label: qTag.tag.label,
+            groupId_label: {
+              groupId: question.groupId,
+              label: qTag.tag.label,
+            },
           },
         },
       })),
