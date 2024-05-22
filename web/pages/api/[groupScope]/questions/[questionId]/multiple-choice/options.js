@@ -60,28 +60,24 @@ const put = async (req, res, prisma) => {
       },
     })
 
-    /* 
-      Important: We need to keep track of the selection limit even when the limit is not activated
-      because it might be activated later.
-    */
-
-    // count the number of correct options and update the selectionLimit
-    const countCorrectOptions = await prisma.option.count({
-      where: {
-        multipleChoice: {
-          questionId: questionId,
+    if (multipleChoice.activateSelectionLimit) {
+      // update the selectionLimit
+      const countCorrectOptions = await prisma.option.count({
+        where: {
+          multipleChoice: {
+            questionId: questionId,
+          },
+          isCorrect: true,
         },
-        isCorrect: true,
-      },
-    })
+      })
 
-    // update the selectionLimit
-    await prisma.multipleChoice.update({
-      where: { questionId: questionId },
-      data: {
-        selectionLimit: countCorrectOptions,
-      },
-    })
+      await prisma.multipleChoice.update({
+        where: { questionId: questionId },
+        data: {
+          selectionLimit: countCorrectOptions,
+        },
+      })
+    }
   })
   res.status(200).json(updatedOption)
 }
@@ -166,12 +162,7 @@ const del = async (req, res, prisma) => {
     )
 
     // update the selectionLimit if the deleted option was correct
-    if (option.isCorrect) {
-      /* 
-        Important: We need to keep track of the selection limit even when the limit is not activated
-        because it might be activated later.
-      */
-
+    if (option.isCorrect && optionQuestion.activateSelectionLimit) {
       const countCorrectOptions = await prisma.option.count({
         where: {
           multipleChoice: {
