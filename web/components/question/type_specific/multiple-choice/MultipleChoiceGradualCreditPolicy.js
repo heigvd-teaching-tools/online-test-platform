@@ -115,17 +115,22 @@ const MultipleChoiceGradualCreditPolicy = ({
         <Alert severity="info">
           <AlertTitle>Gradual Credit</AlertTitle>
           <Typography variant="body1">
-            Gradual Credit awards points based on the student&apos;s selection
-            of correct and incorrect options:
+            Gradual Credit awards points based on the student's selection of
+            correct and incorrect options:
             <ul>
-              <li>Students earn points for each correct option selected.</li>
-              <li>Students lose points for each incorrect option selected.</li>
+              <li>Points are earned for each correct option chosen.</li>
+              <li>Points are lost for each incorrect option chosen.</li>
               <li>
-                If the percentage of correct selections does not meet the
-                specified threshold, the final score is zero.
+                If the overall accuracy is below the set <b>threshold</b> and a
+                score is positive, final score will be zero.
               </li>
               <li>
-                With negative marking enabled, the final score can be negative.
+                If <b>negative marking</b> is disabled, final score will be at
+                least zero.
+              </li>
+              <li>
+                If <b>negative marking</b> is enabled, your final score can be
+                negative.
               </li>
             </ul>
           </Typography>
