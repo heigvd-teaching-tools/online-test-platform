@@ -115,7 +115,7 @@ const MultipleChoiceGradualCreditPolicy = ({
         <Alert severity="info">
           <AlertTitle>Gradual Credit</AlertTitle>
           <Typography variant="body1">
-            Gradual Credit awards points based on the student's selection of
+            Gradual Credit awards points based on the student&apos;s selection of
             correct and incorrect options:
             <ul>
               <li>Points are earned for each correct option chosen.</li>
