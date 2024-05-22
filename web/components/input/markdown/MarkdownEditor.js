@@ -425,7 +425,7 @@ const UserHelp = () => {
         <Stack spacing={1} direction={'row'} alignItems={'center'}>
           <Typography variant="body1">More examples: </Typography>
           <Link
-            href="https://renenyffenegger.ch/notes/tools/Graphviz/examples/index"
+            href="https://graphviz.org/gallery/"
             target="_blank"
           >
             Graphviz examples
