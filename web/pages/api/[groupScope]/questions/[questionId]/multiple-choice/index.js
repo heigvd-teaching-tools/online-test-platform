@@ -68,6 +68,9 @@ const put = async (req, res, prisma) => {
     where: {
       questionId: questionId,
     },
+    include: {
+      options: true,
+    }
   })
 
   if (!multiChoice) {
@@ -100,6 +103,7 @@ const put = async (req, res, prisma) => {
       activateStudentComment: activateStudentComment,
       studentCommentLabel: studentCommentLabel,
       activateSelectionLimit: activateSelectionLimit,
+      selectionLimit: activateSelectionLimit ? multiChoice.options.filter((o) => o.isCorrect).length : 0,
       gradingPolicy: gradingPolicy,
     },
     include: {

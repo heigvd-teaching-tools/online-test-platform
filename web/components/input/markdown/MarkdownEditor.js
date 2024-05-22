@@ -139,7 +139,7 @@ const MarkdownEditor = ({
         </Stack>
         {withUpload && <UserHelp />}
       </Stack>
-      <Stack height={'100%'} pb={4}>
+      <Stack height={'100%'} pb={2}>
         <ContentEditor
           groupScope={groupScope}
           readOnly={readOnly}
