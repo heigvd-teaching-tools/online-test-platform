@@ -29,7 +29,6 @@ const StepGeneralInformation = ({ groupScope, evaluation, onChange }) => {
   const [conditionHeight, setConditionHeight] = useState(150)
 
   useEffect(() => {
-    console.log('conditions', conditions, conditions.length)
     if (conditions && conditions.length > 0) {
       setConditionHeight(800)
     } else {
