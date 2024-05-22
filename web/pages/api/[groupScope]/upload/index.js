@@ -19,6 +19,8 @@ import multer from 'multer'
 import fs from 'fs/promises'
 import path from 'path'
 import sharp from 'sharp'
+import { createId } from '@paralleldrive/cuid2';
+import slugify from 'slugify';
 import {
   withAuthorization,
   withGroupScope,
@@ -28,7 +30,7 @@ import { Role } from '@prisma/client'
 
 const MAX_IMAGE_WIDTH_PX = 1920
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 
 const SUPPORTED_APPLICATION_TYPES = [
   'pdf',
@@ -62,8 +64,8 @@ const isSupportedMimeType = (mimetype) => {
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    const { groupScope } = req.query
-    const dir = `./public/uploads/${groupScope}`
+    const cuidValue = createId()
+    const dir = `./assets/${cuidValue}`
     try {
       await fs.mkdir(dir, { recursive: true })
       cb(null, dir)
@@ -72,7 +74,15 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname)
+    const cuidValue = createId()
+    
+    const sanitizedFilename = slugify(file.originalname, {
+      lower: true,        // Convert to lowercase
+      replacement: '-',   // Replace spaces and other characters with hyphens
+      remove: /[*+~()'"!:@]/g // Remove characters that are not URL-friendly
+    });
+      
+    cb(null, sanitizedFilename)
   },
 })
 
@@ -91,9 +101,7 @@ const post = async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' })
     }
 
-    const { mimetype, _ } = req.file
-
-    let filePath = req.file.path
+    const { mimetype, path: filePath, filename } = req.file
 
     if (!isSupportedMimeType(mimetype)) {
       await fs.unlink(filePath)
@@ -106,14 +114,12 @@ const post = async (req, res) => {
 
     try {
       if (type === 'image') {
-        filePath = await processImage(filePath)
+        await processImage(filePath)
       }
 
-      // Normalize the file path for URL use
-      const normalizedFilePath = filePath.replace(/\\/g, '/')
-      const fileUrl = `${req.headers.origin}/${normalizedFilePath.substring(
-        normalizedFilePath.indexOf('/uploads'),
-      )}`
+      // Replace backslashes with forward slashes
+      const normalizedPath = path.dirname(filePath).split(path.sep).join('/');
+      const fileUrl = `${req.headers.origin}/api/assets/${normalizedPath.split('/').pop()}/${filename}`
 
       res.status(200).json({ success: true, fileUrl })
     } catch (error) {
@@ -126,21 +132,18 @@ const post = async (req, res) => {
 }
 
 async function processImage(filePath) {
-  const newFilePath = `${filePath.replace(
-    path.extname(filePath),
-    '',
-  )}-resized${path.extname(filePath)}`
+  const tempFilePath = `${filePath}.tmp`
 
   await sharp(filePath)
     .resize(MAX_IMAGE_WIDTH_PX, null, {
       fit: sharp.fit.inside,
       withoutEnlargement: true,
     })
-    .toFile(newFilePath)
+    .toFile(tempFilePath) // write to a temporary file
 
-  await fs.unlink(filePath)
+  await fs.rename(tempFilePath, filePath) // replace the original file
 
-  return newFilePath
+  return filePath
 }
 
 export default withMethodHandler({

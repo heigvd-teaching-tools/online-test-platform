@@ -96,42 +96,20 @@ const migrateCodeQuestionsExpectedOutput = async (prisma) => {
   return true
 }
 
+const uploadsBasePath = path.join(process.cwd(), 'assets')
+
 const extractUrlsFromMarkdown = (markdown) => {
-  const regexp = /\]\((http[s]?:\/\/.*?)(?="\)|\))/g
+  const regexp = /!\[.*?\]\((?:https?:\/\/[^\/]+)?\/api\/assets\/[^\)]+\)|\[.*?\]\((?:https?:\/\/[^\/]+)?\/api\/assets\/[^\)]+\)/g;
+
   const urls = []
   let match
   while ((match = regexp.exec(markdown)) !== null) {
-    urls.push(match[1])
+    const url = match[0].match(/\((http:\/\/localhost:3000\/api\/assets\/[^\)]+)\)/)[1];
+    urls.push(url)
   }
   return urls
 }
 
-const getFilesFromDirectory = async (directoryPath, basePath) => {
-  let fileList = []
-  try {
-    const files = await fs.readdir(directoryPath, { withFileTypes: true })
-    for (const file of files) {
-      if (file.isDirectory()) {
-        const subDirFiles = await getFilesFromDirectory(
-          path.join(directoryPath, file.name),
-          basePath,
-        )
-        fileList = fileList.concat(subDirFiles)
-      } else {
-        // Ensure path normalization and trimming
-        fileList.push(
-          path
-            .relative(basePath, path.join(directoryPath, file.name))
-            .replace(/\\/g, '/'),
-        )
-      }
-    }
-  } catch (error) {
-    console.error('Failed to read directory:', error)
-    throw error
-  }
-  return fileList
-}
 
 const cleanupUnusedUploads = async (prisma, domainName) => {
   /* IMPORTANT
@@ -144,8 +122,9 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
 
     Missing fields may result in files being deleted even if they are still referenced in the database.
 
-
   */
+
+
   const markdownFields = [
     ...(await prisma.evaluation.findMany({ select: { conditions: true } })).map(
       (e) => e.conditions,
@@ -161,36 +140,37 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
     ).map((sa) => sa.content),
   ]
 
-  const uploadsBasePath = path.join(process.cwd(), 'public', 'uploads')
+  
 
-  const referencedUrls = []
+  const referencedCUIDs = new Set()
   markdownFields.forEach((field) => {
     extractUrlsFromMarkdown(field).forEach((url) => {
-      if (url.startsWith(domainName)) {
-        const relativePath = url
-          .replace(domainName, '')
-          .replace(/^\/+/, '')
-          .trim() // Normalize and trim path
-        referencedUrls.push(relativePath)
-      }
+      const urlPath = new URL(url).pathname
+      const relativePath = urlPath.replace(/^\/+/, '').trim() 
+      const cuid = relativePath.split('/')[2] // Extract the CUID
+      referencedCUIDs.add(cuid)
     })
   })
 
-  const allFiles = await getFilesFromDirectory(uploadsBasePath, uploadsBasePath)
+  console.log("referencedCUIDs", referencedCUIDs)
 
-  const filesToDelete = allFiles.filter((file) => {
-    return !referencedUrls.some((url) => url.endsWith(file))
-  })
 
-  // Delete unreferenced files
-  for (let file of filesToDelete) {
-    await fs.unlink(path.join(uploadsBasePath, file))
+  const allDirectories = await fs.readdir(uploadsBasePath, { withFileTypes: true })
+  const allCUIDs = allDirectories
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+
+  const cuidToDelete = allCUIDs.filter(cuid => !referencedCUIDs.has(cuid))
+
+  // Delete directories with non-referenced CUIDs
+  for (let cuid of cuidToDelete) {
+    await fs.rm(path.join(uploadsBasePath, cuid), { recursive: true, force: true })
   }
 
   return {
-    all: allFiles.length,
-    deleted: filesToDelete.length,
-    referenced: referencedUrls.length,
+    all: allCUIDs.length,
+    deleted: cuidToDelete.length,
+    referenced: referencedCUIDs.size,
   }
 }
 

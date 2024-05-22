@@ -31,7 +31,7 @@ import Overlay from '../../ui/Overlay'
 import { previewOptions } from './previewOptions'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import Link from 'next/link'
-import ScrollContainer from '@/components/layout/ScrollContainer'
+import { ResizeObserverProvider, useResizeObserver } from '@/context/ResizeObserverContext'
 
 const mermaidExample = `\`\`\`mermaid
 graph TD
@@ -108,7 +108,6 @@ const extraCommands = [
 ]
 
 const defaultEditorOptions = {
-  height: '100%',
   overflow: false,
   visibleDragbar: false,
   enableScroll: false,
@@ -139,27 +138,51 @@ const MarkdownEditor = ({
         </Stack>
         {withUpload && <UserHelp />}
       </Stack>
-      <Stack height={'100%'} pb={2}>
-        <ContentEditor
-          groupScope={groupScope}
-          readOnly={readOnly}
-          editorProps={{
-            ...defaultEditorOptions,
-            preview: readOnly ? 'preview' : 'live',
-          }}
-          previewOptions={previewOptions}
-          commands={readOnly ? [] : mainCommands}
-          extraCommands={extraCommands}
-          withUpload={!readOnly && withUpload}
-          content={rawContent}
-          onChange={onChange}
-          onHeightChange={onHeightChange}
-          onError={(error) => showSnackbar(error, 'error')}
-        />
+      <Stack flex={1}>
+        <ResizeObserverProvider>
+          <AutoResizeEditor
+            groupScope={groupScope}
+            readOnly={readOnly}
+            editorProps={{
+              ...defaultEditorOptions,
+              preview: readOnly ? 'preview' : 'live',
+            }}
+            previewOptions={previewOptions}
+            commands={readOnly ? [] : mainCommands}
+            extraCommands={extraCommands}
+            withUpload={!readOnly && withUpload}
+            content={rawContent}
+            onChange={onChange}
+            onHeightChange={onHeightChange}
+            onError={(error) => showSnackbar(error, 'error')}
+          />
+        </ResizeObserverProvider>
       </Stack>
     </Stack>
   )
 }
+
+const AutoResizeEditor = (props) => {
+  /**
+   * Another Markdown editor that does not manage its height properly
+   * Thus using our own ResizeObserver context to manage the height of the editor manually
+   * 
+   */
+  const { height, width } = useResizeObserver()
+
+  const editorProps = {
+    ...props,
+    editorProps: {
+      ...props.editorProps,
+      height: height,
+      width: width,
+    },
+  }
+
+  return <ContentEditor {...editorProps}  />
+  
+}
+
 
 const ContentEditor = ({
   groupScope,
@@ -331,13 +354,6 @@ const UserHelp = () => {
         <Typography variant="body1">
           You can paste images and documents directly into the editor
         </Typography>
-        <Alert severity="warning">
-          <AlertTitle>The original file name is kept. </AlertTitle>
-          <Typography variant="body2" color="main.warning">
-            Name your files meaningfully before pasting them. Eventual existing
-            files will be overwritten. The files are organized per group.
-          </Typography>
-        </Alert>
         <Box>
           <Typography variant="body2">
             Supported document types: pdf, doc, docx, xls, xlsx, ppt, pptx, csv,
@@ -350,7 +366,7 @@ const UserHelp = () => {
             Supported text types: plain, csv
           </Typography>
 
-          <Typography variant="body2">Max file size: 10MB</Typography>
+          <Typography variant="body2">Max file size: 5MB</Typography>
         </Box>
 
         <Typography variant="h6">Mermaid diagrams support</Typography>

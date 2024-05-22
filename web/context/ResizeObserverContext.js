@@ -23,6 +23,7 @@ export const ResizeObserverProvider = ({ children }) => {
   const resizeObserver = useRef(
     new ResizeObserver((entries) => {
       const { height, width } = entries[0].contentRect
+      console.log("ResizeObserver", height, width)
       setDimensions({ height, width })
     }),
   )
@@ -31,7 +32,7 @@ export const ResizeObserverProvider = ({ children }) => {
     const element = container.current
     const observer = resizeObserver.current
     observer.observe(element)
-
+    console.log("ResizeObserverProvider", element, observer)
     // Remove event listener on cleanup
     return () => observer.unobserve(element)
   }, [resizeObserver, container])
