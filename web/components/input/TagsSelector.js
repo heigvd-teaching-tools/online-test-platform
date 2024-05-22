@@ -259,8 +259,8 @@ const Tag = ({
             setMode('view')
             onChange(index, tag)
           }}
-          onKeyDown={handleKeyPress} 
-          inputRef={inputRef} 
+          onKeyDown={handleKeyPress}
+          inputRef={inputRef}
         />
       )}
     </Stack>

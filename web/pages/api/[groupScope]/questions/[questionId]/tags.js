@@ -44,23 +44,23 @@ const get = async (req, res, prisma) => {
   res.status(200).json(tags)
 }
 const put = async (req, res, prisma) => {
-  const { groupScope } = req.query;
-  const { tags } = req.body;
-  const { questionId } = req.query;
+  const { groupScope } = req.query
+  const { tags } = req.body
+  const { questionId } = req.query
 
   // Retrieve the group ID based on the provided scope
   const group = await prisma.group.findUnique({
     where: {
       scope: groupScope,
     },
-  });
+  })
 
   if (!group) {
-    res.status(404).json({ message: 'Group not found' });
-    return;
+    res.status(404).json({ message: 'Group not found' })
+    return
   }
 
-  const groupId = group.id;
+  const groupId = group.id
 
   const transaction = [
     // Unlink all tags from this question
@@ -104,12 +104,12 @@ const put = async (req, res, prisma) => {
         groupId: groupId,
       },
     }),
-  ];
+  ]
 
-  const response = await prisma.$transaction(transaction);
+  const response = await prisma.$transaction(transaction)
 
-  res.status(200).json(response);
-};
+  res.status(200).json(response)
+}
 
 export default withMethodHandler({
   GET: withAuthorization(withGroupScope(withPrisma(get)), [Role.PROFESSOR]),
