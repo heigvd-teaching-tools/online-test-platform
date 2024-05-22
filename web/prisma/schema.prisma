@@ -524,6 +524,7 @@ model Tag {
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@id([groupId, label]) // Composite primary key
+  @@unique([groupId, label])
 }
 
 model QuestionToTag {
