@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Stack, TextField, Typography } from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -31,7 +24,10 @@ import Overlay from '../../ui/Overlay'
 import { previewOptions } from './previewOptions'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import Link from 'next/link'
-import { ResizeObserverProvider, useResizeObserver } from '@/context/ResizeObserverContext'
+import {
+  ResizeObserverProvider,
+  useResizeObserver,
+} from '@/context/ResizeObserverContext'
 
 const mermaidExample = `\`\`\`mermaid
 graph TD
@@ -52,6 +48,14 @@ classDiagram
     Poodle : +string color
     Poodle : +void performTricks()
     Poodle : +string instagramID "@maxi.pas21"
+\`\`\``
+
+const graphvizExample = `\`\`\`graphviz
+digraph D {
+  node [style=filled, fillcolor=aliceblue];
+  edge [style=filled, fillcolor=cornflowerblue];
+  A -> {B, C, D} -> {F}
+}
 \`\`\``
 
 const latexExample = `\`\`\`latex
@@ -166,7 +170,7 @@ const AutoResizeEditor = (props) => {
   /**
    * Another Markdown editor that does not manage its height properly
    * Thus using our own ResizeObserver context to manage the height of the editor manually
-   * 
+   *
    */
   const { height, width } = useResizeObserver()
 
@@ -179,10 +183,8 @@ const AutoResizeEditor = (props) => {
     },
   }
 
-  return <ContentEditor {...editorProps}  />
-  
+  return <ContentEditor {...editorProps} />
 }
-
 
 const ContentEditor = ({
   groupScope,
@@ -346,6 +348,8 @@ const UploadingStatus = ({ status = 'NOT_STARTED' }) => {
   ) : null
 }
 
+import { Graphviz } from 'graphviz-react'
+
 const UserHelp = () => {
   return (
     <UserHelpPopper label="Guide" maxHeight={500}>
@@ -369,9 +373,68 @@ const UserHelp = () => {
           <Typography variant="body2">Max file size: 5MB</Typography>
         </Box>
 
+        <Typography variant="h6">Code snippet support</Typography>
+        <Typography variant="body1">
+          You can use code snippets with syntax highlighting
+        </Typography>
+
+        <Stack spacing={2}>
+          <Typography variant="body2">
+            Code snippets must be enclosed in triple backticks (code bloc). The
+            language of the code snippet can be specified after the opening
+            triple backticks. The language is used for syntax highlighting.
+          </Typography>
+
+          <TextField
+            variant="outlined"
+            label="Code snippet example"
+            value={codeExample}
+            fullWidth
+            multiline
+            rows={8}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+          />
+        </Stack>
+
+        <Typography variant="h6">Graphviz diagrams support</Typography>
+        <Typography variant="body1">
+          Perfect for rendering graphs, trees, and other diagrams
+        </Typography>
+        <Stack spacing={2}>
+          <Typography variant="body2">
+            Diagrams must be enclosed in triple backticks (code bloc)
+          </Typography>
+
+          <TextField
+            variant="outlined"
+            label="Graphviz diagram example"
+            value={graphvizExample}
+            fullWidth
+            multiline
+            rows={5}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+          />
+        </Stack>
+
+        <Stack spacing={1} direction={'row'} alignItems={'center'}>
+          <Typography variant="body1">More examples: </Typography>
+          <Link
+            href="https://renenyffenegger.ch/notes/tools/Graphviz/examples/index"
+            target="_blank"
+          >
+            Graphviz examples
+          </Link>
+        </Stack>
+
         <Typography variant="h6">Mermaid diagrams support</Typography>
         <Typography variant="body1">
-          You can use mermaid syntax to render diagrams
+          Perfect for rendering flowcharts, sequence diagrams, class diagrams,
         </Typography>
         <Stack spacing={2}>
           <Typography variant="body2">
@@ -441,32 +504,6 @@ const UserHelp = () => {
           <Link href="https://katex.org/docs/supported" target="_blank">
             Supported symbols
           </Link>
-        </Stack>
-
-        <Typography variant="h6">Code snippet support</Typography>
-        <Typography variant="body1">
-          You can use code snippets with syntax highlighting
-        </Typography>
-
-        <Stack spacing={2}>
-          <Typography variant="body2">
-            Code snippets must be enclosed in triple backticks (code bloc). The
-            language of the code snippet can be specified after the opening
-            triple backticks. The language is used for syntax highlighting.
-          </Typography>
-
-          <TextField
-            variant="outlined"
-            label="Code snippet example"
-            value={codeExample}
-            fullWidth
-            multiline
-            rows={8}
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
-          />
         </Stack>
       </Stack>
     </UserHelpPopper>

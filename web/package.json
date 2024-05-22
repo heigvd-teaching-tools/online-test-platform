@@ -30,6 +30,7 @@
     "@uiw/react-md-editor": "^4.0.4",
     "clipboard-copy": "^4.0.1",
     "dockerode": "^3.3.5",
+    "graphviz-react": "^1.2.5",
     "handlebars": "^4.7.8",
     "htmlspecialchars": "^1.0.5",
     "javascript-time-ago": "^2.5.9",

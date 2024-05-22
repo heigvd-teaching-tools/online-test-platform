@@ -19,6 +19,7 @@ import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import CodeBlock from './CodeBlock' // Use existing component for handling code blocks
 import MermaidBloc from './MermaidBloc' // Use existing component for handling Mermaid diagrams
+import GraphvizBloc from './GraphvizBloc'
 
 export const previewOptions = {
   rehypePlugins: [[rehypeSanitize]],
@@ -53,6 +54,8 @@ export const previewOptions = {
           return <code dangerouslySetInnerHTML={{ __html: html }} />
         } else if (language === 'mermaid') {
           return <MermaidBloc code={code} />
+        } else if (language === 'graphviz') {
+          return <GraphvizBloc code={code} />
         } else {
           return <CodeBlock language={language} value={code} />
         }

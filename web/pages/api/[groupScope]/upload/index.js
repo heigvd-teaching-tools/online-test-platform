@@ -19,8 +19,8 @@ import multer from 'multer'
 import fs from 'fs/promises'
 import path from 'path'
 import sharp from 'sharp'
-import { createId } from '@paralleldrive/cuid2';
-import slugify from 'slugify';
+import { createId } from '@paralleldrive/cuid2'
+import slugify from 'slugify'
 import {
   withAuthorization,
   withGroupScope,
@@ -75,13 +75,13 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const cuidValue = createId()
-    
+
     const sanitizedFilename = slugify(file.originalname, {
-      lower: true,        // Convert to lowercase
-      replacement: '-',   // Replace spaces and other characters with hyphens
-      remove: /[*+~()'"!:@]/g // Remove characters that are not URL-friendly
-    });
-      
+      lower: true, // Convert to lowercase
+      replacement: '-', // Replace spaces and other characters with hyphens
+      remove: /[*+~()'"!:@]/g, // Remove characters that are not URL-friendly
+    })
+
     cb(null, sanitizedFilename)
   },
 })
@@ -118,8 +118,10 @@ const post = async (req, res) => {
       }
 
       // Replace backslashes with forward slashes
-      const normalizedPath = path.dirname(filePath).split(path.sep).join('/');
-      const fileUrl = `${req.headers.origin}/api/assets/${normalizedPath.split('/').pop()}/${filename}`
+      const normalizedPath = path.dirname(filePath).split(path.sep).join('/')
+      const fileUrl = `${req.headers.origin}/api/assets/${normalizedPath
+        .split('/')
+        .pop()}/${filename}`
 
       res.status(200).json({ success: true, fileUrl })
     } catch (error) {

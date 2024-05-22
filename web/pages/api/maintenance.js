@@ -99,17 +99,19 @@ const migrateCodeQuestionsExpectedOutput = async (prisma) => {
 const uploadsBasePath = path.join(process.cwd(), 'assets')
 
 const extractUrlsFromMarkdown = (markdown) => {
-  const regexp = /!\[.*?\]\((?:https?:\/\/[^\/]+)?\/api\/assets\/[^\)]+\)|\[.*?\]\((?:https?:\/\/[^\/]+)?\/api\/assets\/[^\)]+\)/g;
+  const regexp =
+    /!\[.*?\]\((?:https?:\/\/[^\/]+)?\/api\/assets\/[^\)]+\)|\[.*?\]\((?:https?:\/\/[^\/]+)?\/api\/assets\/[^\)]+\)/g
 
   const urls = []
   let match
   while ((match = regexp.exec(markdown)) !== null) {
-    const url = match[0].match(/\((http:\/\/localhost:3000\/api\/assets\/[^\)]+)\)/)[1];
+    const url = match[0].match(
+      /\((http:\/\/localhost:3000\/api\/assets\/[^\)]+)\)/,
+    )[1]
     urls.push(url)
   }
   return urls
 }
-
 
 const cleanupUnusedUploads = async (prisma, domainName) => {
   /* IMPORTANT
@@ -123,7 +125,6 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
     Missing fields may result in files being deleted even if they are still referenced in the database.
 
   */
-
 
   const markdownFields = [
     ...(await prisma.evaluation.findMany({ select: { conditions: true } })).map(
@@ -140,31 +141,33 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
     ).map((sa) => sa.content),
   ]
 
-  
-
   const referencedCUIDs = new Set()
   markdownFields.forEach((field) => {
     extractUrlsFromMarkdown(field).forEach((url) => {
       const urlPath = new URL(url).pathname
-      const relativePath = urlPath.replace(/^\/+/, '').trim() 
+      const relativePath = urlPath.replace(/^\/+/, '').trim()
       const cuid = relativePath.split('/')[2] // Extract the CUID
       referencedCUIDs.add(cuid)
     })
   })
 
-  console.log("referencedCUIDs", referencedCUIDs)
+  console.log('referencedCUIDs', referencedCUIDs)
 
-
-  const allDirectories = await fs.readdir(uploadsBasePath, { withFileTypes: true })
+  const allDirectories = await fs.readdir(uploadsBasePath, {
+    withFileTypes: true,
+  })
   const allCUIDs = allDirectories
-    .filter(dirent => dirent.isDirectory())
-    .map(dirent => dirent.name)
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
 
-  const cuidToDelete = allCUIDs.filter(cuid => !referencedCUIDs.has(cuid))
+  const cuidToDelete = allCUIDs.filter((cuid) => !referencedCUIDs.has(cuid))
 
   // Delete directories with non-referenced CUIDs
   for (let cuid of cuidToDelete) {
-    await fs.rm(path.join(uploadsBasePath, cuid), { recursive: true, force: true })
+    await fs.rm(path.join(uploadsBasePath, cuid), {
+      recursive: true,
+      force: true,
+    })
   }
 
   return {
