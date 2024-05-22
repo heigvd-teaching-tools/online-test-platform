@@ -424,10 +424,7 @@ const UserHelp = () => {
 
         <Stack spacing={1} direction={'row'} alignItems={'center'}>
           <Typography variant="body1">More examples: </Typography>
-          <Link
-            href="https://graphviz.org/gallery/"
-            target="_blank"
-          >
+          <Link href="https://graphviz.org/gallery/" target="_blank">
             Graphviz examples
           </Link>
         </Stack>
