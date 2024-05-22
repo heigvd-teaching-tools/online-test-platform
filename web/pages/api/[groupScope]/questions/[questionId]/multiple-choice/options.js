@@ -78,7 +78,6 @@ const put = async (req, res, prisma) => {
         },
       })
     }
-    
   })
   res.status(200).json(updatedOption)
 }
@@ -164,7 +163,6 @@ const del = async (req, res, prisma) => {
 
     // update the selectionLimit if the deleted option was correct
     if (option.isCorrect && optionQuestion.activateSelectionLimit) {
-    
       const countCorrectOptions = await prisma.option.count({
         where: {
           multipleChoice: {
