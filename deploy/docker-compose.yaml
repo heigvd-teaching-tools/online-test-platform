@@ -11,7 +11,7 @@ services:
       - "3000:3000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - files:/app/public/uploads
+      - assets:/app/assets
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
@@ -46,17 +46,10 @@ services:
     networks:
       - app-network
 
-  uploads:
-    image: nginx:alpine
-    restart: unless-stopped
-    volumes:
-      - files:/usr/share/nginx/html
-    networks:
-      - app-network
 
 volumes:
   pgdata:
-  files:
+  assets:
 
 networks:
   app-network:

@@ -513,26 +513,28 @@ model Web {
   templateCss  String?
   templateJs   String?
 }
-
 model Tag {
-  label String @id @unique
-
+  label     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  groupId   String
 
   questionToTag QuestionToTag[]
 
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId String
+
+  @@id([groupId, label]) // Composite primary key
+  @@unique([groupId, label])
 }
 
 model QuestionToTag {
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
-  tag        Tag      @relation(fields: [label], references: [label], onDelete: Cascade)
+  tag        Tag      @relation(fields: [groupId, label], references: [groupId, label], onDelete: Cascade)
+  groupId    String
   label      String
 
-  @@id([questionId, label])
+  @@id([questionId, groupId, label]) // Composite primary key
 }
 
 // Order is important here

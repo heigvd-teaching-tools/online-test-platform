@@ -259,8 +259,8 @@ const Tag = ({
             setMode('view')
             onChange(index, tag)
           }}
-          onKeyDown={handleKeyPress} // Use the handleKeyPress for key down events
-          inputRef={inputRef} // Attach the ref to the TextField
+          onKeyDown={handleKeyPress}
+          inputRef={inputRef}
         />
       )}
     </Stack>

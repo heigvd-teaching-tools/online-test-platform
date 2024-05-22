@@ -117,3 +117,5 @@ ssl
 .idea/
 
 web/public/uploads
+
+web/assets
