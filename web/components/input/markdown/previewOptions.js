@@ -29,7 +29,8 @@ export const previewOptions = {
       const inline =
         !position.start.line || position.start.line === position.end.line
       const language =
-        className?.split(' ')[0].replace('language-', '') || 'javascript'
+        className?.split(' ')[0].replace('language-', '')?.toLowerCase() ||
+        'javascript'
 
       if (inline) {
         const txt = children
@@ -46,8 +47,7 @@ export const previewOptions = {
       } else {
         const txt = children[0]
         const code = node && node.children ? getCodeString(node.children) : txt
-
-        if (['latex', 'katex'].includes(language.toLowerCase())) {
+        if (['latex', 'katex'].includes(language)) {
           const html = katex.renderToString(code, {
             throwOnError: false,
           })
