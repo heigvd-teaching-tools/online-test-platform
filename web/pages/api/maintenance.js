@@ -151,8 +151,6 @@ const cleanupUnusedUploads = async (prisma, domainName) => {
     })
   })
 
-  console.log('referencedCUIDs', referencedCUIDs)
-
   const allDirectories = await fs.readdir(uploadsBasePath, {
     withFileTypes: true,
   })

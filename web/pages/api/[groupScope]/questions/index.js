@@ -180,7 +180,6 @@ const post = async (req, res, prisma) => {
         options,
       )
 
-      console.log('defaultCode: ', defaultCode)
       // update the empty initial code with the default code
       await prisma.code.update(
         codeInitialUpdateQuery(
