@@ -120,7 +120,6 @@ const MultipleChoiceGradualCreditPolicy = ({
             <ul>
               <li>Students earn points for each correct option selected.</li>
               <li>Students lose points for each incorrect option selected.</li>
-              <li>Missing a correct option does not affect the score.</li>
               <li>
                 If the percentage of correct selections does not meet the
                 specified threshold, the final score is zero.
