@@ -70,6 +70,7 @@ const CompareMultipleChoice = ({
         <StudentSelectionSummary solution={solution} answer={answer} />
         {!readOnly && (
           <GradingPolicyCalculation
+            questionType={question.type}
             gradingPolicy={question[question.type].gradingPolicy}
             maxPoints={maxPoints}
             solution={solution}

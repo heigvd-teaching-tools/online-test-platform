@@ -13,38 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MultipleChoiceGradingPolicyType } from '@prisma/client'
-import MultipleChoiceGradualCreditPolicy from './MultipleChoiceGradualCreditPolicy'
 import { useEffect, useState } from 'react'
 import ConfigPopper from '@/components/layout/utils/ConfigPopper'
-import { Alert, AlertTitle, Stack, Typography } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import DropdownSelector from '@/components/input/DropdownSelector'
+import GradingPolicy from '@/code/grading/policy'
+import MarkdownViewer from '@/components/input/markdown/MarkdownViewer'
+import { Box } from '@mui/system'
 
-const gradingPolicyTypes = [
-  {
-    value: MultipleChoiceGradingPolicyType.ALL_OR_NOTHING,
-    label: 'All or Nothing',
-  },
-  {
-    value: MultipleChoiceGradingPolicyType.GRADUAL_CREDIT,
-    label: 'Gradual Credit',
-  },
-]
-
-const MultipleChoiceGradingConfig = ({
+const GradingSetup = ({
   groupScope,
   questionId,
-  multipleChoice,
+  questionType,
+  gradingPolicy:initial,
   onPropertyChange,
   onUpdate,
 }) => {
+  
+  const relatedPolicies = GradingPolicy.getPoliciesDict(
+    questionType
+  )
+
   const [gradingPolicy, setGradingPolicy] = useState(
-    multipleChoice?.gradingPolicy,
+    initial,
   )
 
   useEffect(() => {
-    setGradingPolicy(multipleChoice?.gradingPolicy)
-  }, [multipleChoice])
+    setGradingPolicy(initial)
+  }, [initial])
 
   return (
     <ConfigPopper
@@ -56,7 +52,7 @@ const MultipleChoiceGradingConfig = ({
           Grading policy{' '}
           <b>
             {
-              gradingPolicyTypes.find((type) => type.value === gradingPolicy)
+              relatedPolicies.find((type) => type.value === gradingPolicy)
                 ?.label
             }
           </b>
@@ -69,33 +65,52 @@ const MultipleChoiceGradingConfig = ({
           size="small"
           color="info"
           value={gradingPolicy}
-          options={gradingPolicyTypes}
+          options={relatedPolicies}
           onSelect={(value) => {
             setGradingPolicy(value)
             onPropertyChange('gradingPolicy', value)
           }}
         />
-
-        {gradingPolicy === MultipleChoiceGradingPolicyType.GRADUAL_CREDIT && (
-          <MultipleChoiceGradualCreditPolicy
-            groupScope={groupScope}
-            questionId={questionId}
-            onUpdate={() => onUpdate()}
-          />
-        )}
-
-        {gradingPolicy === MultipleChoiceGradingPolicyType.ALL_OR_NOTHING && (
-          <Alert severity="info">
-            <AlertTitle>All or Nothing</AlertTitle>
-            <Typography variant="body1">
-              All or Nothing awards full points if all correct options are
-              selected and no incorrect options are selected.
-            </Typography>
-          </Alert>
-        )}
+        <GradingPolicySetup
+          gradingPolicyInstance={GradingPolicy.getPolicy(
+            questionType,
+            gradingPolicy,
+          )}
+          configProps={{
+            groupScope:groupScope,
+            questionId:questionId,
+            onUpdate:() => onUpdate()
+          }}
+        />
       </Stack>
     </ConfigPopper>
   )
 }
 
-export default MultipleChoiceGradingConfig
+const GradingPolicySetup = ({
+  gradingPolicyInstance,
+  configProps,
+}) => {
+
+  const configComponent = gradingPolicyInstance.getConfigComponent(configProps)
+
+  return (
+    gradingPolicyInstance && (
+      <Stack spacing={1}>
+      <Box p={1}>
+        <MarkdownViewer
+          content={gradingPolicyInstance.documentation}
+        />
+      </Box>
+      {
+        configComponent && (
+          configComponent
+        )
+      }
+      </Stack>
+    )
+  )
+}
+
+
+export default GradingSetup

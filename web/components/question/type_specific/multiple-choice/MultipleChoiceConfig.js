@@ -18,7 +18,8 @@ import CheckboxLabel from '@/components/input/CheckboxLabel'
 import { Stack, Alert, AlertTitle, TextField, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-import MultipleChoiceGradingConfig from './MultipleChoiceGradingConfig'
+import GradingSetup from '../../GradingSetup'
+import { QuestionType } from '@prisma/client'
 
 const MultipleChoiceConfig = ({
   groupScope,
@@ -108,10 +109,11 @@ const MultipleChoiceConfig = ({
           </UserHelpPopper>
         </Stack>
 
-        <MultipleChoiceGradingConfig
+        <GradingSetup
           groupScope={groupScope}
           questionId={questionId}
-          multipleChoice={multipleChoice}
+          questionType={QuestionType.multipleChoice}
+          gradingPolicy={multipleChoice?.gradingPolicy}
           onPropertyChange={onPropertyChange}
           onUpdate={() => onUpdate()}
         />

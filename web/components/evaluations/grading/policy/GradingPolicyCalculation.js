@@ -14,153 +14,39 @@
  * limitations under the License.
  */
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
-import GradualPolicyCalculationBreakdown from '@/components/evaluations/grading/policy/GradualPolicyCalculationBreakdown'
 import { Typography } from '@mui/material'
-import { MultipleChoiceGradingPolicyType } from '@prisma/client'
-import { useEffect, useState } from 'react'
-import AllOrNothingPolicyCalculationBreakdown from './AllOrNothingCalculationBreakdown'
-import {
-  calculateAllOrNothingPoints,
-  calculateGradualCreditPoints,
-} from '@/code/grading/calculation'
-
-const gradingPolicyToLabel = {
-  [MultipleChoiceGradingPolicyType.GRADUAL_CREDIT]: 'Gradual Credit',
-  [MultipleChoiceGradingPolicyType.ALL_OR_NOTHING]: 'All or Nothing',
-}
-
-const extractGradualCreditData = (maxPoints, solution, answer) => {
-
-  const totalOptions = solution.options.length
-
-  const correctOptions = solution.options.filter((option) => option.isCorrect)
-  const incorrectOptions = solution.options.filter(
-    (option) => !option.isCorrect,
-  )
-
-  const selectedCorrectOptions = answer.options.filter((answer) =>
-    correctOptions.some((option) => option.id === answer.id),
-  )
-
-  const selectedIncorrectOptions = answer.options.filter((answer) =>
-    incorrectOptions.some((option) => option.id === answer.id),
-  )
-
-  const unselectedCorrectOptions = correctOptions.filter(
-    (option) => !answer.options.some((answer) => answer.id === option.id),
-  )
-
-  const unselectedIncorrectOptions = incorrectOptions.filter(
-    (option) => !answer.options.some((answer) => answer.id === option.id),
-  )
-
-  const threshold = solution.gradualCreditConfig.threshold
-  const negativeMarking = solution.gradualCreditConfig.negativeMarking
-
-  const { finalScore, rawScore, correctnessRatio } = calculateGradualCreditPoints(
-    maxPoints,
-    totalOptions,
-    selectedCorrectOptions.length,
-    unselectedCorrectOptions.length,
-    selectedIncorrectOptions.length,
-    unselectedIncorrectOptions.length,
-    threshold,
-    negativeMarking,
-  )
-
-  return {
-    totalPoints: maxPoints,
-    totalOptions: totalOptions,
-    selectedCorrectOptions: selectedCorrectOptions.length,
-    unselectedCorrectOptions: unselectedCorrectOptions.length,
-    selectedIncorrectOptions: selectedIncorrectOptions.length,
-    unselectedIncorrectOptions: unselectedIncorrectOptions.length,
-    threshold,
-    negativeMarking,
-    rawScore,
-    correctnessRatio,
-    finalScore,
-  }
-}
-
-const extractAllOrNothingData = (maxPoints, solution, answer) => {
-  const correctOptions = solution.options.filter((option) => option.isCorrect)
-  const incorrectOptions = solution.options.filter(
-    (option) => !option.isCorrect,
-  )
-
-  const selectedCorrectOptions = answer.options.filter((answer) =>
-    correctOptions.some((option) => option.id === answer.id),
-  )
-
-  const selectedIncorrectOptions = answer.options.filter((answer) =>
-    incorrectOptions.some((option) => option.id === answer.id),
-  )
-
-  const { finalScore } = calculateAllOrNothingPoints(
-    maxPoints,
-    correctOptions,
-    answer.options,
-  )
-
-  return {
-    totalPoints: maxPoints,
-    correctOptions: correctOptions.length,
-    incorrectOptions: incorrectOptions.length,
-    selectedCorrectOptions: selectedCorrectOptions.length,
-    selectedIncorrectOptions: selectedIncorrectOptions.length,
-    finalScore,
-  }
-}
+import GradingPolicy from '@/code/grading/policy'
+import MarkdownViewer from '@/components/input/markdown/MarkdownViewer'
 
 const GradingPolicyCalculation = ({
+  questionType,
   gradingPolicy,
   maxPoints,
   solution,
   answer,
 }) => {
-  const [data, setData] = useState(null)
+  const policy = GradingPolicy.getPolicy(
+    questionType,
+    gradingPolicy,
+  )
 
-  useEffect(() => {
-    switch (gradingPolicy) {
-      case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT: {
-        setData(extractGradualCreditData(maxPoints, solution, answer))
-        break
-      }
-      case MultipleChoiceGradingPolicyType.ALL_OR_NOTHING: {
-        setData(extractAllOrNothingData(maxPoints, solution, answer))
-        break
-      }
-      default:
-        setData(null)
-    }
-  }, [gradingPolicy, maxPoints, solution, answer])
+  const { finalScore, breakdown } = policy.breakdown({
+    solution,
+    answer,
+    totalPoints:maxPoints
+  })
 
   return (
-    data && (
       <UserHelpPopper
         label={
           <Typography variant="body2" color="textSecondary" noWrap>
-            {gradingPolicyToLabel[gradingPolicy]} <b>({data.finalScore} pts)</b>
+            {policy.label} <b>({finalScore}pts)</b>
           </Typography>
         }
       >
-        {(() => {
-          switch (gradingPolicy) {
-            case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT: {
-              return <GradualPolicyCalculationBreakdown {...data} />
-            }
-            case MultipleChoiceGradingPolicyType.ALL_OR_NOTHING: {
-              return <AllOrNothingPolicyCalculationBreakdown {...data} />
-            }
-            // Add cases for other grading policies here
-            default:
-              return null
-          }
-        })()}
+        <MarkdownViewer content={breakdown} />
       </UserHelpPopper>
     )
-  )
 }
 
 export default GradingPolicyCalculation
