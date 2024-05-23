@@ -19,10 +19,11 @@ import { useMemo } from 'react'
 
 const GradualPolicyCalculationBreakdown = ({
   totalPoints,
-  correctOptions,
-  incorrectOptions,
+  totalOptions,
   selectedCorrectOptions,
+  unselectedCorrectOptions,
   selectedIncorrectOptions,
+  unselectedIncorrectOptions,
   threshold,
   negativeMarking,
   finalScore,
@@ -62,10 +63,11 @@ const GradualPolicyCalculationBreakdown = ({
 
     return (
       isNotNullOrUndefined(totalPoints) &&
-      isNotNullOrUndefined(correctOptions) &&
-      isNotNullOrUndefined(incorrectOptions) &&
+      isNotNullOrUndefined(totalOptions) &&
       isNotNullOrUndefined(selectedCorrectOptions) &&
+      isNotNullOrUndefined(unselectedCorrectOptions) &&
       isNotNullOrUndefined(selectedIncorrectOptions) &&
+      isNotNullOrUndefined(unselectedIncorrectOptions) &&
       isNotNullOrUndefined(threshold) &&
       isNotNullOrUndefined(negativeMarking) &&
       isNotNullOrUndefined(finalScore) &&
@@ -74,10 +76,11 @@ const GradualPolicyCalculationBreakdown = ({
     )
   }, [
     totalPoints,
-    correctOptions,
-    incorrectOptions,
+    totalOptions,
     selectedCorrectOptions,
+    unselectedCorrectOptions,
     selectedIncorrectOptions,
+    unselectedIncorrectOptions,
     threshold,
     negativeMarking,
     finalScore,
@@ -99,16 +102,22 @@ const GradualPolicyCalculationBreakdown = ({
                 Total Points: <b>{totalPoints}</b>
               </li>
               <li>
-                Total Correct Options: <b>{correctOptions}</b>
+                <b>TO</b> (Total Options) : <b>{totalOptions}</b>
               </li>
               <li>
-                Total Incorrect Options: <b>{incorrectOptions}</b>
+                <b>Cs</b> (Selected Correct): <b>{selectedCorrectOptions}</b>
               </li>
               <li>
-                Selected Correct Options: <b>{selectedCorrectOptions}</b>
+                <b>Cm</b> (Missed Correct): <b>{unselectedCorrectOptions}</b>
               </li>
               <li>
-                Selected Incorrect Options:<b>{selectedIncorrectOptions}</b>
+                <b>Is</b> (Selected Incorrect): <b>{selectedIncorrectOptions}</b>
+              </li>
+              <li>
+                <b>Im</b> (Missed Incorrect): <b>{unselectedIncorrectOptions}</b>
+              </li>
+              <li>
+                <b>CR</b> (Correctness Ratio): <b>{correctnessRatio.toFixed(2)}</b>
               </li>
               <li>
                 Threshold: <b>{threshold}%</b>
@@ -117,20 +126,21 @@ const GradualPolicyCalculationBreakdown = ({
                 Negative Marking:{' '}
                 <b>{negativeMarking ? 'Enabled' : 'Disabled'}</b>
               </li>
+              
             </ul>
           </Box>
           <Box>
             <Typography variant="body1">Correctness Ratio Formula:</Typography>
           </Box>
           <KatexBloc
-            code={`\\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)`}
+            code={`\\frac{Cs - Cm + Im - Is}{\\text{TO}}`}
           />
           <Box>
             <Typography variant="body1">Substitute Variables:</Typography>
           </Box>
           <KatexBloc
             code={`
-              \\text{Correctness Ratio} = \\left( \\frac{${selectedCorrectOptions}}{${correctOptions}} \\right) - \\left( \\frac{${selectedIncorrectOptions}}{${incorrectOptions}} \\right) = ${correctnessRatio.toFixed(
+              \\text{CR} = \\frac{${selectedCorrectOptions} - ${unselectedCorrectOptions} + ${unselectedIncorrectOptions} - ${selectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio.toFixed(
               2,
             )}
             `}
@@ -149,7 +159,7 @@ const GradualPolicyCalculationBreakdown = ({
             code={`
                 \\text{Final Score} = 
                 \\begin{cases} 
-                0 & \\text{if Correctness Ratio} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
+                0 & \\text{if CR} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
                 \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
                 \\text{Raw Score} & \\text{otherwise}
                 \\end{cases}

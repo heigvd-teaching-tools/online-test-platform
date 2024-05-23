@@ -24,6 +24,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import { fetcher } from '@/code/utils'
 import Loading from '@/components/feedback/Loading'
 import KatexBloc from '@/components/input/markdown/KatexBloc'
+import { Box } from '@mui/system'
 
 const MultipleChoiceGradualCreditPolicy = ({
   groupScope,
@@ -118,20 +119,11 @@ const MultipleChoiceGradualCreditPolicy = ({
             Gradual Credit awards points based on the student&apos;s selection
             of correct and incorrect options:
             <ul>
-              <li>Points are earned for each correct option chosen.</li>
-              <li>Points are lost for each incorrect option chosen.</li>
-              <li>
-                If the overall accuracy is below the set <b>threshold</b> and a
-                score is positive, final score will be zero.
-              </li>
-              <li>
-                If <b>negative marking</b> is disabled, final score will be at
-                least zero.
-              </li>
-              <li>
-                If <b>negative marking</b> is enabled, your final score can be
-                negative.
-              </li>
+            <li>Points are earned for each correct option chosen.</li>
+            <li>Points are lost for each incorrect option chosen.</li>
+            <li>Points are earned for each incorrect option not chosen.</li>
+            <li>Points are lost for each correct option not chosen.</li>
+            
             </ul>
           </Typography>
 
@@ -144,26 +136,40 @@ const MultipleChoiceGradualCreditPolicy = ({
             <Typography variant="caption">
               <KatexBloc
                 code={`
-                \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
-              `}
+                \\text{CR} = \\frac{Cs - Cm + Im - Is}{TO}
+                `}
               />
               <KatexBloc
                 code={`
-                \\text{Raw Score} = \\text{Total Points} \\times \\text{Correctness Ratio}
+                \\text{Raw Score} = \\text{Total Points} \\times \\text{CR}
                 `}
               />
               <KatexBloc
                 code={`
                 \\text{Final Score} = 
                 \\begin{cases} 
-                0 & \\text{if Correctness Ratio} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
+                0 & \\text{if CR} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
                 \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
                 \\text{Raw Score} & \\text{otherwise}
                 \\end{cases}
-              `}
+                `}
               />
+              <Box>
+                <Typography variant="body2">Where:</Typography>
+                <ul>
+                  <li><b>Cs</b>: Number of Correct Options Selected</li>
+                  <li><b>Cm</b>: Number of Correct Options Missed</li>
+                  <li><b>Is</b>: Number of Incorrect Options Selected</li>
+                  <li><b>Im</b>: Number of Incorrect Options Missed</li>
+                  <li><b>TO</b>: Total Options</li>
+                  <li><b>CR</b>: Correctness Ratio</li>
+                </ul>
+              </Box>
             </Typography>
           </Collapse>
+
+
+
         </Alert>
         {negativeMarking !== undefined && (
           <Stack spacing={1} direction={'row'}>

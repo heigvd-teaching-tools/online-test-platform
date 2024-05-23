@@ -30,6 +30,9 @@ const gradingPolicyToLabel = {
 }
 
 const extractGradualCreditData = (maxPoints, solution, answer) => {
+
+  const totalOptions = solution.options.length
+
   const correctOptions = solution.options.filter((option) => option.isCorrect)
   const incorrectOptions = solution.options.filter(
     (option) => !option.isCorrect,
@@ -43,26 +46,35 @@ const extractGradualCreditData = (maxPoints, solution, answer) => {
     incorrectOptions.some((option) => option.id === answer.id),
   )
 
+  const unselectedCorrectOptions = correctOptions.filter(
+    (option) => !answer.options.some((answer) => answer.id === option.id),
+  )
+
+  const unselectedIncorrectOptions = incorrectOptions.filter(
+    (option) => !answer.options.some((answer) => answer.id === option.id),
+  )
+
   const threshold = solution.gradualCreditConfig.threshold
   const negativeMarking = solution.gradualCreditConfig.negativeMarking
 
-  const { finalScore, rawScore, correctnessRatio } =
-    calculateGradualCreditPoints(
-      maxPoints,
-      correctOptions.length,
-      incorrectOptions.length,
-      selectedCorrectOptions.length,
-      selectedIncorrectOptions.length,
-      threshold,
-      negativeMarking,
-    )
+  const { finalScore, rawScore, correctnessRatio } = calculateGradualCreditPoints(
+    maxPoints,
+    totalOptions,
+    selectedCorrectOptions.length,
+    unselectedCorrectOptions.length,
+    selectedIncorrectOptions.length,
+    unselectedIncorrectOptions.length,
+    threshold,
+    negativeMarking,
+  )
 
   return {
     totalPoints: maxPoints,
-    correctOptions: correctOptions.length,
-    incorrectOptions: incorrectOptions.length,
+    totalOptions: totalOptions,
     selectedCorrectOptions: selectedCorrectOptions.length,
+    unselectedCorrectOptions: unselectedCorrectOptions.length,
     selectedIncorrectOptions: selectedIncorrectOptions.length,
+    unselectedIncorrectOptions: unselectedIncorrectOptions.length,
     threshold,
     negativeMarking,
     rawScore,

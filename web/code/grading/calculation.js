@@ -22,16 +22,17 @@
 */
 export const calculateGradualCreditPoints = (
   maxPoints,
-  correctOptions,
-  incorrectOptions,
+  totalOptions,
   selectedCorrectOptions,
+  unselectedCorrectOptions,
   selectedIncorrectOptions,
+  unselectedIncorrectOptions,
   threshold,
   negativeMarking,
 ) => {
-  const correctnessRatio =
-    selectedCorrectOptions / correctOptions -
-    selectedIncorrectOptions / incorrectOptions
+  const correctnessRatio = 
+    (selectedCorrectOptions - unselectedCorrectOptions + unselectedIncorrectOptions - selectedIncorrectOptions) / 
+    (totalOptions)
 
   const rawScore = maxPoints * correctnessRatio
   let finalScore = rawScore
