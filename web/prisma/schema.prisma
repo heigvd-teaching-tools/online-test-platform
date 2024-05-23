@@ -192,7 +192,7 @@ model MultipleChoice {
   questionId String   @id
   options    Option[]
 
-  gradingPolicy MultipleChoiceGradingPolicyType @default(ALL_OR_NOTHING)
+  gradingPolicy MultipleChoiceGradingPolicyType @default(GRADUAL_CREDIT)
   gradualCreditConfig MultipleChoiceGradualCreditConfig?
 
   activateStudentComment Boolean  @default(false) // Allow student to provide a comment/justification
