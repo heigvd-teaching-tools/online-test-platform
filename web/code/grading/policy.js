@@ -260,6 +260,7 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 
   breakdown({ solution, answer, totalPoints }) {
     const {
+      correctOptions,
       selectedCorrectOptions,
       selectedIncorrectOptions,
       unselectedIncorrectOptions,
@@ -279,12 +280,11 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       finalScore,
       breakdown: `### Multiple-Choice Gradual Credit Policy Breakdown
 #### Variables
-- Total Points: **${totalPoints}**
-- **TO** (Total Options): **${totalOptions}**
-- **Cs** (Correct Selected): **${selectedCorrectOptions}**
-- **Cm** (Correct Missed): **${unselectedCorrectOptions}**
-- **Is** (Incorrect Selected): **${selectedIncorrectOptions}**
-- **Im** (Incorrect Missed): **${unselectedIncorrectOptions}**
+- **P** (Total Points): **${totalPoints}**
+- **Cs** (Selected Correct): **${selectedCorrectOptions}**
+- **C** (Total Correct): **${correctOptions}**
+- **Is** (Selected Incorrect): **${selectedIncorrectOptions}**
+- **I** (Total Incorrect): **${unselectedIncorrectOptions}**
 - **CR** (Correctness Ratio): **${correctnessRatio.toFixed(2)}**
 - Threshold: **${threshold}%**
 - Negative Marking: **${negativeMarking ? 'Enabled' : 'Disabled'}**
@@ -292,22 +292,21 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 #### Calculation Breakdown:
 
 \`\`\`katex
-\\Large
-\\text{CR} = \\frac{Cs - Cm + Im - Is}{TO}
- = \\frac{${selectedCorrectOptions} - ${unselectedCorrectOptions} + ${unselectedIncorrectOptions} - ${selectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio?.toFixed(
-        2,
-      )}  
+\\large
+\\text{CR} = \\frac{\\text{Cs}}{\\text{C}} - \\frac{\\text{Is}}{\\text{I}} = \\frac{${selectedCorrectOptions}}{${correctOptions}} - \\frac{${selectedIncorrectOptions}}{${unselectedIncorrectOptions}} = ${correctnessRatio.toFixed(
+    2,
+)}
+
 \`\`\`
 
 \`\`\`katex
-\\Large
-\\text{Raw Score} = ${totalPoints} \\times ${correctnessRatio?.toFixed(
+\\large
+\\text{Raw Score} = \\text{P} \\times \\text{CR} = ${totalPoints} \\times ${correctnessRatio.toFixed(
         2,
-      )} = ${rawScore.toFixed(2)}  
+    )} = ${rawScore.toFixed(2)}
 \`\`\`  
 
 \`\`\`katex
-\\large
 \\text{Final Score} = 
 \\begin{cases} 
 0 & \\text{if CR} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
