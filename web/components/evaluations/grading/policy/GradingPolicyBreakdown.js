@@ -18,7 +18,7 @@ import { Typography } from '@mui/material'
 import GradingPolicy from '@/code/grading/policy'
 import MarkdownViewer from '@/components/input/markdown/MarkdownViewer'
 
-const GradingPolicyCalculation = ({
+const GradingPolicyBreakdown = ({
   questionType,
   gradingPolicy,
   maxPoints,
@@ -46,4 +46,4 @@ const GradingPolicyCalculation = ({
   )
 }
 
-export default GradingPolicyCalculation
+export default GradingPolicyBreakdown

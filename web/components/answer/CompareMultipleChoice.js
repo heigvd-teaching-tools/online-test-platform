@@ -19,7 +19,7 @@ import ResizePanel from '@/components/layout/utils/ResizePanel'
 import ScrollContainer from '../layout/ScrollContainer'
 import { useMemo } from 'react'
 import MultipleChoiceConfig from './multipleChoice/MultipleChoiceConfig'
-import GradingPolicyCalculation from '../evaluations/grading/policy/GradingPolicyCalculation'
+import GradingPolicyBreakdown from '../evaluations/grading/policy/GradingPolicyBreakdown'
 
 const StudentSelectionSummary = ({ solution, answer }) => {
   const missedCorrect = solution.options.filter(
@@ -69,7 +69,7 @@ const CompareMultipleChoice = ({
       <Stack direction={'row'} alignItems={'center'} spacing={1}>
         <StudentSelectionSummary solution={solution} answer={answer} />
         {!readOnly && (
-          <GradingPolicyCalculation
+          <GradingPolicyBreakdown
             questionType={question.type}
             gradingPolicy={question[question.type].gradingPolicy}
             maxPoints={maxPoints}
