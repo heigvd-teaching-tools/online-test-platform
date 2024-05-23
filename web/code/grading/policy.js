@@ -1,144 +1,148 @@
-import { QuestionType, MultipleChoiceGradingPolicyType } from "@prisma/client";
-import MultipleChoiceGradualCreditPolicyConfig from "@/components/question/type_specific/multiple-choice/MultipleChoiceGradualCreditPolicyConfig";
+/**
+ * Copyright 2022-2024 HEIG-VD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { QuestionType, MultipleChoiceGradingPolicyType } from '@prisma/client'
+import MultipleChoiceGradualCreditPolicyConfig from '@/components/question/type_specific/multiple-choice/MultipleChoiceGradualCreditPolicyConfig'
 
 class GradingPolicy {
+  static policies = {
+    [QuestionType.multipleChoice]: [],
+  }
 
-    static policies = {
-        [QuestionType.multipleChoice]: []
+  constructor({ label, documentation, policyType }) {
+    this.label = label
+    this.documentation = documentation
+    this.policyType = policyType
+  }
+
+  static addPolicy(policy) {
+    if (!GradingPolicy.policies[policy.constructor.questionType]) {
+      GradingPolicy.policies[policy.constructor.questionType] = []
     }
+    GradingPolicy.policies[policy.constructor.questionType].push(policy)
+  }
 
-    constructor({label, documentation, policyType}) {
-        this.label = label;
-        this.documentation = documentation;
-        this.policyType = policyType;
-    }
+  static getPolicy(questionType, policyType) {
+    return (
+      GradingPolicy.getPolicies(questionType)?.find(
+        (policy) => policy.policyType === policyType,
+      ) || null
+    )
+  }
 
-    static addPolicy(policy) {
-        if (!GradingPolicy.policies[policy.constructor.questionType]) {
-            GradingPolicy.policies[policy.constructor.questionType] = [];
-        }
-        GradingPolicy.policies[policy.constructor.questionType].push(policy);
-    }
+  static getPoliciesDict(questionType) {
+    return GradingPolicy.policies[questionType].map((policy) => {
+      return {
+        label: policy.label,
+        value: policy.policyType,
+      }
+    })
+  }
 
-    static getPolicy(questionType, policyType) {
-        return GradingPolicy.getPolicies(questionType)?.find(policy => policy.policyType === policyType) || null;
-    }
+  static getPolicies(questionType) {
+    return GradingPolicy.policies[questionType]
+  }
 
-    static getPoliciesDict(questionType) {
-        return GradingPolicy.policies[questionType].map(policy => {
-            return {
-                label: policy.label,
-                value: policy.policyType,
-            }
-        });
-    }
+  extract(solution, answer) {
+    throw new Error('Not implemented')
+  }
 
-    static getPolicies(questionType) {
-        return GradingPolicy.policies[questionType];
-    }
+  calculate(data) {
+    throw new Error('Not implemented')
+  }
 
-    extract(solution, answer) {
-        throw new Error("Not implemented");
-    }
+  breakdown(data) {
+    throw new Error('Not implemented')
+  }
 
-    calculate(data) {
-        throw new Error("Not implemented");
-    }
-
-    breakdown(data) {
-        throw new Error("Not implemented");
-    }
-
-    getConfigComponent(props) {
-        return null;  // Default implementation, no configuration component
-    }
-
+  getConfigComponent(props) {
+    return null // Default implementation, no configuration component
+  }
 }
-
 
 class MultipleChoicePolicy extends GradingPolicy {
-    static questionType = QuestionType.multipleChoice
+  static questionType = QuestionType.multipleChoice
 }
 
-
-
 class MultipleChoiceAllOrNothingPolicy extends MultipleChoicePolicy {
+  constructor({ label, documentation }) {
+    super({
+      label,
+      documentation,
+      policyType: MultipleChoiceGradingPolicyType.ALL_OR_NOTHING,
+    })
+    MultipleChoicePolicy.addPolicy(this)
+  }
 
-    constructor({
-        label, 
-        documentation,  
-    }) {
-        super({ label, documentation, policyType: MultipleChoiceGradingPolicyType.ALL_OR_NOTHING })
-        MultipleChoicePolicy.addPolicy(this)
+  extract(solution, answer) {
+    const correctOptions = solution.options.filter((option) => option.isCorrect)
+
+    const selectedOptions = answer.options
+
+    const incorrectOptions = solution.options.filter(
+      (option) => !option.isCorrect,
+    )
+
+    const selectedCorrectOptions = answer.options.filter((answer) =>
+      correctOptions.some((option) => option.id === answer.id),
+    )
+
+    const selectedIncorrectOptions = answer.options.filter((answer) =>
+      incorrectOptions.some((option) => option.id === answer.id),
+    )
+
+    return {
+      selectedOptions: selectedOptions,
+      correctOptions: correctOptions,
+      incorrectOptions: incorrectOptions.length,
+      selectedCorrectOptions: selectedCorrectOptions.length,
+      selectedIncorrectOptions: selectedIncorrectOptions.length,
     }
+  }
 
-    extract(solution, answer) {
-        const correctOptions = solution.options.filter((option) => option.isCorrect)
+  calculate({ solution, answer, totalPoints }) {
+    const { selectedOptions, correctOptions } = this.extract(solution, answer)
 
-        const selectedOptions = answer.options
+    const isAllCorrect =
+      correctOptions.length === selectedOptions.length &&
+      correctOptions.every((opt) =>
+        selectedOptions.some((aOpt) => aOpt.id === opt.id),
+      )
 
-        const incorrectOptions = solution.options.filter(
-            (option) => !option.isCorrect,
-        )
+    const finalScore = isAllCorrect ? totalPoints : 0
 
-        const selectedCorrectOptions = answer.options.filter((answer) =>
-            correctOptions.some((option) => option.id === answer.id),
-        )
+    return { finalScore, isCorrect: isAllCorrect }
+  }
 
-        const selectedIncorrectOptions = answer.options.filter((answer) =>
-            incorrectOptions.some((option) => option.id === answer.id),
-        )
+  breakdown({ solution, answer, totalPoints }) {
+    const {
+      correctOptions,
+      incorrectOptions,
+      selectedCorrectOptions,
+      selectedIncorrectOptions,
+    } = this.extract(solution, answer)
 
-        return {
-            selectedOptions: selectedOptions,
-            correctOptions: correctOptions,
-            incorrectOptions: incorrectOptions.length,
-            selectedCorrectOptions: selectedCorrectOptions.length,
-            selectedIncorrectOptions: selectedIncorrectOptions.length,
-        }
-    }
+    const { finalScore } = this.calculate({ solution, answer, totalPoints })
 
-    calculate({
-        solution, answer, totalPoints
-    }) {
+    const allCorrectOptionsSelected =
+      selectedCorrectOptions === correctOptions &&
+      selectedIncorrectOptions === 0
 
-        const {
-            selectedOptions,
-            correctOptions,
-        } = this.extract(solution, answer);
-
-        const isAllCorrect =
-            correctOptions.length === selectedOptions.length &&
-            correctOptions.every((opt) =>
-                selectedOptions.some((aOpt) => aOpt.id === opt.id),
-            )
-    
-        const finalScore = isAllCorrect ? totalPoints : 0
-        
-        return { finalScore, isCorrect: isAllCorrect }
-    }
-
-    breakdown({
-        solution, answer, totalPoints
-    }) {
-
-        const {
-            correctOptions,
-            incorrectOptions,
-            selectedCorrectOptions,
-            selectedIncorrectOptions,
-        } = this.extract(solution, answer);
-
-        const {
-            finalScore
-        } = this.calculate({ solution, answer, totalPoints });
-
-
-        const allCorrectOptionsSelected = selectedCorrectOptions === correctOptions && selectedIncorrectOptions === 0;
-
-        return {
-            finalScore,
-            breakdown: `### All-Or-Nothing Policy Calculation Breakdown
+    return {
+      finalScore,
+      breakdown: `### All-Or-Nothing Policy Calculation Breakdown
 
 #### Variables
 - Total Points: **${totalPoints}**
@@ -158,129 +162,129 @@ class MultipleChoiceAllOrNothingPolicy extends MultipleChoicePolicy {
 
 #### Calculation Breakdown:
 - All Correct Options Selected: **${allCorrectOptionsSelected ? 'Yes' : 'No'}**
-- Any Incorrect Options Selected: **${selectedIncorrectOptions > 0 ? 'Yes' : 'No'}**
+- Any Incorrect Options Selected: **${
+        selectedIncorrectOptions > 0 ? 'Yes' : 'No'
+      }**
 - **Final Score**: **${finalScore.toFixed(2)}**
-            `
-        }
+            `,
     }
+  }
 }
 
 class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
+  constructor({ label, documentation }) {
+    super({
+      label,
+      documentation,
+      policyType: MultipleChoiceGradingPolicyType.GRADUAL_CREDIT,
+    })
+    MultipleChoicePolicy.addPolicy(this)
+  }
 
-    constructor({
-            label, 
-            documentation,  
-    }) {
-        super({label, documentation, policyType: MultipleChoiceGradingPolicyType.GRADUAL_CREDIT})
-        MultipleChoicePolicy.addPolicy(this)
+  getConfigComponent(props) {
+    return <MultipleChoiceGradualCreditPolicyConfig {...props} />
+  }
+
+  extract(solution, answer) {
+    const totalOptions = solution.options.length
+
+    const correctOptions = solution.options.filter((option) => option.isCorrect)
+    const incorrectOptions = solution.options.filter(
+      (option) => !option.isCorrect,
+    )
+
+    const selectedCorrectOptions = answer.options.filter((answer) =>
+      correctOptions.some((option) => option.id === answer.id),
+    )
+
+    const selectedIncorrectOptions = answer.options.filter((answer) =>
+      incorrectOptions.some((option) => option.id === answer.id),
+    )
+
+    const unselectedCorrectOptions = correctOptions.filter(
+      (option) => !answer.options.some((answer) => answer.id === option.id),
+    )
+
+    const unselectedIncorrectOptions = incorrectOptions.filter(
+      (option) => !answer.options.some((answer) => answer.id === option.id),
+    )
+
+    const threshold = solution.gradualCreditConfig.threshold
+    const negativeMarking = solution.gradualCreditConfig.negativeMarking
+
+    return {
+      totalOptions: totalOptions,
+      correctOptions: correctOptions.length,
+      selectedCorrectOptions: selectedCorrectOptions.length,
+      unselectedCorrectOptions: unselectedCorrectOptions.length,
+      incorrectOptions: incorrectOptions.length,
+      selectedIncorrectOptions: selectedIncorrectOptions.length,
+      unselectedIncorrectOptions: unselectedIncorrectOptions.length,
+      threshold,
+      negativeMarking,
+    }
+  }
+
+  calculate({ solution, answer, totalPoints }) {
+    const {
+      totalOptions,
+      correctOptions,
+      selectedCorrectOptions,
+      unselectedCorrectOptions,
+      incorrectOptions,
+      selectedIncorrectOptions,
+      unselectedIncorrectOptions,
+      threshold,
+      negativeMarking,
+    } = this.extract(solution, answer, totalPoints)
+
+    const correctnessRatio =
+      selectedCorrectOptions / correctOptions -
+      selectedIncorrectOptions / incorrectOptions
+
+    const rawScore = totalPoints * correctnessRatio
+    let finalScore = rawScore
+
+    if (correctnessRatio < threshold / 100 && rawScore > 0) {
+      finalScore = 0
     }
 
-    getConfigComponent(props) {
-        return <MultipleChoiceGradualCreditPolicyConfig {...props} /> 
+    if (!negativeMarking) {
+      finalScore = Math.max(0, finalScore)
     }
 
-    extract(solution, answer) {
-        const totalOptions = solution.options.length
-        
-        const correctOptions = solution.options.filter((option) => option.isCorrect)
-        const incorrectOptions = solution.options.filter(
-            (option) => !option.isCorrect,
-        )
-        
-        const selectedCorrectOptions = answer.options.filter((answer) =>
-            correctOptions.some((option) => option.id === answer.id),
-        )
-        
-        const selectedIncorrectOptions = answer.options.filter((answer) =>
-            incorrectOptions.some((option) => option.id === answer.id),
-        )
-        
-        const unselectedCorrectOptions = correctOptions.filter(
-            (option) => !answer.options.some((answer) => answer.id === option.id),
-        )
-        
-        const unselectedIncorrectOptions = incorrectOptions.filter(
-            (option) => !answer.options.some((answer) => answer.id === option.id),
-        )
-        
-        const threshold = solution.gradualCreditConfig.threshold
-        const negativeMarking = solution.gradualCreditConfig.negativeMarking
-        
-        return {
-            totalOptions: totalOptions,
-            selectedCorrectOptions: selectedCorrectOptions.length,
-            unselectedCorrectOptions: unselectedCorrectOptions.length,
-            selectedIncorrectOptions: selectedIncorrectOptions.length,
-            unselectedIncorrectOptions: unselectedIncorrectOptions.length,
-            threshold,
-            negativeMarking,
-        }
-    }
+    finalScore = Math.round(finalScore * 100) / 100
 
-    calculate({
-        solution, answer, totalPoints
-    }) {
-    
-        const {
-            totalOptions, 
-            selectedCorrectOptions, 
-            unselectedCorrectOptions, 
-            selectedIncorrectOptions, 
-            unselectedIncorrectOptions, 
-            threshold, 
-            negativeMarking
-        } = this.extract(solution, answer, totalPoints);
+    return { finalScore, rawScore, correctnessRatio }
+  }
 
-        const correctnessRatio = 
-            (selectedCorrectOptions - unselectedCorrectOptions + unselectedIncorrectOptions - selectedIncorrectOptions) / 
-            (totalOptions)
+  breakdown({ solution, answer, totalPoints }) {
+    const {
+      selectedCorrectOptions,
+      selectedIncorrectOptions,
+      unselectedIncorrectOptions,
+      unselectedCorrectOptions,
+      totalOptions,
+      threshold,
+      negativeMarking,
+    } = this.extract(solution, answer, totalPoints)
 
-        const rawScore = totalPoints * correctnessRatio
-        let finalScore = rawScore
+    const { finalScore, rawScore, correctnessRatio } = this.calculate({
+      solution,
+      answer,
+      totalPoints,
+    })
 
-        if (correctnessRatio < threshold / 100 && rawScore > 0) {
-            finalScore = 0
-        }
-
-        if (!negativeMarking) {
-            finalScore = Math.max(0, finalScore)
-        }
-
-        finalScore = Math.round(finalScore * 100) / 100
-
-        return { finalScore, rawScore, correctnessRatio }
-    }
-  
-    breakdown({
-        solution, answer, totalPoints
-    }) {
-
-        const {
-            selectedCorrectOptions,
-            selectedIncorrectOptions,
-            unselectedIncorrectOptions,
-            unselectedCorrectOptions,
-            totalOptions,
-            threshold,
-            negativeMarking,
-        } = this.extract(solution, answer, totalPoints);
-
-        const {
-            finalScore,
-            rawScore,
-            correctnessRatio
-        } = this.calculate({ solution, answer, totalPoints });
-
-        return {
-            finalScore,
-            breakdown: `### Multiple-Choice Gradual Credit Policy Breakdown
+    return {
+      finalScore,
+      breakdown: `### Multiple-Choice Gradual Credit Policy Breakdown
 #### Variables
-- Total Points: **{totalPoints}**
+- Total Points: **${totalPoints}**
 - **TO** (Total Options): **${totalOptions}**
 - **Cs** (Correct Selected): **${selectedCorrectOptions}**
 - **Cm** (Correct Missed): **${unselectedCorrectOptions}**
-- **Im** (Incorrect Missed): **${unselectedIncorrectOptions}**
 - **Is** (Incorrect Selected): **${selectedIncorrectOptions}**
+- **Im** (Incorrect Missed): **${unselectedIncorrectOptions}**
 - **CR** (Correctness Ratio): **${correctnessRatio.toFixed(2)}**
 - Threshold: **${threshold}%**
 - Negative Marking: **${negativeMarking ? 'Enabled' : 'Disabled'}**
@@ -291,15 +295,15 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 \\Large
 \\text{CR} = \\frac{Cs - Cm + Im - Is}{TO}
  = \\frac{${selectedCorrectOptions} - ${unselectedCorrectOptions} + ${unselectedIncorrectOptions} - ${selectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio?.toFixed(
-    2,
-)}  
+        2,
+      )}  
 \`\`\`
 
 \`\`\`katex
 \\Large
 \\text{Raw Score} = ${totalPoints} \\times ${correctnessRatio?.toFixed(
-    2,
-  )} = ${rawScore.toFixed(2)}  
+        2,
+      )} = ${rawScore.toFixed(2)}  
 \`\`\`  
 
 \`\`\`katex
@@ -314,21 +318,20 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 
 
 #### Final Score: ${finalScore.toFixed(2)} pts
-`
-        }
+`,
     }
+  }
 }
 
 new MultipleChoiceAllOrNothingPolicy({
-    label: "All or Nothing",
-    documentation: `**All or Nothing** awards full points if all correct options are selected and no incorrect options are selected.
-`
+  label: 'All or Nothing',
+  documentation: `**All or Nothing** awards full points if all correct options are selected and no incorrect options are selected.
+`,
 })
 
-
 new MultipleChoiceGradualCreditPolicy({
-    label: "Gradual Credit",
-    documentation: `
+  label: 'Gradual Credit',
+  documentation: `
 **Gradual Credit** awards points based on the student's selection of correct and incorrect options:
 
 - Points are earned for each correct option chosen.
@@ -354,9 +357,7 @@ new MultipleChoiceGradualCreditPolicy({
 \\text{Raw Score} & \\text{otherwise}
 \\end{cases}
 \`\`\`
-`
+`,
 })
-
-
 
 export default GradingPolicy

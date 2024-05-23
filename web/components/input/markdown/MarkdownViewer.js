@@ -18,8 +18,7 @@ import MDEditor from '@uiw/react-md-editor'
 import { Box } from '@mui/material'
 import { previewOptions } from './previewOptions'
 
-const MarkdownViewer = ({ content, bgColor = "transparent" }) => {
-  
+const MarkdownViewer = ({ content, bgColor = 'transparent' }) => {
   return (
     <Box
       data-color-mode="light"

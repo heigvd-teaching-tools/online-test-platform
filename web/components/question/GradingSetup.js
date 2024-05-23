@@ -25,18 +25,13 @@ const GradingSetup = ({
   groupScope,
   questionId,
   questionType,
-  gradingPolicy:initial,
+  gradingPolicy: initial,
   onPropertyChange,
   onUpdate,
 }) => {
-  
-  const relatedPolicies = GradingPolicy.getPoliciesDict(
-    questionType
-  )
+  const relatedPolicies = GradingPolicy.getPoliciesDict(questionType)
 
-  const [gradingPolicy, setGradingPolicy] = useState(
-    initial,
-  )
+  const [gradingPolicy, setGradingPolicy] = useState(initial)
 
   useEffect(() => {
     setGradingPolicy(initial)
@@ -77,9 +72,9 @@ const GradingSetup = ({
             gradingPolicy,
           )}
           configProps={{
-            groupScope:groupScope,
-            questionId:questionId,
-            onUpdate:() => onUpdate()
+            groupScope: groupScope,
+            questionId: questionId,
+            onUpdate: () => onUpdate(),
           }}
         />
       </Stack>
@@ -87,30 +82,19 @@ const GradingSetup = ({
   )
 }
 
-const GradingPolicySetup = ({
-  gradingPolicyInstance,
-  configProps,
-}) => {
-
+const GradingPolicySetup = ({ gradingPolicyInstance, configProps }) => {
   const configComponent = gradingPolicyInstance.getConfigComponent(configProps)
 
   return (
     gradingPolicyInstance && (
       <Stack spacing={1}>
-      <Box p={1}>
-        <MarkdownViewer
-          content={gradingPolicyInstance.documentation}
-        />
-      </Box>
-      {
-        configComponent && (
-          configComponent
-        )
-      }
+        <Box p={1}>
+          <MarkdownViewer content={gradingPolicyInstance.documentation} />
+        </Box>
+        {configComponent && configComponent}
       </Stack>
     )
   )
 }
-
 
 export default GradingSetup

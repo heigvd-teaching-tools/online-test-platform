@@ -356,7 +356,7 @@ export const questionTypeSpecific = (
               ],
             },
             gradualCreditConfig: {
-              create: {}, // based on the default values 
+              create: {}, // based on the default values
             },
           }
         : {

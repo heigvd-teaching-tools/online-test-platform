@@ -97,7 +97,6 @@ const gradeDatabase = (totalPoints, studentAnswer) => {
 
 // Main grading function for multiple choice
 const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
-
   const policy = GradingPolicy.getPolicy(
     QuestionType.multipleChoice,
     question.multipleChoice.gradingPolicy,

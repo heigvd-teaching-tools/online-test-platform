@@ -25,28 +25,25 @@ const GradingPolicyCalculation = ({
   solution,
   answer,
 }) => {
-  const policy = GradingPolicy.getPolicy(
-    questionType,
-    gradingPolicy,
-  )
+  const policy = GradingPolicy.getPolicy(questionType, gradingPolicy)
 
   const { finalScore, breakdown } = policy.breakdown({
     solution,
     answer,
-    totalPoints:maxPoints
+    totalPoints: maxPoints,
   })
 
   return (
-      <UserHelpPopper
-        label={
-          <Typography variant="body2" color="textSecondary" noWrap>
-            {policy.label} <b>({finalScore}pts)</b>
-          </Typography>
-        }
-      >
-        <MarkdownViewer content={breakdown} />
-      </UserHelpPopper>
-    )
+    <UserHelpPopper
+      label={
+        <Typography variant="body2" color="textSecondary" noWrap>
+          {policy.label} <b>({finalScore}pts)</b>
+        </Typography>
+      }
+    >
+      <MarkdownViewer content={breakdown} />
+    </UserHelpPopper>
+  )
 }
 
 export default GradingPolicyCalculation
