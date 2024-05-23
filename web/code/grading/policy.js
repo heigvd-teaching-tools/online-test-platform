@@ -232,7 +232,7 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
         } = this.extract(solution, answer, totalPoints);
 
         const correctnessRatio = 
-            (selectedCorrectOptions + unselectedIncorrectOptions) / 
+            (selectedCorrectOptions - unselectedCorrectOptions + unselectedIncorrectOptions - selectedIncorrectOptions) / 
             (totalOptions)
 
         const rawScore = totalPoints * correctnessRatio
@@ -257,7 +257,9 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 
         const {
             selectedCorrectOptions,
+            selectedIncorrectOptions,
             unselectedIncorrectOptions,
+            unselectedCorrectOptions,
             totalOptions,
             threshold,
             negativeMarking,
@@ -275,8 +277,10 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 #### Variables
 - Total Points: **{totalPoints}**
 - **TO** (Total Options): **${totalOptions}**
-- **Cs** (Correct Selection): **${selectedCorrectOptions}**
-- **Cm** (Correct Miss): **${unselectedIncorrectOptions}**
+- **Cs** (Correct Selected): **${selectedCorrectOptions}**
+- **Cm** (Correct Missed): **${unselectedCorrectOptions}**
+- **Im** (Incorrect Missed): **${unselectedIncorrectOptions}**
+- **Is** (Incorrect Selected): **${selectedIncorrectOptions}**
 - **CR** (Correctness Ratio): **${correctnessRatio.toFixed(2)}**
 - Threshold: **${threshold}%**
 - Negative Marking: **${negativeMarking ? 'Enabled' : 'Disabled'}**
@@ -284,13 +288,9 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 #### Calculation Breakdown:
 
 \`\`\`katex
-\\huge
-\\frac{Cs - Cm}{\\text{TO}}
-\`\`\`
-
-\`\`\`katex
 \\Large
-\\text{CR} = \\frac{${selectedCorrectOptions} + ${unselectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio.toFixed(
+\\text{CR} = \\frac{Cs - Cm + Im - Is}{TO}
+ = \\frac{${selectedCorrectOptions} - ${unselectedCorrectOptions} + ${unselectedIncorrectOptions} - ${selectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio?.toFixed(
     2,
 )}  
 \`\`\`
