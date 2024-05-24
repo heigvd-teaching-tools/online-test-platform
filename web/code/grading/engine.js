@@ -97,6 +97,12 @@ const gradeDatabase = (totalPoints, studentAnswer) => {
 
 // Main grading function for multiple choice
 const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
+
+  if (studentAnswer === undefined) {
+    // When student joins the evaluation, the answer is undefined
+    return defaultGrading
+  }
+
   const policy = GradingPolicy.getPolicy(
     QuestionType.multipleChoice,
     question.multipleChoice.gradingPolicy,

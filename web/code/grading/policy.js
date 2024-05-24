@@ -137,7 +137,7 @@ class MultipleChoiceAllOrNothingPolicy extends MultipleChoicePolicy {
     const { finalScore } = this.calculate({ solution, answer, totalPoints })
 
     const allCorrectOptionsSelected =
-      selectedCorrectOptions === correctOptions &&
+      selectedCorrectOptions === correctOptions.length &&
       selectedIncorrectOptions === 0
 
     return {
