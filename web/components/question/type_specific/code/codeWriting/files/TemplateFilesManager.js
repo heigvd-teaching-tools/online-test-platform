@@ -127,7 +127,9 @@ const StudentPermissionConfig = ({ codeToTemplateFile, onFileUpdate }) => {
     <Stack direction="row" spacing={1} alignItems="center">
       {studentPermission === StudentPermission.HIDDEN && (
         <UserHelpPopper mode={'warning'} label={'No Sensitive Data!'}>
-          <AlertTitle>Do not put sensitive data in this file</AlertTitle>
+          <AlertTitle>
+            Storing sensitive data in hidden files is not recommended
+          </AlertTitle>
           <Stack spacing={1}>
             <Typography variant="body1">
               This file will not be served to students but will ultimately end
@@ -136,7 +138,6 @@ const StudentPermissionConfig = ({ codeToTemplateFile, onFileUpdate }) => {
             <Alert severity="warning">
               Nothing prevents the student to write code that reads this file
             </Alert>
-            
           </Stack>
         </UserHelpPopper>
       )}
