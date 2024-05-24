@@ -353,11 +353,13 @@ const PageGrading = () => {
 
   const isParticipantFilled = useCallback(
     (participant) => {
-      return ready &&
-      evaluationToQuestion &&
-      evaluationToQuestion.question.studentAnswer.find(
-        (answer) => answer.user.id === participant.id,
-      )?.studentGrading.signedBy
+      return (
+        ready &&
+        evaluationToQuestion &&
+        evaluationToQuestion.question.studentAnswer.find(
+          (answer) => answer.user.id === participant.id,
+        )?.studentGrading.signedBy
+      )
     },
     [evaluationToQuestion, ready],
   )
