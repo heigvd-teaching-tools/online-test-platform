@@ -294,8 +294,8 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 \`\`\`katex
 \\large
 \\text{CR} = \\frac{\\text{Cs}}{\\text{C}} - \\frac{\\text{Is}}{\\text{I}} = \\frac{${selectedCorrectOptions}}{${correctOptions}} - \\frac{${selectedIncorrectOptions}}{${unselectedIncorrectOptions}} = ${correctnessRatio.toFixed(
-    2,
-)}
+        2,
+      )}
 
 \`\`\`
 
@@ -303,7 +303,7 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 \\large
 \\text{Raw Score} = \\text{P} \\times \\text{CR} = ${totalPoints} \\times ${correctnessRatio.toFixed(
         2,
-    )} = ${rawScore.toFixed(2)}
+      )} = ${rawScore.toFixed(2)}
 \`\`\`  
 
 \`\`\`katex
