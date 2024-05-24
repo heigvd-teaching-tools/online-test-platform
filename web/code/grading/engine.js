@@ -18,12 +18,8 @@ import {
   QuestionType,
   DatabaseQueryOutputStatus,
   CodeQuestionType,
-  MultipleChoiceGradingPolicyType,
 } from '@prisma/client'
-import {
-  calculateAllOrNothingPoints,
-  calculateGradualCreditPoints,
-} from './calculation'
+import GradingPolicy from './policy'
 
 /*
     This function is used to grade a users answers to a question.
@@ -101,100 +97,25 @@ const gradeDatabase = (totalPoints, studentAnswer) => {
 
 // Main grading function for multiple choice
 const gradeMultipleChoice = (question, totalPoints, studentAnswer) => {
-  switch (question.multipleChoice.gradingPolicy) {
-    case MultipleChoiceGradingPolicyType.ALL_OR_NOTHING:
-      return gradeMultipleChoiceAllOrNothing(
-        question,
-        totalPoints,
-        studentAnswer,
-      )
-
-    case MultipleChoiceGradingPolicyType.GRADUAL_CREDIT:
-      return gradeMultipleChoiceGradualCredit(
-        question,
-        totalPoints,
-        studentAnswer,
-      )
-
-    default:
-      return defaultGrading
-  }
-}
-
-// Helper function for ALL_OR_NOTHING policy
-const gradeMultipleChoiceAllOrNothing = (
-  question,
-  totalPoints,
-  studentAnswer,
-) => {
-  let grading = defaultGrading
-
-  if (studentAnswer !== undefined) {
-    const correctOptions = question.multipleChoice.options.filter(
-      (opt) => opt.isCorrect,
-    )
-    const answerOptions = studentAnswer.options
-
-    const { finalScore } = calculateAllOrNothingPoints(
-      totalPoints,
-      correctOptions,
-      answerOptions,
-    )
-
-    grading = {
-      status: StudentQuestionGradingStatus.AUTOGRADED,
-      pointsObtained: finalScore,
-    }
+  if (studentAnswer === undefined) {
+    // When student joins the evaluation, the answer is undefined
+    return defaultGrading
   }
 
-  return grading
-}
+  const policy = GradingPolicy.getPolicy(
+    QuestionType.multipleChoice,
+    question.multipleChoice.gradingPolicy,
+  )
+  const { finalScore } = policy.calculate({
+    solution: question.multipleChoice,
+    answer: studentAnswer,
+    totalPoints: totalPoints,
+  })
 
-const gradeMultipleChoiceGradualCredit = (
-  question,
-  totalPoints,
-  studentAnswer,
-) => {
-  let grading = defaultGrading
-  if (studentAnswer !== undefined) {
-    const threshold = question.multipleChoice.gradualCreditConfig.threshold
-    const negativeMarking =
-      question.multipleChoice.gradualCreditConfig.negativeMarking
-
-    // Extract relevant data from question and student answer
-
-    const correctOptions = question.multipleChoice.options.filter(
-      (option) => option.isCorrect,
-    )
-    const incorrectOptions = question.multipleChoice.options.filter(
-      (option) => !option.isCorrect,
-    )
-
-    const selectedCorrectOptions = studentAnswer.options.filter((answer) =>
-      correctOptions.some((option) => option.id === answer.id),
-    )
-
-    const selectedIncorrectOptions = studentAnswer.options.filter((answer) =>
-      incorrectOptions.some((option) => option.id === answer.id),
-    )
-
-    const { finalScore } = calculateGradualCreditPoints(
-      totalPoints,
-      correctOptions.length,
-      incorrectOptions.length,
-      selectedCorrectOptions.length,
-      selectedIncorrectOptions.length,
-      threshold,
-      negativeMarking,
-    )
-
-    grading = {
-      status: StudentQuestionGradingStatus.AUTOGRADED,
-      pointsObtained: finalScore,
-    }
+  return {
+    status: StudentQuestionGradingStatus.AUTOGRADED,
+    pointsObtained: finalScore,
   }
-
-  return grading
 }
 
 const gradeTrueFalse = (question, totalPoints, studentAnswer) => {

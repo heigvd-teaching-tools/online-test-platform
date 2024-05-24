@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
-import { Button, MenuItem, Stack } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  MenuItem,
+  Stack,
+  Typography,
+} from '@mui/material'
 import FileEditor from '../../FileEditor'
 import { update, pull } from './crud'
 import DropDown from '../../../../../input/DropDown'
@@ -27,6 +34,7 @@ import { fetcher } from '../../../../../../code/utils'
 import ScrollContainer from '../../../../../layout/ScrollContainer'
 import { useDebouncedCallback } from 'use-debounce'
 import BottomCollapsiblePanel from '../../../../../layout/utils/BottomCollapsiblePanel'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 
 const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
   const {
@@ -92,26 +100,10 @@ const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
                   })
                 }}
                 secondaryActions={
-                  <Stack direction="row" spacing={1}>
-                    <DropDown
-                      id={`${codeToTemplateFile.file.id}-student-permission`}
-                      name="Student Permission"
-                      defaultValue={codeToTemplateFile.studentPermission}
-                      minWidth="200px"
-                      onChange={async (permission) => {
-                        codeToTemplateFile.studentPermission = permission
-                        await onFileUpdate(codeToTemplateFile)
-                      }}
-                    >
-                      <MenuItem value={StudentPermission.UPDATE}>
-                        Update
-                      </MenuItem>
-                      <MenuItem value={StudentPermission.VIEW}>View</MenuItem>
-                      <MenuItem value={StudentPermission.HIDDEN}>
-                        Hidden
-                      </MenuItem>
-                    </DropDown>
-                  </Stack>
+                  <StudentPermissionConfig
+                    codeToTemplateFile={codeToTemplateFile}
+                    onFileUpdate={onFileUpdate}
+                  />
                 }
               />
             ))}
@@ -119,6 +111,52 @@ const TemplateFilesManager = ({ groupScope, questionId, onUpdate }) => {
         </BottomCollapsiblePanel>
       )}
     </Loading>
+  )
+}
+
+const StudentPermissionConfig = ({ codeToTemplateFile, onFileUpdate }) => {
+  const [studentPermission, setStudentPermission] = useState(
+    codeToTemplateFile.studentPermission,
+  )
+
+  useEffect(() => {
+    setStudentPermission(codeToTemplateFile.studentPermission)
+  }, [codeToTemplateFile])
+
+  return (
+    <Stack direction="row" spacing={1} alignItems="center">
+      {studentPermission === StudentPermission.HIDDEN && (
+        <UserHelpPopper mode={'warning'} label={'No Sensitive Data!'}>
+          <AlertTitle>
+            Storing sensitive data in hidden files is not recommended
+          </AlertTitle>
+          <Stack spacing={1}>
+            <Typography variant="body1">
+              This file will not be served to students but will ultimately end
+              up in the sandbox container.
+            </Typography>
+            <Alert severity="warning">
+              Nothing prevents the student to write code that reads this file
+            </Alert>
+          </Stack>
+        </UserHelpPopper>
+      )}
+      <DropDown
+        id={`${codeToTemplateFile.file.id}-student-permission`}
+        name="Student Permission"
+        defaultValue={studentPermission}
+        minWidth="200px"
+        onChange={async (permission) => {
+          codeToTemplateFile.studentPermission = permission
+          await onFileUpdate(codeToTemplateFile)
+          setStudentPermission(permission)
+        }}
+      >
+        <MenuItem value={StudentPermission.UPDATE}>Update</MenuItem>
+        <MenuItem value={StudentPermission.VIEW}>View</MenuItem>
+        <MenuItem value={StudentPermission.HIDDEN}>Hidden</MenuItem>
+      </DropDown>
+    </Stack>
   )
 }
 

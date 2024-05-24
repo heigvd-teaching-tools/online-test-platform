@@ -355,6 +355,9 @@ export const questionTypeSpecific = (
                 { text: 'Option 2', isCorrect: true, order: 1 },
               ],
             },
+            gradualCreditConfig: {
+              create: {}, // based on the default values
+            },
           }
         : {
             gradingPolicy: question.multipleChoice.gradingPolicy,

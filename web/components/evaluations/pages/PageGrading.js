@@ -351,12 +351,18 @@ const PageGrading = () => {
     [evaluationToQuestion, participantId, ready],
   )
 
-  const grading =
-    ready &&
-    evaluationToQuestion &&
-    evaluationToQuestion.question.studentAnswer.find(
-      (sa) => sa.user.id === student.id,
-    ).studentGrading
+  const isParticipantFilled = useCallback(
+    (participant) => {
+      return (
+        ready &&
+        evaluationToQuestion &&
+        evaluationToQuestion.question.studentAnswer.find(
+          (answer) => answer.user.id === participant.id,
+        )?.studentGrading.signedBy
+      )
+    },
+    [evaluationToQuestion, ready],
+  )
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
@@ -452,9 +458,7 @@ const PageGrading = () => {
                             `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`,
                           )
                         }}
-                        isParticipantFilled={(participant) => {
-                          return grading && grading.signedBy
-                        }}
+                        isParticipantFilled={isParticipantFilled}
                       />
                       <Divider orientation="vertical" flexItem />
                       <AnswerCompare

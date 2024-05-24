@@ -17,11 +17,8 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import { Box } from '@mui/material'
 import { previewOptions } from './previewOptions'
-import { useTheme } from '@emotion/react'
 
-const MarkdownViewer = ({ content }) => {
-  const theme = useTheme()
-  const bgColor = theme.palette.background.default
+const MarkdownViewer = ({ content, bgColor = 'transparent' }) => {
   return (
     <Box
       data-color-mode="light"
@@ -29,6 +26,7 @@ const MarkdownViewer = ({ content }) => {
         '&[data-color-mode="light"] .wmde-markdown': {
           '--color-canvas-default': bgColor,
           backgroundColor: 'var(--color-canvas-default)',
+          fontSize: '13px',
         },
       }}
     >

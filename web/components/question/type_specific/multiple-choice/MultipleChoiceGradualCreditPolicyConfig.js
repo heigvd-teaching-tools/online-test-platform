@@ -23,9 +23,8 @@ import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 import { useDebouncedCallback } from 'use-debounce'
 import { fetcher } from '@/code/utils'
 import Loading from '@/components/feedback/Loading'
-import KatexBloc from '@/components/input/markdown/KatexBloc'
 
-const MultipleChoiceGradualCreditPolicy = ({
+const MultipleChoiceGradualCreditPolicyConfig = ({
   groupScope,
   questionId,
   onUpdate,
@@ -102,8 +101,6 @@ const MultipleChoiceGradualCreditPolicy = ({
     gradualCreditConfig?.threshold || 0,
   )
 
-  const [showFormula, setShowFormula] = useState(false)
-
   useEffect(() => {
     setNegativeMarking(gradualCreditConfig?.negativeMarking)
     setThreshold(gradualCreditConfig?.threshold)
@@ -112,59 +109,6 @@ const MultipleChoiceGradualCreditPolicy = ({
   return (
     <Loading loading={!gradualCreditConfig} errors={[error]}>
       <Stack spacing={1}>
-        <Alert severity="info">
-          <AlertTitle>Gradual Credit</AlertTitle>
-          <Typography variant="body1">
-            Gradual Credit awards points based on the student&apos;s selection
-            of correct and incorrect options:
-            <ul>
-              <li>Points are earned for each correct option chosen.</li>
-              <li>Points are lost for each incorrect option chosen.</li>
-              <li>
-                If the overall accuracy is below the set <b>threshold</b> and a
-                score is positive, final score will be zero.
-              </li>
-              <li>
-                If <b>negative marking</b> is disabled, final score will be at
-                least zero.
-              </li>
-              <li>
-                If <b>negative marking</b> is enabled, your final score can be
-                negative.
-              </li>
-            </ul>
-          </Typography>
-
-          <CheckboxLabel
-            label="Show formula"
-            checked={showFormula}
-            onChange={setShowFormula}
-          />
-          <Collapse in={showFormula}>
-            <Typography variant="caption">
-              <KatexBloc
-                code={`
-                \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
-              `}
-              />
-              <KatexBloc
-                code={`
-                \\text{Raw Score} = \\text{Total Points} \\times \\text{Correctness Ratio}
-                `}
-              />
-              <KatexBloc
-                code={`
-                \\text{Final Score} = 
-                \\begin{cases} 
-                0 & \\text{if Correctness Ratio} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
-                \\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
-                \\text{Raw Score} & \\text{otherwise}
-                \\end{cases}
-              `}
-              />
-            </Typography>
-          </Collapse>
-        </Alert>
         {negativeMarking !== undefined && (
           <Stack spacing={1} direction={'row'}>
             <CheckboxLabel
@@ -178,7 +122,7 @@ const MultipleChoiceGradualCreditPolicy = ({
                 })
               }}
             />
-            <UserHelpPopper>
+            <UserHelpPopper width={700} placement="top">
               <Alert severity="info">
                 <AlertTitle>Negative Marking</AlertTitle>
                 <Typography variant="body2">
@@ -221,18 +165,13 @@ const MultipleChoiceGradualCreditPolicy = ({
               rightAdornement={<Typography variant={'body1'}>%</Typography>}
             />
 
-            <UserHelpPopper width={700}>
+            <UserHelpPopper width={700} placement="top">
               <Alert severity="info">
                 <AlertTitle>Threshold for partial credit</AlertTitle>
                 <Typography variant="body2">
                   The correctness ratio must be greater than or equal to the
                   threshold to earn points.
                 </Typography>
-                <KatexBloc
-                  code={`
-                  \\text{Correctness Ratio} = \\left( \\frac{\\text{Selected Correct Options}}{\\text{Total Correct Options}} \\right) - \\left( \\frac{\\text{Selected Incorrect Options}}{\\text{Total Incorrect Options}} \\right)
-                `}
-                />
                 <Typography variant="body2">
                   The threshold only applies on positive scores.
                 </Typography>
@@ -245,4 +184,4 @@ const MultipleChoiceGradualCreditPolicy = ({
   )
 }
 
-export default MultipleChoiceGradualCreditPolicy
+export default MultipleChoiceGradualCreditPolicyConfig

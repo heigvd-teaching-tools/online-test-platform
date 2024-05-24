@@ -136,45 +136,7 @@ const ParticipantNav = ({
           />
         ))}
       </Stack>
-
-      <Tooltip title="CTRL+Up">
-        <Button
-          onClick={() => {
-            // previous participant
-            let index = participants.findIndex((p) => p.id === active.id)
-            if (index > 0) {
-              onParticipantClick(participants[index - 1])
-            }
-          }}
-        >
-          <Arrow orientation="up" />
-        </Button>
-      </Tooltip>
-      <Tooltip title="CTRL+Down">
-        <Button
-          onClick={() => {
-            // next participant
-            let index = participants.findIndex((p) => p.id === active.id)
-            if (index < participants.length - 1) {
-              onParticipantClick(participants[index + 1])
-            }
-          }}
-        >
-          <Arrow orientation="down" />
-        </Button>
-      </Tooltip>
     </Stack>
-  )
-}
-
-const Arrow = ({ orientation }) => {
-  return (
-    <Image
-      src={`/svg/grading/ctrl-${orientation}.svg`}
-      alt="Arrow"
-      width={16}
-      height={16}
-    />
   )
 }
 
