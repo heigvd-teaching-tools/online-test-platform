@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { use, useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import Authorization from '../../security/Authorization'
 import Loading from '../../feedback/Loading'
@@ -144,6 +144,8 @@ const PageProfConsult = () => {
     [evaluationToQuestions, selected],
   )
 
+  const readOnly = evaluation?.phase === EvaluationPhase.IN_PROGRESS
+
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading loading={!evaluation} error={[error]}>
@@ -189,6 +191,7 @@ const PageProfConsult = () => {
                   <Stack height={'100%'}>
                     <AnswerCompare
                       id={`answer-viewer-${selected.question.id}`}
+                      readOnly={readOnly}
                       student={selected.question.studentAnswer[0].user}
                       evaluationToQuestion={selected}
                       solution={selected.question[selected.question.type]}
@@ -203,7 +206,7 @@ const PageProfConsult = () => {
               }
               footer={
                 isDataReady &&
-                evaluation?.phase !== EvaluationPhase.IN_PROGRESS && (
+                !readOnly && (
                   <Stack
                     direction="row"
                     justifyContent="space-between"
