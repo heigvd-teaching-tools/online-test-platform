@@ -34,14 +34,15 @@ const PreviewPanel = ({ id, web }) => {
             <!DOCTYPE html>
             <html lang="en">
             <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>
-                ${css}
-            </style>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                  ${css}
+              </style>
             </head>
             <body style="margin:0;">
-            ${html}
-            <script>${js}</script>
+              ${html}
+              <script>${js}</script>
             </body>
             </html>
         `
@@ -68,6 +69,7 @@ const PreviewPanel = ({ id, web }) => {
     <Box height="100%" padding={2} position={'relative'}>
       <iframe
         ref={frame}
+        sandbox="allow-scripts"
         style={{
           width: '100%',
           minHeight: '100%',
