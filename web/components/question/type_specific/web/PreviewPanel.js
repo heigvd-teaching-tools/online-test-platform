@@ -15,60 +15,57 @@
  */
 import { useTheme } from '@emotion/react'
 import { Box } from '@mui/material'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
+
+const updateIframeContent = (frame, html = '', css = '', js = '') => {
+  if (frame.current) {
+    let iframe = frame.current
+
+    let fullHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                ${css}
+            </style>
+          </head>
+          <body style="margin:0;">
+            ${html}
+            <script>${js}</script>
+          </body>
+          </html>
+      `
+
+    const blob = new Blob([fullHtml], { type: 'text/html' })
+    const blobUrl = URL.createObjectURL(blob)
+
+    iframe.onload = () => {
+      URL.revokeObjectURL(blobUrl) // Release the Blob URL to free up resources
+    }
+
+    iframe.src = blobUrl // Update the iframe's content
+  }
+}
 
 const PreviewPanel = ({ id, web }) => {
   const theme = useTheme()
 
   const frame = useRef()
 
-  const updateIframeContent = useCallback(() => {
-    if (web && frame.current) {
-      let iframe = frame.current
-
-      let html = web.html || ''
-      let css = web.css || ''
-      let js = web.js || ''
-
-      let fullHtml = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <style>
-                  ${css}
-              </style>
-            </head>
-            <body style="margin:0;">
-              ${html}
-              <script>${js}</script>
-            </body>
-            </html>
-        `
-
-      const blob = new Blob([fullHtml], { type: 'text/html' })
-      const blobUrl = URL.createObjectURL(blob)
-
-      iframe.onload = () => {
-        URL.revokeObjectURL(blobUrl) // Release the Blob URL to free up resources
-      }
-
-      iframe.src = blobUrl // Update the iframe's content
-    }
-  }, [web])
-
   useEffect(() => {
     if (frame.current) {
       frame.current.src = 'about:blank' // Reset iframe content
-      updateIframeContent()
+      updateIframeContent(frame, web.html, web.css, web.js)
     }
-  }, [id, web, updateIframeContent])
+  }, [id, frame, web.html, web.css, web.js])
 
   return (
     <Box height="100%" padding={2} position={'relative'}>
       <iframe
         ref={frame}
+        title="Preview"
         sandbox="allow-scripts"
         style={{
           width: '100%',

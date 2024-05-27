@@ -21,6 +21,7 @@ import { fetcher } from '@/code/utils'
 const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
 
 const DeniedStudentsInEvaluation = ({
+  readOnly = false,
   groupScope,
   evaluation,
   onStudentAllowed,
@@ -39,6 +40,7 @@ const DeniedStudentsInEvaluation = ({
       <Loading loading={!students} errors={[errorStudents]}>
         {students?.userOnEvaluationDeniedAccessAttempt.length > 0 && (
           <DeniedStudentList
+            readOnly={readOnly}
             groupScope={groupScope}
             evaluationId={evaluation.id}
             title={`Denied students (${students?.userOnEvaluationDeniedAccessAttempt.length})`}

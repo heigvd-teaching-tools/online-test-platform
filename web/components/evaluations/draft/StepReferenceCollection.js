@@ -15,7 +15,13 @@
  */
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
-import { Stack, TextField, Autocomplete, Typography } from '@mui/material'
+import {
+  Stack,
+  TextField,
+  Autocomplete,
+  Typography,
+  AlertTitle,
+} from '@mui/material'
 
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import { fetcher } from '@/code/utils'
@@ -106,9 +112,15 @@ const StepReferenceCollection = ({
 
         {selectedCollection && (
           <AlertFeedback severity="info">
-            The reference collection contains{' '}
-            {selectedCollection.collectionToQuestions.length} questions. Their
-            copy will be assigned for this evaluation.
+            <AlertTitle>
+              The reference collection contains{' '}
+              {selectedCollection.collectionToQuestions.length} questions.
+            </AlertTitle>
+            <Typography variant="body1">
+              Upon saving, a <b>copy</b> of each question will be added to this
+              evaluation. Any changes made to the reference collection or its
+              questions will not affect this evaluation.
+            </Typography>
           </AlertFeedback>
         )}
 
@@ -124,7 +136,7 @@ const StepReferenceCollection = ({
 
         {evaluationQuestions && evaluationQuestions.length > 0 && (
           <AlertFeedback severity="success">
-            This evaluation has {evaluationQuestions.length} questions.
+            This evaluation contains {evaluationQuestions.length} questions.
           </AlertFeedback>
         )}
       </Stack>

@@ -35,7 +35,7 @@ export const runSQLFluffSandbox = async ({ sql, rules = '' }) => {
 
   const out = response.tests[0]?.output
 
-  return groupByViolations(JSON.parse(cleanUpDockerStreamHeaders(out)))
+  return groupByViolations(JSON.parse(cleanUpDockerStreamHeaders(out) || '[]'))
 }
 
 const groupByViolations = (lintResults) => {

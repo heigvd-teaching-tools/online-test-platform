@@ -36,6 +36,7 @@ const columns = [
 ]
 
 const DeniedStudentList = ({
+  readOnly = false,
   groupScope,
   evaluationId,
   title,
@@ -47,7 +48,7 @@ const DeniedStudentList = ({
       <Typography variant="h6">{title}</Typography>
       <Datagrid
         header={{
-          actions: {
+          actions: !readOnly && {
             label: 'Actions',
             width: '180px',
           },
@@ -57,7 +58,7 @@ const DeniedStudentList = ({
           ...student,
           meta: {
             key: student.user.id,
-            actions: [
+            actions: !readOnly && [
               <ButtonAddToAccessList
                 key="allow"
                 groupScope={groupScope}

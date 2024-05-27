@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import rehypeSanitize from 'rehype-sanitize'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import { getCodeString } from 'rehype-rewrite'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
@@ -21,8 +21,16 @@ import CodeBlock from './CodeBlock' // Use existing component for handling code 
 import MermaidBloc from './MermaidBloc' // Use existing component for handling Mermaid diagrams
 import GraphvizBloc from './GraphvizBloc'
 
+const customSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [...(defaultSchema.attributes.code || []), 'className'],
+  },
+}
+
 export const previewOptions = {
-  rehypePlugins: [[rehypeSanitize]],
+  rehypePlugins: [[rehypeSanitize, { schema: customSchema }]],
   components: {
     code: ({ children = [], className, node, ...props }) => {
       const position = node?.position || {}
