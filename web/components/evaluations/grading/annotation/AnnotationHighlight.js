@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box, Typography } from '@mui/material'
+import { Alert, Box, Stack, Typography } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 import ClickAwayListener from 'react-click-away-listener'
 import { AnnotationState, EditingState } from './types'
-import { Stack } from '@mui/system'
 import { useTheme } from '@emotion/react'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 
 const AnnotationHighlight = ({ readOnly, state, children }) => {
   const theme = useTheme()
@@ -77,9 +77,36 @@ const AnnotationHighlight = ({ readOnly, state, children }) => {
         onMouseLeave={() => onMouseLeave()}
         onClick={() => onClickHandler()}
       >
+          { editingState === EditingState.HOVER.value && (
+              <HoverInfoMessage />
+          )}
+
+
         {children}
       </Box>
     </ClickAwayListener>
+  )
+}
+
+const HoverInfoMessage = () => {
+  const theme = useTheme()
+  return (
+    <Stack position={'absolute'} top={0} right={0} zIndex={10000} bgcolor={theme.palette.background.paper} p={1}>
+      <UserHelpPopper label={'Start editing to provide feedback'}>
+          <Typography variant={'body1'}>
+              Feel free to annotate the student's answer with your feedback.
+          </Typography>
+          <Typography variant={'body1'}>
+              You can add comments to the student's proposal or even suggest fixes.
+          </Typography>
+          <Typography variant={'body1'}>
+              The original answer will be preserved.
+          </Typography>
+          <Typography variant={'body1'}>
+              Your feedback will be given to the student in the form of a code diff.
+          </Typography>
+      </UserHelpPopper>
+  </Stack>
   )
 }
 
