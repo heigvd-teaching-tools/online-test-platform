@@ -51,8 +51,8 @@ const StudentResultsGrid = ({
           ? data.successRate > 70
             ? theme.palette.success.main
             : data.successRate > 40
-            ? theme.palette.info.main
-            : theme.palette.error.main
+              ? theme.palette.info.main
+              : theme.palette.error.main
           : theme.palette.grey['300']
         const pointsObtained = data.pointsObtained
         const totalPoints = data.totalPoints

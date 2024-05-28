@@ -32,6 +32,7 @@ import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'
 const CollectionToQuestion = ({
   groupScope,
   collectionToQuestion,
+  indicator,
   onChange,
   onDelete,
 }) => {
@@ -112,6 +113,7 @@ const CollectionToQuestion = ({
             {collectionToQuestion.question.title}
           </Typography>
         </Stack>
+        {indicator && indicator}
 
         <Box minWidth={70} width={70}>
           <DecimalInput

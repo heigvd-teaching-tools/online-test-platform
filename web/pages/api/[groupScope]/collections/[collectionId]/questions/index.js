@@ -21,6 +21,7 @@ import {
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
 import { withCollectionUpdate } from '@/middleware/withUpdate'
+import { questionIncludeClause } from '@/code/questions'
 
 /*
 
@@ -90,7 +91,12 @@ const post = async (req, res, prisma) => {
       order: order,
     },
     include: {
-      question: true,
+      question: {
+        include: questionIncludeClause({
+          includeTypeSpecific: true,
+          includeOfficialAnswers: false,
+        }),
+      },
     },
   })
 

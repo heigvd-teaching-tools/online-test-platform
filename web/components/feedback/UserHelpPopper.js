@@ -46,6 +46,7 @@ const UserHelpPopper = ({
   const [open, setOpen] = useState(false)
 
   const handleToggle = (event) => {
+    event.stopPropagation()
     setAnchorEl(event.currentTarget)
     const newOpenState = !open
     setOpen(newOpenState)

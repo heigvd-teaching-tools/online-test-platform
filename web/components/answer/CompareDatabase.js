@@ -38,8 +38,8 @@ const ConsultQuery = ({ header, query, output }) => {
     return testPassed
       ? 'success'
       : studentOutput.status === DatabaseQueryOutputStatus.ERROR
-      ? 'error'
-      : 'warning'
+        ? 'error'
+        : 'warning'
   }
 
   return (

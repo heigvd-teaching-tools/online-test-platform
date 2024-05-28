@@ -41,7 +41,7 @@ const get = async (req, res, prisma) => {
         include: {
           question: {
             include: questionIncludeClause({
-              includeTypeSpecific: false,
+              includeTypeSpecific: true,
               includeOfficialAnswers: false,
             }),
           },

@@ -42,6 +42,7 @@ import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
+import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
 
 const PageFinished = () => {
   const router = useRouter()
@@ -125,7 +126,18 @@ const PageFinished = () => {
                 <TabPanel value={1}>
                   <Stack spacing={4}>
                     <JoinClipboard evaluationId={evaluationId} />
-
+                    <DeniedStudentsInEvaluation
+                      readOnly
+                      groupScope={groupScope}
+                      evaluation={evaluation}
+                      onStudentAllowed={async (_) => {
+                        mutateStudents()
+                        mutate()
+                        showSnackbar(
+                          'Student has been included in the access list',
+                        )
+                      }}
+                    />
                     <Stack
                       direction="row"
                       alignItems="center"

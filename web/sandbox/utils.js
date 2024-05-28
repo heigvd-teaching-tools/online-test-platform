@@ -60,6 +60,7 @@ export const pullImageIfNotExists = async (image) => {
 }
 
 export const cleanUpDockerStreamHeaders = (input) => {
+  if (typeof input !== 'string') return input
   /*
           The response contains some headers that we need to remove
           \x01 -> response comes from stdout
