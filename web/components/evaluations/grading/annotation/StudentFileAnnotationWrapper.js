@@ -151,7 +151,7 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
           state={state}
           onDiscard={discard}
         />
-        {hover && <HoverInfoMessage />}
+        {hover && state === 'NOT_ANNOTATED' && <HoverInfoMessage />}
       </Stack>
       <ResizePanel
         leftPanel={
@@ -192,32 +192,24 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
 
 
 const HoverInfoMessage = () => {
-  const theme = useTheme()
   return (
-    <Stack
-      position={'absolute'}
-      top={0}
-      right={0}
-      zIndex={10000}
-      bgcolor={theme.palette.background.paper}
-      p={1}
-    >
-      <UserHelpPopper label={'Start editing to provide feedback'}>
-        <Typography variant={'body1'}>
-          Feel free to annotate the student&apos;s answer with your feedback.
-        </Typography>
-        <Typography variant={'body1'}>
-          You can add comments to the student&apos;s proposal or even suggest
-          fixes.
-        </Typography>
-        <Typography variant={'body1'}>
-          The original answer will be preserved.
-        </Typography>
-        <Typography variant={'body1'}>
-          Your feedback will be given to the student in the form of a code diff.
-        </Typography>
-      </UserHelpPopper>
-    </Stack>
+    <Box pr={1}>
+    <UserHelpPopper label={'Start editing to provide feedback'}>
+      <Typography variant={'body1'}>
+        Feel free to annotate the student&apos;s answer with your feedback.
+      </Typography>
+      <Typography variant={'body1'}>
+        You can add comments to the student&apos;s proposal or even suggest
+        fixes.
+      </Typography>
+      <Typography variant={'body1'}>
+        The original answer will be preserved.
+      </Typography>
+      <Typography variant={'body1'}>
+        Your feedback will be given to the student in the form of a code diff.
+      </Typography>
+    </UserHelpPopper>
+    </Box>
   )
 }
 
