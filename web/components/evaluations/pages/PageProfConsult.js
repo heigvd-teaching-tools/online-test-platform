@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useRouter } from 'next/router'
-import { use, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import Authorization from '../../security/Authorization'
 import Loading from '../../feedback/Loading'

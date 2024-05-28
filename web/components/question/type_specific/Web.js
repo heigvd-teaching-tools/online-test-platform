@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Stack, Box, Tab, Tabs, Typography } from '@mui/material'
+import React, { useState, useEffect } from 'react'
+import { Stack, Tab, Tabs, Typography } from '@mui/material'
 
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'

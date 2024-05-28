@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
-import { QuestionType, Role } from '@prisma/client'
+import { CodeQuestionType, QuestionType, Role } from '@prisma/client'
 
 import Image from 'next/image'
 
@@ -54,6 +54,36 @@ import QuestionTagsViewer from '@/components/question/tags/QuestionTagsViewer'
 import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
+
+const codeQuestionComplianceCheck = (collectionToQuestions) => {
+  const warnings = {};
+
+  for(const collectionToQuestion of collectionToQuestions) {
+    // find other question of the type code of opposite code type and same language
+    if(collectionToQuestion.question.type == QuestionType.code) {
+        const warning = "The students can use the code writing code check feature to execute code reading snippets and get the outputs. This can lead to cheating. Please make sure that the code writing questions are not mixed with code reading questions in the same collection.";
+
+        const codeType = collectionToQuestion.question.code.codeType;
+        const language = collectionToQuestion.question.code.language;
+        const oppositeCodeType = codeType === CodeQuestionType.codeWriting ? CodeQuestionType.codeReading : CodeQuestionType.codeWriting;
+
+        const oppositeCodeQuestion = collectionToQuestions.filter(
+          (item) => item.question.type === 'code' && item.question.code.codeType === oppositeCodeType && item.question.code.language === language
+        );
+
+        if (oppositeCodeQuestion.length > 0) {
+          warnings[collectionToQuestion.question.id] = warning;
+          for(const oppositeQuestion of oppositeCodeQuestion) {
+            warnings[oppositeQuestion.question.id] = warning;
+          }
+        }
+    }
+  }
+
+  return warnings;
+}
+
 
 const PageCompose = () => {
   const router = useRouter()
@@ -176,6 +206,40 @@ const PageCompose = () => {
     [collectionToQuestions, setCollectionToQuestions],
   )
 
+  const complianceCheck = (collectionToQuestions) => {
+    const warnings = {};
+
+    for(const collectionToQuestion of collectionToQuestions) {
+      // find other question of the type code of opposite code type and same language
+      switch(collectionToQuestion.question.type) {
+        case 'code': {
+          Object.assign(warnings, codeQuestionComplianceCheck(collectionToQuestions));
+        }
+        default:
+          break;
+        
+      }
+    }
+  
+    return warnings;
+  };
+  
+
+  const getIndicator = useCallback((questionId) => {
+    const warnings = complianceCheck(collectionToQuestions);
+    const warningMessage = warnings[questionId];
+    if (warningMessage) {
+      return (
+        <UserHelpPopper
+          mode={"warning"}
+        >
+          {warningMessage}
+        </UserHelpPopper>
+      );
+    }
+    return null;
+  }, [collectionToQuestions]);
+
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading
@@ -212,6 +276,7 @@ const PageCompose = () => {
                                 groupScope={groupScope}
                                 key={collectionToQuestion.question.id}
                                 collectionToQuestion={collectionToQuestion}
+                                indicator={getIndicator(collectionToQuestion.question.id)}
                                 onDelete={() =>
                                   onDeleteCollectionToQuestion(index)
                                 }
