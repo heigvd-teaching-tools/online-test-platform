@@ -57,33 +57,39 @@ import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 
 const codeQuestionComplianceCheck = (collectionToQuestions) => {
-  const warnings = {};
+  const warnings = {}
 
-  for(const collectionToQuestion of collectionToQuestions) {
+  for (const collectionToQuestion of collectionToQuestions) {
     // find other question of the type code of opposite code type and same language
-    if(collectionToQuestion.question.type == QuestionType.code) {
-        const warning = "The students can use the code writing code check feature to execute code reading snippets and get the outputs. This can lead to cheating. Please make sure that the code writing questions are not mixed with code reading questions in the same collection.";
+    if (collectionToQuestion.question.type == QuestionType.code) {
+      const warning =
+        'The students may use the code writing code check feature to execute code reading snippets and get the outputs. This can lead to cheating. It is recommended to avoid mixing code reading and code writing questions of the same language in the same collection.'
 
-        const codeType = collectionToQuestion.question.code.codeType;
-        const language = collectionToQuestion.question.code.language;
-        const oppositeCodeType = codeType === CodeQuestionType.codeWriting ? CodeQuestionType.codeReading : CodeQuestionType.codeWriting;
+      const codeType = collectionToQuestion.question.code.codeType
+      const language = collectionToQuestion.question.code.language
+      const oppositeCodeType =
+        codeType === CodeQuestionType.codeWriting
+          ? CodeQuestionType.codeReading
+          : CodeQuestionType.codeWriting
 
-        const oppositeCodeQuestion = collectionToQuestions.filter(
-          (item) => item.question.type === 'code' && item.question.code.codeType === oppositeCodeType && item.question.code.language === language
-        );
+      const oppositeCodeQuestion = collectionToQuestions.filter(
+        (item) =>
+          item.question.type === 'code' &&
+          item.question.code.codeType === oppositeCodeType &&
+          item.question.code.language === language,
+      )
 
-        if (oppositeCodeQuestion.length > 0) {
-          warnings[collectionToQuestion.question.id] = warning;
-          for(const oppositeQuestion of oppositeCodeQuestion) {
-            warnings[oppositeQuestion.question.id] = warning;
-          }
+      if (oppositeCodeQuestion.length > 0) {
+        warnings[collectionToQuestion.question.id] = warning
+        for (const oppositeQuestion of oppositeCodeQuestion) {
+          warnings[oppositeQuestion.question.id] = warning
         }
+      }
     }
   }
 
-  return warnings;
+  return warnings
 }
-
 
 const PageCompose = () => {
   const router = useRouter()
@@ -207,38 +213,38 @@ const PageCompose = () => {
   )
 
   const complianceCheck = (collectionToQuestions) => {
-    const warnings = {};
+    const warnings = {}
 
-    for(const collectionToQuestion of collectionToQuestions) {
+    for (const collectionToQuestion of collectionToQuestions) {
       // find other question of the type code of opposite code type and same language
-      switch(collectionToQuestion.question.type) {
+      switch (collectionToQuestion.question.type) {
         case 'code': {
-          Object.assign(warnings, codeQuestionComplianceCheck(collectionToQuestions));
+          Object.assign(
+            warnings,
+            codeQuestionComplianceCheck(collectionToQuestions),
+          )
         }
         default:
-          break;
-        
+          break
       }
     }
-  
-    return warnings;
-  };
-  
 
-  const getIndicator = useCallback((questionId) => {
-    const warnings = complianceCheck(collectionToQuestions);
-    const warningMessage = warnings[questionId];
-    if (warningMessage) {
-      return (
-        <UserHelpPopper
-          mode={"warning"}
-        >
-          {warningMessage}
-        </UserHelpPopper>
-      );
-    }
-    return null;
-  }, [collectionToQuestions]);
+    return warnings
+  }
+
+  const getIndicator = useCallback(
+    (questionId) => {
+      const warnings = complianceCheck(collectionToQuestions)
+      const warningMessage = warnings[questionId]
+      if (warningMessage) {
+        return (
+          <UserHelpPopper mode={'warning'}>{warningMessage}</UserHelpPopper>
+        )
+      }
+      return null
+    },
+    [collectionToQuestions],
+  )
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
@@ -276,7 +282,9 @@ const PageCompose = () => {
                                 groupScope={groupScope}
                                 key={collectionToQuestion.question.id}
                                 collectionToQuestion={collectionToQuestion}
-                                indicator={getIndicator(collectionToQuestion.question.id)}
+                                indicator={getIndicator(
+                                  collectionToQuestion.question.id,
+                                )}
                                 onDelete={() =>
                                   onDeleteCollectionToQuestion(index)
                                 }

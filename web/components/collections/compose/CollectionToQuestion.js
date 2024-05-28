@@ -112,7 +112,6 @@ const CollectionToQuestion = ({
           <Typography variant="body2">
             {collectionToQuestion.question.title}
           </Typography>
-          
         </Stack>
         {indicator && indicator}
 
