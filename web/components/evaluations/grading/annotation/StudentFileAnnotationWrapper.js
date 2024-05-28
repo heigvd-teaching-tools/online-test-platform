@@ -107,7 +107,7 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
 
   const { readOnly, state, annotation, change, discard } = useAnnotation()
 
-  const [ hover, setHover ] = useState(false)
+  const [hover, setHover] = useState(false)
 
   const hasAnnotation = annotation?.content !== undefined
   const defaultViewMode = readOnly && hasAnnotation ? 'DIFF' : 'ANNOTATED'
@@ -130,7 +130,11 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
   const language = languageBasedOnPathExtension(file?.path)
 
   return (
-    <Stack position={'relative'} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <Stack
+      position={'relative'}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
       <Stack
         position={'sticky'}
         top={0}
@@ -151,7 +155,9 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
           state={state}
           onDiscard={discard}
         />
-        {hover && state === 'NOT_ANNOTATED' && <HoverInfoMessage />}
+        {hover && !readOnly && state === 'NOT_ANNOTATED' && (
+          <HoverInfoMessage />
+        )}
       </Stack>
       <ResizePanel
         leftPanel={
@@ -190,25 +196,24 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
   )
 }
 
-
 const HoverInfoMessage = () => {
   return (
     <Box pr={1}>
-    <UserHelpPopper label={'Start editing to provide feedback'}>
-      <Typography variant={'body1'}>
-        Feel free to annotate the student&apos;s answer with your feedback.
-      </Typography>
-      <Typography variant={'body1'}>
-        You can add comments to the student&apos;s proposal or even suggest
-        fixes.
-      </Typography>
-      <Typography variant={'body1'}>
-        The original answer will be preserved.
-      </Typography>
-      <Typography variant={'body1'}>
-        Your feedback will be given to the student in the form of a code diff.
-      </Typography>
-    </UserHelpPopper>
+      <UserHelpPopper label={'Start editing to provide feedback'}>
+        <Typography variant={'body1'}>
+          Feel free to annotate the student&apos;s answer with your feedback.
+        </Typography>
+        <Typography variant={'body1'}>
+          You can add comments to the student&apos;s proposal or even suggest
+          fixes.
+        </Typography>
+        <Typography variant={'body1'}>
+          The original answer will be preserved.
+        </Typography>
+        <Typography variant={'body1'}>
+          Your feedback will be given to the student in the form of a code diff.
+        </Typography>
+      </UserHelpPopper>
     </Box>
   )
 }
