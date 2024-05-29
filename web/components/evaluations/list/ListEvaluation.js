@@ -170,6 +170,12 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
       }))}
       groupings={[
         {
+          groupBy: 'updatedAt',
+          option: 'Last Update',
+          type: 'date',
+          renderLabel: (row) => weeksAgo(row.label),
+        },
+        {
           groupBy: 'phase',
           option: 'Phase',
           type: 'element',
@@ -178,12 +184,6 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
               <DisplayPhase phase={row.label} />
             </Box>
           ),
-        },
-        {
-          groupBy: 'updatedAt',
-          option: 'Last Update',
-          type: 'date',
-          renderLabel: (row) => weeksAgo(row.label),
         },
       ]}
     />
