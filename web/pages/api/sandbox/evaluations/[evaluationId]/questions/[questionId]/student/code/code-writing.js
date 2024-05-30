@@ -26,7 +26,6 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
-import order from '@/pages/api/[groupScope]/collections/[collectionId]/order'
 
 /*
  endpoint to run the code sandbox for a users (generally students) answers
