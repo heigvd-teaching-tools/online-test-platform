@@ -25,6 +25,7 @@ import BottomPanelHeader from '@/components/layout/utils/BottomPanelHeader'
 import BottomPanelContent from '@/components/layout/utils/BottomPanelContent'
 
 import TestCaseResults from './TestCaseResults'
+import { fontSize } from '@mui/system'
 
 const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
   const { show: showSnackbar } = useSnackbar()
@@ -93,13 +94,15 @@ const CodeCheck = ({ codeCheckAction, lockCodeCheck = false }) => {
                   variant="filled"
                   fullWidth
                   multiline
-                  maxRows={12}
+                  maxRows={15}
                   focused
                   color="info"
                   label="Console"
                   value={beforeAll}
                   InputProps={{
                     readOnly: true,
+                    // monospace font
+                    style: { fontFamily: 'monospace' },
                   }}
                 />
               </Stack>
