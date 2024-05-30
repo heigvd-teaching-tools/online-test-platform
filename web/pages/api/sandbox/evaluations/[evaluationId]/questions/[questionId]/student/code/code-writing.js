@@ -26,6 +26,7 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
+import order from '@/pages/api/[groupScope]/collections/[collectionId]/order'
 
 /*
  endpoint to run the code sandbox for a users (generally students) answers
@@ -48,7 +49,11 @@ const post = withEvaluationPhase(
           sandbox: true,
           codeWriting: {
             select: {
-              testCases: true,
+              testCases: {
+                orderBy: {
+                  index: 'asc',
+                },
+              },
               solutionFiles: true, // to get the hidden files
             },
           },
