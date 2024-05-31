@@ -176,7 +176,6 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChange }) => {
                     query={query}
                     onChange={(query) => handleChange(query)}
                   />
-
                   <StudentOutputDisplay
                     order={query.order}
                     testQuery={query.testQuery}
