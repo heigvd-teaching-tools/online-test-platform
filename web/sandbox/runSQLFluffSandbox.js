@@ -18,7 +18,8 @@ import { runSandbox } from './runSandboxTC.js'
 
 export const runSQLFluffSandbox = async ({ sql, rules = '' }) => {
   const response = await runSandbox({
-    image: 'custom-sqlfluff',
+    image:
+      'ghcr.io/heigvd-teaching-tools/database-sandbox-image/sqlfluff-linter',
     files: [
       {
         path: '.sqlfluff',
@@ -33,9 +34,13 @@ export const runSQLFluffSandbox = async ({ sql, rules = '' }) => {
     ],
   })
 
-  const out = response.tests[0]?.output
-
-  return groupByViolations(JSON.parse(cleanUpDockerStreamHeaders(out) || '[]'))
+  const out = response.tests[0]?.output || ''
+  return {
+    console: response.beforeAll,
+    violations: groupByViolations(
+      JSON.parse(cleanUpDockerStreamHeaders(out) || '[]'),
+    ),
+  }
 }
 
 const groupByViolations = (lintResults) => {

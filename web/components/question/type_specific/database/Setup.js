@@ -15,7 +15,8 @@
  */
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-import { Stack, TextField, Typography } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
+import DockerImageField from '@/components/input/DockerImageField'
 
 const Setup = ({ groupScope, questionId, database, onChange }) => {
   const [image, setImage] = useState(database?.image)
@@ -43,16 +44,14 @@ const Setup = ({ groupScope, questionId, database, onChange }) => {
   return (
     <Stack spacing={2}>
       <Typography variant="h6">Sandbox</Typography>
-      <TextField
-        id="image"
-        label="Image"
-        variant="standard"
-        value={image}
-        onChange={(ev) => {
-          setImage(ev.target.value)
+
+      <DockerImageField
+        image={image}
+        onChange={(newImage) => {
+          setImage(newImage)
           const newDatabase = {
             ...database,
-            image: ev.target.value,
+            image: newImage,
           }
           onChange && onChange(newDatabase)
           debouncedOnChange(newDatabase)

@@ -81,7 +81,7 @@ const post = async (req, res, prisma) => {
             id: query.id,
           },
           data: {
-            lintResult: !lintResult ? Prisma.JsonNull : lintResult,
+            lintResult: !lintResult ? Prisma.JsonNull : lintResult.violations,
           },
         })
       }

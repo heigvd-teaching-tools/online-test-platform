@@ -58,6 +58,7 @@ const TestCaseResult = ({ result }) => {
           value={result.exec}
           InputProps={{
             readOnly: true,
+            style: { fontFamily: 'monospace' },
           }}
           variant="standard"
           focused
