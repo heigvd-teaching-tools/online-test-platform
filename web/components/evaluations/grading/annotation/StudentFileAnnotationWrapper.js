@@ -107,8 +107,6 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
 
   const { readOnly, state, annotation, change, discard } = useAnnotation()
 
-  const [hover, setHover] = useState(false)
-
   const hasAnnotation = annotation?.content !== undefined
   const defaultViewMode = readOnly && hasAnnotation ? 'DIFF' : 'ANNOTATED'
 
@@ -130,11 +128,7 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
   const language = languageBasedOnPathExtension(file?.path)
 
   return (
-    <Stack
-      position={'relative'}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
+    <Stack position={'relative'}>
       <Stack
         position={'sticky'}
         top={0}
@@ -155,9 +149,7 @@ const StudentFileAnnotationWrapper = ({ file: original }) => {
           state={state}
           onDiscard={discard}
         />
-        {hover && !readOnly && state === 'NOT_ANNOTATED' && (
-          <HoverInfoMessage />
-        )}
+        {!readOnly && state === 'NOT_ANNOTATED' && <HoverInfoMessage />}
       </Stack>
       <ResizePanel
         leftPanel={
