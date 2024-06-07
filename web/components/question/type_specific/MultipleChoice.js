@@ -118,9 +118,9 @@ const MultipleChoiceOptionUpdate = ({
 
   useEffect(() => {
     setText(option.text)
-  }, [option])
+  }, [option?.text])
 
-  const debounceOnChange = useDebouncedCallback(onChangeOption, 500)
+  const debounceOnChange = useDebouncedCallback(onChangeOption, 1000)
 
   return (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ flex: 1 }}>
