@@ -82,6 +82,7 @@ const MultipleChoice = ({
       <ReorderableList onChangeOrder={onReorder}>
         {options?.map((option, index) => (
           <MultipleChoiceOptionUpdate
+            id={option.id}
             key={index}
             round={round}
             option={option}
@@ -108,6 +109,7 @@ const MultipleChoice = ({
 }
 
 const MultipleChoiceOptionUpdate = ({
+  id,
   round = false,
   option,
   onSelect,
@@ -118,9 +120,9 @@ const MultipleChoiceOptionUpdate = ({
 
   useEffect(() => {
     setText(option.text)
-  }, [option])
+  }, [option.text])
 
-  const debounceOnChange = useDebouncedCallback(onChangeOption, 500)
+  const debounceOnChange = useDebouncedCallback(onChangeOption, 1000)
 
   return (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ flex: 1 }}>
