@@ -53,10 +53,7 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
         )
 
         let pointsObtained = '-'
-        if (
-          studentAnswer?.studentGrading &&
-          studentAnswer.studentGrading.signedBy
-        ) {
+        if (studentAnswer?.studentGrading) {
           pointsObtained = dotToComma(
             studentAnswer.studentGrading.pointsObtained,
           )
