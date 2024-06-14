@@ -366,3 +366,44 @@ Goto Danger Zone / Change package visibility
 #### Use the image in the code check 
 
 Use `ghcr.io/heigvd-teaching-tools/code-check-image/cpp-cunit:latest` in the image field of the Code question.
+
+
+
+# Server Scheduled Tasks
+
+We need 2 scheduled tasks running on the server.
+
+The database backup and the the docker disk space cleanup.
+
+To list all existing cron jobs, use the following command:
+
+```bash
+crontab -l
+```
+
+To edit the cron jobs, use the following command:
+
+```bash
+crontab -e
+```
+
+## Cron jobs
+
+```
+0 3 * * * cd ~/crons/db_scheduled_backup && bash pg_backup.sh >> ~/crons/db_scheduled_backup/pg_backup.log 2>&1
+0 0 * * 0 cd ~/crons && bash cleanup_disk_space.sh >> ~/crons/cleanup_disk_space.log 2>&1
+```
+
+Make sure each script writes its own log file for debugging purposes.
+
+Add these 2 lines in crontab to schedule the tasks. Make sure the related scripts are in the correct folder.
+You can copy these scripts from /scripts folder in the repository.
+
+Update, save and exit the file to apply the changes.
+
+- Go to the line you want to edit
+- Press `i` to enter the insert mode
+- Make the changes
+- Press `ESC` to exit the insert mode
+- Type `:wq` to save and exit the file
+
