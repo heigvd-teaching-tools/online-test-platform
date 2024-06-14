@@ -8,10 +8,6 @@ docker image prune -a -f
 echo "Cleaning up Docker build cache..."
 docker builder prune -a -f
 
-# Cleanup Docker volumes
-echo "Cleaning up unused Docker volumes..."
-docker volume prune -f
-
 # Display Docker disk usage after cleanup
 echo "Docker disk usage after cleanup:"
 docker system df
