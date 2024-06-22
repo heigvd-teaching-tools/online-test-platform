@@ -1,5 +1,3 @@
-import { withMethodHandler } from "@/middleware/withAuthorization"
-
 /**
  * Copyright 2022-2024 HEIG-VD
  *
@@ -15,11 +13,12 @@ import { withMethodHandler } from "@/middleware/withAuthorization"
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withMethodHandler } from '@/middleware/withAuthorization'
+
 const get = async (_, res) => {
-    res.status(200).json({ message: 'Connection check successful' })
+  res.status(200).json({ message: 'Connection check successful' })
 }
 
 export default withMethodHandler({
-    GET: get,
+  GET: get,
 })
-  
