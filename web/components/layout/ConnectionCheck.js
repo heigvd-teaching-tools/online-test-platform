@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import useSWR from 'swr'
 import { Stack, Typography } from '@mui/material'
 import Overlay from '../ui/Overlay'
 import StatusDisplay from '../feedback/StatusDisplay'
 import { fetcher } from '@/code/utils'
+import { Box } from '@mui/system'
 
 const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
 const CHECK_URL = '/api/conn_check' // URL to test connection
 
 const ConnectionCheck = () => {
   const [isOnline, setIsOnline] = useState(true)
+  const overlayRef = useRef(null)
 
   const { data, error } = useSWR(CHECK_URL, fetcher, {
     refreshInterval: PING_INTERVAL,
@@ -58,16 +60,24 @@ const ConnectionCheck = () => {
     }
   }, [data, error])
 
+  useEffect(() => {
+    if (!isOnline && overlayRef.current) {
+      overlayRef.current.focus()
+    }
+  }, [isOnline])
+
   return (
     <>
       {!isOnline && (
         <Overlay>
-          <Stack alignItems={'center'} spacing={2} justifyContent={'center'}>
-            <StatusDisplay size={96} status={'WIFI-OFF'} />
-            <Typography variant="h4" color="error">
-              Connection lost
-            </Typography>
-          </Stack>
+          <Box ref={overlayRef} tabIndex={-1} style={{ outline: 'none' }}>
+            <Stack alignItems={'center'} spacing={2} justifyContent={'center'}>
+              <StatusDisplay size={96} status={'WIFI-OFF'} />
+              <Typography variant="h4" color="error">
+                Connection lost
+              </Typography>
+            </Stack>
+          </Box>
         </Overlay>
       )}
     </>
