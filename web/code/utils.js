@@ -53,11 +53,11 @@ const fetchWithTimeout = (fetcher, url, options = {}, timeout = 1000) => {
     }, timeout)
 
     fetcher(url, options)
-      .then(response => {
+      .then((response) => {
         clearTimeout(timer)
         resolve(response)
       })
-      .catch(err => {
+      .catch((err) => {
         clearTimeout(timer)
         reject(err)
       })
@@ -65,11 +65,15 @@ const fetchWithTimeout = (fetcher, url, options = {}, timeout = 1000) => {
 }
 
 export const fetcherWithTimeout = (timeout) => {
-
   return async (url) => {
-    console.log("timeout", timeout)
+    console.log('timeout', timeout)
     try {
-      const res = await fetchWithTimeout(fetcher, url, { method: 'GET' }, timeout) // Use custom timeout
+      const res = await fetchWithTimeout(
+        fetcher,
+        url,
+        { method: 'GET' },
+        timeout,
+      ) // Use custom timeout
 
       // Return the parsed data.
       return res
@@ -84,10 +88,7 @@ export const fetcherWithTimeout = (timeout) => {
       throw error
     }
   }
-
 }
-
-
 
 /*
 this link send to users to the PageDispatch which decides (using api evaluation/id/dispatch endpoint) where the users should be directed

@@ -18,18 +18,21 @@ import useSWR from 'swr'
 import { Box, Stack, Typography } from '@mui/material'
 import Overlay from '../ui/Overlay'
 import StatusDisplay from '../feedback/StatusDisplay'
-import { fetcherWithTimeout   } from '@/code/utils'
-
+import { fetcherWithTimeout } from '@/code/utils'
 
 const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
+const CONNECTION_TIMEOUT = 1000 // Time given to check request to finish
+/*
+Every PING_INTERVAL we should connect in under CONNECTION_TIMEOUT
+
+*/
 const CHECK_URL = '/api/conn_check' // URL to test connection
 
 const ConnectionCheck = () => {
   const [isOnline, setIsOnline] = useState(true)
   const overlayRef = useRef(null)
 
-  const fetcher = fetcherWithTimeout(1000)
-
+  const fetcher = fetcherWithTimeout(CONNECTION_TIMEOUT)
 
   const { data, error } = useSWR(CHECK_URL, fetcher, {
     refreshInterval: PING_INTERVAL,
