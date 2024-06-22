@@ -15,11 +15,11 @@
  */
 import React, { useState, useEffect, useRef } from 'react'
 import useSWR from 'swr'
-import { Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import Overlay from '../ui/Overlay'
 import StatusDisplay from '../feedback/StatusDisplay'
 import { fetcher } from '@/code/utils'
-import { Box } from '@mui/system'
+
 
 const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
 const CHECK_URL = '/api/conn_check' // URL to test connection
