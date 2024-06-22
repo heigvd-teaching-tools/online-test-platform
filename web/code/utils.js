@@ -66,7 +66,6 @@ const fetchWithTimeout = (fetcher, url, options = {}, timeout = 1000) => {
 
 export const fetcherWithTimeout = (timeout) => {
   return async (url) => {
-    console.log('timeout', timeout)
     try {
       const res = await fetchWithTimeout(
         fetcher,
