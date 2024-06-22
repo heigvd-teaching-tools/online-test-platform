@@ -21,7 +21,7 @@ import StatusDisplay from '../feedback/StatusDisplay'
 import { fetcherWithTimeout } from '@/code/utils'
 
 const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
-const CONNECTION_TIMEOUT = 1000 // Time given to check request to finish
+const CONNECTION_TIMEOUT = 2000 // Time given to check request to finish
 const fetcher = fetcherWithTimeout(CONNECTION_TIMEOUT)
 /*
 Every PING_INTERVAL we should connect in under CONNECTION_TIMEOUT
