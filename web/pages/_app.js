@@ -94,7 +94,8 @@ const theme = createTheme(themeOptions)
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
-    <ThemeProvider theme={theme}>$
+    <ThemeProvider theme={theme}>
+      $
       <ConnectionCheck />
       <SessionProvider session={session}>
         <SnackbarProvider>
