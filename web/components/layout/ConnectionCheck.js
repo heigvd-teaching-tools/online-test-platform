@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 import React, { useState, useEffect } from 'react'
+import useSWR from 'swr'
 import { Stack, Typography } from '@mui/material'
 import Overlay from '../ui/Overlay'
 import StatusDisplay from '../feedback/StatusDisplay'
+import { fetcher } from '@/code/utils'
+
+const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
+const CHECK_URL = '/api/conn_check' // URL to test connection
 
 const ConnectionCheck = () => {
-  const [isOnline, setIsOnline] = useState(true) // Initialize to true to avoid showing overlay initially
+  const [isOnline, setIsOnline] = useState(true)
+
+  const { data, error } = useSWR(CHECK_URL, fetcher, {
+    refreshInterval: PING_INTERVAL,
+    shouldRetryOnError: true,
+  })
 
   const setOnline = () => setIsOnline(true)
   const setOffline = () => setIsOnline(false)
 
   useEffect(() => {
-    setIsOnline(navigator.onLine)
+    if (navigator.onLine) {
+      setOnline()
+    } else {
+      setOffline()
+    }
 
     window.addEventListener('online', setOnline)
     window.addEventListener('offline', setOffline)
@@ -35,6 +49,14 @@ const ConnectionCheck = () => {
       window.removeEventListener('offline', setOffline)
     }
   }, [])
+
+  useEffect(() => {
+    if (error) {
+      setOffline()
+    } else {
+      setOnline()
+    }
+  }, [data, error])
 
   return (
     <>
