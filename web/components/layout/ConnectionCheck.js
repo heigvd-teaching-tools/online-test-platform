@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 import React, { useState, useEffect } from 'react'
-import StatusDisplay from '../../../feedback/StatusDisplay'
 import { Stack, Typography } from '@mui/material'
+import Overlay from '../ui/Overlay'
+import StatusDisplay from '../feedback/StatusDisplay'
 
-const ConnectionIndicator = () => {
-  const [isOnline, setIsOnline] = useState(false)
+const ConnectionCheck = () => {
+  const [isOnline, setIsOnline] = useState(true) // Initialize to true to avoid showing overlay initially
 
   const setOnline = () => setIsOnline(true)
   const setOffline = () => setIsOnline(false)
@@ -36,22 +37,19 @@ const ConnectionIndicator = () => {
   }, [])
 
   return (
-    <Stack
-      display={isOnline ? 'none' : 'flex'}
-      direction="row"
-      alignItems="center"
-      spacing={1}
-    >
-      <StatusDisplay size={18} status={isOnline ? 'WIFI-ON' : 'WIFI-OFF'} />
-      <Typography
-        variant="caption"
-        color={isOnline ? 'success' : 'error'}
-        noWrap
-      >
-        {isOnline ? 'Online' : 'Connection lost'}
-      </Typography>
-    </Stack>
+    <>
+      {!isOnline && (
+        <Overlay>
+          <Stack alignItems={'center'} spacing={2} justifyContent={'center'}>
+            <StatusDisplay size={96} status={'WIFI-OFF'} />
+            <Typography variant="h4" color="error">
+              Connection lost
+            </Typography>
+          </Stack>
+        </Overlay>
+      )}
+    </>
   )
 }
 
-export default ConnectionIndicator
+export default ConnectionCheck
