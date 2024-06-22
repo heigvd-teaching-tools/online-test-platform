@@ -18,7 +18,7 @@ import useSWR from 'swr'
 import { Box, Stack, Typography } from '@mui/material'
 import Overlay from '../ui/Overlay'
 import StatusDisplay from '../feedback/StatusDisplay'
-import { fetcher } from '@/code/utils'
+import { fetcherWithTimeout   } from '@/code/utils'
 
 
 const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
@@ -27,6 +27,9 @@ const CHECK_URL = '/api/conn_check' // URL to test connection
 const ConnectionCheck = () => {
   const [isOnline, setIsOnline] = useState(true)
   const overlayRef = useRef(null)
+
+  const fetcher = fetcherWithTimeout(1000)
+
 
   const { data, error } = useSWR(CHECK_URL, fetcher, {
     refreshInterval: PING_INTERVAL,

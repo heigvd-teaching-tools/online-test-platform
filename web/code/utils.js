@@ -45,6 +45,50 @@ export const fetcher = async (url) => {
   // Return the parsed data.
   return data
 }
+
+const fetchWithTimeout = (fetcher, url, options = {}, timeout = 1000) => {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Request timed out'))
+    }, timeout)
+
+    fetcher(url, options)
+      .then(response => {
+        clearTimeout(timer)
+        resolve(response)
+      })
+      .catch(err => {
+        clearTimeout(timer)
+        reject(err)
+      })
+  })
+}
+
+export const fetcherWithTimeout = (timeout) => {
+
+  return async (url) => {
+    console.log("timeout", timeout)
+    try {
+      const res = await fetchWithTimeout(fetcher, url, { method: 'GET' }, timeout) // Use custom timeout
+
+      // Return the parsed data.
+      return res
+    } catch (error) {
+      if (error.message === 'Request timed out') {
+        throw {
+          status: 408,
+          type: 'error',
+          message: 'Request timed out',
+        }
+      }
+      throw error
+    }
+  }
+
+}
+
+
+
 /*
 this link send to users to the PageDispatch which decides (using api evaluation/id/dispatch endpoint) where the users should be directed
 * */
