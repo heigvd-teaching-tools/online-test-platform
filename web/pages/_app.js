@@ -29,6 +29,7 @@ import '@fontsource/roboto/700.css'
 import Authentication from '../components/security/Authentication'
 import { TagsProvider } from '../context/TagContext'
 import { GroupProvider } from '../context/GroupContext'
+import ConnectionCheck from '@/components/layout/ConnectionCheck'
 
 export const themeOptions = {
   palette: {
@@ -93,7 +94,8 @@ const theme = createTheme(themeOptions)
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>$
+      <ConnectionCheck />
       <SessionProvider session={session}>
         <SnackbarProvider>
           <CssBaseline />

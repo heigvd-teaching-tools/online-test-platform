@@ -15,7 +15,7 @@
  */
 import React, { useState, useEffect } from 'react'
 import StatusDisplay from '../../../feedback/StatusDisplay'
-import { Stack, Tooltip, Typography } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 
 const ConnectionIndicator = () => {
   const [isOnline, setIsOnline] = useState(false)
