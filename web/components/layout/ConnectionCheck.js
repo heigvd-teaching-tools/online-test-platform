@@ -20,7 +20,7 @@ import Overlay from '../ui/Overlay'
 import StatusDisplay from '../feedback/StatusDisplay'
 import { fetcherWithTimeout } from '@/code/utils'
 
-const PING_INTERVAL = 5000 // Interval to check connection in milliseconds
+const PING_INTERVAL = 10000 // Interval to check connection in milliseconds
 const CONNECTION_TIMEOUT = 1000 // Time given to check request to finish
 const fetcher = fetcherWithTimeout(CONNECTION_TIMEOUT)
 /*
