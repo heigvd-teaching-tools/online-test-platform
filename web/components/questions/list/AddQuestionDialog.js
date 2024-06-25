@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { QuestionType, CodeQuestionType } from '@prisma/client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 import { Stack, Typography, MenuItem, Box, Alert } from '@mui/material'
 import { toArray as typesToArray } from '@/components/question/types'
@@ -43,6 +43,10 @@ const AddQuestionDialog = ({ open, onClose, handleAddQuestion }) => {
   )
 
   const [codeWritingTemplate, setCodeWritingTemplate] = useState('basic')
+
+  useEffect(() => {
+    setCodeWritingTemplate('basic')
+  }, [language])
 
   return (
     <DialogFeedback
@@ -141,26 +145,28 @@ const CodeWritingStartingTemplate = ({
     .codeWriting.find((cw) => cw.value === codeWritingTemplate)
 
   return (
-    <>
-      <DropDown
-        id="template"
-        name="Starter Template"
-        defaultValue={codeWritingTemplate}
-        minWidth="140px"
-        onChange={setCodeWritingTemplate}
-      >
-        {languages.environments
-          .find((env) => env.language === language)
-          .codeWriting.map((template, i) => (
-            <MenuItem key={i} value={template.value}>
-              {template.label}
-            </MenuItem>
-          ))}
-      </DropDown>
-      <AlertFeedback severity="info">
-        <Typography variant="body1">{template.description}</Typography>
-      </AlertFeedback>
-    </>
+    template && (
+      <>
+        <DropDown
+          id="template"
+          name="Starter Template"
+          defaultValue={codeWritingTemplate}
+          minWidth="140px"
+          onChange={setCodeWritingTemplate}
+        >
+          {languages.environments
+            .find((env) => env.language === language)
+            .codeWriting.map((template, i) => (
+              <MenuItem key={i} value={template.value}>
+                {template.label}
+              </MenuItem>
+            ))}
+        </DropDown>
+        <AlertFeedback severity="info">
+          <Typography variant="body1">{template.description}</Typography>
+        </AlertFeedback>
+      </>
+    )
   )
 }
 

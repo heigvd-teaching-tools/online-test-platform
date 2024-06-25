@@ -33,8 +33,6 @@ const ConnectionCheck = () => {
   const [isOnline, setIsOnline] = useState(true)
   const overlayRef = useRef(null)
 
-  
-
   const { data, error } = useSWR(CHECK_URL, fetcher, {
     refreshInterval: PING_INTERVAL,
     shouldRetryOnError: true,

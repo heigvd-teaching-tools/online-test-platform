@@ -1,7 +1,6 @@
 version: "3.8"
 name: eval
 services:
-
   web:
     build:
       context: ../web
