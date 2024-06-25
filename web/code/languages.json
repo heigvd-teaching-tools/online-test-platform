@@ -761,8 +761,7 @@
               ]
             }
           }
-        },
-        {}
+        }
       ],
       "codeReading": {
         "context": "package main\n\nimport (\n\t\"fmt\"\n\t\"bufio\"\n\t\"os\"\n\t\"strings\"\n)\n\n{{SNIPPET_FUNCTION_DECLARATIONS}}\n\nfunc main() {\n   reader := bufio.NewReader(os.Stdin)\n   functionName, _ := reader.ReadString('\\n')\n   functionName = strings.TrimSpace(functionName)\n   {{SNIPPET_FUNCTION_CALLS}}\n}",
