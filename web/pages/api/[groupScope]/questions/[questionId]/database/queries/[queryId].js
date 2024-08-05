@@ -154,12 +154,12 @@ const del = async (req, res, prisma) => {
   res.status(200).json(query)
 }
 
-export default withMethodHandler({
-  PUT: withAuthorization(withGroupScope(withQuestionUpdate(withPrisma(put))), [
+export default withGroupScope(withMethodHandler({
+  PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
     Role.PROFESSOR,
   ]),
   DELETE: withAuthorization(
-    withGroupScope(withQuestionUpdate(withPrisma(del))),
+    withQuestionUpdate(withPrisma(del)),
     [Role.PROFESSOR],
   ),
-})
+}))
