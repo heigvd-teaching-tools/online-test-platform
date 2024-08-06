@@ -36,9 +36,9 @@ const get = async (req, res, prisma) => {
   res.status(200).json(evaluation)
 }
 
-export default withMethodHandler({
-  GET: withAuthorization(withGroupScope(withPrisma(get)), [
+export default withGroupScope(withMethodHandler({
+  GET: withAuthorization(withPrisma(get), [
     Role.PROFESSOR,
     Role.STUDENT,
   ]),
-})
+}))

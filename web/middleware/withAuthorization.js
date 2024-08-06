@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 import { getRoles, getUser } from '../code/auth'
+import { getPrisma } from './withPrisma'
 
 /*
     Function to check if a users is member of the group
     for group scoped endpoints
 */
 
-export function withGroupScope(handler) {
+export function withGroupScopeOldToRemove(handler) {
   return async (req, res) => {
     const { groupScope } = req.query
 
@@ -31,7 +32,7 @@ export function withGroupScope(handler) {
     const user = await getUser(req, res)
 
     const isMember = user.groups.some((g) => g === groupScope)
-    // console.log("withGroupScope", req.method, req.url, "isMember", isMember, "groupScope", groupScope,  "userGroups [", user.groups.join(", "), "]")
+    
     if (!isMember) {
       return res
         .status(401)
@@ -40,6 +41,104 @@ export function withGroupScope(handler) {
 
     return handler(req, res)
   }
+}
+
+/**
+Group owned entities are entities that are owned by a group. 
+
+- Collection
+- Evaluation
+- Question
+- Tag
+
+When the entity or any of its related entities are concerned, we must ensure that the user is the member of that group.
+
+*/
+const EntityNameQueryStringIdPair = Object.freeze({
+  Question: 'questionId',
+  Collection: 'collectionId',
+  Evaluation: 'evaluationId',
+  Tag: 'tagId',
+});
+
+/*
+    Function to check if a users is member of the group
+    for group scoped endpoints
+
+    This function also checks 
+    - if the entity is owned by the group
+    - if the user is member of the group that owns the entity
+
+    It automatically detects the entity usage based on the query string. 
+    Important: Always use the singular form of the entity id variable name in the query string.
+*/
+
+export function withGroupScope(handler) {
+  return async (req, res) => {
+    const { groupScope } = req.query;
+
+    if (!groupScope) {
+      return res.status(400).json({ message: 'Group scope is required' });
+    }
+
+    const user = await getUser(req, res);
+
+    const isMember = user.groups.some((g) => g === groupScope);
+
+    if (!isMember) {
+      return res
+        .status(401)
+        .json({ message: 'You are not authorized to access this group' });
+    }
+
+    // Identify the entity name and ID from the query string
+    const entityPair = Object.entries(EntityNameQueryStringIdPair).find(
+      ([, queryStringId]) => req.query[queryStringId]
+    );
+
+    if (entityPair) {
+      // A group owned entity or any of its related entities are concerned
+
+      const [entityName, queryStringId] = entityPair;
+
+      const prisma = getPrisma();
+
+      const entityId = req.query[queryStringId];
+
+      if (!entityId) {
+        return res.status(400).json({ message: 'Entity id is required' });
+      }
+
+      const entity = await prisma[entityName].findUnique({
+        where: {
+          id: entityId,
+        },
+        include: {
+          group: true,
+        },
+      });
+
+      if (!entity) {
+        return res.status(404).json({ message: 'Entity not found' });
+      }
+
+      // Check if the entity group corresponds to the current group
+      if(groupScope !== entity.group.scope) {
+        return res.status(401).json({
+          message: 'Entity does not belong to the group',
+        });
+      }
+
+      // Check if the user is member of the group that owns the entity
+      if (!user.groups.includes(entity.group.scope)) {
+        return res.status(401).json({
+          message: 'You are not authorized to access this entity',
+        });
+      }
+    }
+
+    return handler(req, res);
+  };
 }
 
 export function withAuthorization(handler, allowedRoles) {

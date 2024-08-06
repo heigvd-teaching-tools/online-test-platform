@@ -46,9 +46,9 @@ const put = async (req, res, prisma) => {
   res.status(200).json({ message: 'OK' })
 }
 
-export default withMethodHandler({
+export default withGroupScope(withMethodHandler({
   PUT: withAuthorization(
-    withGroupScope(withCollectionUpdate(withPrisma(put))),
+    withCollectionUpdate(withPrisma(put)),
     [Role.PROFESSOR],
   ),
-})
+}))
