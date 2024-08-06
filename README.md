@@ -8,7 +8,9 @@ Originally developed for HEIG-VD, EVAL is now available to the wider educational
 
 ## Questions
 
-Eval sets itself apart with a specialized set of questions tailored for software engineering, offering unique capabilities. Eval is also committed to expanding its offerings by tailoring question types adapted for a wide range of educational fields in science and beyond.
+Eval sets itself apart with a specialized set of questions tailored for software engineering, offering unique capabilities. 
+
+Eval is also committed to expanding its offerings by tailoring question types adapted for a wide range of educational fields in science and beyond.
 
 - True/False: Simple binary questions.
 - Multiple Choice: Questions with multiple possible answers.
