@@ -24,7 +24,7 @@ Eval is also committed to expanding its offerings by tailoring question types ad
 
 EVAL simplifies evaluation management through four distinct phases:
 
-1. **Draft Phase**: Educators can create and customize evaluations by selecting a collection of questions, organizing their order, and assigning point values. Students register using an evaluation link, with optional access restrictions to specific email addresses.
+1. **Draft Phase**: Educators can create and customize evaluations by selecting a collection of questions, organizing their order, and assigning point values. Students register using an evaluation link, with optional access restrictions.
 
 2. **In Progress Phase**: Educators monitor registered students and their progress in real-time, allowing or prohibiting access to the evaluation and gaining insights from the analytics page.
 
