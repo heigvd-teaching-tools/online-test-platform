@@ -1,6 +1,6 @@
 # EVAL
 
-Eval is an educational platform designed to create and distribute training exercises, conduct exams, across engineering and other disciplines. With a core focus on ease of use and simplicity, Eval ensures a seamless experience for educators and students.
+Eval is an educational platform designed to create and distribute training exercises and conduct exams across engineering and other disciplines. With a core focus on ease of use and simplicity, Eval ensures a seamless experience for educators and students.
 
 Eval provides comprehensive insights into student engagement and understanding, enabling more effective assessments of student performance and comprehension.
 
