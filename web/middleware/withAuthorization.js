@@ -32,7 +32,7 @@ export function withGroupScopeOldToRemove(handler) {
     const user = await getUser(req, res)
 
     const isMember = user.groups.some((g) => g === groupScope)
-    
+
     if (!isMember) {
       return res
         .status(401)
@@ -59,7 +59,7 @@ const EntityNameQueryStringIdPair = Object.freeze({
   Collection: 'collectionId',
   Evaluation: 'evaluationId',
   Tag: 'tagId',
-});
+})
 
 /*
     Function to check if a users is member of the group
@@ -75,38 +75,38 @@ const EntityNameQueryStringIdPair = Object.freeze({
 
 export function withGroupScope(handler) {
   return async (req, res) => {
-    const { groupScope } = req.query;
+    const { groupScope } = req.query
 
     if (!groupScope) {
-      return res.status(400).json({ message: 'Group scope is required' });
+      return res.status(400).json({ message: 'Group scope is required' })
     }
 
-    const user = await getUser(req, res);
+    const user = await getUser(req, res)
 
-    const isMember = user.groups.some((g) => g === groupScope);
+    const isMember = user.groups.some((g) => g === groupScope)
 
     if (!isMember) {
       return res
         .status(401)
-        .json({ message: 'You are not authorized to access this group' });
+        .json({ message: 'You are not authorized to access this group' })
     }
 
     // Identify the entity name and ID from the query string
     const entityPair = Object.entries(EntityNameQueryStringIdPair).find(
-      ([, queryStringId]) => req.query[queryStringId]
-    );
+      ([, queryStringId]) => req.query[queryStringId],
+    )
 
     if (entityPair) {
       // A group owned entity or any of its related entities are concerned
 
-      const [entityName, queryStringId] = entityPair;
+      const [entityName, queryStringId] = entityPair
 
-      const prisma = getPrisma();
+      const prisma = getPrisma()
 
-      const entityId = req.query[queryStringId];
+      const entityId = req.query[queryStringId]
 
       if (!entityId) {
-        return res.status(400).json({ message: 'Entity id is required' });
+        return res.status(400).json({ message: 'Entity id is required' })
       }
 
       const entity = await prisma[entityName].findUnique({
@@ -116,29 +116,29 @@ export function withGroupScope(handler) {
         include: {
           group: true,
         },
-      });
+      })
 
       if (!entity) {
-        return res.status(404).json({ message: 'Entity not found' });
+        return res.status(404).json({ message: 'Entity not found' })
       }
 
       // Check if the entity group corresponds to the current group
-      if(groupScope !== entity.group.scope) {
+      if (groupScope !== entity.group.scope) {
         return res.status(401).json({
           message: 'Entity does not belong to the group',
-        });
+        })
       }
 
       // Check if the user is member of the group that owns the entity
       if (!user.groups.includes(entity.group.scope)) {
         return res.status(401).json({
           message: 'You are not authorized to access this entity',
-        });
+        })
       }
     }
 
-    return handler(req, res);
-  };
+    return handler(req, res)
+  }
 }
 
 export function withAuthorization(handler, allowedRoles) {

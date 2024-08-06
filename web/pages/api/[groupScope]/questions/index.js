@@ -304,8 +304,10 @@ const defaultCodeBasedOnLanguageAndType = (
   }
 }
 
-export default withGroupScope(withMethodHandler({
-  GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
-  POST: withAuthorization(withPrisma(post), [Role.PROFESSOR]),
-  DELETE: withAuthorization(withPrisma(del), [Role.PROFESSOR]),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
+    POST: withAuthorization(withPrisma(post), [Role.PROFESSOR]),
+    DELETE: withAuthorization(withPrisma(del), [Role.PROFESSOR]),
+  }),
+)

@@ -193,8 +193,10 @@ const del = async (req, res, prisma) => {
   res.status(200).json({ message: 'evaluation deleted' })
 }
 
-export default withGroupScope(withMethodHandler({
-  GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
-  PATCH: withAuthorization(withPrisma(patch), [Role.PROFESSOR]),
-  DELETE: withAuthorization(withPrisma(del), [Role.PROFESSOR]),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
+    PATCH: withAuthorization(withPrisma(patch), [Role.PROFESSOR]),
+    DELETE: withAuthorization(withPrisma(del), [Role.PROFESSOR]),
+  }),
+)

@@ -166,18 +166,17 @@ const del = async (req, res, prisma) => {
   res.status(200).json({ message: 'OK' })
 }
 
-export default withGroupScope(withMethodHandler({
-  GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
-  POST: withAuthorization(
-    withCollectionUpdate(withPrisma(post)),
-    [Role.PROFESSOR],
-  ),
-  PUT: withAuthorization(
-    withCollectionUpdate(withPrisma(put)),
-    [Role.PROFESSOR],
-  ),
-  DELETE: withAuthorization(
-    withCollectionUpdate(withPrisma(del)),
-    [Role.PROFESSOR],
-  ),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
+    POST: withAuthorization(withCollectionUpdate(withPrisma(post)), [
+      Role.PROFESSOR,
+    ]),
+    PUT: withAuthorization(withCollectionUpdate(withPrisma(put)), [
+      Role.PROFESSOR,
+    ]),
+    DELETE: withAuthorization(withCollectionUpdate(withPrisma(del)), [
+      Role.PROFESSOR,
+    ]),
+  }),
+)

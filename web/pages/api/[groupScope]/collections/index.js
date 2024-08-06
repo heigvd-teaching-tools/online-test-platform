@@ -78,7 +78,9 @@ const post = async (req, res, prisma) => {
   }
 }
 
-export default withGroupScope(withMethodHandler({
-  GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
-  POST: withAuthorization(withPrisma(post), [Role.PROFESSOR]),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
+    POST: withAuthorization(withPrisma(post), [Role.PROFESSOR]),
+  }),
+)
