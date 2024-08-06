@@ -65,9 +65,11 @@ const put = async (req, res, prisma) => {
   res.status(200).json(codeReading)
 }
 
-export default withGroupScope(withMethodHandler({
-  GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
-  PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
-    Role.PROFESSOR,
-  ]),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    GET: withAuthorization(withPrisma(get), [Role.PROFESSOR]),
+    PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
+      Role.PROFESSOR,
+    ]),
+  }),
+)

@@ -184,16 +184,16 @@ const del = async (req, res, prisma) => {
   res.status(200).json({ message: 'Option deleted and reordered' })
 }
 
-export default withGroupScope(withMethodHandler({
-  PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
-    Role.PROFESSOR,
-  ]),
-  POST: withAuthorization(
-    withQuestionUpdate(withPrisma(post)),
-    [Role.PROFESSOR],
-  ),
-  DELETE: withAuthorization(
-    withQuestionUpdate(withPrisma(del)),
-    [Role.PROFESSOR],
-  ),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
+      Role.PROFESSOR,
+    ]),
+    POST: withAuthorization(withQuestionUpdate(withPrisma(post)), [
+      Role.PROFESSOR,
+    ]),
+    DELETE: withAuthorization(withQuestionUpdate(withPrisma(del)), [
+      Role.PROFESSOR,
+    ]),
+  }),
+)

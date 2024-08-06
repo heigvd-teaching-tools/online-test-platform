@@ -90,12 +90,13 @@ const del = async (req, res, prisma) => {
   res.status(200).json('Test case deleted')
 }
 
-export default withGroupScope(withMethodHandler({
-  PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
-    Role.PROFESSOR,
-  ]),
-  DELETE: withAuthorization(
-    withQuestionUpdate(withPrisma(del)),
-    [Role.PROFESSOR],
-  ),
-}))
+export default withGroupScope(
+  withMethodHandler({
+    PUT: withAuthorization(withQuestionUpdate(withPrisma(put)), [
+      Role.PROFESSOR,
+    ]),
+    DELETE: withAuthorization(withQuestionUpdate(withPrisma(del)), [
+      Role.PROFESSOR,
+    ]),
+  }),
+)
