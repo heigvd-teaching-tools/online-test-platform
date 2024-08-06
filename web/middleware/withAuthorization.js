@@ -99,6 +99,8 @@ export function withGroupScope(handler) {
     );
 
     if (entityPair) {
+      // A group owned entity or any of its related entities are concerned
+      
       const [entityName, queryStringId] = entityPair;
 
       const prisma = getPrisma();
