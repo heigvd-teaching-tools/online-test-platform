@@ -54,14 +54,12 @@ Group owned entities are entities that are owned by a group.
 When the entity or any of its related entities are concerned, we must ensure that the user is the member of that group.
 
 */
-const EntityNameQueryStringIdPair = {
+const EntityNameQueryStringIdPair = Object.freeze({
   Question: 'questionId',
   Collection: 'collectionId',
   Evaluation: 'evaluationId',
   Tag: 'tagId',
-};
-
-Object.freeze(EntityNameQueryStringIdPair);
+});
 
 /*
     Function to check if a users is member of the group
@@ -100,7 +98,7 @@ export function withGroupScope(handler) {
 
     if (entityPair) {
       // A group owned entity or any of its related entities are concerned
-      
+
       const [entityName, queryStringId] = entityPair;
 
       const prisma = getPrisma();
