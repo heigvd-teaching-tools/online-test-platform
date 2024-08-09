@@ -1,0 +1,26 @@
+name: eval-dev-infra
+services:
+  dev-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: eval
+      POSTGRES_PASSWORD: eval
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    command: ["start-dev"]
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
+volumes:
+  pgdata:
+  keycloak_data:
