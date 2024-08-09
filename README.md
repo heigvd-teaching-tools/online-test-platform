@@ -59,7 +59,7 @@ To configure a different IDP, refer to the NextAuth configuration in the file lo
 
 At `/dev` directory, you can find a `docker-compose.yml` file that will start the database and Keycloak server.
 
-In this approach, your database and IPD will be running in docker while the next.js app will be running on your local machine.
+In this approach, your database and IDP will be running in docker while the next.js app will be running on your local machine.
 
 ```bash
 cd dev
