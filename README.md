@@ -8,17 +8,19 @@ Originally developed for HEIG-VD, EVAL is now available to the wider educational
 
 ## Questions
 
-Eval sets itself apart with a specialized set of questions tailored for software engineering, offering unique capabilities. 
+Eval sets itself apart with a specialized set of questions tailored for software engineering, offering unique capabilities.
+
+Code Writing question enables students to write and execute code (JavaScript, Python, Java, C, C++, Golang, etc.) in a sand-boxed environment using an online editor powered by Monaco, similar to Visual Studio Code. This feature allows students to make sure their code meets the expected output, providing a more interactive and engaging experience.
 
 Eval is also committed to expanding its offerings by tailoring question types adapted for a wide range of educational fields in science and beyond.
 
-- True/False: Simple binary questions.
-- Multiple Choice: Questions with multiple possible answers.
-- Essay: Open-ended questions for detailed responses.
-- Web: Questions related to CSS, HTML, and JavaScript.
-- Code Reading: Understand the code and predict its output.
-- Code Writing: Complete the code to achieve the expected output
-- Database: PostgreSQL-focused questions to complete queries and obtain expected results.
+- **True/False**: Simple binary questions.
+- **Multiple Choice**: Questions with multiple possible answers.
+- **Essay**: Open-ended questions for detailed responses.
+- **Web**: Questions related to CSS, HTML, and JavaScript.
+- **Code Reading**: Understand the code and predict its output.
+- **Code Writing**: Complete the code, run code checks, and test the output.
+- **Database**: PostgreSQL-focused questions to complete queries and obtain expected results.
 
 ## Evaluation Management
 
