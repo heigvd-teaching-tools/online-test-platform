@@ -101,6 +101,8 @@ The existing `.env` might needs to be adjusted to reflect your database config. 
 
 ### Install the app dependencies
 
+REMINDER: Make sure you use the node version 20+.
+
 ```bash
 cd web
 npm install
