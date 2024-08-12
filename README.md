@@ -94,7 +94,7 @@ NEXTAUTH_SECRET=<generate secret>
 
 NEXTAUTH_KEYCLOAK_CLIENT_ID=eval-client
 NEXTAUTH_KEYCLOAK_CLIENT_SECRET=<client secret>
-NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=http://localhost:8080/realms/HEIG-VD
+NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=http://localhost:8080/realms/eval
 ```
 
 The existing `.env` might needs to be adjusted to reflect your database config. It currently corresponds to the one proposed in the /dev/docker-compose.yml file.
