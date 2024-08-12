@@ -128,6 +128,10 @@ npm run dev
 
 ### Setup your super admin user
 
+#### Signin in eval
+
+Open your browser and go to `http://localhost:3000`. Signin with your keycloak user.
+
 When you signin in eval for the first time, a user will be created. It will have the role STUDENT by default.
 
 After the signin has been done, you should see the following message: `You are not authorized to view this page.`. 
