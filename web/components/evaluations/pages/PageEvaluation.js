@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useSnackbar } from "@/context/SnackbarContext";
-import { useRouter } from "next/router";
-
+import { useSnackbar } from '@/context/SnackbarContext'
+import { useRouter } from 'next/router'
 
 const EvaluationPage = () => {
+  const router = useRouter()
+  const { groupScope, evaluationId } = router.query
 
-    const router = useRouter()
-    const { groupScope, evaluationId } = router.query
+  const { show: showSnackbar } = useSnackbar()
 
-    const { show: showSnackbar } = useSnackbar()
-
-    return (
-        <div>
-        <h1>Evaluation Page</h1>
-        </div>
-    );
-};
-export default EvaluationPage;
+  return (
+    <div>
+      <h1>Evaluation Page</h1>
+    </div>
+  )
+}
+export default EvaluationPage
