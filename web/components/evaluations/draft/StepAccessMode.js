@@ -23,7 +23,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import { UserOnEvaluatioAccessMode } from '@prisma/client'
+import { UserOnEvaluationAccessMode } from '@prisma/client'
 import { useEffect, useState } from 'react'
 
 const StepAccessMode = ({
@@ -32,7 +32,7 @@ const StepAccessMode = ({
   onChange,
 }) => {
   const [accessMode, setAccessMode] = useState(
-    UserOnEvaluatioAccessMode.LINK_ONLY,
+    UserOnEvaluationAccessMode.LINK_ONLY,
   )
   const [accessList, setAccessList] = useState([])
 
@@ -54,12 +54,12 @@ const StepAccessMode = ({
             control={
               <Switch
                 checked={
-                  accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+                  accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
                 }
                 onChange={(e) => {
                   const newAccessMode = e.target.checked
-                    ? UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
-                    : UserOnEvaluatioAccessMode.LINK_ONLY
+                    ? UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
+                    : UserOnEvaluationAccessMode.LINK_ONLY
                   setAccessMode(newAccessMode)
                   onChange(newAccessMode, accessList)
                 }}
@@ -68,7 +68,7 @@ const StepAccessMode = ({
             label="Restricted to access list"
           />
         </FormGroup>
-        {accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST && (
+        {accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST && (
           <>
             <Typography variant="body1">
               Provide your access list by pasting it directly from your email

@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, EvaluationPhase, QuestionSource } from '@prisma/client'
+import { Role, EvaluationPhase, UserOnEvaluationAccessMode } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,
-  withGroupOwnedEntity,
   withGroupScope,
   withMethodHandler,
 } from '@/middleware/withAuthorization'
-import { copyQuestion, questionIncludeClause } from '@/code/questions'
 
 const get = async (req, res, prisma) => {
   // shallow session to question get -> we just need to count the number of questions
@@ -34,7 +32,20 @@ const get = async (req, res, prisma) => {
       },
     },
     include: {
-      evaluationToQuestions: true,
+      evaluationToQuestions: {
+        select: {
+          question: {
+            include: {
+              sourceQuestion: true
+            }
+          },
+          points: true,
+          order: true,
+        },
+        orderBy: {
+          order: 'asc',
+        },
+      },
       students: true,
     },
     orderBy: {
@@ -46,57 +57,15 @@ const get = async (req, res, prisma) => {
 
 /*
 ** Creating a new evaluation
-The questions from the collection are all deep copied for the evaluation
-The reason for this is that the questions in the collection can be changed after the evaluation is created
-The evaluation must freeze the questions at the time of creation
-The code questions are copied with all the files
-The database questions are copied with all the queries and their outputs
 * */
 const post = async (req, res, prisma) => {
-  const { label, conditions, duration, collectionId, accessMode, accessList } =
-    req.body
-
+  
   const { groupScope } = req.query
-
-  if (!collectionId) {
-    res.status(400).json({ message: 'No collection selected.' })
-    return
-  }
-
-  // select all questions from a collection
-  const collectionToQuestions = await prisma.collectionToQuestion.findMany({
-    include: {
-      question: {
-        include: questionIncludeClause({
-          includeTypeSpecific: true,
-          includeOfficialAnswers: true,
-        }),
-      },
-    },
-    where: {
-      collectionId,
-    },
-  })
-
-  if (
-    !collectionToQuestions ||
-    (collectionToQuestions && collectionToQuestions.length === 0)
-  ) {
-    res.status(400).json({ message: 'Your collection has no questions.' })
-    return
-  }
-
-  if (label.length === 0) {
-    res.status(400).json({ message: 'Please enter a label.' })
-    return
-  }
+  
+  const { preset : { value: presetType, settings }, templateEvaluation } = req.body
 
   let data = {
     phase: EvaluationPhase.DRAFT,
-    label,
-    conditions,
-    accessMode,
-    accessList,
     group: {
       connect: {
         scope: groupScope,
@@ -104,16 +73,68 @@ const post = async (req, res, prisma) => {
     },
   }
 
-  if (duration) {
-    data.durationHours = parseInt(duration.hours)
-    data.durationMins = parseInt(duration.minutes)
+  if (presetType === 'from_existing') {
+    data = {
+      ...data,
+      label: `Copy of ${templateEvaluation.label}`,
+      accessMode: templateEvaluation.accessMode,
+      accessList: templateEvaluation.accessList,
+      durationHours: templateEvaluation.durationHours,
+      durationMins: templateEvaluation.durationMins,
+      showSolutionsWhenFinished: templateEvaluation.showSolutionsWhenFinished,
+      skipGrading: templateEvaluation.skipGrading,    
+    }
+  }else{
+    data = {
+      ...data,
+      label: "",
+      showSolutionsWhenFinished: settings.showSolutionsWhenFinished,
+      accessMode: settings.restrictAccess ? UserOnEvaluationAccessMode.LINK_ONLY : UserOnEvaluationAccessMode.FREE_ACCESS,
+      skipGrading: !settings.grade,
+    }
   }
 
+ 
   try {
     let evaluation = undefined
     await prisma.$transaction(async (prisma) => {
       evaluation = await prisma.evaluation.create({ data })
 
+      if(presetType === 'from_existing'){
+
+        // Attach all of the SOURCE questions from the template evaluation to the new evaluation
+
+        const templateQuestions = templateEvaluation.evaluationToQuestions
+
+        for (const templateToQuestion of templateQuestions) {
+
+          if(templateToQuestion.question.sourceQuestion === null){
+            // skip questions that original no longer exists
+            continue
+          }
+
+          // create relation between evaluation and a source question
+          await prisma.evaluationToQuestion.create({
+            data: {
+              points: templateToQuestion.points,
+              order: templateToQuestion.order,
+              evaluation: {
+                connect: {
+                  id: evaluation.id,
+                },
+              },
+              question: {
+                connect: {
+                  id: templateToQuestion.question.sourceQuestion.id,
+                },
+              },
+            },
+          })
+        }
+      }
+
+      /*Legacy 
+      
       // copy all of the questions from the collection to the evaluation
       for (const collectionToQuestion of collectionToQuestions) {
         // copy the question
@@ -139,7 +160,8 @@ const post = async (req, res, prisma) => {
             },
           },
         })
-      }
+      
+      */
     })
 
     res.status(200).json(evaluation)

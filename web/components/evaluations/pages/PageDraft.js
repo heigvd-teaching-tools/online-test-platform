@@ -17,7 +17,7 @@ import { useState, useCallback, useEffect } from 'react'
 import {
   EvaluationPhase,
   Role,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
 } from '@prisma/client'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
@@ -61,7 +61,7 @@ const PageDraft = () => {
         id: undefined,
         label: '',
         conditions: '',
-        accessMode: UserOnEvaluatioAccessMode.LINK_ONLY,
+        accessMode: UserOnEvaluationAccessMode.LINK_ONLY,
         accessList: [],
       },
     },
@@ -73,7 +73,7 @@ const PageDraft = () => {
   const [evaluationQuestions, setEvaluationQuestions] = useState([])
 
   const [accessMode, setAccessMode] = useState(
-    UserOnEvaluatioAccessMode.LINK_ONLY,
+    UserOnEvaluationAccessMode.LINK_ONLY,
   )
   const [accessList, setAccessList] = useState([])
 
@@ -245,7 +245,7 @@ const PageDraft = () => {
                 groupScope={groupScope}
                 evaluation={evaluation}
                 restrictedAccess={
-                  accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+                  accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
                 }
                 accessList={accessList}
                 onStudentAllowed={() => {

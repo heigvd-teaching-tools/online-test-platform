@@ -34,7 +34,6 @@ import MainMenu from '@/components/layout/MainMenu'
 import Loading from '@/components/feedback/Loading'
 
 import ListEvaluation from '../list/ListEvaluation'
-import { Box } from '@mui/system'
 
 const Evaluations = () => {
   const router = useRouter()
@@ -51,7 +50,7 @@ const Evaluations = () => {
 
   const [tab, setTab] = useState(EvaluationStatus.ACTIVE)
   const [evaluations, setEvaluations] = useState(data)
-
+  
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [endOfDraftDialogOpen, setEndOfDraftDialogOpen] = useState(false)
@@ -137,14 +136,7 @@ const Evaluations = () => {
               </Stack>
             }
           >
-            <Box
-              sx={{
-                minWidth: '100%',
-                height: '100%',
-                p: 2,
-                bgcolor: 'background.paper',
-              }}
-            >
+            
               <ListEvaluation
                 groupScope={groupScope}
                 evaluations={
@@ -169,7 +161,6 @@ const Evaluations = () => {
                   }
                 }}
               />
-            </Box>
           </LayoutMain>
           <DialogFeedback
             open={archiveDialogOpen}

@@ -15,7 +15,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { update } from '../pages/crud'
-import { FormControlLabel, Switch } from '@mui/material'
+import ToggleWithLabel from '@/components/input/ToggleWithLabel'
 
 const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
   const [saving, setSaving] = useState(false)
@@ -41,20 +41,17 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
   }, [evaluation.showSolutionsWhenFinished])
 
   return (
-    <FormControlLabel
-      control={
-        <Switch
-          checked={showSolutionsWhenFinished}
-          onChange={(e) => {
-            const checked = e.target.checked
-            setShowSolutionsWhenFinished(checked)
-            save(checked)
-          }}
-        />
-      }
+    <ToggleWithLabel
       label="Allow student to view official solutions"
+      checked={showSolutionsWhenFinished}
+      onChange={(e) => {
+        const checked = e.target.checked
+        setShowSolutionsWhenFinished(checked)
+        save(checked)
+      }}
     />
   )
 }
+
 
 export default ToggleStudentViewSolution

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { EvaluationPhase, EvaluationStatus } from '@prisma/client'
@@ -25,16 +25,27 @@ import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '@/components/questions/list/utils'
 import DateTimeAgo from '@/components/feedback/DateTimeAgo'
 import { useRouter } from 'next/router'
+import AddEvaluationDialog from './AddEvaluationDialog'
 
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
-  const router = useRouter()
+  
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+
   return (
+    <Box
+      sx={{
+        minWidth: '100%',
+        height: '100%',
+        p: 2,
+        bgcolor: 'background.paper',
+      }}
+    >
     <GridGrouping
       label={'Evaluations'}
       actions={
-        <Link href={`/${groupScope}/evaluations/new`}>
-          <Button>Create a new evaluation</Button>
-        </Link>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            Create a new evaluation
+          </Button>
       }
       header={{
         actions: {
@@ -187,6 +198,13 @@ const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {
         },
       ]}
     />
+    <AddEvaluationDialog
+      open={addDialogOpen}
+      existingEvaluations={evaluations}
+      onClose={() => setAddDialogOpen(false)}
+      groupScope={groupScope}
+    />
+    </Box>
   )
 }
 export default ListEvaluation

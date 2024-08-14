@@ -16,7 +16,7 @@
 import {
   EvaluationPhase,
   Role,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -139,7 +139,7 @@ const patch = async (req, res, prisma) => {
 
     if (
       currentEvaluation.accessMode ===
-      UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+      UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
     ) {
       // remove eventual denied students
       await prisma.userOnEvaluationDeniedAccessAttempt.deleteMany({
