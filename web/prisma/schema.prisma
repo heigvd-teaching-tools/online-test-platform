@@ -514,7 +514,9 @@ model QuestionToTag {
 // Order is important here
 enum EvaluationPhase {
   NEW
-  DRAFT
+  SETTINGS
+  COMPOSITION
+  REGISTRATION
   IN_PROGRESS
   GRADING
   FINISHED
@@ -536,7 +538,7 @@ model Evaluation {
   label      String?
   conditions String?
   status     EvaluationStatus @default(ACTIVE)
-  phase      EvaluationPhase  @default(DRAFT)
+  phase      EvaluationPhase  @default(SETTINGS)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 

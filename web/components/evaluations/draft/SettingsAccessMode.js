@@ -26,7 +26,7 @@ import {
 import { UserOnEvaluationAccessMode } from '@prisma/client'
 import { useEffect, useState } from 'react'
 
-const StepAccessMode = ({
+const SettingsAccessMode = ({
   accessMode: initialMode,
   accessList: initialList,
   onChange,
@@ -46,8 +46,18 @@ const StepAccessMode = ({
   }, [initialMode, initialList])
 
   return (
-    <Stack spacing={2}>
-      <Typography variant="h6">Access mode</Typography>
+    <>
+      <Typography variant="h5">Access mode</Typography>
+      <Alert severity="info">
+          <Typography variant="body2">
+            With the restricted access enabled, students with an email address in the list will be granted instant access to the evaluation.
+          </Typography>
+          <Typography variant="body2">
+            Students not part of the list will go through a verification process. 
+            You will see them appear in the denied list where you can grant them access. 
+            This feature gives you the freedom to review and grant access permissions on the go.
+          </Typography>
+        </Alert>
       <Stack spacing={2}>
         <FormGroup>
           <FormControlLabel
@@ -76,11 +86,6 @@ const StepAccessMode = ({
             </Typography>
             <Typography variant="body2">
               Supported separators are: comma, semicolon, newline.{' '}
-            </Typography>
-
-            <Typography variant="body2">
-              Denied attempts are being registered. This feature gives you the
-              freedom to review and grant access permissions on the go.
             </Typography>
             <TagsSelector
               label="Access list"
@@ -120,9 +125,10 @@ const StepAccessMode = ({
             )}
           </>
         )}
+       
       </Stack>
-    </Stack>
+    </>
   )
 }
 
-export default StepAccessMode
+export default SettingsAccessMode

@@ -26,7 +26,7 @@ import {
 } from '@mui/material'
 import DurationPicker from '@/components/input/DurationPicker'
 
-const StepSchedule = ({ evaluation, onChange }) => {
+const SettingsSchedule = ({ evaluation, onChange }) => {
   const [useDuration, setUseDuration] = useState(false)
   const [duration, setDuration] = useState({
     hours: 0,
@@ -52,7 +52,17 @@ const StepSchedule = ({ evaluation, onChange }) => {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h6">Schedule</Typography>
+      <Typography variant="h5">Schedule</Typography>
+      <Alert severity="info">
+        <Typography variant="body1" component={'span'}>
+          The sole purpose of this feature is to give students an idea of
+          the time they have to complete the evaluation.
+        </Typography>
+        <Typography variant="body1" component={'span'}>
+          The evaluation will not end automatically. You will have to end it
+          manually in the in-progress phase.
+        </Typography>
+      </Alert>
       <FormGroup>
         <FormControlLabel
           control={
@@ -73,28 +83,16 @@ const StepSchedule = ({ evaluation, onChange }) => {
         />
       </FormGroup>
       {useDuration && (
-        <>
-          <Alert severity="warning">
-            <AlertTitle>Warning</AlertTitle>
-            <Typography variant="body1" component={'span'}>
-              The evaluation will not end automatically. You will have to end it
-              manually in the in-progress phase.
-            </Typography>
-            <Typography variant="body1" component={'span'}>
-              The sole purpose of this feature is to give students an idea of
-              the time they have to complete the evaluation.
-            </Typography>
-          </Alert>
-          <DurationPicker
-            value={duration}
-            onChange={(value) => {
-              setDuration(value)
-            }}
-          />
-        </>
+        <DurationPicker
+          value={duration}
+          onChange={(value) => {
+            setDuration(value)
+          }}
+        />
       )}
+     
     </Stack>
   )
 }
 
-export default StepSchedule
+export default SettingsSchedule

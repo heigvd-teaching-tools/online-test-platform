@@ -222,8 +222,6 @@ const QuestionsGrid = ({
 }) => {
   const router = useRouter()
 
-  console.log('QuestionsGrid selection', selection)
-
   return (
     <GridGrouping
       label="Questions"
