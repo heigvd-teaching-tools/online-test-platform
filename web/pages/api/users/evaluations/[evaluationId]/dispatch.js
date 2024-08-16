@@ -16,7 +16,7 @@
 import {
   Role,
   EvaluationPhase,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -57,7 +57,7 @@ const get = async (req, res, prisma) => {
 
   // Check if the user is in the evaluation access list in case the evaluation has restricted access
   if (
-    evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+    evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
     if (!evaluation.accessList.find((email) => email === user.email)) {
       // keep track of the users who were denied access to the evaluation

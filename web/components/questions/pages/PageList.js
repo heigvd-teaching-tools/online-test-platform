@@ -76,6 +76,9 @@ const PageList = () => {
 
   const [selected, setSelected] = useState(undefined)
 
+  const [selection, setSelection] = useState([])
+  
+
   const createQuestion = useCallback(
     async (type, options) => {
       // language only used for code questions
@@ -137,6 +140,8 @@ const PageList = () => {
                 <Stack height={'100%'} p={1} pt={2}>
                   <QuestionsGrid
                     questions={questions}
+                    selection={selection}
+                    setSelection={setSelection}
                     setAddDialogOpen={setAddDialogOpen}
                     setSelected={setSelected}
                     setOpenSideUpdate={setOpenSideUpdate}
@@ -154,6 +159,7 @@ const PageList = () => {
                     <Box pt={2} width={'100%'} height={'100%'}>
                       {openSideUpdate && selected && (
                         <QuestionUpdate
+                          
                           groupScope={router.query.groupScope}
                           questionId={selected.id}
                           onUpdate={async (question) => {
@@ -208,15 +214,25 @@ const QuestionsGrid = ({
   groupScope,
   questions,
   setAddDialogOpen,
+  selection,
+  setSelection,
   setSelected,
   setOpenSideUpdate,
   setCopyDialogOpen,
 }) => {
   const router = useRouter()
 
+  console.log('QuestionsGrid selection', selection)
+
   return (
     <GridGrouping
       label="Questions"
+      enableSelection
+      selection={selection}
+      onSelectionChange={(newSelection) => {
+        console.log(newSelection)
+        setSelection(newSelection)
+      }}
       actions={
         <Button onClick={() => setAddDialogOpen(true)}>
           Create a new question

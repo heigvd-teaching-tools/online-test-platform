@@ -12,4 +12,4 @@ ALTER TABLE "Evaluation" DROP COLUMN "accessMode",
 ADD COLUMN     "accessMode" "UserOnEvaluationAccessMode" NOT NULL DEFAULT 'LINK_ONLY';
 
 -- DropEnum
-DROP TYPE "UserOnEvaluatioAccessMode";
+DROP TYPE "UserOnEvaluationAccessMode";

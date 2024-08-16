@@ -23,7 +23,7 @@ import {
   EvaluationPhase,
   QuestionType,
   StudentPermission,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
   CodeQuestionType,
 } from '@prisma/client'
 import { phaseGT } from '@/code/phase'
@@ -55,7 +55,7 @@ const post = async (req, res, prisma) => {
   // Check if the user is in the evaluation access list in case the evaluation has restricted access
   // The check is done previously in the endpoint /api/users/evaluations/%5BevaluationId%5D/dispatch.js
   if (
-    evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+    evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
     if (!evaluation.accessList.find((email) => email === studentEmail)) {
       // keep track of the users who were denied access to the evaluation

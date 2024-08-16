@@ -131,10 +131,8 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
             onSelect={handleChange}
           />
 
-          {
-            preset === 'from_existing' &&
+          {preset === 'from_existing' &&
             ( 
-              <>
               <Autocomplete
                 id="evaluation-id"
                 inputValue={input}
@@ -155,13 +153,21 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
                   setTemplateEvaluation(value)
                 }}
               />
-
-              <EvaluationSummary evaluation={existingEvaluations.find(e => e.id === templateEvaluation?.id)} />
-              </>
             )
           }
 
-          <PresetSummary preset={getPresetSettings(preset)} />
+          <Stack spacing={1}>
+            {preset !== 'from_existing' ? (
+              <Typography variant="h6">Selected preset details</Typography>
+            ) : (
+              <Typography variant="h6">Selected evaluation details</Typography>
+            )}
+            <PresetSummary preset={getPresetSettings(preset)} />
+            
+            
+            <EvaluationSummary evaluation={existingEvaluations.find(e => e.id === templateEvaluation?.id)} />
+
+          </Stack>
           
          
         </Stack>
@@ -176,8 +182,6 @@ const EvaluationSummary = ({ evaluation }) => {
 
   // Check if evaluation exists
   if (!evaluation) return null;
-
-  // has access list, has access mode, has grade, show solution when finished, has conditions, has questions
   
   const hasQuestions = Boolean(evaluation.evaluationToQuestions?.length);
   
@@ -188,38 +192,33 @@ const EvaluationSummary = ({ evaluation }) => {
   const hasAccessList = evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST 
     || Boolean(evaluation.accessList?.length);
 
-  const hasGrade = !evaluation.skipGrading;
   const hasConditions = Boolean(evaluation.conditions?.length);
 
-
   return (
-    <Stack spacing={1}>
+    <>
+      
+      { hasAccessList && (
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="body2">The access list contains <b>{evaluation.accessList.length} students</b></Typography>
+          </Stack>
+      )}
+
       { hasQuestions && (
           <Typography variant="body2">Contains <b>{evaluation.evaluationToQuestions.length} questions</b>.</Typography>
       )}
 
       { countMissingQuestions > 0 && (
-            <Typography variant="body2" color={"error"}><b>{countMissingQuestions} questions</b> used in this evaluation no longer exist in the question bank</Typography>
+          <Typography variant="body2" color={"error"}><b>{countMissingQuestions} questions</b> used in this evaluation no longer exist in the question bank</Typography>
       )}
 
       { countMissingQuestions === 0 && (
-            <Typography variant="body2" color={"info"}>All questions are still available in the question bank</Typography>
-      )}
-
-      { hasAccessList && (
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant="body2">Has <b>restricted access</b> and the access list contains <b>{evaluation.accessList.length} students</b></Typography>
-          </Stack>
-      )}
-      
-      { hasGrade && (
-          <Typography variant="body2">Grading phase and feedback enabled</Typography>
+          <Typography variant="body2" color={"info"}>All questions are still available in the question bank</Typography>
       )}
 
       { hasConditions && (
         <Typography variant="body2">Conditions are set</Typography>
       )}
-    </Stack>
+    </>
   )
 }
 
@@ -227,8 +226,8 @@ const EvaluationSummary = ({ evaluation }) => {
 const PresetSummary = ({ preset }) => {
   return (
     preset &&
-    <Stack spacing={1}>
-      <Typography variant="h6">Selected Preset Breakdown</Typography>
+    <>
+      
       <Stack direction="row" justifyContent="space-between">
         <Typography variant="body2">Show the solution when finished:</Typography>
         <Typography variant="body1">{preset.showSolutionWhenFinished ? 'Yes' : 'No'}</Typography>
@@ -242,7 +241,7 @@ const PresetSummary = ({ preset }) => {
         <Typography variant="body1">{preset.grade ? 'Yes' : 'No'}</Typography>
       </Stack>
       
-    </Stack>
+    </>
   )
 }
 

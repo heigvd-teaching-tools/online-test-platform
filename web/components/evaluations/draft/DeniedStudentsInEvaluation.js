@@ -43,7 +43,6 @@ const DeniedStudentsInEvaluation = ({
             readOnly={readOnly}
             groupScope={groupScope}
             evaluationId={evaluation.id}
-            title={`Denied students (${students?.userOnEvaluationDeniedAccessAttempt.length})`}
             students={students?.userOnEvaluationDeniedAccessAttempt}
             onStudentAllowed={(studentEmail) => {
               mutate()
