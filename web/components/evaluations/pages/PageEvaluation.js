@@ -60,9 +60,24 @@ const phaseToDetails = {
       "label": "Start evaluation",
     }
   },
-  [EvaluationPhase.IN_PROGRESS]: 'progress',
-  [EvaluationPhase.GRADING]: 'results',
-  [EvaluationPhase.FINISHED]: 'results',
+  [EvaluationPhase.IN_PROGRESS]: {
+    "menu": 'progress',
+    "nextPhaseButton": {
+      "label": "End evaluation",
+    }
+  },
+  [EvaluationPhase.GRADING]: {
+    "menu": 'results',
+    "nextPhaseButton": {
+      "label": "Finish evaluation",
+    }
+  },
+  [EvaluationPhase.FINISHED]: {
+    "menu": 'results',
+    "nextPhaseButton": {
+      "label": "Finish evaluation",
+    }
+  }
 }
 
 /*
@@ -123,22 +138,14 @@ const EvaluationPage = () => {
     mutate,
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}`,
-    groupScope && evaluationId ? fetcher : null,
-    {
-      fallbackData: {
-        id: undefined,
-        label: '',
-        conditions: '',
-        accessMode: UserOnEvaluationAccessMode.LINK_ONLY,
-        accessList: [],
-      },
-    },
+    groupScope && evaluationId ? fetcher : null
   )
 
   const [ activeMenu, setActiveMenu ] = useState(null)
 
   useEffect(() => {
     if (evaluation) {
+      console.log("Evaluation phase: ", evaluation)
       setActiveMenu(phaseToDetails[evaluation.phase].menu)
     }
   }, [evaluation])
@@ -153,7 +160,8 @@ const EvaluationPage = () => {
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading error={[error]} loading={!evaluation}>
-      <LayoutMain
+      { evaluation && (
+        <LayoutMain
         hideLogo
         header={
           <Stack direction="row" alignItems="center">
@@ -256,7 +264,9 @@ const EvaluationPage = () => {
             />
           </Stack>
         </Stack>
-        </LayoutMain>
+      </LayoutMain>  
+      )}
+      
       </Loading>
     </Authorization>
   )
@@ -309,9 +319,11 @@ import PeopleSharpIcon from '@mui/icons-material/PeopleSharp';
 import ModelTrainingSharpIcon from '@mui/icons-material/ModelTrainingSharp';
 import GradingSharpIcon from '@mui/icons-material/GradingSharp';
 
-const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
 
-  const renderStatus = (phase) => {
+
+const EvaluationMenuItem = ({ icon: Icon, label, details, phase, currentPhase, active, setActive, menuKey }) => {
+  
+  const renderStatus = () => {
     if (phaseGreaterThan(currentPhase, phase)) {
       return <StatusDisplay status={"SUCCESS"} />;
     } else if (currentPhase === phase) {
@@ -321,61 +333,81 @@ const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
   };
 
   return (
-    <MenuList>
-      <MenuItem selected={active === 'settings'} onClick={() => setActive('settings')}>
-        <ListItemIcon>
-          <SettingsSharpIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Settings</ListItemText>
-        {renderStatus(EvaluationPhase.SETTINGS)}
-      </MenuItem>
-
-
-      <MenuItem selected={active === 'compose'} onClick={() => setActive('compose')}>
+    <MenuItem 
+      selected={active === menuKey} 
+      onClick={() => setActive(menuKey)} 
+      disabled={phaseGreaterThan(phase, currentPhase)}
+    >
       <ListItemIcon>
-          <FormatListNumberedSharpIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Composition</ListItemText>
+        <Icon fontSize="small" />
+      </ListItemIcon>
+      <ListItemText>{label}</ListItemText>
+      {details && (
         <Typography variant="body2" color="text.secondary">
-          12 questions
+          {details}
         </Typography>
-        {renderStatus(EvaluationPhase.COMPOSITION)}
-      </MenuItem>
-      <MenuItem  selected={active === 'attendance'} onClick={() => setActive('attendance')}>
-        <ListItemIcon>
-          <PeopleSharpIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Attendance</ListItemText>
-        <Typography variant="body2" color="text.secondary">
-          16 students
-        </Typography>
-        {renderStatus(EvaluationPhase.REGISTRATION)}
-      </MenuItem>  
-      <MenuItem disabled selected={active === 'progress'} onClick={() => setActive('progress')}>
-        <ListItemIcon>
-          <ModelTrainingSharpIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Student Progress</ListItemText>
-        <Typography variant="body2" color="text.secondary">
-          78%
-        </Typography>
-        {renderStatus(EvaluationPhase.IN_PROGRESS)}
-      </MenuItem>
-      <MenuItem disabled selected={active === 'results'} onClick={() => setActive('results')}>
-        <ListItemIcon>
-          <GradingSharpIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Grading & Results</ListItemText>
-        <Typography variant="body2" color="text.secondary">
-          34%
-        </Typography>
-        {renderStatus(EvaluationPhase.GRADING)}
-      </MenuItem>
-
-
+      )}
+      <Box ml={0.5}>
+        {renderStatus()}
+      </Box>
+    </MenuItem>
+  );
+};
+const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
+  return (
+    <MenuList>
+      <EvaluationMenuItem
+        icon={SettingsSharpIcon}
+        label="Settings"
+        phase={EvaluationPhase.SETTINGS}
+        currentPhase={currentPhase}
+        active={active}
+        setActive={setActive}
+        menuKey="settings"
+      />
+      <EvaluationMenuItem
+        icon={FormatListNumberedSharpIcon}
+        label="Composition"
+        details="12 questions"
+        phase={EvaluationPhase.COMPOSITION}
+        currentPhase={currentPhase}
+        active={active}
+        setActive={setActive}
+        menuKey="compose"
+      />
+      <EvaluationMenuItem
+        icon={PeopleSharpIcon}
+        label="Attendance"
+        details="16 students"
+        phase={EvaluationPhase.REGISTRATION}
+        currentPhase={currentPhase}
+        active={active}
+        setActive={setActive}
+        menuKey="attendance"
+      />
+      <EvaluationMenuItem
+        icon={ModelTrainingSharpIcon}
+        label="Student Progress"
+        details="78%"
+        phase={EvaluationPhase.IN_PROGRESS}
+        currentPhase={currentPhase}
+        active={active}
+        setActive={setActive}
+        menuKey="progress"
+      />
+      <EvaluationMenuItem
+        icon={GradingSharpIcon}
+        label="Grading & Results"
+        details="34%"
+        phase={EvaluationPhase.GRADING}
+        currentPhase={currentPhase}
+        active={active}
+        setActive={setActive}
+        menuKey="results"
+      />
     </MenuList>
-  )
-}
+  );
+};
 
 
 
