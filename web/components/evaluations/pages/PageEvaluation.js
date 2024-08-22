@@ -141,14 +141,22 @@ const EvaluationPage = () => {
     groupScope && evaluationId ? fetcher : null
   )
 
+  const {
+    data: phase, 
+    error: errorPhase,
+    mutate: mutatePhase,
+  } = useSWR(
+    `/api/${groupScope}/evaluations/${evaluationId}/phase`,
+    groupScope && evaluationId ? fetcher : null
+  )
+
   const [ activeMenu, setActiveMenu ] = useState(null)
 
   useEffect(() => {
-    if (evaluation) {
-      setActiveMenu(phaseToDetails[evaluation.phase].menu)
+    if (phase) {
+      setActiveMenu(phaseToDetails[phase.phase].menu)
     }
-  }, [evaluation])
-
+  }, [phase])
   
   const { data: evaluationToQuestions, error: errorQuestions } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/questions?withGradings=true`,
@@ -158,7 +166,10 @@ const EvaluationPage = () => {
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
-      <Loading error={[error]} loading={!evaluation}>
+      <Loading 
+        error={[error, errorPhase, errorQuestions]}
+        loading={!evaluation || !phase}
+      >
       { evaluation && (
         <LayoutMain
         hideLogo
@@ -363,7 +374,7 @@ const SettingsSummary = ({ evaluation }) => {
       )}
       {isRestricted && evaluation.accessList.length > 0 && (
         <Typography variant="caption" pl={2}>
-          - {evaluation.accessList.length} students.
+          - Access list contains {evaluation.accessList.length} students
         </Typography>
       )}
       {evaluation.conditions ? (
