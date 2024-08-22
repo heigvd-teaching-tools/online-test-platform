@@ -49,8 +49,7 @@ const DropDown = ({
     setValue(defaultValue)
     selectRef.current.value = defaultValue
   }, [defaultValue])
-
-  console.log("disabled", disabled)
+  
   return (
     <FormControl sx={{ flexGrow: 1, minWidth }} variant={variant} margin="none">
       <InputLabel id={`label-${id}`}>{name}</InputLabel>
