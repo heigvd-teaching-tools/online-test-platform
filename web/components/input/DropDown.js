@@ -26,6 +26,7 @@ const DropDown = ({
   id,
   name,
   defaultValue,
+  disabled = false,
   blurOnChange = false,
   minWidth = '120px',
   variant = 'filled',
@@ -48,6 +49,8 @@ const DropDown = ({
     setValue(defaultValue)
     selectRef.current.value = defaultValue
   }, [defaultValue])
+
+  console.log("disabled", disabled)
   return (
     <FormControl sx={{ flexGrow: 1, minWidth }} variant={variant} margin="none">
       <InputLabel id={`label-${id}`}>{name}</InputLabel>
@@ -58,6 +61,7 @@ const DropDown = ({
         size={size}
         autoWidth
         onChange={handleChange}
+        inputProps={{ disabled: disabled }}
         value={value}
         MenuProps={{ variant: 'selectedMenu' }}
         sx={{ padding: 0 }}

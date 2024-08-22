@@ -61,7 +61,9 @@ const patch = async (req, res, prisma) => {
     phase: nextPhase,
     label,
     conditions,
-    duration,
+    durationActive,
+    durationHours,
+    durationMins,
     endAt,
     status,
     showSolutionsWhenFinished,
@@ -89,24 +91,25 @@ const patch = async (req, res, prisma) => {
     }
   }
 
-  if (label) {
+  if (label !== undefined) {
     data.label = label
   }
 
-  if (conditions) {
+  if (conditions !== undefined) {
     data.conditions = conditions
   }
 
-  if (status) {
+  if (status !== undefined) {
     data.status = status
   }
 
-  if (duration) {
-    data.durationHours = duration.hours
-    data.durationMins = duration.minutes
+  if (durationActive !== undefined) {
+    data.durationActive = durationActive
+    data.durationHours = durationHours
+    data.durationMins = durationMins
   }
 
-  if (endAt) {
+  if (endAt !== undefined) {
     let startAt = new Date(currentEvaluation.startAt)
     let newEndAt = new Date(endAt)
     if (newEndAt < startAt) {
@@ -120,11 +123,11 @@ const patch = async (req, res, prisma) => {
     data.showSolutionsWhenFinished = showSolutionsWhenFinished
   }
 
-  if (accessMode) {
+  if (accessMode !== undefined) {
     data.accessMode = accessMode
   }
 
-  if (accessList) {
+  if (accessList !== undefined) {
     data.accessList = accessList
   }
 

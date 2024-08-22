@@ -19,14 +19,14 @@ import BackButton from '@/components/layout/BackButton'
 import LayoutMain from '@/components/layout/LayoutMain'
 import Authorization from '@/components/security/Authorization'
 import { useSnackbar } from '@/context/SnackbarContext'
-import { Alert, Button, Card, CardActions, CardContent, CardHeader, Collapse, Icon, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Step, StepLabel, Stepper, TextField, Tooltip, Typography } from '@mui/material'
+import { Alert, Button, Card, CardActions, CardContent, CardHeader, Collapse, duration, Icon, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Step, StepLabel, Stepper, TextField, Tooltip, Typography } from '@mui/material'
 import { Box, Stack } from '@mui/system'
 import { EvaluationPhase, Role, UserOnEvaluationAccessMode } from '@prisma/client'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import DisplayPhase from '../DisplayPhase'
 import Image from 'next/image'
-import { use, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 
 const phases = [
   EvaluationPhase.SETTINGS,
@@ -145,7 +145,6 @@ const EvaluationPage = () => {
 
   useEffect(() => {
     if (evaluation) {
-      console.log("Evaluation phase: ", evaluation)
       setActiveMenu(phaseToDetails[evaluation.phase].menu)
     }
   }, [evaluation])
@@ -204,6 +203,7 @@ const EvaluationPage = () => {
               rightWidth={80}
               leftPanel={ 
                   <EvaluationSideMenu 
+                    evaluation={evaluation}
                     currentPhase={evaluation.phase}
                     active={activeMenu} 
                     setActive={(menu) => setActiveMenu(menu)}
@@ -215,9 +215,28 @@ const EvaluationPage = () => {
                       <EvaluationSettings 
                         groupScope={groupScope}
                         evaluation={evaluation}
+                        onSettingsChanged={() => mutate()}
                       />
                     )}
-                    
+
+                    {activeMenu === 'compose' && (
+                        <Typography variant="body2">
+                          {evaluationToQuestions && evaluationToQuestions.length} questions
+                        </Typography>
+                    )}
+
+                    {activeMenu === 'attendance' && (
+                      <Typography variant="body2">
+                        {evaluationToQuestions && evaluationToQuestions.length} students
+                      </Typography>
+                    )}
+
+                    {activeMenu === 'progress' && (
+                      <Typography variant="body2">
+                        {evaluationToQuestions && evaluationToQuestions.length} students
+                      </Typography>
+                    )}
+
                     {activeMenu === 'results' && evaluationToQuestions && (
                       <WidgetCard title="Students results">
                         <StudentResultsGrid
@@ -320,8 +339,95 @@ import ModelTrainingSharpIcon from '@mui/icons-material/ModelTrainingSharp';
 import GradingSharpIcon from '@mui/icons-material/GradingSharp';
 
 
+const SettingsSummary = ({ evaluation }) => {
 
-const EvaluationMenuItem = ({ icon: Icon, label, details, phase, currentPhase, active, setActive, menuKey }) => {
+  const isRestricted = evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
+
+  const isLabelDefined = evaluation.label && evaluation.label.length > 0
+
+  return (
+    <Stack spacing={0}>
+      {!isLabelDefined && (
+        <Typography variant="caption" color="error">
+          - Label is required.
+        </Typography>
+      )}
+      {isRestricted ? (
+        <Typography variant="caption">
+          - Restricted access
+        </Typography>
+      ) : (
+        <Typography variant="caption">
+          - Anyone with the link can access
+        </Typography>
+      )}
+      {isRestricted && evaluation.accessList.length > 0 && (
+        <Typography variant="caption" pl={2}>
+          - {evaluation.accessList.length} students.
+        </Typography>
+      )}
+      {evaluation.conditions ? (
+        <Typography variant="caption">
+          - Conditions are set.
+        </Typography>
+      ) : (
+        <Typography variant="caption">
+          - No conditions are set.
+        </Typography>
+      )}
+      {evaluation.durationHours > 0 || evaluation.durationMins > 0 ? (
+        <Typography variant="caption">
+          - Duration: {evaluation.durationHours}h {evaluation.durationMins}m.
+        </Typography>
+      ) : (
+        <Typography variant="caption">
+          - No duration set.
+        </Typography>
+      )}
+    </Stack>
+  )
+}
+
+const CompositionSummary = ({ evaluation }) => {
+  return (
+    <Stack spacing={1}>
+      <Typography variant="caption">- Has {evaluation.evaluationToQuestions?.length} questions.</Typography>
+    </Stack>
+  );
+};
+
+const AttendanceSummary = ({ evaluation }) => {
+  return (
+    <Stack spacing={1}>
+      <Typography variant="caption">- {evaluation.participants?.length} students registered.</Typography>
+      <Typography variant="caption">- {evaluation.deniedParticipants?.length} students denied.</Typography>
+    </Stack>
+  );
+};
+
+const ProgressSummary = ({ evaluation }) => {
+  return (
+    <Stack spacing={1}>
+      <Typography variant="caption">- Progress: 78% completed.</Typography>
+    </Stack>
+  );
+};
+
+const GradingSummary = ({ evaluation }) => {
+
+
+
+  return (
+    <Stack spacing={1}>
+      <Typography variant="caption">- {evaluation.participants?.length} students graded.</Typography>
+
+    </Stack>
+  );
+};
+
+
+
+const EvaluationMenuItem = ({ icon: Icon, label, details, summary, phase, currentPhase, active, setActive, menuKey }) => {
   
   const renderStatus = () => {
     if (phaseGreaterThan(currentPhase, phase)) {
@@ -329,14 +435,17 @@ const EvaluationMenuItem = ({ icon: Icon, label, details, phase, currentPhase, a
     } else if (currentPhase === phase) {
       return <StatusDisplay status={"NEUTRAL"} />;
     }
-    return null; // Don't render for later phases
+    return <StatusDisplay status={"EMPTY"} />;
   };
 
+  const disabled = phaseGreaterThan(phase, currentPhase)
+  
   return (
+    <>
     <MenuItem 
       selected={active === menuKey} 
       onClick={() => setActive(menuKey)} 
-      disabled={phaseGreaterThan(phase, currentPhase)}
+      disabled={disabled}
     >
       <ListItemIcon>
         <Icon fontSize="small" />
@@ -349,11 +458,19 @@ const EvaluationMenuItem = ({ icon: Icon, label, details, phase, currentPhase, a
       )}
       <Box ml={0.5}>
         {renderStatus()}
-      </Box>
+      </Box>    
     </MenuItem>
+    {summary && (
+        <Stack pt={1} pl={2} pb={2}>
+            {summary}
+        </Stack>
+        )}
+    </>
   );
 };
-const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
+
+const EvaluationSideMenu = ({ evaluation, currentPhase, active, setActive }) => {
+
   return (
     <MenuList>
       <EvaluationMenuItem
@@ -364,6 +481,7 @@ const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
         active={active}
         setActive={setActive}
         menuKey="settings"
+        summary={<SettingsSummary evaluation={evaluation} />}
       />
       <EvaluationMenuItem
         icon={FormatListNumberedSharpIcon}
@@ -374,6 +492,7 @@ const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
         active={active}
         setActive={setActive}
         menuKey="compose"
+        summary={<CompositionSummary evaluation={evaluation} />}
       />
       <EvaluationMenuItem
         icon={PeopleSharpIcon}
@@ -384,6 +503,7 @@ const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
         active={active}
         setActive={setActive}
         menuKey="attendance"
+        summary={<AttendanceSummary evaluation={evaluation} />}
       />
       <EvaluationMenuItem
         icon={ModelTrainingSharpIcon}
@@ -394,6 +514,7 @@ const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
         active={active}
         setActive={setActive}
         menuKey="progress"
+        summary={<ProgressSummary evaluation={evaluation} />}
       />
       <EvaluationMenuItem
         icon={GradingSharpIcon}
@@ -404,45 +525,76 @@ const EvaluationSideMenu = ({ currentPhase, active, setActive }) => {
         active={active}
         setActive={setActive}
         menuKey="results"
+        summary={<GradingSummary evaluation={evaluation} />}
       />
     </MenuList>
   );
 };
 
 
-
-
 import EditIcon from '@mui/icons-material/Edit';
-import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import StatusDisplay from '@/components/feedback/StatusDisplay'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 import MarkdownEditor from '@/components/input/markdown/MarkdownEditor'
 import JoinClipboard from '../JoinClipboard'
-import StudentsInEvaluation from '../draft/StudentsInEvaluation'
-import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
-import ScrollContainer from '@/components/layout/ScrollContainer'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
 
 import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
 import SettingsAccessMode from '../draft/SettingsAccessMode'
 import SettingsSchedule from '../draft/SettingsSchedule'
+import { useDebouncedCallback } from 'use-debounce'
 
-const EvaluationSettings = ({ groupScope, evaluation }) => {
+const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
 
-  const [ conditionsEditing, setConditionsEditing ] = useState(false)
+  const { show: showSnackbar } = useSnackbar()
 
   const [label, setLabel] = useState(
     evaluation && evaluation.label ? evaluation.label : '',
   )
 
-  const [errorLabel, setErrorLabel] = useState(false)
+  const [conditions, setConditions] = useState(
+    evaluation && evaluation.conditions ? evaluation.conditions : '',
+  )
 
   useEffect(() => {
     if (evaluation) {
       setLabel(evaluation.label)
+      setConditions(evaluation.conditions)
     }
   }
   , [evaluation, setLabel])
+
+  const handleSave = useCallback(async (updatedProperties) => {
+    return fetch(`/api/${groupScope}/evaluations/${evaluation.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(updatedProperties),
+    }).then((response) => {
+      if (response.ok) {
+        onSettingsChanged()
+      }
+
+      response.json().then((data) => {
+        showSnackbar(data.message, 'error')
+      })
+    }).catch(() => {
+      showSnackbar('Error while saving evaluation', 'error')
+    })
+  }, [
+    groupScope,
+    evaluation,
+    showSnackbar,
+  ])
+
+  const debounceSave = useDebouncedCallback(
+    (updatedProperties) => {
+      handleSave(updatedProperties)
+    },
+    750,
+  )
 
   return (
       <Stack spacing={2}>
@@ -452,79 +604,49 @@ const EvaluationSettings = ({ groupScope, evaluation }) => {
             A meaningful name of the evaluation. It will be displayed to the students.
           </Typography>
         </Alert>
+
         <TextField
           label="Label"
           id="evaluation-label"
           fullWidth
           value={label}
           size="small"
-          onChange={(e) => setLabel(e.target.value)}
-          error={errorLabel ? true : false}
-          helperText={errorLabel ? 'Label is required' : ''}
+          onChange={(e) => {
+            setLabel(e.target.value)
+            debounceSave({ label: e.target.value })
+          }}
+          helperText={!label ? 'Label is required' : ''}
         />
         
-        
-        
-        <Typography variant="h5">Conditions</Typography>
-        <Alert severity="info">
-          <Typography variant="body2">
-            Conditions are optional. They can be used to specify the requirements and any rules or information for the students.Conditions are optional and may be utilized to outline specific requirements, rules, or information pertinent to students.
-          </Typography>
-          <Typography variant="body2">
-          These may include prerequisites for participation, grading criteria, submission deadlines, attendance policies, or any other rules that ensure clarity and structure for the students.
-          </Typography>
-        </Alert>
-        <Stack spacing={1} direction={"row"} alignItems={"center"}>
-            {evaluation.conditions ? (
-              <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                <StatusDisplay status={"SUCCESS"} />
-                <Typography variant="caption">Conditions are set, length: {evaluation.conditions.length}</Typography>
-                <Button
-                  variant="text"
-                  color="warning"
-                  size="small"
-                  onClick={() => setConditionsEditing(!conditionsEditing)}
-                >
-                  Edit conditions
-                </Button>
-              </Stack>
-            ) : (
-              <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                <StatusDisplay status={"MISSING"} />
-                <Typography variant="caption">No conditions set</Typography>
-                <IconButton
-                  onClick={() => setConditionsEditing(!conditionsEditing)}
-                  size="small"
-                >
-                  <EditIcon />
-                </IconButton>
-
-              </Stack>
-            )}
-        </Stack>
-        
-        
-        <UpdateConditionsDialog 
+        <ConditionSettings
           groupScope={groupScope}
-          evaluation={evaluation}
-          open={conditionsEditing}
-          onClose={() => setConditionsEditing(false)}
+          conditions={conditions}
+          onChange={(conditions) => {
+            debounceSave({ conditions })
+          }}
         />
 
         <SettingsAccessMode 
           accessMode={evaluation.accessMode}
           accessList={evaluation.accessList}
           onChange={(accessMode, accessList) => {
-            evaluation.accessMode = accessMode
-            evaluation.accessList = accessList
+            debounceSave({ accessMode, accessList })
           }}
         />
 
         <SettingsSchedule
-          evaluation={evaluation}
+          active={evaluation.durationActive}
+          duration={{
+            hours: evaluation.durationHours,
+            minutes: evaluation.durationMins,
+          }}
           onChange={(duration) => {
-            evaluation.durationHours = duration.hours
-            evaluation.durationMins = duration.minutes
+            console.log("duration", duration)
+            debounceSave({
+              durationActive: duration.active,
+              durationHours: duration.hours,
+              durationMins: duration.minutes,
+            })
           }}
         />
 
@@ -532,22 +654,67 @@ const EvaluationSettings = ({ groupScope, evaluation }) => {
   )
 }
 
+const ConditionSettings = ({ groupScope, conditions, onChange }) => {
 
-const UpdateConditionsDialog = ({ groupScope, evaluation, open, onClose }) => {
-  const [conditions, setConditions] = useState(
-    evaluation ? evaluation.conditions : '',
+  const [ conditionsEditing, setConditionsEditing ] = useState(false)
+
+  return (
+    <>
+    <Typography variant="h5">Conditions</Typography>
+    <Alert severity="info">
+      <Typography variant="body2">
+        Used to specify the requirements and any rules or information for the students. 
+      </Typography>
+      <Typography variant="body2">
+        These may include prerequisites for participation, grading criteria, submission deadlines, attendance policies, or any other rules that ensure clarity and structure for the students.
+      </Typography>
+    </Alert>
+    <Stack spacing={1} direction={"row"} alignItems={"center"}>
+        {conditions ? (
+          <Stack direction={"row"} alignItems={"center"} spacing={1}>
+            <StatusDisplay status={"SUCCESS"} />
+            <Typography variant="caption">Conditions are set, length: {conditions.length}</Typography>
+            <IconButton
+              variant="text"
+              color={"info"}
+              size="small"
+              onClick={() => setConditionsEditing(!conditionsEditing)}
+            >
+              <EditIcon />
+            </IconButton>
+          </Stack>
+        ) : (
+          <Stack direction={"row"} alignItems={"center"} spacing={1}>
+            <StatusDisplay status={"MISSING"} />
+            <Typography variant="caption">No conditions set</Typography>
+            <IconButton
+              onClick={() => setConditionsEditing(!conditionsEditing)}
+              size="small"
+              color={"info"}
+            >
+              <EditIcon />
+            </IconButton>
+
+          </Stack>
+        )}
+    </Stack>
+    <UpdateConditionsDialog 
+      groupScope={groupScope}
+      conditions={conditions}
+      open={conditionsEditing}
+      onClose={() => setConditionsEditing(false)}
+      onConditionsChanged={(value) => {
+        onChange(value)
+      }}
+    />
+
+    </>
   )
+}
 
-  const [conditionHeight, setConditionHeight] = useState(150)
 
-  useEffect(() => {
-    if (conditions && conditions.length > 0) {
-      setConditionHeight(800)
-    } else {
-      setConditionHeight(150)
-    }
-  }, [conditions])
-
+const UpdateConditionsDialog = ({ groupScope, conditions, open, onClose, onConditionsChanged }) => {
+  
   return (
     <DialogFeedback
       open={open}
@@ -559,9 +726,10 @@ const UpdateConditionsDialog = ({ groupScope, evaluation, open, onClose }) => {
             id={`conditions`}
             title="Conditions"
             groupScope={groupScope}
-            value={conditions}
-            onChange={(value) => setConditions(value)}
-            height={conditionHeight}
+            rawContent={conditions}
+            onChange={(value) => {
+              onConditionsChanged(value)
+            }}
           />
         </Stack>
       }

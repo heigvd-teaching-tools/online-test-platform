@@ -16,10 +16,17 @@
 import { Stack, MenuItem, Box } from '@mui/material'
 import { useInput } from '@/code/useInput'
 import DropDown from './DropDown'
+import { useEffect } from 'react'
 
-const DurationPicker = ({ value, onChange }) => {
+const DurationPicker = ({ value, disabled = false, onChange }) => {
+
   const { value: hours, setValue: setHours } = useInput(value?.hours || 0)
   const { value: minutes, setValue: setMinutes } = useInput(value?.minutes || 0)
+
+  useEffect(() => {
+    setHours(value?.hours || 0)
+    setMinutes(value?.minutes || 0)
+  }, [value])
 
   return (
     <Box sx={{ width: '150px' }}>
@@ -27,6 +34,7 @@ const DurationPicker = ({ value, onChange }) => {
         <DropDown
           id={'hours'}
           name={'Hours'}
+          disabled={disabled}
           defaultValue={hours}
           onChange={(value) => {
             setHours(value)
@@ -43,6 +51,7 @@ const DurationPicker = ({ value, onChange }) => {
         <DropDown
           id={'minutes'}
           name={'Minutes'}
+          disabled={disabled}
           defaultValue={minutes}
           onChange={(value) => {
             setMinutes(value)

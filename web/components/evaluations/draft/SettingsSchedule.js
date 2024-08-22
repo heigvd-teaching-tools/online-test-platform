@@ -22,33 +22,28 @@ import {
   FormControlLabel,
   Switch,
   Alert,
-  AlertTitle,
 } from '@mui/material'
 import DurationPicker from '@/components/input/DurationPicker'
 
-const SettingsSchedule = ({ evaluation, onChange }) => {
-  const [useDuration, setUseDuration] = useState(false)
+const SettingsSchedule = ({ active: initialActive, duration:initialDuration, onChange }) => {
+
+  const [useDuration, setUseDuration] = useState(initialActive)
+
   const [duration, setDuration] = useState({
     hours: 0,
     minutes: 0,
   })
 
   useEffect(() => {
-    onChange(useDuration ? duration : { hours: 0, minutes: 0 })
-  }, [duration, useDuration, onChange])
+    setDuration({
+      hours: initialDuration.hours,
+      minutes: initialDuration.minutes,
+    })
+  }, [initialDuration])
 
   useEffect(() => {
-    if (evaluation) {
-      if (evaluation.durationHours > 0 || evaluation.durationMins > 0) {
-        // hours and minutes between startAt and endAt
-        setUseDuration(true)
-        setDuration({
-          hours: evaluation.durationHours,
-          minutes: evaluation.durationMins,
-        })
-      }
-    }
-  }, [evaluation])
+    setUseDuration(initialActive)
+  }, [initialActive])
 
   return (
     <Stack spacing={2}>
@@ -70,26 +65,31 @@ const SettingsSchedule = ({ evaluation, onChange }) => {
               checked={useDuration}
               onChange={(e) => {
                 setUseDuration(e.target.checked)
-                if (!e.target.checked) {
-                  setDuration({
-                    hours: 0,
-                    minutes: 0,
-                  })
-                }
+                onChange({
+                  active: e.target.checked,
+                  ...duration,
+                })
               }}
             />
           }
-          label="Set evaluation duration"
+          label="Set duration"
         />
       </FormGroup>
-      {useDuration && (
+      { useDuration && (
         <DurationPicker
+          disabled={!useDuration}
           value={duration}
           onChange={(value) => {
+            console.log("value", value)
             setDuration(value)
+            onChange({
+              active: true,
+              ...value,
+            })
           }}
         />
       )}
+      
      
     </Stack>
   )

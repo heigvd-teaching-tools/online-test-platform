@@ -542,6 +542,7 @@ model Evaluation {
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
+  durationActive Boolean @default(false)
   durationHours Int? @default(0)
   durationMins  Int? @default(0)
 
