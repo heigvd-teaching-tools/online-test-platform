@@ -52,6 +52,9 @@ const get = async (req, res, prisma) => {
       updatedAt: 'desc',
     },
   })
+
+  
+
   res.status(200).json(evaluations)
 }
 

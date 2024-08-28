@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Paper, Stack, Typography, ListItem } from '@mui/material'
+import { Paper, Stack, Typography, ListItem, ListItemButton } from '@mui/material'
 import { getStudentEntryLink } from '@/code/utils'
 
 const JoinClipboard = ({ evaluationId }) => {
@@ -24,8 +24,7 @@ const JoinClipboard = ({ evaluationId }) => {
 
   return (
     <Paper variant="outlined">
-      <ListItem 
-        button 
+      <ListItemButton
         onClick={onClick} 
         style={{ cursor: 'pointer'}} 
       >
@@ -39,7 +38,7 @@ const JoinClipboard = ({ evaluationId }) => {
             Copy
           </Typography>
         </Stack>
-      </ListItem>
+      </ListItemButton>
     </Paper>
   )
 } 

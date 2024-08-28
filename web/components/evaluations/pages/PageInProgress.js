@@ -37,7 +37,7 @@ import StepInProgress from '../in-progress/StepInProgress'
 import DisplayPhase from '../DisplayPhase'
 
 import PhaseRedirect from './PhaseRedirect'
-import StudentList from '../draft/StudentList'
+import StudentList from '../evaluation/phases/progress/StudentProgressGrid'
 import FilledBullet from '@/components/feedback/FilledBullet'
 import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
 

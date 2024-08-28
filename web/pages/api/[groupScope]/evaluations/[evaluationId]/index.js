@@ -27,10 +27,16 @@ import {
 
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
+
+  let questionIncludeOptions = {
+    includeTypeSpecific: true,
+    includeOfficialAnswers: true,
+  }
+
   const evaluation = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
-    },
+    }
   })
 
   res.status(200).json(evaluation)

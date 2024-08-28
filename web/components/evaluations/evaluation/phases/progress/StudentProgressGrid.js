@@ -27,7 +27,7 @@ import DropdownSelector from '@/components/input/DropdownSelector'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
 import StatusDisplay from '@/components/feedback/StatusDisplay'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
-import ButtonAddToAccessList from './ButtonAddToAccessList'
+import ButtonAddToAccessList from '../../../draft/ButtonAddToAccessList'
 
 const StudentStatusManager = ({
   groupScope,
@@ -114,14 +114,13 @@ const StudentStatusManager = ({
   )
 }
 
-const StudentList = ({
+const StudentProgressGrid = ({
   groupScope,
   evaluationId,
-  title,
   students,
   restrictedAccess,
   accessList,
-  questions = [],
+  progress = [],
   onChange,
   onStudentAllowed,
 }) => {
@@ -200,7 +199,7 @@ const StudentList = ({
   // Utility function to get users's answer status by question id and users email
   const getStudentAnswerStatus = useCallback(
     (studentEmail, questionId) => {
-      const relevantQuestion = questions.find(
+      const relevantQuestion = progress.find(
         (q) => q.question.id === questionId,
       )
       if (!relevantQuestion) return StudentAnswerStatus.MISSING
@@ -210,13 +209,13 @@ const StudentList = ({
       )
       return answer ? answer.status : StudentAnswerStatus.MISSING
     },
-    [questions],
+    [progress],
   )
 
   // Utility function to calculate the percentage of submitted answers for a users
   const getSubmissionPercentage = useCallback(
     (studentEmail) => {
-      const submittedAnswersCount = questions.reduce((count, q) => {
+      const submittedAnswersCount = progress.reduce((count, q) => {
         const answer = q.question.studentAnswer.find(
           (sa) =>
             sa.userEmail === studentEmail &&
@@ -225,15 +224,15 @@ const StudentList = ({
         return answer ? count + 1 : count
       }, 0)
 
-      return Math.round((submittedAnswersCount / questions.length) * 100)
+      return Math.round((submittedAnswersCount / progress.length) * 100)
     },
-    [questions],
+    [progress],
   )
 
   // Create dynamic columns for each question
   const questionColumns = useMemo(
     () =>
-      questions.map((q) => ({
+      progress.map((q) => ({
         label: `Q${q.order + 1}`, // Assuming questions order starts at 0
         tooltip: q.question.title,
         column: { width: 40, minWidth: 40 },
@@ -245,7 +244,7 @@ const StudentList = ({
           />
         ),
       })),
-    [questions, getStudentAnswerStatus],
+    [progress, getStudentAnswerStatus],
   )
 
   if (questionColumns.length > 0) {
@@ -320,8 +319,6 @@ const StudentList = ({
   }
 
   return (
-    <Stack>
-      <Typography variant="h6">{title}</Typography>
       <Datagrid
         header={{ columns: columns }}
         items={students?.map((student) => ({
@@ -331,8 +328,7 @@ const StudentList = ({
           },
         }))}
       />
-    </Stack>
   )
 }
 
-export default StudentList
+export default StudentProgressGrid

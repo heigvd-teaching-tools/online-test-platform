@@ -23,7 +23,8 @@ import {
 
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
-  const evaluation = await prisma.evaluation.findUnique({
+
+  const registered = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
     },
@@ -38,35 +39,31 @@ const get = async (req, res, prisma) => {
         orderBy: {
           registeredAt: 'asc',
         },
-      },
-      evaluationToQuestions: {
+      }
+    },
+  })
+
+  const denied = await prisma.evaluation.findUnique({
+    where: {
+      id: evaluationId,
+    },
+    select: {
+      userOnEvaluationDeniedAccessAttempt: {
         select: {
-          question: {
-            select: {
-              id: true,
-              title: true,
-              studentAnswer: {
-                select: {
-                  question: {
-                    select: {
-                      id: true,
-                    },
-                  },
-                  userEmail: true,
-                  status: true,
-                },
-              },
-            },
-          },
-          order: true,
+          user: true,
+          attemptedAt: true,
         },
         orderBy: {
-          order: 'asc',
+          attemptedAt: 'asc',
         },
       },
     },
   })
-  res.status(200).json(evaluation)
+
+  res.status(200).json({ 
+    registered: registered.students,
+    denied: denied.userOnEvaluationDeniedAccessAttempt,
+  })
 }
 
 export default withGroupScope(
