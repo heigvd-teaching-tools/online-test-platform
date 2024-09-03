@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Button, IconButton } from '@mui/material'
+import { Button } from '@mui/material'
 import { getObtainedPoints } from '../analytics/stats'
 import Image from 'next/image'
 import { useCallback } from 'react'
 
+
 const COLUMN_SEPARATOR = ';'
 const LINE_SEPARATOR = '\r'
 
-const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
+const ExportCSV = ({ evaluation, results, attendance }) => {
   const dotToComma = (value) => value.toString().replace('.', ',')
 
   const exportAsCSV = useCallback(() => {
     let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`
-    evaluationToQuestions.forEach(
+    results.forEach(
       (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`),
     )
     csv += LINE_SEPARATOR
 
-    participants.forEach((participant) => {
+    attendance.forEach((participant) => {
       let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
 
       let totalPoints = evaluationToQuestions.reduce(
@@ -78,17 +79,16 @@ const ExportCSV = ({ evaluation, evaluationToQuestions, participants }) => {
       `evaluation-${evaluation.id}-${sessionLabel}-results.csv`,
     )
     link.click()
-  }, [evaluation, evaluationToQuestions, participants])
+  }, [evaluation, results, attendance])
 
   return (
-    <IconButton color={'info'} onClick={exportAsCSV}>
-      <Image
-        alt="Export"
-        src="/svg/icons/file-csv.svg"
-        width="22"
-        height="22"
-      />
-    </IconButton>
+    <Button 
+      color={'info'} 
+      onClick={exportAsCSV}
+      startIcon={<Image alt="Export" src="/svg/icons/file-csv.svg" width="22" height="22" />}
+    >
+      Export as CSV
+    </Button>
   )
 }
 

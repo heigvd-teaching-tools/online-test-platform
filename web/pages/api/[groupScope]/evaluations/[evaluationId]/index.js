@@ -15,6 +15,7 @@
  */
 import {
   EvaluationPhase,
+  QuestionSource,
   Role,
   UserOnEvaluationAccessMode,
 } from '@prisma/client'
@@ -24,6 +25,64 @@ import {
   withGroupScope,
   withMethodHandler,
 } from '@/middleware/withAuthorization'
+import { copyQuestion, questionIncludeClause } from '@/code/questions'
+
+
+const copyQuestionsForEvaluation = async (prisma, evaluationId) => {
+
+
+  // get all the questions related to this evaluation
+  const evaluationToQuestions = await prisma.evaluationToQuestion.findMany({
+    where: {
+      evaluationId: evaluationId,
+    },
+    include: {
+      question: {
+        include: questionIncludeClause({
+          includeTypeSpecific: true,
+          includeOfficialAnswers: true,
+        }),
+      }
+    }
+  })
+
+  await prisma.$transaction(async (prisma) => {
+    // unlink the questions from the evaluation
+    await prisma.evaluationToQuestion.deleteMany({
+      where: {
+        evaluationId: evaluationId,
+      },
+    })
+
+
+    for (const eToQ of evaluationToQuestions) {
+      // copy the question
+      const newQuestion = await copyQuestion(
+        prisma,
+        eToQ.question,
+        QuestionSource.EVAL,
+      )
+      // create relation between evaluation and question
+      await prisma.evaluationToQuestion.create({
+        data: {
+          points: eToQ.points,
+          order: eToQ.order,
+          evaluation: {
+            connect: {
+              id: evaluationId,
+            },
+          },
+          question: {
+            connect: {
+              id: newQuestion.id,
+            },
+          },
+        },
+      })
+    }
+  })
+}
+
 
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
@@ -81,6 +140,13 @@ const patch = async (req, res, prisma) => {
 
   if (nextPhase) {
     data.phase = nextPhase
+
+    if (nextPhase === EvaluationPhase.REGISTRATION) {
+      // Freeze the composition of the evaluation
+      await copyQuestionsForEvaluation(prisma, evaluationId)
+    }
+
+
     if (nextPhase === EvaluationPhase.IN_PROGRESS) {
       // handle start and end time
       let durationHours = currentEvaluation.durationHours

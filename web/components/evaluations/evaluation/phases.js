@@ -28,7 +28,7 @@ const phaseToDetails = {
         }
     },
     [EvaluationPhase.COMPOSITION]: {
-        "menu": 'compose',
+        "menu": 'composition',
         "nextPhaseButton": {
             "label": "Go to registration",
             "icon": PeopleSharpIcon,

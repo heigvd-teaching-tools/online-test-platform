@@ -9,7 +9,7 @@ import EvaluationTitleBar from '../layout/EvaluationTitleBar'
 import JoinClipboard from '../../JoinClipboard'
 import { useSnackbar } from '@/context/SnackbarContext'
 import StudentProgressGrid from './progress/StudentProgressGrid'
-import progress from '@/pages/api/[groupScope]/evaluations/[evaluationId]/progress'
+
 
 const EvaluationInProgress = ({ groupScope, evaluation, attendance, progress }) => {
 

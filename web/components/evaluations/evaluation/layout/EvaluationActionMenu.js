@@ -1,8 +1,9 @@
 import { useSnackbar } from "@/context/SnackbarContext"
-import { Box, Stack } from "@mui/system"
+import { Stack } from "@mui/system"
 import { Button } from "@mui/material"
-import { getNextPhase, getNextPhaseDetails, getPhaseDetails } from "../phases"
+import { getNextPhase, getPhaseDetails } from "../phases"
 import SkipNextIcon from '@mui/icons-material/SkipNext';
+import StatusDisplay from "@/components/feedback/StatusDisplay";
 
 const EvaluationActionMenu = ({ groupScope, evaluation, onPhaseChange }) => {
   
@@ -30,8 +31,8 @@ const EvaluationActionMenu = ({ groupScope, evaluation, onPhaseChange }) => {
     }
   
     return (
-      <Stack>
-        {phaseDetails && (
+      <Stack direction="row" spacing={2} justifyContent="center">
+        {phaseDetails && phaseDetails.nextPhaseButton ? (
           <Button 
             variant="text" 
             color="info" 
@@ -41,7 +42,7 @@ const EvaluationActionMenu = ({ groupScope, evaluation, onPhaseChange }) => {
           >
             {phaseDetails.nextPhaseButton.label}
           </Button>
-        )}
+        ) : <StatusDisplay status={"SUCCESS"} size={48} />}
       </Stack>
     )
 }

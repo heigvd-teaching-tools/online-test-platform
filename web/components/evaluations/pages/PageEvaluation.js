@@ -24,10 +24,10 @@ import { Box, Stack } from '@mui/system'
 import { Role } from '@prisma/client'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
-import Image from 'next/image'
 import {  useEffect, useState } from 'react'
 
-const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
+const STUDENTS_ATTENDANCE_PULL_INTERVAL = 1000
+const STUDENTS_PROGRESS_PULL_INTERVAL = 5000
 
 const EvaluationPage = () => {
   const router = useRouter()
@@ -70,7 +70,7 @@ const EvaluationPage = () => {
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/attendance`,
     groupScope && evaluationId ? fetcher : null,
-    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
+    { refreshInterval: STUDENTS_ATTENDANCE_PULL_INTERVAL },
   )
 
   const {
@@ -80,10 +80,17 @@ const EvaluationPage = () => {
   } = useSWR(
     `/api/${groupScope}/evaluations/${evaluationId}/progress`,
     groupScope && evaluationId ? fetcher : null,
-    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
+    { refreshInterval: STUDENTS_PROGRESS_PULL_INTERVAL },
   )
-  
 
+  const {
+    data: results,
+    error: errorResults,
+    mutate: mutateResults,
+  } = useSWR(
+    `/api/${groupScope}/evaluations/${evaluationId}/results`,
+    groupScope && evaluationId ? fetcher : null
+  )
 
   const [ activeMenu, setActiveMenu ] = useState(null)
 
@@ -97,7 +104,7 @@ const EvaluationPage = () => {
     <Authorization allowRoles={[Role.PROFESSOR]}>
       <Loading 
         error={[error, errorPhase]}
-        loading={!evaluation || !phase || !composition || !attendance}
+        loading={!evaluation || !phase || !composition || !attendance || !progress || !results}
       >
       { evaluation && (
         <LayoutMain
@@ -127,6 +134,8 @@ const EvaluationPage = () => {
                       evaluation={evaluation}
                       composition={composition}
                       attendance={attendance}
+                      progress={progress}
+                      results={results}
                       currentPhase={evaluation.phase}
                       active={activeMenu} 
                       setActive={(menu) => setActiveMenu(menu)}
@@ -155,7 +164,7 @@ const EvaluationPage = () => {
                       />
                     )}
 
-                    {activeMenu === 'compose' && (
+                    {activeMenu === 'composition' && (
                       <EvaluationComposition
                         groupScope={groupScope}
                         evaluation={evaluation}
@@ -182,50 +191,18 @@ const EvaluationPage = () => {
                         evaluation={evaluation}
                         attendance={attendance}
                         progress={progress}
-                        onProgressChanged={() => mutate()}
+                        onProgressChanged={() => mutateProgress()}
                       />
                     )}
 
-                    {activeMenu === 'results' && evaluationToQuestions && (
-                      <WidgetCard title="Students results">
-                        <StudentResultsGrid
-                            evaluationToQuestions={evaluationToQuestions}
-                            actions={(row) => {
-                              return (
-                                <Tooltip
-                                  title="View student's answers"
-                                  key="view-student-answers"
-                                >
-                                  <a
-                                    href={`/${groupScope}/evaluations/${evaluationId}/consult/${row.participant.email}/1`}
-                                    target="_blank"
-                                  >
-                                    <IconButton size="small">
-                                      <Image
-                                        alt="View"
-                                        src="/svg/icons/view-user.svg"
-                                        width="18"
-                                        height="18"
-                                      />
-                                    </IconButton>
-                                  </a>
-                                </Tooltip>
-                              )
-                            }}
-                            questionCellClick={async (questionId, participantId) => {
-                              const questionOrder =
-                              evaluationToQuestions.findIndex(
-                                  (jstq) => jstq.question.id === questionId,
-                                ) + 1
-                              const participantEmail = participants.find(
-                                (p) => p.id === participantId,
-                              ).email
-                              await router.push(
-                                `/${groupScope}/evaluations/${evaluationId}/consult/${participantEmail}/${questionOrder}`,
-                              )
-                            }}
-                          />
-                      </WidgetCard>
+                    {activeMenu === 'results' && (
+                        <EvaluationResults
+                          groupScope={groupScope}
+                          evaluation={evaluation}
+                          attendance={attendance}
+                          results={results}
+                          onResultsChanged={() => mutateResults()}
+                        />
                     )}
                 </Stack>
               }
@@ -241,8 +218,6 @@ const EvaluationPage = () => {
 }
 
 
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import { getPhaseDetails } from '../evaluation/phases'
@@ -254,6 +229,7 @@ import DisplayPhase from '../DisplayPhase'
 import EvaluationComposition from '../evaluation/phases/EvaluationComposition'
 import EvaluationAttendance from '../evaluation/phases/EvaluationAttendance'
 import EvaluationInProgress from '../evaluation/phases/EvaluationInProgress'
+import EvaluationResults from '../evaluation/phases/EvaluationResults'
 
 const WidgetCard = ({ title, open = true, summary, children }) => {
   const [isOpen, setIsOpen] = useState(open)

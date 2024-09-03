@@ -36,8 +36,8 @@ const SettingsSchedule = ({ active: initialActive, duration:initialDuration, onC
 
   useEffect(() => {
     setDuration({
-      hours: initialDuration.hours,
-      minutes: initialDuration.minutes,
+      hours: initialDuration?.hours || 0,
+      minutes: initialDuration?.minutes || 0,
     })
   }, [initialDuration])
 

@@ -1,5 +1,5 @@
 import { ListItemIcon, ListItemText, MenuItem, MenuList, Typography } from "@mui/material";
-import { EvaluationPhase, UserOnEvaluationAccessMode } from "@prisma/client";
+import { EvaluationPhase, StudentAnswerStatus, StudentQuestionGradingStatus, UserOnEvaluationAccessMode } from "@prisma/client";
 
 import SettingsSharpIcon from '@mui/icons-material/SettingsSharp';
 import FormatListNumberedSharpIcon from '@mui/icons-material/FormatListNumberedSharp';
@@ -11,65 +11,90 @@ import { phaseGreaterThan } from "../phases";
 import StatusDisplay from "@/components/feedback/StatusDisplay";
 
 
-const EvaluationSideMenu = ({ evaluation, composition, attendance, currentPhase, active, setActive }) => {
+const EvaluationSideMenu = ({ evaluation, composition, attendance, progress, results, currentPhase, active, setActive }) => {
+
+    const overallProgress = (progress) => {
+      let totalAnswers = 0;
+      let completedAnswers = 0;
+
+      progress.forEach(question => {
+          totalAnswers += question.question.studentAnswer.length;
+          completedAnswers += question.question.studentAnswer.filter(answer => answer.status !== StudentAnswerStatus.MISSING).length;
+      });
+
+      return Math.round((completedAnswers / totalAnswers) * 100);
+    };
+
+    const overallGrading = (results) => {
+      let totalGraded = 0;
+      let graded = 0;
+
+      results.forEach(question => {
+          totalGraded += question.question.studentAnswer.length;
+          graded += question.question.studentAnswer.filter(answer => answer.studentGrading.signedBy).length;
+      });
+
+      return Math.round((graded / totalGraded) * 100);
+    }
+
     return (
 
-    <MenuList>
-        <EvaluationMenuItem
-            icon={SettingsSharpIcon}
-            label="Settings"
-            phase={EvaluationPhase.SETTINGS}
-            currentPhase={currentPhase}
-            active={active}
-            setActive={setActive}
-            menuKey="settings"
-            summary={<SettingsSummary evaluation={evaluation} />}
-        />
-        <EvaluationMenuItem
-            icon={FormatListNumberedSharpIcon}
-            label="Composition"
-            details={`${composition?.length || 0} questions`}
-            phase={EvaluationPhase.COMPOSITION}
-            currentPhase={currentPhase}
-            active={active}
-            setActive={setActive}
-            menuKey="compose"
-            summary={<CompositionSummary evaluation={evaluation} composition={composition} />}
-        />
-        <EvaluationMenuItem
-            icon={PeopleSharpIcon}
-            label="Attendance"
-            details={`${attendance.registered.length} students`}
-            phase={EvaluationPhase.REGISTRATION}
-            currentPhase={currentPhase}
-            active={active}
-            setActive={setActive}
-            menuKey="attendance"
-            summary={<AttendanceSummary attendance={attendance} />}
-        />
-        <EvaluationMenuItem
-            icon={ModelTrainingSharpIcon}
-            label="Student Progress"
-            details="78%"
-            phase={EvaluationPhase.IN_PROGRESS}
-            currentPhase={currentPhase}
-            active={active}
-            setActive={setActive}
-            menuKey="progress"
-            summary={<ProgressSummary evaluation={evaluation} />}
-        />
-        <EvaluationMenuItem
-            icon={GradingSharpIcon}
-            label="Grading & Results"
-            details="34%"
-            phase={EvaluationPhase.GRADING}
-            currentPhase={currentPhase}
-            active={active}
-            setActive={setActive}
-            menuKey="results"
-            summary={<GradingSummary evaluation={evaluation} />}
-        />
-    </MenuList>
+      <MenuList>
+          <EvaluationMenuItem
+              icon={SettingsSharpIcon}
+              label="Settings"
+              phase={EvaluationPhase.SETTINGS}
+              currentPhase={currentPhase}
+              active={active}
+              setActive={setActive}
+              menuKey="settings"
+              summary={<SettingsSummary evaluation={evaluation} />}
+          />
+          <EvaluationMenuItem
+              icon={FormatListNumberedSharpIcon}
+              label="Composition"
+              details={`${composition?.length || 0} questions`}
+              phase={EvaluationPhase.COMPOSITION}
+              currentPhase={currentPhase}
+              active={active}
+              setActive={setActive}
+              menuKey="composition"
+              summary={<CompositionSummary evaluation={evaluation} composition={composition} />}
+          />
+          <EvaluationMenuItem
+              icon={PeopleSharpIcon}
+              label="Attendance"
+              details={`${attendance.registered.length} students`}
+              phase={EvaluationPhase.REGISTRATION}
+              currentPhase={currentPhase}
+              active={active}
+              setActive={setActive}
+              menuKey="attendance"
+              summary={<AttendanceSummary attendance={attendance} />}
+          />
+          <EvaluationMenuItem
+              icon={ModelTrainingSharpIcon}
+              label="Student Progress"
+              details={`${overallProgress(progress)}%`}
+              phase={EvaluationPhase.IN_PROGRESS}
+              currentPhase={currentPhase}
+              active={active}
+              setActive={setActive}
+              menuKey="progress"
+              summary={<ProgressSummary progress={progress} />}
+          />
+          <EvaluationMenuItem
+              icon={GradingSharpIcon}
+              label="Grading & Results"
+              details={`${overallGrading(results)}%`}
+              phase={EvaluationPhase.GRADING}
+              currentPhase={currentPhase}
+              active={active}
+              setActive={setActive}
+              menuKey="results"
+              summary={<GradingSummary results={results} />}
+          />
+      </MenuList>
     
     );
 };
@@ -176,8 +201,7 @@ const SettingsSummary = ({ evaluation }) => {
           - {composition?.length} questions.
         </Typography>
         <Typography variant="caption">- {composition?.reduce((acc, q) => acc + q.points, 0)} points.</Typography>
-         { 
-          phaseGreaterThan(evaluation.phase, EvaluationPhase.COMPOSITION) ? (
+         {phaseGreaterThan(evaluation.phase, EvaluationPhase.COMPOSITION) ? (
             <>
             <Typography variant="caption"> - Composition is completed.</Typography>
             <Typography variant="caption"> - Questions are copied to the evaluation.</Typography>
@@ -200,24 +224,101 @@ const SettingsSummary = ({ evaluation }) => {
         {attendance.denied?.length > 0 && <Typography variant="caption" color={"error"}>- {attendance.denied?.length} students denied.</Typography>}
       </Stack>
     );
-  };
+  }
   
-  const ProgressSummary = ({ evaluation }) => {
+
+  const ProgressSummary = ({ progress }) => {
+
+    const countAnswers = (progress, status = StudentAnswerStatus.MISSING) => {
+      let count = 0;
+
+      progress.forEach(question => {
+          count += question.question.studentAnswer.filter(answer => answer.status === status).length;
+      });
+    
+      return count;
+    }
+
+    const totalAnswers = (progress) => {
+      let count = 0;
+
+      progress.forEach(question => {
+          count += question.question.studentAnswer.length;
+      });
+
+      return count;
+    }
+
+    const inProgressAnswers = countAnswers(progress, StudentAnswerStatus.IN_PROGRESS)
+    const submittedAnswers = countAnswers(progress, StudentAnswerStatus.SUBMITTED)
+
+    const inProgressAnswerPercentage = Math.round((inProgressAnswers / totalAnswers(progress)) * 100)
+    const submittedAnswerPercentage = Math.round((submittedAnswers / totalAnswers(progress)) * 100)
+
     return (
-      <Stack spacing={1}>
-        <Typography variant="caption">- Progress: 78% completed.</Typography>
+      <Stack spacing={0}>
+        <Typography variant="caption">- In progress answers {inProgressAnswers} out of {totalAnswers(progress)} ({inProgressAnswerPercentage}%).</Typography>
+        <Typography variant="caption">- Submitted answers {submittedAnswers} out of {totalAnswers(progress)} ({submittedAnswerPercentage}%).</Typography>
       </Stack>
     );
-  };
+  }
   
-  const GradingSummary = ({ evaluation }) => {
+  const GradingSummary = ({ results }) => {
+
+    console.log("results", results)
   
-  
+    const countGraded = (results) => {
+      let count = 0;
+
+      results.forEach(question => {
+          count += question.question.studentAnswer.filter(answer => answer.studentGrading.signedBy).length;
+      });
+    
+      return count;
+    }
+
+    const totalGraded = (results) => {
+      let count = 0;
+
+      results.forEach(question => {
+          count += question.question.studentAnswer.length;
+      });
+
+      return count;
+    }
+
+    // Signed / Total
+    const graded = countGraded(results, StudentQuestionGradingStatus.GRADED)
+
+    const gradedPercentage = Math.round((graded / totalGraded(results)) * 100)
+
+    // awarded points / total points
+    const awardedPoints = results.reduce((acc, result) => acc + result.question.studentAnswer.filter(answer => answer.studentGrading.signedBy).reduce((acc, answer) => acc + answer.studentGrading.pointsObtained, 0), 0)
+
+    const totalPoints = results.reduce((acc, result) => acc + result.points, 0)
+
+
+    // Success rate based on signed grading
+
+    const successRate = (results) => {
+      let totalPoints = 0;
+      let obtainedPoints = 0;
+
+      results.forEach(question => {
+          totalPoints += question.points;
+          obtainedPoints += question.question.studentAnswer
+            .filter(answer => answer.studentGrading.signedBy)
+            .reduce((acc, answer) => acc + answer.studentGrading.pointsObtained, 0);
+      });
+
+      return Math.round((obtainedPoints / totalPoints) * 100);
+    }
   
     return (
       <Stack spacing={1}>
-        <Typography variant="caption">- {evaluation.participants?.length} students graded.</Typography>
-  
+        <Typography variant="caption">- Graded answers {graded} out of {totalGraded(results)} ({gradedPercentage}%).</Typography>
+        <Typography variant="caption">- Awarded points {awardedPoints} out of {totalPoints}.</Typography>
+        <Typography variant="caption">- Success rate {successRate(results)}%.</Typography>
       </Stack>
     );
   };

@@ -33,9 +33,12 @@ const get = async (req, res, prisma) => {
         select: {
           question: {
             include: questionIncludeClause({
+              includeTypeSpecific: true,
+              includeOfficialAnswers: true,
               includeUserAnswers: {
                 strategy: IncludeStrategy.ALL,
               },
+              includeGradings: true,
             }),
           },
           order: true,
