@@ -24,7 +24,8 @@ export const phaseGT = (a, b) => {
 
 export const phasePageRelationship = {
   NEW: ['/users/evaluations/[evaluationId]/wait'],
-  DRAFT: ['/users/evaluations/[evaluationId]/wait'],
+  COMPOSITION: ['/users/evaluations/[evaluationId]/wait'],
+  REGISTRATION: ['/users/evaluations/[evaluationId]/wait'],
   IN_PROGRESS: [
     '/users/evaluations/[evaluationId]/take',
     '/users/evaluations/[evaluationId]/take/[pageIndex]',
@@ -38,7 +39,8 @@ export const studentPhaseRedirect = async (evaluationId, phase, router) => {
   // dispatch phase is handling the redirection for the users to connect to the evaluation
   switch (phase) {
     case EvaluationPhase.NEW:
-    case EvaluationPhase.DRAFT:
+    case EvaluationPhase.COMPOSITION:
+    case EvaluationPhase.REGISTRATION:
     case EvaluationPhase.GRADING:
       await router.push(`/users/evaluations/${evaluationId}/wait`)
       return
