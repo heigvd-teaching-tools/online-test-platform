@@ -23,6 +23,11 @@ const COLUMN_SEPARATOR = ';'
 const LINE_SEPARATOR = '\r'
 
 const ExportCSV = ({ evaluation, results, attendance }) => {
+
+  const participants = attendance.registered.map((r) => r.user)
+
+  console.log("ExportCSV participants", participants)
+  console.log("ExportCSV results", results)
   const dotToComma = (value) => value.toString().replace('.', ',')
 
   const exportAsCSV = useCallback(() => {
@@ -32,10 +37,10 @@ const ExportCSV = ({ evaluation, results, attendance }) => {
     )
     csv += LINE_SEPARATOR
 
-    attendance.forEach((participant) => {
-      let obtainedPoints = getObtainedPoints(evaluationToQuestions, participant)
+    participants.forEach((participant) => {
+      let obtainedPoints = getObtainedPoints(results, participant)
 
-      let totalPoints = evaluationToQuestions.reduce(
+      let totalPoints = results.reduce(
         (acc, jstq) => acc + jstq.points,
         0,
       )
@@ -48,7 +53,7 @@ const ExportCSV = ({ evaluation, results, attendance }) => {
         totalPoints,
       )}${COLUMN_SEPARATOR}${dotToComma(obtainedPoints)}${COLUMN_SEPARATOR}`
 
-      evaluationToQuestions.forEach((jstq) => {
+      results.forEach((jstq) => {
         const studentAnswer = jstq.question.studentAnswer.find(
           (sa) => sa.user.email === participant.email,
         )
@@ -79,7 +84,7 @@ const ExportCSV = ({ evaluation, results, attendance }) => {
       `evaluation-${evaluation.id}-${sessionLabel}-results.csv`,
     )
     link.click()
-  }, [evaluation, results, attendance])
+  }, [evaluation, results, participants])
 
   return (
     <Button 

@@ -1,7 +1,6 @@
 import { EvaluationPhase } from "@prisma/client";
 
 import SettingsSharpIcon from '@mui/icons-material/SettingsSharp';
-import FormatListNumberedSharpIcon from '@mui/icons-material/FormatListNumberedSharp';
 import PeopleSharpIcon from '@mui/icons-material/PeopleSharp';
 import ModelTrainingSharpIcon from '@mui/icons-material/ModelTrainingSharp';
 import GradingSharpIcon from '@mui/icons-material/GradingSharp'; 

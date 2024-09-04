@@ -162,45 +162,37 @@ const PageConsult = () => {
                     footer={
                       <>
                         {' '}
-                        {selected && (
-                          <Paper sx={{ height: '80px' }} square>
-                            <Stack
-                              spacing={2}
-                              direction="row"
-                              justifyContent="center"
-                              alignItems="center"
-                              height="100%"
-                              pr={1}
-                            >
-                              {selected.question.studentAnswer[0].studentGrading
-                                .signedBy ? (
-                                <>
-                                  <GradingSigned
-                                    signedBy={
-                                      selected.question.studentAnswer[0]
-                                        .studentGrading.signedBy
-                                    }
-                                    readOnly={true}
-                                  />
-                                  <GradingPointsComment
-                                    points={
-                                      selected.question.studentAnswer[0]
-                                        .studentGrading.pointsObtained
-                                    }
-                                    maxPoints={selected.points}
-                                    comment={
-                                      selected.question.studentAnswer[0]
-                                        .studentGrading.comment
-                                    }
-                                  />
-                                </>
-                              ) : (
-                                <AlertFeedback severity="warning">
-                                  This question has not been graded yet.
-                                </AlertFeedback>
-                              )}
-                            </Stack>
-                          </Paper>
+                        {selected && selected.question.studentAnswer[0].studentGrading
+                                .signedBy && (
+                                  <Paper sx={{ height: '80px' }} square>
+                                    <Stack
+                                      spacing={2}
+                                      direction="row"
+                                      justifyContent="center"
+                                      alignItems="center"
+                                      height="100%"
+                                      pr={1}
+                                    >
+                                    <GradingSigned
+                                      signedBy={
+                                        selected.question.studentAnswer[0]
+                                          .studentGrading.signedBy
+                                      }
+                                      readOnly={true}
+                                    />
+                                    <GradingPointsComment
+                                      points={
+                                        selected.question.studentAnswer[0]
+                                          .studentGrading.pointsObtained
+                                      }
+                                      maxPoints={selected.points}
+                                      comment={
+                                        selected.question.studentAnswer[0]
+                                          .studentGrading.comment
+                                      }
+                                    />
+                                    </Stack>
+                                  </Paper>
                         )}
                       </>
                     }

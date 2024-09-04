@@ -1,4 +1,4 @@
-import { ListItemIcon, ListItemText, MenuItem, MenuList, Typography } from "@mui/material";
+import { IconButton, ListItemIcon, ListItemText, MenuItem, MenuList, Tooltip, Typography } from "@mui/material";
 import { EvaluationPhase, StudentAnswerStatus, StudentQuestionGradingStatus, UserOnEvaluationAccessMode } from "@prisma/client";
 
 import SettingsSharpIcon from '@mui/icons-material/SettingsSharp';
@@ -9,33 +9,46 @@ import GradingSharpIcon from '@mui/icons-material/GradingSharp';
 import { Box, Stack } from "@mui/system";
 import { phaseGreaterThan } from "../phases";
 import StatusDisplay from "@/components/feedback/StatusDisplay";
+import Image from "next/image";
+import { getStudentEntryLink } from "@/code/utils";
+import Link from "next/link";
 
 
-const EvaluationSideMenu = ({ evaluation, composition, attendance, progress, results, currentPhase, active, setActive }) => {
+const EvaluationSideMenu = ({ groupScope, evaluation, composition, attendance, progress, results, currentPhase, active, setActive }) => {
 
     const overallProgress = (progress) => {
       let totalAnswers = 0;
       let completedAnswers = 0;
-
+    
       progress.forEach(question => {
-          totalAnswers += question.question.studentAnswer.length;
-          completedAnswers += question.question.studentAnswer.filter(answer => answer.status !== StudentAnswerStatus.MISSING).length;
+        totalAnswers += question.question.studentAnswer.length;
+        completedAnswers += question.question.studentAnswer.filter(answer => answer.status !== StudentAnswerStatus.MISSING).length;
       });
-
+    
+      if (totalAnswers === 0) {
+        return 0; // Avoid division by zero
+      }
+    
       return Math.round((completedAnswers / totalAnswers) * 100);
     };
+  
 
     const overallGrading = (results) => {
       let totalGraded = 0;
       let graded = 0;
-
+    
       results.forEach(question => {
-          totalGraded += question.question.studentAnswer.length;
-          graded += question.question.studentAnswer.filter(answer => answer.studentGrading.signedBy).length;
+        totalGraded += question.question.studentAnswer.length;
+        graded += question.question.studentAnswer.filter(answer => answer.studentGrading?.signedBy).length;
       });
-
+    
+      if (totalGraded === 0) {
+        return 0; // Avoid division by zero
+      }
+    
       return Math.round((graded / totalGraded) * 100);
-    }
+    };
+    
 
     return (
 
@@ -64,7 +77,35 @@ const EvaluationSideMenu = ({ evaluation, composition, attendance, progress, res
           <EvaluationMenuItem
               icon={PeopleSharpIcon}
               label="Attendance"
-              details={`${attendance.registered.length} students`}
+              details={
+                <>
+                <Tooltip
+                  title="Copy invitation link to clipboard"
+                  key="add-link-to-clipboard"
+                >
+                  <IconButton
+                    onClick={(ev) => {
+                      ev.preventDefault()
+                      ev.stopPropagation()
+                      ;(async () => {
+                        await navigator.clipboard.writeText(
+                          getStudentEntryLink(evaluation.id),
+                        )
+                      })()
+                    }}
+                    disabled={!phaseGreaterThan(currentPhase, EvaluationPhase.COMPOSITION)}
+                  >
+                    <Image
+                      alt="Copy link"
+                      src="/svg/icons/link.svg"
+                      width="18"
+                      height="18"
+                    />
+                  </IconButton>
+                </Tooltip>
+                  {attendance.registered?.length} registered
+                </>
+              }
               phase={EvaluationPhase.REGISTRATION}
               currentPhase={currentPhase}
               active={active}
@@ -75,7 +116,32 @@ const EvaluationSideMenu = ({ evaluation, composition, attendance, progress, res
           <EvaluationMenuItem
               icon={ModelTrainingSharpIcon}
               label="Student Progress"
-              details={`${overallProgress(progress)}%`}
+              details={
+                <>
+                <Link
+                  href={`/${groupScope}/evaluations/${evaluation.id}/analytics`}
+                  passHref
+                  key="analytics"
+                  target="_blank"
+                >
+                  <Tooltip title="Open Analytics Page">
+                    <IconButton
+                      component="span"
+                      onClick={(event) => event.stopPropagation()}
+                      disabled={!phaseGreaterThan(currentPhase, EvaluationPhase.REGISTRATION)}
+                    >
+                      <Image
+                        alt="Analytics"
+                        src="/svg/icons/analytics.svg"
+                        width="18"
+                        height="18"
+                      />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
+                {overallProgress(progress)}% completed
+                </>
+              }
               phase={EvaluationPhase.IN_PROGRESS}
               currentPhase={currentPhase}
               active={active}
@@ -85,7 +151,7 @@ const EvaluationSideMenu = ({ evaluation, composition, attendance, progress, res
           />
           <EvaluationMenuItem
               icon={GradingSharpIcon}
-              label="Grading & Results"
+              label="Results & Feedback"
               details={`${overallGrading(results)}%`}
               phase={EvaluationPhase.GRADING}
               currentPhase={currentPhase}
@@ -264,64 +330,69 @@ const SettingsSummary = ({ evaluation }) => {
   }
   
   const GradingSummary = ({ results }) => {
-
-    console.log("results", results)
   
     const countGraded = (results) => {
       let count = 0;
-
-      results.forEach(question => {
-          count += question.question.studentAnswer.filter(answer => answer.studentGrading.signedBy).length;
+      results.forEach((question) => {
+        count += question.question.studentAnswer.filter(
+          (answer) => answer.studentGrading.signedBy
+        ).length;
       });
-    
       return count;
-    }
-
+    };
+  
     const totalGraded = (results) => {
       let count = 0;
-
-      results.forEach(question => {
-          count += question.question.studentAnswer.length;
+      results.forEach((question) => {
+        count += question.question.studentAnswer.length;
       });
-
       return count;
-    }
-
+    };
+  
     // Signed / Total
-    const graded = countGraded(results, StudentQuestionGradingStatus.GRADED)
-
-    const gradedPercentage = Math.round((graded / totalGraded(results)) * 100)
-
-    // awarded points / total points
-    const awardedPoints = results.reduce((acc, result) => acc + result.question.studentAnswer.filter(answer => answer.studentGrading.signedBy).reduce((acc, answer) => acc + answer.studentGrading.pointsObtained, 0), 0)
-
-    const totalPoints = results.reduce((acc, result) => acc + result.points, 0)
-
-
+    const graded = countGraded(results);
+    const gradedPercentage = Math.round((graded / totalGraded(results)) * 100);
+  
+    // Awarded points
+    const awardedPoints = results.reduce(
+      (acc, result) =>
+        acc +
+        result.question.studentAnswer
+          .filter((answer) => answer.studentGrading.signedBy)
+          .reduce((acc, answer) => acc + answer.studentGrading.pointsObtained, 0),
+      0
+    );
+  
+    // Total points for signed answers
+    const totalPointsForGraded = results.reduce(
+      (acc, result) =>
+        acc +
+        result.question.studentAnswer
+          .filter((answer) => answer.studentGrading.signedBy)
+          .reduce((acc, answer) => acc + result.points, 0),
+      0
+    );
+  
     // Success rate based on signed grading
-
-    const successRate = (results) => {
-      let totalPoints = 0;
-      let obtainedPoints = 0;
-
-      results.forEach(question => {
-          totalPoints += question.points;
-          obtainedPoints += question.question.studentAnswer
-            .filter(answer => answer.studentGrading.signedBy)
-            .reduce((acc, answer) => acc + answer.studentGrading.pointsObtained, 0);
-      });
-
-      return Math.round((obtainedPoints / totalPoints) * 100);
-    }
+    const successRate = () => {
+      if (totalPointsForGraded === 0) return 0;
+      return Math.round((awardedPoints / totalPointsForGraded) * 100);
+    };
   
     return (
-      <Stack spacing={1}>
-        <Typography variant="caption">- Graded answers {graded} out of {totalGraded(results)} ({gradedPercentage}%).</Typography>
-        <Typography variant="caption">- Awarded points {awardedPoints} out of {totalPoints}.</Typography>
-        <Typography variant="caption">- Success rate {successRate(results)}%.</Typography>
+      <Stack>
+        <Typography variant="caption">
+          - Graded answers {graded} out of {totalGraded(results)} (
+          {gradedPercentage}%).
+        </Typography>
+        <Typography variant="caption">
+          - Awarded points {awardedPoints} out of {totalPointsForGraded}.
+        </Typography>
+        <Typography variant="caption">- Success rate {successRate()}%.</Typography>
       </Stack>
     );
   };
+  
   
 
 export default EvaluationSideMenu
