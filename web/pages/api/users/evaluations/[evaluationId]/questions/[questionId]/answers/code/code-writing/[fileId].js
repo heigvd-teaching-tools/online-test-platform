@@ -30,7 +30,6 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
-import select from '@/pages/api/users/groups/select'
 /*
   Student updated his answer to a code wiritng file during an evaluation
 

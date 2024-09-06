@@ -33,8 +33,6 @@ import {
 
 import languages from '@/code/languages.json'
 
-import util from 'util'
-
 const environments = languages.environments
 
 /**

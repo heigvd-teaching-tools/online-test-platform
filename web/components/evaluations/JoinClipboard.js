@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Paper,
-  Stack,
-  Typography,
-  ListItem,
-  ListItemButton,
-} from '@mui/material'
+import { Paper, Stack, Typography, ListItemButton } from '@mui/material'
 import { getStudentEntryLink } from '@/code/utils'
 
 const JoinClipboard = ({ evaluationId }) => {

@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import order from '@/pages/api/[groupScope]/collections/[collectionId]/order'
-import code from '@/pages/api/[groupScope]/questions/[questionId]/code'
-import select from '@/pages/api/users/groups/select'
 import {
   QuestionType,
   StudentPermission,
   QuestionSource,
   CodeQuestionType,
 } from '@prisma/client'
-import { comment } from '@uiw/react-md-editor'
 
 export const IncludeStrategy = {
   ALL: 'all',
@@ -319,7 +315,6 @@ export const questionIncludeClause = (questionIncludeOptions) => {
     also used to avoid injections
  */
 
-import utils from 'util'
 export const questionTypeSpecific = (
   questionType,
   question,

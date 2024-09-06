@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material'
-
+import { Button, IconButton, Stack, Tooltip } from '@mui/material'
 import EvaluationTitleBar from '../layout/EvaluationTitleBar'
-import StudentResultsGrid from '../../finished/StudentResultsGrid'
+import ExportCSV from './results/ExportCSV'
+import StudentResultsGrid from './results/StudentResultsGrid'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import ExportCSV from '../../finished/ExportCSV'
 
 const EvaluationResults = ({ groupScope, evaluation, attendance, results }) => {
   const router = useRouter()

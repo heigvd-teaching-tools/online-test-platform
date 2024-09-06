@@ -16,7 +16,7 @@
 import { QuestionType, CodeQuestionType } from '@prisma/client'
 import React, { useEffect, useState } from 'react'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { Stack, Typography, MenuItem, Box, Alert } from '@mui/material'
+import { Stack, Typography, MenuItem } from '@mui/material'
 import { toArray as typesToArray } from '@/components/question/types'
 import AlertFeedback from '@/components/feedback/AlertFeedback'
 import QuestionTypeIcon from '@/components/question/QuestionTypeIcon'

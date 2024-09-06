@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useCallback, useEffect, useState, useMemo, use } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import {
@@ -26,7 +26,6 @@ import {
   Stack,
   Divider,
   Paper,
-  Button,
   Typography,
   IconButton,
   Tooltip,
@@ -63,8 +62,8 @@ import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
 import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
-import StudentResultsGrid from '../finished/StudentResultsGrid'
-import ExportCSV from '../finished/ExportCSV'
+import StudentResultsGrid from '../evaluation/phases/results/StudentResultsGrid'
+import ExportCSV from '../evaluation/phases/results/ExportCSV'
 import { saveGrading } from '../grading/utils'
 
 const PageGrading = () => {

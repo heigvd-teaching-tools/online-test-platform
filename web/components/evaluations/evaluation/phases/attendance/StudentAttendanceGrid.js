@@ -20,7 +20,7 @@ import Datagrid from '@/components/ui/DataGrid'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
 import StatusDisplay from '@/components/feedback/StatusDisplay'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
-import ButtonAddToAccessList from '../../../draft/ButtonAddToAccessList'
+import ButtonAddToAccessList from './ButtonAddToAccessList'
 
 const StudentAttendanceGrid = ({
   groupScope,

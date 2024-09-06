@@ -348,8 +348,6 @@ const UploadingStatus = ({ status = 'NOT_STARTED' }) => {
   ) : null
 }
 
-import { Graphviz } from 'graphviz-react'
-
 const UserHelp = () => {
   return (
     <UserHelpPopper label="Guide" maxHeight={500}>

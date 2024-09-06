@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { use, useCallback, useEffect, useState } from 'react'
-import {
-  Box,
-  Button,
-  Checkbox,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { Box, Button, Stack, TextField, Typography } from '@mui/material'
 
 import { toArray as typesToArray } from './types.js'
 import languages from '../../code/languages.json'

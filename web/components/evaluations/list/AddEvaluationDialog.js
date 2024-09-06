@@ -18,11 +18,9 @@ import { Autocomplete, Stack, TextField, Typography } from '@mui/material'
 
 import { useSnackbar } from '@/context/SnackbarContext'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CardSelector from '@/components/input/CardSelector'
 import { EvaluationPhase, UserOnEvaluationAccessMode } from '@prisma/client'
-import ToggleWithLabel from '@/components/input/ToggleWithLabel'
-import UserHelpPopper from '@/components/feedback/UserHelpPopper'
 
 const Presets = [
   {

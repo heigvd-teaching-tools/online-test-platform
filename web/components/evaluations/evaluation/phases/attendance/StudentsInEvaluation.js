@@ -13,8 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PageCompose from '../../../../components/collections/pages/PageCompose'
 
-const ComposeCollection = () => <PageCompose />
+import StudentAttendanceGrid from './StudentAttendanceGrid'
 
-export default ComposeCollection
+const StudentsInEvaluation = ({
+  groupScope,
+  evaluationId,
+  students,
+  restrictedAccess,
+  accessList,
+  onStudentAllowed,
+}) => {
+  return (
+    evaluationId && (
+      <StudentAttendanceGrid
+        groupScope={groupScope}
+        evaluationId={evaluationId}
+        students={students}
+        restrictedAccess={restrictedAccess}
+        accessList={accessList}
+        onStudentAllowed={() => {
+          onStudentAllowed()
+        }}
+      />
+    )
+  )
+}
+
+export default StudentsInEvaluation

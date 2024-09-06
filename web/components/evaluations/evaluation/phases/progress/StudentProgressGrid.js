@@ -16,7 +16,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { StudentAnswerStatus, UserOnEvaluationStatus } from '@prisma/client'
-import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material'
+import { IconButton, Stack, Tooltip, Typography } from '@mui/material'
 
 import UserAvatar from '@/components/layout/UserAvatar'
 import Datagrid from '@/components/ui/DataGrid'
@@ -25,9 +25,6 @@ import PiePercent from '@/components/feedback/PiePercent'
 
 import DropdownSelector from '@/components/input/DropdownSelector'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
-import StatusDisplay from '@/components/feedback/StatusDisplay'
-import UserHelpPopper from '@/components/feedback/UserHelpPopper'
-import ButtonAddToAccessList from '../../../draft/ButtonAddToAccessList'
 
 const StudentStatusManager = ({
   groupScope,

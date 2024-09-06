@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import Image from 'next/image'
-import { Box, Stack, Tooltip, Typography } from '@mui/material'
+import { Stack, Tooltip, Typography } from '@mui/material'
 import { getTextByType, getTooltipByType } from './types.js'
 
 const QuestionTypeIcon = ({ type, size = 32, withLabel = false }) => {

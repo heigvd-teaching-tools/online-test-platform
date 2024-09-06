@@ -118,7 +118,7 @@ export const AnnotationProvider = ({
       setAnnotation(immutableAnnotation)
       setState(stateBasedOnAnnotation(immutableAnnotation))
     }
-  }, [immutableAnnotation])
+  }, [immutableAnnotation, doFetch])
 
   useEffect(() => {
     if (doFetch) {
@@ -127,6 +127,8 @@ export const AnnotationProvider = ({
       setState(stateBasedOnAnnotation(contextAnnotation))
     }
   }, [contextAnnotation, doFetch])
+
+  const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
 
   const change = useCallback(
     async (content) => {
@@ -161,19 +163,19 @@ export const AnnotationProvider = ({
       }
     },
     [
-      groupScope,
-      entityType,
-      entity,
       annotation,
-      student,
+      debouncedUpdateAnnotation,
+      entity,
+      entityType,
+      groupScope,
       question,
-      state,
-      mutate,
       readOnly,
+      setAnnotation,
+      setState,
+      state,
+      student,
     ],
   )
-
-  const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
 
   const discard = useCallback(async () => {
     if (readOnly) {
@@ -183,7 +185,7 @@ export const AnnotationProvider = ({
     setAnnotation(null)
     setState(AnnotationState.NOT_ANNOTATED.value)
     await discardAnnotation(groupScope, annotationId)
-  }, [groupScope, annotation, mutate, readOnly])
+  }, [groupScope, annotation, readOnly])
 
   return (
     <AnnotationContext.Provider

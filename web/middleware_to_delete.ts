@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 import { Role } from '@prisma/client'
-import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getSession } from 'next-auth/react'
 
 const pathAccessControl = {
   '/api/evaluation/(.*)/students': {

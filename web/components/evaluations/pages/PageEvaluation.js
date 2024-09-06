@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { fetcher } from '@/code/utils'
-import Loading from '@/components/feedback/Loading'
-import BackButton from '@/components/layout/BackButton'
-import LayoutMain from '@/components/layout/LayoutMain'
-import Authorization from '@/components/security/Authorization'
-import { useSnackbar } from '@/context/SnackbarContext'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Collapse,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@mui/material'
-import { Box, Stack } from '@mui/system'
-import { Role } from '@prisma/client'
+
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
+import { getPhaseDetails } from '../evaluation/phases'
+import { fetcher } from '@/code/utils'
+import Authorization from '@/components/security/Authorization'
+import Loading from '@/components/feedback/Loading'
+import LayoutMain from '@/components/layout/LayoutMain'
+import { Stack } from '@mui/system'
+import BackButton from '@/components/layout/BackButton'
+import { Typography } from '@mui/material'
+import DisplayPhase from '../DisplayPhase'
+import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
+import EvaluationSideMenu from '../evaluation/layout/EvaluationSideMenu'
+import EvaluationActionMenu from '../evaluation/layout/EvaluationActionMenu'
+import EvaluationSettings from '../evaluation/phases/EvaluationSettings'
+import EvaluationComposition from '../evaluation/phases/EvaluationComposition'
+import EvaluationAttendance from '../evaluation/phases/EvaluationAttendance'
+import EvaluationInProgress from '../evaluation/phases/EvaluationInProgress'
+import EvaluationResults from '../evaluation/phases/EvaluationResults'
 import { useEffect, useState } from 'react'
+import { Role } from '@prisma/client'
 
 const STUDENTS_ATTENDANCE_PULL_INTERVAL = 1000
 const STUDENTS_PROGRESS_PULL_INTERVAL = 5000
@@ -41,7 +43,7 @@ const EvaluationPage = () => {
   const router = useRouter()
   const { groupScope, evaluationId } = router.query
 
-  const { show: showSnackbar } = useSnackbar()
+  const [activeMenu, setActiveMenu] = useState(null)
 
   const {
     data: phase,
@@ -51,6 +53,12 @@ const EvaluationPage = () => {
     `/api/${groupScope}/evaluations/${evaluationId}/phase`,
     groupScope && evaluationId ? fetcher : null,
   )
+
+  useEffect(() => {
+    if (phase) {
+      setActiveMenu(getPhaseDetails(phase.phase).menu)
+    }
+  }, [phase])
 
   const {
     data: evaluation,
@@ -98,14 +106,6 @@ const EvaluationPage = () => {
     `/api/${groupScope}/evaluations/${evaluationId}/results`,
     groupScope && evaluationId ? fetcher : null,
   )
-
-  const [activeMenu, setActiveMenu] = useState(null)
-
-  useEffect(() => {
-    if (phase) {
-      setActiveMenu(getPhaseDetails(phase.phase).menu)
-    }
-  }, [phase])
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
@@ -183,7 +183,6 @@ const EvaluationPage = () => {
                           evaluation={evaluation}
                           composition={composition}
                           onCompositionChanged={() => {
-                            console.log('mutateComposition')
                             mutateComposition()
                           }}
                         />
@@ -226,53 +225,6 @@ const EvaluationPage = () => {
         )}
       </Loading>
     </Authorization>
-  )
-}
-
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import { getPhaseDetails } from '../evaluation/phases'
-import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
-import EvaluationSideMenu from '../evaluation/layout/EvaluationSideMenu'
-import EvaluationActionMenu from '../evaluation/layout/EvaluationActionMenu'
-import EvaluationSettings from '../evaluation/phases/EvaluationSettings'
-import DisplayPhase from '../DisplayPhase'
-import EvaluationComposition from '../evaluation/phases/EvaluationComposition'
-import EvaluationAttendance from '../evaluation/phases/EvaluationAttendance'
-import EvaluationInProgress from '../evaluation/phases/EvaluationInProgress'
-import EvaluationResults from '../evaluation/phases/EvaluationResults'
-
-const WidgetCard = ({ title, open = true, summary, children }) => {
-  const [isOpen, setIsOpen] = useState(open)
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen)
-  }
-
-  return (
-    <Card variant="outlined">
-      <CardHeader
-        sx={{
-          pt: 1,
-          pl: 1,
-          pr: 1,
-          pb: 1,
-          cursor: 'pointer',
-          userSelect: 'none',
-        }}
-        title={<Typography variant="h6">{title}</Typography>}
-        onClick={handleToggle}
-        action={
-          <IconButton aria-label="toggle content visibility">
-            {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
-        }
-      />
-      <Collapse in={isOpen}>
-        <CardContent sx={{ p: 0 }}>{children}</CardContent>
-      </Collapse>
-      {!isOpen && summary && <Box sx={{ p: 1 }}>{summary}</Box>}
-    </Card>
   )
 }
 
