@@ -94,12 +94,14 @@ NEXTAUTH_SECRET=<generate secret>
 
 NEXTAUTH_KEYCLOAK_CLIENT_ID=eval-client
 NEXTAUTH_KEYCLOAK_CLIENT_SECRET=<client secret>
-NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=http://localhost:8080/realms/HEIG-VD
+NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL=http://localhost:8080/realms/eval
 ```
 
 The existing `.env` might needs to be adjusted to reflect your database config. It currently corresponds to the one proposed in the /dev/docker-compose.yml file.
 
 ### Install the app dependencies
+
+REMINDER: Make sure you use the node version 20+.
 
 ```bash
 cd web
@@ -125,6 +127,10 @@ npm run dev
 ```
 
 ### Setup your super admin user
+
+#### Signin in eval
+
+Open your browser and go to `http://localhost:3000`. Signin with your keycloak user.
 
 When you signin in eval for the first time, a user will be created. It will have the role STUDENT by default.
 

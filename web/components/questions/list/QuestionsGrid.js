@@ -19,7 +19,7 @@ import QuestionTagsViewer from '@/components/question/tags/QuestionTagsViewer'
 import CodeQuestionTypeIcon from '@/components/question/type_specific/code/CodeQuestionTypeIcon'
 import LanguageIcon from '@/components/question/type_specific/code/LanguageIcon'
 import GridGrouping from '@/components/ui/GridGrouping'
-import { IconButton, Tooltip, Typography } from '@mui/material'
+import { Button, IconButton, Tooltip, Typography } from '@mui/material'
 import { Stack } from '@mui/system'
 import { QuestionType } from '@prisma/client'
 import { useRouter } from 'next/router'
@@ -31,7 +31,6 @@ import Image from 'next/image'
 const QuestionsGrid = ({
   groupScope,
   questions,
-  setAddDialogOpen,
   selection,
   setSelection,
   onRowClick,
