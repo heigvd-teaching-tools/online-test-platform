@@ -17,7 +17,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { update } from '../pages/crud'
 import ToggleWithLabel from '@/components/input/ToggleWithLabel'
 
-const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
+const ToggleStudentViewSolution = ({ groupScope, evaluation, onChange }) => {
   const [saving, setSaving] = useState(false)
   const [showSolutionsWhenFinished, setShowSolutionsWhenFinished] = useState(
     evaluation.showSolutionsWhenFinished,
@@ -44,10 +44,11 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
     <ToggleWithLabel
       label="Allow student to view official solutions"
       checked={showSolutionsWhenFinished}
-      onChange={(e) => {
+      onChange={async (e) => {
         const checked = e.target.checked
         setShowSolutionsWhenFinished(checked)
-        save(checked)
+        await save(checked)
+        onChange(checked)
       }}
     />
   )
