@@ -15,7 +15,7 @@
  */
 import { Box, IconButton, Stack } from '@mui/material'
 import ConnectionIndicator from './ConnectionIndicator'
-import EvaluationCountDown from '@/components/evaluations/in-progress/EvaluationCountDown'
+import EvaluationCountDown from '@/components/evaluations/evaluation/phases/progress/EvaluationCountDown'
 import Paging from '@/components/layout/utils/Paging'
 import { useRouter } from 'next/router'
 

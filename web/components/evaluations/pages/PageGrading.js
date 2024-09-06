@@ -62,8 +62,8 @@ import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
 import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
-import StudentResultsGrid from '../finished/StudentResultsGrid'
-import ExportCSV from '../finished/ExportCSV'
+import StudentResultsGrid from '../evaluation/phases/results/StudentResultsGrid'
+import ExportCSV from '../evaluation/phases/results/ExportCSV'
 import { saveGrading } from '../grading/utils'
 
 const PageGrading = () => {

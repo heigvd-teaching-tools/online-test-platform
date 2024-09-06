@@ -18,20 +18,24 @@ import Loading from '@/components/feedback/Loading'
 import BackButton from '@/components/layout/BackButton'
 import LayoutMain from '@/components/layout/LayoutMain'
 import Authorization from '@/components/security/Authorization'
-import { useSnackbar } from '@/context/SnackbarContext'
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  Collapse,
-  IconButton,
   Typography,
 } from '@mui/material'
-import { Box, Stack } from '@mui/system'
+import { Stack } from '@mui/system'
 import { Role } from '@prisma/client'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { useEffect, useState } from 'react'
+import { getPhaseDetails } from '../evaluation/phases'
+import EvaluationSideMenu from '../evaluation/layout/EvaluationSideMenu'
+import DisplayPhase from '../DisplayPhase'
+import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
+import EvaluationActionMenu from '../evaluation/layout/EvaluationActionMenu'
+import EvaluationResults from '../evaluation/phases/EvaluationResults'
+import EvaluationInProgress from '../evaluation/phases/EvaluationInProgress'
+import EvaluationAttendance from '../evaluation/phases/EvaluationAttendance'
+import EvaluationComposition from '../evaluation/phases/EvaluationComposition'
+import EvaluationSettings from '../evaluation/phases/EvaluationSettings'
 
 const STUDENTS_ATTENDANCE_PULL_INTERVAL = 1000
 const STUDENTS_PROGRESS_PULL_INTERVAL = 5000
@@ -39,8 +43,6 @@ const STUDENTS_PROGRESS_PULL_INTERVAL = 5000
 const EvaluationPage = () => {
   const router = useRouter()
   const { groupScope, evaluationId } = router.query
-
-  const { show: showSnackbar } = useSnackbar()
 
   const {
     data: phase,
@@ -182,7 +184,6 @@ const EvaluationPage = () => {
                           evaluation={evaluation}
                           composition={composition}
                           onCompositionChanged={() => {
-                            console.log('mutateComposition')
                             mutateComposition()
                           }}
                         />
@@ -228,51 +229,5 @@ const EvaluationPage = () => {
   )
 }
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import { getPhaseDetails } from '../evaluation/phases'
-import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
-import EvaluationSideMenu from '../evaluation/layout/EvaluationSideMenu'
-import EvaluationActionMenu from '../evaluation/layout/EvaluationActionMenu'
-import EvaluationSettings from '../evaluation/phases/EvaluationSettings'
-import DisplayPhase from '../DisplayPhase'
-import EvaluationComposition from '../evaluation/phases/EvaluationComposition'
-import EvaluationAttendance from '../evaluation/phases/EvaluationAttendance'
-import EvaluationInProgress from '../evaluation/phases/EvaluationInProgress'
-import EvaluationResults from '../evaluation/phases/EvaluationResults'
-
-const WidgetCard = ({ title, open = true, summary, children }) => {
-  const [isOpen, setIsOpen] = useState(open)
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen)
-  }
-
-  return (
-    <Card variant="outlined">
-      <CardHeader
-        sx={{
-          pt: 1,
-          pl: 1,
-          pr: 1,
-          pb: 1,
-          cursor: 'pointer',
-          userSelect: 'none',
-        }}
-        title={<Typography variant="h6">{title}</Typography>}
-        onClick={handleToggle}
-        action={
-          <IconButton aria-label="toggle content visibility">
-            {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
-        }
-      />
-      <Collapse in={isOpen}>
-        <CardContent sx={{ p: 0 }}>{children}</CardContent>
-      </Collapse>
-      {!isOpen && summary && <Box sx={{ p: 1 }}>{summary}</Box>}
-    </Card>
-  )
-}
 
 export default EvaluationPage

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Button } from '@mui/material'
-import { getObtainedPoints } from '../analytics/stats'
+import { getObtainedPoints } from '../../../analytics/stats'
 import Image from 'next/image'
 import { useCallback } from 'react'
 

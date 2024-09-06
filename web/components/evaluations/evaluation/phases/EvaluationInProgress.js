@@ -20,8 +20,8 @@ import JoinClipboard from '../../JoinClipboard'
 import { useSnackbar } from '@/context/SnackbarContext'
 import StudentProgressGrid from './progress/StudentProgressGrid'
 import { useCallback } from 'react'
-import MinutesSelector from '../../in-progress/MinutesSelector'
-import EvaluationCountDown from '../../in-progress/EvaluationCountDown'
+import MinutesSelector from './progress/MinutesSelector'
+import EvaluationCountDown from './progress/EvaluationCountDown'
 
 const EvaluationInProgress = ({
   groupScope,

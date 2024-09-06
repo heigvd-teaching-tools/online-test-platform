@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import StudentAttendanceGrid from '../evaluation/phases/attendance/StudentAttendanceGrid'
+
+import StudentAttendanceGrid from "./StudentAttendanceGrid"
 
 const StudentsInEvaluation = ({
   groupScope,

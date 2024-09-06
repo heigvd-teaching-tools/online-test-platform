@@ -17,9 +17,9 @@ import { Stack, Typography } from '@mui/material'
 
 import EvaluationTitleBar from '../layout/EvaluationTitleBar'
 import JoinClipboard from '../../JoinClipboard'
-import StudentsInEvaluation from '../../draft/StudentsInEvaluation'
-import DeniedStudentsInEvaluation from '../../draft/DeniedStudentsInEvaluation'
 import { useSnackbar } from '@/context/SnackbarContext'
+import DeniedStudentsInEvaluation from './attendance/DeniedStudentsInEvaluation'
+import StudentsInEvaluation from './attendance/StudentsInEvaluation'
 
 const EvaluationAttendance = ({
   groupScope,

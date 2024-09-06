@@ -16,10 +16,10 @@
 import { Button, IconButton, Stack, Tooltip } from '@mui/material'
 
 import EvaluationTitleBar from '../layout/EvaluationTitleBar'
-import StudentResultsGrid from '../../finished/StudentResultsGrid'
+import StudentResultsGrid from './results/StudentResultsGrid'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import ExportCSV from '../../finished/ExportCSV'
+import ExportCSV from './results/ExportCSV'
 
 const EvaluationResults = ({ groupScope, evaluation, attendance, results }) => {
   const router = useRouter()
