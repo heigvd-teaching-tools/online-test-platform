@@ -158,7 +158,7 @@ const EvaluationSideMenu = ({
       />
       <EvaluationMenuItem
         icon={ModelTrainingSharpIcon}
-        label="Student Progress"
+        label="In Progress"
         details={
           <>
             <Link
