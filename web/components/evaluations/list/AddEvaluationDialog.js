@@ -30,7 +30,6 @@ const Presets = [
     settings: {
       showSolutionWhenFinished: false,
       restrictAccess: true,
-      grade: true,
     },
   },
   {
@@ -40,7 +39,6 @@ const Presets = [
     settings: {
       showSolutionWhenFinished: true,
       restrictAccess: false,
-      grade: false,
     },
   },
   {
@@ -248,12 +246,6 @@ const PresetSummary = ({ preset }) => {
           <Typography variant="body1">
             {preset.restrictAccess ? 'Yes' : 'No'}
           </Typography>
-        </Stack>
-        <Stack direction="row" justifyContent="space-between">
-          <Typography variant="body2">
-            Grade the evaluation and provide feedback:
-          </Typography>
-          <Typography variant="body1">{preset.grade ? 'Yes' : 'No'}</Typography>
         </Stack>
       </>
     )
