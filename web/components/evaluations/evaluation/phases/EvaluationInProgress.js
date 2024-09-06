@@ -70,12 +70,13 @@ const EvaluationInProgress = ({
         action={<JoinClipboard evaluationId={evaluationId} />}
       />
 
-      {evaluation.phase === EvaluationPhase.IN_PROGRESS && evaluation.durationActive && (
-        <DurationManager
-          evaluation={evaluation}
-          onChange={handleDurationChange}
-        />
-      )}
+      {evaluation.phase === EvaluationPhase.IN_PROGRESS &&
+        evaluation.durationActive && (
+          <DurationManager
+            evaluation={evaluation}
+            onChange={handleDurationChange}
+          />
+        )}
 
       <StudentProgressGrid
         groupScope={groupScope}
