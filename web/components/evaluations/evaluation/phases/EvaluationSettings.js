@@ -111,6 +111,7 @@ const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
       <ToggleStudentViewSolution
         groupScope={groupScope}
         evaluation={evaluation}
+        onChange={() => onSettingsChanged()}
       />
 
       <ConditionSettings
