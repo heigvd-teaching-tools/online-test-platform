@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { UserOnEvaluatioAccessMode } from '@prisma/client'
+import { UserOnEvaluationAccessMode } from '@prisma/client'
 
 export const isStudentAllowed = (evaluation, studentEmail) =>
-  evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+  evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
     ? evaluation.accessList?.includes(studentEmail)
     : true

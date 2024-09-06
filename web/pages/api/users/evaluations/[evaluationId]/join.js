@@ -23,7 +23,7 @@ import {
   EvaluationPhase,
   QuestionType,
   StudentPermission,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
   CodeQuestionType,
 } from '@prisma/client'
 import { phaseGT } from '@/code/phase'
@@ -55,7 +55,7 @@ const post = async (req, res, prisma) => {
   // Check if the user is in the evaluation access list in case the evaluation has restricted access
   // The check is done previously in the endpoint /api/users/evaluations/%5BevaluationId%5D/dispatch.js
   if (
-    evaluation.accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+    evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
     if (!evaluation.accessList.find((email) => email === studentEmail)) {
       // keep track of the users who were denied access to the evaluation
@@ -74,7 +74,7 @@ const post = async (req, res, prisma) => {
       })
       res
         .status(403)
-        .json({ message: 'You are not allowed to access this evaluatio2' })
+        .json({ message: 'You are not allowed to access this evaluatio' })
       return
     }
   }
@@ -139,59 +139,76 @@ const post = async (req, res, prisma) => {
     for (const jstq of evaluationToQuestions) {
       const { question } = jstq
 
-      const studentAnswer = await prisma.studentAnswer.create({
-        data: {
-          userEmail: studentEmail,
-          questionId: question.id,
-          [question.type]: {
-            create: {}, // good for most question types
+      // Check if the StudentAnswer already exists
+      const existingAnswer = await prisma.studentAnswer.findUnique({
+        where: {
+          userEmail_questionId: {
+            userEmail: studentEmail,
+            questionId: question.id,
           },
-          studentGrading: {
-            create: grading(question, jstq.points, undefined),
-          },
-        },
-        include: {
-          [question.type]: true,
         },
       })
 
-      // web, code and database questions have type specific data to be copied for the users answer
-      switch (question.type) {
-        case QuestionType.web:
-          await prisma.studentAnswerWeb.update({
-            where: {
-              userEmail_questionId: {
-                userEmail: studentEmail,
-                questionId: question.id,
+      if (!existingAnswer) {
+        const studentAnswer = await prisma.studentAnswer.create({
+          data: {
+            userEmail: studentEmail,
+            questionId: question.id,
+            [question.type]: {
+              create: {}, // good for most question types
+            },
+            studentGrading: {
+              create: grading(question, jstq.points, undefined),
+            },
+          },
+          include: {
+            [question.type]: true,
+          },
+        })
+
+        // Handle type-specific data
+        switch (question.type) {
+          case QuestionType.web:
+            await prisma.studentAnswerWeb.update({
+              where: {
+                userEmail_questionId: {
+                  userEmail: studentEmail,
+                  questionId: question.id,
+                },
               },
-            },
-            data: {
-              html: question.web.templateHtml || '',
-              css: question.web.templateCss || '',
-              js: question.web.templateJs || '',
-            },
-          })
-          break
-        case QuestionType.code:
-          await prisma.studentAnswerCode.update({
-            where: {
-              userEmail_questionId: {
-                userEmail: studentEmail,
-                questionId: question.id,
+              data: {
+                html: question.web.templateHtml || '',
+                css: question.web.templateCss || '',
+                js: question.web.templateJs || '',
               },
-            },
-            data: {
-              codeType: question.code.codeType,
-              ...createCodeTypeSpecificData(question),
-            },
-          })
-          break
-        case QuestionType.database:
-          await createDatabaseTypeSpecificData(prisma, studentAnswer, question)
-          break
+            })
+            break
+          case QuestionType.code:
+            await prisma.studentAnswerCode.update({
+              where: {
+                userEmail_questionId: {
+                  userEmail: studentEmail,
+                  questionId: question.id,
+                },
+              },
+              data: {
+                codeType: question.code.codeType,
+                ...createCodeTypeSpecificData(question),
+              },
+            })
+            break
+          case QuestionType.database:
+            await createDatabaseTypeSpecificData(
+              prisma,
+              studentAnswer,
+              question,
+            )
+            break
+        }
       }
     }
   })
+
   res.status(200).json(userOnEvaluation)
 }
 

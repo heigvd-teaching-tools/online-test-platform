@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 import { Stack } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import DropdownSelector from '../input/DropdownSelector'
 import Datagrid from './DataGrid'
 import { useTheme } from '@emotion/react'
 import ScrollContainer from '../layout/ScrollContainer'
+import isEqual from 'lodash/isEqual'
 
 const elementGroupBy = (items, grouping) => {
   return items.reduce((acc, item) => {
@@ -27,6 +28,7 @@ const elementGroupBy = (items, grouping) => {
       acc[key] = {
         label: key.replace('key_', ''),
         items: [],
+        selection: [],
       }
     }
     acc[key].items.push(item)
@@ -42,6 +44,7 @@ const arrayGroupBy = (items, grouping) => {
         acc[key] = {
           label: key.replace('key_', ''),
           items: [],
+          selection: [],
         }
       }
       acc[key].items.push(item)
@@ -68,6 +71,7 @@ const dateGroupBy = (items, grouping) => {
       acc[key] = {
         label: key,
         items: [],
+        selection: [],
       }
     }
 
@@ -89,27 +93,70 @@ const groupByType = (items, grouping) => {
   }
 }
 
-const GridGrouping = ({ label, header, items, groupings, actions }) => {
+const initializeGroupSelection = (groups, globalSelection) => {
+  const updatedGroups = { ...groups }
+
+  Object.keys(updatedGroups).forEach((groupKey) => {
+    updatedGroups[groupKey].selection = updatedGroups[groupKey].items
+      .filter(
+        (item) => globalSelection.includes(item.id), // Assuming items have an `id` field
+      )
+      ?.map((item) => item.id)
+  })
+
+  return updatedGroups
+}
+
+const GridGrouping = ({
+  label,
+  header,
+  items,
+  groupings,
+  actions,
+  selection = [],
+  enableSelection,
+  onSelectionChange,
+}) => {
   const theme = useTheme()
 
   const [navigation, setNavigation] = useState('all')
   const [selectedGrouping, setSelectedGrouping] = useState(groupings[0]) // Default to first grouping
-
-  const [groups, setGroups] = useState(groupByType(items, groupings[0]))
-
-  useEffect(() => {
-    setGroups(groupByType(items, selectedGrouping))
-  }, [items, selectedGrouping])
+  const [groups, setGroups] = useState(() =>
+    initializeGroupSelection(groupByType(items, groupings[0]), selection),
+  )
 
   const handleGroupingChange = (option) => {
     const grouping = groupings.find((g) => g.option === option)
     setSelectedGrouping(grouping)
-    setGroups(groupByType(items, grouping))
+    const newGroups = groupByType(items, grouping)
+    setGroups(initializeGroupSelection(newGroups, selection))
     setNavigation('all')
   }
 
+  useEffect(() => {
+    const newGroups = initializeGroupSelection(
+      groupByType(items, selectedGrouping),
+      selection,
+    )
+    if (!isEqual(groups, newGroups)) {
+      setGroups(newGroups)
+    }
+  }, [selection, items, selectedGrouping, groups])
+
   const handleNavigationChange = (value) => {
     setNavigation(value)
+  }
+
+  const handleSelectionChange = (groupId, selected) => {
+    groups[groupId].selection = selected
+    setGroups({ ...groups })
+    if (onSelectionChange) {
+      const newSelection = Object.values(groups).reduce((acc, group) => {
+        acc.push(...group.selection)
+        return acc
+      }, [])
+      onSelectionChange(newSelection)
+    }
   }
 
   const navigationOptions = [
@@ -169,7 +216,17 @@ const GridGrouping = ({ label, header, items, groupings, actions }) => {
                     selectedGrouping.renderLabel(groups[groupKey])}
                 </Stack>
 
-                <Datagrid items={groups[groupKey].items} header={header} />
+                <Datagrid
+                  groupKey={groups[groupKey].label}
+                  items={groups[groupKey].items}
+                  header={header}
+                  enableSelection={enableSelection}
+                  selection={groups[groupKey].selection}
+                  onSelectionChange={(selection) => {
+                    console.log('onSelectionChange', groupKey, selection)
+                    handleSelectionChange(groupKey, selection)
+                  }}
+                />
               </Stack>
             ) : null,
           )}

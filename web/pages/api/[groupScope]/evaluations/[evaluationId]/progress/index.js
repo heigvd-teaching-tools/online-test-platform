@@ -20,6 +20,7 @@ import {
   withAuthorization,
   withGroupScope,
 } from '@/middleware/withAuthorization'
+import { IncludeStrategy, questionIncludeClause } from '@/code/questions'
 
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
@@ -28,37 +29,17 @@ const get = async (req, res, prisma) => {
       id: evaluationId,
     },
     select: {
-      students: {
-        select: {
-          user: true,
-          registeredAt: true,
-          finishedAt: true,
-          status: true,
-        },
-        orderBy: {
-          registeredAt: 'asc',
-        },
-      },
       evaluationToQuestions: {
         select: {
           question: {
-            select: {
-              id: true,
-              title: true,
-              studentAnswer: {
-                select: {
-                  question: {
-                    select: {
-                      id: true,
-                    },
-                  },
-                  userEmail: true,
-                  status: true,
-                },
+            include: questionIncludeClause({
+              includeUserAnswers: {
+                strategy: IncludeStrategy.ALL,
               },
-            },
+            }),
           },
           order: true,
+          points: true,
         },
         orderBy: {
           order: 'asc',
@@ -66,7 +47,7 @@ const get = async (req, res, prisma) => {
       },
     },
   })
-  res.status(200).json(evaluation)
+  res.status(200).json(evaluation.evaluationToQuestions)
 }
 
 export default withGroupScope(

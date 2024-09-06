@@ -15,8 +15,9 @@
  */
 import {
   EvaluationPhase,
+  QuestionSource,
   Role,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -24,9 +25,63 @@ import {
   withGroupScope,
   withMethodHandler,
 } from '@/middleware/withAuthorization'
+import { copyQuestion, questionIncludeClause } from '@/code/questions'
+
+const copyQuestionsForEvaluation = async (prisma, evaluationId) => {
+  // get all the questions related to this evaluation
+  const evaluationToQuestions = await prisma.evaluationToQuestion.findMany({
+    where: {
+      evaluationId: evaluationId,
+    },
+    include: {
+      question: {
+        include: questionIncludeClause({
+          includeTypeSpecific: true,
+          includeOfficialAnswers: true,
+        }),
+      },
+    },
+  })
+
+  await prisma.$transaction(async (prisma) => {
+    // unlink the questions from the evaluation
+    await prisma.evaluationToQuestion.deleteMany({
+      where: {
+        evaluationId: evaluationId,
+      },
+    })
+
+    for (const eToQ of evaluationToQuestions) {
+      // copy the question
+      const newQuestion = await copyQuestion(
+        prisma,
+        eToQ.question,
+        QuestionSource.EVAL,
+      )
+      // create relation between evaluation and question
+      await prisma.evaluationToQuestion.create({
+        data: {
+          points: eToQ.points,
+          order: eToQ.order,
+          evaluation: {
+            connect: {
+              id: evaluationId,
+            },
+          },
+          question: {
+            connect: {
+              id: newQuestion.id,
+            },
+          },
+        },
+      })
+    }
+  })
+}
 
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
+
   const evaluation = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
@@ -61,7 +116,9 @@ const patch = async (req, res, prisma) => {
     phase: nextPhase,
     label,
     conditions,
-    duration,
+    durationActive,
+    durationHours,
+    durationMins,
     endAt,
     status,
     showSolutionsWhenFinished,
@@ -73,6 +130,12 @@ const patch = async (req, res, prisma) => {
 
   if (nextPhase) {
     data.phase = nextPhase
+
+    if (nextPhase === EvaluationPhase.REGISTRATION) {
+      // Freeze the composition of the evaluation
+      await copyQuestionsForEvaluation(prisma, evaluationId)
+    }
+
     if (nextPhase === EvaluationPhase.IN_PROGRESS) {
       // handle start and end time
       let durationHours = currentEvaluation.durationHours
@@ -89,24 +152,25 @@ const patch = async (req, res, prisma) => {
     }
   }
 
-  if (label) {
+  if (label !== undefined) {
     data.label = label
   }
 
-  if (conditions) {
+  if (conditions !== undefined) {
     data.conditions = conditions
   }
 
-  if (status) {
+  if (status !== undefined) {
     data.status = status
   }
 
-  if (duration) {
-    data.durationHours = duration.hours
-    data.durationMins = duration.minutes
+  if (durationActive !== undefined) {
+    data.durationActive = durationActive
+    data.durationHours = durationHours
+    data.durationMins = durationMins
   }
 
-  if (endAt) {
+  if (endAt !== undefined) {
     let startAt = new Date(currentEvaluation.startAt)
     let newEndAt = new Date(endAt)
     if (newEndAt < startAt) {
@@ -120,11 +184,11 @@ const patch = async (req, res, prisma) => {
     data.showSolutionsWhenFinished = showSolutionsWhenFinished
   }
 
-  if (accessMode) {
+  if (accessMode !== undefined) {
     data.accessMode = accessMode
   }
 
-  if (accessList) {
+  if (accessList !== undefined) {
     data.accessList = accessList
   }
 
@@ -139,7 +203,7 @@ const patch = async (req, res, prisma) => {
 
     if (
       currentEvaluation.accessMode ===
-      UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+      UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
     ) {
       // remove eventual denied students
       await prisma.userOnEvaluationDeniedAccessAttempt.deleteMany({

@@ -117,32 +117,6 @@ model UserOnGroup {
   @@id([userId, groupId])
 }
 
-model Collection {
-  id    String @id @default(cuid())
-  label String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  collectionToQuestions CollectionToQuestion[]
-
-  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId String
-
-  @@unique([groupId, label])
-}
-
-model CollectionToQuestion {
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  collectionId String
-  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId   String
-
-  order  Int   @default(0)
-  points Float @default(4)
-
-  @@id([collectionId, questionId])
-}
 
 enum QuestionSource {
   BANK // Question bank
@@ -179,7 +153,7 @@ model Question {
 
   studentAnswer StudentAnswer[]
   questionToTag QuestionToTag[]
-  evaluation    EvaluationToQuestion?
+  evaluation    EvaluationToQuestion[]
 }
 
 enum MultipleChoiceGradingPolicyType {
@@ -540,7 +514,9 @@ model QuestionToTag {
 // Order is important here
 enum EvaluationPhase {
   NEW
-  DRAFT
+  SETTINGS
+  COMPOSITION
+  REGISTRATION
   IN_PROGRESS
   GRADING
   FINISHED
@@ -551,7 +527,7 @@ enum EvaluationStatus {
   ARCHIVED
 }
 
-enum UserOnEvaluatioAccessMode {
+enum UserOnEvaluationAccessMode {
   LINK_ONLY // Everyone with the link can access
   LINK_AND_ACCESS_LIST // Access requires having the link and being in the access list
 }
@@ -562,10 +538,11 @@ model Evaluation {
   label      String?
   conditions String?
   status     EvaluationStatus @default(ACTIVE)
-  phase      EvaluationPhase  @default(DRAFT)
+  phase      EvaluationPhase  @default(SETTINGS)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
+  durationActive Boolean @default(false)
   durationHours Int? @default(0)
   durationMins  Int? @default(0)
 
@@ -574,28 +551,43 @@ model Evaluation {
 
   showSolutionsWhenFinished Boolean @default(false)
 
-  accessMode UserOnEvaluatioAccessMode @default(LINK_ONLY)
+  accessMode UserOnEvaluationAccessMode @default(LINK_ONLY)
   accessList Json?
 
   students              UserOnEvaluation[]
+  
   evaluationToQuestions EvaluationToQuestion[]
 
   group                               Group                                 @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId                             String
   userOnEvaluationDeniedAccessAttempt UserOnEvaluationDeniedAccessAttempt[]
+}
+
+model Collection {
+  id    String @id @default(cuid())
+  label String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  collectionToQuestions CollectionToQuestion[]
+
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   @@unique([groupId, label])
 }
 
-model UserOnEvaluationDeniedAccessAttempt {
-  user         User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
-  userEmail    String
-  evaluationId String
-  attemptedAt  DateTime @default(now())
+model CollectionToQuestion {
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId   String
 
-  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+  order  Int   @default(0)
+  points Float @default(4)
 
-  @@id([userEmail, evaluationId])
+  @@id([collectionId, questionId])
 }
 
 model EvaluationToQuestion {
@@ -603,7 +595,7 @@ model EvaluationToQuestion {
   evaluationId String
 
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String   @unique
+  questionId String  
 
   points Float @default(0)
   order  Int   @default(0)
@@ -616,6 +608,16 @@ enum UserOnEvaluationStatus {
   FINISHED
 }
 
+model UserOnEvaluationDeniedAccessAttempt {
+  user         User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  userEmail    String
+  evaluationId String
+  attemptedAt  DateTime @default(now())
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id])
+
+  @@id([userEmail, evaluationId])
+}
 model UserOnEvaluation {
   user      User   @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail String

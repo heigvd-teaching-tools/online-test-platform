@@ -179,7 +179,7 @@ const execTests = async (container, tests) => {
         '-c',
         `echo "${input}" | ${exec} 2>&1 | head -c ${
           MAX_OUTPUT_SIZE_PER_EXEC_KB * 1024
-        } 2>&1`,
+        }`,
       ],
       {
         tty: false,

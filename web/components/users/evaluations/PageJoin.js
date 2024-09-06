@@ -29,6 +29,7 @@ const PageJoin = () => {
 
   const { data: session, status } = useSession()
   const [error, setError] = useState(null)
+
   useEffect(() => {
     /*
      * users is joining the evaluation (it must be in draft or in-progress phase)
@@ -50,6 +51,7 @@ const PageJoin = () => {
             let data
             try {
               data = await res.json()
+              console.log(data)
             } catch (e) {
               data.message = 'Server error'
             }

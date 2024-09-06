@@ -27,7 +27,7 @@ import DropdownSelector from '@/components/input/DropdownSelector'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
 import StatusDisplay from '@/components/feedback/StatusDisplay'
 import UserHelpPopper from '@/components/feedback/UserHelpPopper'
-import ButtonAddToAccessList from './ButtonAddToAccessList'
+import ButtonAddToAccessList from '../../../draft/ButtonAddToAccessList'
 
 const StudentStatusManager = ({
   groupScope,
@@ -114,20 +114,13 @@ const StudentStatusManager = ({
   )
 }
 
-const StudentList = ({
+const StudentProgressGrid = ({
   groupScope,
   evaluationId,
-  title,
   students,
-  restrictedAccess,
-  accessList,
-  questions = [],
+  progress = [],
   onChange,
-  onStudentAllowed,
 }) => {
-  const isStudentProhibited = (studentEmail) =>
-    restrictedAccess && !accessList?.includes(studentEmail)
-
   const columns = [
     {
       label: 'Student',
@@ -140,39 +133,6 @@ const StudentList = ({
           justifyContent={'space-between'}
         >
           <UserAvatar user={row.user} />
-          {isStudentProhibited(row.user.email) && (
-            <Stack direction="row" spacing={2} alignItems="center">
-              <UserHelpPopper
-                alwaysShow
-                label={'Prohibited'}
-                placement="left"
-                mode="warning"
-              >
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <StatusDisplay status="PROHIBITED" size={24} />
-                  <Box>
-                    <Typography variant="body1">
-                      Student Participation Prohibited
-                    </Typography>
-                    <Typography variant="body2">
-                      This student registered before the access restriction was
-                      set.
-                    </Typography>
-                    <Typography variant="body2">
-                      To allow participation, please add the student to the
-                      access list.
-                    </Typography>
-                  </Box>
-                </Stack>
-              </UserHelpPopper>
-              <ButtonAddToAccessList
-                groupScope={groupScope}
-                evaluationId={evaluationId}
-                studentEmail={row.user.email}
-                onStudentAllowed={onStudentAllowed}
-              />
-            </Stack>
-          )}
         </Stack>
       ),
     },
@@ -200,23 +160,24 @@ const StudentList = ({
   // Utility function to get users's answer status by question id and users email
   const getStudentAnswerStatus = useCallback(
     (studentEmail, questionId) => {
-      const relevantQuestion = questions.find(
+      const relevantQuestion = progress.find(
         (q) => q.question.id === questionId,
       )
+
       if (!relevantQuestion) return StudentAnswerStatus.MISSING
 
       const answer = relevantQuestion.question.studentAnswer.find(
-        (sa) => sa.userEmail === studentEmail,
+        (sa) => sa.user.email === studentEmail,
       )
       return answer ? answer.status : StudentAnswerStatus.MISSING
     },
-    [questions],
+    [progress],
   )
 
   // Utility function to calculate the percentage of submitted answers for a users
   const getSubmissionPercentage = useCallback(
     (studentEmail) => {
-      const submittedAnswersCount = questions.reduce((count, q) => {
+      const submittedAnswersCount = progress.reduce((count, q) => {
         const answer = q.question.studentAnswer.find(
           (sa) =>
             sa.userEmail === studentEmail &&
@@ -225,15 +186,15 @@ const StudentList = ({
         return answer ? count + 1 : count
       }, 0)
 
-      return Math.round((submittedAnswersCount / questions.length) * 100)
+      return Math.round((submittedAnswersCount / progress.length) * 100)
     },
-    [questions],
+    [progress],
   )
 
   // Create dynamic columns for each question
   const questionColumns = useMemo(
     () =>
-      questions.map((q) => ({
+      progress.map((q) => ({
         label: `Q${q.order + 1}`, // Assuming questions order starts at 0
         tooltip: q.question.title,
         column: { width: 40, minWidth: 40 },
@@ -245,7 +206,7 @@ const StudentList = ({
           />
         ),
       })),
-    [questions, getStudentAnswerStatus],
+    [progress, getStudentAnswerStatus],
   )
 
   if (questionColumns.length > 0) {
@@ -320,19 +281,16 @@ const StudentList = ({
   }
 
   return (
-    <Stack>
-      <Typography variant="h6">{title}</Typography>
-      <Datagrid
-        header={{ columns: columns }}
-        items={students?.map((student) => ({
-          ...student,
-          meta: {
-            key: student.user.id,
-          },
-        }))}
-      />
-    </Stack>
+    <Datagrid
+      header={{ columns: columns }}
+      items={students?.map((student) => ({
+        ...student,
+        meta: {
+          key: student.user.id,
+        },
+      }))}
+    />
   )
 }
 
-export default StudentList
+export default StudentProgressGrid

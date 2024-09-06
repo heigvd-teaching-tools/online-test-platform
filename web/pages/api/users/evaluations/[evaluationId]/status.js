@@ -39,6 +39,7 @@ const get = async (req, res, prisma) => {
     },
     select: {
       phase: true,
+      durationActive: true,
       startAt: true,
       endAt: true,
       conditions: true,
@@ -85,10 +86,13 @@ const get = async (req, res, prisma) => {
     })
   }
 
+  console.log('evaluation§', evaluation)
+
   res.status(200).json({
     allowed: allowed,
     evaluation: {
       phase: evaluation.phase,
+      durationActive: evaluation.durationActive,
       startAt: evaluation.startAt,
       endAt: evaluation.endAt,
       conditions: evaluation.conditions,

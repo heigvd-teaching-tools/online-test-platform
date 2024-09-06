@@ -16,8 +16,8 @@
 import EvaluationPage from '@/components/evaluations/pages/PageEvaluation'
 import PageIndex from '../../../../components/evaluations/pages/PageIndex'
 
-const EvaluationIndex = () => <PageIndex />
+//const EvaluationIndex = () => <PageIndex />
 
-//const EvaluationIndex = () => <EvaluationPage />
+const EvaluationIndex = () => <EvaluationPage />
 
 export default EvaluationIndex

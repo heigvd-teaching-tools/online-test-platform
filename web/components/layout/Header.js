@@ -21,8 +21,10 @@ import { useSession } from 'next-auth/react'
 import UserAvatar from './UserAvatar'
 import UserContextMenu from './UserContextMenu'
 import Logo from './Logo'
+import { useTheme } from '@emotion/react'
 
 const Header = ({ hideLogo, children, color }) => {
+  const theme = useTheme()
   const { data: session } = useSession()
   const [anchorElUser, setAnchorElUser] = useState(null)
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget)
@@ -38,6 +40,8 @@ const Header = ({ hideLogo, children, color }) => {
         p: 0,
         position: 'relative',
         zIndex: 1000,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        boxShadow: 0,
       }}
     >
       <Stack

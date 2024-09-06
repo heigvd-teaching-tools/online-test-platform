@@ -13,32 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Paper, Stack, Box, Typography, Button } from '@mui/material'
+import {
+  Paper,
+  Stack,
+  Typography,
+  ListItem,
+  ListItemButton,
+} from '@mui/material'
 import { getStudentEntryLink } from '@/code/utils'
-const JoinClipboard = ({ evaluationId }) => (
-  <Paper>
-    <Stack direction="column" p={2} spacing={2}>
-      <Stack direction="row" spacing={2} alignItems="center" width="100%">
-        <Stack flex={1}>
-          <Typography variant="caption" size="small">
-            {getStudentEntryLink(evaluationId)}
+
+const JoinClipboard = ({ evaluationId }) => {
+  const onClick = async () => {
+    await navigator.clipboard.writeText(getStudentEntryLink(evaluationId))
+  }
+
+  return (
+    <Paper variant="outlined">
+      <ListItemButton onClick={onClick} style={{ cursor: 'pointer' }}>
+        <Stack direction="row" spacing={2} alignItems="center" flex={1}>
+          <Stack flex={1}>
+            <Typography variant="caption" size="small">
+              {getStudentEntryLink(evaluationId)}
+            </Typography>
+          </Stack>
+          <Typography variant="button" color="secondary">
+            Copy
           </Typography>
         </Stack>
-        <Box>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={async () => {
-              await navigator.clipboard.writeText(
-                getStudentEntryLink(evaluationId),
-              )
-            }}
-          >
-            Copy
-          </Button>
-        </Box>
-      </Stack>
-    </Stack>
-  </Paper>
-)
+      </ListItemButton>
+    </Paper>
+  )
+}
+
 export default JoinClipboard

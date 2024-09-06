@@ -34,7 +34,6 @@ import MainMenu from '@/components/layout/MainMenu'
 import Loading from '@/components/feedback/Loading'
 
 import ListEvaluation from '../list/ListEvaluation'
-import { Box } from '@mui/system'
 
 const Evaluations = () => {
   const router = useRouter()
@@ -137,39 +136,30 @@ const Evaluations = () => {
               </Stack>
             }
           >
-            <Box
-              sx={{
-                minWidth: '100%',
-                height: '100%',
-                p: 2,
-                bgcolor: 'background.paper',
+            <ListEvaluation
+              groupScope={groupScope}
+              evaluations={
+                evaluations?.filter(
+                  (evaluation) => evaluation.status === tab,
+                ) || []
+              }
+              onStart={(ev, session) => {
+                ev.stopPropagation()
+                ev.preventDefault()
+                setSelected(session)
+                setEndOfDraftDialogOpen(true)
               }}
-            >
-              <ListEvaluation
-                groupScope={groupScope}
-                evaluations={
-                  evaluations?.filter(
-                    (evaluation) => evaluation.status === tab,
-                  ) || []
+              onDelete={(ev, evaluation) => {
+                ev.preventDefault()
+                ev.stopPropagation()
+                setSelected(evaluation)
+                if (evaluation.status === EvaluationStatus.ARCHIVED) {
+                  setDeleteDialogOpen(true)
+                } else {
+                  setArchiveDialogOpen(true)
                 }
-                onStart={(ev, session) => {
-                  ev.stopPropagation()
-                  ev.preventDefault()
-                  setSelected(session)
-                  setEndOfDraftDialogOpen(true)
-                }}
-                onDelete={(ev, evaluation) => {
-                  ev.preventDefault()
-                  ev.stopPropagation()
-                  setSelected(evaluation)
-                  if (evaluation.status === EvaluationStatus.ARCHIVED) {
-                    setDeleteDialogOpen(true)
-                  } else {
-                    setArchiveDialogOpen(true)
-                  }
-                }}
-              />
-            </Box>
+              }}
+            />
           </LayoutMain>
           <DialogFeedback
             open={archiveDialogOpen}

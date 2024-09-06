@@ -27,7 +27,8 @@ import { signOut } from 'next-auth/react'
 const phaseToPhrase = (phase) => {
   switch (phase) {
     case EvaluationPhase.NEW:
-    case EvaluationPhase.DRAFT:
+    case EvaluationPhase.COMPOSITION:
+    case EvaluationPhase.REGISTRATION:
       return 'not in progress'
     case EvaluationPhase.IN_PROGRESS:
       return 'in progress'

@@ -17,7 +17,7 @@ import { useState, useCallback, useEffect } from 'react'
 import {
   EvaluationPhase,
   Role,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
 } from '@prisma/client'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
@@ -38,10 +38,11 @@ import PhaseRedirect from './PhaseRedirect'
 import JoinClipboard from '../JoinClipboard'
 import StepReferenceCollection from '../draft/StepReferenceCollection'
 import StepGeneralInformation from '../draft/StepGeneralInformation'
-import StepSchedule from '../draft/StepSchedule'
-import StudentList from '../draft/StudentList'
-import StepAccessMode from '../draft/StepAccessMode'
+import StepSchedule from '../evaluation/phases/settings/SettingsSchedule'
+import StudentList from '../evaluation/phases/progress/StudentProgressGrid'
+import StepAccessMode from '../evaluation/phases/settings/SettingsAccessMode'
 import DeniedStudentsInEvaluation from '../draft/DeniedStudentsInEvaluation'
+import StudentsInEvaluation from '../draft/StudentsInEvaluation'
 
 const PageDraft = () => {
   const router = useRouter()
@@ -61,7 +62,7 @@ const PageDraft = () => {
         id: undefined,
         label: '',
         conditions: '',
-        accessMode: UserOnEvaluatioAccessMode.LINK_ONLY,
+        accessMode: UserOnEvaluationAccessMode.LINK_ONLY,
         accessList: [],
       },
     },
@@ -73,7 +74,7 @@ const PageDraft = () => {
   const [evaluationQuestions, setEvaluationQuestions] = useState([])
 
   const [accessMode, setAccessMode] = useState(
-    UserOnEvaluatioAccessMode.LINK_ONLY,
+    UserOnEvaluationAccessMode.LINK_ONLY,
   )
   const [accessList, setAccessList] = useState([])
 
@@ -245,7 +246,7 @@ const PageDraft = () => {
                 groupScope={groupScope}
                 evaluation={evaluation}
                 restrictedAccess={
-                  accessMode === UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+                  accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
                 }
                 accessList={accessList}
                 onStudentAllowed={() => {
@@ -278,45 +279,6 @@ const PageDraft = () => {
         </PhaseRedirect>
       </Loading>
     </Authorization>
-  )
-}
-
-const STUDENTS_ACTIVE_PULL_INTERVAL = 1000
-
-const StudentsInEvaluation = ({
-  groupScope,
-  evaluation,
-  restrictedAccess,
-  accessList,
-  onStudentAllowed,
-}) => {
-  const {
-    data: students,
-    error: errorStudents,
-    mutate,
-  } = useSWR(
-    `/api/${groupScope}/evaluations/${evaluation.id}/students`,
-    groupScope && evaluation?.id ? fetcher : null,
-    { refreshInterval: STUDENTS_ACTIVE_PULL_INTERVAL },
-  )
-
-  return (
-    evaluation.id && (
-      <Loading loading={!students} errors={[errorStudents]}>
-        <StudentList
-          groupScope={groupScope}
-          title={`Registered students (${students?.students.length})`}
-          evaluationId={evaluation.id}
-          students={students?.students}
-          restrictedAccess={restrictedAccess}
-          accessList={accessList}
-          onStudentAllowed={() => {
-            onStudentAllowed()
-            mutate()
-          }}
-        />
-      </Loading>
-    )
   )
 }
 

@@ -21,7 +21,8 @@ import React, { useState, useEffect } from 'react'
 import { useTheme } from '@emotion/react'
 
 const StudentResultsGrid = ({
-  evaluationToQuestions,
+  attendance,
+  results,
   actions,
   questionCellClick,
   selectedQuestionCell,
@@ -31,17 +32,11 @@ const StudentResultsGrid = ({
   const [participants, setParticipants] = useState([])
 
   useEffect(() => {
-    if (evaluationToQuestions && evaluationToQuestions.length > 0) {
-      setParticipants(
-        evaluationToQuestions[0].question.studentAnswer
-          .map((sa) => sa.user)
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      )
-    }
-  }, [evaluationToQuestions])
+    setParticipants(attendance.registered.map((r) => r.user))
+  }, [attendance])
 
   const gridHeaders = () => {
-    let q = evaluationToQuestions.map((jstq) => ({
+    let q = results.map((jstq) => ({
       label: <b>{`Q${jstq.order + 1}`}</b>,
       tooltip: jstq.question.title,
       column: { width: '35px', align: 'center', minWidth: '35px' },
@@ -151,10 +146,11 @@ const StudentResultsGrid = ({
 
       const questionColumnValues = {}
 
-      evaluationToQuestions.forEach((jstq) => {
+      results.forEach((jstq) => {
         const grading = jstq.question.studentAnswer.find(
           (sa) => sa.user.email === participant.email,
         ).studentGrading
+
         let pointsObtained = grading ? grading.pointsObtained : 0
         let totalPoints = jstq.points
 

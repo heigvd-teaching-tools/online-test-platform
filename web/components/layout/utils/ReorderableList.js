@@ -15,13 +15,14 @@
  */
 import { useCallback, useRef, useState } from 'react'
 
-const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
+const ReorderableList = ({ children, onChangeOrder, onOrderEnd, disabled }) => {
   const [sourceIndex, setSourceIndex] = useState(null)
   const lastTargetIndex = useRef(null)
 
   const handleOrderChange = useCallback(
     (targetIndex) => {
       if (
+        !disabled && // Prevent order changes if disabled
         targetIndex !== sourceIndex &&
         sourceIndex !== null &&
         targetIndex !== null
@@ -33,38 +34,48 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd }) => {
         }
       }
     },
-    [sourceIndex, onChangeOrder],
+    [sourceIndex, onChangeOrder, disabled],
   )
 
-  const handleDragStart = useCallback((e, index) => {
-    setSourceIndex(index)
-    lastTargetIndex.current = null // Reset the last target index on drag start
-  }, [])
+  const handleDragStart = useCallback(
+    (e, index) => {
+      if (!disabled) {
+        setSourceIndex(index)
+        lastTargetIndex.current = null // Reset the last target index on drag start
+      }
+    },
+    [disabled],
+  )
 
   const handleDragOver = useCallback(
     (e, targetIndex) => {
-      e.preventDefault()
-      handleOrderChange(targetIndex)
+      if (!disabled) {
+        e.preventDefault()
+        handleOrderChange(targetIndex)
+      }
     },
-    [handleOrderChange],
+    [handleOrderChange, disabled],
   )
 
   const handleDragEnd = useCallback(() => {
-    setSourceIndex(null)
-    if (onOrderEnd) {
-      onOrderEnd(lastTargetIndex.current) // Use lastTargetIndex.current for the final position
+    if (!disabled) {
+      setSourceIndex(null)
+      if (onOrderEnd) {
+        onOrderEnd(lastTargetIndex.current) // Use lastTargetIndex.current for the final position
+      }
     }
-  }, [onOrderEnd])
+  }, [onOrderEnd, disabled])
 
   return (
     children &&
     children.map((child, index) => (
       <div
         key={index}
-        draggable={true}
+        draggable={!disabled} // Disable dragging if disabled
         onDragStart={(e) => handleDragStart(e, index)}
         onDragOver={(e) => handleDragOver(e, index)}
         onDragEnd={(e) => handleDragEnd(e, index)}
+        style={{ cursor: disabled ? 'not-allowed' : 'grab' }} // Optional: Change cursor to indicate disabled state
       >
         {child}
       </div>

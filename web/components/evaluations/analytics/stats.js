@@ -43,14 +43,16 @@ export const getSignedSuccessRate = (evaluationToQuestions) => {
     : 0
 }
 
-export const getObtainedPoints = (evaluationToQuestions, participant) =>
-  evaluationToQuestions.reduce((acc, { question }) => {
+export const getObtainedPoints = (evaluationToQuestions, participant) => {
+  console.log('getObtainedPoints evaluationToQuestions', participant)
+
+  return evaluationToQuestions.reduce((acc, { question }) => {
     let studentGrading = question.studentAnswer.find(
       (sa) => sa.user.id === participant.id,
     ).studentGrading
     return acc + (studentGrading ? studentGrading.pointsObtained : 0)
   }, 0)
-
+}
 export const getGradingStats = (evaluationToQuestions) => {
   let totalGradings = evaluationToQuestions.reduce(
     (acc, jstq) => acc + jstq.question.studentAnswer.length,

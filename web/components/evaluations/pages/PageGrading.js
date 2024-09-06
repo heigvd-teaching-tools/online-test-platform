@@ -58,17 +58,14 @@ import { useSnackbar } from '@/context/SnackbarContext'
 
 import { update } from './crud'
 
-import PhaseRedirect from './PhaseRedirect'
 import { getGradingStats, getSignedSuccessRate } from '../analytics/stats'
 
 import GradingSignOff from '../grading/GradingSignOff'
 import ParticipantNav from '../grading/ParticipantNav'
-import Image from 'next/image'
 import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import { saveGrading } from '../grading/utils'
-import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -103,7 +100,6 @@ const PageGrading = () => {
 
   const [autoGradeSignOffDialogOpen, setAutoGradeSignOffDialogOpen] =
     useState(false)
-  const [endGradingDialogOpen, setEndGradingDialogOpen] = useState(false)
   const [someUnsignedDialogOpen, setSomeUnsignedDialogOpen] = useState(false)
   const [studentGridOpen, setStudentGridOpen] = useState(false)
 
@@ -245,24 +241,16 @@ const PageGrading = () => {
             parseInt(activeQuestion) + 1
           }?participantId=${participants[0].id}`,
         )
-      } else {
-        // count signed gradings vs total gradings
-        let stats = getGradingStats(evaluationToQuestions)
-        if (stats.totalSigned === stats.totalGradings) {
-          setEndGradingDialogOpen(true)
-        } else {
-          setSomeUnsignedDialogOpen(true)
-        }
       }
     }
   }, [
+    groupScope,
     activeQuestion,
-    participantId,
     evaluationId,
+    participantId,
     participants,
     router,
     evaluationToQuestions,
-    groupScope,
   ])
 
   const prevParticipantOrQuestion = useCallback(() => {
@@ -366,251 +354,184 @@ const PageGrading = () => {
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>
-      <PhaseRedirect phase={evaluation?.phase}>
-        <Loading
-          errors={[errorEvaluation, errorQuestions]}
-          loading={!evaluation || !data}
+      <Loading
+        errors={[errorEvaluation, errorQuestions]}
+        loading={!evaluation || !data}
+      >
+        <LayoutMain
+          hideLogo
+          header={
+            <Stack direction="row" alignItems="center">
+              <BackButton
+                backUrl={`/${groupScope}/evaluations/${evaluationId}`}
+              />
+              <Stack flex={1} sx={{ overflow: 'hidden' }}>
+                {ready && (
+                  <Paging
+                    items={questionPages}
+                    active={evaluationToQuestion.question}
+                    link={(_, index) =>
+                      `/${groupScope}/evaluations/${evaluationId}/grading/${
+                        index + 1
+                      }?participantId=${participantId}`
+                    }
+                  />
+                )}
+              </Stack>
+            </Stack>
+          }
+          padding={0}
+          spacing={2}
         >
-          <LayoutMain
-            hideLogo
-            header={
-              <Stack direction="row" alignItems="center">
-                <BackButton backUrl={`/${groupScope}/evaluations`} />
-                {evaluation?.id && (
-                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    {evaluation.label}
-                  </Typography>
+          <LayoutSplitScreen
+            header={<MainMenu />}
+            leftPanel={
+              <Stack
+                direction="row"
+                sx={{ position: 'relative', height: '100%' }}
+              >
+                {evaluationToQuestion && (
+                  <QuestionView
+                    order={evaluationToQuestion.order}
+                    points={evaluationToQuestion.points}
+                    question={evaluationToQuestion.question}
+                    totalPages={evaluationToQuestions.length}
+                  />
                 )}
               </Stack>
             }
-            subheader={
-              <Stack direction="row" alignItems="center" pr={1}>
-                <Stack flex={1} sx={{ overflow: 'hidden' }}>
-                  {ready && (
-                    <Paging
-                      items={questionPages}
-                      active={evaluationToQuestion.question}
-                      link={(_, index) =>
-                        `/${groupScope}/evaluations/${evaluationId}/grading/${
-                          index + 1
-                        }?participantId=${participantId}`
-                      }
+            rightWidth={75}
+            rightPanel={
+              <Stack
+                direction="row"
+                padding={1}
+                position="relative"
+                height="100%"
+              >
+                {ready && (
+                  <>
+                    <ParticipantNav
+                      participants={participants}
+                      active={participants.find(
+                        (participant) => participant.id === participantId,
+                      )}
+                      onParticipantClick={(participant) => {
+                        router.push(
+                          `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`,
+                        )
+                      }}
+                      isParticipantFilled={isParticipantFilled}
                     />
-                  )}
-                </Stack>
-                <Tooltip title="Click to view a detailed grid of student performance, including overall success and individual scores for each question.">
-                  <Button
-                    size={'small'}
-                    variant="text"
-                    color="info"
-                    onClick={() => setStudentGridOpen(true)}
-                    startIcon={
-                      <Image
-                        src="/svg/icons/checklist.svg"
-                        width={18}
-                        height={18}
-                        alt="Student Grid"
-                      />
-                    }
-                  >
-                    Results
-                  </Button>
-                </Tooltip>
+                    <Divider orientation="vertical" flexItem />
+                    <AnswerCompare
+                      student={student}
+                      evaluationToQuestion={evaluationToQuestion}
+                      solution={solution}
+                      answer={studentAnswer}
+                    />
+                  </>
+                )}
               </Stack>
             }
-            padding={0}
-            spacing={2}
-          >
-            <LayoutSplitScreen
-              header={<MainMenu />}
-              leftPanel={
+            footer={
+              ready && (
                 <Stack
                   direction="row"
-                  sx={{ position: 'relative', height: '100%' }}
+                  justifyContent="space-between"
+                  height="100px"
                 >
-                  {evaluationToQuestion && (
-                    <QuestionView
-                      order={evaluationToQuestion.order}
-                      points={evaluationToQuestion.points}
-                      question={evaluationToQuestion.question}
-                      totalPages={evaluationToQuestions.length}
-                    />
-                  )}
-                </Stack>
-              }
-              rightWidth={75}
-              rightPanel={
-                <Stack
-                  direction="row"
-                  padding={1}
-                  position="relative"
-                  height="100%"
-                >
-                  {ready && (
-                    <>
-                      <ParticipantNav
-                        participants={participants}
-                        active={participants.find(
-                          (participant) => participant.id === participantId,
-                        )}
-                        onParticipantClick={(participant) => {
-                          router.push(
-                            `/${groupScope}/evaluations/${evaluationId}/grading/${activeQuestion}?participantId=${participant.id}`,
-                          )
-                        }}
-                        isParticipantFilled={isParticipantFilled}
-                      />
-                      <Divider orientation="vertical" flexItem />
-                      <AnswerCompare
-                        student={student}
-                        evaluationToQuestion={evaluationToQuestion}
-                        solution={solution}
-                        answer={studentAnswer}
-                      />
-                    </>
-                  )}
-                </Stack>
-              }
-              footer={
-                ready && (
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    height="100px"
-                  >
-                    <GradingNextBack
-                      isFirst={
-                        participants.findIndex(
-                          (p) => p.id === participantId,
-                        ) === 0 && parseInt(activeQuestion) === 0
-                      }
-                      onPrev={prevParticipantOrQuestion}
-                      onNext={nextParticipantOrQuestion}
-                    />
-                    <GradingSignOff
-                      loading={loading}
-                      answer={evaluationToQuestion.question.studentAnswer.find(
-                        (ans) => ans.user.id === participantId,
-                      )}
-                      maxPoints={evaluationToQuestion.points}
-                      onChange={onChangeGrading}
-                    />
+                  <GradingNextBack
+                    isFirst={
+                      participants.findIndex((p) => p.id === participantId) ===
+                        0 && parseInt(activeQuestion) === 0
+                    }
+                    onPrev={prevParticipantOrQuestion}
+                    onNext={nextParticipantOrQuestion}
+                  />
+                  <GradingSignOff
+                    loading={loading}
+                    answer={evaluationToQuestion.question.studentAnswer.find(
+                      (ans) => ans.user.id === participantId,
+                    )}
+                    maxPoints={evaluationToQuestion.points}
+                    onChange={onChangeGrading}
+                  />
 
-                    <SuccessRate
-                      value={getSignedSuccessRate(evaluationToQuestions)}
-                    />
+                  <SuccessRate
+                    value={getSignedSuccessRate(evaluationToQuestions)}
+                  />
 
-                    <GradingActions
-                      stats={getGradingStats(evaluationToQuestions)}
-                      loading={loading || saving}
-                      signOffAllAutograded={() =>
-                        setAutoGradeSignOffDialogOpen(true)
-                      }
-                      endGrading={() => setEndGradingDialogOpen(true)}
-                    />
-                  </Stack>
-                )
-              }
-            />
-          </LayoutMain>
-          <DialogFeedback
-            open={autoGradeSignOffDialogOpen}
-            onClose={() => setAutoGradeSignOffDialogOpen(false)}
-            title="Sign off all autograded"
-            content={
-              <>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  Its is recommended to control the autograded answers before
-                  signing them off.
-                </Typography>
-                <Typography variant="button" gutterBottom>
-                  Are you sure you want to sign off all autograded answers?
-                </Typography>
-              </>
+                  <GradingActions
+                    stats={getGradingStats(evaluationToQuestions)}
+                    loading={loading || saving}
+                    signOffAllAutograded={() =>
+                      setAutoGradeSignOffDialogOpen(true)
+                    }
+                  />
+                </Stack>
+              )
             }
-            onConfirm={signOffAllAutograded}
           />
-          <EndGradingDialog
-            groupScope={groupScope}
-            evaluation={evaluation}
-            open={endGradingDialogOpen}
-            onClose={() => setEndGradingDialogOpen(false)}
-            onConfirm={endGrading}
-          />
-          <DialogFeedback
-            open={someUnsignedDialogOpen}
-            onClose={() => setSomeUnsignedDialogOpen(false)}
-            title="End grading"
-            content={
+        </LayoutMain>
+        <DialogFeedback
+          open={autoGradeSignOffDialogOpen}
+          onClose={() => setAutoGradeSignOffDialogOpen(false)}
+          title="Sign off all autograded"
+          content={
+            <>
               <Typography variant="body1" sx={{ mb: 2 }}>
-                The signoff process is not complete.
+                Its is recommended to control the autograded answers before
+                signing them off.
               </Typography>
-            }
-          />
-          <ResizableDrawer
-            open={studentGridOpen}
-            width={80}
-            onClose={() => setStudentGridOpen(false)}
-          >
-            <Box ml={1}>
-              <ExportCSV
-                evaluation={evaluation}
-                evaluationToQuestions={evaluationToQuestions}
-                participants={participants}
-              />
-            </Box>
-            <StudentResultsGrid
+              <Typography variant="button" gutterBottom>
+                Are you sure you want to sign off all autograded answers?
+              </Typography>
+            </>
+          }
+          onConfirm={signOffAllAutograded}
+        />
+        <DialogFeedback
+          open={someUnsignedDialogOpen}
+          onClose={() => setSomeUnsignedDialogOpen(false)}
+          title="End grading"
+          content={
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              The signoff process is not complete.
+            </Typography>
+          }
+        />
+        <ResizableDrawer
+          open={studentGridOpen}
+          width={80}
+          onClose={() => setStudentGridOpen(false)}
+        >
+          <Box ml={1}>
+            <ExportCSV
+              evaluation={evaluation}
               evaluationToQuestions={evaluationToQuestions}
-              selectedQuestionCell={{
-                questionId: evaluationToQuestion?.question.id,
-                participantId: participantId,
-              }}
-              questionCellClick={async (questionId, participantId) => {
-                const questionOrder =
-                  evaluationToQuestions.findIndex(
-                    (jstq) => jstq.question.id === questionId,
-                  ) + 1
-                setStudentGridOpen(false)
-                await router.push(
-                  `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`,
-                )
-              }}
+              participants={participants}
             />
-          </ResizableDrawer>
-        </Loading>
-      </PhaseRedirect>
-    </Authorization>
-  )
-}
-
-const EndGradingDialog = ({
-  groupScope,
-  evaluation,
-  open,
-  onClose,
-  onConfirm,
-}) => {
-  return (
-    <DialogFeedback
-      open={open}
-      onClose={() => onClose()}
-      title="End grading"
-      content={
-        <>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            You wont be able to get back to the grading phase.
-          </Typography>
-          <Typography variant="button" gutterBottom>
-            Are you sure you want to end grading?
-          </Typography>
-          <ToggleStudentViewSolution
-            groupScope={groupScope}
-            evaluation={evaluation}
+          </Box>
+          <StudentResultsGrid
+            evaluationToQuestions={evaluationToQuestions}
+            selectedQuestionCell={{
+              questionId: evaluationToQuestion?.question.id,
+              participantId: participantId,
+            }}
+            questionCellClick={async (questionId, participantId) => {
+              const questionOrder =
+                evaluationToQuestions.findIndex(
+                  (jstq) => jstq.question.id === questionId,
+                ) + 1
+              setStudentGridOpen(false)
+              await router.push(
+                `/${groupScope}/evaluations/${evaluationId}/grading/${questionOrder}?participantId=${participantId}`,
+              )
+            }}
           />
-        </>
-      }
-      onConfirm={onConfirm}
-    />
+        </ResizableDrawer>
+      </Loading>
+    </Authorization>
   )
 }
 
@@ -692,7 +613,6 @@ const GradingActions = ({
   stats: { totalSigned, totalGradings, totalAutogradedUnsigned },
   loading,
   signOffAllAutograded,
-  endGrading,
 }) => (
   <Tooltip
     title={
@@ -724,17 +644,6 @@ const GradingActions = ({
             />
           )}
         </Stack>
-        {totalSigned === totalGradings && (
-          <Button
-            color="success"
-            fullWidth
-            variant="contained"
-            size="small"
-            onClick={endGrading}
-          >
-            End grading
-          </Button>
-        )}
         {totalAutogradedUnsigned > 0 && (
           <LoadingButton
             loading={loading}

@@ -22,6 +22,7 @@ const DialogFeedback = ({
   open,
   title,
   content,
+  width = 'md',
   hideCancel = false,
   confirmButtonProps = {},
   onClose,
@@ -43,6 +44,7 @@ const DialogFeedback = ({
         onClose={handleCancel}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        maxWidth="width"
       >
         <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
         <DialogContent>{content}</DialogContent>

@@ -39,6 +39,15 @@ const StatusDisplay = ({ status, size = 16 }) => {
             alt="error"
           />
         )
+      case `MISSING`:
+        return (
+          <Image
+            src="/svg/status/missing.svg"
+            width={size}
+            height={size}
+            alt="missing"
+          />
+        )
       case 'WARNING':
         return (
           <Image

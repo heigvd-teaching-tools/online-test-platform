@@ -16,7 +16,7 @@
 import {
   EvaluationPhase,
   Role,
-  UserOnEvaluatioAccessMode,
+  UserOnEvaluationAccessMode,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -58,7 +58,7 @@ const post = async (req, res, prisma) => {
   }
 
   if (
-    evaluation.accessMode !== UserOnEvaluatioAccessMode.LINK_AND_ACCESS_LIST
+    evaluation.accessMode !== UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
     res.status(400).json({ message: 'No access list' })
     return

@@ -15,16 +15,20 @@
  */
 import { Chip } from '@mui/material'
 import { EvaluationPhase } from '@prisma/client'
-const DisplayPhase = ({ phase }) => {
+const DisplayPhase = ({ phase, disabled = false }) => {
   switch (phase) {
-    case EvaluationPhase.DRAFT:
-      return <Chip label="Draft" color="warning" />
+    case EvaluationPhase.SETTINGS:
+      return <Chip label="Settings" color="warning" disabled={disabled} />
+    case EvaluationPhase.COMPOSITION:
+      return <Chip label="Composition" color="warning" disabled={disabled} />
+    case EvaluationPhase.REGISTRATION:
+      return <Chip label="Registration" color="secondary" disabled={disabled} />
     case EvaluationPhase.IN_PROGRESS:
-      return <Chip label="In progress" color="info" />
+      return <Chip label="In progress" color="info" disabled={disabled} />
     case EvaluationPhase.GRADING:
-      return <Chip label="Grading" color="primary" />
+      return <Chip label="Grading" color="primary" disabled={disabled} />
     case EvaluationPhase.FINISHED:
-      return <Chip label="Finished" color="success" />
+      return <Chip label="Finished" color="success" disabled={disabled} />
     default:
       return <Chip label="N/A" color="error" />
   }
