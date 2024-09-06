@@ -20,8 +20,6 @@ import JoinClipboard from '../../JoinClipboard'
 import StudentsInEvaluation from './attendance/StudentsInEvaluation'
 import DeniedStudentsInEvaluation from './attendance/DeniedStudentsInEvaluation'
 
-
-
 const EvaluationAttendance = ({
   groupScope,
   evaluation,

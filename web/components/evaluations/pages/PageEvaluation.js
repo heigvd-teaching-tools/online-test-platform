@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-import { useRouter } from "next/router"
-import useSWR from "swr"
-import { getPhaseDetails } from "../evaluation/phases"
-import { fetcher } from "@/code/utils"
-import Authorization from "@/components/security/Authorization"
-import Loading from "@/components/feedback/Loading"
-import LayoutMain from "@/components/layout/LayoutMain"
-import { Stack } from "@mui/system"
-import BackButton from "@/components/layout/BackButton"
-import { Typography } from "@mui/material"
-import DisplayPhase from "../DisplayPhase"
-import LayoutSplitScreen from "@/components/layout/LayoutSplitScreen"
-import EvaluationSideMenu from "../evaluation/layout/EvaluationSideMenu"
-import EvaluationActionMenu from "../evaluation/layout/EvaluationActionMenu"
-import EvaluationSettings from "../evaluation/phases/EvaluationSettings"
-import EvaluationComposition from "../evaluation/phases/EvaluationComposition"
-import EvaluationAttendance from "../evaluation/phases/EvaluationAttendance"
-import EvaluationInProgress from "../evaluation/phases/EvaluationInProgress"
-import EvaluationResults from "../evaluation/phases/EvaluationResults"
-import { useEffect, useState } from "react"
-import { Role } from "@prisma/client"
-
+import { useRouter } from 'next/router'
+import useSWR from 'swr'
+import { getPhaseDetails } from '../evaluation/phases'
+import { fetcher } from '@/code/utils'
+import Authorization from '@/components/security/Authorization'
+import Loading from '@/components/feedback/Loading'
+import LayoutMain from '@/components/layout/LayoutMain'
+import { Stack } from '@mui/system'
+import BackButton from '@/components/layout/BackButton'
+import { Typography } from '@mui/material'
+import DisplayPhase from '../DisplayPhase'
+import LayoutSplitScreen from '@/components/layout/LayoutSplitScreen'
+import EvaluationSideMenu from '../evaluation/layout/EvaluationSideMenu'
+import EvaluationActionMenu from '../evaluation/layout/EvaluationActionMenu'
+import EvaluationSettings from '../evaluation/phases/EvaluationSettings'
+import EvaluationComposition from '../evaluation/phases/EvaluationComposition'
+import EvaluationAttendance from '../evaluation/phases/EvaluationAttendance'
+import EvaluationInProgress from '../evaluation/phases/EvaluationInProgress'
+import EvaluationResults from '../evaluation/phases/EvaluationResults'
+import { useEffect, useState } from 'react'
+import { Role } from '@prisma/client'
 
 const STUDENTS_ATTENDANCE_PULL_INTERVAL = 1000
 const STUDENTS_PROGRESS_PULL_INTERVAL = 5000
@@ -46,7 +45,6 @@ const EvaluationPage = () => {
 
   const [activeMenu, setActiveMenu] = useState(null)
 
- 
   const {
     data: phase,
     error: errorPhase,
@@ -61,7 +59,6 @@ const EvaluationPage = () => {
       setActiveMenu(getPhaseDetails(phase.phase).menu)
     }
   }, [phase])
-
 
   const {
     data: evaluation,
@@ -109,7 +106,6 @@ const EvaluationPage = () => {
     `/api/${groupScope}/evaluations/${evaluationId}/results`,
     groupScope && evaluationId ? fetcher : null,
   )
-
 
   return (
     <Authorization allowRoles={[Role.PROFESSOR]}>

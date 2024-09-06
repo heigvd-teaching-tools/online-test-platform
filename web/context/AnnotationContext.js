@@ -177,8 +177,6 @@ export const AnnotationProvider = ({
     ],
   )
 
-  
-
   const discard = useCallback(async () => {
     if (readOnly) {
       return

@@ -17,10 +17,12 @@
     "find:unused": "next-unused"
   },
   "next-unused": {
-   "alias": {},
-   "include": ["component"],
-   "exclude": [],
-   "entrypoints": []
+    "alias": {},
+    "include": [
+      "component"
+    ],
+    "exclude": [],
+    "entrypoints": []
   },
   "dependencies": {
     "@emotion/react": "^11.10.0",

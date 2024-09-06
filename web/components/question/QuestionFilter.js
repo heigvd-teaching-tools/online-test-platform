@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 import { useCallback, useEffect, useState } from 'react'
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Stack, TextField, Typography } from '@mui/material'
 
 import { toArray as typesToArray } from './types.js'
 import languages from '../../code/languages.json'

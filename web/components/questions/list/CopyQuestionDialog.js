@@ -18,7 +18,6 @@ import React from 'react'
 import DialogFeedback from '../../feedback/DialogFeedback'
 import { Stack, Typography } from '@mui/material'
 
-
 const CopyQuestionDialog = ({ open, onClose, handleCopyQuestion }) => {
   return (
     <DialogFeedback

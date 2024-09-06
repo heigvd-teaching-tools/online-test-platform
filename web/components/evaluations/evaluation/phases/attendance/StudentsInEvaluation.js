@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import StudentAttendanceGrid from "./StudentAttendanceGrid"
-
-
+import StudentAttendanceGrid from './StudentAttendanceGrid'
 
 const StudentsInEvaluation = ({
   groupScope,

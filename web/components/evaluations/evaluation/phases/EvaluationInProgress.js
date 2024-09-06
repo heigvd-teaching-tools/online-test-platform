@@ -22,8 +22,6 @@ import StudentProgressGrid from './progress/StudentProgressGrid'
 import MinutesSelector from './progress/MinutesSelector'
 import EvaluationCountDown from './progress/EvaluationCountDown'
 
-
-
 const EvaluationInProgress = ({
   groupScope,
   evaluation,

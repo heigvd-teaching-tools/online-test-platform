@@ -348,7 +348,6 @@ const UploadingStatus = ({ status = 'NOT_STARTED' }) => {
   ) : null
 }
 
-
 const UserHelp = () => {
   return (
     <UserHelpPopper label="Guide" maxHeight={500}>
