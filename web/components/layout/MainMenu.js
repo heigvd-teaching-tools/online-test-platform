@@ -57,10 +57,6 @@ const mainPaths = [
     label: 'Questions',
   },
   {
-    path: 'collections',
-    label: 'Collections',
-  },
-  {
     path: 'evaluations',
     label: 'Evaluations',
   },

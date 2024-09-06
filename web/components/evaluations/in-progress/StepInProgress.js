@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Typography, Stack, Alert, AlertTitle } from '@mui/material'
+import { Typography, Stack, Alert } from '@mui/material'
 import MinutesSelector from '../in-progress/MinutesSelector'
 import EvaluationCountDown from './EvaluationCountDown'
 const StepInProgress = ({ evaluation, onDurationChange, onEvaluationEnd }) => {

@@ -15,7 +15,7 @@
  */
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
-import { Box, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 
 /*
 

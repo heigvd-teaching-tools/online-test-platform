@@ -19,7 +19,7 @@ import EvaluationTitleBar from '../layout/EvaluationTitleBar'
 import JoinClipboard from '../../JoinClipboard'
 import { useSnackbar } from '@/context/SnackbarContext'
 import StudentProgressGrid from './progress/StudentProgressGrid'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import MinutesSelector from '../../in-progress/MinutesSelector'
 import EvaluationCountDown from '../../in-progress/EvaluationCountDown'
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Stack, Box, Button, Tooltip } from '@mui/material'
+import { Stack, Box, Button } from '@mui/material'
 import Image from 'next/image'
 
 import UserAvatar from '@/components/layout/UserAvatar'

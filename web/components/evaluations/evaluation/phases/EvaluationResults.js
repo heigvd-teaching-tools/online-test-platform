@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material'
+import { Button, IconButton, Stack, Tooltip } from '@mui/material'
 
 import EvaluationTitleBar from '../layout/EvaluationTitleBar'
 import StudentResultsGrid from '../../finished/StudentResultsGrid'

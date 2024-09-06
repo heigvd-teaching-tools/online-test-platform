@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CodeQuestionType, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 import { runSandbox } from '@/sandbox/runSandboxTC'
 import {
   withAuthorization,

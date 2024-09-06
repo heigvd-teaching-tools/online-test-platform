@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box, IconButton, Stack, Tab, Tabs } from '@mui/material'
+import { Box, IconButton, Stack } from '@mui/material'
 import ConnectionIndicator from './ConnectionIndicator'
 import EvaluationCountDown from '@/components/evaluations/in-progress/EvaluationCountDown'
 import Paging from '@/components/layout/utils/Paging'

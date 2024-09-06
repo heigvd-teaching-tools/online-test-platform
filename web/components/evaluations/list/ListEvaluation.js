@@ -24,7 +24,6 @@ import DisplayPhase from '../DisplayPhase'
 import GridGrouping from '@/components/ui/GridGrouping'
 import { weeksAgo } from '@/components/questions/list/utils'
 import DateTimeAgo from '@/components/feedback/DateTimeAgo'
-import { useRouter } from 'next/router'
 import AddEvaluationDialog from './AddEvaluationDialog'
 
 const ListEvaluation = ({ groupScope, evaluations, onStart, onDelete }) => {

@@ -29,7 +29,6 @@ import {
   withStudentStatus,
 } from '@/middleware/withStudentEvaluation'
 import { getUser } from '@/code/auth'
-import { orderBy } from 'lodash'
 /*
   Student checked his answer to a code reading snippet during an evaluation
 

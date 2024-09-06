@@ -17,7 +17,6 @@ import {
   Paper,
   Stack,
   Typography,
-  ListItem,
   ListItemButton,
 } from '@mui/material'
 import { getStudentEntryLink } from '@/code/utils'

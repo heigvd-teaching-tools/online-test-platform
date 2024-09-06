@@ -15,7 +15,7 @@
  */
 import { useState, useEffect, useCallback } from 'react'
 import useSWR from 'swr'
-import { Stack, Typography, Collapse, Alert, AlertTitle } from '@mui/material'
+import { Stack, Typography, Alert, AlertTitle } from '@mui/material'
 import CheckboxLabel from '@/components/input/CheckboxLabel'
 import DecimalInput from '@/components/input/DecimalInput'
 
