@@ -49,15 +49,17 @@ const SettingsAccessMode = ({
     <>
       <Typography variant="h5">Access mode</Typography>
       <Alert severity="info">
-          <Typography variant="body2">
-            With the restricted access enabled, students with an email address in the list will be granted instant access to the evaluation.
-          </Typography>
-          <Typography variant="body2">
-            Students not part of the list will go through a verification process. 
-            You will see them appear in the denied list where you can grant them access. 
-            This feature gives you the freedom to review and grant access permissions on the go.
-          </Typography>
-        </Alert>
+        <Typography variant="body2">
+          With the restricted access enabled, students with an email address in
+          the list will be granted instant access to the evaluation.
+        </Typography>
+        <Typography variant="body2">
+          Students not part of the list will go through a verification process.
+          You will see them appear in the denied list where you can grant them
+          access. This feature gives you the freedom to review and grant access
+          permissions on the go.
+        </Typography>
+      </Alert>
       <Stack spacing={2}>
         <FormGroup>
           <FormControlLabel
@@ -125,7 +127,6 @@ const SettingsAccessMode = ({
             )}
           </>
         )}
-       
       </Stack>
     </>
   )

@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Card, CardActionArea, CardContent, Typography, Stack } from '@mui/material'
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography,
+  Stack,
+} from '@mui/material'
 
 const CardSelector = ({ options, selected, onSelect }) => {
   return (
@@ -23,20 +29,19 @@ const CardSelector = ({ options, selected, onSelect }) => {
           key={option.value}
           variant="outlined"
           sx={{
-            borderColor: selected === option.value ? 'primary.main' : 'grey.300',
+            borderColor:
+              selected === option.value ? 'primary.main' : 'grey.300',
             borderWidth: 2,
             flex: 1,
           }}
           onClick={() => onSelect(option.value)}
         >
-          <CardActionArea sx={{ height: '100%', display: 'flex', alignItems: 'flex-start' }}>
+          <CardActionArea
+            sx={{ height: '100%', display: 'flex', alignItems: 'flex-start' }}
+          >
             <CardContent>
-              <Typography variant="h6">
-                {option.label}
-              </Typography>
-              <Typography variant="body2">
-                {option.description}
-              </Typography>
+              <Typography variant="h6">{option.label}</Typography>
+              <Typography variant="body2">{option.description}</Typography>
             </CardContent>
           </CardActionArea>
         </Card>

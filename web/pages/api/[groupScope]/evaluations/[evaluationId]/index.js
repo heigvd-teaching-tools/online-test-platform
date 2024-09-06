@@ -27,10 +27,7 @@ import {
 } from '@/middleware/withAuthorization'
 import { copyQuestion, questionIncludeClause } from '@/code/questions'
 
-
 const copyQuestionsForEvaluation = async (prisma, evaluationId) => {
-
-
   // get all the questions related to this evaluation
   const evaluationToQuestions = await prisma.evaluationToQuestion.findMany({
     where: {
@@ -42,8 +39,8 @@ const copyQuestionsForEvaluation = async (prisma, evaluationId) => {
           includeTypeSpecific: true,
           includeOfficialAnswers: true,
         }),
-      }
-    }
+      },
+    },
   })
 
   await prisma.$transaction(async (prisma) => {
@@ -53,7 +50,6 @@ const copyQuestionsForEvaluation = async (prisma, evaluationId) => {
         evaluationId: evaluationId,
       },
     })
-
 
     for (const eToQ of evaluationToQuestions) {
       // copy the question
@@ -83,14 +79,13 @@ const copyQuestionsForEvaluation = async (prisma, evaluationId) => {
   })
 }
 
-
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
 
   const evaluation = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
-    }
+    },
   })
 
   res.status(200).json(evaluation)
@@ -140,7 +135,6 @@ const patch = async (req, res, prisma) => {
       // Freeze the composition of the evaluation
       await copyQuestionsForEvaluation(prisma, evaluationId)
     }
-
 
     if (nextPhase === EvaluationPhase.IN_PROGRESS) {
       // handle start and end time

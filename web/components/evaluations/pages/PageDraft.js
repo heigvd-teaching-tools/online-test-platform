@@ -282,5 +282,4 @@ const PageDraft = () => {
   )
 }
 
-
 export default PageDraft

@@ -39,7 +39,7 @@ const get = async (req, res, prisma) => {
         orderBy: {
           registeredAt: 'asc',
         },
-      }
+      },
     },
   })
 
@@ -60,7 +60,7 @@ const get = async (req, res, prisma) => {
     },
   })
 
-  res.status(200).json({ 
+  res.status(200).json({
     registered: registered.students,
     denied: denied.userOnEvaluationDeniedAccessAttempt,
   })

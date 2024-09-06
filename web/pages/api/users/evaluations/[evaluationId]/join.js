@@ -101,8 +101,6 @@ const post = async (req, res, prisma) => {
     return
   }
 
-
-
   await prisma.$transaction(async (prisma) => {
     // connect the users to the evaluation
     userOnEvaluation = await prisma.userOnEvaluation.create({
@@ -118,8 +116,6 @@ const post = async (req, res, prisma) => {
         },
       },
     })
-
-    
 
     // get all the questions of the evaluation,
     const evaluationToQuestions = await prisma.evaluationToQuestion.findMany({
@@ -143,7 +139,6 @@ const post = async (req, res, prisma) => {
     for (const jstq of evaluationToQuestions) {
       const { question } = jstq
 
-      
       // Check if the StudentAnswer already exists
       const existingAnswer = await prisma.studentAnswer.findUnique({
         where: {
@@ -203,13 +198,16 @@ const post = async (req, res, prisma) => {
             })
             break
           case QuestionType.database:
-            await createDatabaseTypeSpecificData(prisma, studentAnswer, question)
+            await createDatabaseTypeSpecificData(
+              prisma,
+              studentAnswer,
+              question,
+            )
             break
         }
       }
     }
   })
-  
 
   res.status(200).json(userOnEvaluation)
 }

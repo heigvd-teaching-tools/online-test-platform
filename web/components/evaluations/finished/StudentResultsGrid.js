@@ -26,17 +26,14 @@ const StudentResultsGrid = ({
   actions,
   questionCellClick,
   selectedQuestionCell,
-}) => { 
-  
+}) => {
   const theme = useTheme()
 
   const [participants, setParticipants] = useState([])
 
   useEffect(() => {
-      setParticipants(attendance.registered.map((r) => r.user))
+    setParticipants(attendance.registered.map((r) => r.user))
   }, [attendance])
-
-  
 
   const gridHeaders = () => {
     let q = results.map((jstq) => ({
@@ -150,7 +147,6 @@ const StudentResultsGrid = ({
       const questionColumnValues = {}
 
       results.forEach((jstq) => {
-
         const grading = jstq.question.studentAnswer.find(
           (sa) => sa.user.email === participant.email,
         ).studentGrading
@@ -184,7 +180,7 @@ const StudentResultsGrid = ({
               ((signedObtainedPoints / signedTotalPoints) * 100).toFixed(2),
             )
           : 0
-           
+
       return {
         participant: participant,
         email: participant.email,

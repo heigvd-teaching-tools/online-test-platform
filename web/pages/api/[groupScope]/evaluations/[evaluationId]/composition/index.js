@@ -23,7 +23,6 @@ import { withPrisma } from '@/middleware/withPrisma'
 import { withEvaluationUpdate } from '@/middleware/withUpdate'
 import { questionIncludeClause } from '@/code/questions'
 
-
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
 

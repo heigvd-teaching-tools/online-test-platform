@@ -18,32 +18,25 @@ import { getObtainedPoints } from '../analytics/stats'
 import Image from 'next/image'
 import { useCallback } from 'react'
 
-
 const COLUMN_SEPARATOR = ';'
 const LINE_SEPARATOR = '\r'
 
 const ExportCSV = ({ evaluation, results, attendance }) => {
-
   const participants = attendance.registered.map((r) => r.user)
 
-  console.log("ExportCSV participants", participants)
-  console.log("ExportCSV results", results)
+  console.log('ExportCSV participants', participants)
+  console.log('ExportCSV results', results)
   const dotToComma = (value) => value.toString().replace('.', ',')
 
   const exportAsCSV = useCallback(() => {
     let csv = `Name${COLUMN_SEPARATOR}Email${COLUMN_SEPARATOR}Success Rate${COLUMN_SEPARATOR}Total Points${COLUMN_SEPARATOR}Obtained Points${COLUMN_SEPARATOR}`
-    results.forEach(
-      (jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`),
-    )
+    results.forEach((jstq) => (csv += `Q${jstq.order + 1}${COLUMN_SEPARATOR}`))
     csv += LINE_SEPARATOR
 
     participants.forEach((participant) => {
       let obtainedPoints = getObtainedPoints(results, participant)
 
-      let totalPoints = results.reduce(
-        (acc, jstq) => acc + jstq.points,
-        0,
-      )
+      let totalPoints = results.reduce((acc, jstq) => acc + jstq.points, 0)
       let participantSuccessRate =
         totalPoints > 0 ? Math.round((obtainedPoints / totalPoints) * 100) : 0
 
@@ -87,10 +80,17 @@ const ExportCSV = ({ evaluation, results, attendance }) => {
   }, [evaluation, results, participants])
 
   return (
-    <Button 
-      color={'info'} 
+    <Button
+      color={'info'}
       onClick={exportAsCSV}
-      startIcon={<Image alt="Export" src="/svg/icons/file-csv.svg" width="22" height="22" />}
+      startIcon={
+        <Image
+          alt="Export"
+          src="/svg/icons/file-csv.svg"
+          width="22"
+          height="22"
+        />
+      }
     >
       Export as CSV
     </Button>

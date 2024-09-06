@@ -25,8 +25,11 @@ import {
 } from '@mui/material'
 import DurationPicker from '@/components/input/DurationPicker'
 
-const SettingsSchedule = ({ active: initialActive, duration:initialDuration, onChange }) => {
-
+const SettingsSchedule = ({
+  active: initialActive,
+  duration: initialDuration,
+  onChange,
+}) => {
   const [useDuration, setUseDuration] = useState(initialActive)
 
   const [duration, setDuration] = useState({
@@ -50,8 +53,8 @@ const SettingsSchedule = ({ active: initialActive, duration:initialDuration, onC
       <Typography variant="h5">Schedule</Typography>
       <Alert severity="info">
         <Typography variant="body1" component={'span'}>
-          The sole purpose of this feature is to give students an idea of
-          the time they have to complete the evaluation.
+          The sole purpose of this feature is to give students an idea of the
+          time they have to complete the evaluation.
         </Typography>
         <Typography variant="body1" component={'span'}>
           The evaluation will not end automatically. You will have to end it
@@ -75,12 +78,12 @@ const SettingsSchedule = ({ active: initialActive, duration:initialDuration, onC
           label="Set duration"
         />
       </FormGroup>
-      { useDuration && (
+      {useDuration && (
         <DurationPicker
           disabled={!useDuration}
           value={duration}
           onChange={(value) => {
-            console.log("value", value)
+            console.log('value', value)
             setDuration(value)
             onChange({
               active: true,
@@ -89,8 +92,6 @@ const SettingsSchedule = ({ active: initialActive, duration:initialDuration, onC
           }}
         />
       )}
-      
-     
     </Stack>
   )
 }

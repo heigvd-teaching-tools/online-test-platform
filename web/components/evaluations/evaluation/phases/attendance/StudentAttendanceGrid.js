@@ -90,7 +90,6 @@ const StudentAttendanceGrid = ({
     },
   ]
 
-
   return (
     <Stack>
       <Typography variant="h6">{title}</Typography>

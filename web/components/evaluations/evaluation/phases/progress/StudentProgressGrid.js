@@ -160,11 +160,10 @@ const StudentProgressGrid = ({
   // Utility function to get users's answer status by question id and users email
   const getStudentAnswerStatus = useCallback(
     (studentEmail, questionId) => {
-      
       const relevantQuestion = progress.find(
         (q) => q.question.id === questionId,
       )
-      
+
       if (!relevantQuestion) return StudentAnswerStatus.MISSING
 
       const answer = relevantQuestion.question.studentAnswer.find(
@@ -282,15 +281,15 @@ const StudentProgressGrid = ({
   }
 
   return (
-      <Datagrid
-        header={{ columns: columns }}
-        items={students?.map((student) => ({
-          ...student,
-          meta: {
-            key: student.user.id,
-          },
-        }))}
-      />
+    <Datagrid
+      header={{ columns: columns }}
+      items={students?.map((student) => ({
+        ...student,
+        meta: {
+          key: student.user.id,
+        },
+      }))}
+    />
   )
 }
 

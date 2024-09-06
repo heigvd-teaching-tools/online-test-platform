@@ -32,16 +32,16 @@ import Row from '../layout/utils/Row'
 import Column from '../layout/utils/Column'
 import { useRouter } from 'next/router'
 
-const DataGrid = ({ 
-  header, 
+const DataGrid = ({
+  header,
   items,
   enableSelection = false,
   selection = [],
   onSelectionChange,
-}) => {  
-  
+}) => {
   const all = items.every((item) => selection?.includes(item.id))
-  const intermediate = !all && items.some((item) => selection?.includes(item.id))
+  const intermediate =
+    !all && items.some((item) => selection?.includes(item.id))
 
   return (
     <List>
@@ -52,7 +52,7 @@ const DataGrid = ({
               <Checkbox
                 indeterminate={intermediate}
                 checked={all}
-                size={"small"}
+                size={'small'}
                 onClick={(ev) => ev.stopPropagation()}
                 onChange={(ev) => {
                   if (ev.target.checked) {
@@ -82,10 +82,10 @@ const DataGrid = ({
       {items &&
         items.length > 0 &&
         items.map((item, index) => (
-          <ChosenListItemContent 
-            item={item} 
-            header={header} 
-            key={index} 
+          <ChosenListItemContent
+            item={item}
+            header={header}
+            key={index}
             enableSelection={enableSelection}
             selection={selection}
             onSelectionChange={onSelectionChange}
@@ -95,7 +95,13 @@ const DataGrid = ({
   )
 }
 
-const ChosenListItemContent = ({ item, header, enableSelection, selection, onSelectionChange }) => {  
+const ChosenListItemContent = ({
+  item,
+  header,
+  enableSelection,
+  selection,
+  onSelectionChange,
+}) => {
   if (item.meta?.onClick) {
     return (
       <ClickableListItem
@@ -122,10 +128,10 @@ const ChosenListItemContent = ({ item, header, enableSelection, selection, onSel
     )
   } else {
     return (
-      <NormalListItem 
-        key={item.meta.key} 
-        item={item} 
-        header={header} 
+      <NormalListItem
+        key={item.meta.key}
+        item={item}
+        header={header}
         enableSelection={enableSelection}
         selection={selection}
         onSelectionChange={onSelectionChange}
@@ -134,36 +140,80 @@ const ChosenListItemContent = ({ item, header, enableSelection, selection, onSel
   }
 }
 
-const LinkHrefListItem = ({ item, header, href, enableSelection, selection, onSelectionChange }) => {
+const LinkHrefListItem = ({
+  item,
+  header,
+  href,
+  enableSelection,
+  selection,
+  onSelectionChange,
+}) => {
   const router = useRouter()
 
   return (
     <ListItemButton divider onClick={async () => await router.push(href)}>
-      <ListItemContent item={item} header={header} enableSelection={enableSelection} selection={selection} onSelectionChange={onSelectionChange} />
+      <ListItemContent
+        item={item}
+        header={header}
+        enableSelection={enableSelection}
+        selection={selection}
+        onSelectionChange={onSelectionChange}
+      />
     </ListItemButton>
   )
 }
 
-const ClickableListItem = ({ item, header, onClick, enableSelection, selection, onSelectionChange }) => (
+const ClickableListItem = ({
+  item,
+  header,
+  onClick,
+  enableSelection,
+  selection,
+  onSelectionChange,
+}) => (
   <Box onClick={onClick}>
     <ListItemButton divider sx={{ cursor: 'pointer' }}>
-      <ListItemContent item={item} header={header} enableSelection={enableSelection} selection={selection} onSelectionChange={onSelectionChange} />
+      <ListItemContent
+        item={item}
+        header={header}
+        enableSelection={enableSelection}
+        selection={selection}
+        onSelectionChange={onSelectionChange}
+      />
     </ListItemButton>
   </Box>
 )
 
-const NormalListItem = ({ item, header, enableSelection, selection, onSelectionChange }) => (
+const NormalListItem = ({
+  item,
+  header,
+  enableSelection,
+  selection,
+  onSelectionChange,
+}) => (
   <ListItem divider>
-    <ListItemContent item={item} header={header} enableSelection={enableSelection} selection={selection} onSelectionChange={onSelectionChange} />
+    <ListItemContent
+      item={item}
+      header={header}
+      enableSelection={enableSelection}
+      selection={selection}
+      onSelectionChange={onSelectionChange}
+    />
   </ListItem>
 )
 
-const ListItemContent = ({ item, header, enableSelection, selection, onSelectionChange }) => (
+const ListItemContent = ({
+  item,
+  header,
+  enableSelection,
+  selection,
+  onSelectionChange,
+}) => (
   <Row>
     {enableSelection && (
       <Column key="select" width={30}>
         <Checkbox
-          size={"small"}
+          size={'small'}
           checked={selection.includes(item.id)}
           onClick={(ev) => ev.stopPropagation()}
           onChange={(ev) => {

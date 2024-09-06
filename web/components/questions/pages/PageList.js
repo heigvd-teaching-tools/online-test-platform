@@ -21,12 +21,7 @@ import { Role } from '@prisma/client'
 import Authorization from '../../security/Authorization'
 import QuestionFilter from '../../question/QuestionFilter'
 import MainMenu from '../../layout/MainMenu'
-import {
-  Box,
-  Button,
-  Stack,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Stack, Typography } from '@mui/material'
 import { useSnackbar } from '../../../context/SnackbarContext'
 import { useRouter } from 'next/router'
 import AddQuestionDialog from '../list/AddQuestionDialog'
@@ -67,7 +62,6 @@ const PageList = () => {
   const [selected, setSelected] = useState(undefined)
 
   const [selection, setSelection] = useState([])
-  
 
   const createQuestion = useCallback(
     async (type, options) => {
@@ -156,7 +150,6 @@ const PageList = () => {
                     <Box pt={2} width={'100%'} height={'100%'}>
                       {openSideUpdate && selected && (
                         <QuestionUpdate
-                          
                           groupScope={router.query.groupScope}
                           questionId={selected.id}
                           onUpdate={async (question) => {
@@ -206,6 +199,5 @@ const PageList = () => {
     </Authorization>
   )
 }
-
 
 export default PageList

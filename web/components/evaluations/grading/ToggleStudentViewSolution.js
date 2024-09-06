@@ -53,5 +53,4 @@ const ToggleStudentViewSolution = ({ groupScope, evaluation }) => {
   )
 }
 
-
 export default ToggleStudentViewSolution

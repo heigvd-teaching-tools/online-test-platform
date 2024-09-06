@@ -241,7 +241,7 @@ const PageGrading = () => {
             parseInt(activeQuestion) + 1
           }?participantId=${participants[0].id}`,
         )
-      } 
+      }
     }
   }, [
     groupScope,
@@ -250,6 +250,7 @@ const PageGrading = () => {
     participantId,
     participants,
     router,
+    evaluationToQuestions,
   ])
 
   const prevParticipantOrQuestion = useCallback(() => {
@@ -361,7 +362,9 @@ const PageGrading = () => {
           hideLogo
           header={
             <Stack direction="row" alignItems="center">
-              <BackButton backUrl={`/${groupScope}/evaluations/${evaluationId}`} />
+              <BackButton
+                backUrl={`/${groupScope}/evaluations/${evaluationId}`}
+              />
               <Stack flex={1} sx={{ overflow: 'hidden' }}>
                 {ready && (
                   <Paging
@@ -377,7 +380,6 @@ const PageGrading = () => {
               </Stack>
             </Stack>
           }
-          
           padding={0}
           spacing={2}
         >
@@ -440,9 +442,8 @@ const PageGrading = () => {
                 >
                   <GradingNextBack
                     isFirst={
-                      participants.findIndex(
-                        (p) => p.id === participantId,
-                      ) === 0 && parseInt(activeQuestion) === 0
+                      participants.findIndex((p) => p.id === participantId) ===
+                        0 && parseInt(activeQuestion) === 0
                     }
                     onPrev={prevParticipantOrQuestion}
                     onNext={nextParticipantOrQuestion}

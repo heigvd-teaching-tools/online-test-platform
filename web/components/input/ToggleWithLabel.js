@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FormControlLabel, Switch } from "@mui/material"
+import { FormControlLabel, Switch } from '@mui/material'
 
 const ToggleWithLabel = ({ label, checked, onChange }) => {
-    return (
-        <FormControlLabel
-            control={<Switch checked={checked} onChange={onChange} />}
-            label={label}
-        />
-    )
+  return (
+    <FormControlLabel
+      control={<Switch checked={checked} onChange={onChange} />}
+      label={label}
+    />
+  )
 }
 
 export default ToggleWithLabel

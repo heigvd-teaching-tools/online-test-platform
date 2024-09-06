@@ -86,7 +86,7 @@ const get = async (req, res, prisma) => {
     })
   }
 
-  console.log("evaluation§", evaluation)
+  console.log('evaluation§', evaluation)
 
   res.status(200).json({
     allowed: allowed,

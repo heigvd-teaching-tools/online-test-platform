@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, EvaluationPhase, UserOnEvaluationAccessMode } from '@prisma/client'
+import {
+  Role,
+  EvaluationPhase,
+  UserOnEvaluationAccessMode,
+} from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withAuthorization,
@@ -36,8 +40,8 @@ const get = async (req, res, prisma) => {
         select: {
           question: {
             include: {
-              sourceQuestion: true
-            }
+              sourceQuestion: true,
+            },
           },
           points: true,
           order: true,
@@ -53,19 +57,19 @@ const get = async (req, res, prisma) => {
     },
   })
 
-  
-
   res.status(200).json(evaluations)
 }
 
 /*
-** Creating a new evaluation
-* */
+ ** Creating a new evaluation
+ * */
 const post = async (req, res, prisma) => {
-  
   const { groupScope } = req.query
-  
-  const { preset : { value: presetType, settings }, templateEvaluation } = req.body
+
+  const {
+    preset: { value: presetType, settings },
+    templateEvaluation,
+  } = req.body
 
   let data = {
     phase: EvaluationPhase.DRAFT,
@@ -86,30 +90,29 @@ const post = async (req, res, prisma) => {
       durationMins: templateEvaluation.durationMins,
       showSolutionsWhenFinished: templateEvaluation.showSolutionsWhenFinished,
     }
-  }else{
+  } else {
     data = {
       ...data,
-      label: "",
+      label: '',
       showSolutionsWhenFinished: settings.showSolutionsWhenFinished,
-      accessMode: settings.restrictAccess ? UserOnEvaluationAccessMode.LINK_ONLY : UserOnEvaluationAccessMode.FREE_ACCESS,
+      accessMode: settings.restrictAccess
+        ? UserOnEvaluationAccessMode.LINK_ONLY
+        : UserOnEvaluationAccessMode.FREE_ACCESS,
     }
   }
 
- 
   try {
     let evaluation = undefined
     await prisma.$transaction(async (prisma) => {
       evaluation = await prisma.evaluation.create({ data })
 
-      if(presetType === 'from_existing'){
-
+      if (presetType === 'from_existing') {
         // Attach all of the SOURCE questions from the template evaluation to the new evaluation
 
         const templateQuestions = templateEvaluation.evaluationToQuestions
 
         for (const templateToQuestion of templateQuestions) {
-
-          if(templateToQuestion.question.sourceQuestion === null){
+          if (templateToQuestion.question.sourceQuestion === null) {
             // skip questions that original no longer exists
             continue
           }

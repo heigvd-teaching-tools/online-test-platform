@@ -37,12 +37,15 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd, disabled }) => {
     [sourceIndex, onChangeOrder, disabled],
   )
 
-  const handleDragStart = useCallback((e, index) => {
-    if (!disabled) {
-      setSourceIndex(index)
-      lastTargetIndex.current = null // Reset the last target index on drag start
-    }
-  }, [disabled])
+  const handleDragStart = useCallback(
+    (e, index) => {
+      if (!disabled) {
+        setSourceIndex(index)
+        lastTargetIndex.current = null // Reset the last target index on drag start
+      }
+    },
+    [disabled],
+  )
 
   const handleDragOver = useCallback(
     (e, targetIndex) => {
@@ -79,6 +82,5 @@ const ReorderableList = ({ children, onChangeOrder, onOrderEnd, disabled }) => {
     ))
   )
 }
-
 
 export default ReorderableList

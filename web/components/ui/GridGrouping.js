@@ -19,7 +19,7 @@ import DropdownSelector from '../input/DropdownSelector'
 import Datagrid from './DataGrid'
 import { useTheme } from '@emotion/react'
 import ScrollContainer from '../layout/ScrollContainer'
-import isEqual from 'lodash/isEqual'; 
+import isEqual from 'lodash/isEqual'
 
 const elementGroupBy = (items, grouping) => {
   return items.reduce((acc, item) => {
@@ -96,24 +96,35 @@ const groupByType = (items, grouping) => {
 const initializeGroupSelection = (groups, globalSelection) => {
   const updatedGroups = { ...groups }
 
-  Object.keys(updatedGroups).forEach(groupKey => {
-    updatedGroups[groupKey].selection = updatedGroups[groupKey].items.filter(item =>
-      globalSelection.includes(item.id) // Assuming items have an `id` field
-    )?.map(item => item.id)
+  Object.keys(updatedGroups).forEach((groupKey) => {
+    updatedGroups[groupKey].selection = updatedGroups[groupKey].items
+      .filter(
+        (item) => globalSelection.includes(item.id), // Assuming items have an `id` field
+      )
+      ?.map((item) => item.id)
   })
 
   return updatedGroups
 }
 
-const GridGrouping = ({ label, header, items, groupings, actions, selection = [], enableSelection, onSelectionChange }) => {
+const GridGrouping = ({
+  label,
+  header,
+  items,
+  groupings,
+  actions,
+  selection = [],
+  enableSelection,
+  onSelectionChange,
+}) => {
   const theme = useTheme()
 
   const [navigation, setNavigation] = useState('all')
   const [selectedGrouping, setSelectedGrouping] = useState(groupings[0]) // Default to first grouping
-  const [groups, setGroups] = useState(() => 
-    initializeGroupSelection(groupByType(items, groupings[0]), selection)
+  const [groups, setGroups] = useState(() =>
+    initializeGroupSelection(groupByType(items, groupings[0]), selection),
   )
-  
+
   const handleGroupingChange = (option) => {
     const grouping = groupings.find((g) => g.option === option)
     setSelectedGrouping(grouping)
@@ -123,11 +134,14 @@ const GridGrouping = ({ label, header, items, groupings, actions, selection = []
   }
 
   useEffect(() => {
-    const newGroups = initializeGroupSelection(groupByType(items, selectedGrouping), selection)
+    const newGroups = initializeGroupSelection(
+      groupByType(items, selectedGrouping),
+      selection,
+    )
     if (!isEqual(groups, newGroups)) {
       setGroups(newGroups)
     }
-  }, [selection, items, selectedGrouping, groups]);
+  }, [selection, items, selectedGrouping, groups])
 
   const handleNavigationChange = (value) => {
     setNavigation(value)
@@ -152,7 +166,6 @@ const GridGrouping = ({ label, header, items, groupings, actions, selection = []
       value: key,
     })),
   ]
-
 
   return (
     <Stack spacing={2} height={'100%'} position="relative">

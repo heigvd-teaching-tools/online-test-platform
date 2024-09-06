@@ -22,18 +22,17 @@ const DeniedStudentsInEvaluation = ({
   students,
   onStudentAllowed,
 }) => {
-  
   return (
     evaluationId && (
-          <DeniedStudentList
-            readOnly={readOnly}
-            groupScope={groupScope}
-            evaluationId={evaluationId}
-            students={students}
-            onStudentAllowed={(studentEmail) => {
-              onStudentAllowed && onStudentAllowed(studentEmail)
-            }}
-          />
+      <DeniedStudentList
+        readOnly={readOnly}
+        groupScope={groupScope}
+        evaluationId={evaluationId}
+        students={students}
+        onStudentAllowed={(studentEmail) => {
+          onStudentAllowed && onStudentAllowed(studentEmail)
+        }}
+      />
     )
   )
 }

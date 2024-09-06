@@ -44,7 +44,7 @@ const DialogFeedback = ({
         onClose={handleCancel}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        maxWidth="width"        
+        maxWidth="width"
       >
         <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
         <DialogContent>{content}</DialogContent>

@@ -50,7 +50,7 @@ const Evaluations = () => {
 
   const [tab, setTab] = useState(EvaluationStatus.ACTIVE)
   const [evaluations, setEvaluations] = useState(data)
-  
+
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [endOfDraftDialogOpen, setEndOfDraftDialogOpen] = useState(false)
@@ -136,31 +136,30 @@ const Evaluations = () => {
               </Stack>
             }
           >
-            
-              <ListEvaluation
-                groupScope={groupScope}
-                evaluations={
-                  evaluations?.filter(
-                    (evaluation) => evaluation.status === tab,
-                  ) || []
+            <ListEvaluation
+              groupScope={groupScope}
+              evaluations={
+                evaluations?.filter(
+                  (evaluation) => evaluation.status === tab,
+                ) || []
+              }
+              onStart={(ev, session) => {
+                ev.stopPropagation()
+                ev.preventDefault()
+                setSelected(session)
+                setEndOfDraftDialogOpen(true)
+              }}
+              onDelete={(ev, evaluation) => {
+                ev.preventDefault()
+                ev.stopPropagation()
+                setSelected(evaluation)
+                if (evaluation.status === EvaluationStatus.ARCHIVED) {
+                  setDeleteDialogOpen(true)
+                } else {
+                  setArchiveDialogOpen(true)
                 }
-                onStart={(ev, session) => {
-                  ev.stopPropagation()
-                  ev.preventDefault()
-                  setSelected(session)
-                  setEndOfDraftDialogOpen(true)
-                }}
-                onDelete={(ev, evaluation) => {
-                  ev.preventDefault()
-                  ev.stopPropagation()
-                  setSelected(evaluation)
-                  if (evaluation.status === EvaluationStatus.ARCHIVED) {
-                    setDeleteDialogOpen(true)
-                  } else {
-                    setArchiveDialogOpen(true)
-                  }
-                }}
-              />
+              }}
+            />
           </LayoutMain>
           <DialogFeedback
             open={archiveDialogOpen}

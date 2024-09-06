@@ -19,14 +19,13 @@ import DropDown from './DropDown'
 import { useEffect } from 'react'
 
 const DurationPicker = ({ value, disabled = false, onChange }) => {
-
   const { value: hours, setValue: setHours } = useInput(value?.hours || 0)
   const { value: minutes, setValue: setMinutes } = useInput(value?.minutes || 0)
 
   useEffect(() => {
     setHours(value?.hours || 0)
     setMinutes(value?.minutes || 0)
-  }, [value])
+  }, [value, setHours, setMinutes])
 
   return (
     <Box sx={{ width: '150px' }}>

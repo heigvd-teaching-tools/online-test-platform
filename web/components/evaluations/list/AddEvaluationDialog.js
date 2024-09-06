@@ -34,7 +34,8 @@ const Presets = [
       restrictAccess: true,
       grade: true,
     },
-  },{
+  },
+  {
     value: 'training',
     label: 'Training',
     description: 'For homework and training purposes',
@@ -43,23 +44,23 @@ const Presets = [
       restrictAccess: false,
       grade: false,
     },
-  },{
+  },
+  {
     value: 'from_existing',
     label: 'Based on existing',
     description: 'Chose an existing evaluation as a template',
     settings: {},
-  }
+  },
 ]
 
-const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
-
+const AddEvaluationDialog = ({ existingEvaluations, open, onClose }) => {
   const router = useRouter()
 
   const { groupScope } = router.query
 
   const { show: showSnackbar } = useSnackbar()
 
-  const [ preset, setPreset ] = useState("evaluation")
+  const [preset, setPreset] = useState('evaluation')
 
   const [templateEvaluation, setTemplateEvaluation] = useState(null)
   const [input, setInput] = useState('')
@@ -69,7 +70,6 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
   }, [preset])
 
   const handleAdd = async () => {
-    
     await fetch(`/api/${groupScope}/evaluations`, {
       method: 'POST',
       headers: {
@@ -77,9 +77,8 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        preset: Presets.find(p => p.value === preset),
+        preset: Presets.find((p) => p.value === preset),
         templateEvaluation: templateEvaluation,
-        
       }),
     }).then((res) => {
       res.json().then((data) => {
@@ -87,7 +86,6 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
           showSnackbar('Evaluation created successfully', 'success')
           onClose()
           router.push(`/${groupScope}/evaluations/${data.id}`)
-          
         } else {
           showSnackbar(data.message, 'error')
         }
@@ -101,18 +99,22 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
 
   const getPresetSettings = (preset) => {
     if (preset === 'from_existing') {
-      const selected = existingEvaluations.find(e => e.id === templateEvaluation?.id)
+      const selected = existingEvaluations.find(
+        (e) => e.id === templateEvaluation?.id,
+      )
       if (!selected) {
         return null
-      }else{
+      } else {
         return {
           showSolutionWhenFinished: selected.showSolutionsWhenFinished,
-          restrictAccess: selected.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST,
+          restrictAccess:
+            selected.accessMode ===
+            UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST,
           grade: selected.grade || true,
         }
       }
     }
-    return Presets.find(p => p.value === preset).settings
+    return Presets.find((p) => p.value === preset).settings
   }
 
   return (
@@ -131,30 +133,28 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
             onSelect={handleChange}
           />
 
-          {preset === 'from_existing' &&
-            ( 
-              <Autocomplete
-                id="evaluation-id"
-                inputValue={input}
-                options={existingEvaluations || []}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Find the evaluation to use as a template"
-                    error={!templateEvaluation}
-                    helperText={
-                      templateEvaluation ? '' : 'Please select an evaluation'
-                    }
-                  />
-                )}
-                noOptionsText="No evaluations found"
-                onInputChange={(_, value) => setInput(value)}
-                onChange={(_, value) => {
-                  setTemplateEvaluation(value)
-                }}
-              />
-            )
-          }
+          {preset === 'from_existing' && (
+            <Autocomplete
+              id="evaluation-id"
+              inputValue={input}
+              options={existingEvaluations || []}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Find the evaluation to use as a template"
+                  error={!templateEvaluation}
+                  helperText={
+                    templateEvaluation ? '' : 'Please select an evaluation'
+                  }
+                />
+              )}
+              noOptionsText="No evaluations found"
+              onInputChange={(_, value) => setInput(value)}
+              onChange={(_, value) => {
+                setTemplateEvaluation(value)
+              }}
+            />
+          )}
 
           <Stack spacing={1}>
             {preset !== 'from_existing' ? (
@@ -163,15 +163,14 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
               <Typography variant="h6">Selected evaluation details</Typography>
             )}
             <PresetSummary preset={getPresetSettings(preset)} />
-            
-            
-            <EvaluationSummary evaluation={existingEvaluations.find(e => e.id === templateEvaluation?.id)} />
 
+            <EvaluationSummary
+              evaluation={existingEvaluations.find(
+                (e) => e.id === templateEvaluation?.id,
+              )}
+            />
           </Stack>
-          
-         
         </Stack>
-
       }
       onConfirm={handleAdd}
     />
@@ -179,69 +178,87 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose  }) => {
 }
 
 const EvaluationSummary = ({ evaluation }) => {
-
   // Check if evaluation exists
-  if (!evaluation) return null;
-  
-  const hasQuestions = Boolean(evaluation.evaluationToQuestions?.length);
-  
-  const countMissingQuestions = evaluation.phase !== EvaluationPhase.DRAFT
-    ? evaluation.evaluationToQuestions.filter(q => !q.question?.sourceQuestionId).length
-    : 0;
+  if (!evaluation) return null
 
-  const hasAccessList = evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST 
-    || Boolean(evaluation.accessList?.length);
+  const hasQuestions = Boolean(evaluation.evaluationToQuestions?.length)
 
-  const hasConditions = Boolean(evaluation.conditions?.length);
+  const countMissingQuestions =
+    evaluation.phase !== EvaluationPhase.DRAFT
+      ? evaluation.evaluationToQuestions.filter(
+          (q) => !q.question?.sourceQuestionId,
+        ).length
+      : 0
+
+  const hasAccessList =
+    evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST ||
+    Boolean(evaluation.accessList?.length)
+
+  const hasConditions = Boolean(evaluation.conditions?.length)
 
   return (
     <>
-      
-      { hasAccessList && (
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant="body2">The access list contains <b>{evaluation.accessList.length} students</b></Typography>
-          </Stack>
+      {hasAccessList && (
+        <Stack direction="row" justifyContent="space-between">
+          <Typography variant="body2">
+            The access list contains{' '}
+            <b>{evaluation.accessList.length} students</b>
+          </Typography>
+        </Stack>
       )}
 
-      { hasQuestions && (
-          <Typography variant="body2">Contains <b>{evaluation.evaluationToQuestions.length} questions</b>.</Typography>
+      {hasQuestions && (
+        <Typography variant="body2">
+          Contains <b>{evaluation.evaluationToQuestions.length} questions</b>.
+        </Typography>
       )}
 
-      { countMissingQuestions > 0 && (
-          <Typography variant="body2" color={"error"}><b>{countMissingQuestions} questions</b> used in this evaluation no longer exist in the question bank</Typography>
+      {countMissingQuestions > 0 && (
+        <Typography variant="body2" color={'error'}>
+          <b>{countMissingQuestions} questions</b> used in this evaluation no
+          longer exist in the question bank
+        </Typography>
       )}
 
-      { countMissingQuestions === 0 && (
-          <Typography variant="body2" color={"info"}>All questions are still available in the question bank</Typography>
+      {countMissingQuestions === 0 && (
+        <Typography variant="body2" color={'info'}>
+          All questions are still available in the question bank
+        </Typography>
       )}
 
-      { hasConditions && (
+      {hasConditions && (
         <Typography variant="body2">Conditions are set</Typography>
       )}
     </>
   )
 }
 
-
 const PresetSummary = ({ preset }) => {
   return (
-    preset &&
-    <>
-      
-      <Stack direction="row" justifyContent="space-between">
-        <Typography variant="body2">Show the solution when finished:</Typography>
-        <Typography variant="body1">{preset.showSolutionWhenFinished ? 'Yes' : 'No'}</Typography>
-      </Stack>
-      <Stack direction="row" justifyContent="space-between">
-        <Typography variant="body2">Restricted Access:</Typography>
-        <Typography variant="body1">{preset.restrictAccess ? 'Yes' : 'No'}</Typography>
-      </Stack>
-      <Stack direction="row" justifyContent="space-between">
-        <Typography variant="body2">Grade the evaluation and provide feedback:</Typography>
-        <Typography variant="body1">{preset.grade ? 'Yes' : 'No'}</Typography>
-      </Stack>
-      
-    </>
+    preset && (
+      <>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography variant="body2">
+            Show the solution when finished:
+          </Typography>
+          <Typography variant="body1">
+            {preset.showSolutionWhenFinished ? 'Yes' : 'No'}
+          </Typography>
+        </Stack>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography variant="body2">Restricted Access:</Typography>
+          <Typography variant="body1">
+            {preset.restrictAccess ? 'Yes' : 'No'}
+          </Typography>
+        </Stack>
+        <Stack direction="row" justifyContent="space-between">
+          <Typography variant="body2">
+            Grade the evaluation and provide feedback:
+          </Typography>
+          <Typography variant="body1">{preset.grade ? 'Yes' : 'No'}</Typography>
+        </Stack>
+      </>
+    )
   )
 }
 
