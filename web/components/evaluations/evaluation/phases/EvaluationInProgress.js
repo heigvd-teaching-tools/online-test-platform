@@ -21,6 +21,7 @@ import JoinClipboard from '../../JoinClipboard'
 import StudentProgressGrid from './progress/StudentProgressGrid'
 import MinutesSelector from './progress/MinutesSelector'
 import EvaluationCountDown from './progress/EvaluationCountDown'
+import { EvaluationPhase } from '@prisma/client'
 
 const EvaluationInProgress = ({
   groupScope,
@@ -69,12 +70,13 @@ const EvaluationInProgress = ({
         action={<JoinClipboard evaluationId={evaluationId} />}
       />
 
-      {evaluation.durationActive && (
-        <DurationManager
-          evaluation={evaluation}
-          onChange={handleDurationChange}
-        />
-      )}
+      {evaluation.phase === EvaluationPhase.IN_PROGRESS &&
+        evaluation.durationActive && (
+          <DurationManager
+            evaluation={evaluation}
+            onChange={handleDurationChange}
+          />
+        )}
 
       <StudentProgressGrid
         groupScope={groupScope}
