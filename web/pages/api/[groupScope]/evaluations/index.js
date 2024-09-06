@@ -85,7 +85,6 @@ const post = async (req, res, prisma) => {
       durationHours: templateEvaluation.durationHours,
       durationMins: templateEvaluation.durationMins,
       showSolutionsWhenFinished: templateEvaluation.showSolutionsWhenFinished,
-      skipGrading: templateEvaluation.skipGrading,    
     }
   }else{
     data = {
@@ -93,7 +92,6 @@ const post = async (req, res, prisma) => {
       label: "",
       showSolutionsWhenFinished: settings.showSolutionsWhenFinished,
       accessMode: settings.restrictAccess ? UserOnEvaluationAccessMode.LINK_ONLY : UserOnEvaluationAccessMode.FREE_ACCESS,
-      skipGrading: !settings.grade,
     }
   }
 

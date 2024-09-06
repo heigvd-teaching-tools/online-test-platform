@@ -191,7 +191,7 @@ const EvaluationPage = () => {
                         evaluation={evaluation}
                         attendance={attendance}
                         progress={progress}
-                        onProgressChanged={() => mutateProgress()}
+                        onDurationChanged={() => mutate()}
                       />
                     )}
 

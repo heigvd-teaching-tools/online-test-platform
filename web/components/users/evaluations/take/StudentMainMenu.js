@@ -44,7 +44,7 @@ const StudentMainMenu = ({ evaluationId, evaluation, pages = [], page }) => {
   return (
     <Stack direction="row" alignItems="center" flex={1}>
       <ConnectionIndicator />
-      {evaluation.startAt && evaluation.endAt && (
+      {evaluation.durationActive && (
         <Box sx={{ ml: 2 }}>
           <EvaluationCountDown
             startDate={evaluation.startAt}

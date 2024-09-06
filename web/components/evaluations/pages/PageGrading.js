@@ -66,7 +66,6 @@ import ResizableDrawer from '@/components/layout/utils/ResizableDrawer'
 import StudentResultsGrid from '../finished/StudentResultsGrid'
 import ExportCSV from '../finished/ExportCSV'
 import { saveGrading } from '../grading/utils'
-import ToggleStudentViewSolution from '../grading/ToggleStudentViewSolution'
 
 const PageGrading = () => {
   const router = useRouter()
@@ -101,7 +100,6 @@ const PageGrading = () => {
 
   const [autoGradeSignOffDialogOpen, setAutoGradeSignOffDialogOpen] =
     useState(false)
-  const [endGradingDialogOpen, setEndGradingDialogOpen] = useState(false)
   const [someUnsignedDialogOpen, setSomeUnsignedDialogOpen] = useState(false)
   const [studentGridOpen, setStudentGridOpen] = useState(false)
 
@@ -243,24 +241,15 @@ const PageGrading = () => {
             parseInt(activeQuestion) + 1
           }?participantId=${participants[0].id}`,
         )
-      } else {
-        // count signed gradings vs total gradings
-        let stats = getGradingStats(evaluationToQuestions)
-        if (stats.totalSigned === stats.totalGradings) {
-          setEndGradingDialogOpen(true)
-        } else {
-          setSomeUnsignedDialogOpen(true)
-        }
-      }
+      } 
     }
   }, [
+    groupScope,
     activeQuestion,
-    participantId,
     evaluationId,
+    participantId,
     participants,
     router,
-    evaluationToQuestions,
-    groupScope,
   ])
 
   const prevParticipantOrQuestion = useCallback(() => {
@@ -477,7 +466,6 @@ const PageGrading = () => {
                     signOffAllAutograded={() =>
                       setAutoGradeSignOffDialogOpen(true)
                     }
-                    endGrading={() => setEndGradingDialogOpen(true)}
                   />
                 </Stack>
               )
@@ -500,13 +488,6 @@ const PageGrading = () => {
             </>
           }
           onConfirm={signOffAllAutograded}
-        />
-        <EndGradingDialog
-          groupScope={groupScope}
-          evaluation={evaluation}
-          open={endGradingDialogOpen}
-          onClose={() => setEndGradingDialogOpen(false)}
-          onConfirm={endGrading}
         />
         <DialogFeedback
           open={someUnsignedDialogOpen}
@@ -550,37 +531,6 @@ const PageGrading = () => {
         </ResizableDrawer>
       </Loading>
     </Authorization>
-  )
-}
-
-const EndGradingDialog = ({
-  groupScope,
-  evaluation,
-  open,
-  onClose,
-  onConfirm,
-}) => {
-  return (
-    <DialogFeedback
-      open={open}
-      onClose={() => onClose()}
-      title="End grading"
-      content={
-        <>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            You wont be able to get back to the grading phase.
-          </Typography>
-          <Typography variant="button" gutterBottom>
-            Are you sure you want to end grading?
-          </Typography>
-          <ToggleStudentViewSolution
-            groupScope={groupScope}
-            evaluation={evaluation}
-          />
-        </>
-      }
-      onConfirm={onConfirm}
-    />
   )
 }
 
@@ -662,7 +612,6 @@ const GradingActions = ({
   stats: { totalSigned, totalGradings, totalAutogradedUnsigned },
   loading,
   signOffAllAutograded,
-  endGrading,
 }) => (
   <Tooltip
     title={
@@ -694,17 +643,6 @@ const GradingActions = ({
             />
           )}
         </Stack>
-        {totalSigned === totalGradings && (
-          <Button
-            color="success"
-            fullWidth
-            variant="contained"
-            size="small"
-            onClick={endGrading}
-          >
-            End grading
-          </Button>
-        )}
         {totalAutogradedUnsigned > 0 && (
           <LoadingButton
             loading={loading}

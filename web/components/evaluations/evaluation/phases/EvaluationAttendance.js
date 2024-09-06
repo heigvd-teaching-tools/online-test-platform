@@ -1,6 +1,4 @@
 import {
-  Box,
-  Button,
   Stack,
   Typography,
 } from '@mui/material'
@@ -8,7 +6,6 @@ import {
 import EvaluationTitleBar from '../layout/EvaluationTitleBar'
 import JoinClipboard from '../../JoinClipboard'
 import StudentsInEvaluation from '../../draft/StudentsInEvaluation'
-import { UserOnEvaluationAccessMode } from '@prisma/client'
 import DeniedStudentsInEvaluation from '../../draft/DeniedStudentsInEvaluation'
 import { useSnackbar } from '@/context/SnackbarContext'
 
@@ -35,14 +32,6 @@ const EvaluationAttendance = ({ groupScope, evaluation, attendance, onAttendance
                 groupScope={groupScope}
                 evaluationId={evaluationId}
                 students={attendance.registered}
-                restrictedAccess={
-                  evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
-                }
-                accessList={evaluation.accessList}
-                onStudentAllowed={() => {
-                  onAttendanceChanged()
-                  showSnackbar('Student has been included in the access list')
-                }}
               />
             </Stack>
             { attendance.denied.length > 0 && (

@@ -118,15 +118,9 @@ const StudentProgressGrid = ({
   groupScope,
   evaluationId,
   students,
-  restrictedAccess,
-  accessList,
   progress = [],
   onChange,
-  onStudentAllowed,
 }) => {
-  const isStudentProhibited = (studentEmail) =>
-    restrictedAccess && !accessList?.includes(studentEmail)
-
   const columns = [
     {
       label: 'Student',
@@ -139,39 +133,6 @@ const StudentProgressGrid = ({
           justifyContent={'space-between'}
         >
           <UserAvatar user={row.user} />
-          {isStudentProhibited(row.user.email) && (
-            <Stack direction="row" spacing={2} alignItems="center">
-              <UserHelpPopper
-                alwaysShow
-                label={'Prohibited'}
-                placement="left"
-                mode="warning"
-              >
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <StatusDisplay status="PROHIBITED" size={24} />
-                  <Box>
-                    <Typography variant="body1">
-                      Student Participation Prohibited
-                    </Typography>
-                    <Typography variant="body2">
-                      This student registered before the access restriction was
-                      set.
-                    </Typography>
-                    <Typography variant="body2">
-                      To allow participation, please add the student to the
-                      access list.
-                    </Typography>
-                  </Box>
-                </Stack>
-              </UserHelpPopper>
-              <ButtonAddToAccessList
-                groupScope={groupScope}
-                evaluationId={evaluationId}
-                studentEmail={row.user.email}
-                onStudentAllowed={onStudentAllowed}
-              />
-            </Stack>
-          )}
         </Stack>
       ),
     },

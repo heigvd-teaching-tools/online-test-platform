@@ -82,6 +82,26 @@ const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
             }}
             helperText={!label ? 'Label is required' : ''}
           />
+
+          <Alert severity="info">
+            <Typography variant="body2">
+              Toggle the visibility of the solution for the students.
+            </Typography>
+            <Typography variant="body2">
+              The students will be able to view the solution after the evaluation is completed. Thus, they can compare their solution with the correct one.
+            </Typography>
+            <Typography variant="body2">
+              This setting is useful for evaluations that are used for learning / training purposes.
+            </Typography>
+          </Alert>
+
+          
+          <ToggleStudentViewSolution
+            groupScope={groupScope}
+            evaluation={evaluation}
+          />
+
+          
           
           <ConditionSettings
             groupScope={groupScope}
@@ -121,12 +141,13 @@ const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
   }
 
 
-  import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 import DialogFeedback from "@/components/feedback/DialogFeedback"
 import MarkdownEditor from "@/components/input/markdown/MarkdownEditor"
 import EvaluationTitleBar from "../layout/EvaluationTitleBar"
+import ToggleStudentViewSolution from "../../grading/ToggleStudentViewSolution"
 
-  const ConditionSettings = ({ groupScope, conditions, onChange }) => {
+const ConditionSettings = ({ groupScope, conditions, onChange }) => {
 
     const [ conditionsEditing, setConditionsEditing ] = useState(false)
   
@@ -182,7 +203,7 @@ import EvaluationTitleBar from "../layout/EvaluationTitleBar"
   
       </>
     )
-  }
+ }
 
 
 

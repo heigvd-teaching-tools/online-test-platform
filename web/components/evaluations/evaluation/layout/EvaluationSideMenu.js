@@ -253,6 +253,15 @@ const SettingsSummary = ({ evaluation }) => {
             - No duration set.
           </Typography>
         )}
+        {evaluation.showSolutionsWhenFinished ? (
+          <Typography variant="caption">
+            - Once completed, solutions are visible.
+          </Typography>
+        ) : (
+          <Typography variant="caption">
+            - Solutions are hidden.
+          </Typography>
+        )}
       </Stack>
     )
   }

@@ -550,7 +550,6 @@ model Evaluation {
   endAt   DateTime?
 
   showSolutionsWhenFinished Boolean @default(false)
-  skipGrading               Boolean @default(false)
 
   accessMode UserOnEvaluationAccessMode @default(LINK_ONLY)
   accessList Json?
