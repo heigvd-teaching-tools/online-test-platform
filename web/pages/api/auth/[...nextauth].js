@@ -74,6 +74,44 @@ const MyAdapter = {
   },
 }
 
+const switchEduId = {
+    id: 'switch',
+    name: 'SWITCH edu-ID',
+    type: 'oauth',
+    wellKnown: 'https://login.eduid.ch/.well-known/openid-configuration', 
+    clientId: process.env.NEXTAUTH_SWITCH_CLIENT_ID,  
+    clientSecret: process.env.NEXTAUTH_SWITCH_CLIENT_SECRET, 
+    authorization: {
+      params: {
+        scope: 'openid profile email https://login.eduid.ch/authz/User.Read',
+        claims: JSON.stringify({
+          id_token: {
+            name: { essential: true },
+            email: { essential: true },
+            swissEduIDLinkedAffiliation: { essential: true },
+            swissEduIDAssociatedMail: { essential: true },
+            swissEduIDLinkedAffiliationMail: { essential: true },
+            swissEduID: { essential: true },
+            eduPersonEntitlement: { essential: true },
+            eduPersonAffiliation: { essential: true },
+
+          },
+        }),
+      },
+    },
+    idToken: true,
+    checks: ['pkce', 'state'],
+    profile(profile) {
+      console.log("PROFILE", profile)
+      return {
+        id: profile.sub,
+        name: profile.name,
+        email: profile.email,
+        image: null,  
+      }
+    },
+}
+
 export const authOptions = {
   adapter: MyAdapter,
   providers: [
@@ -82,6 +120,7 @@ export const authOptions = {
       clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
       issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
     }),
+    switchEduId
   ],
   secret: process.env.NEXTAUTH_SECRET,
   // events: { },
@@ -140,8 +179,10 @@ export const authOptions = {
 
       */
 
+        console.log("SIGNIN", user, account, profile)
+
       // Only proceed if the provider is Keycloak and an email is provided
-      if (account.provider === 'keycloak') {
+      if (account.provider === 'keycloak' || account.provider === 'switch') {
         if (!user.email) {
           return false
         }
