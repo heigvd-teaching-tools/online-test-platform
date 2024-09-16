@@ -28,6 +28,7 @@ const getRoles = async (req, res) => {
 
 const getUser = async (req, res) => {
   const session = await getSession(req, res)
+  console.log("getUser session", session)
   return session && session.user
 }
 

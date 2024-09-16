@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import NextAuth from 'next-auth'
-import KeycloakProvider from 'next-auth/providers/keycloak'
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Role } from '@prisma/client'
@@ -23,46 +22,6 @@ import { getPrisma } from '@/middleware/withPrisma'
 
 const prisma = getPrisma()
 
-/*
-
-// LEGACY CODE: GitHub provider 
-const octokit = new Octokit({
-  authStrategy: createAppAuth,
-  auth: {
-    appId: process.env.GITHUB_APP_ID,
-    privateKey: fs.readFileSync(process.env.GITHUB_APP_PRIVATE_KEY_PATH, 'utf8'),
-    installationId: process.env.GITHUB_APP_INSTALLATION_ID,
-  },
-  request: {
-    fetch,
-  },
-});
-
-const getOrgMembersIDs = async () => {
-    const { data: members } = await octokit.rest.orgs.listMembers({
-      org: process.env.GITHUB_ORG,
-    });
-    return members.map((member) => member.id);
-}
-
-const setProfessorIfMemberOfOrg = async (account, user) => {
-  if(account.provider === 'github' && user.role !== Role.PROFESSOR) {
-    const memberIDs = await getOrgMembersIDs();
-    if (memberIDs.includes(parseInt(account.providerAccountId))) {
-      await prisma.user.update({
-        where: {email: user.email},
-        data: {role: Role.PROFESSOR},
-      })
-      return true;
-    }
-  }
-  return false;
-}
-
-*/
-
-// ISSUE with keycloak provider fixed with workaround:
-// https://github.com/nextauthjs/next-auth/issues/3823
 const prismaAdapter = PrismaAdapter(prisma)
 
 const MyAdapter = {
@@ -74,60 +33,87 @@ const MyAdapter = {
   },
 }
 
-const switchEduId = {
-    id: 'switch',
-    name: 'SWITCH edu-ID',
-    type: 'oauth',
-    wellKnown: 'https://login.eduid.ch/.well-known/openid-configuration', 
-    clientId: process.env.NEXTAUTH_SWITCH_CLIENT_ID,  
-    clientSecret: process.env.NEXTAUTH_SWITCH_CLIENT_SECRET, 
-    authorization: {
-      params: {
-        scope: 'openid profile email https://login.eduid.ch/authz/User.Read',
-        claims: JSON.stringify({
-          id_token: {
-            name: { essential: true },
-            email: { essential: true },
-            swissEduIDLinkedAffiliation: { essential: true },
-            swissEduIDAssociatedMail: { essential: true },
-            swissEduIDLinkedAffiliationMail: { essential: true },
-            swissEduID: { essential: true },
-            eduPersonEntitlement: { essential: true },
-            eduPersonAffiliation: { essential: true },
+/*
 
-          },
-        }),
-      },
-    },
-    idToken: true,
-    checks: ['pkce', 'state'],
-    profile(profile) {
-      console.log("PROFILE", profile)
-      return {
-        id: profile.sub,
-        name: profile.name,
-        email: profile.email,
-        image: null,  
-      }
-    },
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  roles         Role[]
+  test         Boolean   @default(false)
+
+  userOnEvaluation UserOnEvaluation[]
+  userDeniedAccess UserOnEvaluationDeniedAccessAttempt[]
+  studentAnswer    StudentAnswer[]
+  gradingSignedBy  StudentQuestionGrading[]
+  groups           UserOnGroup[]
+  groupsCreated    Group[]
+  annotations      Annotation[]
 }
+
+
+*/
+
+const switchEduId = {
+  id: 'switch',
+  name: 'SWITCH edu-ID',
+  type: 'oauth',
+  wellKnown: 'https://login.eduid.ch/.well-known/openid-configuration', 
+  clientId: process.env.NEXTAUTH_SWITCH_CLIENT_ID,  
+  clientSecret: process.env.NEXTAUTH_SWITCH_CLIENT_SECRET, 
+  authorization: {
+    params: {
+      scope: 'openid profile email https://login.eduid.ch/authz/User.Read',
+      claims: JSON.stringify({
+        id_token: {
+          name: { essential: true },
+          email: { essential: true },
+          swissEduIDLinkedAffiliation: { essential: true },
+          swissEduIDAssociatedMail: { essential: true },
+          swissEduIDLinkedAffiliationMail: { essential: true },
+          swissEduID: { essential: true },
+          eduPersonEntitlement: { essential: true },
+          eduPersonAffiliation: { essential: true },
+        },
+      }),
+    },
+  },
+  idToken: true,
+  checks: ['pkce', 'state'],
+  profile(OAuthProfile) {
+    // const identityEmail = OAuthProfile.swissEduIDLinkedAffiliationMail?.[0] || OAuthProfile.email;
+    return {
+      id: OAuthProfile.sub,
+      name: OAuthProfile.name,
+      email: OAuthProfile.email,
+      image: OAuthProfile.picture,
+      roles: [Role.STUDENT],
+      affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
+      selectedAffiliation: null
+    }
+  },
+  
+}
+
 
 export const authOptions = {
   adapter: MyAdapter,
   providers: [
-    KeycloakProvider({
-      clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
-      clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
-      issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
-    }),
     switchEduId
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  // events: { },
   callbacks: {
     async session({ session, user }) {
+
       if (user) {
-        const userWithGroups = await prisma.user.findUnique({
+
+        session.user = user
+
+        const userWithExtras = await prisma.user.findUnique({
           where: { email: user.email },
           include: {
             groups: {
@@ -139,13 +125,13 @@ export const authOptions = {
                   label: 'asc',
                 },
               },
-            },
+            },      
           },
         })
 
-        if (userWithGroups) {
-          session.user.groups = userWithGroups.groups.map((g) => g.group.scope)
-          session.user.selected_group = userWithGroups.groups.find(
+        if (userWithExtras) {
+          session.user.groups = userWithExtras.groups.map((g) => g.group.scope)
+          session.user.selected_group = userWithExtras.groups.find(
             (g) => g.selected,
           )?.group.scope
         }
@@ -155,43 +141,13 @@ export const authOptions = {
       return session
     },
 
-    async signIn({ user, account, profile }) {
-      /*
-
-        OAuth (NextAuth) behaviour, when connecting with the same email from different providers:
-         - If the user is not existant (based on email) next auth will create and link the account to the new user.
-         - If the user is existant we will get the error when signin in with another provider : "Account not linked" 
-
-      
-        As part of the migration from GitHub to Keycloak, we need to automatically link new accounts to existing users.
-
-        Some students and professors use private emails in their github accounts. 
-        
-        The professors have been changed to use the heig-vd email by updating the email field of the User. 
-        
-        For students who use private emails will lose access to their historical data. 
-        
-        For students using heig-vd emails will be unlinked from github and linked to keycloak. Preserving their historical data.
-        
-        We decided not to implement manual linking in the user interface, because we will keep the single provider. Moving from Github to Keycloak. 
-
-        TODO : The following procedure is temporal and should be removed after enough time has passed, ie. 1 semester starting from 13.02.2024.
-
-      */
-
-        console.log("SIGNIN", user, account, profile)
-
-      // Only proceed if the provider is Keycloak and an email is provided
-      if (account.provider === 'keycloak' || account.provider === 'switch') {
-        if (!user.email) {
-          return false
+    async signIn({ user: oauthUser, account, profile }) {
+      // Only proceed if the provider is SWITCH edu-ID and an email is provided
+      if (account.provider === 'switch') {
+        if (!oauthUser.email) {
+          return false;
         }
-
-        // Check for an existing user with the same email
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-        })
-
+    
         const accountData = {
           type: account.type,
           provider: account.provider,
@@ -205,79 +161,142 @@ export const authOptions = {
           scope: account.scope,
           id_token: account.id_token,
           session_state: account.session_state,
-        }
-
-        if (!existingUser) {
-          // Create a new user
-          const newUser = await prisma.user.create({
-            data: {
-              email: user.email,
-              name: profile.name,
-              roles: [Role.STUDENT],
-            },
-          })
-
-          // Link the account
-          await prisma.account.create({
-            data: {
-              userId: newUser.id,
-              ...accountData,
-            },
-          })
-
-          return true
-        }
-
-        if (existingUser) {
-          // Check if the account is already linked
+        };
+    
+        // Transaction for user creation and account linking
+        let dbUser;
+        await prisma.$transaction(async (prisma) => {
+          // Check for an existing user with the same email
+          dbUser = await prisma.user.findUnique({
+            where: { email: oauthUser.email },
+          });
+    
+          if (!dbUser) {
+            // If no existing user is found, create a new one
+            const newUser = await prisma.user.create({
+              data: {
+                email: oauthUser.email,
+                name: profile.name,
+                roles: [Role.STUDENT],
+                image: oauthUser.image,
+                affiliations: oauthUser.affiliations,
+              },
+            });
+    
+            // Link the new user to the account
+            await prisma.account.create({
+              data: {
+                userId: newUser.id,
+                ...accountData,
+              },
+            });
+    
+            // Set the newly created user as the existing user for further updates
+            dbUser = newUser;
+          }
+    
+          // Proceed with account linking if not already linked
           const linkedAccount = await prisma.account.findFirst({
             where: {
               providerAccountId: account.providerAccountId,
               provider: account.provider,
             },
-          })
-
+          });
+    
           if (!linkedAccount) {
-            // update the user name with thrustworthy name from keycloak
-            await prisma.user.update({
-              where: { email: user.email },
-              data: {
-                name: profile.name,
-              },
-            })
-
-            // Link the account
             await prisma.account.create({
               data: {
-                userId: existingUser.id,
+                userId: dbUser.id,
                 ...accountData,
               },
-            })
-
-            // unlink the github account
-
-            const accountToDelete = await prisma.account.findFirst({
-              where: {
-                provider: 'github',
-                userId: existingUser.id,
-              },
-            })
-
-            if (accountToDelete) {
-              await prisma.account.delete({
-                where: {
-                  id: accountToDelete.id,
-                },
-              })
-            }
+            });
           }
-          return true
+        });
+    
+        // After transaction commits, ensure the user is properly re-fetched for further updates
+        dbUser = await prisma.user.findUnique({
+          where: { email: oauthUser.email },
+        });
+    
+        // Proceed with affiliation migration outside of the transaction
+        await switchMigrateAffiliatedUsers(oauthUser, dbUser);
+    
+        return true;
+      }
+    
+      return false;
+    }
+  }
+}
+
+
+const switchMigrateAffiliatedUsers = async (oauthUser, dbUser) => {
+  // Check if user has affiliations and manage them
+  if (oauthUser.affiliations && oauthUser.affiliations.length > 0) {
+    await prisma.$transaction(async (prisma) => {
+      for (const affiliation of oauthUser.affiliations) {
+        const existingAffiliatedUser = await prisma.user.findFirst({
+          where: { email: affiliation },
+        });
+
+        if (existingAffiliatedUser) {
+          console.log(
+            'Existing user found',
+            existingAffiliatedUser.id,
+            existingAffiliatedUser.email,
+            dbUser.id,
+            dbUser.email
+          );
+
+          // If the existing user is a professor, migrate groups and assign the professor role
+          if (existingAffiliatedUser.roles.includes(Role.PROFESSOR)) {
+            // Ensure the existingUser.roles is initialized and check if the PROFESSOR role is already assigned
+            const currentRoles = dbUser.roles || [];
+
+            // Only add the PROFESSOR role if it is not already present
+            if (!currentRoles.includes(Role.PROFESSOR)) {
+              await prisma.user.update({
+                where: { id: dbUser.id },
+                data: {
+                  roles: {
+                    set: [...currentRoles, Role.PROFESSOR], // Spread existing roles and add PROFESSOR
+                  },
+                },
+              });
+              console.log(`Assigned PROFESSOR role to user: ${dbUser.id}`);
+            } else {
+              console.log(`User ${dbUser.id} already has the PROFESSOR role.`);
+            }
+
+            // Transfer groups from the existing user to the new user
+            await prisma.userOnGroup.updateMany({
+              where: { userId: existingAffiliatedUser.id },
+              data: { userId: dbUser.id },
+            });
+            console.log(`Groups from user ${existingAffiliatedUser.id} reassigned to ${dbUser.id}`);
+          }
+
+          // If the existing user is NOT a professor, treat the new user as the main identity
+          if (!existingAffiliatedUser.roles.includes(Role.PROFESSOR)) {
+            console.log(`Making ${dbUser.id} the main identity for ${existingAffiliatedUser.id}`);
+          }
+
+          // Delete the existing affiliated user if the emails are different
+          if (existingAffiliatedUser.email !== dbUser.email) {
+            await prisma.user.delete({
+              where: { id: existingAffiliatedUser.id },
+            });
+            console.log(`Deleted existing user with id: ${existingAffiliatedUser.id}`);
+          }
         }
       }
+    });
+  } else {
+    console.log('No affiliations found for this user.');
+  }
+};
 
-      return false
-    },
-  },
-}
+
+
 
 export default NextAuth(authOptions)

@@ -113,7 +113,6 @@ export const questionIncludeClause = (questionIncludeOptions) => {
             ...(includeOfficialAnswers
               ? {
                   gradingPolicy: true,
-                  gradualCreditConfig: true,
                 }
               : {}),
             activateStudentComment: true,
@@ -350,9 +349,6 @@ export const questionTypeSpecific = (
                 { text: 'Option 2', isCorrect: true, order: 1 },
               ],
             },
-            gradualCreditConfig: {
-              create: {}, // based on the default values
-            },
           }
         : {
             gradingPolicy: question.multipleChoice.gradingPolicy,
@@ -362,27 +358,6 @@ export const questionTypeSpecific = (
             activateSelectionLimit:
               question.multipleChoice.activateSelectionLimit,
             selectionLimit: question.multipleChoice.selectionLimit,
-            gradualCreditConfig: question.multipleChoice.gradualCreditConfig
-              ? mode === 'update'
-                ? {
-                    update: {
-                      negativeMarking:
-                        question.multipleChoice.gradualCreditConfig
-                          .negativeMarking,
-                      threshold:
-                        question.multipleChoice.gradualCreditConfig.threshold,
-                    },
-                  }
-                : {
-                    create: {
-                      negativeMarking:
-                        question.multipleChoice.gradualCreditConfig
-                          .negativeMarking,
-                      threshold:
-                        question.multipleChoice.gradualCreditConfig.threshold,
-                    },
-                  }
-              : undefined,
             options:
               mode === 'update'
                 ? // multi choice options are no longer managed on the question level, they are managed by individual endpoints : api/questions/:id/multiple-choice/options

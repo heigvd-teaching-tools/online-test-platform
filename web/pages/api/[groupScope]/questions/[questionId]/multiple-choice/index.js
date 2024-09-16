@@ -37,7 +37,6 @@ const get = async (req, res, prisma) => {
       questionId: questionId,
     },
     include: {
-      gradualCreditConfig: true,
       options: {
         orderBy: [
           {
@@ -77,25 +76,6 @@ const put = async (req, res, prisma) => {
     return res.status(404).json({ error: 'Question not found' })
   }
 
-  const currentGradingPolicy = multiChoice.gradingPolicy
-
-  if (currentGradingPolicy !== MultipleChoiceGradingPolicyType.GRADUAL_CREDIT) {
-    // If the grading policy is changed, we need to remove the existing gradual credit config
-    const exists = await prisma.multipleChoiceGradualCreditConfig.findUnique({
-      where: {
-        questionId: questionId,
-      },
-    })
-
-    if (exists) {
-      await prisma.multipleChoiceGradualCreditConfig.delete({
-        where: {
-          questionId: questionId,
-        },
-      })
-    }
-  }
-
   // update the multichoice
   const updatedMultiChoice = await prisma.multipleChoice.update({
     where: { questionId: questionId },
@@ -107,10 +87,7 @@ const put = async (req, res, prisma) => {
         ? multiChoice.options.filter((o) => o.isCorrect).length
         : 0,
       gradingPolicy: gradingPolicy,
-    },
-    include: {
-      gradualCreditConfig: true,
-    },
+    }
   })
 
   res.status(200).json(updatedMultiChoice)

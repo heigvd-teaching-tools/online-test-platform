@@ -55,11 +55,16 @@ model User {
   sessions      Session[]
   roles         Role[]
 
+  affiliations   String[]
+  selectedAffiliation String?
+
+  groups           UserOnGroup[]
+
   userOnEvaluation UserOnEvaluation[]
   userDeniedAccess UserOnEvaluationDeniedAccessAttempt[]
   studentAnswer    StudentAnswer[]
   gradingSignedBy  StudentQuestionGrading[]
-  groups           UserOnGroup[]
+  
   groupsCreated    Group[]
   annotations      Annotation[]
 }
@@ -167,7 +172,6 @@ model MultipleChoice {
   options    Option[]
 
   gradingPolicy MultipleChoiceGradingPolicyType @default(GRADUAL_CREDIT)
-  gradualCreditConfig MultipleChoiceGradualCreditConfig?
 
   activateStudentComment Boolean  @default(false) // Allow student to provide a comment/justification
   studentCommentLabel String?                     // Label for the student comment field
@@ -175,15 +179,6 @@ model MultipleChoice {
   selectionLimit        Int?    @default(0)       // The number of correct options that the student can select, depends on the number of correct options
 }
 
-
-model MultipleChoiceGradualCreditConfig {
-  multipleChoice     MultipleChoice?   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId   String @unique
-  
-  negativeMarking    Boolean           @default(false)
-  threshold          Float             @default(0)
-  
-}
 
 model Option {
   id               String         @id @default(cuid())

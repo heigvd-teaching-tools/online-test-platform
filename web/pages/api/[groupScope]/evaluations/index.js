@@ -32,7 +32,7 @@ const get = async (req, res, prisma) => {
   const evaluations = await prisma.evaluation.findMany({
     where: {
       group: {
-        scope: groupScope,
+        scope:  groupScope,
       },
     },
     include: {

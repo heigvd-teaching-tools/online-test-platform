@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import { QuestionType, MultipleChoiceGradingPolicyType } from '@prisma/client'
-import MultipleChoiceGradualCreditPolicyConfig from '@/components/question/type_specific/multiple-choice/MultipleChoiceGradualCreditPolicyConfig'
 
 class GradingPolicy {
   static policies = {
@@ -204,9 +203,6 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       (option) => !answer.options.some((answer) => answer.id === option.id)
     );
 
-    const threshold = solution.gradualCreditConfig.threshold;
-    const negativeMarking = solution.gradualCreditConfig.negativeMarking;
-
     return {
       totalOptions: totalOptions,
       correctOptions: correctOptions.length,
@@ -215,8 +211,6 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       incorrectOptions: incorrectOptions.length,
       selectedIncorrectOptions: selectedIncorrectOptions.length,
       unselectedIncorrectOptions: unselectedIncorrectOptions.length,
-      threshold,
-      negativeMarking,
     };
   }
 
