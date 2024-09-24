@@ -129,6 +129,7 @@ const PageList = () => {
                         Create a new question
                       </Button>
                     }
+                    setSelected={setSelected}
                     selection={selection}
                     setSelection={setSelection}
                     setAddDialogOpen={setAddDialogOpen}
@@ -138,6 +139,10 @@ const PageList = () => {
                     }}
                     groupScope={groupScope}
                     setCopyDialogOpen={setCopyDialogOpen}
+                    setOpenSideUpdate={(q) => {
+                      setSelected(q)
+                      setOpenSideUpdate(true)
+                    }}
                   />
                   <ResizableDrawer
                     open={openSideUpdate}

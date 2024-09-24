@@ -31,6 +31,7 @@ import Image from 'next/image'
 const QuestionsGrid = ({
   groupScope,
   questions,
+  setSelected,
   selection,
   setSelection,
   onRowClick,
@@ -118,7 +119,7 @@ const QuestionsGrid = ({
                   onClick={(ev) => {
                     ev.preventDefault()
                     ev.stopPropagation()
-                    setSelected(question)
+                    setSelected && setSelected(question)
                     setCopyDialogOpen(true)
                   }}
                 >
@@ -151,8 +152,7 @@ const QuestionsGrid = ({
                   onClick={(ev) => {
                     ev.preventDefault()
                     ev.stopPropagation()
-                    setSelected(question)
-                    setOpenSideUpdate(true)
+                    setOpenSideUpdate(question)
                   }}
                 >
                   <Image
