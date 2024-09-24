@@ -85,7 +85,6 @@ const switchEduId = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
-    // const identityEmail = OAuthProfile.swissEduIDLinkedAffiliationMail?.[0] || OAuthProfile.email;
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
@@ -277,6 +276,7 @@ export const authOptions = {
 
 
 const switchMigrateAffiliatedUsers = async (oauthUser, dbUser) => {
+  console.log("switchMigrateAffiliatedUsers", oauthUser)
   // Check if user has affiliations and manage them
   if (oauthUser.affiliations && oauthUser.affiliations.length > 0) {
     await prisma.$transaction(async (prisma) => {
