@@ -93,11 +93,13 @@ const switchEduId = {
       image: OAuthProfile.picture,
       roles: [Role.STUDENT],
       affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
+      organizations: OAuthProfile.swissEduIDLinkedAffiliationMail.map((affiliation) => affiliation.split('@')[1]),
       selectedAffiliation: null
     }
   },
   
 }
+
 
 
 export const authOptions = {
@@ -108,13 +110,14 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, user }) {
-
       if (user) {
-
-        session.user = user
-
+        session.user = user;
+    
+        // Fetch user with groups and affiliations from the database
         const userWithExtras = await prisma.user.findUnique({
-          where: { email: user.email },
+          where: {
+            email: user.email,
+          },
           include: {
             groups: {
               include: {
@@ -125,24 +128,47 @@ export const authOptions = {
                   label: 'asc',
                 },
               },
-            },      
+            },
           },
-        })
-
+        });
+    
         if (userWithExtras) {
-          session.user.groups = userWithExtras.groups.map((g) => g.group.scope)
-          session.user.selected_group = userWithExtras.groups.find(
-            (g) => g.selected,
-          )?.group.scope
+          // Check if the selected organization is still valid based on the user's affiliations
+          if (
+            !userWithExtras.organizations.includes(user.selectedOrganization)
+          ) {
+            // Set the selected organization to null if it is no longer valid
+            session.user.selectedOrganization = null;
+    
+            // Optionally, update the database to reflect the removal of the selected organization
+            await prisma.user.update({
+              where: { email: user.email },
+              data: {
+                selectedOrganization: null,
+              },
+            });
+          } else {
+            session.user.groups = userWithExtras.groups
+              .filter(
+                (g) => g.group.organization === user.selectedOrganization
+              )
+              .map((g) => g.group.scope);
+    
+            session.user.selected_group = userWithExtras.groups.find(
+              (g) => g.selected
+            )?.group.scope;
+          }
         }
+    
+        session.user.id = user.id;
+        session.user.roles = user.roles;
       }
-      session.user.id = user.id
-      session.user.roles = user.roles
-      return session
-    },
+    
+      return session;
+    }
+    ,
 
     async signIn({ user: oauthUser, account, profile }) {
-      // Only proceed if the provider is SWITCH edu-ID and an email is provided
       if (account.provider === 'switch') {
         if (!oauthUser.email) {
           return false;
@@ -163,39 +189,64 @@ export const authOptions = {
           session_state: account.session_state,
         };
     
-        // Transaction for user creation and account linking
         let dbUser;
         await prisma.$transaction(async (prisma) => {
-          // Check for an existing user with the same email
           dbUser = await prisma.user.findUnique({
             where: { email: oauthUser.email },
           });
     
-          if (!dbUser) {
-            // If no existing user is found, create a new one
-            const newUser = await prisma.user.create({
+          if (dbUser) {
+            // Identify the old organizations
+            const oldOrganizations = dbUser.organizations || [];
+    
+            // Update user information from IDP
+            const newOrganizations = oauthUser.affiliations.map((affiliation) =>
+              affiliation.split('@')[1]
+            );
+    
+            await prisma.user.update({
+              where: { email: oauthUser.email },
+              data: {
+                name: profile.name,
+                image: oauthUser.image,
+                affiliations: oauthUser.affiliations,
+                organizations: newOrganizations,
+              },
+            });
+    
+            // Find organizations the user is no longer part of
+            const removedOrganizations = oldOrganizations.filter(
+              (org) => !newOrganizations.includes(org)
+            );
+    
+            // Unlink the user from groups that belong to the removed organizations
+            if (removedOrganizations.length > 0) {
+              await prisma.userOnGroup.deleteMany({
+                where: {
+                  userId: dbUser.id,
+                  group: {
+                    organization: { in: removedOrganizations },
+                  },
+                },
+              });
+            }
+          } else {
+            // Create a new user if it doesn't exist
+            dbUser = await prisma.user.create({
               data: {
                 email: oauthUser.email,
                 name: profile.name,
                 roles: [Role.STUDENT],
                 image: oauthUser.image,
                 affiliations: oauthUser.affiliations,
+                organizations: oauthUser.affiliations.map((affiliation) =>
+                  affiliation.split('@')[1]
+                ),
               },
             });
-    
-            // Link the new user to the account
-            await prisma.account.create({
-              data: {
-                userId: newUser.id,
-                ...accountData,
-              },
-            });
-    
-            // Set the newly created user as the existing user for further updates
-            dbUser = newUser;
           }
     
-          // Proceed with account linking if not already linked
+          // Link the account if not already linked
           const linkedAccount = await prisma.account.findFirst({
             where: {
               providerAccountId: account.providerAccountId,
@@ -213,12 +264,6 @@ export const authOptions = {
           }
         });
     
-        // After transaction commits, ensure the user is properly re-fetched for further updates
-        dbUser = await prisma.user.findUnique({
-          where: { email: oauthUser.email },
-        });
-    
-        // Proceed with affiliation migration outside of the transaction
         await switchMigrateAffiliatedUsers(oauthUser, dbUser);
     
         return true;
@@ -226,6 +271,7 @@ export const authOptions = {
     
       return false;
     }
+    
   }
 }
 

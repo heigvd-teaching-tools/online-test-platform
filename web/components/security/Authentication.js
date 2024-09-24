@@ -16,66 +16,9 @@
 import { useSession } from 'next-auth/react'
 import LoadingAnimation from '../feedback/Loading'
 import LoginGitHub from './LoginGitHub'
-import { useState } from 'react'
-import { Stack, Typography, Button } from '@mui/material';
-import DropdownSelector from '../input/DropdownSelector';
-
-const AffiliationSelector = ({ affiliations, onChanged }) => {
-  const [selected, setSelected] = useState(null);
-
-  const handleSelection = (value) => {
-    setSelected(value);
-  };
-
-  const handleSubmit = async () => {
-    if (selected) {
-      // Send the selected affiliation to the server to update the session
-      const res = await fetch('/api/update-affiliation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ selectedAffiliation: selected }),
-      });
-      
-      if (res.ok) {
-        // Refresh session to get the updated session object
-        await onChanged();
-      }
-    }
-  };
-
-  return (
-    <Stack
-      width={"100vw"}
-      height={"100vh"}
-      alignItems={"center"}
-      justifyContent={"center"}
-      spacing={2}
-    >
-      <Typography variant="h6" gutterBottom>
-        Please select your affiliation
-      </Typography>
-      <DropdownSelector
-        color={'primary'}
-        variant={'outlined'}
-        label={(option) => option.label}
-        value={selected}
-        options={affiliations.map((affiliation) => ({
-          value: affiliation,
-          label: affiliation,
-        }))}
-        onSelect={async (value) => await handleSelection(value)}
-      />
-      <Button
-        variant="contained"
-        onClick={handleSubmit}
-      >
-        Select
-      </Button>
-    </Stack>
-  );
-};
+import OrganizationSelector from './OrganizationSelector';
+import { Stack } from '@mui/system';
+import { Typography } from '@mui/material';
 
 const Authentication = ({ children }) => {
   const { data: session, status, update } = useSession();
@@ -84,15 +27,25 @@ const Authentication = ({ children }) => {
   if (status === 'unauthenticated') return <LoginGitHub />;
 
   if (status === 'authenticated') {
-    console.log("session.user", session.user)
-    if (session.user.selectedAffiliation === null) {
+    if (session.user.selectedOrganization === null) {
       return (
-        <AffiliationSelector 
-          affiliations={session.user.affiliations} 
-          onChanged={async () => {
-            await update();
-          }}
-        />
+        <Stack
+          width="100vw"
+          height="100vh"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+        >
+          <Typography variant="h6" gutterBottom>
+            Please select your organization
+          </Typography>
+          <OrganizationSelector 
+            organizations={session.user.organizations} 
+            onChanged={async () => {
+              await update();
+            }}
+          />
+        </Stack>
       );
     }
 

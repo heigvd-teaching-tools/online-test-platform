@@ -43,7 +43,6 @@ const QuestionsGrid = ({
   return (
     <GridGrouping
       label="Questions"
-      enableSelection
       selection={selection}
       onSelectionChange={(newSelection) => {
         console.log(newSelection)

@@ -20,9 +20,10 @@ import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Role } from '@prisma/client'
+import OrganizationSelector from '../security/OrganizationSelector'
 
 const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
   return (
     <Menu
       sx={{ mt: '40px' }}
@@ -33,8 +34,17 @@ const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={Boolean(anchorElUser)}
       onClose={handleCloseUserMenu}
+      width={300}
     >
       <Stack padding={2} spacing={2} alignItems={'flex-start'}>
+
+        <OrganizationSelector
+          organizations={session.user.organizations}
+          onChanged={async () => {
+            await update()
+          }}
+        />
+
         {session.user.roles.includes(Role.SUPER_ADMIN) && (
           <Link href={`/admin`}>
             <Button startIcon={<SupervisedUserCircleIcon />}>
@@ -42,6 +52,8 @@ const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
             </Button>
           </Link>
         )}
+
+
 
         <Link href={`/groups`}>
           <Button startIcon={<GroupIcon />}>Manage Groups</Button>
@@ -53,5 +65,6 @@ const UserContextMenu = ({ anchorElUser, handleCloseUserMenu }) => {
     </Menu>
   )
 }
+
 
 export default UserContextMenu
