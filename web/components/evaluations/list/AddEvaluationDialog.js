@@ -210,7 +210,7 @@ const EvaluationSummary = ({ evaluation }) => {
         <Stack direction="row" justifyContent="space-between">
           <Typography variant="body2">
             The access list contains{' '}
-            <b>{evaluation.accessList.length} students</b>
+            <b>{evaluation.accessList?.length || 0} emails</b>
           </Typography>
         </Stack>
       )}

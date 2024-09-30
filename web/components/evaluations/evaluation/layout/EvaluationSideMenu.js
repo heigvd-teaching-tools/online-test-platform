@@ -280,7 +280,7 @@ const SettingsSummary = ({ evaluation }) => {
           - Anyone with the link can access
         </Typography>
       )}
-      {isRestricted && evaluation.accessList.length > 0 && (
+      {isRestricted && evaluation.accessList?.length > 0 && (
         <Typography variant="caption" pl={2}>
           - Access list contains {evaluation.accessList.length} students
         </Typography>
