@@ -43,6 +43,7 @@ const get = async (req, res, prisma) => {
       startAt: true,
       endAt: true,
       conditions: true,
+      consultationEnabled: true,
       accessMode: true, // sensitive!
       accessList: true, // sensitive!
     },
@@ -86,7 +87,6 @@ const get = async (req, res, prisma) => {
     })
   }
 
-  console.log('evaluation§', evaluation)
 
   res.status(200).json({
     allowed: allowed,

@@ -18,7 +18,7 @@ import useSWR from 'swr'
 import { Role, StudentAnswerStatus } from '@prisma/client'
 import Authorization from '../../security/Authorization'
 import LayoutSplitScreen from '../../layout/LayoutSplitScreen'
-import { Box, Paper, Stack } from '@mui/material'
+import { Box, Paper, Stack, Typography } from '@mui/material'
 import Paging from '../../layout/utils/Paging'
 import { useEffect, useMemo, useState } from 'react'
 import StudentPhaseRedirect from './StudentPhaseRedirect'
@@ -30,6 +30,8 @@ import AnswerConsult from '../../answer/AnswerConsult'
 import Loading from '../../feedback/Loading'
 import { fetcher } from '../../../code/utils'
 import AnswerCompare from '@/components/answer/AnswerCompare'
+import Overlay from '@/components/ui/Overlay'
+import AlertFeedback from '@/components/feedback/AlertFeedback'
 
 const getFilledStatus = (studentAnswerStatus) => {
   switch (studentAnswerStatus) {
@@ -43,11 +45,11 @@ const getFilledStatus = (studentAnswerStatus) => {
       return 'empty'
   }
 }
-
 const PageConsult = () => {
   const router = useRouter()
   const { evaluationId, questionPage } = router.query
 
+  // Fetch evaluation status and user evaluation data
   const { data: evaluationStatus, error: errorEvaluationStatus } = useSWR(
     `/api/users/evaluations/${evaluationId}/status`,
     evaluationId ? fetcher : null,
@@ -57,10 +59,19 @@ const PageConsult = () => {
   const { data: userOnEvaluation, error: errorUserOnEvaluation } = useSWR(
     `/api/users/evaluations/${evaluationId}/consult`,
     evaluationId ? fetcher : null,
-    { revalidateOnFocus: false },
+    {
+      revalidateOnFocus: false,
+      onError: (err) => {
+        if (err.status === 403) {
+          setConsultationDisabled(true)
+        }
+      },
+    }
   )
+
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
   const [selected, setSelected] = useState()
+  const [consultationDisabled, setConsultationDisabled] = useState(false)
 
   useEffect(() => {
     if (
@@ -91,15 +102,17 @@ const PageConsult = () => {
     [evaluationToQuestions],
   )
 
+  // If consultation is disabled, show the dialog
+  if (consultationDisabled) {
+    return <ConsultationDisabledDialog />
+  }
+
   return (
     <Authorization allowRoles={[Role.PROFESSOR, Role.STUDENT]}>
       <Loading loading={!evaluationStatus} errors={[errorEvaluationStatus]}>
         {evaluationStatus && (
           <StudentPhaseRedirect phase={evaluationStatus.evaluation.phase}>
-            <Loading
-              loading={!userOnEvaluation}
-              error={[errorUserOnEvaluation]}
-            >
+            <Loading loading={!userOnEvaluation} error={[errorUserOnEvaluation]}>
               {evaluationToQuestions && selected && (
                 <LayoutMain
                   header={
@@ -160,7 +173,6 @@ const PageConsult = () => {
                     }
                     footer={
                       <>
-                        {' '}
                         {selected &&
                           selected.question.studentAnswer[0].studentGrading
                             .signedBy && (
@@ -206,5 +218,22 @@ const PageConsult = () => {
     </Authorization>
   )
 }
+
+const ConsultationDisabledDialog = () => (
+  <Overlay>
+    <AlertFeedback severity="info">
+      <Stack spacing={1}>
+        <Typography variant="h5">Consultation is disabled</Typography>
+        <Typography variant="body1">
+          Consultation for this evaluation is disabled. You cannot view the results or feedback.
+        </Typography>
+        <Typography variant="body1">
+          If you have any questions regarding the consultation, please contact your professor for further information.
+        </Typography>
+      </Stack>
+    </AlertFeedback>
+  </Overlay>
+)
+
 
 export default PageConsult
