@@ -88,12 +88,14 @@ const post = async (req, res, prisma) => {
       accessList: templateEvaluation.accessList,
       durationHours: templateEvaluation.durationHours,
       durationMins: templateEvaluation.durationMins,
+      consultationEnabled: templateEvaluation.consultationEnabled,
       showSolutionsWhenFinished: templateEvaluation.showSolutionsWhenFinished,
     }
   } else {
     data = {
       ...data,
       label: '',
+      consultationEnabled: settings.consultationEnabled,
       showSolutionsWhenFinished: settings.showSolutionsWhenFinished,
       accessMode: settings.restrictAccess
         ? UserOnEvaluationAccessMode.LINK_ONLY
