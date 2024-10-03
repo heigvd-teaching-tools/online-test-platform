@@ -28,8 +28,8 @@ const Presets = [
     description: 'Formal course-ending exams.',
     settings: {
       showSolutionWhenFinished: false, // No solutions after exam
-      restrictAccess: true,            // Restricted access only
-      consultationEnabled: false,      // Consultation is disabled for exams
+      restrictAccess: true, // Restricted access only
+      consultationEnabled: false, // Consultation is disabled for exams
     },
   },
   {
@@ -37,9 +37,9 @@ const Presets = [
     label: 'Test (TE)',
     description: 'Written tests taken throughout the semester.',
     settings: {
-      showSolutionWhenFinished: true,  // Solutions available after TE is finished
-      restrictAccess: true,            // Restricted access for TE
-      consultationEnabled: true,       // Consultation is allowed for TE
+      showSolutionWhenFinished: true, // Solutions available after TE is finished
+      restrictAccess: true, // Restricted access for TE
+      consultationEnabled: true, // Consultation is allowed for TE
     },
   },
   {
@@ -47,9 +47,9 @@ const Presets = [
     label: 'Training',
     description: 'For homework and training purposes.',
     settings: {
-      showSolutionWhenFinished: true,  // Solutions available after training
-      restrictAccess: false,           // No restrictions for training
-      consultationEnabled: true,       // Consultation is allowed
+      showSolutionWhenFinished: true, // Solutions available after training
+      restrictAccess: false, // No restrictions for training
+      consultationEnabled: true, // Consultation is allowed
     },
   },
   {
@@ -59,7 +59,6 @@ const Presets = [
     settings: {},
   },
 ]
-
 
 const AddEvaluationDialog = ({ existingEvaluations, open, onClose }) => {
   const router = useRouter()
@@ -242,15 +241,14 @@ const EvaluationSummary = ({ evaluation }) => {
 }
 
 const handleAccessAfterGrading = (preset) => {
-    if (!preset.consultationEnabled) {
-      return 'Access to feedback and solutions is disabled for this exam. No consultation is allowed.'
-    } else if (preset.showSolutionsWhenFinished) {
-      return 'Solutions and feedback are available. The students can consult their results.'
-    } else {
-      return 'Feedback is available, but no solutions are provided.'
-    }
+  if (!preset.consultationEnabled) {
+    return 'Access to feedback and solutions is disabled for this exam. No consultation is allowed.'
+  } else if (preset.showSolutionsWhenFinished) {
+    return 'Solutions and feedback are available. The students can consult their results.'
+  } else {
+    return 'Feedback is available, but no solutions are provided.'
+  }
 }
-
 
 const PresetSummary = ({ preset }) => {
   return (
@@ -260,7 +258,6 @@ const PresetSummary = ({ preset }) => {
           <Typography variant="body2">
             {handleAccessAfterGrading(preset)}
           </Typography>
-          
         </Stack>
         <Stack direction="row" justifyContent="space-between">
           {preset.restrictAccess ? (

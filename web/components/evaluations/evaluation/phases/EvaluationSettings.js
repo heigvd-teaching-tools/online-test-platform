@@ -110,7 +110,7 @@ const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
 
       <ConsultationSettings
         evaluation={evaluation}
-        onChange={(consultationEnabled, showSolutionsWhenFinished ) => {
+        onChange={(consultationEnabled, showSolutionsWhenFinished) => {
           debounceSave({
             consultationEnabled,
             showSolutionsWhenFinished,

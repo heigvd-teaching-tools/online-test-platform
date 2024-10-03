@@ -298,13 +298,13 @@ const SettingsSummary = ({ evaluation }) => {
         <Typography variant="caption">- No duration set.</Typography>
       )}
       <Typography variant="caption">
-        - Consultation: {evaluation.consultationEnabled ? 'Enabled' : 'Disabled'}, 
-        Solutions: {evaluation.showSolutionsWhenFinished ? 'Visible' : 'Hidden'}
+        - Consultation:{' '}
+        {evaluation.consultationEnabled ? 'Enabled' : 'Disabled'}, Solutions:{' '}
+        {evaluation.showSolutionsWhenFinished ? 'Visible' : 'Hidden'}
       </Typography>
     </Stack>
   )
 }
-
 
 const CompositionSummary = ({ evaluation, composition }) => {
   return (

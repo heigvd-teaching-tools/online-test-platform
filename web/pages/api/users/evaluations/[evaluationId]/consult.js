@@ -44,8 +44,8 @@ const get = async (req, res, prisma) => {
     return
   }
 
-   // If consultation is disabled, prevent access
-   if (!evaluation.consultationEnabled) {
+  // If consultation is disabled, prevent access
+  if (!evaluation.consultationEnabled) {
     res.status(403).json({
       message: 'Consultation is disabled for this evaluation.',
     })

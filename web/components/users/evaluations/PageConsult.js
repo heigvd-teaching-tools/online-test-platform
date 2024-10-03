@@ -66,7 +66,7 @@ const PageConsult = () => {
           setConsultationDisabled(true)
         }
       },
-    }
+    },
   )
 
   const [evaluationToQuestions, setEvaluationToQuestions] = useState([])
@@ -112,7 +112,10 @@ const PageConsult = () => {
       <Loading loading={!evaluationStatus} errors={[errorEvaluationStatus]}>
         {evaluationStatus && (
           <StudentPhaseRedirect phase={evaluationStatus.evaluation.phase}>
-            <Loading loading={!userOnEvaluation} error={[errorUserOnEvaluation]}>
+            <Loading
+              loading={!userOnEvaluation}
+              error={[errorUserOnEvaluation]}
+            >
               {evaluationToQuestions && selected && (
                 <LayoutMain
                   header={
@@ -225,15 +228,16 @@ const ConsultationDisabledDialog = () => (
       <Stack spacing={1}>
         <Typography variant="h5">Consultation is disabled</Typography>
         <Typography variant="body1">
-          Consultation for this evaluation is disabled. You cannot view the results or feedback.
+          Consultation for this evaluation is disabled. You cannot view the
+          results or feedback.
         </Typography>
         <Typography variant="body1">
-          If you have any questions regarding the consultation, please contact your professor for further information.
+          If you have any questions regarding the consultation, please contact
+          your professor for further information.
         </Typography>
       </Stack>
     </AlertFeedback>
   </Overlay>
 )
-
 
 export default PageConsult

@@ -15,15 +15,12 @@
  */
 import { FormControlLabel, Switch } from '@mui/material'
 
-const ToggleWithLabel = ({ label, checked, disabled = false,  onChange }) => {
+const ToggleWithLabel = ({ label, checked, disabled = false, onChange }) => {
   return (
     <FormControlLabel
       control={
-        <Switch 
-          checked={checked} 
-          disabled={disabled}
-          onChange={onChange} 
-        />}
+        <Switch checked={checked} disabled={disabled} onChange={onChange} />
+      }
       label={label}
     />
   )

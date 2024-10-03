@@ -87,7 +87,6 @@ const get = async (req, res, prisma) => {
     })
   }
 
-
   res.status(200).json({
     allowed: allowed,
     evaluation: {
