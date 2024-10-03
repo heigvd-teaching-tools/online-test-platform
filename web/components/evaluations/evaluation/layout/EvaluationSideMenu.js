@@ -260,7 +260,6 @@ const EvaluationMenuItem = ({
     </>
   )
 }
-
 const SettingsSummary = ({ evaluation }) => {
   const isRestricted =
     evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
@@ -281,7 +280,7 @@ const SettingsSummary = ({ evaluation }) => {
           - Anyone with the link can access
         </Typography>
       )}
-      {isRestricted && evaluation.accessList.length > 0 && (
+      {isRestricted && evaluation.accessList?.length > 0 && (
         <Typography variant="caption" pl={2}>
           - Access list contains {evaluation.accessList.length} students
         </Typography>
@@ -298,13 +297,11 @@ const SettingsSummary = ({ evaluation }) => {
       ) : (
         <Typography variant="caption">- No duration set.</Typography>
       )}
-      {evaluation.showSolutionsWhenFinished ? (
-        <Typography variant="caption">
-          - Once completed, solutions are visible.
-        </Typography>
-      ) : (
-        <Typography variant="caption">- Solutions are hidden.</Typography>
-      )}
+      <Typography variant="caption">
+        - Consultation:{' '}
+        {evaluation.consultationEnabled ? 'Enabled' : 'Disabled'}, Solutions:{' '}
+        {evaluation.showSolutionsWhenFinished ? 'Visible' : 'Hidden'}
+      </Typography>
     </Stack>
   )
 }

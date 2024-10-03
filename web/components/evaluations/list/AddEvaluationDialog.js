@@ -21,29 +21,40 @@ import DialogFeedback from '@/components/feedback/DialogFeedback'
 import { useEffect, useState } from 'react'
 import CardSelector from '@/components/input/CardSelector'
 import { EvaluationPhase, UserOnEvaluationAccessMode } from '@prisma/client'
-
 const Presets = [
   {
-    value: 'evaluation',
-    label: 'Evaluation',
-    description: 'For exams and any formal assessments',
+    value: 'exam',
+    label: 'Final Exam',
+    description: 'Formal course-ending exams.',
     settings: {
-      showSolutionWhenFinished: false,
-      restrictAccess: true,
+      showSolutionWhenFinished: false, // No solutions after exam
+      restrictAccess: true, // Restricted access only
+      consultationEnabled: false, // Consultation is disabled for exams
+    },
+  },
+  {
+    value: 'te',
+    label: 'Test (TE)',
+    description: 'Written tests taken throughout the semester.',
+    settings: {
+      showSolutionWhenFinished: true, // Solutions available after TE is finished
+      restrictAccess: true, // Restricted access for TE
+      consultationEnabled: true, // Consultation is allowed for TE
     },
   },
   {
     value: 'training',
     label: 'Training',
-    description: 'For homework and training purposes',
+    description: 'For homework and training purposes.',
     settings: {
-      showSolutionWhenFinished: true,
-      restrictAccess: false,
+      showSolutionWhenFinished: true, // Solutions available after training
+      restrictAccess: false, // No restrictions for training
+      consultationEnabled: true, // Consultation is allowed
     },
   },
   {
     value: 'from_existing',
-    label: 'Based on existing',
+    label: 'Start-over an existing evaluation',
     description: 'Chose an existing evaluation as a template',
     settings: {},
   },
@@ -56,7 +67,7 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose }) => {
 
   const { show: showSnackbar } = useSnackbar()
 
-  const [preset, setPreset] = useState('evaluation')
+  const [preset, setPreset] = useState('exam')
 
   const [templateEvaluation, setTemplateEvaluation] = useState(null)
   const [input, setInput] = useState('')
@@ -119,7 +130,7 @@ const AddEvaluationDialog = ({ existingEvaluations, open, onClose }) => {
       onClose={onClose}
       title="Create a new evaluation"
       content={
-        <Stack spacing={2} sx={{ width: '550px' }}>
+        <Stack spacing={2} sx={{ width: '750px' }}>
           <Typography variant="body1">
             Please select the type of evaluation you want to create
           </Typography>
@@ -198,7 +209,7 @@ const EvaluationSummary = ({ evaluation }) => {
         <Stack direction="row" justifyContent="space-between">
           <Typography variant="body2">
             The access list contains{' '}
-            <b>{evaluation.accessList.length} students</b>
+            <b>{evaluation.accessList?.length || 0} emails</b>
           </Typography>
         </Stack>
       )}
@@ -229,23 +240,35 @@ const EvaluationSummary = ({ evaluation }) => {
   )
 }
 
+const handleAccessAfterGrading = (preset) => {
+  if (!preset.consultationEnabled) {
+    return 'Access to feedback and solutions is disabled for this exam. No consultation is allowed.'
+  } else if (preset.showSolutionsWhenFinished) {
+    return 'Solutions and feedback are available. The students can consult their results.'
+  } else {
+    return 'Feedback is available, but no solutions are provided.'
+  }
+}
+
 const PresetSummary = ({ preset }) => {
   return (
     preset && (
       <>
         <Stack direction="row" justifyContent="space-between">
           <Typography variant="body2">
-            Show the solution when finished:
-          </Typography>
-          <Typography variant="body1">
-            {preset.showSolutionWhenFinished ? 'Yes' : 'No'}
+            {handleAccessAfterGrading(preset)}
           </Typography>
         </Stack>
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="body2">Restricted Access:</Typography>
-          <Typography variant="body1">
-            {preset.restrictAccess ? 'Yes' : 'No'}
-          </Typography>
+          {preset.restrictAccess ? (
+            <Typography variant="body2">
+              Access is restricted to the evaluation
+            </Typography>
+          ) : (
+            <Typography variant="body2">
+              Access is not restricted to the evaluation
+            </Typography>
+          )}
         </Stack>
       </>
     )
