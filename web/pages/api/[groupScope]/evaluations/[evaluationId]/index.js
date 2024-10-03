@@ -121,6 +121,7 @@ const patch = async (req, res, prisma) => {
     durationMins,
     endAt,
     status,
+    consultationEnabled,
     showSolutionsWhenFinished,
     accessMode,
     accessList,
@@ -180,8 +181,22 @@ const patch = async (req, res, prisma) => {
     data.endAt = endAt
   }
 
-  if (showSolutionsWhenFinished !== undefined) {
-    data.showSolutionsWhenFinished = showSolutionsWhenFinished
+  // Handle consultation and solutions conflict resolution
+  if (consultationEnabled !== undefined) {
+    data.consultationEnabled = consultationEnabled
+
+    // If consultation is disabled, also disable showing solutions
+    if (!consultationEnabled) {
+      data.showSolutionsWhenFinished = false
+    } else if (showSolutionsWhenFinished !== undefined) {
+      // If consultation is enabled, respect the showSolutionsWhenFinished value
+      data.showSolutionsWhenFinished = showSolutionsWhenFinished
+    }
+  } else if (showSolutionsWhenFinished !== undefined) {
+    // Only update showSolutionsWhenFinished if consultation is enabled
+    if (currentEvaluation.consultationEnabled) {
+      data.showSolutionsWhenFinished = showSolutionsWhenFinished
+    }
   }
 
   if (accessMode !== undefined) {

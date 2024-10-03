@@ -1,6 +1,9 @@
 # Pull the base image
 FROM node:20-bullseye-slim
 
+LABEL org.opencontainers.image.source="https://github.com/heigvd-teaching-tools/eval-infra/app-image"
+
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     apt-transport-https \

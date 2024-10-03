@@ -88,16 +88,18 @@ const post = async (req, res, prisma) => {
       accessList: templateEvaluation.accessList,
       durationHours: templateEvaluation.durationHours,
       durationMins: templateEvaluation.durationMins,
+      consultationEnabled: templateEvaluation.consultationEnabled,
       showSolutionsWhenFinished: templateEvaluation.showSolutionsWhenFinished,
     }
   } else {
     data = {
       ...data,
       label: '',
+      consultationEnabled: settings.consultationEnabled,
       showSolutionsWhenFinished: settings.showSolutionsWhenFinished,
       accessMode: settings.restrictAccess
-        ? UserOnEvaluationAccessMode.LINK_ONLY
-        : UserOnEvaluationAccessMode.FREE_ACCESS,
+        ? UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
+        : UserOnEvaluationAccessMode.LINK_ONLY,
     }
   }
 
@@ -136,36 +138,6 @@ const post = async (req, res, prisma) => {
           })
         }
       }
-
-      /*Legacy 
-      
-      // copy all of the questions from the collection to the evaluation
-      for (const collectionToQuestion of collectionToQuestions) {
-        // copy the question
-        const newQuestion = await copyQuestion(
-          prisma,
-          collectionToQuestion.question,
-          QuestionSource.EVAL,
-        )
-        // create relation between evaluation and question
-        await prisma.evaluationToQuestion.create({
-          data: {
-            points: collectionToQuestion.points,
-            order: collectionToQuestion.order,
-            evaluation: {
-              connect: {
-                id: evaluation.id,
-              },
-            },
-            question: {
-              connect: {
-                id: newQuestion.id,
-              },
-            },
-          },
-        })
-      
-      */
     })
 
     res.status(200).json(evaluation)

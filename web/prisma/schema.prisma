@@ -547,6 +547,7 @@ model Evaluation {
   endAt   DateTime?
 
   showSolutionsWhenFinished Boolean @default(false)
+  consultationEnabled      Boolean @default(true)
 
   accessMode UserOnEvaluationAccessMode @default(LINK_ONLY)
   accessList Json?

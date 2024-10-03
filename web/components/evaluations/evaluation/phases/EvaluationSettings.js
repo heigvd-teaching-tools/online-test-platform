@@ -108,10 +108,14 @@ const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
         </Typography>
       </Alert>
 
-      <ToggleStudentViewSolution
-        groupScope={groupScope}
+      <ConsultationSettings
         evaluation={evaluation}
-        onChange={() => onSettingsChanged()}
+        onChange={(consultationEnabled, showSolutionsWhenFinished) => {
+          debounceSave({
+            consultationEnabled,
+            showSolutionsWhenFinished,
+          })
+        }}
       />
 
       <ConditionSettings
@@ -137,7 +141,6 @@ const EvaluationSettings = ({ groupScope, evaluation, onSettingsChanged }) => {
           minutes: evaluation.durationMins,
         }}
         onChange={(duration) => {
-          console.log('duration', duration)
           debounceSave({
             durationActive: duration.active,
             durationHours: duration.hours,
@@ -153,7 +156,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 import MarkdownEditor from '@/components/input/markdown/MarkdownEditor'
 import EvaluationTitleBar from '../layout/EvaluationTitleBar'
-import ToggleStudentViewSolution from '../../grading/ToggleStudentViewSolution'
+import ConsultationSettings from '../../grading/ConsultationSettings'
 
 const ConditionSettings = ({ groupScope, conditions, onChange }) => {
   const [conditionsEditing, setConditionsEditing] = useState(false)
