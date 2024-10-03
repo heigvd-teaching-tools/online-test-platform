@@ -3,7 +3,6 @@ FROM node:20-bullseye-slim
 
 LABEL org.opencontainers.image.source="https://github.com/heigvd-teaching-tools/eval-infra/app-image-switch"
 
-
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
@@ -20,7 +19,7 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
 
 # Check if we are in production
 ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
+ENV NODE_ENV=$NODE_ENV
 
 # Set the working directory
 WORKDIR /app
@@ -35,7 +34,6 @@ RUN apt-get update && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] https://dl-ssl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list && \
     apt-get update && \
     apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-khmeros fonts-kacst fonts-freefont-ttf libxss1 dbus dbus-x11 --no-install-recommends
-
 
 # Install Node.js dependencies
 RUN npm cache clean --force
