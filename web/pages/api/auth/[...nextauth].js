@@ -33,30 +33,6 @@ const MyAdapter = {
   },
 }
 
-/*
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  roles         Role[]
-  test         Boolean   @default(false)
-
-  userOnEvaluation UserOnEvaluation[]
-  userDeniedAccess UserOnEvaluationDeniedAccessAttempt[]
-  studentAnswer    StudentAnswer[]
-  gradingSignedBy  StudentQuestionGrading[]
-  groups           UserOnGroup[]
-  groupsCreated    Group[]
-  annotations      Annotation[]
-}
-
-
-*/
 
 const switchEduId = {
   id: 'switch',
