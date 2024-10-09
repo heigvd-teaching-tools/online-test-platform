@@ -38,6 +38,8 @@
     "@prisma/client": "^5.14.0",
     "@uiw/react-md-editor": "^4.0.4",
     "clipboard-copy": "^4.0.1",
+    "cookies-next": "^4.3.0",
+    "date-fns": "^4.1.0",
     "dockerode": "^4.0.2",
     "dompurify": "^3.1.4",
     "graphviz-react": "^1.2.5",

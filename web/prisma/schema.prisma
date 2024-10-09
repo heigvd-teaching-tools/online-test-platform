@@ -631,6 +631,11 @@ model UserOnEvaluation {
 
   status UserOnEvaluationStatus @default(IN_PROGRESS)
 
+  // Tracking session changes during the evaluation
+  originalSessionToken String? // The session token stored at the registration time
+  hasSessionChanged    Boolean @default(false) // Flag to indicate if the session has changed
+  sessionChangeDetectedAt DateTime? // Time when the session change was detected
+
   @@id([userEmail, evaluationId])
 }
 
