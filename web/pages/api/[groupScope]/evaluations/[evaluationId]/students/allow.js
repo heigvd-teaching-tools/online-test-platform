@@ -71,7 +71,7 @@ const post = async (req, res, prisma) => {
     return
   }
 
-  const accessList = evaluation.accessList
+  const accessList = evaluation.accessList || []
 
   await prisma.$transaction(async (prisma) => {
     if (!accessList.includes(studentEmail)) {

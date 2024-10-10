@@ -117,7 +117,7 @@ const SettingsAccessMode = ({
                 onChange(accessMode, emails)
               }}
             />
-            {accessList.length > 0 && (
+            {accessList?.length > 0 && (
               <Alert severity="info">
                 <AlertTitle>Access list</AlertTitle>
                 <Typography variant="body1" component={'span'}>

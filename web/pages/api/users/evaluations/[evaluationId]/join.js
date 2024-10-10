@@ -57,7 +57,7 @@ const post = async (req, res, prisma) => {
   if (
     evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
-    if (!evaluation.accessList.find((email) => email === studentEmail)) {
+    if (!evaluation.accessList?.find((email) => email === studentEmail)) {
       // keep track of the users who were denied access to the evaluation
       await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
         where: {

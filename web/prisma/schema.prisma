@@ -553,7 +553,7 @@ model Evaluation {
   consultationEnabled      Boolean @default(true)
 
   accessMode UserOnEvaluationAccessMode @default(LINK_ONLY)
-  accessList Json?
+  accessList Json? 
 
   students              UserOnEvaluation[]
   

@@ -60,7 +60,7 @@ const get = async (req, res, prisma) => {
         })
 
         // If the current session token is different from the original, update the status
-        if (currentSession.sessionToken !== student.originalSessionToken && !student.hasSessionChanged) {
+        if (currentSession && currentSession.sessionToken !== student.originalSessionToken && !student.hasSessionChanged) {
           await prisma.userOnEvaluation.update({
             where: { userEmail_evaluationId: { userEmail: student.user.email, evaluationId } },
             data: {
