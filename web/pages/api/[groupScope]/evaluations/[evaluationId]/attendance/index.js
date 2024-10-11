@@ -50,7 +50,6 @@ const get = async (req, res, prisma) => {
 
   // If the evaluation is in progress, check for session changes
   let updatedRegistered = evaluation.students
-  
   if (evaluation.phase === EvaluationPhase.IN_PROGRESS) {
     updatedRegistered = await Promise.all(
       evaluation.students.map(async (student) => {
@@ -70,8 +69,7 @@ const get = async (req, res, prisma) => {
           currentSession.sessionToken !== student.originalSessionToken &&
           !student.hasSessionChanged
         ) {
-          
-          
+         
           await prisma.userOnEvaluation.update({
             where: {
               userEmail_evaluationId: {
@@ -96,7 +94,6 @@ const get = async (req, res, prisma) => {
       }),
     )
   }
-    
 
   // Fetch denied access attempts
   const denied = await prisma.evaluation.findUnique({
