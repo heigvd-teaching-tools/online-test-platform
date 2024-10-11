@@ -138,9 +138,10 @@ const post = async (req, res, prisma) => {
         const templateQuestions = originalEvaluation.evaluationToQuestions
 
         for (const templateToQuestion of templateQuestions) {
-
-
-          const question = templateToQuestion.question.source === QuestionSource.BANK ? templateToQuestion.question : templateToQuestion.question.sourceQuestion
+          const question =
+            templateToQuestion.question.source === QuestionSource.BANK
+              ? templateToQuestion.question
+              : templateToQuestion.question.sourceQuestion
 
           if (question === null) {
             // skip questions that original no longer exists

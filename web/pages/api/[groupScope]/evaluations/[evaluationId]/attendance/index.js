@@ -21,7 +21,6 @@ import {
   withGroupScope,
 } from '@/middleware/withAuthorization'
 
-
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
 
@@ -31,7 +30,7 @@ const get = async (req, res, prisma) => {
       id: evaluationId,
     },
     select: {
-      phase: true,  // Get the current phase of the evaluation
+      phase: true, // Get the current phase of the evaluation
       students: {
         select: {
           user: true,
@@ -60,9 +59,18 @@ const get = async (req, res, prisma) => {
         })
 
         // If the current session token is different from the original, update the status
-        if (currentSession && currentSession.sessionToken !== student.originalSessionToken && !student.hasSessionChanged) {
+        if (
+          currentSession &&
+          currentSession.sessionToken !== student.originalSessionToken &&
+          !student.hasSessionChanged
+        ) {
           await prisma.userOnEvaluation.update({
-            where: { userEmail_evaluationId: { userEmail: student.user.email, evaluationId } },
+            where: {
+              userEmail_evaluationId: {
+                userEmail: student.user.email,
+                evaluationId,
+              },
+            },
             data: {
               hasSessionChanged: true,
               sessionChangeDetectedAt: new Date(),
@@ -77,7 +85,7 @@ const get = async (req, res, prisma) => {
         }
 
         return student
-      })
+      }),
     )
   }
 
@@ -105,7 +113,6 @@ const get = async (req, res, prisma) => {
     denied: denied.userOnEvaluationDeniedAccessAttempt,
   })
 }
-
 
 export default withGroupScope(
   withMethodHandler({

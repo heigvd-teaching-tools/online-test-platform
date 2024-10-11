@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import LockPersonIcon from '@mui/icons-material/LockPerson';
-import { signIn } from 'next-auth/react';
-import { Box, Button, Typography } from '@mui/material';
+import LockPersonIcon from '@mui/icons-material/LockPerson'
+import { signIn } from 'next-auth/react'
+import { Box, Button, Typography } from '@mui/material'
 
 const LoginScreen = ({ message }) => {
   return (
@@ -42,7 +42,7 @@ const LoginScreen = ({ message }) => {
         Sign In
       </Button>
     </Box>
-  );
-};
+  )
+}
 
-export default LoginScreen;
+export default LoginScreen

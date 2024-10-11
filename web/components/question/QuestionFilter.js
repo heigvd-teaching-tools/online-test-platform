@@ -105,12 +105,6 @@ const queryStringToFilter = (queryString) => {
 
 const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
   const tagsContext = useTags() // Get the whole context first
-  
-  // Check if tagsContext is undefined
-  if (!tagsContext) {
-    console.error('Tags context is not available.')
-    return null // or render a fallback UI
-  }
 
   const { tags: allTags = [] } = tagsContext // Destructure safely
 

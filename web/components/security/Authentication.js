@@ -13,45 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import LoadingAnimation from '../feedback/Loading';
-import LoginScreen from './LoginScreen';
+import { useEffect } from 'react'
+import { useSession, signOut } from 'next-auth/react'
+import LoadingAnimation from '../feedback/Loading'
+import LoginScreen from './LoginScreen'
 
 const Authentication = ({ children }) => {
-  const { status } = useSession();
+  const { status } = useSession()
 
   useEffect(() => {
-    let eventSource;
+    let eventSource
 
     if (status === 'authenticated') {
-      console.log("Opening SSE connection");
+      console.log('Opening SSE connection')
 
       // Open the SSE connection
-      eventSource = new EventSource('/api/session-sse');
+      eventSource = new EventSource('/api/session-sse')
 
       eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        const data = JSON.parse(event.data)
         if (data.status === 'unauthenticated') {
-          signOut();
-          eventSource.close();
+          signOut()
+          eventSource.close()
         }
-      };
+      }
 
       eventSource.onerror = (err) => {
-        console.error('EventSource error:', err);
-        eventSource.close();
-      };
+        console.error('EventSource error:', err)
+        eventSource.close()
+      }
     }
 
     // Cleanup on component unmount or status change
     return () => {
       if (eventSource) {
-        console.log("Closing SSE connection");
-        eventSource.close();
+        console.log('Closing SSE connection')
+        eventSource.close()
       }
-    };
-  }, [status]);
+    }
+  }, [status])
 
   return (
     <>
@@ -59,7 +59,7 @@ const Authentication = ({ children }) => {
       {status === 'unauthenticated' && <LoginScreen />}
       {status === 'authenticated' && children}
     </>
-  );
-};
+  )
+}
 
-export default Authentication;
+export default Authentication

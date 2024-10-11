@@ -76,13 +76,13 @@ const MyAdapter = {
     try {
       await prisma.session.delete({
         where: { sessionToken },
-      });
+      })
     } catch (error) {
       if (error.code === 'P2025') {
         // Ignore if the session doesn't exist
-        return;
+        return
       }
-      throw error; // rethrow any other error
+      throw error // rethrow any other error
     }
   },
 }
@@ -100,7 +100,6 @@ export const authOptions = {
   // events: { },
   callbacks: {
     async session(data) {
-
       const { user, session } = data
 
       if (user) {
@@ -134,16 +133,16 @@ export const authOptions = {
 
     async signIn({ user, account, profile }) {
       // Ensure only a single session per user
-      await handleSingleSessionPerUser(user);
+      await handleSingleSessionPerUser(user)
 
       // Only proceed if the provider is Keycloak and an email is provided
       if (account.provider === 'keycloak' && user.email) {
         // Link the Keycloak account to an existing or new user
-        await linkAccountToExistingOrNewUser(user, account, profile);
-        return true;
+        await linkAccountToExistingOrNewUser(user, account, profile)
+        return true
       }
 
-      return false;
+      return false
     },
   },
 }
@@ -155,7 +154,7 @@ async function handleSingleSessionPerUser(user) {
     where: {
       userId: user.id,
     },
-  });
+  })
 
   // If there are active sessions, invalidate them
   if (activeSessions.length > 0) {
@@ -163,14 +162,13 @@ async function handleSingleSessionPerUser(user) {
       where: {
         userId: user.id,
       },
-    });
+    })
   }
 }
 
 // Helper function to link Keycloak account to an existing or new user
 async function linkAccountToExistingOrNewUser(user, account, profile) {
-
-   /*
+  /*
 
     OAuth (NextAuth) behaviour, when connecting with the same email from different providers:
       - If the user is not existant (based on email) next auth will create and link the account to the new user.
@@ -206,12 +204,12 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
     scope: account.scope,
     id_token: account.id_token,
     session_state: account.session_state,
-  };
+  }
 
   // Check for an existing user with the same email
   const existingUser = await prisma.user.findUnique({
     where: { email: user.email },
-  });
+  })
 
   if (!existingUser) {
     // Create a new user
@@ -221,7 +219,7 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
         name: profile.name,
         roles: [Role.STUDENT],
       },
-    });
+    })
 
     // Link the account
     await prisma.account.create({
@@ -229,10 +227,10 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
         userId: newUser.id,
         ...accountData,
       },
-    });
+    })
 
     // Return the new user
-    return newUser;
+    return newUser
   } else {
     // Check if the account is already linked
     const linkedAccount = await prisma.account.findFirst({
@@ -240,7 +238,7 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
         providerAccountId: account.providerAccountId,
         provider: account.provider,
       },
-    });
+    })
 
     if (!linkedAccount) {
       // Update the user's name with trustworthy data from Keycloak
@@ -249,7 +247,7 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
         data: {
           name: profile.name,
         },
-      });
+      })
 
       // Link the account to the existing user
       await prisma.account.create({
@@ -257,7 +255,7 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
           userId: existingUser.id,
           ...accountData,
         },
-      });
+      })
 
       // Unlink the GitHub account
       const accountToDelete = await prisma.account.findFirst({
@@ -265,21 +263,20 @@ async function linkAccountToExistingOrNewUser(user, account, profile) {
           provider: 'github',
           userId: existingUser.id,
         },
-      });
+      })
 
       if (accountToDelete) {
         await prisma.account.delete({
           where: {
             id: accountToDelete.id,
           },
-        });
+        })
       }
     }
 
     // Return the existing user
-    return existingUser;
+    return existingUser
   }
 }
-
 
 export default NextAuth(authOptions)
