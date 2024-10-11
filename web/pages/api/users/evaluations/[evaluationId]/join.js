@@ -102,12 +102,11 @@ const post = async (req, res, prisma) => {
   }
 
   await prisma.$transaction(async (prisma) => {
-    
     const currentSession = await prisma.session.findFirst({
       where: { userId: user.id },
       select: { sessionToken: true },
     })
-    
+
     const sessionToken = currentSession?.sessionToken
 
     // connect the users to the evaluation
