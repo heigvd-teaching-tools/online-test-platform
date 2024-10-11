@@ -31,4 +31,4 @@ const getUser = async (req, res) => {
   return session && session.user
 }
 
-export { getRoles, getUser }
+export { getSession, getRoles, getUser }

@@ -104,7 +104,9 @@ const queryStringToFilter = (queryString) => {
 }
 
 const QuestionFilter = ({ filters: initial, onApplyFilter }) => {
-  const { tags: allTags } = useTags()
+  const tagsContext = useTags() // Get the whole context first
+
+  const { tags: allTags = [] } = tagsContext // Destructure safely
 
   const [filter, setFilter] = useState(queryStringToFilter(initial))
 

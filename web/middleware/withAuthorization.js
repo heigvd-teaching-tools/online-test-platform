@@ -31,7 +31,7 @@ export function withGroupScopeOldToRemove(handler) {
 
     const user = await getUser(req, res)
 
-    const isMember = user.groups.some((g) => g === groupScope)
+    const isMember = user?.groups?.some((g) => g === groupScope)
 
     if (!isMember) {
       return res
@@ -83,7 +83,7 @@ export function withGroupScope(handler) {
 
     const user = await getUser(req, res)
 
-    const isMember = user.groups.some((g) => g === groupScope)
+    const isMember = user?.groups?.some((g) => g === groupScope)
 
     if (!isMember) {
       return res

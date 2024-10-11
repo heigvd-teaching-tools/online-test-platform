@@ -25,6 +25,8 @@ import PiePercent from '@/components/feedback/PiePercent'
 
 import DropdownSelector from '@/components/input/DropdownSelector'
 import DateTimeCell from '@/components/layout/utils/DateTimeCell'
+import UserHelpPopper from '@/components/feedback/UserHelpPopper'
+import { differenceInHours, differenceInMinutes } from 'date-fns'
 
 const StudentStatusManager = ({
   groupScope,
@@ -122,16 +124,67 @@ const StudentProgressGrid = ({
     {
       label: 'Student',
       column: { minWidth: 230, flexGrow: 1 },
-      renderCell: (row) => (
-        <Stack
-          direction={'row'}
-          spacing={1}
-          alignItems={'center'}
-          justifyContent={'space-between'}
-        >
-          <UserAvatar user={row.user} />
-        </Stack>
-      ),
+      renderCell: (row) => {
+        const registeredAt = new Date(row.registeredAt)
+        const sessionChangeDetectedAt = new Date(row.sessionChangeDetectedAt)
+
+        // Calculate the time difference
+        const minutesElapsed = differenceInMinutes(
+          sessionChangeDetectedAt,
+          registeredAt,
+        )
+        const hoursElapsed = differenceInHours(
+          sessionChangeDetectedAt,
+          registeredAt,
+        )
+
+        return (
+          <Stack
+            direction={'row'}
+            spacing={1}
+            alignItems={'center'}
+            justifyContent={'space-between'}
+          >
+            <UserAvatar user={row.user} />
+            {row.hasSessionChanged && (
+              <UserHelpPopper
+                mode={'warning'}
+                label={'Session change detected'}
+              >
+                <Typography variant={'body1'}>
+                  We noticed that this student logged in again during the
+                  evaluation, potentially from a different device or browser.
+                </Typography>
+
+                {/* Display the time elapsed since registration */}
+                <Typography variant={'body1'}>
+                  The session change was detected{' '}
+                  <b>
+                    {hoursElapsed > 0
+                      ? `${hoursElapsed} hours and ${minutesElapsed % 60} minutes`
+                      : `${minutesElapsed} minutes`}{' '}
+                    after the student registered.
+                  </b>
+                </Typography>
+
+                <Typography variant={'body1'}>
+                  This could mean the student switched devices or shared their
+                  login details with someone else.
+                </Typography>
+                <Typography variant={'body1'}>
+                  <strong>Important:</strong> If this is unexpected or
+                  suspicious, you may want to check with the student.
+                </Typography>
+                <Typography variant={'body1'}>
+                  <strong>Tip:</strong> Make sure to check that the student is
+                  actively working on their screen and not just sitting on the
+                  login screen.
+                </Typography>
+              </UserHelpPopper>
+            )}
+          </Stack>
+        )
+      },
     },
 
     {

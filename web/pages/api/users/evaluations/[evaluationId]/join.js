@@ -57,7 +57,7 @@ const post = async (req, res, prisma) => {
   if (
     evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
-    if (!evaluation.accessList.find((email) => email === studentEmail)) {
+    if (!evaluation.accessList?.find((email) => email === studentEmail)) {
       // keep track of the users who were denied access to the evaluation
       await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
         where: {
@@ -102,11 +102,16 @@ const post = async (req, res, prisma) => {
   }
 
   await prisma.$transaction(async (prisma) => {
+    const sessionToken = req.cookies['next-auth.session-token']
+
+    console.log('sessionToken', sessionToken)
+
     // connect the users to the evaluation
     userOnEvaluation = await prisma.userOnEvaluation.create({
       data: {
         userEmail: studentEmail,
         evaluationId: evaluationId,
+        originalSessionToken: sessionToken,
       },
       include: {
         evaluation: {

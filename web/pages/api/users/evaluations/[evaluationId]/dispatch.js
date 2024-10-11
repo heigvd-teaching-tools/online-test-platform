@@ -59,7 +59,7 @@ const get = async (req, res, prisma) => {
   if (
     evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST
   ) {
-    if (!evaluation.accessList.find((email) => email === user.email)) {
+    if (!evaluation.accessList?.find((email) => email === user.email)) {
       // keep track of the users who were denied access to the evaluation
       await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
         where: {

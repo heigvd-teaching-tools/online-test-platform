@@ -31,6 +31,8 @@ import Image from 'next/image'
 const QuestionsGrid = ({
   groupScope,
   questions,
+  setSelected,
+  enableSelection,
   selection,
   setSelection,
   onRowClick,
@@ -43,7 +45,7 @@ const QuestionsGrid = ({
   return (
     <GridGrouping
       label="Questions"
-      enableSelection
+      enableSelection={enableSelection}
       selection={selection}
       onSelectionChange={(newSelection) => {
         console.log(newSelection)
@@ -119,7 +121,7 @@ const QuestionsGrid = ({
                   onClick={(ev) => {
                     ev.preventDefault()
                     ev.stopPropagation()
-                    setSelected(question)
+                    setSelected && setSelected(question)
                     setCopyDialogOpen(true)
                   }}
                 >
@@ -152,8 +154,7 @@ const QuestionsGrid = ({
                   onClick={(ev) => {
                     ev.preventDefault()
                     ev.stopPropagation()
-                    setSelected(question)
-                    setOpenSideUpdate(true)
+                    setOpenSideUpdate(question)
                   }}
                 >
                   <Image

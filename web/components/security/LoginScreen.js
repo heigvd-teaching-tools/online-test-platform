@@ -15,20 +15,25 @@
  */
 import LockPersonIcon from '@mui/icons-material/LockPerson'
 import { signIn } from 'next-auth/react'
-import { Box, Button } from '@mui/material'
-import { useRouter } from 'next/router'
-const LoginGitHub = () => {
-  const router = useRouter()
+import { Box, Button, Typography } from '@mui/material'
+
+const LoginScreen = ({ message }) => {
   return (
     <Box
       sx={{
         display: 'flex',
+        flexDirection: 'column',
         width: '100vw',
         height: '100vh',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
+      {message && (
+        <Typography variant="body1" color="error" sx={{ mb: 2 }}>
+          {message}
+        </Typography>
+      )}
       <Button
         variant="contained"
         onClick={() => signIn('github')}
@@ -39,4 +44,5 @@ const LoginGitHub = () => {
     </Box>
   )
 }
-export default LoginGitHub
+
+export default LoginScreen

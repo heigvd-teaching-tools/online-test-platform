@@ -24,17 +24,22 @@ import {
 const get = async (req, res, prisma) => {
   const { evaluationId } = req.query
 
-  const registered = await prisma.evaluation.findUnique({
+  // Fetch registered students, their session details, and the evaluation phase
+  const evaluation = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
     },
     select: {
+      phase: true, // Get the current phase of the evaluation
       students: {
         select: {
           user: true,
           registeredAt: true,
           finishedAt: true,
           status: true,
+          originalSessionToken: true,
+          hasSessionChanged: true,
+          sessionChangeDetectedAt: true,
         },
         orderBy: {
           registeredAt: 'asc',
@@ -43,6 +48,48 @@ const get = async (req, res, prisma) => {
     },
   })
 
+  // If the evaluation is in progress, check for session changes
+  let updatedRegistered = evaluation.students
+  if (evaluation.phase === 'IN_PROGRESS') {
+    updatedRegistered = await Promise.all(
+      evaluation.students.map(async (student) => {
+        const currentSession = await prisma.session.findFirst({
+          where: { userId: student.user.id },
+          select: { sessionToken: true },
+        })
+
+        // If the current session token is different from the original, update the status
+        if (
+          currentSession &&
+          currentSession.sessionToken !== student.originalSessionToken &&
+          !student.hasSessionChanged
+        ) {
+          await prisma.userOnEvaluation.update({
+            where: {
+              userEmail_evaluationId: {
+                userEmail: student.user.email,
+                evaluationId,
+              },
+            },
+            data: {
+              hasSessionChanged: true,
+              sessionChangeDetectedAt: new Date(),
+            },
+          })
+
+          return {
+            ...student,
+            hasSessionChanged: true,
+            sessionChangeDetectedAt: new Date(),
+          }
+        }
+
+        return student
+      }),
+    )
+  }
+
+  // Fetch denied access attempts
   const denied = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
@@ -60,8 +107,9 @@ const get = async (req, res, prisma) => {
     },
   })
 
+  // Return both registered students and denied access attempts, with updated session info
   res.status(200).json({
-    registered: registered.students,
+    registered: updatedRegistered,
     denied: denied.userOnEvaluationDeniedAccessAttempt,
   })
 }

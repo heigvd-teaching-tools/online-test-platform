@@ -20,7 +20,7 @@ import { useSnackbar } from '@/context/SnackbarContext'
 import DialogFeedback from '@/components/feedback/DialogFeedback'
 import { useEffect, useState } from 'react'
 import CardSelector from '@/components/input/CardSelector'
-import { EvaluationPhase, UserOnEvaluationAccessMode } from '@prisma/client'
+import { QuestionSource, UserOnEvaluationAccessMode } from '@prisma/client'
 const Presets = [
   {
     value: 'exam',
@@ -190,12 +190,10 @@ const EvaluationSummary = ({ evaluation }) => {
 
   const hasQuestions = Boolean(evaluation.evaluationToQuestions?.length)
 
-  const countMissingQuestions =
-    evaluation.phase !== EvaluationPhase.DRAFT
-      ? evaluation.evaluationToQuestions.filter(
-          (q) => !q.question?.sourceQuestionId,
-        ).length
-      : 0
+  const countMissingQuestions = evaluation.evaluationToQuestions.filter(
+    (q) =>
+      q.question?.source !== QuestionSource.BANK && !q.question?.sourceQuestion,
+  ).length
 
   const hasAccessList =
     evaluation.accessMode === UserOnEvaluationAccessMode.LINK_AND_ACCESS_LIST ||

@@ -56,6 +56,7 @@ const QuestionIncludeDrawer = ({
           {includedQuestions && searchQuestions && (
             <Stack spacing={2} padding={2} width={'100%'}>
               <QuestionsGrid
+                enableSelection
                 questions={searchQuestions.filter(
                   (q) => !isQuestionIncluded(q),
                 )}

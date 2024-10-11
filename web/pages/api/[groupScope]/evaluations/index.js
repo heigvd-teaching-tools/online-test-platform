@@ -17,6 +17,7 @@ import {
   Role,
   EvaluationPhase,
   UserOnEvaluationAccessMode,
+  QuestionSource,
 } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
@@ -84,6 +85,7 @@ const post = async (req, res, prisma) => {
     data = {
       ...data,
       label: `Copy of ${templateEvaluation.label}`,
+      conditions: templateEvaluation.conditions,
       accessMode: templateEvaluation.accessMode,
       accessList: templateEvaluation.accessList,
       durationHours: templateEvaluation.durationHours,
@@ -111,10 +113,37 @@ const post = async (req, res, prisma) => {
       if (presetType === 'from_existing') {
         // Attach all of the SOURCE questions from the template evaluation to the new evaluation
 
-        const templateQuestions = templateEvaluation.evaluationToQuestions
+        const originalEvaluation = await prisma.evaluation.findUnique({
+          where: {
+            id: templateEvaluation.id,
+          },
+          include: {
+            evaluationToQuestions: {
+              select: {
+                question: {
+                  include: {
+                    sourceQuestion: true,
+                  },
+                },
+                points: true,
+                order: true,
+              },
+              orderBy: {
+                order: 'asc',
+              },
+            },
+          },
+        })
+
+        const templateQuestions = originalEvaluation.evaluationToQuestions
 
         for (const templateToQuestion of templateQuestions) {
-          if (templateToQuestion.question.sourceQuestion === null) {
+          const question =
+            templateToQuestion.question.source === QuestionSource.BANK
+              ? templateToQuestion.question
+              : templateToQuestion.question.sourceQuestion
+
+          if (question === null) {
             // skip questions that original no longer exists
             continue
           }
@@ -131,7 +160,7 @@ const post = async (req, res, prisma) => {
               },
               question: {
                 connect: {
-                  id: templateToQuestion.question.sourceQuestion.id,
+                  id: question.id,
                 },
               },
             },
