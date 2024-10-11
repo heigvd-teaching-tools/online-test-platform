@@ -66,7 +66,7 @@ const get = async (req, res, prisma) => {
 
         // If the current session token is different from the original, update the status
         if (
-          currentSession &&
+          currentSession && student.originalSessionToken &&
           currentSession.sessionToken !== student.originalSessionToken &&
           !student.hasSessionChanged
         ) {
