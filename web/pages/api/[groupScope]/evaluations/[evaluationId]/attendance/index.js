@@ -74,6 +74,7 @@ const get = async (req, res, prisma) => {
           currentSession.sessionToken !== student.originalSessionToken &&
           !student.hasSessionChanged
         ) {
+         
           await prisma.userOnEvaluation.update({
             where: {
               userEmail_evaluationId: {
