@@ -58,23 +58,12 @@ const get = async (req, res, prisma) => {
           select: { sessionToken: true },
         })
 
-        if (student.user.email === 'stefan.teofanovic@heig-vd.ch') {
-          console.log(
-            '#### Session check',
-            student.user.email,
-            currentSession.sessionToken,
-            student.originalSessionToken,
-          )
-        }
-
-        // If the current session token is different from the original, update the status
         if (
           currentSession &&
           student.originalSessionToken &&
           currentSession.sessionToken !== student.originalSessionToken &&
           !student.hasSessionChanged
         ) {
-         
           await prisma.userOnEvaluation.update({
             where: {
               userEmail_evaluationId: {

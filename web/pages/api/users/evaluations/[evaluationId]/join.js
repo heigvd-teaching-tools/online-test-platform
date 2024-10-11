@@ -102,9 +102,12 @@ const post = async (req, res, prisma) => {
   }
 
   await prisma.$transaction(async (prisma) => {
-    const sessionToken = req.cookies['next-auth.session-token']
+    const currentSession = await prisma.session.findFirst({
+      where: { userId: user.id },
+      select: { sessionToken: true },
+    })
 
-    console.log('sessionToken', sessionToken)
+    const sessionToken = currentSession?.sessionToken
 
     // connect the users to the evaluation
     userOnEvaluation = await prisma.userOnEvaluation.create({
