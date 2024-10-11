@@ -257,6 +257,9 @@ const del = async (req, res, prisma) => {
         id: {
           in: questionIds,
         },
+        source: {
+          not: QuestionSource.BANK,
+        },
         group: {
           scope: groupScope,
         },
