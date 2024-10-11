@@ -57,17 +57,7 @@ const get = async (req, res, prisma) => {
           where: { userId: student.user.id },
           select: { sessionToken: true },
         })
-
-        if (student.user.email === 'stefan.teofanovic@heig-vd.ch') {
-          console.log(
-            '#### Session check',
-            student.user.email,
-            currentSession.sessionToken,
-            student.originalSessionToken,
-          )
-        }
-
-        // If the current session token is different from the original, update the status
+        
         if (
           currentSession &&
           student.originalSessionToken &&
