@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from '@prisma/client'
+import { EvaluationPhase, Role } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withMethodHandler,
@@ -50,7 +50,7 @@ const get = async (req, res, prisma) => {
 
   // If the evaluation is in progress, check for session changes
   let updatedRegistered = evaluation.students
-  if (evaluation.phase === 'IN_PROGRESS') {
+  if (evaluation.phase === EvaluationPhase.IN_PROGRESS) {
     updatedRegistered = await Promise.all(
       evaluation.students.map(async (student) => {
         const currentSession = await prisma.session.findFirst({
@@ -58,12 +58,18 @@ const get = async (req, res, prisma) => {
           select: { sessionToken: true },
         })
 
+        if(student.user.email === 'stefan.teofanovic@heig-vd.ch') {
+          console.log("#### Session check", student.user.email, currentSession.sessionToken, student.originalSessionToken)
+        }
+
+
         // If the current session token is different from the original, update the status
         if (
-          currentSession &&
+          currentSession && student.originalSessionToken &&
           currentSession.sessionToken !== student.originalSessionToken &&
           !student.hasSessionChanged
         ) {
+         
           await prisma.userOnEvaluation.update({
             where: {
               userEmail_evaluationId: {
