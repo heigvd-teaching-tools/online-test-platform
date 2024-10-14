@@ -43,7 +43,9 @@ const get = withEvaluationPhase(
     [UserOnEvaluationStatus.IN_PROGRESS],
     async (req, res, prisma) => {
       const { evaluationId } = req.query
-      const { email } = await getUser(req, res)
+      const user = await getUser(req, res)
+
+      const { email } = user
 
       if (!(await isInProgress(evaluationId, prisma))) {
         res.status(400).json({ message: 'evaluation is not in progress' })

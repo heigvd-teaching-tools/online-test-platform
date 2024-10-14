@@ -27,12 +27,65 @@ import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 
 import { isStudentAllowed } from './utils'
 
+// This function handles session tracking and session change detection for a user in an evaluation
+async function trackSessionChanges(
+  prisma,
+  userId,
+  studentEmail,
+  evaluationId,
+  userOnEvaluation,
+) {
+  // Fetch the current session of the user
+  const currentSession = await prisma.session.findFirst({
+    where: { userId: userId },
+    select: { sessionToken: true },
+  })
+
+  const sessionToken = currentSession?.sessionToken
+
+  // If there's no session token, we can't track session changes
+  if (!sessionToken) {
+    return
+  }
+
+  // If the originalSessionToken is not set, store the current session as the original token
+  if (!userOnEvaluation.originalSessionToken) {
+    await prisma.userOnEvaluation.update({
+      where: {
+        userEmail_evaluationId: {
+          userEmail: studentEmail,
+          evaluationId: evaluationId,
+        },
+      },
+      data: {
+        originalSessionToken: sessionToken, // Store the current session token as the original one
+      },
+    })
+  } else if (sessionToken !== userOnEvaluation.originalSessionToken) {
+    // If the current session token differs from the original one, detect a session change
+    await prisma.userOnEvaluation.update({
+      where: {
+        userEmail_evaluationId: {
+          userEmail: studentEmail,
+          evaluationId: evaluationId,
+        },
+      },
+      data: {
+        hasSessionChanged: true, // Mark that a session change has occurred
+        sessionChangeDetectedAt: new Date(), // Log the time of session change
+        originalSessionToken: sessionToken, // Update the original session token to the current one
+      },
+    })
+  }
+}
+
+// The main endpoint for getting student status
 const get = async (req, res, prisma) => {
   const user = await getUser(req, res)
-  const studentEmail = user.email
-
+  const { email: studentEmail, id: userId } = user
   const { evaluationId } = req.query
 
+  // Fetch the evaluation details
   const evaluation = await prisma.evaluation.findUnique({
     where: {
       id: evaluationId,
@@ -54,6 +107,7 @@ const get = async (req, res, prisma) => {
     return
   }
 
+  // Fetch user's participation in the evaluation
   const userOnEvaluation = await prisma.userOnEvaluation.findUnique({
     where: {
       userEmail_evaluationId: {
@@ -71,7 +125,7 @@ const get = async (req, res, prisma) => {
   const allowed = isStudentAllowed(evaluation, studentEmail)
 
   if (!allowed) {
-    // keep track of the users who were denied access to the evaluation
+    // Track denied access attempt if the user is not allowed
     await prisma.userOnEvaluationDeniedAccessAttempt.upsert({
       where: {
         userEmail_evaluationId: {
@@ -87,6 +141,19 @@ const get = async (req, res, prisma) => {
     })
   }
 
+  // Check if the evaluation is in the "IN_PROGRESS" phase
+  if (evaluation.phase === EvaluationPhase.IN_PROGRESS) {
+    // Call the session tracking function
+    await trackSessionChanges(
+      prisma,
+      userId,
+      studentEmail,
+      evaluationId,
+      userOnEvaluation,
+    )
+  }
+
+  // Return the evaluation and user status
   res.status(200).json({
     allowed: allowed,
     evaluation: {

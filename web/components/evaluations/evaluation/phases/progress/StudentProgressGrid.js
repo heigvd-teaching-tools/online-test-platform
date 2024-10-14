@@ -158,7 +158,7 @@ const StudentProgressGrid = ({
 
                 {/* Display the time elapsed since registration */}
                 <Typography variant={'body1'}>
-                  The session change was detected{' '}
+                  <b>Latest</b> session change was detected{' '}
                   <b>
                     {hoursElapsed > 0
                       ? `${hoursElapsed} hours and ${minutesElapsed % 60} minutes`
