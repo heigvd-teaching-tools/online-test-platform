@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvaluationPhase, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 import { withPrisma } from '@/middleware/withPrisma'
 import {
   withMethodHandler,
@@ -48,47 +48,6 @@ const get = async (req, res, prisma) => {
     },
   })
 
-  // If the evaluation is in progress, check for session changes
-  let updatedRegistered = evaluation.students
-  if (evaluation.phase === EvaluationPhase.IN_PROGRESS) {
-    updatedRegistered = await Promise.all(
-      evaluation.students.map(async (student) => {
-        const currentSession = await prisma.session.findFirst({
-          where: { userId: student.user.id },
-          select: { sessionToken: true },
-        })
-
-        if (
-          currentSession &&
-          student.originalSessionToken &&
-          currentSession.sessionToken !== student.originalSessionToken &&
-          !student.hasSessionChanged
-        ) {
-          await prisma.userOnEvaluation.update({
-            where: {
-              userEmail_evaluationId: {
-                userEmail: student.user.email,
-                evaluationId,
-              },
-            },
-            data: {
-              hasSessionChanged: true,
-              sessionChangeDetectedAt: new Date(),
-            },
-          })
-
-          return {
-            ...student,
-            hasSessionChanged: true,
-            sessionChangeDetectedAt: new Date(),
-          }
-        }
-
-        return student
-      }),
-    )
-  }
-
   // Fetch denied access attempts
   const denied = await prisma.evaluation.findUnique({
     where: {
@@ -109,7 +68,7 @@ const get = async (req, res, prisma) => {
 
   // Return both registered students and denied access attempts, with updated session info
   res.status(200).json({
-    registered: updatedRegistered,
+    registered: evaluation.students,
     denied: denied.userOnEvaluationDeniedAccessAttempt,
   })
 }
