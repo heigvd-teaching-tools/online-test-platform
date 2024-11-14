@@ -244,11 +244,10 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
   }
 
   breakdown({ solution, answer, totalPoints }) {
-
     const {
       totalOptions,
       selectedCorrectOptions,
-      unselectedCorrectOptions,
+      unselectedIncorrectOptions, // Correct variable
     } = this.extract(solution, answer, totalPoints);
   
     // Extract final score and correctness ratio from the calculate function
@@ -264,27 +263,27 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
     return {
       finalScore,
       breakdown: `### Multiple-Choice Gradual Credit Policy Breakdown
-#### Variables
-- **Total Points**: **${totalPoints}**
-- **Correct Choices Selected (CCS)**: **${selectedCorrectOptions}**
-- **Incorrect Choices Unselected (ICU)**: **${unselectedCorrectOptions}**
-- **Total Options (TO)**: **${totalOptions}**
-- **Correctness Ratio (CR)**: **${correctnessRatio.toFixed(2)}**
-
-#### Calculation Breakdown:
-
-\`\`\`katex
-\\large
-\\text{Correctness Ratio (CR)} = \\frac{CCS + ICU}{TO} = \\frac{${selectedCorrectOptions} + ${unselectedCorrectOptions}}{${totalOptions}} = ${correctnessRatio.toFixed(2)}
-\`\`\`
-
-\`\`\`katex
-\\large
-\\text{Final Score} = \\text{CR} \\times \\text{Total Points} = ${correctnessRatio.toFixed(2)} \\times ${totalPoints} = ${finalScore.toFixed(2)}
-\`\`\`
-
-#### Final Score: ${finalScore.toFixed(2)} pts
-    `
+  #### Variables
+  - **Total Points**: **${totalPoints}**
+  - **Correct Choices Selected (CCS)**: **${selectedCorrectOptions}**
+  - **Incorrect Choices Unselected (ICU)**: **${unselectedIncorrectOptions}** 
+  - **Total Options (TO)**: **${totalOptions}**
+  - **Correctness Ratio (CR)**: **${correctnessRatio.toFixed(2)}**
+  
+  #### Calculation Breakdown:
+  
+  \`\`\`katex
+  \\large
+  \\text{Correctness Ratio (CR)} = \\frac{CCS + ICU}{TO} = \\frac{${selectedCorrectOptions} + ${unselectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio.toFixed(2)}
+  \`\`\`
+  
+  \`\`\`katex
+  \\large
+  \\text{Final Score} = \\text{CR} \\times \\text{Total Points} = ${correctnessRatio.toFixed(2)} \\times ${totalPoints} = ${finalScore.toFixed(2)}
+  \`\`\`
+  
+  #### Final Score: ${finalScore.toFixed(2)} pts
+      `
     };
   }
 }
