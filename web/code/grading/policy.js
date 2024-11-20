@@ -170,47 +170,42 @@ class MultipleChoiceAllOrNothingPolicy extends MultipleChoicePolicy {
     }
   }
 }
-
 class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
   constructor({ label, documentation }) {
     super({
       label,
       documentation,
       policyType: MultipleChoiceGradingPolicyType.GRADUAL_CREDIT,
-    })
-    MultipleChoicePolicy.addPolicy(this)
+    });
+    MultipleChoicePolicy.addPolicy(this);
   }
 
-  getConfigComponent(props) {
-    return <MultipleChoiceGradualCreditPolicyConfig {...props} />
-  }
+
 
   extract(solution, answer) {
-    const totalOptions = solution.options.length
+    const totalOptions = solution.options.length;
 
-    const correctOptions = solution.options.filter((option) => option.isCorrect)
-    const incorrectOptions = solution.options.filter(
-      (option) => !option.isCorrect,
-    )
+    const correctOptions = solution.options.filter((option) => option.isCorrect);
+    const incorrectOptions = solution.options.filter((option) => !option.isCorrect);
 
     const selectedCorrectOptions = answer.options.filter((answer) =>
-      correctOptions.some((option) => option.id === answer.id),
-    )
+      correctOptions.some((option) => option.id === answer.id)
+    );
 
     const selectedIncorrectOptions = answer.options.filter((answer) =>
-      incorrectOptions.some((option) => option.id === answer.id),
-    )
+      incorrectOptions.some((option) => option.id === answer.id)
+    );
 
     const unselectedCorrectOptions = correctOptions.filter(
-      (option) => !answer.options.some((answer) => answer.id === option.id),
-    )
+      (option) => !answer.options.some((answer) => answer.id === option.id)
+    );
 
     const unselectedIncorrectOptions = incorrectOptions.filter(
-      (option) => !answer.options.some((answer) => answer.id === option.id),
-    )
+      (option) => !answer.options.some((answer) => answer.id === option.id)
+    );
 
-    const threshold = solution.gradualCreditConfig.threshold
-    const negativeMarking = solution.gradualCreditConfig.negativeMarking
+    const threshold = solution.gradualCreditConfig.threshold;
+    const negativeMarking = solution.gradualCreditConfig.negativeMarking;
 
     return {
       totalOptions: totalOptions,
@@ -222,105 +217,77 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       unselectedIncorrectOptions: unselectedIncorrectOptions.length,
       threshold,
       negativeMarking,
-    }
+    };
   }
 
   calculate({ solution, answer, totalPoints }) {
     const {
       totalOptions,
-      correctOptions,
       selectedCorrectOptions,
-      unselectedCorrectOptions,
-      incorrectOptions,
-      selectedIncorrectOptions,
       unselectedIncorrectOptions,
-      threshold,
-      negativeMarking,
-    } = this.extract(solution, answer, totalPoints)
+    } = this.extract(solution, answer, totalPoints);
 
-    const correctnessRatio =
-      selectedCorrectOptions / correctOptions -
-      selectedIncorrectOptions / incorrectOptions
+    // Correct selection is the sum of correct options and unselected incorrect options
+    const correctSelections = selectedCorrectOptions + unselectedIncorrectOptions;
 
-    const rawScore = totalPoints * correctnessRatio
-    let finalScore = rawScore
+    const correctnessRatio = correctSelections / totalOptions;
 
-    if (correctnessRatio < threshold / 100 && rawScore > 0) {
-      finalScore = 0
-    }
+    // Calculate final score
+    const finalScore = correctnessRatio * totalPoints;
 
-    if (!negativeMarking) {
-      finalScore = Math.max(0, finalScore)
-    }
+    console.log("Correctness Ratio: ", correctnessRatio, "Final Score: ", finalScore);
 
-    finalScore = Math.round(finalScore * 100) / 100
-
-    return { finalScore, rawScore, correctnessRatio }
+    return {
+      finalScore: Math.round(finalScore * 100) / 100, // Round to two decimal places
+      correctnessRatio,
+    };
   }
 
   breakdown({ solution, answer, totalPoints }) {
     const {
-      correctOptions,
-      selectedCorrectOptions,
-      selectedIncorrectOptions,
-      unselectedIncorrectOptions,
-      unselectedCorrectOptions,
       totalOptions,
-      threshold,
-      negativeMarking,
-    } = this.extract(solution, answer, totalPoints)
-
-    const { finalScore, rawScore, correctnessRatio } = this.calculate({
+      selectedCorrectOptions,
+      unselectedIncorrectOptions, // Correct variable
+    } = this.extract(solution, answer, totalPoints);
+  
+    // Extract final score and correctness ratio from the calculate function
+    const { 
+      finalScore, 
+      correctnessRatio 
+    } = this.calculate({
       solution,
       answer,
       totalPoints,
-    })
-
+    });
+  
     return {
       finalScore,
       breakdown: `### Multiple-Choice Gradual Credit Policy Breakdown
-#### Variables
-- **P** (Total Points): **${totalPoints}**
-- **Cs** (Selected Correct): **${selectedCorrectOptions}**
-- **C** (Total Correct): **${correctOptions}**
-- **Is** (Selected Incorrect): **${selectedIncorrectOptions}**
-- **I** (Total Incorrect): **${unselectedIncorrectOptions}**
-- **CR** (Correctness Ratio): **${correctnessRatio.toFixed(2)}**
-- Threshold: **${threshold}%**
-- Negative Marking: **${negativeMarking ? 'Enabled' : 'Disabled'}**
-
-#### Calculation Breakdown:
-
-\`\`\`katex
-\\large
-\\text{CR} = \\frac{\\text{Cs}}{\\text{C}} - \\frac{\\text{Is}}{\\text{I}} = \\frac{${selectedCorrectOptions}}{${correctOptions}} - \\frac{${selectedIncorrectOptions}}{${unselectedIncorrectOptions}} = ${correctnessRatio.toFixed(
-        2,
-      )}
-
-\`\`\`
-
-\`\`\`katex
-\\large
-\\text{Raw Score} = \\text{P} \\times \\text{CR} = ${totalPoints} \\times ${correctnessRatio.toFixed(
-        2,
-      )} = ${rawScore.toFixed(2)}
-\`\`\`  
-
-\`\`\`katex
-\\text{Final Score} = 
-\\begin{cases} 
-0 & \\text{if CR} < \\frac{\\text{${threshold}}}{100} \\text{ and Raw Score > 0} \\\\
-\\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
-\\text{Raw Score} & \\text{otherwise}
-\\end{cases}
-\`\`\`
-
-
-#### Final Score: ${finalScore.toFixed(2)} pts
-`,
-    }
+  #### Variables
+  - **Total Points**: **${totalPoints}**
+  - **Correct Choices Selected (CCS)**: **${selectedCorrectOptions}**
+  - **Incorrect Choices Unselected (ICU)**: **${unselectedIncorrectOptions}** 
+  - **Total Options (TO)**: **${totalOptions}**
+  - **Correctness Ratio (CR)**: **${correctnessRatio.toFixed(2)}**
+  
+  #### Calculation Breakdown:
+  
+  \`\`\`katex
+  \\large
+  \\text{Correctness Ratio (CR)} = \\frac{CCS + ICU}{TO} = \\frac{${selectedCorrectOptions} + ${unselectedIncorrectOptions}}{${totalOptions}} = ${correctnessRatio.toFixed(2)}
+  \`\`\`
+  
+  \`\`\`katex
+  \\large
+  \\text{Final Score} = \\text{CR} \\times \\text{Total Points} = ${correctnessRatio.toFixed(2)} \\times ${totalPoints} = ${finalScore.toFixed(2)}
+  \`\`\`
+  
+  #### Final Score: ${finalScore.toFixed(2)} pts
+      `
+    };
   }
 }
+
 
 new MultipleChoiceAllOrNothingPolicy({
   label: 'All or Nothing',
@@ -333,30 +300,25 @@ new MultipleChoiceGradualCreditPolicy({
   documentation: `
 **Gradual Credit** awards points based on the student's selection of correct and incorrect options:
 
-- Points are earned for each correct option chosen.
-- Points are lost for each incorrect option chosen.
-- Points are earned for each incorrect option not chosen.
-- Points are lost for each correct option not chosen.
+- **CR** = Correctness Ratio
+- **CCS** = Correct Choices Selected
+- **ICU** = Incorrect Choices Unselected
+- **TO** = Total Options (Correct + Incorrect)
 
-#### Calculation Formula:
-
-\`\`\`katex
-\\text{CR} = \\frac{Cs - Cm + Im - Is}{TO}
-\`\`\`
+**Correctness Ratio (CR) Calculation**:
 
 \`\`\`katex
-\\text{Raw Score} = \\text{Total Points} \\times \\text{CR}
+\\large
+\\text{CR} = \\frac{CCS + ICU}{TO}
 \`\`\`
 
+**Final Score Calculation**:
+
 \`\`\`katex
-\\text{Final Score} = 
-\\begin{cases} 
-0 & \\text{if CR} < \\frac{\\text{Threshold}}{100} \\text{ and Raw Score > 0} \\\\
-\\max(0, \\text{Raw Score}) & \\text{if Negative Marking Disabled} \\\\
-\\text{Raw Score} & \\text{otherwise}
-\\end{cases}
+\\large
+\\text{Final Score} = \\text{CR} \\times \\text{Total Points} = \\frac{CCS + ICU}{TO} \\times \\text{Total Points}
 \`\`\`
-`,
+`
 })
 
 export default GradingPolicy
