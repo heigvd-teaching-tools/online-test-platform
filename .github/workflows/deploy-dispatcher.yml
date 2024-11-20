@@ -44,7 +44,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          NEXTAUTH_URL: https://eval-staging.iict-heig-vd.in
+          NEXTAUTH_URL: https://eval-staging.iict-heig-vd.in/
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_ID }}
           NEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
