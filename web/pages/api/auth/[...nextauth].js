@@ -94,11 +94,6 @@ export const authOptions = {
       clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
       clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
       issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
-      authorization: {
-        params: {
-          redirect_uri: `${process.env.NEXTAUTH_URL}api/auth/callback/keycloak`,
-        },
-      },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
