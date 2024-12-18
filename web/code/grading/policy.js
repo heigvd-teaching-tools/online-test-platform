@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import { QuestionType, MultipleChoiceGradingPolicyType } from '@prisma/client'
-import MultipleChoiceGradualCreditPolicyConfig from '@/components/question/type_specific/multiple-choice/MultipleChoiceGradualCreditPolicyConfig'
 
 class GradingPolicy {
   static policies = {
@@ -204,8 +203,6 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       (option) => !answer.options.some((answer) => answer.id === option.id)
     );
 
-    const threshold = solution.gradualCreditConfig.threshold;
-    const negativeMarking = solution.gradualCreditConfig.negativeMarking;
 
     return {
       totalOptions: totalOptions,
@@ -215,8 +212,6 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       incorrectOptions: incorrectOptions.length,
       selectedIncorrectOptions: selectedIncorrectOptions.length,
       unselectedIncorrectOptions: unselectedIncorrectOptions.length,
-      threshold,
-      negativeMarking,
     };
   }
 
@@ -234,8 +229,6 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
 
     // Calculate final score
     const finalScore = correctnessRatio * totalPoints;
-
-    console.log("Correctness Ratio: ", correctnessRatio, "Final Score: ", finalScore);
 
     return {
       finalScore: Math.round(finalScore * 100) / 100, // Round to two decimal places
