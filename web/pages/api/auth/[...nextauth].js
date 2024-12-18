@@ -96,7 +96,7 @@ export const authOptions = {
       issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
       authorization: {
         params: {
-          redirect_uri: `${process.env.NEXTAUTH_URL}api/auth/callback/keycloak`,
+          redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/keycloak`,
         },
       },
     }),
