@@ -26,9 +26,6 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 /**
  *
   * get: Get the multichoice config
-  * 
-
-  * put: Update the multichoice config
 */
 
 // get the multichoice
