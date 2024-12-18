@@ -167,22 +167,11 @@ model MultipleChoice {
   options    Option[]
 
   gradingPolicy MultipleChoiceGradingPolicyType @default(GRADUAL_CREDIT)
-  gradualCreditConfig MultipleChoiceGradualCreditConfig?
 
   activateStudentComment Boolean  @default(false) // Allow student to provide a comment/justification
   studentCommentLabel String?                     // Label for the student comment field
   activateSelectionLimit Boolean @default(false)  // Activate the selection limit, 
   selectionLimit        Int?    @default(0)       // The number of correct options that the student can select, depends on the number of correct options
-}
-
-
-model MultipleChoiceGradualCreditConfig {
-  multipleChoice     MultipleChoice?   @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  questionId   String @unique
-  
-  negativeMarking    Boolean           @default(false)
-  threshold          Float             @default(0)
-  
 }
 
 model Option {
