@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MultipleChoiceGradingPolicyType, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 
 import {
   withAuthorization,

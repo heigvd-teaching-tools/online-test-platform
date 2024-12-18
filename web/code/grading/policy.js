@@ -175,36 +175,35 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       label,
       documentation,
       policyType: MultipleChoiceGradingPolicyType.GRADUAL_CREDIT,
-    });
-    MultipleChoicePolicy.addPolicy(this);
+    })
+    MultipleChoicePolicy.addPolicy(this)
   }
 
-
-
   extract(solution, answer) {
-    const totalOptions = solution.options.length;
+    const totalOptions = solution.options.length
 
-    const correctOptions = solution.options.filter((option) => option.isCorrect);
-    const incorrectOptions = solution.options.filter((option) => !option.isCorrect);
+    const correctOptions = solution.options.filter((option) => option.isCorrect)
+    const incorrectOptions = solution.options.filter(
+      (option) => !option.isCorrect,
+    )
 
     const selectedCorrectOptions = answer.options.filter((answer) =>
-      correctOptions.some((option) => option.id === answer.id)
-    );
+      correctOptions.some((option) => option.id === answer.id),
+    )
 
     const selectedIncorrectOptions = answer.options.filter((answer) =>
-      incorrectOptions.some((option) => option.id === answer.id)
-    );
+      incorrectOptions.some((option) => option.id === answer.id),
+    )
 
     const unselectedCorrectOptions = correctOptions.filter(
-      (option) => !answer.options.some((answer) => answer.id === option.id)
-    );
+      (option) => !answer.options.some((answer) => answer.id === option.id),
+    )
 
     const unselectedIncorrectOptions = incorrectOptions.filter(
-      (option) => !answer.options.some((answer) => answer.id === option.id)
-    );
+      (option) => !answer.options.some((answer) => answer.id === option.id),
+    )
 
-
-    return {
+   return {
       totalOptions: totalOptions,
       correctOptions: correctOptions.length,
       selectedCorrectOptions: selectedCorrectOptions.length,
@@ -212,28 +211,26 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       incorrectOptions: incorrectOptions.length,
       selectedIncorrectOptions: selectedIncorrectOptions.length,
       unselectedIncorrectOptions: unselectedIncorrectOptions.length,
-    };
+    }
   }
 
   calculate({ solution, answer, totalPoints }) {
-    const {
-      totalOptions,
-      selectedCorrectOptions,
-      unselectedIncorrectOptions,
-    } = this.extract(solution, answer, totalPoints);
+    const { totalOptions, selectedCorrectOptions, unselectedIncorrectOptions } =
+      this.extract(solution, answer, totalPoints)
 
     // Correct selection is the sum of correct options and unselected incorrect options
-    const correctSelections = selectedCorrectOptions + unselectedIncorrectOptions;
+    const correctSelections =
+      selectedCorrectOptions + unselectedIncorrectOptions
 
-    const correctnessRatio = correctSelections / totalOptions;
+    const correctnessRatio = correctSelections / totalOptions
 
     // Calculate final score
     const finalScore = correctnessRatio * totalPoints;
-
+    
     return {
       finalScore: Math.round(finalScore * 100) / 100, // Round to two decimal places
       correctnessRatio,
-    };
+    }
   }
 
   breakdown({ solution, answer, totalPoints }) {
@@ -241,18 +238,15 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
       totalOptions,
       selectedCorrectOptions,
       unselectedIncorrectOptions, // Correct variable
-    } = this.extract(solution, answer, totalPoints);
-  
+    } = this.extract(solution, answer, totalPoints)
+
     // Extract final score and correctness ratio from the calculate function
-    const { 
-      finalScore, 
-      correctnessRatio 
-    } = this.calculate({
+    const { finalScore, correctnessRatio } = this.calculate({
       solution,
       answer,
       totalPoints,
-    });
-  
+    })
+
     return {
       finalScore,
       breakdown: `### Multiple-Choice Gradual Credit Policy Breakdown
@@ -276,11 +270,10 @@ class MultipleChoiceGradualCreditPolicy extends MultipleChoicePolicy {
   \`\`\`
   
   #### Final Score: ${finalScore.toFixed(2)} pts
-      `
-    };
+      `,
+    }
   }
 }
-
 
 new MultipleChoiceAllOrNothingPolicy({
   label: 'All or Nothing',
@@ -311,7 +304,7 @@ new MultipleChoiceGradualCreditPolicy({
 \\large
 \\text{Final Score} = \\text{CR} \\times \\text{Total Points} = \\frac{CCS + ICU}{TO} \\times \\text{Total Points}
 \`\`\`
-`
+`,
 })
 
 export default GradingPolicy
