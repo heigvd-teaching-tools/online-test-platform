@@ -25,8 +25,8 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /**
  *
-  * get: Get the multichoice config
-*/
+ * get: Get the multichoice conf
+ */
 
 // get the multichoice
 const get = async (req, res, prisma) => {
