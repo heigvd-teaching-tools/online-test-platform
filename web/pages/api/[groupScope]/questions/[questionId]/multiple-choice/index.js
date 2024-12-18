@@ -25,8 +25,11 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /**
  *
- * get: multiple choice settings and options for a question
- */
+  * get: Get the multichoice config
+  * 
+
+  * put: Update the multichoice config
+*/
 
 // get the multichoice
 const get = async (req, res, prisma) => {
