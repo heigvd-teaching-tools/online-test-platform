@@ -348,7 +348,7 @@ export const questionTypeSpecific = (
                 { text: 'Option 1', isCorrect: false, order: 0 },
                 { text: 'Option 2', isCorrect: true, order: 1 },
               ],
-            }
+            },
           }
         : {
             gradingPolicy: question.multipleChoice.gradingPolicy,
