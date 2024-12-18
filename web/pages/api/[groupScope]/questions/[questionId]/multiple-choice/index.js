@@ -25,7 +25,7 @@ import { withQuestionUpdate } from '@/middleware/withUpdate'
 
 /**
  *
- * get: multiple choice settings and options
+ * get: Get the multichoice conf
  */
 
 // get the multichoice
