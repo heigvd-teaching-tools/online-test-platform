@@ -129,29 +129,6 @@ export const AnnotationProvider = ({
   }, [contextAnnotation, doFetch])
 
   const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
-  const debouncedCreateAnnotation = useDebouncedCallback(
-    async (groupScope, student, question, entityType, entity, updated) => {
-      const result = await createAnnotation(
-        groupScope,
-        student,
-        question,
-        entityType,
-        entity,
-        updated,
-      )
-
-      // Update annotation state when the request completes and if it completes for the same entity
-      if (result?.id && entity.id === result.id) {
-        setAnnotation((prev) => ({
-          ...prev,
-          id: result.id,
-          ...result, // Merge additional response data, if any
-        }))
-        setState(AnnotationState.ANNOTATED.value)
-      }
-    },
-    1000,
-  )
 
   const change = useCallback(
     async (content) => {
@@ -171,7 +148,7 @@ export const AnnotationProvider = ({
       if (annotation?.id) {
         debouncedUpdateAnnotation(groupScope, updated)
       } else {
-        debouncedCreateAnnotation(
+        const newAnnotation = await createAnnotation(
           groupScope,
           student,
           question,
@@ -179,6 +156,10 @@ export const AnnotationProvider = ({
           entity,
           updated,
         )
+        setAnnotation({
+          ...updated,
+          id: newAnnotation.id,
+        })
       }
     },
     [
