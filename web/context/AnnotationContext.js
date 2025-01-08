@@ -160,6 +160,7 @@ export const AnnotationProvider = ({
         ...result,
       }))
       setState(AnnotationState.ANNOTATED.value)
+
     },
     300,
   )
