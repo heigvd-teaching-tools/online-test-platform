@@ -27,6 +27,14 @@ import { useDebouncedCallback } from 'use-debounce'
 import AnnotationHighlight from '@/components/evaluations/grading/annotation/AnnotationHighlight'
 import { AnnotationState } from '@/components/evaluations/grading/annotation/types'
 
+/* 
+  Key-value map to determine the field name that contains the entity ID for each entity type
+  At the moment we only have CODE_WRITING_FILE annotations
+*/
+const entityTypeFieldMap = {
+  CODE_WRITING_FILE: "fileId",
+}
+
 const AnnotationContext = createContext()
 
 export const useAnnotation = () => useContext(AnnotationContext)
@@ -139,18 +147,22 @@ export const AnnotationProvider = ({
         entity,
         updated,
       )
+      // Update annotation state when the request completes and if it completes for the same entity
+      const fieldName = entityTypeFieldMap[entityType];
 
-      setAnnotation((prev) => ({
-        ...prev,
-        id: result.id,
-        ...result, // Merge additional response data, if any
-      }))
-      setState(AnnotationState.ANNOTATED.value)
-    
+      // Ensure the annotation belongs to the correct entity
+      if (result?.id && fieldName && entity?.id === result[fieldName]) {
+        setAnnotation((prev) => ({
+          ...prev,
+          id: result.id,
+          ...result, // Merge additional response data, if any
+        }))
+        setState(AnnotationState.ANNOTATED.value)
+      }
     },
     1000,
   )
-   
+
   const change = useCallback(
     async (content) => {
       if (readOnly) {
