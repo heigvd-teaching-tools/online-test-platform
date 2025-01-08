@@ -74,6 +74,19 @@ const post = async (req, res, prisma) => {
 
   const user = await getUser(req, res)
 
+  const exists = await prisma.annotation.findUnique({
+    where: {
+      entityType_fileId: {
+        entityType: entityType,
+        fileId: entity.id,
+      },
+    },
+  })
+
+  if (exists) {
+    return res.status(400).json({ message: 'Annotation already exists' })
+  }
+
   const newAnnotation = await prisma.annotation.create({
     data: {
       userEmail: student.email,
