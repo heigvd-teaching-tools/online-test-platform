@@ -136,24 +136,24 @@ export const AnnotationProvider = ({
   const change = useCallback(
     async (content) => {
       if (readOnly) {
-        return;
+        return
       }
-  
+
       // Create a local copy of the current annotation state
       const updated = {
         ...annotation,
         content,
-      };
-  
-      setAnnotation(updated);
-  
-      if (state === AnnotationState.NOT_ANNOTATED.value) {
-        setState(AnnotationState.ANNOTATED.value);
       }
-  
+
+      setAnnotation(updated)
+
+      if (state === AnnotationState.NOT_ANNOTATED.value) {
+        setState(AnnotationState.ANNOTATED.value)
+      }
+
       // Prevent multiple POST requests for the same annotation
       if (!annotation?.id && !postInProgress.current) {
-        postInProgress.current = true; // Lock the POST request
+        postInProgress.current = true // Lock the POST request
         try {
           const newAnnotation = await createAnnotation(
             groupScope,
@@ -161,9 +161,9 @@ export const AnnotationProvider = ({
             question,
             entityType,
             entity,
-            updated
-          );
-  
+            updated,
+          )
+
           // Update the annotation with the new ID from the server
           setAnnotation((current) => {
             // Compare the current content with the server response
@@ -172,19 +172,19 @@ export const AnnotationProvider = ({
               debouncedUpdateAnnotation(groupScope, {
                 ...current,
                 id: newAnnotation.id,
-              });
+              })
             }
             return {
               ...current,
               id: newAnnotation.id,
-            };
-          });
+            }
+          })
         } finally {
-          postInProgress.current = false; // Release the POST lock
+          postInProgress.current = false // Release the POST lock
         }
       } else if (annotation?.id) {
         // If the annotation already has an ID, send a PUT request
-        debouncedUpdateAnnotation(groupScope, updated);
+        debouncedUpdateAnnotation(groupScope, updated)
       }
     },
     [
@@ -199,9 +199,8 @@ export const AnnotationProvider = ({
       setState,
       state,
       student,
-    ]
-  );
-  
+    ],
+  )
 
   const discard = useCallback(async () => {
     if (readOnly) {
