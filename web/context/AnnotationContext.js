@@ -139,7 +139,7 @@ export const AnnotationProvider = ({
         entity,
         updated,
       )
-  
+
       // Update annotation state when the request completes and if it completes for the same entity
       if (result?.id && entity.id === result.id) {
         setAnnotation((prev) => ({
@@ -179,7 +179,6 @@ export const AnnotationProvider = ({
           entity,
           updated,
         )
-        
       }
     },
     [

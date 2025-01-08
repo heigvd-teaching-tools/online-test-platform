@@ -19,7 +19,6 @@ import ClickAwayListener from 'react-click-away-listener'
 import { AnnotationState, EditingState } from './types'
 
 const AnnotationHighlight = ({ readOnly, state, children }) => {
-
   const [editingState, setEditingState] = useState(EditingState.INACTIVE.value)
 
   useEffect(() => {
