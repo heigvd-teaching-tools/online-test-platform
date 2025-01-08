@@ -70,7 +70,7 @@ const get = async (req, res, prisma) => {
 }
 
 const post = async (req, res, prisma) => {
-  const { student, question, annotation, entityType, entity } = req.body
+  const { student, question, annotation, entityType, entityId } = req.body
 
   const user = await getUser(req, res)
 
@@ -78,7 +78,7 @@ const post = async (req, res, prisma) => {
     where: {
       entityType_fileId: {
         entityType: entityType,
-        fileId: entity.id,
+        fileId: entityId,
       },
     },
   })
@@ -92,7 +92,7 @@ const post = async (req, res, prisma) => {
       userEmail: student.email,
       questionId: question.id,
       entityType: entityType,
-      fileId: entity.id,
+      fileId: entityId,
       content: annotation.content,
       createdById: user.id,
     },

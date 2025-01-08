@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import React, {
   createContext,
   useContext,
   useCallback,
   useEffect,
   useState,
+  use,
 } from 'react'
 import useSWR from 'swr'
 import { fetcher } from '../code/utils'
@@ -44,7 +46,7 @@ const createAnnotation = async (
   student,
   question,
   entityType,
-  entity,
+  entityId, // Accept entityId directly
   annotation,
 ) => {
   const response = await fetch(`/api/${groupScope}/gradings/annotations`, {
@@ -56,7 +58,7 @@ const createAnnotation = async (
       student,
       question,
       entityType,
-      entity,
+      entityId, // Pass entityId in the payload
       annotation,
     }),
   })
@@ -97,30 +99,34 @@ export const AnnotationProvider = ({
   student,
   question,
   entityType,
-  entity,
+  entityId, // Use entityId instead of entity
 }) => {
   const router = useRouter()
 
+  console.log('entityId', entityId)
+
   const { groupScope } = router.query
 
-  const doFetch = !readOnly && groupScope && entity?.id
+  // Determine if data should be fetched
+  const doFetch = !readOnly && groupScope && entityId
 
   /* 
       When used in the context of student consultation, the annotation is immutable
       and is supplied as prop immutableAnnotation. The annotation is not managed by the context. It is only used to
       initialize the context state.
-      When used in the context of grading, the annotation is mutable its data is managed by the context. The context
-      fetches the annotation from the server and updates it when the user changes it.
+      When used in the context of grading, the annotation is mutable, and its data is managed by the context.
+      The context fetches the annotation from the server and updates it when the user changes it.
   */
-  const { data: contextAnnotation, mutate } = useSWR(
+  const { data: contextAnnotation } = useSWR(
     doFetch &&
-      `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entity.id}`,
+      `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entityId}`,
     doFetch && fetcher,
   )
 
   const [annotation, setAnnotation] = useState(null)
   const [state, setState] = useState(stateBasedOnAnnotation(contextAnnotation))
 
+  // Update state based on immutableAnnotation when no fetching is required
   useEffect(() => {
     if (!doFetch) {
       setAnnotation(immutableAnnotation)
@@ -128,9 +134,9 @@ export const AnnotationProvider = ({
     }
   }, [immutableAnnotation, doFetch])
 
+  // Update state based on fetched contextAnnotation
   useEffect(() => {
     if (doFetch) {
-      // Context Managed Annotation (Grading)
       setAnnotation(contextAnnotation)
       setState(stateBasedOnAnnotation(contextAnnotation))
     }
@@ -138,29 +144,24 @@ export const AnnotationProvider = ({
 
   const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
   const debouncedCreateAnnotation = useDebouncedCallback(
-    async (groupScope, student, question, entityType, entity, updated) => {
+    async (groupScope, student, question, entityId, entityType, updated) => {
       const result = await createAnnotation(
         groupScope,
         student,
         question,
         entityType,
-        entity,
+        entityId, // Pass entityId here
         updated,
       )
-      // Update annotation state when the request completes and if it completes for the same entity
-      const fieldName = entityTypeFieldMap[entityType]
 
-      // Ensure the annotation belongs to the correct entity
-      if (result?.id && fieldName && entity?.id === result[fieldName]) {
-        setAnnotation((prev) => ({
-          ...prev,
-          id: result.id,
-          ...result, // Merge additional response data, if any
-        }))
-        setState(AnnotationState.ANNOTATED.value)
-      }
+      setAnnotation((prev) => ({
+        ...prev,
+        id: result.id,
+        ...result,
+      }))
+      setState(AnnotationState.ANNOTATED.value)
     },
-    1000,
+    300,
   )
 
   const change = useCallback(
@@ -185,8 +186,8 @@ export const AnnotationProvider = ({
           groupScope,
           student,
           question,
+          entityId,
           entityType,
-          entity,
           updated,
         )
       }
@@ -194,7 +195,8 @@ export const AnnotationProvider = ({
     [
       annotation,
       debouncedUpdateAnnotation,
-      entity,
+      debouncedCreateAnnotation,
+      entityId, // Dependency on entityId
       entityType,
       groupScope,
       question,
