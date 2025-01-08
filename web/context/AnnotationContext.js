@@ -32,7 +32,7 @@ import { AnnotationState } from '@/components/evaluations/grading/annotation/typ
   At the moment we only have CODE_WRITING_FILE annotations
 */
 const entityTypeFieldMap = {
-  CODE_WRITING_FILE: "fileId",
+  CODE_WRITING_FILE: 'fileId',
 }
 
 const AnnotationContext = createContext()
@@ -149,7 +149,7 @@ export const AnnotationProvider = ({
       )
 
       // Update annotation state when the request completes and if it completes for the same entity
-      const fieldName = entityTypeFieldMap[entityType];
+      const fieldName = entityTypeFieldMap[entityType]
 
       // Ensure the annotation belongs to the correct entity
       if (result?.id && fieldName && entity?.id === result[fieldName]) {
