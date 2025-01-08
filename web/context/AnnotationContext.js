@@ -153,6 +153,8 @@ export const AnnotationProvider = ({
     1000,
   )
 
+
+  
   const change = useCallback(
     async (content) => {
       if (readOnly) {
