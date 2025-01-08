@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import React, {
   createContext,
   useContext,
   useCallback,
   useEffect,
   useState,
-  use,
+  useRef,
 } from 'react'
 import useSWR from 'swr'
 import { fetcher } from '../code/utils'
@@ -28,14 +27,6 @@ import { useRouter } from 'next/router'
 import { useDebouncedCallback } from 'use-debounce'
 import AnnotationHighlight from '@/components/evaluations/grading/annotation/AnnotationHighlight'
 import { AnnotationState } from '@/components/evaluations/grading/annotation/types'
-
-/* 
-  Key-value map to determine the field name that contains the entity ID for each entity type
-  At the moment we only have CODE_WRITING_FILE annotations
-*/
-const entityTypeFieldMap = {
-  CODE_WRITING_FILE: 'fileId',
-}
 
 const AnnotationContext = createContext()
 
@@ -46,7 +37,7 @@ const createAnnotation = async (
   student,
   question,
   entityType,
-  entityId, // Accept entityId directly
+  entity,
   annotation,
 ) => {
   const response = await fetch(`/api/${groupScope}/gradings/annotations`, {
@@ -58,7 +49,7 @@ const createAnnotation = async (
       student,
       question,
       entityType,
-      entityId, // Pass entityId in the payload
+      entity,
       annotation,
     }),
   })
@@ -99,34 +90,32 @@ export const AnnotationProvider = ({
   student,
   question,
   entityType,
-  entityId, // Use entityId instead of entity
+  entity,
 }) => {
   const router = useRouter()
 
-  console.log('entityId', entityId)
-
   const { groupScope } = router.query
 
-  // Determine if data should be fetched
-  const doFetch = !readOnly && groupScope && entityId
+  const doFetch = !readOnly && groupScope && entity?.id
 
   /* 
       When used in the context of student consultation, the annotation is immutable
       and is supplied as prop immutableAnnotation. The annotation is not managed by the context. It is only used to
       initialize the context state.
-      When used in the context of grading, the annotation is mutable, and its data is managed by the context.
-      The context fetches the annotation from the server and updates it when the user changes it.
+      When used in the context of grading, the annotation is mutable its data is managed by the context. The context
+      fetches the annotation from the server and updates it when the user changes it.
   */
-  const { data: contextAnnotation } = useSWR(
+  const { data: contextAnnotation, mutate } = useSWR(
     doFetch &&
-      `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entityId}`,
+      `/api/${groupScope}/gradings/annotations?entityType=${entityType}&entityId=${entity.id}`,
     doFetch && fetcher,
   )
 
   const [annotation, setAnnotation] = useState(null)
   const [state, setState] = useState(stateBasedOnAnnotation(contextAnnotation))
 
-  // Update state based on immutableAnnotation when no fetching is required
+  const postInProgress = useRef(false)
+
   useEffect(() => {
     if (!doFetch) {
       setAnnotation(immutableAnnotation)
@@ -134,69 +123,74 @@ export const AnnotationProvider = ({
     }
   }, [immutableAnnotation, doFetch])
 
-  // Update state based on fetched contextAnnotation
   useEffect(() => {
     if (doFetch) {
+      // Context Managed Annotation (Grading)
       setAnnotation(contextAnnotation)
       setState(stateBasedOnAnnotation(contextAnnotation))
     }
   }, [contextAnnotation, doFetch])
 
   const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
-  const debouncedCreateAnnotation = useDebouncedCallback(
-    async (groupScope, student, question, entityId, entityType, updated) => {
-      const result = await createAnnotation(
-        groupScope,
-        student,
-        question,
-        entityType,
-        entityId, // Pass entityId here
-        updated,
-      )
-
-      setAnnotation((prev) => ({
-        ...prev,
-        id: result.id,
-        ...result,
-      }))
-      setState(AnnotationState.ANNOTATED.value)
-    },
-    300,
-  )
 
   const change = useCallback(
     async (content) => {
       if (readOnly) {
-        return
+        return;
       }
+  
+      // Create a local copy of the current annotation state
       const updated = {
         ...annotation,
         content,
-      }
-      setAnnotation(updated)
-
+      };
+  
+      setAnnotation(updated);
+  
       if (state === AnnotationState.NOT_ANNOTATED.value) {
-        setState(AnnotationState.ANNOTATED.value)
+        setState(AnnotationState.ANNOTATED.value);
       }
-
-      if (annotation?.id) {
-        debouncedUpdateAnnotation(groupScope, updated)
-      } else {
-        debouncedCreateAnnotation(
-          groupScope,
-          student,
-          question,
-          entityId,
-          entityType,
-          updated,
-        )
+  
+      // Prevent multiple POST requests for the same annotation
+      if (!annotation?.id && !postInProgress.current) {
+        postInProgress.current = true; // Lock the POST request
+        try {
+          const newAnnotation = await createAnnotation(
+            groupScope,
+            student,
+            question,
+            entityType,
+            entity,
+            updated
+          );
+  
+          // Update the annotation with the new ID from the server
+          setAnnotation((current) => {
+            // Compare the current content with the server response
+            if (current.content !== newAnnotation.content) {
+              // Send a PUT request to update the server with the latest content
+              debouncedUpdateAnnotation(groupScope, {
+                ...current,
+                id: newAnnotation.id,
+              });
+            }
+            return {
+              ...current,
+              id: newAnnotation.id,
+            };
+          });
+        } finally {
+          postInProgress.current = false; // Release the POST lock
+        }
+      } else if (annotation?.id) {
+        // If the annotation already has an ID, send a PUT request
+        debouncedUpdateAnnotation(groupScope, updated);
       }
     },
     [
       annotation,
       debouncedUpdateAnnotation,
-      debouncedCreateAnnotation,
-      entityId, // Dependency on entityId
+      entity,
       entityType,
       groupScope,
       question,
@@ -205,8 +199,9 @@ export const AnnotationProvider = ({
       setState,
       state,
       student,
-    ],
-  )
+    ]
+  );
+  
 
   const discard = useCallback(async () => {
     if (readOnly) {

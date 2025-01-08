@@ -120,7 +120,7 @@ const CompareCodeWriting = ({
                             student={student}
                             question={question}
                             entityType={AnnotationEntityType.CODE_WRITING_FILE}
-                            entityId={answerToFile.file.id}
+                            entity={answerToFile.file}
                           >
                             <StudentFileAnnotationWrapper
                               file={answerToFile.file}
