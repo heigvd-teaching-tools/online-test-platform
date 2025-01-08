@@ -130,6 +130,8 @@ export const AnnotationProvider = ({
 
   const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
 
+
+  
   const change = useCallback(
     async (content) => {
       if (readOnly) {
