@@ -151,7 +151,8 @@ export const AnnotationProvider = ({
         setState(AnnotationState.ANNOTATED.value)
       }
 
-      // Prevent multiple POST requests for the same annotation
+      // Prevent multiple POST requests for the same annotation, 
+      // Note that the annotation content is being updated in the state before this check
       if (!annotation?.id && !postInProgress.current) {
         postInProgress.current = true // Lock the POST request
         try {
