@@ -19,6 +19,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
+  useRef,
 } from 'react'
 import useSWR from 'swr'
 import { fetcher } from '../code/utils'
@@ -26,14 +27,6 @@ import { useRouter } from 'next/router'
 import { useDebouncedCallback } from 'use-debounce'
 import AnnotationHighlight from '@/components/evaluations/grading/annotation/AnnotationHighlight'
 import { AnnotationState } from '@/components/evaluations/grading/annotation/types'
-
-/* 
-  Key-value map to determine the field name that contains the entity ID for each entity type
-  At the moment we only have CODE_WRITING_FILE annotations
-*/
-const entityTypeFieldMap = {
-  CODE_WRITING_FILE: "fileId",
-}
 
 const AnnotationContext = createContext()
 
@@ -121,6 +114,8 @@ export const AnnotationProvider = ({
   const [annotation, setAnnotation] = useState(null)
   const [state, setState] = useState(stateBasedOnAnnotation(contextAnnotation))
 
+  const postInProgress = useRef(false)
+
   useEffect(() => {
     if (!doFetch) {
       setAnnotation(immutableAnnotation)
@@ -137,58 +132,59 @@ export const AnnotationProvider = ({
   }, [contextAnnotation, doFetch])
 
   const debouncedUpdateAnnotation = useDebouncedCallback(updateAnnotation, 1000)
-  const debouncedCreateAnnotation = useDebouncedCallback(
-    async (groupScope, student, question, entityType, entity, updated) => {
-      const result = await createAnnotation(
-        groupScope,
-        student,
-        question,
-        entityType,
-        entity,
-        updated,
-      )
-      // Update annotation state when the request completes and if it completes for the same entity
-      const fieldName = entityTypeFieldMap[entityType];
-
-      // Ensure the annotation belongs to the correct entity
-      if (result?.id && fieldName && entity?.id === result[fieldName]) {
-        setAnnotation((prev) => ({
-          ...prev,
-          id: result.id,
-          ...result, // Merge additional response data, if any
-        }))
-        setState(AnnotationState.ANNOTATED.value)
-      }
-    },
-    1000,
-  )
 
   const change = useCallback(
     async (content) => {
       if (readOnly) {
         return
       }
+
+      // Create a local copy of the current annotation state
       const updated = {
         ...annotation,
         content,
       }
+
       setAnnotation(updated)
 
       if (state === AnnotationState.NOT_ANNOTATED.value) {
         setState(AnnotationState.ANNOTATED.value)
       }
 
-      if (annotation?.id) {
+      // Prevent multiple POST requests for the same annotation
+      if (!annotation?.id && !postInProgress.current) {
+        postInProgress.current = true // Lock the POST request
+        try {
+          const newAnnotation = await createAnnotation(
+            groupScope,
+            student,
+            question,
+            entityType,
+            entity,
+            updated,
+          )
+
+          // Update the annotation with the new ID from the server
+          setAnnotation((current) => {
+            // Compare the current content with the server response
+            if (current.content !== newAnnotation.content) {
+              // Send a PUT request to update the server with the latest content
+              debouncedUpdateAnnotation(groupScope, {
+                ...current,
+                id: newAnnotation.id,
+              })
+            }
+            return {
+              ...current,
+              id: newAnnotation.id,
+            }
+          })
+        } finally {
+          postInProgress.current = false // Release the POST lock
+        }
+      } else if (annotation?.id) {
+        // If the annotation already has an ID, send a PUT request
         debouncedUpdateAnnotation(groupScope, updated)
-      } else {
-        debouncedCreateAnnotation(
-          groupScope,
-          student,
-          question,
-          entityType,
-          entity,
-          updated,
-        )
       }
     },
     [
