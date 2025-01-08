@@ -140,9 +140,6 @@ export const AnnotationProvider = ({
         updated,
       )
 
-      // Update annotation state when the request completes and if it completes for the same entity
-      // log condition 
-      
       setAnnotation((prev) => ({
         ...prev,
         id: result.id,
@@ -153,8 +150,7 @@ export const AnnotationProvider = ({
     },
     1000,
   )
-  
-
+   
   const change = useCallback(
     async (content) => {
       if (readOnly) {
