@@ -140,21 +140,17 @@ export const AnnotationProvider = ({
         updated,
       )
 
-      // Update annotation state when the request completes and if it completes for the same entity
-      if (result?.id && entity.id === result.id) {
-        setAnnotation((prev) => ({
-          ...prev,
-          id: result.id,
-          ...result, // Merge additional response data, if any
-        }))
-        setState(AnnotationState.ANNOTATED.value)
-      }
+      setAnnotation((prev) => ({
+        ...prev,
+        id: result.id,
+        ...result, // Merge additional response data, if any
+      }))
+      setState(AnnotationState.ANNOTATED.value)
+    
     },
     1000,
   )
-
-
-  
+   
   const change = useCallback(
     async (content) => {
       if (readOnly) {
