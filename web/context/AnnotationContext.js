@@ -147,7 +147,6 @@ export const AnnotationProvider = ({
         entity,
         updated,
       )
-
       // Update annotation state when the request completes and if it completes for the same entity
       const fieldName = entityTypeFieldMap[entityType]
 
