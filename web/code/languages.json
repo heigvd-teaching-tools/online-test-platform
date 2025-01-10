@@ -802,6 +802,7 @@
     "coffee": "coffee",
     "cpp": "cpp",
     "cc": "cpp",
+    "cu": "cpp",
     "cxx": "cpp",
     "hpp": "cpp",
     "hh": "cpp",
