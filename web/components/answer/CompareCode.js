@@ -153,7 +153,7 @@ const CompareCodeWriting = ({
                   </ScrollContainer>
                 }
                 rightWidth={
-                  solution.codeWriting.solutionFiles?.length > 0 ? 20 : 0
+                  solution.codeWriting.solutionFiles?.length > 0 ? 45 : 0
                 }
               />
             </TabContent>
