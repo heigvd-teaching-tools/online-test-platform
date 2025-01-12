@@ -37,6 +37,7 @@ inputs:
   SSL_PRIVKEY:
     description: 'SSL Privkey'
     required: true    
+    
 runs:
   using: 'composite'
   steps:
