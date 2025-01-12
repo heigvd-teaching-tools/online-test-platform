@@ -28,6 +28,8 @@ jobs:
           NEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_ID }}
           NEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
           NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL: https://idp.heig-vd.ch/realms/HEIG-VD
+          NEXTAUTH_SWITCH_CLIENT_ID: hes-so_open_didac
+          NEXTAUTH_SWITCH_CLIENT_SECRET: ${{ secrets.NEXTAUTH_SWITCH_CLIENT_SECRET }}
           SSL_FULLCHAIN: ${{ secrets.SSL_FULLCHAIN }}
           SSL_PRIVKEY: ${{ secrets.SSL_PRIVKEY }}
 
@@ -49,6 +51,8 @@ jobs:
           NEXTAUTH_KEYCLOAK_CLIENT_ID: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_ID }}
           NEXTAUTH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.NEXTAUTH_KEYCLOAK_CLIENT_SECRET }}
           NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL: https://idp.heig-vd.ch/realms/HEIG-VD
+          NEXTAUTH_SWITCH_CLIENT_ID: hes-so_open_didac
+          NEXTAUTH_SWITCH_CLIENT_SECRET: ${{ secrets.NEXTAUTH_SWITCH_CLIENT_SECRET }}
           SSL_FULLCHAIN: ${{ secrets.SSL_FULLCHAIN }}
           SSL_PRIVKEY: ${{ secrets.SSL_PRIVKEY }}
           
