@@ -25,6 +25,12 @@ inputs:
   NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL:
     description: 'NextAuth Keycloak Issuer Base URL'
     required: true
+  NEXTAUTH_SWITCH_CLIENT_ID:
+    description: 'NextAuth Switch ID'
+    required: true
+  NEXTAUTH_SWITCH_CLIENT_SECRET:
+    description: 'NextAuth Switch Secret'
+    required: true
   SSL_FULLCHAIN:
     description: 'SSL Fullchain'
     required: true
