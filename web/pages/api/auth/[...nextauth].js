@@ -238,7 +238,6 @@ async function linkOrCreateUserForAccount(user, account) {
 }
 
 async function copyKeycloakGroupMemberships(newUserId, affiliations) {
-  // Find existing Keycloak users by matching emails
   const relatedKeycloakUsers = await prisma.user.findMany({
     where: {
       email: {
@@ -252,22 +251,20 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
         },
       },
     },
-  })
+  });
 
-  console.log("relatedKeycloakUsers", relatedKeycloakUsers);
   const uniqueRoles = new Set(); // Collect unique roles
 
-  // Copy groups from related users to the new user
+  // Copy groups and roles from related users to the new user
   for (const relatedUser of relatedKeycloakUsers) {
-    console.log("relatedUser", relatedUser);
-
     // Add roles to the uniqueRoles set
     if (relatedUser.roles && relatedUser.roles.length > 0) {
       for (const role of relatedUser.roles) {
-        uniqueRoles.add(role.id);
+        uniqueRoles.add(role); // Use the enum value directly
       }
     }
 
+    // Copy groups
     for (const userGroup of relatedUser.groups) {
       await prisma.userOnGroup.upsert({
         where: {
@@ -286,18 +283,19 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
     }
   }
 
-  // Assign unique roles to the new user
-  for (const roleId of uniqueRoles) {
-    await prisma.userOnRole.create({
-      data: {
-        userId: newUserId,
-        roleId: roleId,
+  // Assign unique roles to the new user by updating the roles array
+  await prisma.user.update({
+    where: {
+      id: newUserId,
+    },
+    data: {
+      roles: {
+        set: Array.from(uniqueRoles), // Update the roles array
       },
-    });
-  }
+    },
+  });
 
   console.log(`Assigned roles to user (${newUserId}):`, Array.from(uniqueRoles));
-
 }
 
 export default NextAuth(authOptions)
