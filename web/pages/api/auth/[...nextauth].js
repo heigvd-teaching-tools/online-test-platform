@@ -223,6 +223,7 @@ async function linkOrCreateUserForAccount(user, account) {
         account.provider,
         user.affiliations,
       )
+
       // Copy group memberships from related Keycloak users
       if (account.provider === 'switch' && user.affiliations) {
         await copyKeycloakGroupMemberships(newUser.id, user.affiliations)
@@ -256,9 +257,10 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
         },
       },
     },
-  })
+  });
 
-  const uniqueRoles = new Set() // Collect unique roles
+
+  const uniqueRoles = new Set(); // Collect unique roles
 
   // Copy groups and roles from related users to the new user
   for (const relatedUser of relatedKeycloakUsers) {
@@ -284,7 +286,7 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
           selected: false, // Adjust as needed
         },
         update: {}, // No changes needed if it already exists
-      })
+      });
     }
   }
 
@@ -301,6 +303,7 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
   })
 
   console.log(`Assigned roles to user (${newUserId}):`, Array.from(uniqueRoles))
+
 }
 
 export default NextAuth(authOptions)
