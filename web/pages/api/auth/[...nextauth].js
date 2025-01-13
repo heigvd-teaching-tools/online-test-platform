@@ -219,8 +219,8 @@ async function linkOrCreateUserForAccount(user, account) {
       })
       console.log("copyKeycloakGroupMemberships condition", account.provider, user.affiliations)
       // Copy group memberships from related Keycloak users
-      if (account.provider === 'switch' && account.affiliations) {
-        await copyKeycloakGroupMemberships(newUser.id, account.affiliations)
+      if (account.provider === 'switch' && user.affiliations) {
+        await copyKeycloakGroupMemberships(newUser.id, user.affiliations)
       }
 
       return newUser
