@@ -94,6 +94,25 @@ const keycloakProvider = KeycloakProvider({
   },
 });
 
+async function handleSingleSessionPerUser(user) {
+  try {
+    const activeSessions = await prisma.session.findMany({
+      where: { userId: user.id },
+    });
+
+    if (activeSessions.length > 0) {
+      // Delete all active sessions for the user
+      await prisma.session.deleteMany({
+        where: { userId: user.id },
+      });
+    }
+  } catch (error) {
+    console.error("Error in handleSingleSessionPerUser:", error);
+    throw new Error("Unable to handle single session enforcement");
+  }
+}
+
+
 async function handleKeycloakToSwitchMerge(keycloakUser, profile) {
   const switchUser = await prisma.user.findFirst({
     where: {
