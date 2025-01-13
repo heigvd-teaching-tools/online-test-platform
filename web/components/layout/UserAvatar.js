@@ -22,6 +22,11 @@ import {
   Collapse,
 } from '@mui/material'
 const UserAvatar = ({ user, collapsed, onCLick }) => {
+  const userEmail =
+    user.affiliations?.find(
+      (affiliation) => affiliation.split('@')[1] === user.selectedOrganization,
+    ) || user.email
+
   return (
     <Stack direction="row" onClick={onCLick} sx={{ cursor: 'pointer' }}>
       <IconButton sx={{ p: 1 }}>
@@ -34,7 +39,7 @@ const UserAvatar = ({ user, collapsed, onCLick }) => {
       <Collapse orientation="horizontal" in={!collapsed}>
         <ListItemText
           primary={<Typography variant="body2">{user.name}</Typography>}
-          secondary={<Typography variant="caption">{user.email}</Typography>}
+          secondary={<Typography variant="caption">{userEmail}</Typography>}
         />
       </Collapse>
     </Stack>

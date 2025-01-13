@@ -13,158 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import NextAuth from 'next-auth'
-import KeycloakProvider from 'next-auth/providers/keycloak'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { Role } from '@prisma/client'
-import { getPrisma } from '@/middleware/withPrisma'
 
-const prisma = getPrisma()
-const prismaAdapter = PrismaAdapter(prisma)
+import NextAuth from 'next-auth';
+import KeycloakProvider from 'next-auth/providers/keycloak';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { Role } from '@prisma/client';
+import { getPrisma } from '@/middleware/withPrisma';
+
+const prisma = getPrisma();
+const prismaAdapter = PrismaAdapter(prisma);
 
 const MyAdapter = {
   ...prismaAdapter,
   linkAccount: (account) => {
-    account['not_before_policy'] = account['not-before-policy']
-    delete account['not-before-policy']
-    return prismaAdapter.linkAccount(account)
+    account['not_before_policy'] = account['not-before-policy'];
+    delete account['not-before-policy'];
+    return prismaAdapter.linkAccount(account);
   },
   deleteSession: async (sessionToken) => {
     try {
       await prisma.session.delete({
         where: { sessionToken },
-      })
+      });
     } catch (error) {
       if (error.code === 'P2025') {
-        return // Ignore if the session doesn't exist
+        return; // Ignore if the session doesn't exist
       }
-      throw error // Rethrow any other error
+      throw error; // Rethrow any other error
     }
   },
-}
-
-const switchEduId = {
-  id: 'switch',
-  name: 'SWITCH edu-ID',
-  type: 'oauth',
-  wellKnown: 'https://login.eduid.ch/.well-known/openid-configuration',
-  clientId: process.env.NEXTAUTH_SWITCH_CLIENT_ID,
-  clientSecret: process.env.NEXTAUTH_SWITCH_CLIENT_SECRET,
-  authorization: {
-    params: {
-      scope: 'openid profile email https://login.eduid.ch/authz/User.Read',
-      claims: JSON.stringify({
-        id_token: {
-          name: { essential: true },
-          email: { essential: true },
-          swissEduIDLinkedAffiliation: { essential: true },
-          swissEduIDAssociatedMail: { essential: true },
-          swissEduIDLinkedAffiliationMail: { essential: true },
-          swissEduID: { essential: true },
-          eduPersonEntitlement: { essential: true },
-          eduPersonAffiliation: { essential: true },
-        },
-      }),
-    },
-  },
-  idToken: true,
-  checks: ['pkce', 'state'],
-  profile(OAuthProfile) {
-    return {
-      id: OAuthProfile.sub,
-      name: OAuthProfile.name,
-      email: OAuthProfile.email,
-      image: OAuthProfile.picture,
-      roles: [Role.STUDENT],
-      affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
-      organizations: OAuthProfile.swissEduIDLinkedAffiliationMail.map(
-        (affiliation) => affiliation.split('@')[1],
-      ),
-      selectedAffiliation: null,
-    };
-  },
-}
-
-const keycloakProvider = KeycloakProvider({
-  clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
-  clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
-  issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
-  authorization: {
-    params: {
-      redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/keycloak`,
-    },
-  },
-})
-
-export const authOptions = {
-  adapter: MyAdapter,
-  providers: [switchEduId, keycloakProvider],
-  secret: process.env.NEXTAUTH_SECRET,
-  callbacks: {
-    async session({ session, user }) {
-      if (user) {
-        session.user = user
-        session.user.id = user.id
-        session.user.roles = user.roles
-
-        const userWithGroups = await prisma.user.findUnique({
-          where: { email: user.email },
-          include: {
-            groups: {
-              include: {
-                group: true,
-              },
-              orderBy: {
-                group: {
-                  label: 'asc',
-                },
-              },
-            },
-          },
-        })
-
-        if (userWithGroups) {
-          session.user.groups = userWithGroups.groups.map((g) => g.group.scope)
-          session.user.selected_group = userWithGroups.groups.find(
-            (g) => g.selected,
-          )?.group.scope
-        }
-      }
-      return session
-    },
-
-    async signIn({ user, account }) {
-      await handleSingleSessionPerUser(user)
-
-      if (account.provider === 'keycloak' || account.provider === 'switch') {
-        if (!user.email) {
-          return false
-        }
-
-        await linkOrCreateUserForAccount(user, account)
-        return true
-      }
-
-      return false
-    },
-  },
-}
+};
 
 async function handleSingleSessionPerUser(user) {
   const activeSessions = await prisma.session.findMany({
     where: {
       userId: user.id,
     },
-  })
+  });
 
   if (activeSessions.length > 0) {
     await prisma.session.deleteMany({
       where: {
         userId: user.id,
       },
-    })
+    });
   }
 }
+
 async function linkOrCreateUserForAccount(user, account) {
   const accountData = {
     type: account.type,
@@ -211,10 +106,7 @@ async function linkOrCreateUserForAccount(user, account) {
 
       // Find related Keycloak user using swissEduIDLinkedAffiliationMail
       if (account.provider === 'switch' && account.affiliations) {
-        await copyKeycloakGroupMemberships(
-          newUser.id,
-          account.affiliations
-        );
+        await copyKeycloakGroupMemberships(newUser.id, account.affiliations);
       }
 
       return newUser;
@@ -233,7 +125,6 @@ async function linkOrCreateUserForAccount(user, account) {
 
 async function copyKeycloakGroupMemberships(newUserId, affiliations) {
   // Find existing Keycloak users by matching emails
-  console.log("affiliations", affiliations)
   const relatedKeycloakUsers = await prisma.user.findMany({
     where: {
       email: {
@@ -250,7 +141,7 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
   });
 
   // Copy groups from related users to the new user
-  for (const relatedUser of relatedUsers) {
+  for (const relatedUser of relatedKeycloakUsers) {
     for (const userGroup of relatedUser.groups) {
       await prisma.userOnGroup.upsert({
         where: {
@@ -268,9 +159,113 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
       });
     }
   }
-
 }
 
+const switchEduId = {
+  id: 'switch',
+  name: 'SWITCH edu-ID',
+  type: 'oauth',
+  wellKnown: 'https://login.eduid.ch/.well-known/openid-configuration',
+  clientId: process.env.NEXTAUTH_SWITCH_CLIENT_ID,
+  clientSecret: process.env.NEXTAUTH_SWITCH_CLIENT_SECRET,
+  authorization: {
+    params: {
+      scope: 'openid profile email https://login.eduid.ch/authz/User.Read',
+      claims: JSON.stringify({
+        id_token: {
+          name: { essential: true },
+          email: { essential: true },
+          swissEduIDLinkedAffiliation: { essential: true },
+          swissEduIDAssociatedMail: { essential: true },
+          swissEduIDLinkedAffiliationMail: { essential: true },
+          swissEduID: { essential: true },
+          eduPersonEntitlement: { essential: true },
+          eduPersonAffiliation: { essential: true },
+        },
+      }),
+    },
+  },
+  idToken: true,
+  checks: ['pkce', 'state'],
+  profile(OAuthProfile) {
+    return {
+      id: OAuthProfile.sub,
+      name: OAuthProfile.name,
+      email: OAuthProfile.email,
+      image: OAuthProfile.picture,
+      roles: [Role.STUDENT],
+      affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
+      organizations: OAuthProfile.swissEduIDLinkedAffiliationMail.map(
+        (affiliation) => affiliation.split('@')[1],
+      ),
+      selectedAffiliation: null,
+    };
+  },
+};
 
+const keycloakProvider = KeycloakProvider({
+  clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
+  clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
+  issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
+  authorization: {
+    params: {
+      redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/keycloak`,
+    },
+  },
+});
 
-export default NextAuth(authOptions)
+export const authOptions = {
+  adapter: MyAdapter,
+  providers: [switchEduId, keycloakProvider],
+  secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async session({ session, user }) {
+      if (user) {
+        session.user = user;
+        session.user.id = user.id;
+        session.user.roles = user.roles;
+
+        const userWithGroups = await prisma.user.findUnique({
+          where: { email: user.email },
+          include: {
+            groups: {
+              include: {
+                group: true,
+              },
+              orderBy: {
+                group: {
+                  label: 'asc',
+                },
+              },
+            },
+          },
+        });
+
+        if (userWithGroups) {
+          session.user.groups = userWithGroups.groups.map((g) => g.group.scope);
+          session.user.selected_group = userWithGroups.groups.find(
+            (g) => g.selected,
+          )?.group.scope;
+        }
+      }
+      return session;
+    },
+
+    async signIn({ user, account }) {
+      await handleSingleSessionPerUser(user);
+
+      if (account.provider === 'keycloak' || account.provider === 'switch') {
+        if (!user.email) {
+          return false;
+        }
+
+        await linkOrCreateUserForAccount(user, account);
+        return true;
+      }
+
+      return false;
+    },
+  },
+};
+
+export default NextAuth(authOptions);
