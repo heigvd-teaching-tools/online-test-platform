@@ -55,6 +55,10 @@ model User {
   sessions      Session[]
   roles         Role[]
 
+  affiliations  String[]
+  organizations   String[]
+  selectedOrganization String?
+
   userOnEvaluation UserOnEvaluation[]
   userDeniedAccess UserOnEvaluationDeniedAccessAttempt[]
   studentAnswer    StudentAnswer[]
@@ -100,6 +104,8 @@ model Group {
   createdById String?
 
   members UserOnGroup[]
+
+  organization String?
 
   questions   Question[]
   collections Collection[]
