@@ -16,33 +16,6 @@
 import { getRoles, getUser } from '../code/auth'
 import { getPrisma } from './withPrisma'
 
-/*
-    Function to check if a users is member of the group
-    for group scoped endpoints
-*/
-
-export function withGroupScopeOldToRemove(handler) {
-  return async (req, res) => {
-    const { groupScope } = req.query
-
-    if (!groupScope) {
-      return res.status(400).json({ message: 'Group scope is required' })
-    }
-
-    const user = await getUser(req, res)
-
-    const isMember = user?.groups?.some((g) => g === groupScope)
-
-    if (!isMember) {
-      return res
-        .status(401)
-        .json({ message: 'You are not authorized to access this group' })
-    }
-
-    return handler(req, res)
-  }
-}
-
 /**
 Group owned entities are entities that are owned by a group. 
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import NextAuth from 'next-auth'
 import KeycloakProvider from 'next-auth/providers/keycloak'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
@@ -40,7 +41,9 @@ const MyAdapter = {
       }
       throw error // Rethrow any other error
     }
-  },
+  } else {
+    console.log('No affiliations found for this user.');
+  }
 }
 
 const switchEduId = {
@@ -103,6 +106,7 @@ export const authOptions = {
   callbacks: {
     async session({ session, user }) {
       if (user) {
+
         session.user = user
         session.user.id = user.id
         session.user.roles = user.roles
@@ -121,6 +125,7 @@ export const authOptions = {
               },
             },
           },
+
         })
 
         if (userWithGroups) {
@@ -223,4 +228,4 @@ async function linkOrCreateUserForAccount(user, account) {
   }
 }
 
-export default NextAuth(authOptions)
+export default NextAuth(authOptions);

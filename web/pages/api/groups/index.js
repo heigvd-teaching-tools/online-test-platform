@@ -20,12 +20,12 @@ import {
   withMethodHandler,
 } from '@/middleware/withAuthorization'
 import { withPrisma } from '@/middleware/withPrisma'
+
 /**
  * Managing groups
  *
  * post: create a new group
- *
- */
+ **/
 
 const post = async (req, res, prisma) => {
   // create a new group
@@ -33,11 +33,22 @@ const post = async (req, res, prisma) => {
 
   const user = await getUser(req, res)
 
+  if (!user) {
+    res.status(401).json({ message: 'Unauthorized' })
+    return
+  }
+
+  if (!user.selectedOrganization) {
+    res.status(400).json({ message: 'No organization selected' })
+    return
+  }
+
   try {
     const group = await prisma.group.create({
       data: {
         label: label,
         scope: scope,
+        organization: user.selectedOrganization,
         createdBy: {
           connect: {
             id: user.id,
