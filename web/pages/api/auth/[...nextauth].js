@@ -308,7 +308,7 @@ export const authOptions = {
         if (account.provider === 'switch') {
           await switchMigrateAffiliatedUsers(oauthUser, dbUser)
         }
-        
+
         return true
       }
 
@@ -316,7 +316,6 @@ export const authOptions = {
     },
   },
 }
-
 
 const switchMigrateAffiliatedUsers = async (oauthUser, dbUser) => {
   console.log('switchMigrateAffiliatedUsers', oauthUser)
