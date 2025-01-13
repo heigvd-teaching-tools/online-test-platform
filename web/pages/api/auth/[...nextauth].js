@@ -68,6 +68,7 @@ const switchEduId = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
+    console.log("OAuthProfile", OAuthProfile)
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
