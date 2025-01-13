@@ -57,7 +57,12 @@ const switchEduId = {
         id_token: {
           name: { essential: true },
           email: { essential: true },
+          swissEduIDLinkedAffiliation: { essential: true },
+          swissEduIDAssociatedMail: { essential: true },
           swissEduIDLinkedAffiliationMail: { essential: true },
+          swissEduID: { essential: true },
+          eduPersonEntitlement: { essential: true },
+          eduPersonAffiliation: { essential: true },
         },
       }),
     },
@@ -65,22 +70,18 @@ const switchEduId = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
-    const affiliations = OAuthProfile.swissEduIDLinkedAffiliationMail || []
-    const validAffiliation = affiliations.some((affiliation) =>
-      affiliation.endsWith('@heig-vd.ch'),
-    )
-
-    if (!validAffiliation) {
-      throw new Error('User does not belong to the @heig-vd.ch organization.')
-    }
-
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
       email: OAuthProfile.email,
       image: OAuthProfile.picture,
       roles: [Role.STUDENT],
-    }
+      affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
+      organizations: OAuthProfile.swissEduIDLinkedAffiliationMail.map(
+        (affiliation) => affiliation.split('@')[1],
+      ),
+      selectedAffiliation: null,
+    };
   },
 }
 
@@ -164,7 +165,6 @@ async function handleSingleSessionPerUser(user) {
     })
   }
 }
-
 async function linkOrCreateUserForAccount(user, account) {
   const accountData = {
     type: account.type,
@@ -179,47 +179,98 @@ async function linkOrCreateUserForAccount(user, account) {
     scope: account.scope,
     id_token: account.id_token,
     session_state: account.session_state,
-  }
+  };
 
   const linkedAccount = await prisma.account.findFirst({
     where: {
       providerAccountId: account.providerAccountId,
       provider: account.provider,
     },
-  })
+  });
 
   if (!linkedAccount) {
     const existingUser = await prisma.user.findUnique({
       where: { email: user.email },
-    })
+    });
 
     if (!existingUser) {
+      // Handle first-time SWITCH edu-ID user connection
       const newUser = await prisma.user.create({
         data: {
           email: user.email,
           name: user.name,
         },
-      })
+      });
 
       await prisma.account.create({
         data: {
           userId: newUser.id,
           ...accountData,
         },
-      })
+      });
 
-      return newUser
+      // Find related Keycloak user using swissEduIDLinkedAffiliationMail
+      if (account.provider === 'switch' && account.affiliations) {
+        await copyKeycloakGroupMemberships(
+          newUser.id,
+          account.affiliations
+        );
+      }
+
+      return newUser;
     } else {
       await prisma.account.create({
         data: {
           userId: existingUser.id,
           ...accountData,
         },
-      })
+      });
 
-      return existingUser
+      return existingUser;
     }
   }
 }
+
+async function copyKeycloakGroupMemberships(newUserId, affiliations) {
+  // Find existing Keycloak users by matching emails
+  console.log("affiliations", affiliations)
+  const relatedKeycloakUsers = await prisma.user.findMany({
+    where: {
+      email: {
+        in: affiliations,
+      },
+    },
+    include: {
+      groups: {
+        include: {
+          group: true,
+        },
+      },
+    },
+  });
+
+  // Copy groups from related users to the new user
+  for (const relatedUser of relatedUsers) {
+    for (const userGroup of relatedUser.groups) {
+      await prisma.userOnGroup.upsert({
+        where: {
+          userId_groupId: {
+            userId: newUserId,
+            groupId: userGroup.groupId,
+          },
+        },
+        create: {
+          userId: newUserId,
+          groupId: userGroup.groupId,
+          selected: false, // Adjust as needed
+        },
+        update: {}, // No changes needed if it already exists
+      });
+    }
+  }
+
+}
+
+
 
 export default NextAuth(authOptions)
