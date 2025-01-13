@@ -82,6 +82,8 @@ const get = async (req, res, prisma) => {
       email: true,
       image: true,
       roles: true,
+      affiliations: true,
+      organizations: true,
     },
     orderBy: {
       name: 'asc',

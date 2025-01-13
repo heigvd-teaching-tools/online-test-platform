@@ -17,9 +17,12 @@ import { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import LoadingAnimation from '../feedback/Loading'
 import LoginScreen from './LoginScreen'
+import OrganizationSelector from './OrganizationSelector'
+import { Stack } from '@mui/system'
+import { Typography } from '@mui/material'
 
 const Authentication = ({ children }) => {
-  const { status } = useSession()
+  const { data: session, status, update } = useSession()
 
   useEffect(() => {
     let eventSource
@@ -53,13 +56,36 @@ const Authentication = ({ children }) => {
     }
   }, [status])
 
-  return (
-    <>
-      {status === 'loading' && <LoadingAnimation />}
-      {status === 'unauthenticated' && <LoginScreen />}
-      {status === 'authenticated' && children}
-    </>
-  )
+  if (status === 'loading') return <LoadingAnimation />
+  if (status === 'unauthenticated') return <LoginScreen />
+
+  if (status === 'authenticated') {
+    if (!session.user.selectedOrganization) {
+      return (
+        <Stack
+          width="100vw"
+          height="100vh"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+        >
+          <Typography variant="h6" gutterBottom>
+            Please select your organization
+          </Typography>
+          <OrganizationSelector
+            organizations={session.user.organizations}
+            onChanged={async () => {
+              await update()
+            }}
+          />
+        </Stack>
+      )
+    }
+
+    return children
+  }
+
+  return null // Fallback if status is something unexpected
 }
 
 export default Authentication
