@@ -71,6 +71,7 @@ const switchEduId = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
+    console.log("OAuthProfile", OAuthProfile)
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
@@ -203,7 +204,7 @@ export const authOptions = {
 
     async signIn({ user: oauthUser, account, profile }) {
       await handleSingleSessionPerUser(oauthUser) // Use oauthUser instead of user
-
+      console.log("oauthUser", oauthUser)
       if (account.provider === 'keycloak' || account.provider === 'switch') {
         if (!oauthUser.email) {
           return false

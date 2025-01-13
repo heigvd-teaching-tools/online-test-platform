@@ -53,7 +53,7 @@ const OrganizationSelector = ({ organizations, onChanged }) => {
         options={organizations.map((organization) => ({
           value: organization,
           label: organization,
-        }))}
+        })) || []}
         onSelect={async (value) => await handleSelection(value)}
       />
       <Button variant="text" onClick={handleSubmit}>
