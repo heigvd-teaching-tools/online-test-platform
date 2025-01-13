@@ -254,10 +254,20 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
     },
   })
 
-  console.log("relatedKeycloakUsers", relatedKeycloakUsers)
+  console.log("relatedKeycloakUsers", relatedKeycloakUsers);
+  const uniqueRoles = new Set(); // Collect unique roles
 
   // Copy groups from related users to the new user
   for (const relatedUser of relatedKeycloakUsers) {
+    console.log("relatedUser", relatedUser);
+
+    // Add roles to the uniqueRoles set
+    if (relatedUser.roles && relatedUser.roles.length > 0) {
+      for (const role of relatedUser.roles) {
+        uniqueRoles.add(role.id);
+      }
+    }
+
     for (const userGroup of relatedUser.groups) {
       await prisma.userOnGroup.upsert({
         where: {
@@ -272,9 +282,22 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
           selected: false, // Adjust as needed
         },
         update: {}, // No changes needed if it already exists
-      })
+      });
     }
   }
+
+  // Assign unique roles to the new user
+  for (const roleId of uniqueRoles) {
+    await prisma.userOnRole.create({
+      data: {
+        userId: newUserId,
+        roleId: roleId,
+      },
+    });
+  }
+
+  console.log(`Assigned roles to user (${newUserId}):`, Array.from(uniqueRoles));
+
 }
 
 export default NextAuth(authOptions)
