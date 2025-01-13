@@ -17,7 +17,6 @@ import NextAuth from 'next-auth'
 import KeycloakProvider from 'next-auth/providers/keycloak'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Role } from '@prisma/client'
-
 import { getPrisma } from '@/middleware/withPrisma'
 
 const prisma = getPrisma()
@@ -309,7 +308,7 @@ export const authOptions = {
         if (account.provider === 'switch') {
           await switchMigrateAffiliatedUsers(oauthUser, dbUser)
         }
-
+        
         return true
       }
 
@@ -317,6 +316,7 @@ export const authOptions = {
     },
   },
 }
+
 
 const switchMigrateAffiliatedUsers = async (oauthUser, dbUser) => {
   console.log('switchMigrateAffiliatedUsers', oauthUser)
