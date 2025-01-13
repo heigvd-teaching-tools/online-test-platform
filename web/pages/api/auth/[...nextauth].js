@@ -253,6 +253,7 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
     },
   });
 
+
   const uniqueRoles = new Set(); // Collect unique roles
 
   // Copy groups and roles from related users to the new user
