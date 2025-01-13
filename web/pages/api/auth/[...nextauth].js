@@ -95,6 +95,7 @@ const keycloakProvider = KeycloakProvider({
   },
 })
 
+
 export const authOptions = {
   adapter: MyAdapter,
   providers: [switchEduId, keycloakProvider],
