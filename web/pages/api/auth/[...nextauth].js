@@ -57,7 +57,12 @@ const switchEduId = {
         id_token: {
           name: { essential: true },
           email: { essential: true },
+          swissEduIDLinkedAffiliation: { essential: true },
+          swissEduIDAssociatedMail: { essential: true },
           swissEduIDLinkedAffiliationMail: { essential: true },
+          swissEduID: { essential: true },
+          eduPersonEntitlement: { essential: true },
+          eduPersonAffiliation: { essential: true },
         },
       }),
     },
@@ -80,6 +85,11 @@ const switchEduId = {
       email: OAuthProfile.email,
       image: OAuthProfile.picture,
       roles: [Role.STUDENT],
+      affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
+      organizations: OAuthProfile.swissEduIDLinkedAffiliationMail.map(
+        (affiliation) => affiliation.split('@')[1],
+      ),
+      selectedAffiliation: null,
     }
   },
 }
@@ -208,6 +218,11 @@ async function linkOrCreateUserForAccount(user, account) {
         },
       })
 
+      // Copy group memberships from related Keycloak users
+      if (account.provider === 'switch' && account.affiliations) {
+        await copyKeycloakGroupMemberships(newUser.id, account.affiliations)
+      }
+
       return newUser
     } else {
       await prisma.account.create({
@@ -218,6 +233,44 @@ async function linkOrCreateUserForAccount(user, account) {
       })
 
       return existingUser
+    }
+  }
+}
+
+async function copyKeycloakGroupMemberships(newUserId, affiliations) {
+  // Find existing Keycloak users by matching emails
+  const relatedKeycloakUsers = await prisma.user.findMany({
+    where: {
+      email: {
+        in: affiliations,
+      },
+    },
+    include: {
+      groups: {
+        include: {
+          group: true,
+        },
+      },
+    },
+  })
+
+  // Copy groups from related users to the new user
+  for (const relatedUser of relatedKeycloakUsers) {
+    for (const userGroup of relatedUser.groups) {
+      await prisma.userOnGroup.upsert({
+        where: {
+          userId_groupId: {
+            userId: newUserId,
+            groupId: userGroup.groupId,
+          },
+        },
+        create: {
+          userId: newUserId,
+          groupId: userGroup.groupId,
+          selected: false, // Adjust as needed
+        },
+        update: {}, // No changes needed if it already exists
+      })
     }
   }
 }
