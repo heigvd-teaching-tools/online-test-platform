@@ -208,6 +208,7 @@ async function linkOrCreateUserForAccount(user, account) {
         data: {
           email: user.email,
           name: user.name,
+          roles: [Role.STUDENT],
         },
       })
 
@@ -217,7 +218,12 @@ async function linkOrCreateUserForAccount(user, account) {
           ...accountData,
         },
       })
-      console.log("copyKeycloakGroupMemberships condition", account.provider, user.affiliations)
+      console.log(
+        'copyKeycloakGroupMemberships condition',
+        account.provider,
+        user.affiliations,
+      )
+
       // Copy group memberships from related Keycloak users
       if (account.provider === 'switch' && user.affiliations) {
         await copyKeycloakGroupMemberships(newUser.id, user.affiliations)
@@ -261,7 +267,7 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
     // Add roles to the uniqueRoles set
     if (relatedUser.roles && relatedUser.roles.length > 0) {
       for (const role of relatedUser.roles) {
-        uniqueRoles.add(role); // Use the enum value directly
+        uniqueRoles.add(role) // Use the enum value directly
       }
     }
 
@@ -294,9 +300,10 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
         set: Array.from(uniqueRoles), // Update the roles array
       },
     },
-  });
+  })
 
-  console.log(`Assigned roles to user (${newUserId}):`, Array.from(uniqueRoles));
+  console.log(`Assigned roles to user (${newUserId}):`, Array.from(uniqueRoles))
+
 }
 
 export default NextAuth(authOptions)
