@@ -16,7 +16,6 @@
 import { getRoles, getUser } from '../code/auth'
 import { getPrisma } from './withPrisma'
 
-
 /**
 Group owned entities are entities that are owned by a group. 
 
@@ -56,8 +55,6 @@ export function withGroupScope(handler) {
     }
 
     const user = await getUser(req, res)
-
-    console.log("withGroupScope", user)
 
     const isMember = user?.groups?.some((g) => g === groupScope)
 
