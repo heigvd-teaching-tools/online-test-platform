@@ -176,6 +176,7 @@ async function handleSingleSessionPerUser(user) {
 }
 
 async function linkOrCreateUserForAccount(user, account) {
+  console.log('linkOrCreateUserForAccount', user, account)
   const accountData = {
     type: account.type,
     provider: account.provider,
