@@ -257,9 +257,9 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
         },
       },
     },
-  });
+  })
 
-  const uniqueRoles = new Set(); // Collect unique roles
+  const uniqueRoles = new Set() // Collect unique roles
 
   // Copy groups and roles from related users to the new user
   for (const relatedUser of relatedKeycloakUsers) {
@@ -285,7 +285,7 @@ async function copyKeycloakGroupMemberships(newUserId, affiliations) {
           selected: false, // Adjust as needed
         },
         update: {}, // No changes needed if it already exists
-      });
+      })
     }
   }
 
