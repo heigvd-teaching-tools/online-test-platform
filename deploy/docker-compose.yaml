@@ -21,7 +21,7 @@ services:
     image: postgres:15.0
     restart: unless-stopped
     env_file:
-      - ./db/.env.db
+      - ./db/.env.db.prod
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:

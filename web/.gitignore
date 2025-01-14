@@ -26,6 +26,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
+.env
 .env*.local
 .env*.production
 
@@ -41,4 +42,5 @@ sandbox/runs
 
 .idea
 .vscode
+
 
