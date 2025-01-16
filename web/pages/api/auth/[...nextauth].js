@@ -70,19 +70,28 @@ const switchEduId = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
-    const affiliations = OAuthProfile.swissEduIDLinkedAffiliationMail || []
-    const validAffiliation = affiliations.some((affiliation) =>
-      affiliation.endsWith('@heig-vd.ch'),
-    )
+    /*
+    Called on each successful login with an OAuth provider
+    */
 
-    if (!validAffiliation) {
-      throw new Error('User does not belong to the @heig-vd.ch organization.')
+    const organizationDomain = process.env.NEXTAUTH_SWITCH_ORGANIZATION_DOMAIN
+
+    if(!organizationDomain) {
+      throw new Error('Organization domain is not set.')
+    }
+
+    const affiliations = OAuthProfile.swissEduIDLinkedAffiliationMail || []
+
+    const email = affiliations.find((affiliation) => affiliation.endsWith(organizationDomain))
+
+    if (!email) {
+      throw new Error(`User does not have an appropriate affiliation for ${organizationDomain}`)
     }
 
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
-      email: OAuthProfile.email,
+      email: email,
       image: OAuthProfile.picture,
       roles: [Role.STUDENT],
       affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
@@ -176,7 +185,6 @@ async function handleSingleSessionPerUser(user) {
 }
 
 async function linkOrCreateUserForAccount(user, account) {
-  console.log('linkOrCreateUserForAccount', user, account)
   const accountData = {
     type: account.type,
     provider: account.provider,
