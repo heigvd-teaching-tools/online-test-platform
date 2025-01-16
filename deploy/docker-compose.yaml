@@ -6,8 +6,6 @@ services:
       context: ../web
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - assets:/app/assets
@@ -18,14 +16,12 @@ services:
       - db
     networks:
       - app-network
-      
+
   db:
     image: postgres:15.0
     restart: unless-stopped
     env_file:
-      - ./db/.env.db
-    ports:
-      - "5432:5432"
+      - ./db/.env.db.prod
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -35,7 +31,6 @@ services:
     image: nginx
     restart: unless-stopped
     ports:
-      - "80:80"
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
@@ -45,7 +40,6 @@ services:
     networks:
       - app-network
 
-
 volumes:
   pgdata:
   assets:
@@ -53,3 +47,4 @@ volumes:
 networks:
   app-network:
     driver: bridge
+

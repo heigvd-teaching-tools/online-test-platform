@@ -2,9 +2,8 @@ name: eval-dev-infra
 services:
   dev-db:
     image: postgres
-    environment:
-      POSTGRES_USER: eval
-      POSTGRES_PASSWORD: eval
+    env_file:
+      - ./.env.db.dev
     ports:
       - "5432:5432"
     volumes:
