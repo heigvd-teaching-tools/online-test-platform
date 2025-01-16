@@ -76,16 +76,20 @@ const switchEduId = {
 
     const organizationDomain = process.env.NEXTAUTH_SWITCH_ORGANIZATION_DOMAIN
 
-    if(!organizationDomain) {
+    if (!organizationDomain) {
       throw new Error('Organization domain is not set.')
     }
 
     const affiliations = OAuthProfile.swissEduIDLinkedAffiliationMail || []
 
-    const email = affiliations.find((affiliation) => affiliation.endsWith(organizationDomain))
+    const email = affiliations.find((affiliation) =>
+      affiliation.endsWith(organizationDomain),
+    )
 
     if (!email) {
-      throw new Error(`User does not have an appropriate affiliation for ${organizationDomain}`)
+      throw new Error(
+        `User does not have an appropriate affiliation for ${organizationDomain}`,
+      )
     }
 
     return {
