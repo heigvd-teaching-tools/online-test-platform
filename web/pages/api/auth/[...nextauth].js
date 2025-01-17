@@ -43,6 +43,59 @@ const MyAdapter = {
   },
 }
 
+const switchLegacyProvider = {
+  id: 'switch_legacy',
+  name: 'SWITCH edu-ID (legacy)',
+  type: 'oauth',
+  wellKnown: 'https://login.eduid.ch/.well-known/openid-configuration',
+  clientId: process.env.NEXTAUTH_SWITCH_CLIENT_ID,
+  clientSecret: process.env.NEXTAUTH_SWITCH_CLIENT_SECRET,
+  authorization: {
+    params: {
+      scope: 'openid profile email https://login.eduid.ch/authz/User.Read',
+      claims: JSON.stringify({
+        id_token: {
+          name: { essential: true },
+          email: { essential: true },
+          swissEduIDLinkedAffiliation: { essential: true },
+          swissEduIDAssociatedMail: { essential: true },
+          swissEduIDLinkedAffiliationMail: { essential: true },
+          swissEduID: { essential: true },
+          eduPersonEntitlement: { essential: true },
+          eduPersonAffiliation: { essential: true },
+        },
+      }),
+    },
+  },
+
+  idToken: true,
+  checks: ['pkce', 'state'],
+  profile(OAuthProfile) {
+    /*
+    Called on each successful login with an OAuth provider
+    */
+
+    const organizationDomain = process.env.NEXTAUTH_SWITCH_ORGANIZATION_DOMAIN
+
+    if (!organizationDomain) {
+      return null
+    }
+
+    return {
+      id: OAuthProfile.sub,
+      name: OAuthProfile.name,
+      email: OAuthProfile.email,
+      image: OAuthProfile.picture,
+      roles: [Role.STUDENT],
+      affiliations: OAuthProfile.swissEduIDLinkedAffiliationMail,
+      organizations: OAuthProfile.swissEduIDLinkedAffiliationMail.map(
+        (affiliation) => affiliation.split('@')[1],
+      ),
+      selectedAffiliation: null,
+    }
+  },
+}
+
 const switchEduId = {
   id: 'switch',
   name: 'SWITCH edu-ID',
@@ -69,6 +122,10 @@ const switchEduId = {
   },
   idToken: true,
   checks: ['pkce', 'state'],
+  style: {
+    bg: '#fff', // Light gray background
+    text: '#000', // Black text color
+  },
   profile(OAuthProfile) {
     /*
     Called on each successful login with an OAuth provider
@@ -120,7 +177,7 @@ const keycloakProvider = KeycloakProvider({
 
 export const authOptions = {
   adapter: MyAdapter,
-  providers: [switchEduId, keycloakProvider],
+  providers: [switchLegacyProvider, switchEduId, keycloakProvider],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, user }) {
@@ -158,7 +215,11 @@ export const authOptions = {
     async signIn({ user, account }) {
       await handleSingleSessionPerUser(user)
 
-      if (account.provider === 'keycloak' || account.provider === 'switch') {
+      if (
+        account.provider === 'keycloak' ||
+        account.provider === 'switch' ||
+        account.provider === 'switch_legacy'
+      ) {
         if (!user.email) {
           return false
         }
@@ -231,15 +292,6 @@ async function linkOrCreateUserForAccount(user, account) {
           ...accountData,
         },
       })
-      console.log(
-        'copyKeycloakGroupMemberships condition',
-        account.provider,
-        user.affiliations,
-      )
-      // Copy group memberships from related Keycloak users
-      if (account.provider === 'switch' && user.affiliations) {
-        await copyKeycloakGroupMemberships(newUser.id, user.affiliations)
-      }
 
       return newUser
     } else {
@@ -253,67 +305,6 @@ async function linkOrCreateUserForAccount(user, account) {
       return existingUser
     }
   }
-}
-
-async function copyKeycloakGroupMemberships(newUserId, affiliations) {
-  const relatedKeycloakUsers = await prisma.user.findMany({
-    where: {
-      email: {
-        in: affiliations,
-      },
-    },
-    include: {
-      groups: {
-        include: {
-          group: true,
-        },
-      },
-    },
-  })
-
-  const uniqueRoles = new Set() // Collect unique roles
-
-  // Copy groups and roles from related users to the new user
-  for (const relatedUser of relatedKeycloakUsers) {
-    // Add roles to the uniqueRoles set
-    if (relatedUser.roles && relatedUser.roles.length > 0) {
-      for (const role of relatedUser.roles) {
-        uniqueRoles.add(role) // Use the enum value directly
-      }
-    }
-
-    // Copy groups
-    for (const userGroup of relatedUser.groups) {
-      await prisma.userOnGroup.upsert({
-        where: {
-          userId_groupId: {
-            userId: newUserId,
-            groupId: userGroup.groupId,
-          },
-        },
-        create: {
-          userId: newUserId,
-          groupId: userGroup.groupId,
-          selected: false, // Adjust as needed
-        },
-        update: {}, // No changes needed if it already exists
-      })
-    }
-  }
-
-  // Assign unique roles to the new user by updating the roles array
-  await prisma.user.update({
-    where: {
-      id: newUserId,
-    },
-    data: {
-      roles: {
-        set: Array.from(uniqueRoles), // Update the roles array
-      },
-    },
-  })
-
-  console.log(`Assigned roles to user (${newUserId}):`, Array.from(uniqueRoles))
 }
 
 export default NextAuth(authOptions)
