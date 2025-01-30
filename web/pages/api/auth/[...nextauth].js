@@ -168,7 +168,6 @@ const switchEduId = {
   },
 }
 
-
 export const authOptions = {
   adapter: MyAdapter,
   providers: [switchEduId],
