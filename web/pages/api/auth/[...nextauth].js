@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import NextAuth from 'next-auth'
-import KeycloakProvider from 'next-auth/providers/keycloak'
+// import KeycloakProvider from 'next-auth/providers/keycloak'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Role } from '@prisma/client'
 import { getPrisma } from '@/middleware/withPrisma'
@@ -42,6 +42,19 @@ const MyAdapter = {
     }
   },
 }
+
+/* LEGACY
+const keycloakProvider = KeycloakProvider({
+  clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
+  clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
+  issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
+  authorization: {
+    params: {
+      redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/keycloak`,
+    },
+  },
+})
+
 
 const switchLegacyProvider = {
   id: 'switch_legacy',
@@ -71,16 +84,7 @@ const switchLegacyProvider = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
-    /*
-    Called on each successful login with an OAuth provider
-    */
-
-    const organizationDomain = process.env.NEXTAUTH_SWITCH_ORGANIZATION_DOMAIN
-
-    if (!organizationDomain) {
-      return null
-    }
-
+    
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
@@ -95,6 +99,8 @@ const switchLegacyProvider = {
     }
   },
 }
+
+*/
 
 const switchEduId = {
   id: 'switch',
@@ -127,25 +133,24 @@ const switchEduId = {
     text: '#000', // Black text color
   },
   profile(OAuthProfile) {
-    /*
-    Called on each successful login with an OAuth provider
-    */
+    const allowedDomains =
+      process.env.NEXTAUTH_SWITCH_ORGANIZATION_DOMAINS?.split(',').map(
+        (domain) => domain.trim(),
+      )
 
-    const organizationDomain = process.env.NEXTAUTH_SWITCH_ORGANIZATION_DOMAIN
-
-    if (!organizationDomain) {
-      throw new Error('Organization domain is not set.')
+    if (!allowedDomains || allowedDomains.length === 0) {
+      throw new Error('Allowed organization domains are not set.')
     }
 
     const affiliations = OAuthProfile.swissEduIDLinkedAffiliationMail || []
 
     const email = affiliations.find((affiliation) =>
-      affiliation.endsWith(organizationDomain),
+      allowedDomains.some((domain) => affiliation.endsWith(domain)),
     )
 
     if (!email) {
       throw new Error(
-        `User does not have an appropriate affiliation for ${organizationDomain}`,
+        `User does not have an appropriate affiliation for the allowed domains: ${allowedDomains.join(', ')}`,
       )
     }
 
@@ -164,20 +169,9 @@ const switchEduId = {
   },
 }
 
-const keycloakProvider = KeycloakProvider({
-  clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
-  clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
-  issuer: process.env.NEXTAUTH_KEYCLOAK_ISSUER_BASE_URL,
-  authorization: {
-    params: {
-      redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/keycloak`,
-    },
-  },
-})
-
 export const authOptions = {
   adapter: MyAdapter,
-  providers: [switchLegacyProvider, switchEduId, keycloakProvider],
+  providers: [switchEduId],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, user }) {
