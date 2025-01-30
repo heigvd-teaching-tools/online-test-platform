@@ -42,6 +42,7 @@ const MyAdapter = {
     }
   },
 }
+
 /* LEGACY
 const keycloakProvider = KeycloakProvider({
   clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
