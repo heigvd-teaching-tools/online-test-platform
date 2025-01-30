@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import NextAuth from 'next-auth'
-import KeycloakProvider from 'next-auth/providers/keycloak'
+// import KeycloakProvider from 'next-auth/providers/keycloak'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { Role } from '@prisma/client'
 import { getPrisma } from '@/middleware/withPrisma'
@@ -42,7 +42,7 @@ const MyAdapter = {
     }
   },
 }
-
+/* LEGACY
 const keycloakProvider = KeycloakProvider({
   clientId: process.env.NEXTAUTH_KEYCLOAK_CLIENT_ID,
   clientSecret: process.env.NEXTAUTH_KEYCLOAK_CLIENT_SECRET,
@@ -83,10 +83,7 @@ const switchLegacyProvider = {
   idToken: true,
   checks: ['pkce', 'state'],
   profile(OAuthProfile) {
-    /*
-    Called on each successful login with an OAuth provider
-    */
-
+    
     return {
       id: OAuthProfile.sub,
       name: OAuthProfile.name,
@@ -101,6 +98,8 @@ const switchLegacyProvider = {
     }
   },
 }
+
+*/
 
 const switchEduId = {
   id: 'switch',
