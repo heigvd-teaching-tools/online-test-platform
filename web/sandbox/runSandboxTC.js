@@ -21,7 +21,11 @@ import tar from 'tar'
 import { GenericContainer } from 'testcontainers'
 import {
   cleanUpDockerStreamHeaders,
+  asStartOutage,
+  isSandboxOutage,
   pullImageIfNotExists,
+  retryOnSandboxOutage,
+  SandboxOutageError,
   sanitizeUTF8,
 } from './utils'
 
@@ -33,6 +37,11 @@ const BEFOREALL_TIMEOUT = 15000
 const EXECUTION_TIMEOUT = 5000
 const MAX_OUTPUT_SIZE_PER_EXEC_KB = 32
 
+/*
+Either returns a complete run — one result per test — or throws. It never reports an
+empty run as if it were a result: an execution that did not happen is not a failed
+execution, and callers grade on what comes back.
+*/
 export const runSandbox = async ({
   image = 'node:latest',
   files = [],
@@ -42,41 +51,14 @@ export const runSandbox = async ({
   const directory = await prepareContent(files)
 
   let container, beforeAllOutput, beforeAllTime
-
   try {
-    ;({ container, beforeAllOutput, beforeAllTime } = await startContainer(
-      image,
-      directory,
-      beforeAll,
-    ))
-  } catch (initialError) {
-    if (initialError.message.includes('No such image')) {
-      const { status, message } = await pullImageIfNotExists(image)
-      if (!status) {
-        return {
-          beforeAll: message,
-          tests: [],
-        }
-      }
-    } else {
-      return {
-        beforeAll: initialError.message,
-        tests: [],
-      }
-    }
-
-    try {
-      ;({ container, beforeAllOutput, beforeAllTime } = await startContainer(
-        image,
-        directory,
-        beforeAll,
+    ;({ container, beforeAllOutput, beforeAllTime } =
+      await retryOnSandboxOutage(() =>
+        startSandbox(image, directory, beforeAll),
       ))
-    } catch (secondError) {
-      return {
-        beforeAll: secondError.message,
-        tests: [],
-      }
-    }
+  } finally {
+    // kept until every attempt is over, since a retry copies these files again
+    fs.rmSync(directory, { recursive: true, force: true })
   }
 
   try {
@@ -86,14 +68,36 @@ export const runSandbox = async ({
       beforeAllTimeMS: beforeAllTime,
       tests: testsResults,
     }
-  } catch (error) {
-    return {
-      beforeAll: beforeAllOutput,
-      beforeAllTimeMS: beforeAllTime,
-      tests: [],
-    }
   } finally {
-    await container.stop()
+    // the container is unreachable when the sandbox is down, and saying so here would
+    // hide why the run failed in the first place
+    await container
+      .stop()
+      .catch((error) => console.error('Sandbox stop', error))
+  }
+}
+
+/*
+Starts the container, pulling the image on first use. Any other reason for not being able
+to start it is an outage: at this point nothing of the submitted code has run yet, so the
+failure is ours and never the student's.
+*/
+const startSandbox = async (image, directory, beforeAll) => {
+  try {
+    return await startContainer(image, directory, beforeAll)
+  } catch (initialError) {
+    if (!initialError.message.includes('No such image')) {
+      throw asStartOutage(initialError)
+    }
+
+    const { status, message } = await pullImageIfNotExists(image)
+    if (!status) throw new SandboxOutageError(new Error(message))
+
+    try {
+      return await startContainer(image, directory, beforeAll)
+    } catch (secondError) {
+      throw asStartOutage(secondError)
+    }
   }
 }
 
@@ -160,11 +164,11 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
       const endTime = new Date().getTime()
       beforeAllTime = endTime - startTime
     } catch (error) {
+      // a sandbox lost while preparing the run is not a beforeAll that failed
+      if (isSandboxOutage(error)) throw error
       beforeAllOutput = error.message
     }
   }
-
-  fs.rmSync(filesDirectory, { recursive: true, force: true })
 
   return { beforeAllOutput, beforeAllTime, container }
 }
@@ -221,6 +225,9 @@ const execTests = async (container, tests) => {
         timeout: false, // No timeout occurred
       })
     } catch (error) {
+      // losing the sandbox mid-run is not a test the student failed
+      if (isSandboxOutage(error)) throw new SandboxOutageError(error)
+
       // Handle timeout or other errors
       const endTime = new Date().getTime()
       const executionTime = endTime - startTime

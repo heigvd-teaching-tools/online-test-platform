@@ -46,13 +46,13 @@ const MAX_CAUSE_DEPTH = 5
 
 /*
 Raised when the sandbox cannot run at all. It must never be reported to the caller as
-if it were the outcome of running the submitted code: an unavailable sandbox produces
-no result, neither a success nor a failure.
+if it were the outcome of running the submitted code: an outage produces no result,
+neither a success nor a failure.
 */
-export class SandboxUnavailableError extends Error {
+export class SandboxOutageError extends Error {
   constructor(cause) {
-    super(`Sandbox unavailable: ${cause?.message || cause}`)
-    this.name = 'SandboxUnavailableError'
+    super(`Sandbox outage: ${cause?.message || cause}`)
+    this.name = 'SandboxOutageError'
     this.cause = cause
   }
 }
@@ -71,9 +71,9 @@ Some failures carry no signal at all — testcontainers reports an unreachable d
 bare "Could not find a working container runtime strategy". Those are recognised by the
 runners, from where in the run they happened, and not here.
 */
-export const isSandboxUnavailable = (error, depth = 0) => {
+export const isSandboxOutage = (error, depth = 0) => {
   if (!error || depth > MAX_CAUSE_DEPTH) return false
-  if (error instanceof SandboxUnavailableError) return true
+  if (error instanceof SandboxOutageError) return true
 
   // could not reach the docker daemon
   if (TRANSPORT_CODES.has(error.code)) return true
@@ -84,8 +84,52 @@ export const isSandboxUnavailable = (error, depth = 0) => {
 
   // the original failure may be wrapped, or aggregated with its siblings
   return [error.cause, ...(error.errors || [])].some((nested) =>
-    isSandboxUnavailable(nested, depth + 1),
+    isSandboxOutage(nested, depth + 1),
   )
+}
+
+/*
+A container that failed to start without the daemon explaining why: the daemon answered
+neither a status code nor a socket error. testcontainers reports an unreachable daemon
+that way, as a bare "Could not find a working container runtime strategy", and so does a
+container that never becomes ready. Only meaningful where we know a container was being
+started, which is why it is not folded into isSandboxOutage.
+*/
+const isUnexplainedFailure = (error) =>
+  !!error && error.statusCode === undefined && error.code === undefined
+
+/*
+Turns a container that failed to start into an outage. Used only where a container was
+being started: nothing of the submitted code has run at that point, so the failure is
+ours. Anything the daemon did explain and that is not an outage — a rejected request,
+a misconfigured image — is left alone.
+*/
+export const asStartOutage = (error) =>
+  isSandboxOutage(error) || isUnexplainedFailure(error)
+    ? new SandboxOutageError(error)
+    : error
+
+// short enough to stay unnoticed by a student waiting for their run
+const RETRY_DELAYS_MS = [250, 1000]
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/*
+Runs an operation again while the sandbox is unavailable, so that a daemon restarting or
+a connection dropping mid-request does not surface as a failed run. Only outages are
+retried: a failure of the code being executed is final, and returning it twice as slowly
+would help nobody.
+*/
+export const retryOnSandboxOutage = async (operation) => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      if (!(error instanceof SandboxOutageError)) throw error
+      if (attempt >= RETRY_DELAYS_MS.length) throw error
+      await delay(RETRY_DELAYS_MS[attempt])
+    }
+  }
 }
 
 export const imageExists = async (name) => {

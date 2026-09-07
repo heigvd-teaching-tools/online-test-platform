@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { SandboxUnavailableError, isSandboxUnavailable } from './utils'
+import { SandboxOutageError, isSandboxOutage } from './utils'
 
 // error shapes below are the ones dockerode actually produces, observed against a
 // closed port, an unresolvable host, a missing socket, a peer closing the connection
@@ -23,14 +23,14 @@ import { SandboxUnavailableError, isSandboxUnavailable } from './utils'
 const dockerError = (message, properties) =>
   Object.assign(new Error(message), properties)
 
-describe('isSandboxUnavailable', () => {
+describe('isSandboxOutage', () => {
   describe('the docker daemon could not be reached', () => {
     it('detects a daemon that refuses connections', () => {
       const error = dockerError('connect ECONNREFUSED 172.18.0.4:2375', {
         code: 'ECONNREFUSED',
         syscall: 'connect',
       })
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
 
     it('detects an unresolvable docker host', () => {
@@ -38,7 +38,7 @@ describe('isSandboxUnavailable', () => {
         code: 'EAI_AGAIN',
         syscall: 'getaddrinfo',
       })
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
 
     it('detects a missing docker socket', () => {
@@ -47,7 +47,7 @@ describe('isSandboxUnavailable', () => {
         code: 'ENOENT',
         syscall: 'connect',
       })
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
 
     it('detects a connection lost in the middle of a request', () => {
@@ -55,12 +55,12 @@ describe('isSandboxUnavailable', () => {
         code: 'ECONNRESET',
         syscall: 'read',
       })
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
 
     it('detects a daemon that stops answering, which reports no syscall', () => {
       const error = dockerError('socket hang up', { code: 'ECONNRESET' })
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
   })
 
@@ -72,14 +72,14 @@ describe('isSandboxUnavailable', () => {
         '(HTTP code 500) server error - error creating overlay mount to /var/lib/docker/overlay2/75bc5b1-init/merged: function not implemented ',
         { statusCode: 500 },
       )
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
 
     it('detects any other server side failure', () => {
       const error = dockerError('(HTTP code 503) server error', {
         statusCode: 503,
       })
-      expect(isSandboxUnavailable(error)).toBe(true)
+      expect(isSandboxOutage(error)).toBe(true)
     })
   })
 
@@ -89,7 +89,7 @@ describe('isSandboxUnavailable', () => {
         '(HTTP code 404) no such container - No such image: node:latest ',
         { statusCode: 404 },
       )
-      expect(isSandboxUnavailable(error)).toBe(false)
+      expect(isSandboxOutage(error)).toBe(false)
     })
 
     it('does not flag a request the daemon rejected as invalid', () => {
@@ -97,7 +97,7 @@ describe('isSandboxUnavailable', () => {
         '(HTTP code 400) bad parameter - Minimum memory limit allowed is 6MB ',
         { statusCode: 400 },
       )
-      expect(isSandboxUnavailable(error)).toBe(false)
+      expect(isSandboxOutage(error)).toBe(false)
     })
 
     it('does not flag a missing file, which is a bug on our side', () => {
@@ -109,42 +109,40 @@ describe('isSandboxUnavailable', () => {
           syscall: 'open',
         },
       )
-      expect(isSandboxUnavailable(error)).toBe(false)
+      expect(isSandboxOutage(error)).toBe(false)
     })
 
     it('does not flag a compilation failure', () => {
       expect(
-        isSandboxUnavailable(
-          new Error('main.c:3:5: error: expected declaration'),
-        ),
+        isSandboxOutage(new Error('main.c:3:5: error: expected declaration')),
       ).toBe(false)
     })
 
     it('does not flag an execution timeout', () => {
-      expect(
-        isSandboxUnavailable(new Error('Execution Timeout (t > 5000ms)')),
-      ).toBe(false)
+      expect(isSandboxOutage(new Error('Execution Timeout (t > 5000ms)'))).toBe(
+        false,
+      )
     })
 
     it('does not flag a missing error', () => {
-      expect(isSandboxUnavailable(undefined)).toBe(false)
-      expect(isSandboxUnavailable(null)).toBe(false)
+      expect(isSandboxOutage(undefined)).toBe(false)
+      expect(isSandboxOutage(null)).toBe(false)
     })
   })
 
   it('recognises an outage it already raised itself', () => {
-    const error = new SandboxUnavailableError(new Error('socket hang up'))
-    expect(isSandboxUnavailable(error)).toBe(true)
+    const error = new SandboxOutageError(new Error('socket hang up'))
+    expect(isSandboxOutage(error)).toBe(true)
   })
 })
 
-describe('isSandboxUnavailable, on failures that hide the original error', () => {
+describe('isSandboxOutage, on failures that hide the original error', () => {
   it('detects an aggregated connection failure, which carries no syscall', () => {
     // what node reports when a dual stack host fails to connect on every address
     const error = Object.assign(new AggregateError([], ''), {
       code: 'ECONNREFUSED',
     })
-    expect(isSandboxUnavailable(error)).toBe(true)
+    expect(isSandboxOutage(error)).toBe(true)
   })
 
   it('looks into the errors an aggregate is made of', () => {
@@ -152,7 +150,7 @@ describe('isSandboxUnavailable, on failures that hide the original error', () =>
       code: 'ECONNREFUSED',
       syscall: 'connect',
     })
-    expect(isSandboxUnavailable(new AggregateError([refused], ''))).toBe(true)
+    expect(isSandboxOutage(new AggregateError([refused], ''))).toBe(true)
   })
 
   it('looks into the cause of a wrapped failure', () => {
@@ -164,23 +162,23 @@ describe('isSandboxUnavailable, on failures that hide the original error', () =>
       },
     )
     expect(
-      isSandboxUnavailable(new Error('Failed to start container', { cause })),
+      isSandboxOutage(new Error('Failed to start container', { cause })),
     ).toBe(true)
   })
 
   it('does not follow a cause that refers back to itself', () => {
     const error = new Error('nothing useful here')
     error.cause = error
-    expect(isSandboxUnavailable(error)).toBe(false)
+    expect(isSandboxOutage(error)).toBe(false)
   })
 })
 
-describe('SandboxUnavailableError', () => {
+describe('SandboxOutageError', () => {
   it('keeps the original failure as its cause', () => {
     const cause = new Error('connect ECONNREFUSED 172.18.0.4:2375')
-    const error = new SandboxUnavailableError(cause)
+    const error = new SandboxOutageError(cause)
 
-    expect(error.name).toBe('SandboxUnavailableError')
+    expect(error.name).toBe('SandboxOutageError')
     expect(error.cause).toBe(cause)
     expect(error.message).toContain('connect ECONNREFUSED 172.18.0.4:2375')
   })

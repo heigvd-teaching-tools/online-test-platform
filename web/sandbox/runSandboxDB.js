@@ -26,7 +26,13 @@ import {
   postgresGenerateFeedbackMessage,
   postgresOutputToToDataset,
 } from '../core/database'
-import { pullImageIfNotExists } from './utils'
+import {
+  asStartOutage,
+  isSandboxOutage,
+  pullImageIfNotExists,
+  retryOnSandboxOutage,
+  SandboxOutageError,
+} from './utils'
 
 const { Client } = pkg
 
@@ -46,6 +52,29 @@ const startContainer = async (image) => {
   return container
 }
 
+/*
+Starts the database container, pulling the image on first use. Any other reason for not
+being able to start it is an outage: no query has run at that point.
+*/
+const startSandbox = async (image) => {
+  try {
+    return await startContainer(image)
+  } catch (initialError) {
+    if (!initialError.message.includes('No such image')) {
+      throw asStartOutage(initialError)
+    }
+
+    const { status, message } = await pullImageIfNotExists(image)
+    if (!status) throw new SandboxOutageError(new Error(message))
+
+    try {
+      return await startContainer(image)
+    } catch (secondError) {
+      throw asStartOutage(secondError)
+    }
+  }
+}
+
 export const runSandboxDB = async ({
   image = 'postgres:latest',
   databaseConfig = {
@@ -56,54 +85,11 @@ export const runSandboxDB = async ({
   queries = [], // string[]
 }) => {
   const results = []
-  let container
   let client
-  // First try to start the container, then pull the image if it doesn't exist
-  // This approach is used to avoid sending check requests to the docker daemon unnecessarily on each run
-  try {
-    container = await startContainer(image)
-  } catch (initialError) {
-    // Check if the error is related to the image not being present
-    if (initialError.message.includes('No such image')) {
-      const { status, message } = await pullImageIfNotExists(image)
-      if (!status) {
-        return [
-          {
-            status: DatabaseQueryOutputStatus.ERROR,
-            feedback: message,
-            type: DatabaseQueryOutputType.TEXT,
-            result: message,
-          },
-        ]
-      }
 
-      // Try to start the container again
-      try {
-        container = await startContainer(image)
-      } catch (secondError) {
-        return [
-          {
-            status: DatabaseQueryOutputStatus.ERROR,
-            feedback: `Error after pulling image: ${secondError.message}`,
-            type: DatabaseQueryOutputType.TEXT,
-            result: `Error after pulling image: ${secondError.message}`,
-          },
-        ]
-      }
-    } else {
-      // Handle other errors when starting the container
-      return [
-        {
-          status: DatabaseQueryOutputStatus.ERROR,
-          feedback: `Container start error: ${initialError.message}`,
-          type: DatabaseQueryOutputType.TEXT,
-          result: `Container start error: ${initialError.message}`,
-        },
-      ]
-    }
-  }
+  const container = await retryOnSandboxOutage(() => startSandbox(image))
 
-  return new Promise(async (resolve, _) => {
+  return new Promise(async (resolve, reject) => {
     // Container is running, try to connect to it and execute the queries
     try {
       client = new Client({
@@ -148,6 +134,15 @@ export const runSandboxDB = async ({
         resolve(results)
       } catch (error) {
         clearTimeout(timeout) // Clear the timeout if there's an error
+
+        // losing the database container is an outage, unlike a query it rejected: the
+        // connection and the queries fail in the same place, only the error tells them
+        // apart
+        if (isSandboxOutage(error)) {
+          reject(new SandboxOutageError(error))
+          return
+        }
+
         results.push({
           order: results.length + 1, // Adjusted order logic
           status: DatabaseQueryOutputStatus.ERROR,
@@ -158,6 +153,12 @@ export const runSandboxDB = async ({
         resolve(results)
       }
     } catch (error) {
+      // same rule, for a failure that happened before the queries could even start
+      if (isSandboxOutage(error)) {
+        reject(new SandboxOutageError(error))
+        return
+      }
+
       // General error handling for the container setup or connection
       results.push({
         status: DatabaseQueryOutputStatus.ERROR,
