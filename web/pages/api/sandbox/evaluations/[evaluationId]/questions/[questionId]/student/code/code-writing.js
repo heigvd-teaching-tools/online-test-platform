@@ -16,6 +16,7 @@
 
 import { EvaluationPhase, Role, UserOnEvaluationStatus } from '@prisma/client'
 import { runSandbox } from '@/sandbox/runSandboxTC'
+import { SandboxOutageError } from '@/sandbox/utils'
 import { grading } from '@/core/grading/engine'
 import { withAuthorization } from '@/middleware/withAuthorization'
 import { withApiContext } from '@/middleware/withApiContext'
@@ -167,6 +168,9 @@ const post = async (req, res, ctx) => {
       res.status(200).send(response)
     })
     .catch((error) => {
+      // an outage is answered further up, as a 503
+      if (error instanceof SandboxOutageError) throw error
+
       console.log(error)
       res.status(500).json({ message: 'Internal server error' })
     })
