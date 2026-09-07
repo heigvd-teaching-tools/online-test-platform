@@ -15,7 +15,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { DatabaseQueryOutputStatus } from '@prisma/client'
+import {
+  DatabaseQueryOutputStatus,
+  DatabaseQueryOutputType,
+} from '@prisma/client'
 import { runSandboxDB } from './runSandboxDB'
 import { SandboxOutageError } from './utils'
 
@@ -73,6 +76,8 @@ const aRun = { image: 'postgres:15', queries: ['select 1'] }
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // the silent release logs on purpose, which would drown the test output
+  vi.spyOn(console, 'error').mockImplementation(() => {})
   end.mockResolvedValue(undefined)
   stop.mockResolvedValue(undefined)
   connect.mockResolvedValue(undefined)
@@ -123,6 +128,24 @@ describe('runSandboxDB, when the sandbox is unavailable', () => {
   })
 })
 
+describe('runSandboxDB, releasing what it started', () => {
+  it('does not let a failed cleanup replace the outage', async () => {
+    // exactly the situation this whole branch is about: with the database container
+    // gone, neither closing the client nor stopping the container can succeed either
+    connect.mockRejectedValue(unreachable('connect ECONNRESET', 'ECONNRESET'))
+    end.mockRejectedValue(new Error('client already gone'))
+    stop.mockRejectedValue(new Error('daemon unreachable'))
+
+    await expect(runSandboxDB(aRun)).rejects.toBeInstanceOf(SandboxOutageError)
+  })
+
+  it('still returns the results when only the cleanup failed', async () => {
+    end.mockRejectedValue(new Error('client already gone'))
+
+    await expect(runSandboxDB(aRun)).resolves.toHaveLength(1)
+  })
+})
+
 describe('runSandboxDB, retrying', () => {
   it('retries an outage and returns the run that finally succeeded', async () => {
     const container = {
@@ -149,6 +172,63 @@ describe('runSandboxDB, retrying', () => {
 
     await expect(runSandboxDB(aRun)).rejects.toBeInstanceOf(SandboxOutageError)
     expect(startContainer).toHaveBeenCalledTimes(3)
+  })
+})
+
+describe('runSandboxDB, the shapes it reports', () => {
+  // pinned before refactoring the promise body: these strings reach the professor and
+  // the student, so they have to survive unchanged
+
+  it('reports a query the database rejected, with its order and its message', async () => {
+    query.mockRejectedValue(new Error('syntax error at or near "slect"'))
+
+    const [result] = await runSandboxDB(aRun)
+
+    expect(result).toMatchObject({
+      order: 1,
+      status: DatabaseQueryOutputStatus.ERROR,
+      feedback: 'syntax error at or near "slect"',
+      type: DatabaseQueryOutputType.TEXT,
+    })
+  })
+
+  it('reports a failure that happened before any query could run', async () => {
+    startContainer.mockResolvedValue({
+      getHost: () => {
+        throw new Error('no mapped host')
+      },
+      getFirstMappedPort: () => 5432,
+      stop,
+    })
+
+    const [result] = await runSandboxDB(aRun)
+
+    expect(result).toMatchObject({
+      status: DatabaseQueryOutputStatus.ERROR,
+      feedback: 'Client connection error: no mapped host',
+      type: DatabaseQueryOutputType.TEXT,
+    })
+  })
+
+  it('reports a run that outlived its time budget', async () => {
+    query.mockImplementation(() => new Promise(() => {}))
+
+    const [result] = await runSandboxDB(aRun)
+
+    expect(result).toMatchObject({
+      status: DatabaseQueryOutputStatus.ERROR,
+      feedback: 'Sandbox Execution Timeout',
+      type: DatabaseQueryOutputType.TEXT,
+    })
+  }, 15000)
+
+  it('closes the client and the container whatever happened', async () => {
+    query.mockRejectedValue(new Error('syntax error'))
+
+    await runSandboxDB(aRun)
+
+    expect(end).toHaveBeenCalled()
+    expect(stop).toHaveBeenCalled()
   })
 })
 

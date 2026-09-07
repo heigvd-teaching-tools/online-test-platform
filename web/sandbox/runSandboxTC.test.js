@@ -16,7 +16,12 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { runSandbox } from './runSandboxTC'
-import { SandboxOutageError } from './utils'
+import { pullImageIfNotExists, SandboxOutageError } from './utils'
+
+vi.mock('./utils', async (importOriginal) => ({
+  ...(await importOriginal()),
+  pullImageIfNotExists: vi.fn(),
+}))
 
 const startContainer = vi.fn()
 const exec = vi.fn()
@@ -72,9 +77,12 @@ const aRun = {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // the silent release logs on purpose, which would drown the test output
+  vi.spyOn(console, 'error').mockImplementation(() => {})
   stop.mockResolvedValue(undefined)
   exec.mockResolvedValue({ output: 'hello' })
   startContainer.mockResolvedValue({ exec, stop })
+  pullImageIfNotExists.mockResolvedValue({ status: true, wasExisting: true })
 })
 
 describe('runSandbox, when the sandbox is unavailable', () => {
@@ -112,6 +120,26 @@ describe('runSandbox, when the sandbox is unavailable', () => {
   })
 })
 
+describe('runSandbox, releasing what it started', () => {
+  it('stops a container it can no longer use, rather than leaving it behind', async () => {
+    // the container is already running when the archive is extracted, so losing the
+    // handle here would leak one container per attempt
+    exec.mockRejectedValue(unreachableDaemon())
+
+    await expect(runSandbox(aRun)).rejects.toBeInstanceOf(SandboxOutageError)
+
+    expect(startContainer).toHaveBeenCalledTimes(3)
+    expect(stop).toHaveBeenCalledTimes(3)
+  })
+
+  it('does not let a failed stop replace the reason the run failed', async () => {
+    exec.mockRejectedValue(unreachableDaemon())
+    stop.mockRejectedValue(new Error('daemon unreachable'))
+
+    await expect(runSandbox(aRun)).rejects.toBeInstanceOf(SandboxOutageError)
+  })
+})
+
 describe('runSandbox, retrying', () => {
   it('retries an outage and returns the run that finally succeeded', async () => {
     startContainer
@@ -143,6 +171,39 @@ describe('runSandbox, retrying', () => {
       SandboxOutageError,
     )
     expect(startContainer).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('runSandbox, when the image has to be pulled', () => {
+  const imageMissing = () => new Error('No such image: node:latest')
+
+  it('does not turn an image that does not exist into an outage', async () => {
+    // a misconfigured question is not a temporary failure, and retrying it three times
+    // would be three times as slow for the same answer
+    startContainer.mockRejectedValue(imageMissing())
+    pullImageIfNotExists.mockResolvedValue({
+      status: false,
+      message: 'Error pulling image: manifest unknown',
+      error: Object.assign(new Error('(HTTP code 404) manifest unknown'), {
+        statusCode: 404,
+      }),
+    })
+
+    await expect(runSandbox(aRun)).rejects.not.toBeInstanceOf(
+      SandboxOutageError,
+    )
+    expect(pullImageIfNotExists).toHaveBeenCalledTimes(1)
+  })
+
+  it('treats a registry it cannot reach as an outage', async () => {
+    startContainer.mockRejectedValue(imageMissing())
+    pullImageIfNotExists.mockResolvedValue({
+      status: false,
+      message: 'Error pulling image: connect ECONNREFUSED',
+      error: unreachableDaemon(),
+    })
+
+    await expect(runSandbox(aRun)).rejects.toBeInstanceOf(SandboxOutageError)
   })
 })
 

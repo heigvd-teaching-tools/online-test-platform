@@ -132,6 +132,20 @@ export const retryOnSandboxOutage = async (operation) => {
   }
 }
 
+/*
+Releases a resource without ever failing. When the sandbox is down, closing a client or
+stopping a container cannot succeed either, and letting that surface would replace the
+real reason for the failure with a symptom of it — or, from a finally block, discard the
+outcome entirely.
+*/
+export const releaseQuietly = async (what, release) => {
+  try {
+    await release()
+  } catch (error) {
+    console.error(`Sandbox cleanup (${what})`, error)
+  }
+}
+
 export const imageExists = async (name) => {
   const images = await docker.listImages({ filters: { reference: [name] } })
   return images.length > 0
@@ -170,7 +184,14 @@ export const pullImageIfNotExists = async (image) => {
     }
   } catch (error) {
     console.error('Error pulling image:', error)
-    return { status: false, message: `Error pulling image: ${error.message}` }
+    // the error travels with the message: a registry that cannot be reached is an
+    // outage, an image that does not exist is a question that is misconfigured, and
+    // only the error itself tells them apart
+    return {
+      status: false,
+      message: `Error pulling image: ${error.message}`,
+      error,
+    }
   }
 }
 

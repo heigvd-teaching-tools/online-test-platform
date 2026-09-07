@@ -30,6 +30,7 @@ import {
   asStartOutage,
   isSandboxOutage,
   pullImageIfNotExists,
+  releaseQuietly,
   retryOnSandboxOutage,
   SandboxOutageError,
 } from './utils'
@@ -64,8 +65,8 @@ const startSandbox = async (image) => {
       throw asStartOutage(initialError)
     }
 
-    const { status, message } = await pullImageIfNotExists(image)
-    if (!status) throw new SandboxOutageError(new Error(message))
+    const { status, message, error } = await pullImageIfNotExists(image)
+    if (!status) throw asStartOutage(error ?? new Error(message))
 
     try {
       return await startContainer(image)
@@ -75,6 +76,56 @@ const startSandbox = async (image) => {
   }
 }
 
+/*
+A run that outlived its budget. Racing rather than cancelling: the queries keep going
+until the connection is closed, which is what the original timeout did too.
+*/
+const TIMED_OUT = Symbol('timed out')
+
+const withExecutionTimeout = async (work) => {
+  let timer
+  try {
+    return await Promise.race([
+      work,
+      new Promise((resolve) => {
+        timer = setTimeout(() => resolve(TIMED_OUT), EXECUTION_TIMEOUT)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+const textResult = (message) => ({
+  status: DatabaseQueryOutputStatus.ERROR,
+  feedback: message,
+  type: DatabaseQueryOutputType.TEXT,
+  result: message,
+})
+
+const runQueries = async (client, queries, results) => {
+  await client.connect()
+
+  let order = 1
+  for (const query of queries) {
+    const result = await client.query(query)
+    const dataset = postgresOutputToToDataset(result)
+    const type = postgresDetermineOutputType(result)
+    const feedback = postgresGenerateFeedbackMessage(result.command, result)
+    results.push({
+      order: order++,
+      status: DatabaseQueryOutputStatus.SUCCESS,
+      feedback: feedback,
+      type: type,
+      result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset,
+    })
+  }
+}
+
+/*
+Either returns one result per query — a failing query included, since the SQL is the
+student's to get wrong — or throws when the sandbox itself could not run them.
+*/
 export const runSandboxDB = async ({
   image = 'postgres:latest',
   databaseConfig = {
@@ -85,91 +136,47 @@ export const runSandboxDB = async ({
   queries = [], // string[]
 }) => {
   const results = []
+  const container = await retryOnSandboxOutage(() => startSandbox(image))
   let client
 
-  const container = await retryOnSandboxOutage(() => startSandbox(image))
-
-  return new Promise(async (resolve, reject) => {
-    // Container is running, try to connect to it and execute the queries
+  try {
     try {
       client = new Client({
         host: container.getHost(),
         port: container.getFirstMappedPort(),
         ...databaseConfig,
       })
+    } catch (error) {
+      if (isSandboxOutage(error)) throw new SandboxOutageError(error)
+      results.push(textResult(`Client connection error: ${error.message}`))
+      return results
+    }
 
-      let timeout = setTimeout(() => {
-        client.end()
-        container.stop()
-        results.push({
-          status: DatabaseQueryOutputStatus.ERROR,
-          feedback: 'Sandbox Execution Timeout',
-          type: DatabaseQueryOutputType.TEXT,
-          result: 'Sandbox Execution Timeout',
-        })
-        resolve(results)
-      }, EXECUTION_TIMEOUT)
-
-      try {
-        await client.connect()
-
-        let order = 1
-        for (const query of queries) {
-          const result = await client.query(query)
-          const dataset = postgresOutputToToDataset(result)
-          const type = postgresDetermineOutputType(result)
-          const feedback = postgresGenerateFeedbackMessage(
-            result.command,
-            result,
-          )
-          results.push({
-            order: order++,
-            status: DatabaseQueryOutputStatus.SUCCESS,
-            feedback: feedback,
-            type: type,
-            result: type === DatabaseQueryOutputType.TEXT ? feedback : dataset,
-          })
-        }
-        clearTimeout(timeout) // Clear the timeout if queries finish on time
-        resolve(results)
-      } catch (error) {
-        clearTimeout(timeout) // Clear the timeout if there's an error
-
-        // losing the database container is an outage, unlike a query it rejected: the
-        // connection and the queries fail in the same place, only the error tells them
-        // apart
-        if (isSandboxOutage(error)) {
-          reject(new SandboxOutageError(error))
-          return
-        }
-
-        results.push({
-          order: results.length + 1, // Adjusted order logic
-          status: DatabaseQueryOutputStatus.ERROR,
-          feedback: error.message,
-          type: DatabaseQueryOutputType.TEXT,
-          result: error,
-        })
-        resolve(results)
+    try {
+      const outcome = await withExecutionTimeout(
+        runQueries(client, queries, results),
+      )
+      if (outcome === TIMED_OUT) {
+        results.push(textResult('Sandbox Execution Timeout'))
       }
     } catch (error) {
-      // same rule, for a failure that happened before the queries could even start
-      if (isSandboxOutage(error)) {
-        reject(new SandboxOutageError(error))
-        return
-      }
+      // losing the database container is an outage, unlike a query it rejected: the
+      // connection and the queries fail in the same place, only the error tells them
+      // apart
+      if (isSandboxOutage(error)) throw new SandboxOutageError(error)
 
-      // General error handling for the container setup or connection
       results.push({
+        order: results.length + 1,
         status: DatabaseQueryOutputStatus.ERROR,
-        feedback: `Client connection error: ${error.message}`,
+        feedback: error.message,
         type: DatabaseQueryOutputType.TEXT,
-        result: `Client connection error: ${error.message}`,
+        result: error,
       })
-      resolve(results)
-    } finally {
-      if (client) await client.end()
-      if (container) await container.stop()
     }
-  })
+
+    return results
+  } finally {
+    if (client) await releaseQuietly('database client', () => client.end())
+    await releaseQuietly('database container', () => container.stop())
+  }
 }

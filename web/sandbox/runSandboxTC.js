@@ -24,6 +24,7 @@ import {
   asStartOutage,
   isSandboxOutage,
   pullImageIfNotExists,
+  releaseQuietly,
   retryOnSandboxOutage,
   SandboxOutageError,
   sanitizeUTF8,
@@ -69,11 +70,7 @@ export const runSandbox = async ({
       tests: testsResults,
     }
   } finally {
-    // the container is unreachable when the sandbox is down, and saying so here would
-    // hide why the run failed in the first place
-    await container
-      .stop()
-      .catch((error) => console.error('Sandbox stop', error))
+    await releaseQuietly('container', () => container.stop())
   }
 }
 
@@ -90,8 +87,8 @@ const startSandbox = async (image, directory, beforeAll) => {
       throw asStartOutage(initialError)
     }
 
-    const { status, message } = await pullImageIfNotExists(image)
-    if (!status) throw new SandboxOutageError(new Error(message))
+    const { status, message, error } = await pullImageIfNotExists(image)
+    if (!status) throw asStartOutage(error ?? new Error(message))
 
     try {
       return await startContainer(image, directory, beforeAll)
@@ -135,6 +132,17 @@ const startContainer = async (image, filesDirectory, beforeAll) => {
     .withCommand(['sleep', 'infinity'])
     .start()
 
+  try {
+    return await prepareContainer(container, beforeAll)
+  } catch (error) {
+    // the handle is about to be lost, and retrying would start another container beside
+    // this one
+    await releaseQuietly('container', () => container.stop())
+    throw error
+  }
+}
+
+const prepareContainer = async (container, beforeAll) => {
   await container.exec(['sh', '-c', 'tar -xzf code.tar.gz -C /'])
 
   let beforeAllOutput = undefined
