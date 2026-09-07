@@ -222,6 +222,25 @@ describe('runSandboxDB, the shapes it reports', () => {
     })
   }, 15000)
 
+  it('stops at the first query the database rejected', async () => {
+    // the queries share one connection and depend on each other, so a run ends there:
+    // the ones after it never execute and have no result to show
+    query
+      .mockResolvedValueOnce({ command: 'SELECT', rows: [] })
+      .mockRejectedValueOnce(new Error('syntax error at or near "slect"'))
+      .mockResolvedValue({ command: 'SELECT', rows: [] })
+
+    const results = await runSandboxDB({
+      ...aRun,
+      queries: ['select 1', 'slect 2', 'select 3', 'select 4'],
+    })
+
+    expect(results).toHaveLength(2)
+    expect(results[0].status).toBe(DatabaseQueryOutputStatus.SUCCESS)
+    expect(results[1].status).toBe(DatabaseQueryOutputStatus.ERROR)
+    expect(query).toHaveBeenCalledTimes(2)
+  })
+
   it('closes the client and the container whatever happened', async () => {
     query.mockRejectedValue(new Error('syntax error'))
 
