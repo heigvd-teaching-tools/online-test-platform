@@ -47,12 +47,15 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
   const [outputs, setOutputs] = useState()
 
   // the effect below runs the queries as soon as there are no outputs, which would
-  // retry forever while the sandbox is down
+  // retry forever while the sandbox is down. It is reset whenever a new set of queries
+  // arrives, because this component is reused across questions rather than remounted:
+  // one outage must not disable the initial run of every question opened afterwards.
   const autoRunFailed = useRef(false)
   const [activeQuery, setActiveQuery] = useState(null)
 
   useEffect(() => {
     if (!data) return
+    autoRunFailed.current = false
     // remove outputs from queries, outputs are managed in a separate state
     setQueries(data.map((q) => q.query))
     setOutputs(data.map((q) => q.output))
