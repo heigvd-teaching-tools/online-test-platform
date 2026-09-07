@@ -42,6 +42,19 @@ describe('readSandboxRun', () => {
     })
   })
 
+  it('keeps the http status even when the body carries one of its own', async () => {
+    // a database query output has a status of its own, of an entirely different kind
+    await expect(
+      readSandboxRun(
+        answer(400, {
+          status: 'ERROR',
+          feedback: 'syntax error',
+          type: 'TEXT',
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 400, feedback: 'syntax error' })
+  })
+
   it('carries the status, which is how callers tell it from a lost connection', async () => {
     // a fetch that never reached the server rejects without one
     await expect(

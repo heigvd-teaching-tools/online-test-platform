@@ -104,7 +104,9 @@ const post = async (req, res, ctx) => {
       i--
     }
 
-    res.status(400).json(result[i])
+    // the run happened and this output says which earlier query ended it, so it is an
+    // answer rather than a rejected request
+    res.status(200).json(result[i])
     return
   }
 
