@@ -45,6 +45,10 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
 
   const [queries, setQueries] = useState()
   const [outputs, setOutputs] = useState()
+
+  // the effect below runs the queries as soon as there are no outputs, which would
+  // retry forever while the sandbox is down
+  const autoRunFailed = useRef(false)
   const [activeQuery, setActiveQuery] = useState(null)
 
   useEffect(() => {
@@ -66,6 +70,10 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
         },
       })) || [],
     )
+
+    // kept so that a run that did not happen leaves the display as it was
+    const previousOutputs = outputs
+    const previousQueries = queries
 
     // erase eventual lintResults
     setQueries(
@@ -100,6 +108,9 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
 
       onUpdate && onUpdate()
     } catch (error) {
+      autoRunFailed.current = true
+      setOutputs(previousOutputs)
+      setQueries(previousQueries)
       showSnackbar(
         error?.status
           ? error.message
@@ -111,6 +122,7 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
 
   // Add effect to automatically run queries if outputs are not defined
   useEffect(() => {
+    if (autoRunFailed.current) return
     if (queries && (!outputs || outputs.every((output) => output === null))) {
       runAllQueries()
     }

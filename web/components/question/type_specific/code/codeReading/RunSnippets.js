@@ -23,7 +23,13 @@ import { readSandboxRun } from '@/core/utils'
 import BottomPanelHeader from '@/components/layout/utils/BottomPanelHeader'
 import BottomPanelContent from '@/components/layout/utils/BottomPanelContent'
 
-const RunSnippets = ({ lock, questionId, onBeforeRun, onUpdate }) => {
+const RunSnippets = ({
+  lock,
+  questionId,
+  onBeforeRun,
+  onUpdate,
+  onRunFailed,
+}) => {
   const [result, setResult] = useState(null)
   const [snippetsRunning, setSnippetsRunning] = useState(false)
 
@@ -45,6 +51,9 @@ const RunSnippets = ({ lock, questionId, onBeforeRun, onUpdate }) => {
 
       onUpdate && onUpdate(result)
     } catch (error) {
+      // onBeforeRun put every snippet in the running state, and only a result takes
+      // them out of it
+      onRunFailed && onRunFailed()
       showSnackbar(
         error?.status
           ? error.message
@@ -54,7 +63,7 @@ const RunSnippets = ({ lock, questionId, onBeforeRun, onUpdate }) => {
     } finally {
       setSnippetsRunning(false)
     }
-  }, [questionId, onUpdate, openPanel, onBeforeRun, showSnackbar])
+  }, [questionId, onUpdate, openPanel, onBeforeRun, onRunFailed, showSnackbar])
 
   return (
     <Stack maxHeight={'calc(100% - 90px)'}>

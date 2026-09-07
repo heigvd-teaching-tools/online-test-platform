@@ -99,6 +99,11 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
   const saveAndTest = useCallback(async () => {
     setSaving(true)
 
+    // kept so that a run that did not happen leaves the answer displayed as it was,
+    // the way the server leaves it stored
+    const previousOutputs = studentOutputs
+    const previousQueries = queries
+
     setStudentOutputs(
       queries.map((q, index) => ({
         ...studentOutputs[index],
@@ -139,15 +144,8 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
         })) || [],
       )
     } catch (error) {
-      setStudentOutputs(
-        queries.map((q, index) => ({
-          ...studentOutputs[index],
-          output: {
-            ...studentOutputs[index]?.output,
-            status: null,
-          },
-        })) || [],
-      )
+      setStudentOutputs(previousOutputs)
+      setQueries(previousQueries)
       showSnackbar(
         error?.status
           ? error.message
