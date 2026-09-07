@@ -20,6 +20,7 @@ import { Stack, Typography, Alert, TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 
 import { useSnackbar } from '@/context/SnackbarContext'
+import { readSandboxRun } from '@/core/utils'
 import { useBottomPanel } from '@/context/BottomPanelContext'
 
 import BottomPanelHeader from '@/components/layout/utils/BottomPanelHeader'
@@ -44,15 +45,19 @@ const CodeCheck = ({
     setTests(null)
     setBeforeAll(null)
     codeCheckAction()
-      .then((res) => res.json())
+      .then(readSandboxRun)
       .then((data) => {
         setCodeCheckRunning(false)
         setTests(data.tests)
         setBeforeAll(data.beforeAll)
         openPanel()
       })
-      .catch((_) => {
-        showSnackbar('Error running test', 'error')
+      .catch((error) => {
+        // a failure the server explained carries its reason, a lost connection does not
+        showSnackbar(
+          error?.status ? error.message : 'Error running test',
+          'error',
+        )
         setTests(null)
         setBeforeAll(null)
         setCodeCheckRunning(false)

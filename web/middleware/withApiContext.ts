@@ -18,6 +18,16 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { IApiContext } from '@/core/types/api'
 import { getPrismaClient } from '@/core/hooks/usePrisma'
 import { getUser } from '@/core/auth/auth'
+import { SandboxOutageError } from '@/sandbox/utils'
+
+/*
+Shown to whoever triggered a run the sandbox could not perform. It replaces the docker
+error that used to reach students, which named a kernel call they have no way to act on.
+Worded for either audience, since this middleware serves the professor's own runs as
+well as the student's and cannot tell them apart.
+*/
+const SANDBOX_OUTAGE_MESSAGE =
+  'Code execution is temporarily unavailable. Please try again in a moment, and report it if the problem persists.'
 
 /* --------------------------------------------------------------------------
  * API Context Middleware
@@ -49,6 +59,15 @@ export function withApiContext(handlers: Record<string, Function>) {
       prisma: getPrismaClient(),
     }
 
-    return handler(nextReq, nextRes, ctx)
+    try {
+      return await handler(nextReq, nextRes, ctx)
+    } catch (error) {
+      // an outage is the one failure that is neither the caller's fault nor a bug, and
+      // that callers must not record a result for
+      if (!(error instanceof SandboxOutageError)) throw error
+
+      console.error('Sandbox outage', error.cause)
+      return nextRes.status(503).json({ message: SANDBOX_OUTAGE_MESSAGE })
+    }
   }
 }

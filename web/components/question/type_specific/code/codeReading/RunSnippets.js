@@ -18,30 +18,52 @@ import React, { useState, useCallback } from 'react'
 import { Stack, TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { useBottomPanel } from '@/context/BottomPanelContext'
+import { useSnackbar } from '@/context/SnackbarContext'
+import { readSandboxRun } from '@/core/utils'
 import BottomPanelHeader from '@/components/layout/utils/BottomPanelHeader'
 import BottomPanelContent from '@/components/layout/utils/BottomPanelContent'
 
-const RunSnippets = ({ lock, questionId, onBeforeRun, onUpdate }) => {
+const RunSnippets = ({
+  lock,
+  questionId,
+  onBeforeRun,
+  onUpdate,
+  onRunFailed,
+}) => {
   const [result, setResult] = useState(null)
   const [snippetsRunning, setSnippetsRunning] = useState(false)
 
   const { openPanel } = useBottomPanel()
+  const { show: showSnackbar } = useSnackbar()
 
   const onRunAll = useCallback(async () => {
     setSnippetsRunning(true)
     onBeforeRun && onBeforeRun()
-    const result = await fetch(`/api/sandbox/${questionId}/code-reading`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    }).then((data) => data.json())
-    setResult(result)
-    if (result.beforeAll) {
-      openPanel()
-    }
-    setSnippetsRunning(false)
+    try {
+      const result = await fetch(`/api/sandbox/${questionId}/code-reading`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).then(readSandboxRun)
+      setResult(result)
+      if (result.beforeAll) {
+        openPanel()
+      }
 
-    onUpdate && onUpdate(result)
-  }, [questionId, onUpdate, openPanel, onBeforeRun])
+      onUpdate && onUpdate(result)
+    } catch (error) {
+      // onBeforeRun put every snippet in the running state, and only a result takes
+      // them out of it
+      onRunFailed && onRunFailed()
+      showSnackbar(
+        error?.status
+          ? error.message
+          : 'Failed to run the snippets — check your connection',
+        'error',
+      )
+    } finally {
+      setSnippetsRunning(false)
+    }
+  }, [questionId, onUpdate, openPanel, onBeforeRun, onRunFailed, showSnackbar])
 
   return (
     <Stack maxHeight={'calc(100% - 90px)'}>

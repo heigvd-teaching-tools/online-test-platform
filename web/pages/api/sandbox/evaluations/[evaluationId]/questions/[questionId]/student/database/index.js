@@ -20,6 +20,7 @@ import { isInProgress } from '@/pages/api/users/evaluations/[evaluationId]/quest
 import { runSandboxDB } from '@/sandbox/runSandboxDB'
 import { runTestsOnDatasets } from '@/core/database'
 import { runSQLFluffSandbox } from '@/sandbox/runSQLFluffSandbox'
+import { SandboxOutageError } from '@/sandbox/utils'
 import { withAuthorization } from '@/middleware/withAuthorization'
 import { withApiContext } from '@/middleware/withApiContext'
 import { getUser } from '@/core/auth/auth'
@@ -119,6 +120,9 @@ const post = async (req, res, ctx) => {
           sqlFluffRules: query.lintRules,
         })
       } catch (e) {
+        // without this, an outage would be stored as a query that has no violations
+        if (e instanceof SandboxOutageError) throw e
+
         // Handle or log error
         lintResults[query.id] = null // or an appropriate error indicator
       }

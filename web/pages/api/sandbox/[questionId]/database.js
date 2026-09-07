@@ -17,6 +17,7 @@
 import { Role, Prisma } from '@prisma/client'
 import { runSandboxDB } from '@/sandbox/runSandboxDB'
 import { runSQLFluffSandbox } from '@/sandbox/runSQLFluffSandbox'
+import { SandboxOutageError } from '@/sandbox/utils'
 import { withAuthorization } from '@/middleware/withAuthorization'
 import { withApiContext } from '@/middleware/withApiContext'
 import { withQuestionUpdate } from '@/middleware/withUpdate'
@@ -71,6 +72,9 @@ const post = async (req, res, ctx) => {
           lintResult: lintResult.violations,
         }
       } catch (e) {
+        // without this, an outage would be stored as a query that has no violations
+        if (e instanceof SandboxOutageError) throw e
+
         console.log('Lint Sandbox Error', e)
         return {
           queryId: query.id,

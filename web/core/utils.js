@@ -46,6 +46,27 @@ export const fetcher = async (url) => {
   return data
 }
 
+/*
+Reads the answer of a sandbox run. A run that could not happen answers with a failing
+status and a { message } saying why — a 503 when the sandbox itself is unavailable — and
+must never be mistaken for a result. Rejects with the same shape as fetcher, so that a
+caller can tell a failure the server explained, which has a status, from a lost
+connection, which has none.
+
+The http status is written after the body rather than before it: some payloads carry a
+status of their own, of an unrelated kind, which would otherwise take its place and leave
+callers reading a query outcome where they expect a response code.
+*/
+export const readSandboxRun = async (response) => {
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw { ...data, status: response.status }
+  }
+
+  return data
+}
+
 const fetchWithTimeout = (fetcher, url, options = {}, timeout = 1000) => {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {

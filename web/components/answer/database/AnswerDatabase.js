@@ -29,6 +29,7 @@ import { LoadingButton } from '@mui/lab'
 
 import { fetcher } from '@/core/utils'
 import { useSnackbar } from '@/context/SnackbarContext'
+import { readSandboxRun } from '@/core/utils'
 import Loading from '@/components/feedback/Loading'
 import BottomCollapsiblePanel from '@/components/layout/utils/BottomCollapsiblePanel'
 import ScrollContainer from '@/components/layout/ScrollContainer'
@@ -98,6 +99,11 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
   const saveAndTest = useCallback(async () => {
     setSaving(true)
 
+    // kept so that a run that did not happen leaves the answer displayed as it was,
+    // the way the server leaves it stored
+    const previousOutputs = studentOutputs
+    const previousQueries = queries
+
     setStudentOutputs(
       queries.map((q, index) => ({
         ...studentOutputs[index],
@@ -128,7 +134,7 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
             Accept: 'application/json',
           },
         },
-      ).then((res) => res.json())
+      ).then(readSandboxRun)
 
       setStudentOutputs(studentAnswerQueries.map((q) => q.studentOutput))
       setQueries(
@@ -137,17 +143,15 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
           lintResult: studentAnswerQueries[index].query.lintResult,
         })) || [],
       )
-    } catch {
-      setStudentOutputs(
-        queries.map((q, index) => ({
-          ...studentOutputs[index],
-          output: {
-            ...studentOutputs[index]?.output,
-            status: null,
-          },
-        })) || [],
+    } catch (error) {
+      setStudentOutputs(previousOutputs)
+      setQueries(previousQueries)
+      showSnackbar(
+        error?.status
+          ? error.message
+          : 'Failed to run queries — check your connection',
+        'error',
       )
-      showSnackbar('Failed to run queries — check your connection', 'error')
     } finally {
       setSaving(false)
     }

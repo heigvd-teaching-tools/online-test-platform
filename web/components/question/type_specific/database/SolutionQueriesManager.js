@@ -15,7 +15,8 @@
  */
 
 import useSWR from 'swr'
-import { fetcher } from '../../../../core/utils'
+import { fetcher, readSandboxRun } from '../../../../core/utils'
+import { useSnackbar } from '@/context/SnackbarContext'
 import Loading from '../../../feedback/Loading'
 import { Button, Stack, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -32,6 +33,7 @@ import BottomCollapsiblePanel from '../../../layout/utils/BottomCollapsiblePanel
 
 const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
   const theme = useTheme()
+  const { show: showSnackbar } = useSnackbar()
 
   const ref = useRef()
 
@@ -43,10 +45,17 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
 
   const [queries, setQueries] = useState()
   const [outputs, setOutputs] = useState()
+
+  // the effect below runs the queries as soon as there are no outputs, which would
+  // retry forever while the sandbox is down. It is reset whenever a new set of queries
+  // arrives, because this component is reused across questions rather than remounted:
+  // one outage must not disable the initial run of every question opened afterwards.
+  const autoRunFailed = useRef(false)
   const [activeQuery, setActiveQuery] = useState(null)
 
   useEffect(() => {
     if (!data) return
+    autoRunFailed.current = false
     // remove outputs from queries, outputs are managed in a separate state
     setQueries(data.map((q) => q.query))
     setOutputs(data.map((q) => q.output))
@@ -65,6 +74,10 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
       })) || [],
     )
 
+    // kept so that a run that did not happen leaves the display as it was
+    const previousOutputs = outputs
+    const previousQueries = queries
+
     // erase eventual lintResults
     setQueries(
       queries.map((q, index) => ({
@@ -73,33 +86,46 @@ const SolutionQueriesManager = ({ groupScope, questionId, onUpdate }) => {
       })) || [],
     )
 
-    const newSolutionQueries = await fetch(
-      `/api/sandbox/${questionId}/database`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
+    try {
+      const newSolutionQueries = await fetch(
+        `/api/sandbox/${questionId}/database`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
         },
-      },
-    ).then((res) => res.json())
+      ).then(readSandboxRun)
 
-    // update the queries with the new lint results
-    setQueries(
-      queries.map((q, index) => ({
-        ...q,
-        lintResult: newSolutionQueries[index].query.lintResult,
-      })) || [],
-    )
+      // update the queries with the new lint results
+      setQueries(
+        queries.map((q, index) => ({
+          ...q,
+          lintResult: newSolutionQueries[index].query.lintResult,
+        })) || [],
+      )
 
-    // set all query outputs
-    setOutputs(newSolutionQueries.map((q) => q.output))
+      // set all query outputs
+      setOutputs(newSolutionQueries.map((q) => q.output))
 
-    onUpdate && onUpdate()
-  }, [questionId, outputs, queries, onUpdate])
+      onUpdate && onUpdate()
+    } catch (error) {
+      autoRunFailed.current = true
+      setOutputs(previousOutputs)
+      setQueries(previousQueries)
+      showSnackbar(
+        error?.status
+          ? error.message
+          : 'Failed to run the queries — check your connection',
+        'error',
+      )
+    }
+  }, [questionId, outputs, queries, onUpdate, showSnackbar])
 
   // Add effect to automatically run queries if outputs are not defined
   useEffect(() => {
+    if (autoRunFailed.current) return
     if (queries && (!outputs || outputs.every((output) => output === null))) {
       runAllQueries()
     }

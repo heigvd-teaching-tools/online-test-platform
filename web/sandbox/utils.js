@@ -18,6 +18,134 @@ import Docker from 'dockerode'
 
 const docker = new Docker()
 
+/*
+Codes that only a socket operation can produce: a filesystem operation never gets its
+connection refused. They are matched on the code rather than on the syscall because an
+error that has been wrapped or aggregated keeps its code but loses its syscall — node
+reports a dual stack connection failure as an AggregateError carrying the code alone.
+*/
+const TRANSPORT_CODES = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ETIMEDOUT',
+])
+
+/*
+The failures the codes above cannot express, because their code is ambiguous between
+layers: a missing docker socket and a missing source file are both ENOENT, and only the
+syscall tells them apart.
+*/
+const UNREACHABLE_SYSCALLS = new Set(['connect', 'getaddrinfo'])
+
+// a wrapped failure is only a few levels deep, and this stops a self referencing cause
+const MAX_CAUSE_DEPTH = 5
+
+/*
+Raised when the sandbox cannot run at all. It must never be reported to the caller as
+if it were the outcome of running the submitted code: an outage produces no result,
+neither a success nor a failure.
+*/
+export class SandboxOutageError extends Error {
+  constructor(cause) {
+    super(`Sandbox outage: ${cause?.message || cause}`)
+    this.name = 'SandboxOutageError'
+    this.cause = cause
+  }
+}
+
+/*
+Tells an infrastructure failure apart from a failure of the code being executed.
+
+Takes the error thrown while driving the sandbox, never the output of the executed code:
+that output is student-controlled and must never be able to pass for an outage.
+
+A daemon that answers 4xx is deliberately not an outage: those are our own requests being
+rejected, the most common one being the missing image that the runners recover from by
+pulling it.
+
+Some failures carry no signal at all — testcontainers reports an unreachable daemon as a
+bare "Could not find a working container runtime strategy". Those are recognised by the
+runners, from where in the run they happened, and not here.
+*/
+export const isSandboxOutage = (error, depth = 0) => {
+  if (!error || depth > MAX_CAUSE_DEPTH) return false
+  if (error instanceof SandboxOutageError) return true
+
+  // could not reach the docker daemon
+  if (TRANSPORT_CODES.has(error.code)) return true
+  if (UNREACHABLE_SYSCALLS.has(error.syscall)) return true
+
+  // the daemon was reached but failed on its own side
+  if (error.statusCode >= 500) return true
+
+  // the original failure may be wrapped, or aggregated with its siblings
+  return [error.cause, ...(error.errors || [])].some((nested) =>
+    isSandboxOutage(nested, depth + 1),
+  )
+}
+
+/*
+A container that failed to start without the daemon explaining why: the daemon answered
+neither a status code nor a socket error. testcontainers reports an unreachable daemon
+that way, as a bare "Could not find a working container runtime strategy", and so does a
+container that never becomes ready. Only meaningful where we know a container was being
+started, which is why it is not folded into isSandboxOutage.
+*/
+const isUnexplainedFailure = (error) =>
+  !!error && error.statusCode === undefined && error.code === undefined
+
+/*
+Turns a container that failed to start into an outage. Used only where a container was
+being started: nothing of the submitted code has run at that point, so the failure is
+ours. Anything the daemon did explain and that is not an outage — a rejected request,
+a misconfigured image — is left alone.
+*/
+export const asStartOutage = (error) =>
+  isSandboxOutage(error) || isUnexplainedFailure(error)
+    ? new SandboxOutageError(error)
+    : error
+
+// short enough to stay unnoticed by a student waiting for their run
+const RETRY_DELAYS_MS = [250, 1000]
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/*
+Runs an operation again while the sandbox is unavailable, so that a daemon restarting or
+a connection dropping mid-request does not surface as a failed run. Only outages are
+retried: a failure of the code being executed is final, and returning it twice as slowly
+would help nobody.
+*/
+export const retryOnSandboxOutage = async (operation) => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      if (!(error instanceof SandboxOutageError)) throw error
+      if (attempt >= RETRY_DELAYS_MS.length) throw error
+      await delay(RETRY_DELAYS_MS[attempt])
+    }
+  }
+}
+
+/*
+Releases a resource without ever failing. When the sandbox is down, closing a client or
+stopping a container cannot succeed either, and letting that surface would replace the
+real reason for the failure with a symptom of it — or, from a finally block, discard the
+outcome entirely.
+*/
+export const releaseQuietly = async (what, release) => {
+  try {
+    await release()
+  } catch (error) {
+    console.error(`Sandbox cleanup (${what})`, error)
+  }
+}
+
 export const imageExists = async (name) => {
   const images = await docker.listImages({ filters: { reference: [name] } })
   return images.length > 0
@@ -56,7 +184,14 @@ export const pullImageIfNotExists = async (image) => {
     }
   } catch (error) {
     console.error('Error pulling image:', error)
-    return { status: false, message: `Error pulling image: ${error.message}` }
+    // the error travels with the message: a registry that cannot be reached is an
+    // outage, an image that does not exist is a question that is misconfigured, and
+    // only the error itself tells them apart
+    return {
+      status: false,
+      message: `Error pulling image: ${error.message}`,
+      error,
+    }
   }
 }
 

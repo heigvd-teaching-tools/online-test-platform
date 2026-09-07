@@ -113,6 +113,16 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
     setStatuses((prev) => prev.map(() => SnippetStatus.RUNNING))
   }, [])
 
+  // a run that did not happen leaves the snippets untouched, so their statuses are
+  // whatever the stored outputs say, exactly as when they were first loaded
+  const onRunFailed = useCallback(() => {
+    setStatuses(
+      snippets.map((snippet) =>
+        snippet.output ? SnippetStatus.SUCCESS : SnippetStatus.ERROR,
+      ),
+    )
+  }, [snippets])
+
   const onAfterRun = useCallback(async (result) => {
     setStatuses((prev) =>
       prev.map((_, index) => {
@@ -195,6 +205,7 @@ const Snippets = ({ groupScope, questionId, language, onUpdate }) => {
               questionId={questionId}
               onBeforeRun={onBeforeRun}
               onUpdate={onAfterRun}
+              onRunFailed={onRunFailed}
             />
           }
         >
