@@ -31,6 +31,7 @@ import languages from '@/core/languages.json'
 import { fetcher } from '@/core/utils'
 import ScrollContainer from '@/components/layout/ScrollContainer'
 import { useSnackbar } from '@/context/SnackbarContext'
+import { readSandboxRun } from '@/core/utils'
 import Loading from '@/components/feedback/Loading'
 
 const environments = languages.environments
@@ -71,7 +72,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
         if (res.status === 200) {
           await mutate()
         } else {
-          showSnackbar('error', 'Failed to add test case')
+          showSnackbar('Failed to add test case', 'error')
         }
       })
       .finally(() => {
@@ -104,7 +105,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
               })
             await mutate(newTests)
           } else {
-            showSnackbar('error', 'Failed to delete test case')
+            showSnackbar('Failed to delete test case', 'error')
           }
         })
         .finally(() => {
@@ -135,7 +136,7 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
           if (res.status === 200) {
             await mutate()
           } else {
-            showSnackbar('error', 'Failed to update test case')
+            showSnackbar('Failed to update test case', 'error')
           }
         })
         .finally(() => {
@@ -147,22 +148,31 @@ const TestCases = ({ groupScope, questionId, language, onUpdate }) => {
 
   const pullOutputs = useCallback(
     async (source) => {
-      const result = await fetch(
-        `/api/sandbox/${questionId}/code-writing/${source}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        },
-      ).then((res) => res.json())
+      try {
+        const result = await fetch(
+          `/api/sandbox/${questionId}/code-writing/${source}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          },
+        ).then(readSandboxRun)
 
-      for (const test of tests) {
-        await updateTestCase({
-          ...test,
-          expectedOutput: result.tests[test.index - 1].output,
-        })
+        for (const test of tests) {
+          await updateTestCase({
+            ...test,
+            expectedOutput: result.tests[test.index - 1].output,
+          })
+        }
+      } catch (error) {
+        showSnackbar(
+          error?.status
+            ? error.message
+            : 'Failed to pull the outputs — check your connection',
+          'error',
+        )
       }
     },
-    [questionId, tests, updateTestCase],
+    [questionId, tests, updateTestCase, showSnackbar],
   )
   return (
     <Loading loading={!tests} errors={[error]}>

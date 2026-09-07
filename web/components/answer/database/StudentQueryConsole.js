@@ -15,6 +15,7 @@
  */
 
 import React, { useCallback, useState } from 'react'
+import { readSandboxRun } from '@/core/utils'
 import { DatabaseQueryOutputStatus } from '@prisma/client'
 import {
   Button,
@@ -65,11 +66,16 @@ const StudentQueryConsole = ({
             at: order,
           }),
         },
-      ).then((res) => res.json())
+      ).then(readSandboxRun)
       setResult(response)
-    } catch {
+    } catch (error) {
       setResult(undefined)
-      showSnackbar('Failed to run query — check your connection', 'error')
+      showSnackbar(
+        error?.status
+          ? error.message
+          : 'Failed to run query — check your connection',
+        'error',
+      )
     } finally {
       setRunning(false)
     }

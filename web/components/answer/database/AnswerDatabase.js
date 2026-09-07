@@ -29,6 +29,7 @@ import { LoadingButton } from '@mui/lab'
 
 import { fetcher } from '@/core/utils'
 import { useSnackbar } from '@/context/SnackbarContext'
+import { readSandboxRun } from '@/core/utils'
 import Loading from '@/components/feedback/Loading'
 import BottomCollapsiblePanel from '@/components/layout/utils/BottomCollapsiblePanel'
 import ScrollContainer from '@/components/layout/ScrollContainer'
@@ -128,7 +129,7 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
             Accept: 'application/json',
           },
         },
-      ).then((res) => res.json())
+      ).then(readSandboxRun)
 
       setStudentOutputs(studentAnswerQueries.map((q) => q.studentOutput))
       setQueries(
@@ -137,7 +138,7 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
           lintResult: studentAnswerQueries[index].query.lintResult,
         })) || [],
       )
-    } catch {
+    } catch (error) {
       setStudentOutputs(
         queries.map((q, index) => ({
           ...studentOutputs[index],
@@ -147,7 +148,12 @@ const AnswerDatabase = ({ evaluationId, question, onAnswerChanged }) => {
           },
         })) || [],
       )
-      showSnackbar('Failed to run queries — check your connection', 'error')
+      showSnackbar(
+        error?.status
+          ? error.message
+          : 'Failed to run queries — check your connection',
+        'error',
+      )
     } finally {
       setSaving(false)
     }
