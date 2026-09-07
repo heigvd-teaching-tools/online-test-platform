@@ -19,22 +19,30 @@ import Docker from 'dockerode'
 const docker = new Docker()
 
 /*
-Failures reported by the transport layer rather than by the docker daemon: the request
-never reached it. Matching on the failing syscall rather than on the error code covers
-every reason indistinctly (refused, unresolved, missing socket, unreachable route) and,
-unlike a code, cannot be confused with a filesystem error of the same name: a missing
-docker socket and a missing source file are both ENOENT, but only the first one is a
-"connect".
+Codes that only a socket operation can produce: a filesystem operation never gets its
+connection refused. They are matched on the code rather than on the syscall because an
+error that has been wrapped or aggregated keeps its code but loses its syscall — node
+reports a dual stack connection failure as an AggregateError carrying the code alone.
+*/
+const TRANSPORT_CODES = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ETIMEDOUT',
+])
+
+/*
+The failures the codes above cannot express, because their code is ambiguous between
+layers: a missing docker socket and a missing source file are both ENOENT, and only the
+syscall tells them apart.
 */
 const UNREACHABLE_SYSCALLS = new Set(['connect', 'getaddrinfo'])
 
-/*
-The connection to the daemon died in the middle of a request. This one is matched on the
-code rather than on the syscall, because the syscall is either 'read' — which a plain
-file read also reports — or missing altogether when the daemon accepts a connection and
-then stops answering.
-*/
-const CONNECTION_LOST_CODE = 'ECONNRESET'
+// a wrapped failure is only a few levels deep, and this stops a self referencing cause
+const MAX_CAUSE_DEPTH = 5
 
 /*
 Raised when the sandbox cannot run at all. It must never be reported to the caller as
@@ -58,17 +66,26 @@ that output is student-controlled and must never be able to pass for an outage.
 A daemon that answers 4xx is deliberately not an outage: those are our own requests being
 rejected, the most common one being the missing image that the runners recover from by
 pulling it.
+
+Some failures carry no signal at all — testcontainers reports an unreachable daemon as a
+bare "Could not find a working container runtime strategy". Those are recognised by the
+runners, from where in the run they happened, and not here.
 */
-export const isSandboxUnavailable = (error) => {
-  if (!error) return false
+export const isSandboxUnavailable = (error, depth = 0) => {
+  if (!error || depth > MAX_CAUSE_DEPTH) return false
   if (error instanceof SandboxUnavailableError) return true
 
   // could not reach the docker daemon
+  if (TRANSPORT_CODES.has(error.code)) return true
   if (UNREACHABLE_SYSCALLS.has(error.syscall)) return true
-  if (error.code === CONNECTION_LOST_CODE) return true
 
   // the daemon was reached but failed on its own side
-  return error.statusCode >= 500
+  if (error.statusCode >= 500) return true
+
+  // the original failure may be wrapped, or aggregated with its siblings
+  return [error.cause, ...(error.errors || [])].some((nested) =>
+    isSandboxUnavailable(nested, depth + 1),
+  )
 }
 
 export const imageExists = async (name) => {

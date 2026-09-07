@@ -138,6 +138,43 @@ describe('isSandboxUnavailable', () => {
   })
 })
 
+describe('isSandboxUnavailable, on failures that hide the original error', () => {
+  it('detects an aggregated connection failure, which carries no syscall', () => {
+    // what node reports when a dual stack host fails to connect on every address
+    const error = Object.assign(new AggregateError([], ''), {
+      code: 'ECONNREFUSED',
+    })
+    expect(isSandboxUnavailable(error)).toBe(true)
+  })
+
+  it('looks into the errors an aggregate is made of', () => {
+    const refused = Object.assign(new Error('connect ECONNREFUSED ::1:2375'), {
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+    })
+    expect(isSandboxUnavailable(new AggregateError([refused], ''))).toBe(true)
+  })
+
+  it('looks into the cause of a wrapped failure', () => {
+    const cause = Object.assign(
+      new Error('connect ECONNREFUSED 172.18.0.4:2375'),
+      {
+        code: 'ECONNREFUSED',
+        syscall: 'connect',
+      },
+    )
+    expect(
+      isSandboxUnavailable(new Error('Failed to start container', { cause })),
+    ).toBe(true)
+  })
+
+  it('does not follow a cause that refers back to itself', () => {
+    const error = new Error('nothing useful here')
+    error.cause = error
+    expect(isSandboxUnavailable(error)).toBe(false)
+  })
+})
+
 describe('SandboxUnavailableError', () => {
   it('keeps the original failure as its cause', () => {
     const cause = new Error('connect ECONNREFUSED 172.18.0.4:2375')
