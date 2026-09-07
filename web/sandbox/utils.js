@@ -18,6 +18,59 @@ import Docker from 'dockerode'
 
 const docker = new Docker()
 
+/*
+Failures reported by the transport layer rather than by the docker daemon: the request
+never reached it. Matching on the failing syscall rather than on the error code covers
+every reason indistinctly (refused, unresolved, missing socket, unreachable route) and,
+unlike a code, cannot be confused with a filesystem error of the same name: a missing
+docker socket and a missing source file are both ENOENT, but only the first one is a
+"connect".
+*/
+const UNREACHABLE_SYSCALLS = new Set(['connect', 'getaddrinfo'])
+
+/*
+The connection to the daemon died in the middle of a request. This one is matched on the
+code rather than on the syscall, because the syscall is either 'read' — which a plain
+file read also reports — or missing altogether when the daemon accepts a connection and
+then stops answering.
+*/
+const CONNECTION_LOST_CODE = 'ECONNRESET'
+
+/*
+Raised when the sandbox cannot run at all. It must never be reported to the caller as
+if it were the outcome of running the submitted code: an unavailable sandbox produces
+no result, neither a success nor a failure.
+*/
+export class SandboxUnavailableError extends Error {
+  constructor(cause) {
+    super(`Sandbox unavailable: ${cause?.message || cause}`)
+    this.name = 'SandboxUnavailableError'
+    this.cause = cause
+  }
+}
+
+/*
+Tells an infrastructure failure apart from a failure of the code being executed.
+
+Takes the error thrown while driving the sandbox, never the output of the executed code:
+that output is student-controlled and must never be able to pass for an outage.
+
+A daemon that answers 4xx is deliberately not an outage: those are our own requests being
+rejected, the most common one being the missing image that the runners recover from by
+pulling it.
+*/
+export const isSandboxUnavailable = (error) => {
+  if (!error) return false
+  if (error instanceof SandboxUnavailableError) return true
+
+  // could not reach the docker daemon
+  if (UNREACHABLE_SYSCALLS.has(error.syscall)) return true
+  if (error.code === CONNECTION_LOST_CODE) return true
+
+  // the daemon was reached but failed on its own side
+  return error.statusCode >= 500
+}
+
 export const imageExists = async (name) => {
   const images = await docker.listImages({ filters: { reference: [name] } })
   return images.length > 0
