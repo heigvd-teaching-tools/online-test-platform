@@ -23,9 +23,11 @@ import { SandboxOutageError } from '@/sandbox/utils'
 /*
 Shown to whoever triggered a run the sandbox could not perform. It replaces the docker
 error that used to reach students, which named a kernel call they have no way to act on.
+Worded for either audience, since this middleware serves the professor's own runs as
+well as the student's and cannot tell them apart.
 */
 const SANDBOX_OUTAGE_MESSAGE =
-  'Code execution is temporarily unavailable. Please try again, and let your teacher know if it persists.'
+  'Code execution is temporarily unavailable. Please try again in a moment, and report it if the problem persists.'
 
 /* --------------------------------------------------------------------------
  * API Context Middleware
