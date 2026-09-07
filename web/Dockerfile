@@ -1,5 +1,5 @@
 # Pull the base image
-FROM node:20-bullseye-slim
+FROM node:20-bookworm-slim
 
 LABEL org.opencontainers.image.source="https://github.com/opendidac/opendidac"
 
